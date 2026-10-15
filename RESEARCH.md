@@ -1,6 +1,6 @@
 # RESEARCH
 
-Research record for Module 1, "Harness Engineering for Coding Agents". Every concept, term, and
+Research record for Module 1, "Harness Engineering for Coding Agents". Product name: `shipharness` (renamed from the working name `shipproof`; see G-18). Every concept, term, and
 number used in concepts.md, READMEs, skills, slides, and reading must trace to an entry here.
 
 - Research milestone: M1, completed 2026-10-16. Access date for every source: 2026-10-16.
@@ -378,4 +378,4 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
 | G-15 | Library timings measured on Windows only; one Windows-only baseline failure per library | Known-failures list per library in testgen-targets-v1; repeat timings in CI (Linux) | M5 |
 | G-16 | Mutant lines for the 40 testgen targets are sketches | Choose and validate in M5 (each mutant killed by at least one reference test, none equivalent) | M5 |
 | G-17 | htmx-ext-sse license not stated in npm metadata | Check the htmx-extensions repo license before vendoring the file | M3 |
-| G-18 | Product name clash: `shipproof` is taken on PyPI (a 0.1.0 CLI that checks AI coding agents' deploy claims) and npm; about 31 GitHub repos use the name, many in the same area; shipproof.io is a live product. Free alternatives found: testvetter, proofsieve, keptests (no trademark search) | Owner decision before M3 (package and import name) | M1 → M2 |
+| G-18 | Product name clash: `shipproof` is taken on PyPI (a 0.1.0 CLI that checks AI coding agents' deploy claims) and npm; about 31 GitHub repos use the name, many in the same area; shipproof.io is a live product | **Resolved 2026-10-16 by the owner: the product is renamed `shipharness`.** On 2026-10-16 `shipharness` returned 404 on PyPI, npm, and github.com/shipharness, and a GitHub repository search for the name returned 0 results. No trademark search was done. Repository: `github.com/ANI-IN/shipharness`. Other free names checked: proofharness, testvetter, proofsieve, keptests | Closed |
