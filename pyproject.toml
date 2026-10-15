@@ -61,6 +61,18 @@ exclude = ["*.md"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["shipharness", "app", "conftest"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI dependency markers are meant to be called in argument defaults.
+extend-immutable-calls = [
+    "fastapi.Depends",
+    "fastapi.Query",
+    "fastapi.Header",
+    "fastapi.params.Depends",
+]
+
 [tool.pytest.ini_options]
 testpaths = ["tests/unit", "teamtrack/tests/visible"]
 pythonpath = ["teamtrack"]
