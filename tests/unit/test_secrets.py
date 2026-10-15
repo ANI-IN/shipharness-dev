@@ -1,4 +1,4 @@
-"""Secrets hygiene: .env is never tracked, and no tracked file contains an API key (CONTRACTS §20)."""
+"""Secrets hygiene: .env is never tracked; no tracked file contains an API key (CONTRACTS §20)."""
 
 from __future__ import annotations
 
@@ -33,7 +33,9 @@ def _tracked_files() -> list[str]:
 def test_env_file_is_not_tracked() -> None:
     tracked = _tracked_files()
     env_files = [
-        name for name in tracked if Path(name).name.startswith(".env") and Path(name).name != ".env.example"
+        name
+        for name in tracked
+        if Path(name).name.startswith(".env") and Path(name).name != ".env.example"
     ]
     assert env_files == [], f"secret env files are tracked by git: {env_files}"
 
