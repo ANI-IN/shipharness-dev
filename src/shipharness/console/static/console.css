@@ -1,0 +1,13 @@
+:root { --bg: #0f1419; --panel: #1a2028; --text: #f2f4f7; --muted: #aab4c0; --border: #2e3742; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 20px/1.45 system-ui, sans-serif; background: var(--bg); color: var(--text); }
+.bar { padding: 12px 24px; border-bottom: 1px solid var(--border); }
+.bar h1 { margin: 0; font-size: 24px; }
+main { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px 24px; }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.panel h2 { margin: 0 0 8px; font-size: 22px; }
+#status { color: var(--muted); font-weight: 400; font-size: 18px; }
+.runs { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.runs button { width: 100%; font: inherit; font-size: 18px; text-align: left; padding: 6px 8px; }
+.events { margin: 0; padding-left: 0; list-style: none; max-height: 80vh; overflow: auto; }
+.events li { padding: 4px 0; border-bottom: 1px solid var(--border); font-family: ui-monospace, monospace; }

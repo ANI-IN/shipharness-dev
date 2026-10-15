@@ -2,18 +2,20 @@
 root_package = app
 
 [importlinter:contract:api-not-db]
-name = R6: app.api never imports app.db
+name = R6: app.api and app.web never import app.db
 type = forbidden
 source_modules =
     app.api
+    app.web
 forbidden_modules =
     app.db
 allow_indirect_imports = True
 
 [importlinter:contract:layers]
-name = Layers: api -> services -> repositories -> db
+name = Layers: api | web -> services -> repositories -> db
 type = layers
 layers =
+    app.web
     app.api
     app.services
     app.repositories

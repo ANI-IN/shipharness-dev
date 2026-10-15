@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>shipharness console</title>
+  <link rel="stylesheet" href="/static/console.css">
+  <script src="/static/stream.js" defer></script>
+</head>
+<body>
+  <header class="bar"><h1>shipharness console</h1></header>
+  <main>
+    <section class="panel">
+      <h2>Runs</h2>
+      {% if runs %}
+      <ul class="runs">
+        {% for run in runs %}
+        <li><button type="button" data-run="{{ run }}">{{ run }}</button></li>
+        {% endfor %}
+      </ul>
+      {% else %}
+      <p>No runs yet. Start one with <code>make demo-1</code>.</p>
+      {% endif %}
+    </section>
+    <section class="panel">
+      <h2>Live events <span id="status">(select a run)</span></h2>
+      <ol id="events" class="events"></ol>
+    </section>
+  </main>
+</body>
+</html>

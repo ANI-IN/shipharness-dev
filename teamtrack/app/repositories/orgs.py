@@ -10,6 +10,10 @@ def get(session: Session, org_id: int) -> Org | None:
     return session.get(Org, org_id)
 
 
+def list_all(session: Session) -> list[Org]:
+    return list(session.scalars(select(Org).order_by(Org.id)))
+
+
 def count(session: Session) -> int:
     return session.scalar(select(func.count()).select_from(Org)) or 0
 
