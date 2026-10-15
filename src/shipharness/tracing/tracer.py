@@ -104,15 +104,22 @@ class LangSmithTracer:
         tags: list[str] | None = None,
         inputs: Mapping[str, Any] | None = None,
     ) -> Iterator[RunHandle]:
-        with self._trace(
-            name,
-            "chain",
-            inputs=scrub_inputs(inputs or metadata),
-            metadata=scrub_inputs(metadata),
-            tags=list(tags or []),
-            project_name=self.project_name,
-            client=self.client,
-        ) as run_tree:
+        from langsmith import tracing_context
+
+        # LangSmith posts nothing unless tracing is enabled, and Settings reads .env without
+        # exporting LANGSMITH_TRACING, so enable it explicitly for everything inside this run.
+        with (
+            tracing_context(enabled=True, project_name=self.project_name, client=self.client),
+            self._trace(
+                name,
+                "chain",
+                inputs=scrub_inputs(inputs or metadata),
+                metadata=scrub_inputs(metadata),
+                tags=list(tags or []),
+                project_name=self.project_name,
+                client=self.client,
+            ) as run_tree,
+        ):
             yield RunHandle(run_tree)
 
     @contextmanager

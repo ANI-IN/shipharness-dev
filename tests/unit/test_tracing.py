@@ -79,6 +79,27 @@ def test_langsmith_tracer_scrubs_inputs_and_sets_project() -> None:
     assert key not in json.dumps(call["inputs"]) + json.dumps(call["metadata"])
 
 
+def test_langsmith_tracer_enables_tracing_even_without_env_var(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """LangSmith posts nothing unless tracing is enabled; Settings does not export env vars."""
+    from langsmith import utils
+
+    for name in ("LANGSMITH_TRACING", "LANGCHAIN_TRACING_V2", "LANGSMITH_TRACING_V2"):
+        monkeypatch.delenv(name, raising=False)
+    seen: list[bool] = []
+
+    @contextmanager
+    def fake_trace(name: str, run_type: str = "chain", **kwargs: Any):  # type: ignore[no-untyped-def]
+        seen.append(utils.tracing_is_enabled())
+        yield object()
+
+    tracer = LangSmithTracer(client=object(), project_name="p", trace_fn=fake_trace)
+    with tracer.agent_run("agent_run", {"run_id": "r-1"}), tracer.child("phase:build", "chain"):
+        pass
+    assert seen == [True, True]
+
+
 def test_write_export_writes_sorted_json(tmp_path: Path) -> None:
     path = write_export("scores", "r-1", {"b": 1, "a": 2}, tmp_path)
     assert path == tmp_path / "scores" / "r-1.json"
