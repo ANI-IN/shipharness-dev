@@ -87,6 +87,8 @@ class SkillsLoader:
             + "\n".join(rows)
         )
 
+    # [walkthrough:S1:progressive] end
+
     def skill_for_path(self, rel: str) -> tuple[str, int] | None:
         parts = PurePosixPath(rel.replace("\\", "/")).parts
         prefix = PurePosixPath(self.prefix).parts
@@ -94,6 +96,3 @@ class SkillsLoader:
             return None
         skill, rest = parts[len(prefix)], parts[len(prefix) + 1 :]
         return (skill, 2) if rest == ("SKILL.md",) else (skill, 3)
-
-
-# [walkthrough:S1:progressive] end

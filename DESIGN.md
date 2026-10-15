@@ -632,10 +632,10 @@ the policy printout and the experiment denial log if none occurred.
 
 | Section | Anchors |
 |---|---|
-| Opening | `ab/demo.py:two_arms`, `events/bus.py:publish` (+ architecture diagram) |
-| S1 | `teamtrack/AGENTS.md` (whole file), `runner/skills_loader.py:progressive`, `harness/instructions/router.py:prefix` |
+| Opening | `ab/demo.py:two_arms`, `Opening:publish` in `src/shipharness/events/bus.py` (+ architecture diagram) |
+| S1 | `teamtrack/AGENTS.md` (whole file), `S1:progressive` in `src/shipharness/runner/skills_loader.py`, `harness/instructions/router.py:prefix` |
 | S2 | `init.sh` template, `harness/state/lifecycle.py:stop_resume`, `harness/state/progress.py:write` |
-| S3 | `harness/scope/guard.py:allowed_paths`, `harness/scope/status.py:passes`, `sandbox/policy.py:policy` + 10 Dockerfile lines |
+| S3 | `harness/scope/guard.py:allowed_paths`, `harness/scope/status.py:passes`, `S3:policy` and `S3:run_args` in `src/shipharness/sandbox/policy.py`, `S3:dockerfile` in `sandbox/Dockerfile` |
 | S4 | `filters/pipeline.py:filters`, `checks/r1_tenant.py:probe`, `reviewer/blind.py:blind`, `harness/verify/gate.py:gate` |
 | Final | `ab/report.py:dots`, `skills/_template/SKILL.md` |
 
@@ -670,6 +670,8 @@ LangSmith link, case study, own skill.
 | D-12 | Repository layout | Adds `research/notes/` (M1 per-stream notes) and `teamtrack/reference/` | Traceability; checkpoint building |
 | D-13 | Runner tools: "six tools" (§2.6 of the brief) | Seven tools: the six working tools plus `finish(claim, summary)`, identical for both arms | Owner change at the M2 review: a structured claim replaces regex detection of "done" |
 | D-14 | Agent may set the status field | Agent may not edit `feature_list.json` at all; only `harness/scope/status.py` writes it | Owner change at the M2 review; A2 F-a-80 |
+| D-15 | HTMX + SSE extension | HTMX 2.0.11 (0BSD) for the board and console; live streaming uses the browser `EventSource` API with a small script instead of `htmx-ext-sse` | The htmx-extensions repository states no license (checked 2026-10-16; RESEARCH G-17), so the file is not redistributed |
+| D-16 | Sandbox policy file at `sandbox/policy.py` | Policy code in `src/shipharness/sandbox/policy.py`; repo-root `sandbox/` holds the Dockerfile and runtime notes | The policy is imported by the package; one source of truth |
 
 ---
 

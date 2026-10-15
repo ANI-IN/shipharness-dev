@@ -79,6 +79,10 @@ class SandboxPolicy(BaseModel):
     detect_output_patterns: tuple[DetectRule, ...] = DEFAULT_DETECT_RULES
 
 
+# [walkthrough:S3:policy] end
+
+
+# [walkthrough:S3:run_args] start
 def docker_run_args(
     policy: SandboxPolicy,
     image: str,
@@ -109,7 +113,7 @@ def docker_run_args(
     return args
 
 
-# [walkthrough:S3:policy] end
+# [walkthrough:S3:run_args] end
 
 
 def _container_env(extra: dict[str, str] | None) -> dict[str, str]:

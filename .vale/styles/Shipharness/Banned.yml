@@ -1,0 +1,36 @@
+extends: existence
+message: "Avoid '%s' (banned in course writing; see brief section 1.3)."
+level: error
+ignorecase: true
+tokens:
+  - seamless(?:ly)?
+  - robust
+  - powerful
+  - leverag\w*
+  - unlock\w*
+  - unleash\w*
+  - supercharg\w*
+  - game-changer
+  - cutting-edge
+  - state-of-the-art
+  - revolutioni[sz]\w*
+  - transformative
+  - delv(?:e|es|ed|ing)
+  - elevat(?:e|es|ed|ing)
+  - empower\w*
+  - journey
+  - landscape
+  - ecosystem
+  - next-level
+  - world-class
+  - best-in-class
+  - effortless\w*
+  - synergy
+  - holistic
+  - paradigm shift
+  - in today['’]s
+  - it['’]s important to note
+  - dive deep
+  - deep dive
+  - harness the power
+  - a testament to

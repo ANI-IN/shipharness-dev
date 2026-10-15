@@ -4,7 +4,8 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.1` (2026-10-16, approved at the M2 checkpoint with changes: `finish` tool;
+Contract version: `1.2` (2026-10-16, M3: ledger file name, runner fields, sandbox and tracer
+signatures as built; see CHANGELOG). Version 1.1: approved at the M2 checkpoint with changes: `finish` tool;
 `feature_list.json` read-only to the agent; Flex tier rule; secrets rules in §20).
 
 ---
@@ -121,7 +122,7 @@ class CostTracker:
 - `check_before_call` raises if the worst case of the next call (all input uncached, full
   `max_output_tokens`) would cross any active cap. The runner catches `CapExceeded`, ends the arm with
   `ABORTED: cap`, and the referee still runs.
-- Session and experiment totals persist in `.shipharness/ledger.json` (append-only entries with `ab_id`,
+- Session and experiment totals persist in `.shipharness/ledger.jsonl` (append-only JSON Lines; entries carry `session`, `experiment`,
   `run_id`, model, usage, cost).
 - Every CLI command prints `CostSummary` (per arm, per model, total, caps remaining).
 
@@ -146,12 +147,15 @@ class AgentRunSpec(BaseModel):
     reasoning_effort: str
     max_output_tokens: int
     cost_limit_usd: float
+    test_phase_turns: int = 12       # test-phase turn budget (M6 may lower it to fit the run cap)
+    service_tier: str = "auto"
     workspace: Path                  # host path of the arm's fresh repo
 
 class SessionResult(BaseModel):
     index: int
     turns: int
-    ended_by: Literal["claim_done", "turn_budget", "cap", "timeout", "error"]
+    phase: Phase
+    ended_by: Literal["claim_done", "claim_not_done", "turn_budget", "cap", "timeout", "error", "no_tool_call"]
     start_sha: str
     end_sha: str
 
@@ -168,6 +172,7 @@ class AgentRunResult(BaseModel):
     turns_total: int
     wall_s: float
     trace_url: str | None
+    error: str | None = None          # ERROR status: message names the variable, never a key
 
 def run_agent(spec: AgentRunSpec, harness: "Harness", sandbox: "Sandbox",
               bus: "EventBus", cost: CostTracker, tracer: "Tracer") -> AgentRunResult: ...
@@ -417,7 +422,8 @@ class DetectRule(BaseModel):
     reason_code: str
 
 def default_policy(settings: Settings) -> SandboxPolicy: ...
-def docker_run_args(policy: SandboxPolicy, image: str, workspace: Path, name: str) -> list[str]: ...
+def docker_run_args(policy: SandboxPolicy, image: str, workspace: Path, name: str,
+                    runtime: str = "docker", env: dict[str, str] | None = None) -> list[str]: ...  # full argv; env names with KEY/TOKEN/SECRET are refused
 def render_policy(policy: SandboxPolicy) -> str: ...            # printed at run start
 ```
 
@@ -753,9 +759,11 @@ error; counts per group are asserted (60 and 40).
 
 ```python
 class Tracer(Protocol):
-    def agent_run(self, spec: AgentRunSpec) -> ContextManager["RunHandle"]: ...
+    def agent_run(self, name: str, metadata: dict, tags: list[str] | None = None,
+                  inputs: dict | None = None) -> ContextManager["RunHandle"]: ...  # inputs/metadata scrubbed
     def child(self, name: str, run_type: str, **metadata: Any) -> ContextManager["RunHandle"]: ...
     def url(self, handle: "RunHandle") -> str | None: ...
+    def wrap_openai(self, client: Any) -> Any: ...  # LangSmith wrap_openai; NullTracer returns the client
 ```
 
 Tags: `section-N` or `batch-N`, arm, `class` or `experiment` or `assignment`.

@@ -67,11 +67,8 @@ class EventBus:
         arm: Arm | None,
         recorded: bool = False,
     ) -> Event:
-        """Validate `data` against the model for `type`, append one JSON line, notify listeners.
-
-        Every stage of a run (agent turns, tool calls, harness decisions, sandbox events, referee
-        checks, costs) goes through here; the console streams the same file over SSE.
-        """
+        """Validate `data`, append one JSON line, notify listeners. Every stage of a run goes
+        through here; the console streams the same file over SSE."""
         model = EVENT_DATA_MODELS.get(type)
         if model is None:
             raise ValueError(f"unknown event type: {type!r}")
