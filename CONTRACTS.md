@@ -4,7 +4,8 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.0` (2026-10-16, M2 draft, owner review pending).
+Contract version: `1.1` (2026-10-16, approved at the M2 checkpoint with changes: `finish` tool;
+`feature_list.json` read-only to the agent; Flex tier rule; secrets rules in §20).
 
 ---
 
@@ -37,7 +38,7 @@ brief; no prefix.
 | `OPENAI_REASONING_EFFORT` | str | `medium` (provisional; M6 pilot sets the final value) | Builder and test writer |
 | `OPENAI_EVAL_MODEL` | str | `gpt-5.6-luna` | Reviewer |
 | `OPENAI_EVAL_REASONING_EFFORT` | str | `medium` | Reviewer |
-| `OPENAI_SERVICE_TIER` | str | `auto` | `flex` allowed for experiments only |
+| `OPENAI_SERVICE_TIER` | str | `auto` | `flex` for experiment batches only, and only if the M6 pilot confirms multi-turn tool calling on Flex; class runs always `auto`; both arms of a batch use the same tier |
 | `LANGSMITH_API_KEY` | secret str | required | LangSmith |
 | `LANGSMITH_ENDPOINT` | str | `https://api.smith.langchain.com` | EU users override |
 | `LANGSMITH_TRACING` | bool | `true` | |
@@ -158,8 +159,8 @@ class AgentRunResult(BaseModel):
     run_id: str
     arm: Arm
     status: Literal["completed", "ABORTED: cap", "ABORTED: timeout", "ERROR"]
-    claim: Literal["done", "not_done", "none"]       # what the agent said at the end
-    claim_text: str
+    claim: Literal["done", "not_done", "none"]       # from the last finish() call; "none" if never called
+    claim_summary: str                                # finish(summary=...), "" if never called
     sessions: list[SessionResult]
     phase_shas: dict[Phase, tuple[str, str]]         # (start, end) commit per phase
     diff_path: Path                                   # unified diff vs checkpoint export
@@ -179,9 +180,13 @@ Loop rules:
   blocks from `Harness.context_prefix()` → ticket → history. Tool list order and text are byte-identical
   across turns, arms, and runs.
 - A turn = one model call plus its tool executions. `turn_budget` per session from `session_budget`.
-- The agent ends a phase by calling no tool and writing a final message; the runner classifies
-  `claim` from the message with a fixed regex set (`done|complete|implemented` vs not) and, when the
-  verify layer is on, calls the gate before accepting.
+- The agent ends a phase only by calling `finish(claim, summary)` (§6). There is no text-based claim
+  detection. `finish(claim="done")` triggers `Harness.on_claim_done`; with the verify layer on, a failing
+  gate returns its feedback as the `finish` tool result and the phase continues within its turn budget.
+  `finish(claim="not_done")` ends the phase without a gate. If the model replies with text and no tool
+  call, the runner sends one fixed reminder ("Call a tool, or call finish to end this phase."), identical
+  for both arms and counted as a turn; a second text-only reply ends the phase with `claim="none"`.
+- Each `finish` call emits a `claim` event.
 - Wrap-up: when a session's remaining turns reach `WRAPUP_TURNS`, both arms receive a wrap-up message
   (text from the harness when the state layer is on, neutral otherwise).
 
@@ -215,7 +220,7 @@ class Layer(Protocol):
     def on_wrapup(self, ctx: LayerContext) -> str | None: ...                         # wrap-up message text
     def on_session_end(self, ctx: LayerContext, result: SessionResult) -> list[HarnessDecision]: ...
     def on_session_start(self, ctx: LayerContext) -> list[str]: ...                   # extra resume text
-    def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None: ...         # None = no opinion
+    def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None: ...         # on finish(claim="done"); None = no opinion
     def on_phase_end(self, ctx: LayerContext) -> list[HarnessDecision]: ...           # e.g. test filters
 
 class Harness:
@@ -237,8 +242,8 @@ class Harness:
 
 ## 6. Tools
 
-Six function tools, `strict: true`, `additionalProperties: false`, all properties required (optional =
-`["type", "null"]`). Tool results are strings; every result is truncated to `TOOL_OUTPUT_MAX_CHARS` (8,000)
+Seven function tools, identical for both arms: six working tools plus `finish`. All use `strict: true`,
+`additionalProperties: false`, all properties required (optional = `["type", "null"]`). Tool results are strings; every result is truncated to `TOOL_OUTPUT_MAX_CHARS` (8,000)
 with a trailer `[truncated: N more chars; full output in .shipharness/tool-logs/<call_id>.txt]` (A4
 "Context window pollution", F-a-131).
 
@@ -250,11 +255,32 @@ with a trailer `[truncated: N more chars; full output in .shipharness/tool-logs/
 | `apply_patch` | `patch: str` (unified diff, one or more files; new files via `/dev/null`) | `applied: <files>` or a precise rejection reason (hunk mismatch, path outside workspace, path blocked by scope) |
 | `run` | `command: str`, `timeout_s: int \| null` (≤ `TOOL_TIMEOUT_S`) | `exit=<code>` header + combined stdout/stderr; executed in the arm container under `/work` |
 | `run_visible_tests` | `selector: str \| null` (pytest node selector within `tests/visible`) | Summary first (`passed=x failed=y errors=z`), then one `FAILED <node>: <reason>` line per failure, grep-friendly (A4, F-a-132) |
+| `finish` | `claim: "done" \| "not_done"` (enum), `summary: str` (≤ 2,000 chars) | `accepted` (phase ends), or gate feedback when the verify layer is on and the gate fails (phase continues) |
+
+`finish` schema:
+
+```json
+{
+  "type": "function",
+  "name": "finish",
+  "description": "End the current phase. Use claim=done only when the ticket's work for this phase is complete; use not_done to stop without completing it.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "claim": {"type": "string", "enum": ["done", "not_done"]},
+      "summary": {"type": "string", "description": "What was done and how it was checked."}
+    },
+    "required": ["claim", "summary"],
+    "additionalProperties": false
+  },
+  "strict": true
+}
+```
 
 ```python
 class ToolCall(BaseModel):
     call_id: str
-    name: Literal["list_dir", "read_file", "search", "apply_patch", "run", "run_visible_tests"]
+    name: Literal["list_dir", "read_file", "search", "apply_patch", "run", "run_visible_tests", "finish"]
     arguments: dict[str, Any]
 
 class ToolResult(BaseModel):
@@ -267,7 +293,8 @@ class ToolResult(BaseModel):
     files_changed: list[str]         # computed by git status diff before/after
 ```
 
-`list_dir`, `read_file`, `search` run on the host against the workspace (read-only, path-checked);
+`finish` runs on the host (runner and harness only). `list_dir`, `read_file`, `search` run on the host
+against the workspace (read-only, path-checked);
 `apply_patch` is validated on the host and applied with `git apply` in the container; `run` and
 `run_visible_tests` execute in the container.
 
@@ -348,7 +375,7 @@ class EventBus:
 | `mutant_result` | `mutant_id`, `set` (`filter` \| `referee`), `outcome` (`killed` \| `survived` \| `timeout` \| `error`), `killed_by` |
 | `reviewer_output` | Review (§12) |
 | `gate_result` | GateResult (§13) |
-| `claim` | `claim`, `claim_text` |
+| `claim` | `phase`, `claim` (`done` \| `not_done` \| `none`), `summary`, `gate_id` \| null |
 | `verdict` | `primary` (measure name → value), `passed_primary: bool`, `summary` |
 | `cost` | `scope`, `model`, `call_usd`, `run_usd`, `session_usd`, `limit_usd` |
 | `screenshot` | `path` (relative to run dir), `view` (`board` \| `issue` \| `conflict`), `as_user`, `overlays` (list of `{issue_id, mark}`) |
@@ -648,8 +675,12 @@ Mutant per line. A mutant whose `original` text does not match the line is an er
 ```
 
 `evidence` (set only by the harness): `{"gate_id": str, "commit": str, "visible": "x/y", "existing": "x/y", "checks": ["R1", ...]}`.
-The scope layer rejects any agent patch that changes a field other than adding a note to `steps`; only
-`status.py` writes `passes`, `evidence`, `testedAt`.
+
+The agent may not edit `feature_list.json` at all (A2: "It is unacceptable to remove or edit tests",
+F-a-80). The scope layer rejects any `apply_patch` hunk that touches the file and reverts any change made
+by a `run` command, emitting `blocked` with reason `feature_list.json is written only by the harness`.
+Only `harness/scope/status.py` writes the file, after the gate (or, with verify off, the visible tests)
+passes. The agent reads it with `read_file`.
 
 ### 15.2 `progress.md`
 Sections in order: `# Progress`, `## Current feature`, `## Done`, `## In progress`, `## Next`, `## Session log`
@@ -766,3 +797,22 @@ Tags: `section-N` or `batch-N`, arm, `class` or `experiment` or `assignment`.
 Markdown and shell files use their comment syntax (`<!-- [walkthrough:S1:agents_md] start -->`).
 `scripts/anchors.py extract <id>` prints the lines; slides and docs include them by ID. A unit test fails
 if an anchor in DESIGN.md §14.2 is missing, unbalanced, or longer than 40 lines.
+
+---
+
+## 20. Secrets
+
+- Keys live only in `.env` at the repo root (created from `.env.example`) or in the process
+  environment. `.env` is in `.gitignore`; `tests/unit/test_secrets.py` fails if `.env` is tracked by git
+  and fails if any tracked file contains a string matching an OpenAI or LangSmith key pattern.
+- `Settings` holds keys as `pydantic.SecretStr`. `repr`, `str`, logs, events, run logs, exports, traces,
+  and error messages never contain a key value. structlog has a processor that redacts any value of a
+  field whose name contains `key`, `token`, or `secret`, and any string matching the key patterns.
+- LangSmith tracing: `@traceable` uses `process_inputs`/`process_outputs` hooks that drop credential
+  fields; the OpenAI client is constructed from the key, never traced with it.
+- Containers: `docker_run_args` builds an explicit environment (`HOME`, `PATH`, `PYTHONDONTWRITEBYTECODE`,
+  `TEAMTRACK_*`) and never passes the host environment, `--env-file`, or any variable whose name contains
+  `KEY`, `TOKEN`, or `SECRET`. A unit test asserts this on the generated argument list.
+- `shipharness doctor` reports each key separately as `missing`, `invalid` (auth error from the provider),
+  `unreachable` (network error), or `ok`, with the next step for each (for example "OPENAI_API_KEY is
+  missing: add it to .env at the repo root"). It never echoes any part of a key.

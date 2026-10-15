@@ -153,7 +153,7 @@ term; it is described plainly and not given a concept name.
 | "Assured" tests | Assured LLMSE: survivors "are thus guaranteed to improve the existing test class, and to provide reliable regression test signal" | B11, B12; F-b-21, F-b-30 | Direct |
 | Targeted mutants on risky lines | Issue-specific mutants (ACH, privacy) | B12; F-b-29, F-b-33 | Direct (concept). Implementation is a hand-written mutant runner; see §4.7 |
 | Hidden tests | "held-out tests that compose those same features to simulate real-world usage"; "never shown to the agent" | B13, B14; F-b-42, F-b-43, F-b-44 | Direct |
-| PASS_TO_PASS | A4: "new commits can’t break existing code"; B11: "no regression, by construction" | A4, B11; F-a-129, F-b-22 | Composite. "PASS_TO_PASS" is not a §1.9 term; G-8 |
+| PASS_TO_PASS (brief term) | A4: "new commits can’t break existing code"; B11: "no regression, by construction" | A4, B11; F-a-129, F-b-22 | Composite. Taught as "existing tests keep passing"; internal key `regression` (G-8, closed) |
 | House rules R1-R7 | A1: "golden principles" encoded in the repo; "taste invariants" enforced "with custom lints"; "enforcing invariants" | A1; F-a-92, F-a-96, F-a-99 | Composite. "House rules" is the course's label for A1's invariants; G-9 |
 | Blinded reviewer | A3: separate evaluator; "tuning a standalone evaluator to be skeptical turns out to be far more tractable"; "the evaluator is still an LLM that is inclined to be generous towards LLM-generated outputs" | A3; F-a-110, F-a-111, F-a-112 | Direct for separate evaluator. "Blinded" is A/B-design machinery (§1.8), not a source term |
 | Reviewer rubric | A3 says "grading criteria", with "a hard threshold" per criterion and few-shot calibration | A3; F-a-113 to F-a-116, F-a-119 | Direct. Use "grading criteria", not "rubric" (G-10) |
@@ -271,7 +271,7 @@ no-card account in M3.
   It rejects any frontmatter key outside the six spec fields. It does not check body length, file
   references, or token budget. The npm package `skills-ref` is by an unrelated author.
 - Decision input: course skills use only the six spec fields so they pass `skills-ref validate` and
-  load in all three agents. `shipproof skills validate` runs the skills-ref checks (ASCII reading of the
+  load in all three agents. `shipharness skills validate` runs the skills-ref checks (ASCII reading of the
   name charset) plus warnings for the 500-line and one-level-deep recommendations.
 - Install paths: Claude Code `~/.claude/skills/<name>/`, `.claude/skills/<name>/`. Codex
   `.agents/skills` from the working directory up to the repo root, `$HOME/.agents/skills`,
@@ -317,7 +317,7 @@ no-card account in M3.
 | @marp-team/marp-cli | 4.5.1 (Node >=18; PDF/PPTX need Chrome, Edge, or Firefox) | Vale | v3.24.0 (banned-word rule must be `level: error` to fail CI) |
 
 Pin exact versions for all 0.x packages. mutmut 3.8.0 needs `fork` (WSL only on Windows) and cannot
-target hand-chosen lines, so it is not used; shipproof uses a small targeted mutant runner (one
+target hand-chosen lines, so it is not used; shipharness uses a small targeted mutant runner (one
 hand-written mutant applied at a time). Marp: use `--pptx` (slide images with presenter notes);
 `--pptx-editable` is experimental and drops notes.
 
@@ -354,6 +354,9 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
 12. No single skills directory is read by Claude Code, Codex, and Cursor; skills-ref rejects vendor
     extension fields.
 13. A1 does not define "harness engineering" in its body.
+14. A1 limits its own results: its end-to-end autonomy "should not be assumed to generalize without
+    similar investment—at least, not yet" (F-a-143). Course material that cites A1's numbers (for example
+    roughly 1,500 PRs, 3.5 PRs per engineer per day) must carry this caveat next to them.
 
 ---
 
@@ -368,7 +371,7 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
 | G-5 | "Forced session stop" is not a source term | Teach as A3 "context reset"; name the mechanism plainly ("session turn budget") | M2, M7 |
 | G-6 | `evidence`, `testedAt`, and "only the harness sets passing" extend A2's design | Mark as course design in DESIGN.md and concepts; cite A2 for the base and A3 for separating doer and judge | M2 |
 | G-7 | Filters 4 (real assertions, no mocking of the unit under test) and 5 (no source change in the test phase) have no direct source | Present as course filters with the composite citations in §3.4; candidate for "Open gaps" note in S4 concepts | M2, M7 |
-| G-8 | "PASS_TO_PASS" is not a §1.9 term (it comes from SWE-bench, which is not on the source list) | Teach as "existing tests keep passing" (A4 F-a-129, B11 F-b-22). Decision for DESIGN.md: keep `pass_to_pass` only as an internal identifier or rename to `regression` | M2 |
+| G-8 | "PASS_TO_PASS" is not a §1.9 term (it comes from SWE-bench, which is not on the source list) | **Closed 2026-10-16. Decision: `regression`.** Docs and slides say "existing tests keep passing" (A4 F-a-129, B11 F-b-22); code, score fields, and check names use `regression` (`regression_passed`, `regression_total`, check `regression`). "PASS_TO_PASS" does not appear in course material | Closed |
 | G-9 | "House rules" is a course label | Cite A1 "golden principles" and "taste invariants" when introducing it | M2, M7 |
 | G-10 | "Rubric" is not A3's wording | Use "grading criteria" in docs; code identifiers may say `criteria` | M2 |
 | G-11 | Vendor-doc sentences (B7-B9) came through a summarising fetch tool | Re-copy any sentence before quoting it verbatim; path strings are reliable | M7 |
@@ -379,3 +382,5 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
 | G-16 | Mutant lines for the 40 testgen targets are sketches | Choose and validate in M5 (each mutant killed by at least one reference test, none equivalent) | M5 |
 | G-17 | htmx-ext-sse license not stated in npm metadata | Check the htmx-extensions repo license before vendoring the file | M3 |
 | G-18 | Product name clash: `shipproof` is taken on PyPI (a 0.1.0 CLI that checks AI coding agents' deploy claims) and npm; about 31 GitHub repos use the name, many in the same area; shipproof.io is a live product | **Resolved 2026-10-16 by the owner: the product is renamed `shipharness`.** On 2026-10-16 `shipharness` returned 404 on PyPI, npm, and github.com/shipharness, and a GitHub repository search for the name returned 0 results. No trademark search was done. Repository: `github.com/ANI-IN/shipharness`. Other free names checked: proofharness, testvetter, proofsieve, keptests | Closed |
+| G-19 | boltons: 154 of its 672 tests are doctests (upstream runs `pytest --doctest-modules`). Whether doctests count in the baseline suite changes filter 3 ("adds coverage") and the referee's coverage numbers for boltons targets | Proposed: include doctests in the baseline, matching the upstream test command; confirm by measuring per-module baseline coverage with and without doctests, and record the choice in testgen-targets-v1 metadata | M5 |
+| G-20 | WTForms: upstream `pyproject.toml` sets `filterwarnings = ["error"]`, so a generated test that triggers any warning fails filters 1-2 under the upstream config | Proposed: keep the upstream config (it is the project's own rule) and report the warning as the discard reason; record per-target pytest config in testgen-targets-v1 | M5 |

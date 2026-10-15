@@ -3,8 +3,10 @@
 Module 1 — Harness Engineering for Coding Agents: instructions, state, scope, and verification that
 make agent-written code safe to merge.
 
-> **Status: draft for the M2 checkpoint (2026-10-16).** Owner review pending. If no review arrives,
-> work proceeds on this design and the assumptions in §16 stand. Decisions already made by the owner:
+> **Status: approved by the owner at the M2 checkpoint (2026-10-16), with changes applied the same day**
+> (cause 3 wording, run cap covering both phases, Flex for experiments if M6 confirms tool calling,
+> learner account requirements, `feature_list.json` read-only to the agent, `finish` tool). Deviations
+> D-1 to D-14 are accepted. Decisions already made by the owner:
 > product name `shipharness` (2026-10-16); reviewer model `gpt-5.6-luna` (2026-10-16); class host is the
 > instructor's Windows PC with Docker Desktop on WSL2, with the repository inside the WSL2 filesystem
 > (2026-10-16). Deviations from the brief, with reasons, are listed in §15.
@@ -30,12 +32,14 @@ In a multi-tenant service the failures are specific and expensive:
    anything it can’t access in-context while running effectively doesn’t exist." (A1, F-a-05)
 2. Each new session starts without memory of the previous one: "each new session begins with no
    memory of what came before." (A2, F-a-08)
-3. Nothing limits what the agent changes or what it can reach on the machine. Cited side by side, not
-   merged into one claim (RESEARCH G-1): the A4 author runs the agent loop with the note "(Run this in a
-   container, not your actual machine)" and reports the agent running `pkill -9 bash` and ending its
-   own loop (F-a-18, F-a-19); "Codex replicates patterns that already exist in the repository—even
-   uneven or suboptimal ones" (A1, F-a-20); A5 restricts file operations "to the project directory
-   only" (F-a-86).
+3. Agents copy existing patterns, including bad ones, and can take actions that are hard to undo
+   (F-a-20, F-a-19, F-a-21). Cited side by side, not merged into one claim (RESEARCH G-1): "Codex
+   replicates patterns that already exist in the repository—even uneven or suboptimal ones" (A1,
+   F-a-20); the A4 author runs the agent loop with the note "(Run this in a container, not your actual
+   machine)" and reports the agent running `pkill -9 bash` and ending its own loop (F-a-18, F-a-19);
+   "Without guidance, Claude Opus 4.6 may take actions that are difficult to reverse or affect shared
+   systems" (A6, supplementary, F-a-21); A5 restricts file operations "to the project directory only"
+   (F-a-86).
 4. The agent judges its own work, and its visible tests miss what held-out tests catch. "agents
    reliably skew positive when grading their own work" (A3, F-a-15); "while every frontier agent
    saturates the visible suite, reward hacking persists" (B13, F-b-45), mostly through features that
@@ -67,6 +71,12 @@ walkthrough → live A/B result.
 
 Audience: software engineers in the US who are comfortable with Python, git, pytest, and REST APIs and
 new to building harnesses around coding agents.
+
+Accounts learners need (also in `setup/PRE-CLASS.md`):
+- A paid OpenAI API account on the Build tier or higher, with at least $5 of credit purchased. The
+  gpt-6-luna model page lists rate limits only for Build, Launch, and Grow, not Free (RESEARCH §4.2).
+- A free LangSmith Developer account with no card on file, so the 5,000-traces-per-month hard cap
+  applies (RESEARCH §4.3).
 
 By the end of each section a learner can:
 
@@ -266,7 +276,7 @@ one from `all`.
 
 ### 6.1 What both arms always get (never a variable)
 Same exported repository (application code, migrations, visible tests, `teamtrack/docs/` content), same
-system prompt core, same six tools, same model and reasoning effort, same ticket text, same sandbox, same
+system prompt core, same seven tools (six working tools plus `finish`; CONTRACTS §6), same model and reasoning effort, same ticket text, same sandbox, same
 turn and session budgets, same cost cap, same session-stop schedule, same wrap-up turns at a session stop.
 Bare-arm content parity: every rule the harness documents (AGENTS.md map, ARCHITECTURE.md, SECURITY.md,
 skills) is also present, in the bare arm, inside the repository's docs as an unstructured handbook
@@ -312,7 +322,10 @@ never adds facts the bare arm cannot read.
   `apply_patch` rejects a hunk outside the list before writing; after every `run` command the guard diffs
   the workspace and reverts any change outside the list. Each rejection or revert emits `blocked` with
   file, phase, and reason, and the agent sees the reason in the tool result.
-- Only the harness sets `passes`. The agent can request a status change; the harness sets `passes: true`
+- The agent may not edit `feature_list.json` at all. A2: "It is unacceptable to remove or edit tests
+  because this could lead to missing or buggy functionality" (F-a-80). Any patch or command that changes
+  the file is rejected or reverted with `blocked`. Only `harness/scope/status.py` writes it.
+- Only the harness sets `passes`. The agent reports completion through the `finish` tool; the harness sets `passes: true`
   with `evidence` (gate result ID, commit SHA, test counts) and `testedAt` only after the verify gate
   passes, or after the visible tests pass when the verify layer is off. A2 lets the agent set `passes`
   after careful testing (F-a-108); the course moves that decision to the harness and cites A3's
@@ -322,7 +335,7 @@ never adds facts the bare arm cannot read.
 ### 6.5 verify (S4)
 - Test phase: proposed tests go through the five filters (§7); kept tests are committed; every discarded
   test is shown with its reason.
-- Gate on "done": when the agent claims the feature is done, the harness runs, in the arm's container,
+- Gate on "done": when the agent calls `finish(claim="done")`, the harness runs, in the arm's container,
   visible tests, existing tests (the checkpoint's visible suite keeps passing), R1-R7 checks, a board
   smoke check, and the clean-state check (git clean, ruff clean, one migration head, no debug output;
   A2 F-a-84). Failures go back to the agent as a tool-style message; the agent continues within its turn
@@ -490,6 +503,11 @@ Each batch set is split into commands of at most $2.50 (`MAX_BATCH_COST_USD`). I
 $25, reduce k in batch 4 first, then batch 3; never reduce batch 1. M6 recomputes this table from measured
 per-run cost.
 
+Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
+the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch
+always use the same tier. Live class runs always use `auto`, because Flex latency is unpredictable. The M6
+result and the tier used per batch are recorded in VERIFICATION.md.
+
 ---
 
 ## 11. Cost plan
@@ -498,12 +516,17 @@ per-run cost.
 
 | Key | Value |
 |---|---|
-| `MAX_RUN_COST_USD` | 0.20 (final: `MAX_FINAL_RUN_COST_USD` 0.25) |
+| `MAX_RUN_COST_USD` | 0.20 per arm per run, covering the build and test phases together (final: `MAX_FINAL_RUN_COST_USD` 0.25) |
 | `MAX_REVIEW_COST_USD` | 0.04 |
 | `MAX_SESSION_COST_USD` | 2.50 (one class session, persisted across commands in `.shipharness/session.json`) |
 | `MAX_BATCH_COST_USD` | 2.50 (any single command) |
 | `MAX_EXPERIMENT_TOTAL_USD` | 25.00 (persisted across experiment batches) |
 | Also | max turns per session, max output tokens per call, tool and run wall-clock timeouts |
+
+One run cap covers both phases: the build phase and the test phase share the $0.20 (final $0.25). M6
+measures build-phase and test-phase cost separately. If build + test exceeds the cap in the pilot, the
+test phase gets a smaller turn budget (a dataset field per task) until the total fits; the build-phase
+budget and the cap are not changed.
 
 ### 11.2 Prices (`config/prices.toml`, per 1M tokens, verified 2026-10-16)
 
@@ -530,7 +553,9 @@ it otherwise.
 Modelled per-run cost for gpt-6-luna at medium effort (RESEARCH §4.2): $0.032 with ideal caching, $0.105
 without, $0.128 if every cache lookup misses. Reviewer ≈ $0.006 per review (gpt-5.6-luna). At $0.032 per
 run, 576 runs + 80 reviews ≈ $19; at $0.06 per run, k in batches 4 and 3 drops to 1 (376 runs ≈ $23); above
-$0.065 per run, batch 2 k drops to 1 as well. Batch 1 is never reduced.
+$0.065 per run, batch 2 k drops to 1 as well. Batch 1 is never reduced. If M6 confirms tool calling on
+Flex (§10.4), the experiments run at Batch-rate prices (half of the figures above) and the k reductions
+are recomputed from those prices.
 
 ### 11.5 Learner budget
 ≤ $6 OpenAI and ≤ 400 LangSmith traces across the four assignments; no single command > $2.50. Planned split:
@@ -643,6 +668,8 @@ LangSmith link, case study, own skill.
 | D-10 | OPENAI_EVAL_MODEL unspecified | `gpt-5.6-luna` | Owner decision; different generation from the agent model |
 | D-11 | Initializer as an agent session | Deterministic initializer step in harness code | The initial files are fixed by the ticket; saves turns and cost; A2 footnote cited |
 | D-12 | Repository layout | Adds `research/notes/` (M1 per-stream notes) and `teamtrack/reference/` | Traceability; checkpoint building |
+| D-13 | Runner tools: "six tools" (§2.6 of the brief) | Seven tools: the six working tools plus `finish(claim, summary)`, identical for both arms | Owner change at the M2 review: a structured claim replaces regex detection of "done" |
+| D-14 | Agent may set the status field | Agent may not edit `feature_list.json` at all; only `harness/scope/status.py` writes it | Owner change at the M2 review; A2 F-a-80 |
 
 ---
 
@@ -650,7 +677,7 @@ LangSmith link, case study, own skill.
 
 | ID | Assumption or risk | Handling |
 |---|---|---|
-| AS-1 | Owner review of this design is pending | Proceed on this design if no response; record review outcome here |
+| AS-1 | Owner review | Approved 2026-10-16 with changes (see status note at the top) |
 | AS-2 | `OPENAI_API_KEY` and `LANGSMITH_API_KEY` are provided before M3 `make doctor` and `make datasets` | M3 code and unit tests proceed without keys; live steps wait |
 | AS-3 | Docker Desktop (WSL2) is installed on the instructor PC and the repository is moved into the WSL2 filesystem before sandbox verification | Until then, sandbox code is unit-tested with a fake runner and verified in CI (GitHub Actions has Docker) |
 | AS-4 | gpt-6-luna at the chosen effort makes the bare arm fail the primary measure in ≥ 2/3 pilot runs per section | M6 pilot gate; if not, change features or effort, never the measurement |
