@@ -26,6 +26,11 @@ All notable changes to this project are recorded here.
   anchors.
 - CONTRACTS 1.2: ledger file name, runner fields, sandbox and tracer signatures as built.
 - DESIGN D-15 (no `htmx-ext-sse`: its repository states no license) and D-16 (policy code location).
+- Final review fixes: the arm workspace is treated as untrusted (host git never reads the
+  agent's `.git/config`; host tools never follow links out of the workspace; bytes-safe output);
+  run and tool exception safety; key masking in tool output and run logs; narrower redaction; board
+  validation in the service layer; discovery of unauthenticated endpoints; class date defaults to
+  today; trace link retried at run end. LangSmith tracing enabled explicitly (found by a live probe).
 
 ### M2 Design and contracts (2026-10-16)
 - DESIGN.md and CONTRACTS.md 1.1, approved by the owner with changes.
