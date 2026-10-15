@@ -402,6 +402,10 @@ class _Run:
                             )
                     self.harness.on_phase_end(self.ctx)
                 phase_shas[phase] = (phase_start, git.head_sha(self.spec.workspace))
+            if trace_url is None:  # the link lookup can fail transiently; try once more
+                trace_url = self.tracer.url(root)
+                if trace_url:
+                    self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             root.set_outputs({"status": self.status, "claim": self.claim})
         return trace_url
 

@@ -257,3 +257,44 @@ def test_unknown_model_price_ends_run_with_error_and_run_end(tmp_path: Path) -> 
     result, events, _ = run(tmp_path, [finish()], model="gpt-unknown")
     assert result.status == "ERROR"
     assert types(events)[-1] == "run_end"
+
+
+def test_trace_link_is_retried_at_the_end_when_unavailable_at_start(tmp_path: Path) -> None:
+    from contextlib import contextmanager
+
+    from shipharness.tracing import RunHandle
+
+    class FlakyTracer(NullTracer):
+        calls = 0
+
+        @contextmanager
+        def agent_run(self, name, metadata, tags=None, inputs=None):  # type: ignore[no-untyped-def]
+            yield RunHandle(object())
+
+        def url(self, handle: RunHandle) -> str | None:
+            FlakyTracer.calls += 1
+            return None if FlakyTracer.calls == 1 else "https://smith.example/trace/1"
+
+    client = ScriptedModelClient([finish()])
+    tracker = CostTracker(
+        PRICES,
+        Caps(run=0.2, review=0.04, session=2.5, batch=2.5, experiment=25.0),
+        tmp_path / "l.jsonl",
+        session_id="t",
+    )
+    log = tmp_path / "events.jsonl"
+    with EventBus(log, ab_id=None) as bus:
+        result = run_agent(
+            spec(tmp_path),
+            Harness([]),
+            FakeSandbox(),
+            bus,
+            tracker,
+            FlakyTracer(),
+            client,
+            RunOptions(sleep=lambda _s: None),
+        )
+    assert result.trace_url == "https://smith.example/trace/1"
+    assert [e.data["url"] for e in read_events(log) if e.type == "trace_link"] == [
+        "https://smith.example/trace/1"
+    ]
