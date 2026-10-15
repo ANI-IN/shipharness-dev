@@ -20,7 +20,7 @@ All notable changes to this project are recorded here.
 - Check framework: OpenAPI endpoint discovery, baseline deltas, in-process probes.
 - TeamTrack base: 25 operations, layered architecture with an import-linter contract, cursor
   pagination and error envelope, idempotent creates, audit log, Alembic migration, deterministic seed,
-  legacy `/v1/issues` (documented do-not-copy), web board, team handbook, 139 visible tests.
+  legacy `/v1/issues` (documented do-not-copy), web board, team handbook, 142 visible tests.
 - Console skeleton with server-sent events and `Last-Event-ID` resume.
 - Makefile, GitHub Actions CI (lint, unit, sandbox, live on manual dispatch), prose lint, walkthrough
   anchors.
