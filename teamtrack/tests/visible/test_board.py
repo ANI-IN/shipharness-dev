@@ -104,3 +104,25 @@ def test_board_uses_vendored_htmx(client, acme) -> None:
 def test_board_routes_are_not_in_the_api_schema(client) -> None:
     paths = client.get("/openapi.json").json()["paths"]
     assert not any(path.startswith("/board") for path in paths)
+
+
+def test_board_rejects_invalid_priority_and_api_stays_healthy(client, acme) -> None:
+    login(client, "member@acme.test")
+    response = client.post(
+        f"/board/projects/{acme.projects[0]}/issues",
+        data={"title": "Bad priority", "priority": "urgent"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 422
+    listed = client.get(f"/projects/{acme.projects[0]}/issues", headers=auth(acme.member))
+    assert listed.status_code == 200
+
+
+def test_board_rejects_overlong_title(client, acme) -> None:
+    login(client, "member@acme.test")
+    response = client.post(
+        f"/board/projects/{acme.projects[0]}/issues",
+        data={"title": "x" * 201, "priority": "low"},
+        follow_redirects=False,
+    )
+    assert response.status_code == 422

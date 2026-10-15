@@ -72,7 +72,12 @@ class DockerSandbox:
     def _run(
         self, argv: list[str], timeout: float | None = None
     ) -> subprocess.CompletedProcess[str]:
-        return self.runner(argv, capture_output=True, text=True, timeout=timeout, check=False)
+        """Run the runtime CLI, reading bytes and decoding as UTF-8 with replacement, so binary
+        or non-UTF-8 command output can neither crash the run nor be lost."""
+        result = self.runner(argv, capture_output=True, timeout=timeout, check=False)
+        return subprocess.CompletedProcess(
+            result.args, result.returncode, _decode(result.stdout), _decode(result.stderr)
+        )
 
     def start(self) -> str:
         argv = docker_run_args(

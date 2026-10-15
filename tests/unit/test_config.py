@@ -91,3 +91,10 @@ def test_prices_file_missing_field_is_rejected(tmp_path: Path) -> None:
     bad.write_text('[models."m"]\ninput = 1.0\noutput = 2.0\n', encoding="utf-8")
     with pytest.raises(ValueError, match="cache_write"):
         Prices.load(bad)
+
+
+def test_class_date_defaults_to_today(clean_env: pytest.MonkeyPatch) -> None:
+    from datetime import date
+
+    clean_env.delenv("SHIPHARNESS_CLASS_DATE", raising=False)
+    assert Settings(_env_file=None).shipharness_class_date == date.today().isoformat()

@@ -69,3 +69,25 @@ def test_bad_body_uses_validation_envelope(client, acme) -> None:
     response = client.post("/projects", json={"name": 5}, headers=auth(acme.admin))
     assert response.status_code == 422
     assert error_code(response) == "validation_error"
+
+
+def test_unexpected_server_error_uses_error_envelope(tmp_path) -> None:
+    from fastapi.testclient import TestClient
+
+    from app.main import create_app
+    from app.settings import TeamTrackSettings
+
+    app = create_app(
+        TeamTrackSettings(
+            database_url=f"sqlite:///{(tmp_path / 'e.db').as_posix()}", create_schema=True
+        )
+    )
+
+    def explode() -> None:
+        raise RuntimeError("boom")
+
+    app.add_api_route("/explode", explode, methods=["GET"])
+    response = TestClient(app, raise_server_exceptions=False).get("/explode")
+    assert response.status_code == 500
+    assert error_code(response) == "internal_error"
+    assert "boom" not in response.text

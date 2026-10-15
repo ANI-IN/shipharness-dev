@@ -1,47 +1,162 @@
-"""Host-side git helpers for an arm's workspace repository."""
+"""Host-side git for an arm's workspace. The workspace is untrusted.
+
+The agent controls `.git/config` (it runs commands in the sandbox), so host git must never read it:
+config such as `core.fsmonitor`, filter drivers, `diff.external`, or textconv would make host git
+execute agent-chosen commands outside the sandbox. Every command here runs against a temporary git
+directory with a clean config that borrows the workspace's objects through `objects/info/alternates`
+(object data only), with system and global config disabled. Output is handled as bytes.
+"""
 
 from __future__ import annotations
 
 import os
+import re
 import subprocess
 import tempfile
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
+_SHA = re.compile(r"^[0-9a-f]{40}([0-9a-f]{24})?$")
 
-def _git(workspace: Path, *args: str, env: dict[str, str] | None = None) -> str | None:
-    try:
-        result = subprocess.run(
-            ["git", *args], cwd=workspace, capture_output=True, text=True, check=False, env=env
-        )
-    except OSError:
+
+def _clean_env(home: Path) -> dict[str, str]:
+    keep = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    return {
+        **keep,
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": os.devnull,
+        "HOME": str(home),
+        "GIT_TERMINAL_PROMPT": "0",
+    }
+
+
+def workspace_git_dir(workspace: Path) -> Path | None:
+    """The workspace's .git directory, if it is a real directory inside the workspace."""
+    root = Path(workspace).resolve()
+    git_dir = Path(workspace) / ".git"
+    if git_dir.is_symlink() or not git_dir.is_dir():
         return None
-    return result.stdout if result.returncode == 0 else None
+    if getattr(git_dir, "is_junction", lambda: False)():
+        return None
+    resolved = git_dir.resolve()
+    if root not in resolved.parents:
+        return None
+    return resolved
+
+
+def _read_ref(git_dir: Path, ref: str, depth: int = 0) -> str:
+    """Resolve HEAD or a ref by reading files (no git process touches the agent's config)."""
+    if depth > 5:
+        return ""
+    path = git_dir / ref
+    if path.is_file():
+        text = path.read_text(encoding="utf-8", errors="replace").strip()
+        if text.startswith("ref: "):
+            return _read_ref(git_dir, text[5:].strip(), depth + 1)
+        return text if _SHA.match(text) else ""
+    packed = git_dir / "packed-refs"
+    if packed.is_file():
+        for line in packed.read_text(encoding="utf-8", errors="replace").splitlines():
+            parts = line.split()
+            if len(parts) == 2 and parts[1] == ref and _SHA.match(parts[0]):
+                return parts[0]
+    return ""
+
+
+@contextmanager
+def _isolated(workspace: Path) -> Iterator[tuple[list[str], dict[str, str], Path] | None]:
+    """Yield (git argv prefix, env, temp dir) for a clean repo that sees the workspace objects."""
+    git_dir = workspace_git_dir(workspace)
+    if git_dir is None:
+        yield None
+        return
+    with tempfile.TemporaryDirectory(prefix="shipharness-git-") as tmp:
+        tmp_path = Path(tmp)
+        env = _clean_env(tmp_path)
+        repo = tmp_path / "repo"
+        init = subprocess.run(
+            ["git", "init", "-q", str(repo)], capture_output=True, env=env, check=False
+        )
+        if init.returncode != 0:
+            yield None
+            return
+        alternates = repo / ".git" / "objects" / "info" / "alternates"
+        alternates.write_bytes(((git_dir / "objects").as_posix() + "\n").encode("utf-8"))
+        prefix = [
+            "git",
+            "--git-dir",
+            str(repo / ".git"),
+            "--work-tree",
+            str(Path(workspace).resolve()),
+            "-c",
+            "core.fsmonitor=false",
+            "-c",
+            f"core.hooksPath={os.devnull}",
+            "-c",
+            "core.autocrlf=false",
+            "-c",
+            "safe.directory=*",
+        ]
+        yield prefix, {**env, "GIT_INDEX_FILE": str(tmp_path / "index")}, tmp_path
 
 
 def head_sha(workspace: Path) -> str:
-    out = _git(workspace, "rev-parse", "HEAD")
-    return out.strip() if out else ""
+    git_dir = workspace_git_dir(workspace)
+    return _read_ref(git_dir, "HEAD") if git_dir else ""
 
 
 def initial_sha(workspace: Path) -> str:
-    out = _git(workspace, "rev-list", "--max-parents=0", "HEAD")
-    return out.strip().splitlines()[0] if out and out.strip() else ""
+    """Root commit of the workspace history (the checkpoint commit)."""
+    head = head_sha(workspace)
+    if not head:
+        return ""
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return ""
+        prefix, env, _tmp = isolated
+        out = subprocess.run(
+            [*prefix, "rev-list", "--max-parents=0", head],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    lines = out.stdout.decode("ascii", errors="replace").split()
+    return lines[-1] if out.returncode == 0 and lines else ""
 
 
 def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
-    """Diff of the working tree (including untracked files) against `base_sha`.
-
-    Uses a temporary index so the agent's own staging area is not touched.
-    """
-    if not base_sha:
+    """Binary-safe diff of the working tree (including untracked files) against `base_sha`."""
+    if not base_sha or not _SHA.match(base_sha):
         return None
-    with tempfile.TemporaryDirectory() as tmp:
-        env = {**os.environ, "GIT_INDEX_FILE": str(Path(tmp) / "index")}
-        if _git(workspace, "add", "-A", env=env) is None:
+    with _isolated(workspace) as isolated:
+        if isolated is None:
             return None
-        diff = _git(workspace, "diff", "--cached", "--binary", base_sha, env=env)
-    if diff is None:
+        prefix, env, _tmp = isolated
+        if (
+            subprocess.run(
+                [*prefix, "add", "-A"], capture_output=True, env=env, check=False
+            ).returncode
+            != 0
+        ):
+            return None
+        diff = subprocess.run(
+            [
+                *prefix,
+                "diff",
+                "--cached",
+                "--binary",
+                "--no-ext-diff",
+                "--no-textconv",
+                "--no-color",
+                base_sha,
+            ],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if diff.returncode != 0:
         return None
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(diff, encoding="utf-8", newline="\n")
+    out_path.write_bytes(diff.stdout)
     return out_path

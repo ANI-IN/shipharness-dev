@@ -18,10 +18,16 @@ KEY_PATTERNS: tuple[re.Pattern[str], ...] = (
     re.compile(r"\blsv2_(?:pt|sk)_[A-Za-z0-9_]{20,}"),
 )
 
-_SENSITIVE_NAME = re.compile(r"key|token|secret|authorization|password", re.IGNORECASE)
+# Whole credential-like field names only ("input_tokens" or "idempotency_key" are not secrets).
+_SENSITIVE_NAME = re.compile(
+    r"(^|[_-])(api[_-]?key|secret|password|passwd|authorization|token|access[_-]?token|"
+    r"refresh[_-]?token|bearer)$",
+    re.IGNORECASE,
+)
 
 
-def _mask(text: str) -> str:
+def mask_keys(text: str) -> str:
+    """Replace key-shaped substrings (OpenAI, LangSmith) with [redacted]."""
     for pattern in KEY_PATTERNS:
         text = pattern.sub(REDACTED, text)
     return text
@@ -36,7 +42,7 @@ def redact(value: Any) -> Any:
     if isinstance(value, SecretStr):
         return REDACTED
     if isinstance(value, str):
-        return _mask(value)
+        return mask_keys(value)
     if isinstance(value, Mapping):
         out: dict[Any, Any] = {}
         for name, item in value.items():

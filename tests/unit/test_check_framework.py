@@ -128,3 +128,17 @@ def test_check_context_progress_callback_is_called() -> None:
     )
     ctx.progress(3, 10, "R1 probes 3/10")
     assert calls == [(3, 10, "R1 probes 3/10")]
+
+
+def test_unauthenticated_endpoints_added_by_an_agent_are_discovered(tmp_path: Path) -> None:
+    leaky = load_app(TEAMTRACK, tmp_path / "leaky.db")
+
+    def leaky_issue(issue_id: int) -> dict[str, int]:
+        return {"id": issue_id}
+
+    leaky.add_api_route("/issues/{issue_id}/raw", leaky_issue, methods=["GET"])
+    leaky.openapi_schema = None
+    found = {(e.method, e.path): e for e in discover_endpoints(leaky)}
+    assert ("GET", "/issues/{issue_id}/raw") in found
+    assert found[("GET", "/issues/{issue_id}/raw")].requires_auth is False
+    assert ("GET", "/health") not in found

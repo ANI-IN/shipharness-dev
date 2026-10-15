@@ -10,11 +10,25 @@ from app.services import audit, projects
 from app.services.context import Actor
 from app.services.errors import Invalid, NotFound
 
+PRIORITIES = frozenset({"low", "medium", "high"})
+
 TRANSITIONS: dict[str, frozenset[str]] = {
     "open": frozenset({"in_progress"}),
     "in_progress": frozenset({"open", "done"}),
     "done": frozenset({"open"}),
 }
+
+
+def _validate(title: object = None, description: object = None, priority: object = None) -> None:
+    """Field rules enforced here so every caller (API, board, scripts) gets them."""
+    if title is not None and not (isinstance(title, str) and 1 <= len(title.strip()) <= 200):
+        raise Invalid("title must be 1 to 200 characters")
+    if description is not None and not (
+        isinstance(description, str) and len(description) <= 10_000
+    ):
+        raise Invalid("description must be at most 10,000 characters")
+    if priority is not None and priority not in PRIORITIES:
+        raise Invalid("priority must be one of: low, medium, high")
 
 
 def get(session: Session, actor: Actor, issue_id: int) -> Issue:
@@ -51,6 +65,7 @@ def create(
     assignee_id: int | None,
 ) -> Issue:
     project = projects.get(session, actor, project_id)
+    _validate(title, description, priority)
     _check_assignee(session, actor, assignee_id)
     issue = issues_repo.add(
         session, actor.org_id, project.id, title, description, priority, assignee_id, actor.user_id
@@ -62,6 +77,7 @@ def create(
 
 def update(session: Session, actor: Actor, issue_id: int, changes: dict[str, object]) -> Issue:
     issue = get(session, actor, issue_id)
+    _validate(changes.get("title"), changes.get("description"), changes.get("priority"))
     for field in ("title", "description", "priority"):
         if changes.get(field) is not None:
             setattr(issue, field, changes[field])

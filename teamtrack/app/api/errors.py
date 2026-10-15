@@ -35,6 +35,11 @@ def install_error_handlers(app: FastAPI) -> None:
         where = ".".join(str(part) for part in first.get("loc", ()))
         return envelope(422, "validation_error", f"{where}: {first.get('msg')}".strip(": "))
 
+    @app.exception_handler(Exception)
+    async def _unexpected_error(_request: Request, _exc: Exception) -> JSONResponse:
+        # Never leak internals; the envelope keeps clients and checks working on a 500.
+        return envelope(500, "internal_error", "internal server error")
+
     @app.exception_handler(StarletteHTTPException)
     async def _http_error(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
         code = _HTTP_CODES.get(exc.status_code, "error")

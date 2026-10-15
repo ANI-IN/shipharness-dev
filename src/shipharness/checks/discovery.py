@@ -8,6 +8,9 @@ from pydantic import BaseModel, ConfigDict
 
 WRITE_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _HTTP_METHODS = frozenset({"get", "post", "put", "patch", "delete"})
+# Operations that are public by design. Any other unauthenticated operation is discovered and
+# probed: an endpoint an agent adds without authentication is the worst tenant leak there is.
+PUBLIC_ALLOWLIST = frozenset({("GET", "/health"), ("POST", "/auth/login")})
 
 
 class Endpoint(BaseModel):
@@ -28,7 +31,7 @@ class Endpoint(BaseModel):
 
 
 def discover_endpoints(app: Any, include_public: bool = False) -> list[Endpoint]:
-    """Every operation in `app.openapi()`. Public (unauthenticated) ones only if asked."""
+    """Every operation in `app.openapi()`, except the PUBLIC_ALLOWLIST unless asked for."""
     schema = app.openapi()
     endpoints: list[Endpoint] = []
     for path, item in sorted(schema.get("paths", {}).items()):
@@ -38,7 +41,7 @@ def discover_endpoints(app: Any, include_public: bool = False) -> list[Endpoint]
                 continue
             params = shared + op.get("parameters", [])
             requires_auth = bool(op.get("security"))
-            if not requires_auth and not include_public:
+            if (method.upper(), path) in PUBLIC_ALLOWLIST and not include_public:
                 continue
             endpoints.append(
                 Endpoint(

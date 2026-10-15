@@ -238,3 +238,22 @@ def test_auth_error_ends_with_error_naming_the_variable_not_the_key(
     assert result.error is not None and "OPENAI_API_KEY" in result.error
     assert fake_openai_key() not in result.error
     assert types(events)[-1] == "run_end"
+
+
+def test_harness_hook_exception_ends_run_with_error_and_run_end(tmp_path: Path) -> None:
+    class Broken(BaseLayer):
+        name = "scope"
+
+        def before_tool(self, ctx: LayerContext, call):  # type: ignore[no-untyped-def]
+            raise RuntimeError("layer bug")
+
+    result, events, _ = run(tmp_path, [read_app(), finish()], harness=Harness([Broken()]))
+    assert result.status == "ERROR"
+    assert result.error is not None and "RuntimeError" in result.error
+    assert types(events)[-1] == "run_end"
+
+
+def test_unknown_model_price_ends_run_with_error_and_run_end(tmp_path: Path) -> None:
+    result, events, _ = run(tmp_path, [finish()], model="gpt-unknown")
+    assert result.status == "ERROR"
+    assert types(events)[-1] == "run_end"

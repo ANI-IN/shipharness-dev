@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+from datetime import date
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from shipharness.config.prices import DEFAULT_PRICES_FILE, REPO_ROOT
@@ -34,7 +35,7 @@ class Settings(BaseSettings):
     # LangSmith
     langsmith_tracing: bool = True
     langsmith_endpoint: str = "https://api.smith.langchain.com"
-    shipharness_class_date: str = ""
+    shipharness_class_date: str = Field(default="", validate_default=True)
 
     # Cost caps (USD)
     max_run_cost_usd: float = 0.20
@@ -62,6 +63,13 @@ class Settings(BaseSettings):
     runs_dir: Path = Path(".shipharness/runs")
     exports_dir: Path = Path("exports")
     prices_file: Path = DEFAULT_PRICES_FILE
+
+    @field_validator("shipharness_class_date", mode="before")
+    @classmethod
+    def _default_today(cls, value: object) -> str:
+        """Class sessions are keyed by date, so the session cost cap resets each class day."""
+        text = str(value).strip() if value is not None else ""
+        return text or date.today().isoformat()
 
     @field_validator("openai_api_key", "langsmith_api_key", mode="before")
     @classmethod

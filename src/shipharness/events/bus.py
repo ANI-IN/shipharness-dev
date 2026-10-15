@@ -14,6 +14,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from shipharness.events.models import EVENT_DATA_MODELS, Arm, Event, EventType
+from shipharness.logging import redact
 
 
 class RunLogLocked(RuntimeError):
@@ -73,6 +74,7 @@ class EventBus:
         if model is None:
             raise ValueError(f"unknown event type: {type!r}")
         raw = data.model_dump() if isinstance(data, BaseModel) else data
+        raw = redact(raw)  # no key-shaped string or credential field ever reaches a run log
         payload = model.model_validate(raw).model_dump(mode="json")
         with self._mutex:
             if self._closed:

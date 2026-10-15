@@ -357,13 +357,7 @@ class _Run:
 
     # -- phases --------------------------------------------------------------------------------
 
-    def run(self) -> AgentRunResult:
-        self.emit(
-            "run_start",
-            {"spec": self.spec.public_dict(), "policy_summary": self.options.policy_summary},
-        )
-        base_sha = git.initial_sha(self.spec.workspace)
-        phase_shas: dict[Phase, tuple[str, str]] = {}
+    def _run_phases(self, phase_shas: dict[Phase, tuple[str, str]]) -> str | None:
         trace_url: str | None = None
         tags = [self.spec.arm, *self.options.tags]
         with self.tracer.agent_run("agent_run", self.spec.public_dict(), tags=tags) as root:
@@ -409,8 +403,28 @@ class _Run:
                     self.harness.on_phase_end(self.ctx)
                 phase_shas[phase] = (phase_start, git.head_sha(self.spec.workspace))
             root.set_outputs({"status": self.status, "claim": self.claim})
+        return trace_url
+
+    def run(self) -> AgentRunResult:
+        self.emit(
+            "run_start",
+            {"spec": self.spec.public_dict(), "policy_summary": self.options.policy_summary},
+        )
+        base_sha = ""
+        phase_shas: dict[Phase, tuple[str, str]] = {}
+        trace_url: str | None = None
+        try:
+            base_sha = git.initial_sha(self.spec.workspace)
+            trace_url = self._run_phases(phase_shas)
+        except Exception as exc:  # noqa: BLE001 - the run always ends with a result and run_end
+            self.status = "ERROR"
+            self.error = f"internal error: {type(exc).__name__}"
         diff_out = self.options.diff_path or (self.spec.workspace.parent / "diff.patch")
-        diff_path = git.write_diff(self.spec.workspace, base_sha, diff_out)
+        diff_path = None
+        try:
+            diff_path = git.write_diff(self.spec.workspace, base_sha, diff_out)
+        except Exception as exc:  # noqa: BLE001
+            self.error = self.error or f"diff failed: {type(exc).__name__}"
         wall_s = round(self.options.clock() - self.started, 3)
         result = AgentRunResult(
             run_id=self.spec.run_id,

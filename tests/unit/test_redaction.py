@@ -45,3 +45,30 @@ def test_log_output_never_contains_a_key(capsys: pytest.CaptureFixture[str]) -> 
     err = capsys.readouterr().err
     assert key not in err
     assert REDACTED in err
+
+
+def test_token_counts_and_non_secret_key_fields_survive() -> None:
+    data = {
+        "input_tokens": 10,
+        "output_tokens": 5,
+        "cached_tokens": 2,
+        "max_output_tokens": 800,
+        "accepts_idempotency_key": True,
+        "key": "WEB",
+        "monkey": "banana",
+    }
+    assert redact(data) == data
+
+
+def test_credential_field_variants_are_redacted() -> None:
+    out = redact(
+        {
+            "openai_api_key": "a",
+            "x-api-key": "b",
+            "client_secret": "c",
+            "token": "d",
+            "access_token": "e",
+            "password": "f",
+        }
+    )
+    assert set(out.values()) == {REDACTED}

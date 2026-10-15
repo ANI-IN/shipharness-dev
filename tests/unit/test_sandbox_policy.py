@@ -191,3 +191,24 @@ def test_docker_usage_parses_stats(settings: Settings, tmp_path: Path) -> None:
     )
     usage = sandbox.usage()
     assert usage == {"cpu_pct": 12.5, "mem_mb": 100.0, "mem_limit_mb": 1024.0, "pids": 7}
+
+
+def test_docker_exec_decodes_non_utf8_output_without_crashing(
+    settings: Settings, tmp_path: Path
+) -> None:
+    class BytesRunner(FakeRunner):
+        def __call__(self, argv: list[str], **kw: Any) -> subprocess.CompletedProcess[str]:
+            self.calls.append(argv)
+            if argv[1] == "exec":
+                assert not kw.get("text"), "exec output must be read as bytes"
+                return subprocess.CompletedProcess(argv, 0, bytes(range(256)), b"\xff\xfe")
+            return subprocess.CompletedProcess(argv, 0, b"abc\n", b"")
+
+    sandbox = DockerSandbox(
+        default_policy(settings), "img:1", tmp_path, None, "r-1", "bare", runner=BytesRunner({})
+    )
+    sandbox.start()
+    result = sandbox.exec("cat blob.bin", timeout_s=30)
+    assert result.exit_code == 0
+    assert "�" in result.output
+    assert "xyz" in result.output  # the ASCII part of bytes(range(256)) survives decoding

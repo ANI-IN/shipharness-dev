@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import re
-import subprocess
 import time
-from collections.abc import Callable
+from collections.abc import Callable, Iterator
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,6 +14,8 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from shipharness.events import Arm, EventBus
 from shipharness.harness.decisions import HarnessDecision
+from shipharness.logging import mask_keys
+from shipharness.runner.git import workspace_git_dir
 from shipharness.runner.models import ToolCall, ToolResult
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
 from shipharness.sandbox.base import Sandbox
@@ -21,6 +23,25 @@ from shipharness.sandbox.base import Sandbox
 TOOL_OUTPUT_MAX_CHARS = 8000
 SKIP_DIRS = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", ".ruff_cache"}
 PATCH_FILE = ".git/shipharness-patch.diff"
+_SAFE_ID = re.compile(r"[^A-Za-z0-9_-]")
+
+
+def _is_link(path: Path) -> bool:
+    """Symlink or Windows junction. Links in the workspace are never followed by host code."""
+    return path.is_symlink() or bool(getattr(path, "is_junction", lambda: False)())
+
+
+def iter_workspace_files(root: Path) -> Iterator[Path]:
+    """Regular files under `root`, sorted, skipping SKIP_DIRS and never following links."""
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        current = Path(dirpath)
+        dirnames[:] = sorted(
+            d for d in dirnames if d not in SKIP_DIRS and not _is_link(current / d)
+        )
+        for name in sorted(filenames):
+            path = current / name
+            if not _is_link(path) and path.is_file():
+                yield path
 
 
 def _fn(name: str, description: str, properties: dict[str, Any]) -> dict[str, Any]:
@@ -236,6 +257,8 @@ class ToolBox:
         except PathOutsideWorkspace as exc:
             self._deny(call, str(exc))
             return self._result(call, False, str(exc), started)
+        except Exception as exc:  # noqa: BLE001 - a tool failure is a result the agent sees
+            return self._result(call, False, f"tool error: {type(exc).__name__}: {exc}", started)
         return self._result(call, ok, output, started, exit_code=exit_code, files_changed=changed)
 
     # -- tools --------------------------------------------------------------------------------
@@ -252,7 +275,10 @@ class ToolBox:
             for item in sorted(folder.iterdir(), key=lambda p: (not p.is_dir(), p.name)):
                 if item.name in SKIP_DIRS or len(entries) >= 500:
                     continue
-                rel = item.resolve().relative_to(base).as_posix()
+                rel = item.relative_to(base).as_posix()
+                if _is_link(item):
+                    entries.append(f"{rel}@ (link, not followed)")
+                    continue
                 entries.append(rel + "/" if item.is_dir() else rel)
                 if item.is_dir() and level < depth:
                     walk(item, level + 1)
@@ -284,9 +310,7 @@ class ToolBox:
         limit = max(1, min(a.max_results or 50, 200))
         base = self.workspace.resolve()
         rows: list[str] = []
-        for file in sorted(p for p in root.rglob("*") if p.is_file()):
-            if any(part in SKIP_DIRS for part in file.relative_to(base).parts):
-                continue
+        for file in iter_workspace_files(root):
             if file.stat().st_size > 1_000_000:
                 continue
             text = file.read_bytes().decode("utf-8", errors="ignore")
@@ -307,6 +331,8 @@ class ToolBox:
             return False, "patch names no files (expected ---/+++ headers)", None, []
         for rel in paths:
             resolve_in_workspace(self.workspace, rel)
+        if workspace_git_dir(self.workspace) is None:
+            return False, "the workspace .git is missing or is not a real directory", None, []
         before = self._snapshot()
         patch_file = self.workspace / PATCH_FILE
         patch_file.parent.mkdir(parents=True, exist_ok=True)
@@ -361,29 +387,22 @@ class ToolBox:
     # -- helpers ------------------------------------------------------------------------------
 
     def _snapshot(self) -> dict[str, str]:
-        """Content hashes of every path git reports as changed or untracked."""
-        try:
-            out = subprocess.run(
-                ["git", "status", "--porcelain=v1", "-uall", "-z"],
-                cwd=self.workspace,
-                capture_output=True,
-                check=True,
-            ).stdout.decode("utf-8", errors="replace")
-        except (OSError, subprocess.CalledProcessError):
-            return {}
+        """Content hash of every workspace file. No git process: the agent controls .git/config,
+        and host git would run commands configured there (core.fsmonitor, filters)."""
         snapshot: dict[str, str] = {}
-        entries = [e for e in out.split("\0") if e]
-        index = 0
-        while index < len(entries):
-            entry = entries[index]
-            status, rel = entry[:2], entry[3:]
-            if status.startswith("R"):
-                index += 1  # skip the rename source
-            path = self.workspace / rel
-            snapshot[rel] = (
-                hashlib.sha1(path.read_bytes()).hexdigest() if path.is_file() else "deleted"
-            )
-            index += 1
+        for path in iter_workspace_files(self.workspace):
+            if path.suffix == ".pyc":
+                continue
+            rel = path.relative_to(self.workspace).as_posix()
+            try:
+                stat = path.stat()
+                snapshot[rel] = (
+                    f"size:{stat.st_size}:mtime:{stat.st_mtime_ns}"
+                    if stat.st_size > 5_000_000
+                    else hashlib.sha1(path.read_bytes()).hexdigest()
+                )
+            except OSError:
+                snapshot[rel] = "unreadable"
         return snapshot
 
     def _changed_since(self, before: dict[str, str]) -> list[str]:
@@ -414,11 +433,13 @@ class ToolBox:
         exit_code: int | None = None,
         files_changed: list[str] | None = None,
     ) -> ToolResult:
+        output = mask_keys(output)
         text, cut = truncate(output)
         full_path: str | None = None
         if cut:
             self.tool_log_dir.mkdir(parents=True, exist_ok=True)
-            full = self.tool_log_dir / f"{call.call_id}.txt"
+            safe_id = _SAFE_ID.sub("_", call.call_id)[:80] or "call"
+            full = self.tool_log_dir / f"{safe_id}.txt"
             full.write_text(output, encoding="utf-8")
             full_path = str(full)
             text += (
