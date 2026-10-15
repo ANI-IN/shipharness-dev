@@ -54,6 +54,16 @@ def _redact_processor(_logger: Any, _method: str, event_dict: dict[str, Any]) ->
     return redact(event_dict)
 
 
+class _CurrentStderr:
+    """Writes to whatever sys.stderr is at call time (survives stream swaps by test runners)."""
+
+    def write(self, text: str) -> int:
+        return sys.stderr.write(text)
+
+    def flush(self) -> None:
+        sys.stderr.flush()
+
+
 def configure_logging(json: bool = False) -> None:
     """Configure structlog to write redacted records to stderr."""
     renderer: Any = (
@@ -66,6 +76,6 @@ def configure_logging(json: bool = False) -> None:
             _redact_processor,
             renderer,
         ],
-        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        logger_factory=structlog.PrintLoggerFactory(file=_CurrentStderr()),  # type: ignore[arg-type]
         cache_logger_on_first_use=False,
     )
