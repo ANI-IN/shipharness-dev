@@ -65,12 +65,15 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 known-first-party = ["shipharness", "app", "conftest"]
 
 [tool.ruff.lint.flake8-bugbear]
-# FastAPI dependency markers are meant to be called in argument defaults.
+# FastAPI and Typer parameter markers are meant to be called in argument defaults.
 extend-immutable-calls = [
     "fastapi.Depends",
     "fastapi.Query",
     "fastapi.Header",
+    "fastapi.Form",
     "fastapi.params.Depends",
+    "typer.Option",
+    "typer.Argument",
 ]
 
 [tool.pytest.ini_options]

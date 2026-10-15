@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import typer
 
 from shipharness import __version__
+from shipharness.config import Settings
 
 app = typer.Typer(
     name="shipharness",
@@ -12,6 +15,16 @@ app = typer.Typer(
     no_args_is_help=True,
     add_completion=False,
 )
+datasets_app = typer.Typer(help="Validate and upload the LangSmith datasets.", no_args_is_help=True)
+app.add_typer(datasets_app, name="datasets")
+
+
+def load_settings() -> Settings:
+    return Settings()
+
+
+def print_cost_summary(spent_usd: float = 0.0, note: str = "no model calls") -> None:
+    typer.echo(f"Cost: ${spent_usd:.6f} ({note})")
 
 
 def _version_callback(value: bool) -> None:
@@ -27,3 +40,85 @@ def main(
     ),
 ) -> None:
     """Harness engineering for coding agents."""
+
+
+@app.command()
+def doctor(
+    offline: bool = typer.Option(False, "--offline", help="Do not contact OpenAI or LangSmith."),
+) -> None:
+    """Check Python, tools, the container runtime, both API keys, and prices."""
+    from shipharness.doctor import run_doctor
+
+    report = run_doctor(load_settings(), offline=offline)
+    typer.echo(report.render())
+    print_cost_summary()
+    raise typer.Exit(0 if report.ok else 1)
+
+
+@app.command()
+def up(
+    port: int = typer.Option(8000, help="Port for the TeamTrack API and board."),
+    db: Path = typer.Option(Path(".shipharness/teamtrack.db"), help="SQLite file to use."),
+) -> None:
+    """Run the bundled TeamTrack base app and board on http://127.0.0.1:<port>/board."""
+    from shipharness.teamtrack_host import serve
+
+    db.parent.mkdir(parents=True, exist_ok=True)
+    typer.echo(f"TeamTrack: http://127.0.0.1:{port}/board  (API docs: /docs)")
+    serve(db, port=port)
+
+
+@app.command()
+def console(port: int = typer.Option(8765, help="Port for the live console.")) -> None:
+    """Run the live console on http://127.0.0.1:<port>/."""
+    import uvicorn
+
+    from shipharness.console.app import create_console_app
+
+    settings = load_settings()
+    settings.runs_dir.mkdir(parents=True, exist_ok=True)
+    typer.echo(f"Console: http://127.0.0.1:{port}/")
+    uvicorn.run(create_console_app(settings.runs_dir), host="127.0.0.1", port=port)
+
+
+@datasets_app.command("validate")
+def datasets_validate(
+    path: Path = typer.Argument(..., exists=True, dir_okay=False),
+    kind: str = typer.Option(..., help="features or testgen"),
+) -> None:
+    """Validate one JSONL dataset file."""
+    from shipharness.datasets import validate_file
+
+    errors = validate_file(path, kind)  # type: ignore[arg-type]
+    for error in errors[:50]:
+        typer.echo(f"x {error}")
+    lines = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
+    typer.echo(f"{'+ valid' if not errors else 'x invalid'}: {path} ({lines} lines)")
+    raise typer.Exit(0 if not errors else 1)
+
+
+@datasets_app.command("upload")
+def datasets_upload() -> None:
+    """Validate and upload teamtrack-features-v1 (60) and testgen-targets-v1 (40) to LangSmith."""
+    from langsmith import Client
+
+    from shipharness.datasets import STANDARD_DATASETS, build_examples, load_lines, upload
+
+    settings = load_settings()
+    if settings.langsmith_api_key is None:
+        typer.echo("x LANGSMITH_API_KEY is missing: add it to .env at the repo root")
+        raise typer.Exit(1)
+    client = Client(
+        api_key=settings.langsmith_api_key.get_secret_value(), api_url=settings.langsmith_endpoint
+    )
+    for kind, (name, path, expected) in STANDARD_DATASETS.items():
+        if not path.exists():
+            typer.echo(f"x {path} not found (datasets are built in milestone M5)")
+            raise typer.Exit(1)
+        lines = load_lines(path, kind)
+        if len(lines) != expected:
+            typer.echo(f"x {name}: expected {expected} examples, found {len(lines)}")
+            raise typer.Exit(1)
+        count = upload(client, name, build_examples(lines))
+        typer.echo(f"+ uploaded {name}: {count} examples")
+    print_cost_summary()
