@@ -355,29 +355,28 @@ def run_ab(
     baseline.start()
     with EventBus(run_dir / "events.jsonl", ab_id=ab_id) as bus:
         stop, previews = _start_previews(deps, bus, specs)
+
         # [walkthrough:Opening:two_arms] start
         # Same task, same model, effort, budgets, cost cap, tools, and sandbox for both arms.
         # The only difference is the harness. Both arms run at the same time.
+        # Both arms are judged by the same referee on what they shipped (aborted runs too),
+        # each as soon as it finishes: no idle wait for the other arm.
+        def run_and_judge(arm: Arm) -> tuple[AgentRunResult, ScoreRecord]:
+            result = run_arm(task, specs[arm], deps, bus, run_dir)
+            baseline.join()
+            referee.baseline()  # computed by the thread (or now, if the thread failed)
+            return result, _judge(referee, specs[arm], result, bus, run_dir)
+
         try:
             with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
-                futures = {
-                    arm: pool.submit(run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
-                }
-                results = {arm: future.result() for arm, future in futures.items()}
+                futures = {arm: pool.submit(run_and_judge, arm) for arm in ARMS}
+                done = {arm: future.result() for arm, future in futures.items()}
         finally:
             stop.set()  # previews stop (and their containers with them) on every path
             for thread in previews:
                 thread.join(timeout=10)
-
-        # Both arms are judged by the same referee on what they shipped (aborted runs too).
-        baseline.join()
-        referee.baseline()  # computed by the thread (or now, if the thread failed)
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="referee") as pool:
-            verdicts = {
-                arm: pool.submit(_judge, referee, specs[arm], results[arm], bus, run_dir)
-                for arm in ARMS
-            }
-            records = {arm: future.result() for arm, future in verdicts.items()}
+        results = {arm: done[arm][0] for arm in ARMS}
+        records = {arm: done[arm][1] for arm in ARMS}
         # [walkthrough:Opening:two_arms] end
     arms = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in ARMS}
     write_ab_record(

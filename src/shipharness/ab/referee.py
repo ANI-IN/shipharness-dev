@@ -14,6 +14,7 @@ import contextlib
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import threading
@@ -42,7 +43,12 @@ from shipharness.ab.workspace import (
 from shipharness.checks import params as P
 from shipharness.checks.base import CheckResult
 from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
-from shipharness.filters.pytest_cmd import UnsafeTestId, counts, pytest_command
+from shipharness.filters.pytest_cmd import (
+    UnsafeTestId,
+    check_test_id,
+    counts,
+    pytest_command,
+)
 from shipharness.harness.verify.checkrun import (
     RunnerOutputError,
     last_progress,
@@ -77,6 +83,8 @@ log = structlog.get_logger(__name__)
 HIDDEN_DIR = "tests/hidden"  # inside the build, read-only, referee container only
 INPUTS_MOUNT = "/referee-in"  # run log and per-session patches, read-only
 FLAKY_RUNS = 10
+# One line per test in pytest's -rA summary: `PASSED tests/x.py::test_a`.
+_RESULT_LINE = re.compile(r"^(PASSED|FAILED|ERROR|XFAIL|XPASS) (\S+)")
 
 SandboxFactory = Callable[[Path, list[Mount], Arm], Sandbox]
 MutantRunner = Callable[[Any, list[str], Path, Sandbox], str]
@@ -617,17 +625,42 @@ class Referee:
     @staticmethod
     def _passing_unmutated(sandbox: Sandbox, tests: list[str]) -> list[str]:
         """Shipped tests that pass on the arm's unmutated build. A test that already fails
-        would "kill" every mutant, so only these may judge mutants (as filter 1 requires)."""
-        passing: list[str] = []
+        would "kill" every mutant, so only these may judge mutants (as filter 1 requires).
+
+        One pytest process runs every shipped test and reports each one (`-rA`); a shipped id
+        passes when every test under it passed. An id with no reported outcome (a collection
+        error, a timeout, a skip) is run on its own, as before (owner-approved after pilot run 2;
+        VERIFICATION, M6: batched and isolated outcomes compared on every run 2 arm)."""
+        safe: list[str] = []
         for test in tests:
             try:
-                command = pytest_command("python", [test])
+                safe.append(check_test_id(test))
             except UnsafeTestId:
                 continue
-            run = sandbox.exec(command, 300)
+        if not safe:
+            return []
+        outcomes: dict[str, set[str]] = {}
+        batch = sandbox.exec(pytest_command("python", safe, extra="-rA"), 300)
+        if not batch.timed_out:
+            for line in batch.output.splitlines():
+                match = _RESULT_LINE.match(line.strip())
+                if match:
+                    outcomes.setdefault(match.group(2), set()).add(match.group(1))
+        passing: set[str] = set()
+        for test in safe:
+            under = [
+                found
+                for node, found in outcomes.items()
+                if node == test or node.startswith((test + "::", test + "["))
+            ]
+            if under:
+                if all(found == {"PASSED"} for found in under):
+                    passing.add(test)
+                continue
+            run = sandbox.exec(pytest_command("python", [test]), 300)
             if run.exit_code == 0 and not run.timed_out and counts(run.output)["passed"] >= 1:
-                passing.append(test)
-        return passing
+                passing.add(test)
+        return [test for test in safe if test in passing]
 
     def _review(self, diff: bytes, emit: Callable[[str, Any], None]) -> ReviewOutcome | None:
         if self.deps.reviewer is None:

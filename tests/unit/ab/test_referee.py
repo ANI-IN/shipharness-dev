@@ -626,3 +626,53 @@ def test_no_baseline_cache_for_working_tree_judging(course_repo: Path, tmp_path:
         )
         Referee(task(), d).baseline()
     assert _baseline_calls(factory) == 2
+
+
+# --- batched unmutated-pass step (owner-approved after pilot run 2) ---------------------------
+
+
+def _batched_box(lines: dict[str, str], *, summary_only: bool = False) -> FakeSandbox:
+    """A sandbox whose `-rA` pytest run reports `lines` (node id -> PASSED/FAILED); single-test
+    runs pass unless the id is FAILED in `lines`."""
+
+    def exec_(cmd: str) -> ExecResult:
+        if "-rA" in cmd:
+            if summary_only:
+                return ExecResult(
+                    exit_code=2, output="ERROR collecting\n1 error in 0.1s\n", duration_ms=1
+                )
+            body = "".join(f"{outcome} {node}\n" for node, outcome in lines.items())
+            failed = sum(o != "PASSED" for o in lines.values())
+            passed = len(lines) - failed
+            return ExecResult(
+                exit_code=1 if failed else 0,
+                output=f"{body}{passed} passed, {failed} failed in 0.1s\n",
+                duration_ms=1,
+            )
+        target = cmd.rsplit('"', 2)[-2]
+        if lines.get(target) == "FAILED":
+            return ExecResult(exit_code=1, output="1 failed in 0.1s\n", duration_ms=1)
+        return ExecResult(exit_code=0, output="1 passed in 0.1s\n", duration_ms=1)
+
+    return FakeSandbox(exec_)
+
+
+def test_unmutated_pass_step_runs_all_shipped_tests_in_one_process() -> None:
+    a, b = "tests/visible/test_x.py::test_a", "tests/visible/test_x.py::test_b"
+    box = _batched_box({a: "PASSED", b: "FAILED"})
+    assert Referee._passing_unmutated(box, [a, b]) == [a]
+    assert sum("-m pytest" in c for c in box.commands) == 1
+
+
+def test_a_shipped_file_passes_only_if_every_test_in_it_passes() -> None:
+    file = "tests/visible/test_x.py"
+    good, bad = "tests/visible/test_y.py", "tests/visible/test_x.py::test_b"
+    box = _batched_box({f"{file}::test_a": "PASSED", bad: "FAILED", f"{good}::test_c": "PASSED"})
+    assert Referee._passing_unmutated(box, [file, good]) == [good]
+
+
+def test_ids_without_a_batched_outcome_fall_back_to_isolated_runs() -> None:
+    a, b = "tests/visible/test_x.py::test_a", "tests/visible/test_x.py::test_b"
+    box = _batched_box({a: "PASSED", b: "FAILED"}, summary_only=True)
+    assert Referee._passing_unmutated(box, [a, b]) == [a]
+    assert sum("-m pytest" in c for c in box.commands) == 3  # one batch, then one per test
