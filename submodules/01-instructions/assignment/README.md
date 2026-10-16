@@ -10,7 +10,9 @@ Take a TeamTrack variant whose only instructions are one 900-line `AGENTS.md`, a
 knowledge into what section S1 taught: a short `AGENTS.md` map, a structured `docs/` folder, and one
 Agent Skill. Then prove mechanically that nothing was lost (a link and rule-coverage checker you
 write), and measure the effect on agents with an A/B on the `section-1` dataset subset (k=3),
-reporting R1 and R3 results.
+reporting R1 and R3 results. The A/B is the assignment's required live step: you run it once with
+the course model, through the real `shipharness` runner and sandbox, and submit its score records
+as evidence.
 
 ## Problem statement
 
@@ -76,6 +78,9 @@ the grading criteria below were designed for this course.
    with your own tests next to it.
 4. **An A/B report**, `ab-report.md`: the instructions layer with your tree against the bare arm on
    `section-1`, k=3, with R1 and R3 counts per arm.
+5. **The live evidence** of that A/B in `live/`: the command and its output, the two experiment
+   exports, the ScoreRecord of every run, and the harness arm's run logs, collected by
+   `live_evidence.py`.
 
 ```mermaid
 flowchart LR
@@ -83,8 +88,9 @@ flowchart LR
   O --> C["checker/check_docs.py"]
   T --> C
   C -->|OK or ERROR lines| S["make check-assignment-1"]
-  T -->|copied into the instructions layer| AB["A/B on section-1, k=3"]
-  AB --> R["ab-report.md<br/>R1 and R3 counts"]
+  T -->|copied into the instructions layer| AB["A/B on section-1, k=3<br/>(live, gpt-6-luna)"]
+  AB --> L["live/<br/>score records, exports, run logs"]
+  L --> R["ab-report.md<br/>R1 and R3 counts"]
 ```
 
 ## Concepts tested
@@ -96,7 +102,7 @@ flowchart LR
   "Should describe both what the skill does and when to use it" (B1, F-b-03).
 - Docs checked mechanically, with messages an agent can act on (F-a-37, F-a-97).
 - Reading an A/B as counts of failing runs per arm, with the pre-registered S1 measure (DESIGN §8.2,
-  §8.3).
+  §8.3), with every number traceable to a score record.
 
 ## Prerequisites
 
@@ -121,6 +127,7 @@ Output (all inside your work folder, by default `assignment/starter/`):
 - `instructions/`: the tree.
 - `checker/check_docs.py` plus at least one test file of your own.
 - `ab-report.md`: the filled report.
+- `live/`: the live evidence of your A/B (see "The live run evidence").
 
 ## Detailed requirements
 
@@ -242,13 +249,50 @@ Overlap:
 - Links: the two LangSmith experiment URLs.
 - Cost and traces: `Cost: $<x>` at most 2.50 and `Traces: <n>` at most 150 (DESIGN §11.5).
 - Reading the result: at least 60 words that discuss R1 and R3. Limits: at least 20 words.
+- The command, "Runs per arm", the R1 and R3 counts, and the two links equal what the live evidence
+  says (R-L5).
+
+### The live run evidence
+
+The A/B is the required live step. You run it once, live, with the course agent model
+(`OPENAI_MODEL`, `gpt-6-luna`), through the real runner and the Docker sandbox, with the class caps
+(`MAX_RUN_COST_USD` $0.20 per arm per run, `MAX_BATCH_COST_USD` $2.50 per command; `CONTRACTS.md`
+§1). `live_evidence.py` copies what the run wrote into `live/` in your work folder:
+
+| Path | What it is | Written by the run to |
+|---|---|---|
+| `live/output.txt` | first line `$ <the exact command>`, then everything the command printed, ending with its `Cost: $...` line | your terminal (task 6 saves it) |
+| `live/experiments/<name>.json` | the two experiment exports, one per arm | `exports/experiments/` |
+| `live/scores/<run_id>.json` | the ScoreRecord of every run listed in the exports (CONTRACTS §11, with `checkpoint_sha`) | `exports/scores/` |
+| `live/runs/<run_id>/events.jsonl` | the run log of every harness-arm run (CONTRACTS §8) | `.shipharness/runs/` |
+
+The self-check and the grader read these files only: they never re-run a model and need no keys.
+
+- R-L1. Every file above is present and well formed: each score file validates as a ScoreRecord
+  with every field present, each run log line validates as an event, the exports name one bare and
+  one harness experiment, and `output.txt` has the command line and the cost line.
+- R-L2. The run matches the command: `--split section-1`, `--k 3`, `--layers instructions`, a
+  `--batch` label, no `--from-working-tree`; both exports carry that split, k, and batch; the output
+  names both experiments; every run id in an export has its score file, with the export's arm and
+  layers, a `checkpoint_sha` equal to the export's commit for that checkpoint, and a `section-1`
+  task; each arm has 3 runs of each of the 8 tasks (24).
+- R-L3. The runs used the class model and caps: `gpt-6-luna` in both exports and in every harness
+  run log, `recorded` false everywhere, `sandboxed` true, no run above $0.20 (`cost_usd`) or review
+  above $0.04, and the command's cost line at most $2.50 and naming `gpt-6-luna`.
+- R-L4. The harness arm used your tree. When the instructions layer prepares a workspace, it writes
+  a note to the run log, "placed N instruction files", with the list of files it copied from
+  `teamtrack/harness/instructions/` (`InstructionsLayer.prepare_workspace` in
+  `src/shipharness/harness/instructions/layer.py`). In every harness run log that list must equal
+  the files of the `instructions/` tree you submit. Finish the tree before the A/B: adding or
+  removing a tree file afterwards breaks the match, and re-running is not allowed.
+- R-L5. `ab-report.md` agrees with the evidence (see "The A/B report").
 
 ## Constraints
 
 - Write only inside your work folder. Do not edit `original/AGENTS.md`, `teamtrack/`, or `src/`
   (except for the temporary copy in task 6, on a throwaway branch).
 - The self-check and the grader run with no keys and no Docker, and make no model calls. The A/B
-  report is graded on its structure, never by re-running models.
+  is graded from the report and the live evidence, checked as files, never by re-running models.
 - The checker uses only the Python standard library.
 - One A/B command, within the budget below. Do not re-run it until the bare arm "looks bad": every
   run is a dot, and dropping runs is forbidden (DESIGN §8.3).
@@ -268,7 +312,8 @@ Overlap:
    references, the "do not copy" warning, commands, and a short "before you finish" list.
 5. **Build the skill** (TODO(A1-2)): copy `skills/skill-template` into
    `instructions/.agents/skills/<name>/`, follow `skills/skill-template/README.md`, and validate it.
-6. **Run the A/B** (needs keys and Docker; within the budget below):
+6. **Run the A/B live and collect the evidence** (needs keys and Docker; within the budget
+   below). Finish the tree first: the evidence must match the tree you submit (R-L4).
 
    ```bash
    git switch -c a1-ab-run                          # throwaway branch: never merge it
@@ -276,17 +321,25 @@ Overlap:
    cp -r submodules/01-instructions/assignment/starter/instructions teamtrack/harness/instructions
    git add teamtrack/harness/instructions && git commit -m "A1: my instructions tree for the A/B"
    git log -1 --format=%h                           # the "Instructions tree commit"
-   uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-<name>
-   uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name>
+   CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-<name>"
+   echo "\$ $CMD" > ~/a1-live-output.txt            # the exact command: first line of the evidence
+   $CMD | tee -a ~/a1-live-output.txt               # the live run; its output ends with "Cost: $..."
    git switch -                                     # back to your work branch
+   uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt
+   uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name> --exports submodules/01-instructions/assignment/starter/live
    ```
 
    The instructions layer reads its tree from `teamtrack/harness/instructions/` on the host, so the
    copy is what the harness arm gets; the bare arm reads `docs/HANDBOOK.md` as always. The course's
-   own unit tests for that folder fail on the throwaway branch; that is expected.
+   own unit tests for that folder fail on the throwaway branch; that is expected. `exports/` and
+   `.shipharness/` are not committed on the throwaway branch, so they are still there after
+   `git switch -`. `live_evidence.py` copies the batch into `live/` (pass `--work <dir>` for
+   another work folder) and prints the live checks; commit `live/` with your work.
 7. **Write the report** from the `ab_summary.py` output into `ab-report.md`, then the reading and the
    limits.
-8. **Run** `make check-assignment-1` until every line says PASS, then `make grade-assignment-1`.
+8. **Run** `make check-assignment-1` until every line says PASS, then submit your work folder (your
+   branch). The instructor grades it with the course's grader, which runs these checks plus hidden
+   ones.
 
 ## Expected project structure
 
@@ -313,6 +366,11 @@ assignment/starter/                 your work folder (or a copy: pass A1_WORK=<d
     test_check_docs.py              the visible tests (do not edit)
     test_<yours>.py                 your tests
   ab-report.md                      the filled report
+  live/                             the live evidence (collected by live_evidence.py)
+    output.txt                      the command line, its output, its cost line
+    experiments/<name>.json         two experiment exports, bare and harness
+    scores/<run_id>.json            one ScoreRecord per run (48)
+    runs/<run_id>/events.jsonl      one run log per harness run (24)
 ```
 
 The split shown is a suggestion beyond the required files; another split is fine if every rule has
@@ -334,11 +392,11 @@ On Windows, run everything inside WSL2 (DESIGN §9). Work on your own branch; co
 | your checker | `uv run python submodules/01-instructions/assignment/starter/checker/check_docs.py --original submodules/01-instructions/assignment/starter/original/AGENTS.md --tree submodules/01-instructions/assignment/starter/instructions` |
 | the skill validator | `uv run shipharness skills validate submodules/01-instructions/assignment/starter/instructions/.agents/skills` |
 | the self-check | `make check-assignment-1` (another folder: `make check-assignment-1 A1_WORK=<dir>`) |
-| the grader | `make grade-assignment-1` |
-| the A/B summary | `uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name>` |
+| collect the live evidence | `uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt` |
+| the A/B summary | `uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name> --exports submodules/01-instructions/assignment/starter/live` |
 
-Without make, the two targets are `uv run python submodules/01-instructions/assignment/check.py
---work <dir>` and `uv run python submodules/01-instructions/solution/grader/grade.py --work <dir>`.
+Without make, the self-check is `uv run python submodules/01-instructions/assignment/check.py
+--work <dir>`. The grader is not in your repository; the instructor runs it on your submission.
 
 ## How to test
 
@@ -353,9 +411,10 @@ eleven hidden cases that follow the specification above.
 ## Expected behaviour
 
 - On the starter, the self-check prints one FAIL line per unmet requirement, each with what to fix,
-  and exits 1; the grader prints a low score.
-- On a finished work folder, every self-check line is PASS, the checker prints `OK: ...` on your tree,
-  and the grader prints each criterion with its points and `Score: <n>/100`.
+  and exits 1.
+- On a finished work folder, every self-check line is PASS (the five `live-*` lines included), the
+  checker prints `OK: ...` on your tree, and the grader prints each criterion with its points and
+  `Score: <n>/100`.
 
 ## Example inputs and outputs
 
@@ -389,17 +448,21 @@ A1 self-check: submodules/01-instructions/assignment/starter
 FAIL layout: missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, ...
 FAIL map-length: AGENTS.md still holds the starter TODO stub
 ...
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.42s
+FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.45s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 ...
-self-check: 0 of 19 checks pass
+FAIL live-files: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
+...
+self-check: 0 of 24 checks pass
 ```
 
 ## Grading criteria (100 points)
 
 "Visible" items are checked by `make check-assignment-1`; "hidden" items only by the grader. Items
 marked "scaled" earn their points in proportion to the share of active rules you covered, so an empty
-tree earns nothing for having no duplicates.
+tree earns nothing for having no duplicates. Criterion F is the live step: its checks read the
+files in `live/` and never re-run a model; the other criteria stay graded from files that give the
+same score on every run.
 
 | Criterion | Item | Points | Checked |
 |---|---|---|---|
@@ -414,22 +477,27 @@ tree earns nothing for having no duplicates.
 | | no unknown ids (scaled) | 2 | hidden |
 | | no definition in `AGENTS.md` (scaled) | 2 | hidden |
 | | no new facts: 1 point off per unknown code span (scaled) | 3 | visible |
-| **C Skill (15)** | validator: no errors, no warnings, exactly one skill | 5 | visible |
+| **C Skill (12)** | validator: no errors, no warnings, exactly one skill | 4 | visible |
 | | name equals the folder (not `skill-template`); "Use when" in the description | 2 | visible |
-| | template sections kept, no placeholders | 3 | visible |
+| | template sections kept, no placeholders | 2 | visible |
 | | linked from `AGENTS.md` | 2 | visible |
-| | steps cite rule tags | 3 | visible |
-| **D Docs checker (30)** | the unchanged visible tests pass (proportional) | 6 | hidden |
+| | steps cite rule tags | 2 | visible |
+| **D Docs checker (26)** | the unchanged visible tests pass (proportional) | 6 | hidden |
 | | your own tests pass | 2 | visible |
 | | exits 0 on your tree (needs your tests passing) | 2 | visible |
 | | on the reference tree: no false alarms (3, needs one fault found) and finds 3 injected faults (1 each) | 6 | hidden |
-| | eleven hidden cases (proportional; the no-problem cases count once a problem case passes) | 14 | hidden |
-| **E A/B report (15)** | six sections, no TODO | 3 | visible |
-| | exact command (2); tree commit and runs per arm (1) | 3 | visible |
-| | R1 and R3 rows as counts matching runs per arm (2 each) | 4 | visible |
-| | two LangSmith experiment links | 2 | visible |
+| | eleven hidden cases (proportional; the no-problem cases count once a problem case passes) | 10 | hidden |
+| **E A/B report (10)** | six sections, no TODO | 2 | visible |
+| | exact command (1); tree commit and runs per arm (1) | 2 | visible |
+| | R1 and R3 rows as counts matching runs per arm (1 each) | 2 | visible |
+| | two LangSmith experiment links | 1 | visible |
 | | cost and traces within budget | 1 | visible |
 | | reading (60 words, R1 and R3) and limits (20 words), 1 each | 2 | visible |
+| **F Live run evidence (12)** | R-L1: `live/` present and well formed. Missing or malformed evidence scores 0 on every F item | 3 | visible |
+| | R-L2: consistent with the command (four parts: command flags, exports, records, 24 runs per arm; proportional) | 3 | visible |
+| | R-L3: class model and caps (five parts: model, recorded, sandbox, run cap, command cap and cost line; proportional) | 2 | visible |
+| | R-L4: every harness run log placed your submitted tree | 2 | visible |
+| | R-L5: report values equal the evidence (five parts: command, runs, R1, R3, links; proportional) | 2 | visible |
 
 ## Common mistakes
 
@@ -447,14 +515,19 @@ tree earns nothing for having no duplicates.
   the product's files.
 - Leaving the skill as `skill-template`, or with a description that never says when to use it.
 - Reporting percentages, or re-running the A/B to get a nicer result.
+- Running the A/B with the course's own tree still in `teamtrack/harness/instructions/`, or adding
+  a document to your tree after the run: `live-tree` fails because the placed files are not yours.
+- Typing the report's numbers by hand. `live-report` compares them with the score records; copy
+  them from `ab_summary.py --exports <work>/live`.
+- Committing only `ab-report.md`. Without `live/`, criterion F scores 0.
 
 ## Cost and trace budget
 
 | Step | OpenAI | LangSmith traces |
 |---|---|---|
-| Self-check, grader, checker, validator, `ab_summary.py` | $0 (no model calls) | 0 |
+| Self-check, grader, checker, validator, `ab_summary.py`, `live_evidence.py` | $0 (no model calls) | 0 |
 | `make datasets` (upload, once) | $0 | 0 |
-| The A/B: 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (DESIGN §11.5); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `CONTRACTS.md` §1) | 2 per run (DESIGN §12): 96, within A1's 150 |
+| The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (DESIGN §11.5); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `CONTRACTS.md` §1) | 2 per run (DESIGN §12): 96, within A1's 150 |
 
 The learner budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces
 (DESIGN §11.5). Measured values for this command:

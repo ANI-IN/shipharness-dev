@@ -10,6 +10,7 @@ Your work folder for assignment A1. The brief, the specification, and the gradin
 | `checker/check_docs.py` | the checker's interface, with `TODO(A1-3)` and `TODO(A1-4)` stubs | implement it |
 | `checker/test_check_docs.py` | visible tests (12 fail on the stubs) | do not edit; add your own test file next to it |
 | `ab-report.md` | the A/B report template, with `TODO` fields | fill it after the A/B run |
+| `live/` (not there yet) | the live evidence of your A/B: command output, experiment exports, score records, harness run logs | create it with `live_evidence.py` after the A/B run (README, task 6) and commit it |
 
 Start with:
 
