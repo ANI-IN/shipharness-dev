@@ -79,6 +79,8 @@ class _Org:
     viewer: int
     projects: tuple[int, ...]
     issues: tuple[int, ...]
+    comments: tuple[int, ...] = ()  # seeded by F2: two per org, on the org's first issue
+    labels: tuple[int, ...] = ()  # seeded by F7: three per org
 
     @property
     def users(self) -> tuple[int, ...]:
@@ -88,11 +90,14 @@ class _Org:
 # Mirrors teamtrack/app/seed.py (stable ids by design; a unit test keeps them in sync). The adapter
 # never imports the build to learn them: the build is untrusted.
 _TEAMTRACK_ORGS = {
-    "acme": _Org(1, 1, 2, 3, (1, 2), tuple(range(1, 21))),
-    "globex": _Org(2, 4, 5, 6, (3, 4), tuple(range(21, 41))),
+    "acme": _Org(1, 1, 2, 3, (1, 2), tuple(range(1, 21)), (1, 2), (1, 2, 3)),
+    "globex": _Org(2, 4, 5, 6, (3, 4), tuple(range(21, 41)), (3, 4), (4, 5, 6)),
 }
-# Checkpoints before F3 (idempotent issue create) lands.
-_BEFORE_F3 = frozenset({"m1-base", "m1-s1-start", "m1-s2-start", "m1-s3-start"})
+# Checkpoints without F3 (idempotent issue create). teamtrack/reference/checkpoints.toml lists
+# each checkpoint's tasks; a unit test keeps this set in sync with it.
+_BEFORE_F3 = frozenset(
+    {"m1-base", "m1-s1-start", "m1-s2-start", "m1-s3-start", "m1-alt-a", "m1-alt-b"}
+)
 _R6_CONTRACT = """\
 [importlinter]
 root_package = app
@@ -134,6 +139,9 @@ class TeamTrackAdapter:
             "user_id": o.viewer,
             "assignee_id": o.member,
             "org_id": o.org_id,
+            # Path parameters added by features (F2 comments, F7 labels); unused without them.
+            "comment_id": o.comments[0],
+            "label_id": o.labels[0],
         }
 
     def audit_count(self, app: Any, org: str) -> int:
