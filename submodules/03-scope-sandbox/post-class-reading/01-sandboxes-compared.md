@@ -1,6 +1,6 @@
 # Sandboxes compared: shipharness, A4, A5, and Codex
 
-Reading time: about 8 minutes.
+Reading time: about 10 minutes.
 
 The S3 sandbox is one Docker container per arm with a fixed policy (`SandboxPolicy` in
 `src/shipharness/sandbox/policy.py`; DESIGN §9). This piece puts that policy next to the boundaries
@@ -59,6 +59,27 @@ The container decides what the machine allows: network, writable directories, CP
 time. It does not decide which files inside `/work` belong to this feature. That is the scope layer's
 job (`blocked`, harness arm only); the container's refusals are `sandbox_denied` events (both arms).
 Module 2 covers detailed sandbox design.
+
+In M6 pilot run 2, no command in any of the 12 A/Bs (24 arm runs) produced a `sandbox_denied` event
+(`grep -c sandbox_denied` on each run log, read 2026-10-17). The agent used what the image had and
+never tried the network. A boundary that is never hit in normal work is still doing its job: it
+bounds the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19).
+
+## Why it matters for your own repo
+
+- **Decide where the boundary lives before you pick the tool.** An allowlist (A5) needs upkeep per
+  tool; a container with no network needs the dependencies baked into the image. If your agent must
+  install packages, a no-network container will block it; build the image with them instead, as
+  `sandbox/Dockerfile` does.
+- **Keep secrets out of the box.** The agent loop and the keys stay on the host; nothing named like a
+  key, token, or secret is passed into the container (`docker_run_args`). Copy that split: it is
+  what makes "the agent ran a bad command" a contained event.
+- **Protect the files that grade the agent.** Codex keeps `.git` and its own configuration read-only
+  inside the workspace (D21). Whatever your harness uses as evidence (a feature list, a test config, a
+  commit) needs the same protection from the agent, at the container level or in harness code.
+- **Report out-of-memory from the kernel, not from an exit code.** Exit 137 alone is ambiguous
+  (RESEARCH §4.4); read the cgroup counter or `State.OOMKilled` (D29) before you tell the agent it ran
+  out of memory.
 
 ## Sources
 

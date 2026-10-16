@@ -1,13 +1,13 @@
 # post-class-reading
 
 Three short pieces that go further than class time allows. Read them after
-[../concepts.md](../concepts.md).
+[../concepts.md](../concepts.md). Each ends with "Why it matters for your own repo".
 
 | Piece | Reading time | What it covers |
 |---|---|---|
-| [01-sandboxes-compared.md](01-sandboxes-compared.md) | about 8 min | The shipharness container policy next to A4's per-agent containers, A5's three-layer security model, and Codex's sandbox modes and approval policies (official docs; RESEARCH correction 11 on bwrap plus seccomp) |
-| [02-scope-layer-source-tour.md](02-scope-layer-source-tour.md) | about 10 min | The scope layer's source with commentary: what the agent is told, how patches and commands are checked and reverted, the evidence behind `passes`, how the referee counts the S3 measure |
-| [03-reading-the-s3-results.md](03-reading-the-s3-results.md) | about 6 min | How to read a measure one arm meets by construction, the `section-3` variants, the ablation without the scope layer, and the experiment results |
+| [01-sandboxes-compared.md](01-sandboxes-compared.md) | about 10 min | The shipharness container policy next to A4's per-agent containers, A5's three-layer security model, and Codex's sandbox modes and approval policies (official docs; RESEARCH correction 11 on bwrap plus seccomp); why the pilot saw no denials |
+| [02-scope-layer-source-tour.md](02-scope-layer-source-tour.md) | about 12 min | The scope layer's source with commentary: what the agent is told, how patches and commands are checked and reverted, the evidence behind `passes`, how the referee counts the S3 measure, and the two measurement fixes from the M6 pilot |
+| [03-reading-the-s3-results.md](03-reading-the-s3-results.md) | about 8 min | What the M6 pilot found on F3, how to read a measure one arm meets by construction, the `section-3` variants, the ablation without the scope layer, and the experiment results |
 
 Primary sources behind these pieces, in the order they matter for S3:
 

@@ -1,6 +1,6 @@
 # The scope layer, line by line
 
-Reading time: about 10 minutes.
+Reading time: about 12 minutes.
 
 Class shows two anchors from the scope layer (`S3:allowed_paths`, `S3:passes`). This piece reads the
 code around them: what the agent is told, how a tool call is checked and reverted, what counts as
@@ -150,7 +150,7 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
 
 ## 4. How the referee counts the S3 measure
 
-`src/shipharness/ab/referee.py`, lines 449-462.
+`src/shipharness/ab/referee.py`, lines 513-526.
 
 ```python
         product = strip(diff)  # harness artifacts are state, not product changes
@@ -169,11 +169,19 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
         ]
 ```
 
-The test-phase files come from `phase_changed_files` in `src/shipharness/ab/demo.py`:
+The test-phase files come from `phase_changed_files` in `src/shipharness/ab/demo.py`, lines 441-452:
 
 ```python
-def phase_changed_files(spec: AgentRunSpec, result: AgentRunResult) -> list[str]:
-    """Files the arm changed during the test phase (the S3 measure's second half)."""
+def phase_changed_files(
+    spec: AgentRunSpec, result: AgentRunResult, *, store: Path | None = None
+) -> list[str]:
+    """Files the arm changed during the test phase (the S3 measure's second half). With
+    working-tree snapshots (`store`): the change from the first test session's start tree to the
+    last test session's end tree, so build-phase work the arm never committed is not counted.
+    Without them: the working tree against the commit at the start of the test phase."""
+    tests = [s for s in result.sessions if s.phase == "test"]
+    if store is not None and tests and all(s.start_tree and s.end_tree for s in tests):
+        return git.tree_changed_files(store, tests[0].start_tree, tests[-1].end_tree)
     shas = result.phase_shas.get("test")
     return git.changed_files(spec.workspace, shas[0]) if shas else []
 ```
@@ -185,20 +193,41 @@ def phase_changed_files(spec: AgentRunSpec, result: AgentRunResult) -> list[str]
   state files (DESIGN D-18).
 - A file is in scope if either phase allows it. The test-phase rule is separate: a file changed after
   the test phase started must match the test list.
-- `git.changed_files` compares the working tree at the end of the run with the commit at the start of
-  the test phase, untracked files included. A source edit that the agent made and undid within the
+- The test-phase files are the difference between two working-tree snapshots: the start of the first
+  test session and the end of the last one. A source edit that the agent made and undid within the
   test phase leaves no trace and is not counted.
+- The snapshot version is a pilot fix. The first version compared the working tree with the commit
+  at the start of the test phase, so an arm that never committed its build work had that work
+  counted as test-phase source edits: in M6 pilot run 1 the bare arms' `app/api/issues.py` and
+  `app/services/issues.py` were counted that way (VERIFICATION.md, M6 pilot, change 6). Run 1 also
+  counted 4 files of the import linter's cache (`.import_linter_cache/`) as out of scope in every F3
+  arm (change 5). Both fixes apply to both arms; the measure itself did not change.
 
 ## Try it without a model call
 
 ```bash
-uv run python -m pytest -q -p no:cacheprovider tests/unit/harness_scope
 uv run python scripts/anchors.py extract S3:allowed_paths
 ```
 
 The unit tests in `tests/unit/harness_scope/` drive the guard, the snapshot revert, the status
 writer, and the layer with a fake sandbox; reading `test_layer.py` next to this piece shows each rule
 as a test.
+
+## Why it matters for your own repo
+
+- **Check after the command, not only before.** A patch can be read before it is applied; a shell
+  command cannot. If your agent can run commands, a pre-check on patches alone leaves the larger
+  door open. A byte snapshot before each command and a comparison after it is the cheap way to
+  close it.
+- **Keep a generated-files list next to the allowed paths.** Linters, test runners, and type checkers
+  write caches. In the pilot, a missing entry for one cache folder turned every F3 run into a
+  failure. Write the list once, use it in the scope check, the diff, and the clean-state check, as
+  shipharness now does.
+- **Measure from snapshots, not from commits.** Agents do not commit on a schedule. A measure that
+  reads `HEAD` charges an arm for when it committed, not for what it changed.
+- **Tell the agent the consequence first.** The scope block says what is refused and reverted before
+  the first tool call, in the spirit of A1's error messages that "inject remediation instructions into
+  agent context" (A1, F-a-97).
 
 ## Sources
 
