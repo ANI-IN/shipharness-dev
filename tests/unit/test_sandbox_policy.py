@@ -212,3 +212,16 @@ def test_docker_exec_decodes_non_utf8_output_without_crashing(
     assert result.exit_code == 0
     assert "�" in result.output
     assert "xyz" in result.output  # the ASCII part of bytes(range(256)) survives decoding
+
+
+def test_docker_exec_honours_a_harness_timeout_above_the_tool_cap(
+    settings: Settings, tmp_path: Path
+) -> None:
+    runner = FakeRunner({})
+    sandbox = DockerSandbox(
+        default_policy(settings), "img:1", tmp_path, None, "r-1", "bare", runner=runner
+    )
+    sandbox.start()
+    sandbox.exec("python -m shipharness.checks.runner", timeout_s=1200)
+    exec_argv = next(argv for argv in runner.calls if argv[1] == "exec")
+    assert exec_argv[exec_argv.index("--kill-after=5") + 1] == "1200"

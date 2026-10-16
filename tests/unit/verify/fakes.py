@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 from typing import Any
 
 from shipharness.sandbox import ExecResult
@@ -51,7 +52,15 @@ def check_result(
     }
 
 
-def runner_output(results: list[dict[str, Any]], progress: bool = True) -> str:
+def nonce_of(command: str) -> str | None:
+    """The --nonce a runner command carries, so fakes can echo it like the real runner."""
+    argv = shlex.split(command)
+    return argv[argv.index("--nonce") + 1] if "--nonce" in argv else None
+
+
+def runner_output(
+    results: list[dict[str, Any]], progress: bool = True, command: str | None = None
+) -> str:
     lines = []
     if progress:
         for r in results:
@@ -62,7 +71,10 @@ def runner_output(results: list[dict[str, Any]], progress: bool = True) -> str:
             lines.append(
                 json.dumps({"check": label, "done": 2, "total": 2, "label": f"{label} 2/2"})
             )
-    lines.append(json.dumps({"results": results}))
+    document: dict[str, Any] = {"results": results}
+    if command is not None and nonce_of(command):
+        document["nonce"] = nonce_of(command)
+    lines.append(json.dumps(document))
     return "\n".join(lines) + "\n"
 
 

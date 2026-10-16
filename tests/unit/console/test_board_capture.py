@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import json
+from pathlib import Path
 
 import pytest
 
@@ -90,3 +91,19 @@ def test_cli_defaults_view_the_board_as_acme() -> None:
     assert args.base_url == "http://127.0.0.1:8000"
     loop = build_parser().parse_args(["loop"])
     assert loop.interval == 5.0
+
+
+def test_preview_server_reloads_when_the_arm_changes_its_code(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The preview starts before the agent works; without reload it would show the checkpoint."""
+    import uvicorn
+
+    from shipharness.console import board_capture
+
+    seen: dict[str, object] = {}
+    monkeypatch.setattr(board_capture, "prepare_database", lambda app_dir, db: "sqlite:///x.db")
+    monkeypatch.setattr(uvicorn, "run", lambda *a, **kw: seen.update(kw))
+    board_capture.serve(tmp_path / "work", tmp_path / "db.sqlite", 8000)
+    assert seen["reload"] is True
+    assert seen["reload_dirs"] == [str(tmp_path / "work" / "app")]

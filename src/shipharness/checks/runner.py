@@ -161,6 +161,7 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--params", type=Path)
     p.add_argument("--baseline", type=Path)
     p.add_argument("--adapter")
+    p.add_argument("--nonce", help="echoed in the results document")
     return p
 
 
@@ -188,7 +189,10 @@ def main(argv: list[str] | None = None) -> int:
             baseline=baseline,
             progress=json_progress,
         )
-    print(json.dumps({"results": [r.model_dump(mode="json") for r in results]}), flush=True)
+    document: dict[str, object] = {"results": [r.model_dump(mode="json") for r in results]}
+    if args.nonce:
+        document["nonce"] = args.nonce
+    print(json.dumps(document), flush=True)
     return exit_code(results, crashed)
 
 

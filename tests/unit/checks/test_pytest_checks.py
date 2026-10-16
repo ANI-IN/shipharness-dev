@@ -112,3 +112,24 @@ def test_flakiness_with_no_shipped_tests_passes(base_build: Path) -> None:
     result = run("flakiness", base_build, shipped_tests=[])
     assert result.passed is True
     assert result.total_probes == 0
+
+
+def test_regression_reports_an_existing_test_the_arm_removed(tmp_path: Path) -> None:
+    visible = tmp_path / "tests" / "visible"
+    visible.mkdir(parents=True)
+    (visible / "test_a.py").write_text("def test_one():\n    assert True\n", encoding="utf-8")
+    expected = ["tests/visible/test_a.py::test_one", "tests/visible/test_a.py::test_two"]
+    result = run("regression", tmp_path, regression_expected=expected)
+    assert failed_ids(result) == {"test:tests/visible/test_a.py::test_two"}
+    assert "removed or renamed" in result.findings[0].detail
+
+
+def test_regression_matches_parametrized_ids_by_their_base_name(tmp_path: Path) -> None:
+    visible = tmp_path / "tests" / "visible"
+    visible.mkdir(parents=True)
+    (visible / "test_a.py").write_text(
+        "import pytest\n\n\n@pytest.mark.parametrize('x', [1, 2])\ndef test_p(x):\n    assert x\n",
+        encoding="utf-8",
+    )
+    result = run("regression", tmp_path, regression_expected=["tests/visible/test_a.py::test_p"])
+    assert result.passed is True

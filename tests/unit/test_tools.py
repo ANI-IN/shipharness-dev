@@ -293,3 +293,18 @@ def test_run_reports_files_changed(repo: Path, local_sandbox: LocalSandbox) -> N
     cmd = f"\"{sys.executable}\" -c \"open('made.txt', 'w').write('x')\""
     result = box(repo, sandbox=local_sandbox).execute(call("run", command=cmd, timeout_s=None))
     assert result.files_changed == ["made.txt"]
+
+
+def test_run_tool_caps_the_agent_timeout_at_the_tool_limit(tmp_path: Path) -> None:
+    seen: list[int] = []
+
+    class Recording(FakeSandbox):
+        def exec(self, command: str, timeout_s: int) -> ExecResult:
+            seen.append(timeout_s)
+            return super().exec(command, timeout_s)
+
+    repo = tmp_path / "ws"
+    repo.mkdir()
+    toolbox = box(repo, sandbox=Recording())
+    toolbox.execute(call("run", command="pytest -q", timeout_s=99999))
+    assert seen == [toolbox.tool_timeout_s]

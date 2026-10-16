@@ -98,3 +98,47 @@ def test_quoted_paths_are_parsed() -> None:
         '--- "a/app/sp ace.py"\n+++ "b/app/sp ace.py"\n'
     )
     assert diff_paths(diff) == ["app/sp ace.py"]
+
+
+def _git_diff(tmp_path, files: dict[str, bytes], renames: dict[str, str] | None = None) -> bytes:  # type: ignore[no-untyped-def]
+    """A diff exactly as git writes it (git leaves paths with spaces unquoted in headers)."""
+    import subprocess
+
+    def git(*args: str) -> bytes:
+        return subprocess.run(
+            ["git", "-c", "core.quotepath=false", *args],
+            cwd=tmp_path, capture_output=True, check=True,
+        ).stdout  # fmt: skip
+
+    git("init", "-q")
+    for old in renames or {}:
+        (tmp_path / old).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / old).write_bytes(b"x = 1\ny = 2\nz = 3\n")
+    git("add", "-A")
+    git("-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base", "--allow-empty")
+    for old, new in (renames or {}).items():
+        git("mv", old, new)
+    for rel, data in files.items():
+        (tmp_path / rel).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / rel).write_bytes(data)
+    git("add", "-A")
+    return git("diff", "--cached", "-M", "--binary")
+
+
+def test_paths_with_spaces_from_real_git_diffs(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    diff = _git_diff(
+        tmp_path,
+        {"progress.md": b"# Progress\n", "tests/visible/test x.py": b"def test_x():\n    pass\n"},
+    )
+    assert b'"' not in diff.split(b"\n", 1)[0]  # git really leaves these unquoted
+    assert diff_paths(diff) == ["progress.md", "tests/visible/test x.py"]
+    stripped = strip_harness_artifacts(diff)
+    assert diff_paths(stripped) == ["tests/visible/test x.py"]
+    assert b"def test_x" in stripped
+
+
+def test_renames_and_binary_files_with_spaces(tmp_path) -> None:  # type: ignore[no-untyped-def]
+    diff = _git_diff(
+        tmp_path, {"app/lo go.png": b"\x89PNG\x00\xff"}, renames={"app/a b.py": "app/c d.py"}
+    )
+    assert sorted(diff_paths(diff)) == ["app/c d.py", "app/lo go.png"]

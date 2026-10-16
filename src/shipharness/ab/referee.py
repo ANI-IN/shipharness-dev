@@ -10,6 +10,7 @@ judged too.
 from __future__ import annotations
 
 import ast
+import contextlib
 import hashlib
 import json
 import os
@@ -20,6 +21,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+
+import structlog
 
 from shipharness.ab.artifacts import (
     HARNESS_ARTIFACT_PATTERNS,
@@ -33,9 +36,11 @@ from shipharness.ab.workspace import export_checkpoint, export_hidden_tests, ini
 from shipharness.checks import params as P
 from shipharness.checks.base import CheckResult
 from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
+from shipharness.filters.pytest_cmd import UnsafeTestId, counts, pytest_command
 from shipharness.harness.verify.checkrun import (
     RunnerOutputError,
     last_progress,
+    new_nonce,
     parse_runner_output,
     runner_command,
     write_container_file,
@@ -62,6 +67,7 @@ REFEREE_CHECKS: tuple[str, ...] = (
     "board",
 )
 WORK = "/work"  # the referee container mounts the build here (sandbox policy workspace_mount)
+log = structlog.get_logger(__name__)
 HIDDEN_DIR = "tests/hidden"  # inside the build, read-only, referee container only
 INPUTS_MOUNT = "/referee-in"  # run log and per-session patches, read-only
 FLAKY_RUNS = 10
@@ -167,6 +173,55 @@ def shipped_tests(build: Path, paths: list[str]) -> list[str]:
     return ids
 
 
+# Files that decide how tests are collected and run. The arm's versions never apply when it is
+# judged: they are restored to the checkpoint's (or removed), and so is anything under tests/hidden.
+JUDGE_CONFIG_FILES = (
+    "conftest.py",
+    "tests/conftest.py",
+    "pytest.ini",
+    "setup.cfg",
+    "tox.ini",
+    "pyproject.toml",
+)
+
+
+def snapshot_judge_config(build: Path) -> dict[str, bytes | None]:
+    return {
+        rel: (build / rel).read_bytes() if (build / rel).is_file() else None
+        for rel in JUDGE_CONFIG_FILES
+    }
+
+
+def restore_judge_config(build: Path, snapshot: dict[str, bytes | None]) -> None:
+    for rel, data in snapshot.items():
+        path = build / rel
+        _remove(path)
+        if data is not None:
+            path.write_bytes(data)
+    _remove(build / HIDDEN_DIR)
+
+
+def _remove(path: Path) -> None:
+    """Remove a file, link, or directory without following links."""
+    if path.is_symlink() or path.is_file():
+        path.unlink()
+    elif path.is_dir():
+        shutil.rmtree(path)
+
+
+def checkpoint_test_ids(build: Path) -> list[str]:
+    """Test ids in the checkpoint's visible test files (static: top-level and class methods)."""
+    visible = build / "tests" / "visible"
+    if not visible.is_dir():
+        return []
+    files = sorted(
+        p.relative_to(build).as_posix()
+        for p in visible.rglob("test*.py")
+        if p.is_file() and not p.is_symlink()
+    )
+    return shipped_tests(build, files)
+
+
 def _event_fields(result: CheckResult) -> dict[str, Any]:
     """check_result event data: only the fields the event model declares (it forbids extras
     such as artifacts or metrics)."""
@@ -210,7 +265,8 @@ class Referee:
             not self.deps.container_paths
         ):  # UNSANDBOXED fallback: no mounts, copy and use host paths
             if hidden.is_dir():
-                shutil.copytree(hidden, build / HIDDEN_DIR, dirs_exist_ok=True)
+                shutil.rmtree(build / HIDDEN_DIR, ignore_errors=True)
+                shutil.copytree(hidden, build / HIDDEN_DIR)
             return {
                 "hidden_dir": HIDDEN_DIR,
                 "run_log": str(runlog) if runlog else None,
@@ -229,6 +285,22 @@ class Referee:
             ],
         }, mounts
 
+    def _start(
+        self, build: Path, mounts: list[Mount], arm: Arm
+    ) -> tuple[Sandbox | None, str | None]:
+        """Start a referee container; a failure is reported, never raised, so a Docker hiccup
+        gives a "could not judge" verdict instead of losing both arms' runs."""
+        sandbox: Sandbox | None = None
+        try:
+            sandbox = self.deps.sandbox_factory(build, mounts, arm)
+            sandbox.start()
+        except Exception as exc:  # noqa: BLE001
+            if sandbox is not None:
+                with contextlib.suppress(Exception):  # best effort; the start already failed
+                    sandbox.stop()
+            return None, f"referee container did not start: {type(exc).__name__}: {exc}"[:500]
+        return sandbox, None
+
     def _run_checks(
         self,
         sandbox: Sandbox,
@@ -244,6 +316,7 @@ class Referee:
                 write_container_file(sandbox, f"{root}/baseline.json", baseline)
         except RuntimeError as exc:
             return [], [], f"referee container not usable: {exc}"[:500]
+        nonce = new_nonce()
         command = runner_command(
             build=".",
             checks=list(checks),
@@ -252,10 +325,11 @@ class Referee:
             seed=self.deps.seed,
             params=f"{root}/params.json",
             baseline=f"{root}/baseline.json" if baseline else None,
+            nonce=nonce,
         )
         output = sandbox.exec(command, self.deps.timeout_s)
         try:
-            results, progress = parse_runner_output(output.output)
+            results, progress = parse_runner_output(output.output, nonce=nonce)
         except RunnerOutputError as exc:
             return [], [], f"check runner failed (exit {output.exit_code}): {exc}"[:500]
         return results, progress, None
@@ -271,12 +345,20 @@ class Referee:
             self.deps.course_repo, self.deps.checkpoint_ref, root / "hidden"
         )
         inputs, mounts = self._paths(build, hidden, None, [])
-        sandbox = self.deps.sandbox_factory(build, mounts, arm)
-        sandbox.start()
+        sandbox, start_error = self._start(build, mounts, arm)
+        if sandbox is None:
+            self._baseline_done = True
+            log.warning("referee baseline unavailable", reason=start_error)
+            return None
         try:
             checks = tuple(c for c in REFEREE_CHECKS if c not in ("continuity", "flakiness"))
             params = self._params(
-                inputs, changed_files=[], shipped_files=[], shipped_ids=[], test_phase_files=[]
+                inputs,
+                changed_files=[],
+                shipped_files=[],
+                shipped_ids=[],
+                test_phase_files=[],
+                existing_ids=checkpoint_test_ids(build),
             )
             results, _p, error = self._run_checks(sandbox, params, None, checks)
         finally:
@@ -294,10 +376,12 @@ class Referee:
         shipped_files: list[str],
         shipped_ids: list[str],
         test_phase_files: list[str],
+        existing_ids: list[str],
     ) -> dict[str, Any]:
         """Check params under the names the checks read (shipharness.checks.params)."""
         return {
             **inputs,
+            P.REGRESSION_EXPECTED: list(existing_ids),
             P.HIDDEN_TESTS: list(self.task.hidden_test_ids),
             P.SHIPPED_TESTS: shipped_ids,
             "shipped_test_files": shipped_files,  # informational, for reports
@@ -338,10 +422,13 @@ class Referee:
         hidden = export_hidden_tests(
             self.deps.course_repo, self.deps.checkpoint_ref, rdir / "hidden"
         )
+        existing_ids = checkpoint_test_ids(build)
+        config = snapshot_judge_config(build)
         product = strip(diff)  # harness artifacts are state, not product changes
         patch = rdir / "product.patch"
         patch.write_bytes(product)
         apply_error = _apply(build, patch)
+        restore_judge_config(build, config)  # the arm never configures how it is judged
         paths = [p for p in diff_paths(product) if p != "/dev/null"]
         allowed = self.task.allowed_paths
         scope_globs = [*allowed.get("build", []), *allowed.get("test", [])]
@@ -362,10 +449,11 @@ class Referee:
             referee_url = self.deps.tracer.url(root)
             if referee_url:
                 emit("trace_link", {"url": referee_url, "kind": "referee"})
+            sandbox: Sandbox | None = None
             if apply_error is None:
                 inputs, mounts = self._paths(build, hidden, run_log, list(session_patches or []))
-                sandbox = self.deps.sandbox_factory(build, mounts, arm)
-                sandbox.start()
+                sandbox, error = self._start(build, mounts, arm)
+            if sandbox is not None:
                 try:
                     params = self._params(
                         inputs,
@@ -373,6 +461,7 @@ class Referee:
                         shipped_files=shipped_files,
                         shipped_ids=shipped_ids,
                         test_phase_files=list(test_phase_files or []),
+                        existing_ids=existing_ids,
                     )
                     results, progress, error = self._run_checks(
                         sandbox, params, baseline, REFEREE_CHECKS
@@ -441,6 +530,7 @@ class Referee:
         if not self.deps.mutants:
             return outcomes
         runner = self.deps.mutant_runner or default_mutant_runner
+        tests = self._passing_unmutated(sandbox, tests)
         for mutant in self.deps.mutants:
             mutant_id = str(mutant["id"] if isinstance(mutant, dict) else mutant.id)
             if not tests:
@@ -457,6 +547,21 @@ class Referee:
                 {"mutant_id": mutant_id, "set": "referee", "outcome": outcome, "killed_by": None},
             )
         return outcomes
+
+    @staticmethod
+    def _passing_unmutated(sandbox: Sandbox, tests: list[str]) -> list[str]:
+        """Shipped tests that pass on the arm's unmutated build. A test that already fails
+        would "kill" every mutant, so only these may judge mutants (as filter 1 requires)."""
+        passing: list[str] = []
+        for test in tests:
+            try:
+                command = pytest_command("python", [test])
+            except UnsafeTestId:
+                continue
+            run = sandbox.exec(command, 300)
+            if run.exit_code == 0 and not run.timed_out and counts(run.output)["passed"] >= 1:
+                passing.append(test)
+        return passing
 
     def _review(self, diff: bytes, emit: Callable[[str, Any], None]) -> ReviewOutcome | None:
         if self.deps.reviewer is None:

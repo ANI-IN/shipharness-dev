@@ -75,6 +75,7 @@ class RecordingPreview:
     def __init__(self, arm: str, spec: AgentRunSpec) -> None:
         self.arm, self.spec = arm, spec
         self.calls: list[str] = []
+        self.stopped = False
         RecordingPreview.instances.append(self)
 
     def start_server(self) -> None:
@@ -82,7 +83,7 @@ class RecordingPreview:
 
     def run(self, stop: threading.Event) -> int:
         self.calls.append("run")
-        stop.wait(5)
+        self.stopped = stop.wait(5)
         return 0
 
 
@@ -157,3 +158,96 @@ def test_no_previews_when_unsandboxed(tmp_path: Path) -> None:
     settings = Settings(_env_file=None, sandbox_mode="none", runs_dir=tmp_path / "runs")
     deps = runtime_module.build_runtime(settings, project="t").ab_deps(None)
     assert deps.preview_factory is None
+
+
+# --- swap test, replay, and experiments use the task's mutant set too ---------------------------
+
+
+def test_swap_and_replay_referee_loads_the_task_mutant_set(tmp_path: Path) -> None:
+    from types import SimpleNamespace
+
+    from shipharness.ab.recorded import RecordedDeps, _referee
+
+    task = dataclasses.replace(ABTask.from_dataset_line(LINE), mutant_set="app.services.issues")
+    deps = RecordedDeps(
+        course_repo=REPO,
+        checkpoint_ref=None,
+        referee_sandbox_factory=lambda *a: None,  # type: ignore[arg-type,return-value]
+        runs_dir=tmp_path / "runs",
+        exports_dir=tmp_path / "exports",
+    )
+    referee = _referee(SimpleNamespace(task=task, seed=1), deps, tmp_path, None)  # type: ignore[arg-type]
+    assert len(referee.deps.mutants) == len(load_referee_mutants("app.services.issues", REPO))
+
+
+def test_experiment_referee_loads_the_task_mutant_set(course_repo: Path, tmp_path: Path) -> None:
+    from shipharness.ab.experiments import ArmExperiment, ExperimentPlan
+
+    deps = make_deps(course_repo, tmp_path, Clients(), mutant_source_repo=REPO)
+    plan = ExperimentPlan(dataset="d", k=1, harness_layers=frozenset())
+    task = dataclasses.replace(ABTask.from_dataset_line(LINE), mutant_set="app.services.issues")
+    referee = ArmExperiment("bare", plan, deps, [])._referee(task)
+    assert len(referee.deps.mutants) == len(load_referee_mutants("app.services.issues", REPO))
+
+
+# --- failure paths: a broken preview or referee container never loses the run ------------------
+
+
+def test_a_preview_that_fails_to_start_does_not_stop_the_ab(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    def factory(arm: str, bus: EventBus, spec: AgentRunSpec) -> Any:
+        raise RuntimeError("container did not start")
+
+    deps = make_deps(course_repo, tmp_path, Clients(), preview_factory=factory)
+    result = run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert set(result.arms) == {"bare", "harness"}
+
+
+def test_previews_are_stopped_when_an_arm_raises(course_repo: Path, tmp_path: Path) -> None:
+    RecordingPreview.instances.clear()
+
+    def factory(arm: str, bus: EventBus, spec: AgentRunSpec) -> RecordingPreview:
+        return RecordingPreview(arm, spec)
+
+    def broken_clients(arm: str) -> Any:
+        raise RuntimeError("no model client")
+
+    deps = make_deps(course_repo, tmp_path, Clients(), preview_factory=factory)
+    deps.client_factory = broken_clients
+    with pytest.raises(RuntimeError):
+        run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert RecordingPreview.instances
+    assert all(p.stopped for p in RecordingPreview.instances)
+
+
+def test_preview_handle_stops_its_container_when_the_server_fails() -> None:
+    class Preview:
+        def start_server(self) -> None:
+            raise RuntimeError("no /health within 60 s")
+
+    class Box:
+        stopped = False
+
+        def stop(self) -> None:
+            Box.stopped = True
+
+    handle = runtime_module.PreviewHandle(Preview(), Box(), capture_conflict=False)  # type: ignore[arg-type]
+    with pytest.raises(RuntimeError):
+        handle.start_server()
+    assert Box.stopped is True
+
+
+def test_referee_container_that_fails_to_start_gives_a_verdict_not_a_crash(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    from shipharness.sandbox import FakeSandbox
+
+    class NoStart(FakeSandbox):
+        def start(self) -> str:
+            raise RuntimeError("docker: daemon not running")
+
+    deps = make_deps(course_repo, tmp_path, Clients(), referee_sandbox_factory=lambda *a: NoStart())
+    result = run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert {a.record.passed_primary for a in result.arms.values()} == {False}
+    assert (result.run_dir / "ab.json").is_file()

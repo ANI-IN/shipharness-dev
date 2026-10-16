@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import base64
 import json
+import secrets
 import shlex
 from typing import Any
 
@@ -52,9 +53,13 @@ def runner_command(
     params: str | None = None,
     baseline: str | None = None,
     python: str = "python",
+    nonce: str | None = None,
 ) -> str:
+    # -P: the working directory (the arm's build, for the referee) is never put on sys.path, so a
+    # `shipharness` package shipped in the build cannot replace the image's runner.
     argv = [
         python,
+        "-P",
         "-m",
         RUNNER_MODULE,
         "--build",
@@ -72,6 +77,8 @@ def runner_command(
         argv += ["--params", params]
     if baseline:
         argv += ["--baseline", baseline]
+    if nonce:
+        argv += ["--nonce", nonce]
     return " ".join(shlex.quote(a) for a in argv)
 
 
@@ -109,12 +116,24 @@ def _json_objects(text: str) -> list[dict[str, Any]]:
         index = end
 
 
-def parse_runner_output(text: str) -> tuple[list[CheckResult], list[dict[str, Any]]]:
-    """(results, progress updates). Raises RunnerOutputError if there is no results document."""
+def new_nonce() -> str:
+    """Per-run token the runner echoes in its results document (see parse_runner_output)."""
+    return secrets.token_hex(16)
+
+
+def parse_runner_output(
+    text: str, nonce: str | None = None
+) -> tuple[list[CheckResult], list[dict[str, Any]]]:
+    """(results, progress updates). Raises RunnerOutputError if there is no results document.
+
+    With `nonce`, only the first results document carrying that nonce counts: build code imported
+    by the checks shares the output stream and could print a results document of its own."""
     results: list[CheckResult] | None = None
     progress: list[dict[str, Any]] = []
     for obj in _json_objects(text):
         if "results" in obj and isinstance(obj["results"], list):
+            if nonce is not None and (results is not None or obj.get("nonce") != nonce):
+                continue
             try:
                 results = [CheckResult.model_validate(r) for r in obj["results"]]
             except ValidationError as exc:

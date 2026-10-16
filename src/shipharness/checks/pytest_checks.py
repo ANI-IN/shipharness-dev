@@ -3,6 +3,8 @@
 Params (runner --params):
 - `regression_targets`: pytest targets for the checkpoint's visible suite (default
   ["tests/visible"]).
+- `regression_expected`: node ids that existed at the checkpoint; one the run no longer reports
+  (removed or renamed by the arm) counts as failed. Parametrized ids match by their base name.
 - `hidden_tests`: pytest node ids relative to the build directory (mount hidden tests inside the
   build tree, for example at tests/hidden/). A requested id that is not collected counts as failed.
 - `shipped_tests`: node ids or files the arm added; `flaky_runs`: repetitions (default 10).
@@ -33,6 +35,12 @@ class RegressionCheck:
         run = run_pytest(build_dir, targets)
         ctx.progress(1, 1, "existing tests")
         findings = [outcome_finding("regression", n, run.outcomes[n]) for n in run.failed]
+        reported = {node.split("[", 1)[0] for node in run.outcomes}
+        for node in ctx.params.get("regression_expected") or []:
+            if node not in reported:
+                findings.append(
+                    outcome_finding("regression", node, "missing: existing test removed or renamed")
+                )
         if not run.outcomes:
             findings.append(no_tests_finding("regression", run))
         return make_result(self.name, findings, total_probes=len(run.outcomes), started=started)

@@ -70,3 +70,13 @@ def test_fake_sandbox_returns_scripted_results() -> None:
     assert fake.exec("pytest -q", timeout_s=5).output == "1 failed"
     assert fake.exec("ls", timeout_s=5).exit_code == 0
     assert fake.commands == ["pytest -q", "ls"]
+
+
+def test_local_exec_honours_a_harness_timeout_above_the_tool_cap(policy, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    # The per-tool cap applies to agent tool calls (runner/tools.py); harness commands such as the
+    # referee and the verify gate pass their own, longer timeouts.
+    capped = policy.model_copy(update={"tool_timeout_s": 1})
+    sandbox = LocalSandbox(capped, tmp_path, None, "r-1", "bare")
+    result = sandbox.exec(f'{PY} -c "import time; time.sleep(2)"', timeout_s=30)
+    assert result.timed_out is False
+    assert result.exit_code == 0

@@ -18,7 +18,7 @@ from typing import Any, get_args
 
 import structlog
 
-from shipharness.ab.mutants import load_referee_mutants
+from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import (
     Referee,
     RefereeDeps,
@@ -252,13 +252,8 @@ def run_arm(
 
 
 def _referee_mutants(task: ABTask, deps: ABDeps) -> list[Any]:
-    """Referee-set mutants for the task. A missing set is logged and scored as 0/0 instead of
-    aborting a live run; dataset validation (M5) checks that every mutant set exists."""
-    try:
-        return load_referee_mutants(task.mutant_set, deps.mutant_source_repo or deps.course_repo)
-    except ValueError as exc:
-        structlog.get_logger(__name__).warning("referee mutants unavailable", reason=str(exc))
-        return []
+    repo = deps.mutant_source_repo or deps.course_repo
+    return referee_mutants(task.mutant_set, repo, deps.mutants)
 
 
 def _start_previews(
@@ -269,8 +264,14 @@ def _start_previews(
     if deps.preview_factory is None:
         return stop, threads
     for arm, spec in specs.items():
-        preview = deps.preview_factory(arm, bus, spec)
-        preview.start_server()
+        try:
+            preview = deps.preview_factory(arm, bus, spec)
+            preview.start_server()
+        except Exception as exc:  # noqa: BLE001 - the board preview is display only
+            structlog.get_logger(__name__).warning(
+                "board preview unavailable", arm=arm, reason=f"{type(exc).__name__}: {exc}"[:300]
+            )
+            continue
         thread = threading.Thread(target=preview.run, args=(stop,), daemon=True)
         thread.start()
         threads.append(thread)
@@ -314,7 +315,7 @@ def run_ab(
             tracer=deps.tracer,
             reviewer=deps.reviewer,
             grading_criteria=deps.grading_criteria,
-            mutants=deps.mutants or _referee_mutants(task, deps),
+            mutants=_referee_mutants(task, deps),
             mutant_runner=deps.mutant_runner,
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
@@ -325,14 +326,16 @@ def run_ab(
         # [walkthrough:Opening:two_arms] start
         # Same task, same model, effort, budgets, cost cap, tools, and sandbox for both arms.
         # The only difference is the harness. Both arms run at the same time.
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
-            futures = {
-                arm: pool.submit(run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
-            }
-            results = {arm: future.result() for arm, future in futures.items()}
-        stop.set()
-        for thread in previews:
-            thread.join(timeout=10)
+        try:
+            with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
+                futures = {
+                    arm: pool.submit(run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
+                }
+                results = {arm: future.result() for arm, future in futures.items()}
+        finally:
+            stop.set()  # previews stop (and their containers with them) on every path
+            for thread in previews:
+                thread.join(timeout=10)
 
         # Both arms are judged by the same referee on what they shipped (aborted runs too).
         referee.baseline()

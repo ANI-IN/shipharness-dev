@@ -104,11 +104,24 @@ def remove_tests(workspace: Path, by_file: dict[str, list[str]]) -> list[str]:
         if not rel.startswith(TEST_ROOT) or path.is_symlink() or not path.is_file():
             raise ValueError(f"not a visible test file in the workspace: {rel!r}")
         text = path.read_bytes().decode("utf-8", errors="replace")
-        nodes = dict(_test_nodes(ast.parse(text)))
+        tree = ast.parse(text)
+        nodes = dict(_test_nodes(tree))
         lines = text.splitlines(keepends=True)
-        spans = sorted((_span(nodes[n]) for n in names if n in nodes), reverse=True)
-        for start, end in spans:
-            del lines[start - 1 : end]
+        remove = {n for n in names if n in nodes}
+        edits: list[tuple[int, int, str]] = []  # (first line, last line, replacement)
+        for cls in tree.body:
+            if not isinstance(cls, ast.ClassDef) or not cls.body:
+                continue
+            members = [f"{cls.name}::{getattr(item, 'name', '')}" for item in cls.body]
+            if all(m in remove for m in members):
+                # Removing every statement would leave `class TestX:` with no body.
+                first = cls.body[0]
+                indent = lines[first.lineno - 1][: first.col_offset]
+                edits.append((_span(first)[0], _span(cls.body[-1])[1], f"{indent}pass\n"))
+                remove -= set(members)
+        edits += [(*_span(nodes[n]), "") for n in remove]
+        for start, end, replacement in sorted(edits, reverse=True):
+            lines[start - 1 : end] = [replacement] if replacement else []
         remaining = "".join(lines)
         if not _test_nodes(ast.parse(remaining)):
             path.unlink()

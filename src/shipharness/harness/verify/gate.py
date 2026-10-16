@@ -18,6 +18,7 @@ from shipharness.harness.verify.checkrun import (
     RunnerOutputError,
     failure_lines,
     last_progress,
+    new_nonce,
     parse_runner_output,
     runner_command,
     write_container_file,
@@ -77,6 +78,7 @@ def _check_items(
     if cfg.baseline_json:
         write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json)
         baseline = f"{root}/baseline.json"
+    nonce = new_nonce()
     command = runner_command(
         build=f"{root}/build",
         checks=list(cfg.checks),
@@ -85,11 +87,12 @@ def _check_items(
         seed=cfg.seed,
         params=f"{root}/params.json",
         baseline=baseline,
+        nonce=nonce,
     )
     output = sandbox.exec(f"cd {root} && {command}", cfg.timeout_s)
     labels = [CHECK_LABELS.get(c, c) for c in cfg.checks]
     try:
-        results, progress = parse_runner_output(output.output)
+        results, progress = parse_runner_output(output.output, nonce=nonce)
     except RunnerOutputError as exc:
         detail = f"check runner failed (exit {output.exit_code}): {exc}"[:300]
         return [GateItem(name=n, status="fail", detail=detail) for n in labels], [

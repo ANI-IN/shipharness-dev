@@ -75,7 +75,8 @@ class LocalSandbox:
                 duration_ms=0,
                 denied=denial,
             )
-        timeout_s = min(timeout_s, self.policy.tool_timeout_s)
+        # The caller sets the limit: agent tool calls are capped at the tool timeout in
+        # runner/tools.py; harness commands (gate, referee) pass their own, longer limits.
         kwargs: dict[str, object] = {}
         if sys.platform == "win32":
             kwargs["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP

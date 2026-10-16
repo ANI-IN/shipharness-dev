@@ -11,7 +11,12 @@ from shipharness.checks import params as P
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision, LayerName
 from shipharness.harness.verify import testphase
-from shipharness.harness.verify.checkrun import RunnerOutputError, parse_runner_output
+from shipharness.harness.verify.checkrun import (
+    RunnerOutputError,
+    new_nonce,
+    parse_runner_output,
+    write_container_file,
+)
 from shipharness.harness.verify.checkrun import runner_command as _runner_command
 from shipharness.harness.verify.gate import GATE_CHECKS, GateConfig, run_gate
 from shipharness.harness.verify.models import GateResult
@@ -50,7 +55,8 @@ class VerifyLayer(BaseLayer):
     ) -> None:
         self.checks = tuple(checks)
         self.seed = seed
-        self.exemptions = dict(exemptions or {})
+        # None: the check runner uses the adapter's documented exemptions for the checkpoint.
+        self.exemptions = dict(exemptions) if exemptions is not None else None
         self.baseline_json = baseline_json
         self.compute_baseline = compute_baseline
         self.pipeline = pipeline or testphase.filters_pipeline
@@ -67,11 +73,13 @@ class VerifyLayer(BaseLayer):
         return self.seed
 
     def _params(self, ctx: LayerContext) -> dict[str, Any]:
-        return {
+        params: dict[str, Any] = {
             P.REGRESSION_TARGETS: list(self.existing_tests),
-            P.EXEMPTIONS: self.exemptions,
             P.ALLOWED_PATHS: {k: list(v) for k, v in ctx.spec.allowed_paths.items()},
         }
+        if self.exemptions is not None:
+            params[P.EXEMPTIONS] = self.exemptions
+        return params
 
     def _config(self, ctx: LayerContext) -> GateConfig:
         return GateConfig(
@@ -107,17 +115,28 @@ class VerifyLayer(BaseLayer):
         """Runner output on the untouched workspace, so the gate counts only new violations."""
         root = f"/tmp/shipharness-gate-baseline-{ctx.spec.run_id}"
         ctx.sandbox.exec(f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", 300)
+        # Same params as every gate run, so exemptions and targets match the gate's baseline key.
+        params = {**self._params(ctx), P.ARTIFACTS_DIR: f"{root}/artifacts"}
+        try:
+            write_container_file(
+                ctx.sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True)
+            )
+        except RuntimeError:
+            ctx.sandbox.exec(f"rm -rf {root}", 60)
+            return None
         command = _runner_command(
             build=f"{root}/build",
             checks=list(self.checks),
             checkpoint=ctx.spec.checkpoint,
             feature=ctx.spec.feature_id,
             seed=self._seed(ctx),
+            params=f"{root}/params.json",
+            nonce=(nonce := new_nonce()),
         )
         output = ctx.sandbox.exec(f"cd {root} && {command}", self.gate_timeout_s)
         ctx.sandbox.exec(f"rm -rf {root}", 60)
         try:
-            results, _ = parse_runner_output(output.output)
+            results, _ = parse_runner_output(output.output, nonce=nonce)
         except RunnerOutputError:
             return None
         return json.dumps({"results": [r.model_dump(mode="json") for r in results]})

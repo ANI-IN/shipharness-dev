@@ -38,7 +38,11 @@ class PreviewHandle:
         self.capture_conflict = capture_conflict
 
     def start_server(self) -> None:
-        self.preview.start_server()
+        try:
+            self.preview.start_server()
+        except BaseException:
+            self.sandbox.stop()  # run() never happens, so nothing else would stop the container
+            raise
 
     def run(self, stop: threading.Event) -> int:
         try:
@@ -148,7 +152,13 @@ def build_runtime(
             runtime=settings.sandbox_runtime,
         )
         sandbox.start()
-        preview = BoardPreview(sandbox, bus, Path(bus.log_path).parent, run_id=spec.run_id, arm=arm)
+        try:
+            preview = BoardPreview(
+                sandbox, bus, Path(bus.log_path).parent, run_id=spec.run_id, arm=arm
+            )
+        except BaseException:
+            sandbox.stop()
+            raise
         return PreviewHandle(preview, sandbox, capture_conflict=spec.feature_id == "F4")
 
     def reviewer(inp: ReviewInput) -> ReviewOutcome:

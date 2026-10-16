@@ -144,3 +144,11 @@ def test_a_crashing_check_becomes_an_error_result(tmp_path: Path) -> None:
     assert seen == [("clean_check_for_test", 1, 1, "clean")]
     assert exit_code(results, crashed) == 1
     assert exit_code(results[1:], False) == 0
+
+
+def test_results_document_echoes_the_nonce(tmp_path: Path) -> None:
+    proc = runner(
+        "--build", str(tmp_path), "--checks", "r7_migrations", "--checkpoint", "m1-base",
+        "--feature", "F1", "--nonce", "n-42",
+    )  # fmt: skip
+    assert json.loads(proc.stdout)["nonce"] == "n-42"

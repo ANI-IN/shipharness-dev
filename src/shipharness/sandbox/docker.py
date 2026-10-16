@@ -129,7 +129,8 @@ class DockerSandbox:
                 duration_ms=0,
                 denied=denial,
             )
-        timeout_s = min(timeout_s, self.policy.tool_timeout_s)
+        # The caller sets the limit: agent tool calls are capped at the tool timeout in
+        # runner/tools.py; harness commands (gate, referee) pass their own, longer limits.
         argv = [
             self.runtime,
             "exec",

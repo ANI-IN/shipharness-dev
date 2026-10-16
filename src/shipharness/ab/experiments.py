@@ -18,6 +18,7 @@ from typing import Any
 
 from shipharness.ab.demo import ARMS, ABDeps, ABTask, arm_specs, phase_changed_files, run_arm
 from shipharness.ab.demo import session_patches as write_session_patches
+from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import Referee, RefereeDeps
 from shipharness.ab.score import ScoreRecord, evaluator_scores
 from shipharness.ab.workspace import create_arm_workspace, new_run_id
@@ -147,7 +148,12 @@ class ArmExperiment:
                         tracer=self.deps.tracer,
                         reviewer=self.deps.reviewer,
                         grading_criteria=self.deps.grading_criteria,
-                        mutants=self.deps.mutants,
+                        mutants=referee_mutants(
+                            task.mutant_set,
+                            self.deps.mutant_source_repo or self.deps.course_repo,
+                            self.deps.mutants,
+                        ),
+                        mutant_runner=self.deps.mutant_runner,
                         sandboxed=self.deps.sandboxed,
                         container_paths=self.deps.container_paths,
                     ),

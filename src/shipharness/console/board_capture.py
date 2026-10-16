@@ -284,6 +284,8 @@ def serve(app_dir: Path, db_path: Path, port: int) -> None:
 
     url = prepare_database(app_dir, db_path)
     os.environ["TEAMTRACK_DATABASE_URL"] = url
+    # The preview starts before the agent works; reload (uvicorn's polling reloader, no extra
+    # package) makes every frame show the arm's current code. Migrations run once, at start.
     uvicorn.run(
         "app.main:create_app",
         factory=True,
@@ -291,6 +293,8 @@ def serve(app_dir: Path, db_path: Path, port: int) -> None:
         port=port,
         app_dir=str(app_dir),
         log_level="warning",
+        reload=True,
+        reload_dirs=[str(Path(app_dir) / "app")],
     )
 
 

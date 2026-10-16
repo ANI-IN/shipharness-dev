@@ -17,6 +17,7 @@ from pathlib import Path
 from typing import Any
 
 from shipharness.ab.demo import AB_RECORD, ARMS, ABTask
+from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import Referee, RefereeDeps, Reviewer, SandboxFactory
 from shipharness.ab.score import ScoreRecord
 from shipharness.ab.workspace import new_ab_id
@@ -123,7 +124,7 @@ def _referee(ab: LoadedAB, deps: RecordedDeps, base: Path, reviewer: Reviewer | 
             tracer=deps.tracer,
             reviewer=reviewer,
             grading_criteria=deps.grading_criteria,
-            mutants=deps.mutants,
+            mutants=referee_mutants(ab.task.mutant_set, deps.course_repo, deps.mutants),
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
         ),

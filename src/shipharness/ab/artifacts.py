@@ -70,21 +70,61 @@ def _unquote(token: bytes) -> str:
     return text[2:] if text[:2] in ("a/", "b/") else text
 
 
+_GIT_HEADER = b"diff --git "
+_BODY_PATHS = ((b"--- ", 0), (b"+++ ", 1), (b"rename from ", 0), (b"rename to ", 1))
+
+
+def _header_paths(header: bytes) -> list[str]:
+    """Paths from a `diff --git` line. Git quotes names with special characters but leaves
+    spaces unquoted, so an unquoted `a/X b/X` header is split where both halves are equal."""
+    match = _HEADER.match(header)
+    if match:
+        return [_unquote(match.group(1)), _unquote(match.group(2))]
+    rest = header[len(_GIT_HEADER) :]
+    if rest.startswith(b"a/"):
+        for i in range(2, len(rest)):
+            if rest[i : i + 3] == b" b/" and rest[2:i] == rest[i + 3 :]:
+                name = rest[2:i].decode("utf-8", errors="replace")
+                return [name, name]
+    return []
+
+
+def _body_paths(lines: list[bytes]) -> list[str]:
+    """Old and new paths from the section's `---`/`+++` or `rename from/to` lines, if any."""
+    found: list[str | None] = [None, None]
+    for raw in lines[1:]:
+        line = raw.rstrip(b"\r\n")
+        if line.startswith((b"@@", b"GIT binary patch")):
+            break
+        for prefix, side in _BODY_PATHS:
+            if line.startswith(prefix):
+                token = line[len(prefix) :].rstrip(b"\t")  # git adds a tab after names with spaces
+                if prefix.startswith(b"rename") and not token.startswith(b'"'):
+                    found[side] = token.decode("utf-8", errors="replace")
+                else:
+                    found[side] = "/dev/null" if token == b"/dev/null" else _unquote(token)
+    old, new = found
+    if old is None or new is None:
+        return []
+    return [new if old == "/dev/null" else old, old if new == "/dev/null" else new]
+
+
 def _sections(diff: bytes) -> list[tuple[list[str], bytes]]:
     """Split a git diff into (paths, section bytes). Text before the first header has no paths."""
-    out: list[tuple[list[str], bytes]] = []
-    current: list[bytes] = []
-    paths: list[str] = []
+    groups: list[tuple[bool, list[bytes]]] = []
     for line in diff.splitlines(keepends=True):
-        match = _HEADER.match(line.rstrip(b"\r\n"))
-        if match:
-            if current:
-                out.append((paths, b"".join(current)))
-            current, paths = [line], [_unquote(match.group(1)), _unquote(match.group(2))]
+        if line.startswith(_GIT_HEADER):
+            groups.append((True, [line]))
+        elif groups:
+            groups[-1][1].append(line)
         else:
-            current.append(line)
-    if current:
-        out.append((paths, b"".join(current)))
+            groups.append((False, [line]))
+    out: list[tuple[list[str], bytes]] = []
+    for is_section, lines in groups:
+        paths: list[str] = []
+        if is_section:
+            paths = _body_paths(lines) or _header_paths(lines[0].rstrip(b"\r\n"))
+        out.append((paths, b"".join(lines)))
     return out
 
 

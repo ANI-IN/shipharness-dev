@@ -19,6 +19,7 @@ HIDDEN_TESTS = "hidden_tests"  # pytest node ids, relative to the build
 MIGRATIONS_DIR = "migrations_dir"
 PHASE_FILES = "phase_files"  # {"test": [files changed during the test phase]}
 R3_MAX_EXAMPLES = "r3_max_examples"
+REGRESSION_EXPECTED = "regression_expected"  # node ids that existed at the checkpoint
 REGRESSION_TARGETS = "regression_targets"  # pytest targets for existing tests
 RUN_LOG = "run_log"
 SESSION_PATCHES = "session_patches"  # one diff file per session, in order
@@ -39,6 +40,7 @@ ALL_NAMES = (
     MIGRATIONS_DIR,
     PHASE_FILES,
     R3_MAX_EXAMPLES,
+    REGRESSION_EXPECTED,
     REGRESSION_TARGETS,
     RUN_LOG,
     SESSION_PATCHES,

@@ -5,6 +5,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import structlog
+
 MUTANT_DIR = Path("teamtrack") / "mutants"
 
 
@@ -26,3 +28,18 @@ def load_referee_mutants(mutant_set: str, course_repo: Path) -> list[Any]:
             raise ValueError(f"unknown mutant set {token!r}: {rel.as_posix()} does not exist")
         mutants.extend(m for m in load_mutants(path, None) if m.set == "referee")
     return mutants
+
+
+def referee_mutants(
+    mutant_set: str, course_repo: Path, given: list[Any] | None = None
+) -> list[Any]:
+    """Mutants that judge one task, for every path that runs the referee (A/B, swap test, replay,
+    experiments). `given` wins when set. A missing set is logged and scored 0/0 instead of
+    aborting a live run; dataset validation (M5) checks that every mutant set exists."""
+    if given:
+        return list(given)
+    try:
+        return load_referee_mutants(mutant_set, course_repo)
+    except ValueError as exc:
+        structlog.get_logger(__name__).warning("referee mutants unavailable", reason=str(exc))
+        return []

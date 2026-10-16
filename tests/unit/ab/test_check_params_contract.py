@@ -38,7 +38,9 @@ def test_referee_params_use_the_names_the_checks_read(tmp_path: Path) -> None:
         shipped_files=["tests/visible/test_new.py"],
         shipped_ids=["tests/visible/test_new.py::test_ok"],
         test_phase_files=["app/api/issues.py"],
+        existing_ids=["tests/visible/test_old.py::test_a"],
     )
+    assert params[P.REGRESSION_EXPECTED] == ["tests/visible/test_old.py::test_a"]
     assert params[P.HIDDEN_TESTS] == ["tests/hidden/f1/test_list.py::test_cursor"]
     assert params[P.SHIPPED_TESTS] == ["tests/visible/test_new.py::test_ok"]
     assert params[P.CHANGED_FILES] == ["app/api/issues.py", "tests/visible/test_new.py"]

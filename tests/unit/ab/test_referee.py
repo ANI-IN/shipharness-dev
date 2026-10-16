@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import re
 import shlex
 from pathlib import Path
 from typing import Any
@@ -52,20 +53,27 @@ OUT_OF_SCOPE = """diff --git a/app/main.py b/app/main.py
 
 
 class Factory:
-    def __init__(self, results: list[dict[str, Any]]) -> None:
+    def __init__(
+        self, results: list[dict[str, Any]], failing: frozenset[str] = frozenset()
+    ) -> None:
         self.results = results
+        self.failing = failing  # shipped test ids that fail on the unmutated build
         self.calls: list[tuple[Path, list[Any], str]] = []
         self.sandboxes: list[FakeSandbox] = []
 
+    def _exec(self, cmd: str) -> ExecResult:
+        if "checks.runner" in cmd:
+            output = runner_output(self.results, command=cmd)
+            return ExecResult(exit_code=0, output=output, duration_ms=1)
+        if "-m pytest" in cmd:
+            if any(t in cmd for t in self.failing):
+                return ExecResult(exit_code=1, output="1 failed in 0.1s\n", duration_ms=1)
+            return ExecResult(exit_code=0, output="1 passed in 0.1s\n", duration_ms=1)
+        return ExecResult(exit_code=0, output="", duration_ms=1)
+
     def __call__(self, build: Path, mounts: list[Any], arm: str) -> FakeSandbox:
         self.calls.append((build, mounts, arm))
-        box = FakeSandbox(
-            lambda cmd: ExecResult(
-                exit_code=0,
-                output=runner_output(self.results) if "checks.runner" in cmd else "",
-                duration_ms=1,
-            )
-        )
+        box = FakeSandbox(self._exec)
         self.sandboxes.append(box)
         return box
 
@@ -380,5 +388,83 @@ def test_both_arms_go_through_the_same_checks(course_repo: Path, tmp_path: Path)
     referee = Referee(task(), deps(course_repo, tmp_path, factory))
     judge(referee, tmp_path, PRODUCT, run_id="r-b", arm="bare")
     judge(referee, tmp_path, PRODUCT, run_id="r-h", arm="harness")
-    commands = [c for box in factory.sandboxes[1:] for c in box.commands]
-    assert len(set(commands)) == len(commands) // 2  # byte-identical commands for both arms
+    commands = [
+        re.sub(r"--nonce \S+", "--nonce N", c)
+        for box in factory.sandboxes[1:]
+        for c in box.commands
+    ]
+    # Identical commands for both arms, apart from the per-run nonce.
+    assert len(set(commands)) == len(commands) // 2
+
+
+def test_shipped_tests_failing_on_the_unmutated_build_never_kill_mutants(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    calls = []
+
+    def runner(mutant, tests, build, sandbox):  # type: ignore[no-untyped-def]
+        calls.append(tests)
+        return "killed"  # a failing test "kills" every mutant
+
+    second = "tests/visible/test_issues_new.py::test_second"
+    factory = Factory(all_green(), failing=frozenset({second}))
+    d = deps(course_repo, tmp_path, factory, mutants=[{"id": "m1"}], mutant_runner=runner)
+    judge(Referee(task(), d), tmp_path, PRODUCT)
+    assert calls == [["tests/visible/test_issues_new.py::test_filtered"]]
+
+
+def test_all_shipped_tests_failing_means_every_mutant_survives(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    def runner(mutant, tests, build, sandbox):  # type: ignore[no-untyped-def]
+        return "killed"
+
+    ids = frozenset({"test_issues_new.py::test_filtered", "test_issues_new.py::test_second"})
+    factory = Factory(all_green(), failing=ids)
+    d = deps(course_repo, tmp_path, factory, mutants=[{"id": "m1"}], mutant_runner=runner)
+    verdict, _ = judge(Referee(task(), d), tmp_path, PRODUCT)
+    assert (verdict.record.mutants_killed, verdict.record.mutants_total) == (0, 1)
+
+
+JUDGE_CONFIG = """diff --git a/conftest.py b/conftest.py
+new file mode 100644
+--- /dev/null
++++ b/conftest.py
+@@ -0,0 +1,2 @@
++def pytest_runtest_makereport(item, call):
++    pass
+diff --git a/tests/hidden/conftest.py b/tests/hidden/conftest.py
+new file mode 100644
+--- /dev/null
++++ b/tests/hidden/conftest.py
+@@ -0,0 +1 @@
++FORCED = True
+"""
+
+
+def _referee_params(factory: Factory) -> dict[str, Any]:
+    box = factory.sandboxes[-1]
+    [cmd] = [c for c in box.commands if c.startswith("printf") and "params.json" in c]
+    return json.loads(base64.b64decode(cmd.split()[2]))
+
+
+def test_arm_changes_to_test_configuration_are_reverted_before_judging(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    verdict, _ = judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, JUDGE_CONFIG
+    )
+    build = verdict.referee_dir / "build"
+    assert verdict.apply_error is None
+    assert not (build / "conftest.py").exists()
+    assert not (build / "tests" / "hidden" / "conftest.py").exists()
+
+
+def test_regression_expects_every_test_that_existed_at_the_checkpoint(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    params = _referee_params(factory)
+    assert params["regression_expected"] == ["tests/visible/test_app.py::test_app"]

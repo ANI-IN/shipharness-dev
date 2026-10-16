@@ -27,7 +27,7 @@ def script(
 
     def run(command: str) -> ExecResult:
         if "-m shipharness.checks.runner" in command:
-            return runner or ok(runner_output(results))
+            return runner or ok(runner_output(results, command=command))
         if "-m pytest" in command:
             return pytest_out or ok(PYTEST_OK)
         if command.startswith("alembic heads"):

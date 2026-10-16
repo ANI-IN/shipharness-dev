@@ -49,7 +49,7 @@ class Script:
         if "-m shipharness.checks.runner" in command:
             self.runner_calls.append(command)
             results = self.runs.pop(0) if len(self.runs) > 1 else self.runs[0]
-            return ok(runner_output(results))
+            return ok(runner_output(results, command=command))
         if "-m pytest" in command:
             return ok("3 passed in 0.5s\n")
         if command.startswith("alembic heads"):
@@ -313,3 +313,81 @@ def test_test_ids_never_leave_the_workspace(tmp_path: Path, name: str) -> None:
 
     with pytest.raises(ValueError):
         remove_tests(tmp_path, {name: ["test_a"]})
+
+
+def _written_params(sandbox: FakeSandbox) -> list[dict]:
+    import base64
+    import json
+
+    return [
+        json.loads(base64.b64decode(c.split()[2]))
+        for c in sandbox.commands
+        if c.startswith("printf") and "params.json" in c
+    ]
+
+
+def test_gate_leaves_exemptions_to_the_adapter_unless_given(tmp_path: Path) -> None:
+    sandbox = FakeSandbox(Script([GREEN]))
+    ctx = ctx_for(tmp_path, sandbox)
+    VerifyLayer(baseline_json="{}").on_claim_done(ctx)
+    [params] = _written_params(sandbox)
+    assert "exemptions" not in params  # the runner then uses the adapter's documented exemptions
+
+
+def test_baseline_and_gate_use_the_same_params(tmp_path: Path) -> None:
+    script = Script([GREEN])
+    sandbox = FakeSandbox(script)
+    ctx = ctx_for(tmp_path, sandbox)
+    layer = VerifyLayer(seed=5, exemptions={"R4": ["POST /x"]})
+    layer.prepare_workspace(ctx)
+    layer.on_claim_done(ctx)
+    assert all("--params" in c for c in script.runner_calls)
+    baseline, gate = _written_params(sandbox)
+    gate.pop("artifacts_dir", None)
+    baseline.pop("artifacts_dir", None)
+    assert baseline == gate
+
+
+def test_gate_params_report_no_new_violations_on_the_untouched_checkpoint(tmp_path: Path) -> None:
+    """The documented legacy exemptions must not turn into new violations at the gate."""
+    from shipharness.checks.base import CheckResult
+    from shipharness.checks.runner import run_checks
+
+    repo = Path(__file__).resolve().parents[3] / "teamtrack"
+    ctx = ctx_for(tmp_path, FakeSandbox(Script([GREEN])))
+    params = VerifyLayer()._params(ctx)
+    kw: dict[str, Any] = dict(checkpoint="m1-s1-start", feature_id="F1", seed=5)
+    base, _ = run_checks(repo, ["r4_idempotency"], **kw)  # how the baseline runs today
+    baseline = {r.check: CheckResult.model_validate(r.model_dump()) for r in base}
+    gate, _ = run_checks(repo, ["r4_idempotency"], params=params, baseline=baseline, **kw)
+    assert [r.new_violations for r in gate] == [0]
+
+
+def test_removing_the_last_method_of_a_class_keeps_the_file_valid(tmp_path: Path) -> None:
+    import ast
+
+    from shipharness.harness.verify.testphase import remove_tests
+
+    visible = tmp_path / "tests" / "visible"
+    visible.mkdir(parents=True)
+    path = visible / "test_new.py"
+    path.write_text(
+        "class TestGroup:\n    def test_drop(self):\n        assert 1\n\n\n"
+        "def test_keep():\n    assert 1\n",
+        encoding="utf-8",
+    )
+    remove_tests(tmp_path, {"tests/visible/test_new.py": ["TestGroup::test_drop"]})
+    text = path.read_text(encoding="utf-8")
+    ast.parse(text)
+    assert "test_drop" not in text and "def test_keep" in text
+
+
+def test_baseline_that_cannot_write_its_params_is_reported_unavailable(tmp_path: Path) -> None:
+    def script(command: str) -> ExecResult:
+        if command.startswith("printf"):
+            return ExecResult(exit_code=1, output="base64: not found", duration_ms=1)
+        return ok("")
+
+    ctx = ctx_for(tmp_path, FakeSandbox(script))
+    decisions = VerifyLayer().prepare_workspace(ctx)
+    assert [d.message for d in decisions] == ["gate baseline unavailable"]
