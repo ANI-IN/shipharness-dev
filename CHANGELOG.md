@@ -20,6 +20,12 @@ All notable changes to this project are recorded here.
 - TeamTrack: ids bounded to 64-bit, field validation in the issue service, catch-all error envelope,
   request logging off by default.
 - CONTRACTS 1.3 (§21 M4 additions); DESIGN D-17 to D-21 and walkthrough anchors as built.
+- Final review fixes: harness commands keep their own time limits; gate exemptions match its
+  baseline; the arm's build cannot replace the referee's runner, and results without the run's nonce
+  are rejected; failing shipped tests
+  never kill mutants; the arm cannot change test configuration or drop existing tests unnoticed; every
+  referee path uses the task's mutant set; preview and referee container failures never lose a run; the
+  board preview reloads the arm's code; diff paths with spaces; emptied test classes stay valid.
 
 ### M3 Core (2026-10-16)
 - Package `shipharness` with pinned dependencies (uv) and CLI: `doctor`, `up`, `console`,

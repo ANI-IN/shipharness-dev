@@ -125,3 +125,28 @@ referee, the gate, and the checks (`checks/params.py` plus a contract test); the
 not reach the real filter pipeline (`test_filters_wiring.py`); referee mutants and board previews were not
 wired into `run_ab` (`test_preview_and_mutants_wiring.py`); failing counts dropped when findings were
 capped at 200 (`test_scores.py`).
+
+### M4 final review
+
+A fresh reviewer (most capable model, read-only) reviewed d25df1e..1e26849. Verdict: "not ready". It
+found two critical and eight important findings. Each was reproduced by a failing test before its fix,
+in one fix pass:
+
+| Finding | Fix | Test |
+|---|---|---|
+| Every sandbox command was capped at the 120 s tool timeout, so the referee (asks 1,200 s) and the gate (600 s) were cut short; the visible suite alone took 120 s on this host | The cap applies to agent tool calls only (`runner/tools.py`); harness commands keep their own limits | `test_local_exec_honours_a_harness_timeout_above_the_tool_cap`, `test_docker_exec_honours_a_harness_timeout_above_the_tool_cap` |
+| The gate sent `exemptions: {}` while its baseline used the adapter's exemptions, so documented legacy endpoints became new violations at every gate | Exemptions only when given; the baseline gets the gate's params | `test_gate_params_report_no_new_violations_on_the_untouched_checkpoint` (real R4 run) and two more |
+| The referee ran the runner with the arm's build as working directory, so a shipped `shipharness/` package replaced it; an atexit print could forge results | `python -P`; per-run nonce in the results document | `test_a_runner_package_in_the_working_directory_is_never_imported`, `test_parse_takes_only_the_results_document_with_the_nonce` |
+| Shipped tests that fail on the clean build counted as mutant kills | Only tests that pass unmutated judge mutants | `test_shipped_tests_failing_on_the_unmutated_build_never_kill_mutants` |
+| The arm controlled pytest configuration and could delete existing tests unnoticed | Judge configuration restored; `regression_expected` | `test_arm_changes_to_test_configuration_are_reverted_before_judging`, `test_regression_reports_an_existing_test_the_arm_removed` |
+| Swap test, replay, and experiments ignored the mutant set | One `referee_mutants` for every referee path | `test_swap_and_replay_referee_loads_the_task_mutant_set`, `test_experiment_referee_loads_the_task_mutant_set` |
+| A failing preview or referee container aborted the A/B and could leave containers running | Previews skipped on failure and stopped on every path; referee start failures give a verdict | four tests in `test_preview_and_mutants_wiring.py` |
+| The board preview never reloaded the arm's code | uvicorn reload on `app/` | `test_preview_server_reloads_when_the_arm_changes_its_code` |
+| Diff headers with spaces (unquoted by git) broke artifact stripping | Paths from `---`/`+++`/rename lines, header split as fallback | `test_paths_with_spaces_from_real_git_diffs`, `test_renames_and_binary_files_with_spaces` |
+| Removing a class's last test left an empty class and crashed the harness run | The emptied class body becomes `pass` | `test_removing_the_last_method_of_a_class_keeps_the_file_valid` |
+
+After the fix pass: `uv run pytest -q -p no:cacheprovider -n 6` gives 1124 passed, 6 skipped; lint, prose
+lint, anchors (19), and the import contracts are clean.
+
+Not verified on this machine (no Docker): the longer referee and gate limits in a real container and
+the preview reload. The M6 pilot on the class host checks both.

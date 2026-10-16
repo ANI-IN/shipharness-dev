@@ -850,13 +850,19 @@ Built by the seven M4 builders against the builder contract
   10 s, saying so. Tool logs stay outside the workspace.
 
 **Checks**
-- Runner: `python -m shipharness.checks.runner --build <dir> --checks a,b --checkpoint <tag> --feature <id>
-  --seed <n> [--params f.json] [--baseline f.json]`; stdout `{"results": [CheckResult, ...]}`, stderr one
-  JSON progress line per update; exit 0 no new violations, 3 new violations, 1 error.
+- Runner: `python -P -m shipharness.checks.runner --build <dir> --checks a,b --checkpoint <tag> --feature
+  <id> --seed <n> [--params f.json] [--baseline f.json] [--nonce <hex>]`; stdout `{"results":
+  [CheckResult, ...], "nonce": <hex>}`, stderr one JSON progress line per update; exit 0 no new
+  violations, 3 new violations, 1 error. `-P` keeps the working directory (the arm's build, for the
+  referee) off `sys.path`; callers pass a fresh nonce and accept only the results document carrying it.
 - Parameter names live in `shipharness.checks.params` (`hidden_tests`, `shipped_tests`,
-  `regression_targets`, `changed_files`, `phase_files`, `allowed_paths`, `harness_artifacts`,
-  `exemptions`, `flaky_runs`, `run_log`, `session_patches`, `artifacts_dir`, ...). The referee and the gate
-  build params only with these names; a test checks that every name a check reads is declared.
+  `regression_targets`, `regression_expected`, `changed_files`, `phase_files`, `allowed_paths`,
+  `harness_artifacts`, `exemptions`, `flaky_runs`, `run_log`, `session_patches`, `artifacts_dir`, ...).
+  The referee and the gate build params only with these names; a test checks that every name a check
+  reads is declared. Without `exemptions` the runner uses the adapter's documented exemptions; the gate
+  sends the same params to its baseline run and every gate run.
+- `Sandbox.exec(command, timeout_s)` honours the caller's limit. Agent tool calls are capped at
+  `TOOL_TIMEOUT_S` in `runner/tools.py`; harness commands (gate, gate baseline, referee) pass their own.
 - `Finding.detail_key: str = ""` is part of the baseline key `(rule, endpoint, severity, detail_key)`;
   `info` findings are shown, never counted. `CheckResult.metrics: dict[str, float | int | bool | None]`.
   `CheckContext.params` and `CheckContext.is_exempt(rule, endpoint)`.
@@ -881,10 +887,17 @@ Built by the seven M4 builders against the builder contract
 - `docker_run_args(..., extra_mounts: list[tuple[Path, str, "ro" | "rw"]] | None = None)` and the same on
   `DockerSandbox`; mounts inside `/work` must be `ro`, and nothing may cover `/work` itself.
 - `ab/artifacts.py: HARNESS_ARTIFACT_PATTERNS` (DESIGN D-18). Referee-set mutants load by
-  `mutant_set` (`ab/mutants.py`; names resolve to `teamtrack/mutants/<name>.jsonl`; DESIGN D-21).
+  `mutant_set` (`ab/mutants.py: referee_mutants`, used by the A/B, the swap test, replay, and
+  experiments; names resolve to `teamtrack/mutants/<name>.jsonl`; DESIGN D-21). Only shipped tests that
+  pass on the arm's unmutated build judge mutants.
+- Before judging, the referee restores the checkpoint's `conftest.py`, `tests/conftest.py`,
+  `pytest.ini`, `setup.cfg`, `tox.ini`, and `pyproject.toml`, removes anything the arm put under
+  `tests/hidden`, and sends `regression_expected` (the checkpoint's visible test ids; a missing one is a
+  regression). A referee container that fails to start gives a "could not judge" verdict, not an error.
 - `ABDeps.preview_factory(arm, bus, spec)` returns an object with `start_server()` and `run(stop)`;
   the runtime builds one preview container per arm on the referee image when sandboxed, and none when
-  unsandboxed.
+  unsandboxed. A preview that fails to start is logged and skipped; previews stop on every path. The
+  preview server reloads when the arm changes `app/`.
 
 **Console**
 - Routes: `GET /` (runs), `GET /run/{id}` (five screens), `GET /screens/{id}` (SSE of rendered screens),
