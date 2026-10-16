@@ -20,59 +20,101 @@ _spec.loader.exec_module(mr)
 
 # -- selection ----------------------------------------------------------------------------------
 
+A1 = "submodules/01-instructions"
 TRACKED = [
     ".github/workflows/ci.yml",
     ".github/dependabot.yml",
     ".vale/styles/Shipharness/Banned.yml",
     ".vale.ini",
     ".env.example",
+    ".python-version",
+    ".shipharness/runs/r-1/run.json",
     "CODEOWNERS",
     "CONTRACTS.md",
     "DESIGN.md",
+    "FREEZE-EXCEPTIONS.toml",
     "LICENSE",
     "Makefile",
     "README.md",
     "RESEARCH.md",
     "VERIFICATION.md",
+    "docs/setup-linux.md",
+    "docs/scratch.md",
+    "exports/scores.json",
     "instructor/run-sheet.md",
+    "instructor/engineering-notes/release-plan.md",
     "notes.txt",
     "pyproject.toml",
     "research/notes/R-a.md",
     "scripts/anchors.py",
     "scripts/fetch_testgen_libs.py",
+    "scripts/freeze_harness.py",
+    "scripts/grade_assignment.py",
     "scripts/lint_prose.py",
     "scripts/make_release.py",
     "scripts/pilot.py",
     "scripts/publish_solutions.py",
+    "setup/PRE-CLASS.md",
+    "slides/outline.md",
+    "slides/deck.pdf",
+    "slides/deck.pptx",
+    "slides/build.sh",
     "src/shipharness/cli.py",
-    "submodules/01-instructions/README.md",
-    "submodules/01-instructions/solution/README.md",
+    f"{A1}/README.md",
+    f"{A1}/concepts.md",
+    f"{A1}/session-notes.md",
+    f"{A1}/demo/README.md",
+    f"{A1}/post-class-reading/01-map.md",
+    f"{A1}/assignment/README.md",
+    f"{A1}/assignment/check.py",
+    f"{A1}/assignment/live_evidence.py",
+    f"{A1}/assignment/starter/AGENTS.md",
+    f"{A1}/assignment/visible_tests/test_visible.py",
+    f"{A1}/scratch/idea.md",
+    f"{A1}/solution/README.md",
+    f"{A1}/solution/grader/tests/test_grade.py",
     "submodules/02-state-lifecycle/solution/grader/hidden/case_1.py",
     "submodules/03-scope-sandbox/assignment/hidden/cases.json",
+    "submodules/05-extra/concepts.md",
     "teamtrack/reference/checkpoints.toml",
+    "teamtrack/mutants/m1.patch",
     "teamtrack/tests/hidden/f1/test_f1_search.py",
     "tests/unit/test_cli.py",
     "uv.lock",
 ]
 
 
-def test_selection_includes_the_allow_list_and_three_scripts() -> None:
+def test_selection_follows_the_owner_structure() -> None:
     sel = mr.select(TRACKED)
     for path in [
         ".github/workflows/ci.yml",
-        ".vale/styles/Shipharness/Banned.yml",
-        ".vale.ini",
         ".env.example",
+        ".python-version",
         "LICENSE",
         "Makefile",
         "README.md",
+        "docs/setup-linux.md",
         "pyproject.toml",
         "scripts/anchors.py",
         "scripts/fetch_testgen_libs.py",
+        "scripts/grade_assignment.py",
         "scripts/lint_prose.py",
+        "slides/outline.md",
+        "slides/deck.pdf",
+        "slides/deck.pptx",
         "src/shipharness/cli.py",
-        "submodules/01-instructions/README.md",
+        f"{A1}/README.md",
+        f"{A1}/concepts.md",
+        f"{A1}/session-notes.md",
+        f"{A1}/demo/README.md",
+        f"{A1}/post-class-reading/01-map.md",
+        f"{A1}/assignment/README.md",
+        f"{A1}/assignment/check.py",
+        f"{A1}/assignment/live_evidence.py",
+        f"{A1}/assignment/starter/AGENTS.md",
+        f"{A1}/assignment/visible_tests/test_visible.py",
         "teamtrack/reference/checkpoints.toml",
+        "teamtrack/mutants/m1.patch",
         "teamtrack/tests/hidden/f1/test_f1_search.py",
         "tests/unit/test_cli.py",
         "uv.lock",
@@ -80,28 +122,76 @@ def test_selection_includes_the_allow_list_and_three_scripts() -> None:
         assert path in sel.included, path
 
 
-def test_selection_excludes_internal_files_solutions_and_hidden_cases() -> None:
+def test_selection_leaves_out_private_internal_and_unlisted_files() -> None:
     sel = mr.select(TRACKED)
     for path in [
         ".github/dependabot.yml",
+        ".vale/styles/Shipharness/Banned.yml",
+        ".vale.ini",
+        ".shipharness/runs/r-1/run.json",
         "CODEOWNERS",
         "CONTRACTS.md",
         "DESIGN.md",
+        "FREEZE-EXCEPTIONS.toml",
         "RESEARCH.md",
         "VERIFICATION.md",
+        "docs/scratch.md",
+        "exports/scores.json",
         "instructor/run-sheet.md",
+        "instructor/engineering-notes/release-plan.md",
         "notes.txt",
         "research/notes/R-a.md",
+        "scripts/freeze_harness.py",
         "scripts/make_release.py",
         "scripts/pilot.py",
         "scripts/publish_solutions.py",
-        "submodules/01-instructions/solution/README.md",
+        "setup/PRE-CLASS.md",
+        "slides/build.sh",
+        f"{A1}/scratch/idea.md",
+        f"{A1}/solution/README.md",
+        f"{A1}/solution/grader/tests/test_grade.py",
         "submodules/02-state-lifecycle/solution/grader/hidden/case_1.py",
         "submodules/03-scope-sandbox/assignment/hidden/cases.json",
+        "submodules/05-extra/concepts.md",
     ]:
         assert path not in sel.included, path
         assert path in sel.excluded, path
-    assert sel.excluded["submodules/01-instructions/solution/README.md"] == mr.REASON_SOLUTION
+    assert sel.excluded[f"{A1}/solution/README.md"] == mr.REASON_SOLUTION
+    assert sel.excluded["DESIGN.md"] == mr.REASON_PRIVATE
+    assert sel.excluded["exports/scores.json"] == mr.REASON_PRIVATE
+    assert sel.excluded["scripts/pilot.py"] == mr.REASON_INTERNAL
+    assert sel.excluded["setup/PRE-CLASS.md"] == mr.REASON_NOT_ALLOWED
+
+
+def test_leak_check_names_every_private_file_with_its_reason() -> None:
+    public = [
+        "README.md",
+        "src/shipharness/cli.py",
+        "scripts/anchors.py",
+        "RESEARCH.md",
+        "research/notes/R-a.md",
+        "instructor/run-sheet.md",
+        f"{A1}/solution/README.md",
+        f"{A1}/solution/grader/tests/test_grade.py",
+        "scripts/pilot.py",
+        "exports/scores.json",
+        ".shipharness/runs/r-1/run.json",
+    ]
+    found = dict(mr.leaks(public))
+    assert sorted(found) == sorted(public[3:])
+    assert found["scripts/pilot.py"] == mr.REASON_INTERNAL
+    assert found[f"{A1}/solution/grader/tests/test_grade.py"] == mr.REASON_SOLUTION
+
+
+def test_missing_owner_files_are_listed_not_failed() -> None:
+    sel = mr.select(TRACKED)
+    missing = mr.missing_expected(sel.included)
+    assert "docs/setup-macos.md" in missing
+    assert "docs/setup-linux.md" not in missing
+    assert "CHANGELOG.md" in missing
+    assert f"{A1}/concepts.md" not in missing
+    assert "submodules/02-*/concepts.md" in missing
+    assert "submodules/02-*/assignment/check.py" in missing
 
 
 def test_extra_exclusions_are_removed_with_their_reason() -> None:
@@ -121,24 +211,35 @@ def test_extra_exclusions_are_removed_with_their_reason() -> None:
     ],
 )
 def test_guard_fails_on_any_solution_grader_or_submodule_hidden_path(path: str) -> None:
-    assert mr.guard_violations(["README.md", path]) == [path]
+    assert [p for p, _ in mr.leaks(["README.md", path])] == [path]
 
 
 def test_guard_allows_the_referee_hidden_tests_under_teamtrack() -> None:
-    assert mr.guard_violations(["teamtrack/tests/hidden/f1/test_f1_search.py", "README.md"]) == []
+    assert mr.leaks(["teamtrack/tests/hidden/f1/test_f1_search.py", "README.md"]) == []
 
 
-def test_a_guard_violation_makes_the_dry_run_fail() -> None:
-    report = mr.Report(
+def _report(included: list[str], hits: list | None = None) -> object:
+    return mr.Report(
         ref="HEAD",
-        selection=mr.Selection(included=["README.md", "submodules/01-x/solution/a.md"]),
+        selection=mr.Selection(included=included),
         excluded_tests={},
-        guard=mr.guard_violations(["README.md", "submodules/01-x/solution/a.md"]),
-        hits=[],
+        leaks=mr.leaks(included),
+        hits=hits or [],
         references=mr.References(text="", sources=[], findings=[], unresolved=[]),
     )
-    assert not report.ok
-    assert any("solution" in p for p in report.problems())
+
+
+def test_a_leak_fails_the_dry_run_and_the_build() -> None:
+    report = _report(["README.md", "submodules/01-x/solution/a.md"])
+    assert any("private" in p for p in report.dry_run_failures())
+    assert any("private" in p for p in report.build_failures())
+
+
+def test_broken_references_are_reported_in_the_dry_run_and_fail_the_build() -> None:
+    hit = mr.Hit("README.md", 3, "section-cite", "DESIGN §3", "DESIGN §", "See DESIGN §3.")
+    report = _report(["README.md"], hits=[hit])
+    assert report.dry_run_failures() == []
+    assert any("reference" in p for p in report.build_failures())
 
 
 # -- excluded tests -----------------------------------------------------------------------------
@@ -245,6 +346,25 @@ def test_near_misses_are_not_reported() -> None:
         "house rules R1 and R6\n"
     )
     assert _hits(text) == []
+
+
+def test_a_link_to_any_file_left_out_of_the_public_tree_is_reported() -> None:
+    existing = frozenset({"setup/PRE-CLASS.md", f"{A1}/solution/README.md"})
+    public = frozenset({"README.md", f"{A1}/concepts.md", f"{A1}/README.md"})
+    text = (
+        "Before class: [pre-class](../../setup/PRE-CLASS.md).\n"
+        "The folder: [module](./).\n"
+        "Read [concepts](concepts.md).\n"
+    )
+    hits = _hits(text, path=f"{A1}/README.md", existing=existing, public=public)
+    assert [(h.line, h.kind, h.pattern) for h in hits] == [
+        (1, "link", "link to setup/PRE-CLASS.md")
+    ]
+
+
+def test_internal_scripts_are_named_but_learner_scripts_are_not() -> None:
+    hits = _hits("Run scripts/freeze_harness.py, then scripts/grade_assignment.py.\n")
+    assert [(h.kind, h.text) for h in hits] == [("script", "scripts/freeze_harness.py")]
 
 
 def test_a_sentence_end_does_not_hide_a_path_mention() -> None:
@@ -423,6 +543,7 @@ def _write(root: Path, rel: str, text: str) -> None:
 
 @pytest.fixture
 def mini_repo(tmp_path: Path) -> Path:
+    """A miniature build repository with its own checkpoint tags (built here, in tmp_path)."""
     repo = tmp_path / "dev"
     files = {
         "README.md": "# mini\n\nAs A2 says (F-a-03).\n",
@@ -434,7 +555,8 @@ def mini_repo(tmp_path: Path) -> Path:
             "@@ -1 +1,2 @@\n a = 1\n+b = 2\n"
         ),
         "teamtrack/reference/checkpoints.toml": (
-            '[checkpoints."c-base"]\ntasks = []\n\n[checkpoints."c-one"]\ntasks = ["f1"]\n'
+            '[checkpoints."m1-s1-start"]\ntasks = []\n\n'
+            '[checkpoints."m1-s2-start"]\ntasks = ["f1"]\n'
         ),
         "teamtrack/tests/hidden/test_h.py": "def test_h():\n    assert True\n",
         "submodules/01-x/README.md": "# one\n",
@@ -451,12 +573,101 @@ def mini_repo(tmp_path: Path) -> Path:
     for rel, text in files.items():
         _write(repo, rel, text)
     _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.name", "t")
+    _git(repo, "config", "user.email", "t@t.invalid")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "first")
     _write(repo, "src/pkg/later.py", "Y = 2\n")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "second")
+    from shipharness.ab.checkpoints import build_commits
+
+    build_commits(repo, dry_run=False)
     return repo
+
+
+def _refs(repo: Path) -> str:
+    return _git(repo, "for-each-ref", "--format=%(refname) %(objectname)")
+
+
+def test_dry_run_builds_one_commit_rebuilds_the_tags_and_writes_the_record(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    from shipharness import freeze
+
+    before = _refs(mini_repo)
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    public = rel.public
+    assert _refs(mini_repo) == before  # nothing tagged or moved in the build repository
+    assert _git(public, "rev-list", "--count", "HEAD") == "1"
+    assert _git(public, "remote") == ""
+    assert sorted(_git(public, "tag", "--list").split()) == [
+        "harness-frozen",
+        "m1-s1-start",
+        "m1-s2-start",
+    ]
+    assert "REFERENCES.md" in rel.public_files
+    assert "DESIGN.md" not in rel.public_files
+    assert rel.tree_leaks == []
+    by_name = {c.name: c for c in rel.checkpoints}
+    assert sorted(by_name) == ["m1-s1-start", "m1-s2-start"]
+    for c in by_name.values():
+        assert c.app_match and c.differing == [], c
+        assert not c.full_match  # the build tree also holds the private files
+    assert rel.frozen.basis == "head"
+    assert rel.frozen.paths and all(rel.frozen.paths.values())
+    assert rel.frozen.self_check == []
+    record = freeze.read_record(public)
+    assert record is not None
+    assert record["checkpoint_trees"] == freeze.checkpoint_trees(public)
+    assert rel.failures() == []
+
+
+def test_dry_run_compares_against_the_build_repo_freeze_tag_when_it_exists(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    from shipharness import freeze
+    from shipharness.config import Settings
+
+    freeze.create_tag(mini_repo, Settings(_env_file=None), identity=("t", "t@t.invalid"))
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    assert rel.frozen.basis == "tag"
+    assert all(rel.frozen.paths.values())
+
+
+def test_a_frozen_path_that_differs_fails_the_dry_run(mini_repo: Path, tmp_path: Path) -> None:
+    _write(mini_repo, "teamtrack/reference/solution/notes.md", "private\n")
+    _git(mini_repo, "add", "-A")
+    _git(mini_repo, "commit", "-q", "-m", "private note under a frozen path")
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    assert rel.frozen.paths["teamtrack/reference"] is False
+    assert rel.frozen.paths["teamtrack/tests/hidden"] is True
+    assert any("teamtrack/reference" in f for f in rel.failures())
+
+
+def test_a_checkpoint_whose_teamtrack_tree_differs_is_reported(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    _write(mini_repo, "teamtrack/app/y.py", "c = 3\n")
+    _git(mini_repo, "add", "-A")
+    _git(mini_repo, "commit", "-q", "-m", "teamtrack changed after the tags")
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    for c in rel.checkpoints:
+        assert not c.app_match
+        assert "teamtrack/app/y.py" in c.differing
+    assert rel.failures() == []  # reported in the dry run
+    assert any("checkpoint" in f for f in rel.build_failures())
+
+
+def test_push_commands_are_printed_for_the_target_and_never_run() -> None:
+    commands = mr.push_commands(Path("/tmp/pub"), ["m1-s2-start", "m1-s1-start"])
+    assert commands[0] == "cd /tmp/pub"
+    assert f"https://github.com/{mr.TARGET}.git" in commands[1]
+    assert mr.TARGET == "ANI-IN/harness-engineering-session"
+    assert "git push origin main" in commands
+    assert commands[-1] == (
+        "git push origin refs/tags/m1-s1-start refs/tags/m1-s2-start refs/tags/harness-frozen"
+    )
 
 
 def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_path: Path) -> None:
@@ -465,10 +676,10 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
     assert _git(dest, "rev-list", "--count", "HEAD") == "1"
     assert _git(dest, "log", "-1", "--format=%an|%s") == f"{mr.AUTHOR_NAME}|{mr.COMMIT_MESSAGE}"
     head = _git(dest, "rev-parse", "HEAD")
-    assert sorted(_git(dest, "tag", "--list").split()) == ["c-base", "c-one"]
-    assert _git(dest, "rev-parse", "c-one^") == head
-    assert _git(dest, "show", "c-one:teamtrack/app/x.py") == "a = 1\nb = 2"
-    assert sorted(result.tags) == ["c-base", "c-one"]
+    assert sorted(result.tags) == ["m1-s1-start", "m1-s2-start"]
+    assert _git(dest, "rev-parse", "m1-s2-start^") == head
+    assert _git(dest, "show", "m1-s2-start:teamtrack/app/x.py") == "a = 1\nb = 2"
+    assert "harness-frozen" in _git(dest, "tag", "--list").split()
     tree = set(_git(dest, "ls-files").split())
     assert {"README.md", "REFERENCES.md", "src/pkg/later.py"} <= tree
     assert "teamtrack/tests/hidden/test_h.py" in tree
@@ -484,16 +695,16 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
     assert "F-a-03" in (dest / "REFERENCES.md").read_text(encoding="utf-8")
 
 
-def test_build_refuses_when_the_dry_run_checks_fail(mini_repo: Path, tmp_path: Path) -> None:
+def test_build_refuses_on_a_broken_reference(mini_repo: Path, tmp_path: Path) -> None:
     _write(mini_repo, "README.md", "# mini\n\nSee DESIGN.md §3.\n")
     _git(mini_repo, "commit", "-q", "-am", "cite design")
     dest = tmp_path / "learner"
-    with pytest.raises(mr.ReleaseError, match="dry-run checks failed"):
+    with pytest.raises(mr.ReleaseError, match="release checks failed"):
         mr.build(mini_repo, "HEAD", dest, verify=[sys.executable, "-c", "pass"])
     assert not dest.exists()
 
 
-def test_dry_run_cli_exits_non_zero_on_hits_and_writes_the_list(
+def test_dry_run_cli_reports_broken_references_without_failing(
     mini_repo: Path, tmp_path: Path
 ) -> None:
     _write(mini_repo, "README.md", "# mini\n\nSee DESIGN.md §3.\n")
@@ -503,8 +714,11 @@ def test_dry_run_cli_exits_non_zero_on_hits_and_writes_the_list(
         [
             sys.executable,
             str(REPO / "scripts" / "make_release.py"),
+            "--dry-run",
             "--repo",
             str(mini_repo),
+            "--workdir",
+            str(tmp_path / "public"),
             "--list-file",
             str(listing),
             "--references-file",
@@ -516,7 +730,11 @@ def test_dry_run_cli_exits_non_zero_on_hits_and_writes_the_list(
         text=True,
         check=False,
     )
-    assert done.returncode == 1, done.stdout + done.stderr
-    assert "README.md:3" in done.stdout and "DESIGN.md §3" in done.stdout
-    assert "tests/unit/test_pilot.py" in done.stdout  # the excluded-tests list
-    assert "README.md" in listing.read_text(encoding="utf-8").split()
+    assert done.returncode == 0, done.stdout + done.stderr
+    out = done.stdout
+    assert "README.md:3" in out and "DESIGN.md §3" in out
+    assert "tests/unit/test_pilot.py" in out  # the excluded-tests list
+    assert "ANI-IN/harness-engineering-session" in out
+    assert "git push origin main" in out
+    assert "harness-frozen" in out
+    assert "REFERENCES.md" in listing.read_text(encoding="utf-8").split()

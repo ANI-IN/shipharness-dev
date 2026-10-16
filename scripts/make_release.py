@@ -1,22 +1,29 @@
-"""Build the learner repository from an allow-list of this build repository (release, M11).
+"""Build the public course repository from an allow-list of this build repository (release).
 
-    uv run python scripts/make_release.py                  # dry run (the default): report only
-    uv run python scripts/make_release.py --dry-run        # the same
-    uv run python scripts/make_release.py --build DIR      # write the learner tree into DIR
+    uv run python scripts/make_release.py --dry-run        # the default: build in a temp folder
+    uv run python scripts/make_release.py --build DIR      # build into DIR for the owner's push
 
-The dry run prints the included files (counts per top-level path; the full list goes to
---list-file), the tests left out because they exercise excluded files, REFERENCES.md, and the
-reference check. It exits 1 when solution or hidden grader content would be included, when an
-included file references an excluded file, or when a cited finding id does not resolve.
+Both modes write the allow-listed files of --ref (default HEAD) plus a generated REFERENCES.md
+into a fresh git repository (one commit as ANI-IN), rebuild the checkpoint tags there with the
+logic of scripts/build_checkpoints.py, and write the `harness-frozen` content record as that
+repository's own tag. The report covers, in order:
 
---build refuses unless the dry-run checks pass. It writes the selected files of --ref (default
-HEAD) into DIR, adds REFERENCES.md, runs `git init`, makes one commit as ANI-IN with a fixed
-message, rebuilds the checkpoint tags on top of it (shipharness.ab.checkpoints.build_commits,
-teamtrack/reference/checkpoints.toml), and runs the learner tree's fast suite. Nothing is pushed;
-the script never talks to GitHub.
+1. the public files (counts per top-level folder; the full list goes to --list-file) and the
+   owner-listed files that do not exist yet;
+2. the leak check: no private file, `solution/` folder, grader test, or internal script;
+3. the broken-reference check: public files that link to or name a private or excluded file;
+4. REFERENCES.md (sources and findings from RESEARCH.md and its notes that public files cite);
+5. each checkpoint tag's tree against the build repository's tag tree;
+6. the frozen-content check (shipharness.freeze) per frozen path;
+7. the target repository and the push commands the owner's release step would run.
+
+The dry run exits 1 on a leak or a frozen path that differs; broken references, unresolved
+finding ids, and checkpoint trees are reported. --build also refuses on those. Nothing is ever
+pushed: the script prints the push commands and never talks to GitHub. It creates tags only in
+the new repository, never in the build repository.
 
 Only files tracked at --ref are read, straight from git objects, so the working tree and
-untracked files never leak into the learner tree.
+untracked files never leak into the public tree.
 """
 
 from __future__ import annotations
@@ -29,6 +36,7 @@ import posixpath
 import re
 import subprocess
 import sys
+import tempfile
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
@@ -36,68 +44,126 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
-# -- owner decisions ----------------------------------------------------------------------------
+# -- owner decisions (the allow-list) -----------------------------------------------------------
 
-ALLOW_DIRS = (
-    "src/",
-    "teamtrack/",
-    "sandbox/",
-    "config/",
-    "datasets/",
-    "skills/",
-    "tests/",
-    "submodules/",
-    "final-project/",
-    "setup/",
-    "slides/",
-    ".vale/",
-    ".github/workflows/",
-)
-ALLOW_FILES = (
+TARGET = "ANI-IN/harness-engineering-session"
+
+# Root files, verbatim from the owner (REFERENCES.md is generated, not copied).
+ROOT_FILES = (
     "README.md",
     "LICENSE",
     "CHANGELOG.md",
     "Makefile",
     "pyproject.toml",
     "uv.lock",
+    ".python-version",
     ".env.example",
     ".gitignore",
     ".gitattributes",
     ".dockerignore",
-    ".python-version",
-    ".vale.ini",
 )
-# Integrator decision (a): scripts/ is not allow-listed, but these three are used by `make lint`,
-# CI, tests, and the testgen library targets.
-EXTRA_SCRIPTS = ("scripts/anchors.py", "scripts/lint_prose.py", "scripts/fetch_testgen_libs.py")
-EXCLUDED_FILES = ("RESEARCH.md", "DESIGN.md", "CONTRACTS.md", "VERIFICATION.md", "CODEOWNERS")
-EXCLUDED_DIRS = ("research/", "instructor/")
-EXCLUDED_SCRIPTS = (
+ALLOW_DIRS = (
+    ".github/workflows/",
+    "final-project/",
+    "skills/",
+    "src/",
+    "teamtrack/",  # including reference/, the referee's hidden tests, and the mutants
+    "datasets/",
+    "sandbox/",
+    "config/",
+    "tests/",
+)
+DOCS_FILES = tuple(
+    f"docs/{name}.md"
+    for name in (
+        "setup-macos",
+        "setup-windows",
+        "setup-linux",
+        "instructor-guide",
+        "troubleshooting",
+        "architecture",
+        "after-class",
+    )
+)
+SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")
+SUBMODULES = ("01", "02", "03", "04")
+# Per submodule: the owner's items, plus the folder README and the whole assignment/ folder (its
+# README, check.py and what it imports, starter/, visible tests, fixtures, live-step helpers); the
+# guard below still removes anything under solution/, grader/, or hidden/.
+_SUBMODULE_ITEM = re.compile(
+    r"^submodules/(?:" + "|".join(SUBMODULES) + r")-[^/]+/(?:README\.md|concepts\.md"
+    r"|session-notes\.md|demo/.+|post-class-reading/.+|assignment/.+)$"
+)
+SUBMODULE_EXPECTED = (
+    "concepts.md",
+    "session-notes.md",
+    "demo/",
+    "post-class-reading/",
+    "assignment/README.md",
+    "assignment/check.py",
+    "assignment/starter/",
+)
+EXPECTED_DIRS = (
+    ".github/workflows/",
+    "final-project/",
+    "slides/",
+    "skills/",
+    "src/",
+    "teamtrack/",
+    "teamtrack/reference/",
+    "datasets/",
+    "sandbox/",
+    "config/",
+    "tests/",
+)
+# Learner scripts: the ones a public Makefile target, CI job, or public document runs.
+LEARNER_SCRIPTS = (
+    "scripts/anchors.py",  # make lint, make anchors, CI, the submodule docs
+    "scripts/lint_prose.py",  # make lint-prose, CI, README
+    "scripts/fetch_testgen_libs.py",  # assignment 4 README
+    "scripts/grade_assignment.py",  # make grade-assignment-N: says graders are private
+)
+# Private only (owner), plus exports and local run state.
+PRIVATE_FILES = (
+    "RESEARCH.md",
+    "DESIGN.md",
+    "CONTRACTS.md",
+    "VERIFICATION.md",
+    "CODEOWNERS",
+    "FREEZE-EXCEPTIONS.toml",
+)
+PRIVATE_DIRS = ("research/", "instructor/", "exports/", ".shipharness/")
+# Internal scripts the reference check knows by name (any other scripts/ file is internal too).
+INTERNAL_SCRIPTS = (
     "scripts/pilot.py",
     "scripts/build_checkpoints.py",
     "scripts/probe_langsmith.py",
     "scripts/build_features_dataset.py",
     "scripts/build_testgen_dataset.py",
+    "scripts/freeze_harness.py",
     "scripts/make_release.py",
     "scripts/publish_solutions.py",
 )
-# Flagged inclusions (decision c): the referee's held-out tests and the reference patches.
-FLAGGED_DIRS = ("teamtrack/tests/hidden/", "teamtrack/reference/")
 
 TEACHING = tuple(f"A{n}" for n in range(1, 8)) + tuple(f"B{n}" for n in range(1, 14))
 DO_NOT_CITE = ("B15",)
 
 AUTHOR_NAME = "ANI-IN"
 AUTHOR_EMAIL = "44803072+ANI-IN@users.noreply.github.com"
-COMMIT_MESSAGE = "shipharness: Module 1 learner release"
+COMMIT_MESSAGE = "shipharness: Module 1 course release"
+CHECKPOINT_PREFIX = "m1-"
+APP_DIR = "teamtrack"
 DEFAULT_VERIFY = ("uv", "run", "--frozen", "pytest", "-q")
 DEFAULT_LIST_FILE = "/tmp/shipharness-release-files.txt"
 DEFAULT_REFERENCES_FILE = "/tmp/shipharness-release-REFERENCES.md"
 DEFAULT_REPORT_FILE = "/tmp/shipharness-release-report.txt"
 
-REASON_SOLUTION = "solution, grader, or hidden case content (owner decision 2)"
-REASON_OWNER = "excluded by the owner (decision 2)"
+REASON_SOLUTION = "solution folder, grader, or hidden case content"
+REASON_PRIVATE = "private (owner)"
+REASON_INTERNAL = "internal script"
 REASON_NOT_ALLOWED = "not in the allow-list"
+# Kept for the excluded-test scan: reasons that make a path private.
+_PRIVATE_REASONS = (REASON_SOLUTION, REASON_PRIVATE, REASON_INTERNAL)
 
 
 class ReleaseError(RuntimeError):
@@ -125,31 +191,63 @@ def is_guarded(path: str) -> bool:
     return path.startswith("submodules/") and "hidden" in dirs
 
 
-def guard_violations(paths: Iterable[str]) -> list[str]:
-    return [p for p in paths if is_guarded(p)]
+def private_reason(path: str) -> str | None:
+    """Why `path` must never be public (owner: private only), or None."""
+    if is_guarded(path):
+        return REASON_SOLUTION
+    if path in PRIVATE_FILES or path.startswith(PRIVATE_DIRS):
+        return REASON_PRIVATE
+    if path.startswith("scripts/") and path not in LEARNER_SCRIPTS:
+        return REASON_INTERNAL
+    return None
 
 
-def _owner_excluded(path: str) -> bool:
-    return (
-        path in EXCLUDED_FILES
-        or path in EXCLUDED_SCRIPTS
-        or any(path.startswith(d) for d in EXCLUDED_DIRS)
-    )
+def leaks(paths: Iterable[str]) -> list[tuple[str, str]]:
+    """Every private path among `paths` with its reason (the leak check; any hit fails)."""
+    found = [(p, private_reason(p)) for p in sorted(paths)]
+    return [(p, r) for p, r in found if r]
 
 
 def _allowed(path: str) -> bool:
-    return path in ALLOW_FILES or path in EXTRA_SCRIPTS or path.startswith(ALLOW_DIRS)
+    if path in ROOT_FILES or path in LEARNER_SCRIPTS or path in DOCS_FILES:
+        return True
+    if path.startswith(ALLOW_DIRS):
+        return True
+    if path.startswith("slides/"):
+        return path.endswith(SLIDE_SUFFIXES)
+    return bool(_SUBMODULE_ITEM.match(path))
 
 
 def classify(path: str) -> str | None:
-    """None when `path` goes into the learner tree, else the reason it does not."""
-    if is_guarded(path):
-        return REASON_SOLUTION
-    if _owner_excluded(path):
-        return REASON_OWNER
+    """None when `path` goes into the public tree, else the reason it does not."""
+    reason = private_reason(path)
+    if reason:
+        return reason
     if not _allowed(path):
         return REASON_NOT_ALLOWED
     return None
+
+
+def missing_expected(included: Iterable[str]) -> list[str]:
+    """Owner-listed files and folders the public tree does not have (yet): reported, not failed.
+    Submodule items are matched per number (`submodules/02-*/concepts.md`)."""
+    present = set(included)
+
+    def has(item: str) -> bool:
+        if item.endswith("/"):
+            return any(p.startswith(item) for p in present)
+        return item in present
+
+    missing = [p for p in (*ROOT_FILES, *DOCS_FILES) if not has(p)]
+    missing += [d for d in EXPECTED_DIRS if not has(d)]
+    for number in SUBMODULES:
+        folders = sorted(
+            {p.split("/")[1] for p in present if p.startswith(f"submodules/{number}-")}
+        )
+        for item in SUBMODULE_EXPECTED:
+            if not any(has(f"submodules/{folder}/{item}") for folder in folders):
+                missing.append(f"submodules/{number}-*/{item}")
+    return missing
 
 
 def select(paths: Iterable[str], extra_excluded: Mapping[str, str] | None = None) -> Selection:
@@ -219,10 +317,7 @@ def find_excluded_tests(
     def token_hit(token: str) -> str | None:
         token = token[2:] if token.startswith("./") else token
         folder = token.rstrip("/")
-        is_excluded_folder = "/" in folder and classify(folder + "/x") in (
-            REASON_OWNER,
-            REASON_SOLUTION,
-        )
+        is_excluded_folder = "/" in folder and classify(folder + "/x") in _PRIVATE_REASONS
         for path in excluded:
             if token == path or token.endswith("/" + path):
                 return path
@@ -297,7 +392,7 @@ _SECTION = re.compile(
     r"|\s+correction\s+\d+)"
     r"|\bDesign\s*§\s*\d+(?:\.\d+)*"
 )
-_SCRIPT_STEMS = "|".join(posixpath.splitext(posixpath.basename(p))[0] for p in EXCLUDED_SCRIPTS)
+_SCRIPT_STEMS = "|".join(posixpath.splitext(posixpath.basename(p))[0] for p in INTERNAL_SCRIPTS)
 _SCRIPT = re.compile(rf"(?:\bscripts/)?\b(?:{_SCRIPT_STEMS})\.py\b|\bscripts/(?:{_SCRIPT_STEMS})\b")
 _SOLUTION = re.compile(
     r"(?<![\w.-])(?:solution|grader)/(?:[\w./-]*[\w/])?"
@@ -315,8 +410,23 @@ _SOURCE_CITE = re.compile(r"\bF-[a-e]-\d+\b|\b[AB]\d{1,2}\b")
 _NOT_INCLUDED = re.compile(r"\bnot\s+(?:included|shipped|part\s+of|in\s+this\s+repo)", re.I)
 
 
-def _excluded_target(path: str, target: str) -> str | None:
-    """The excluded file or folder a link target points at, or None."""
+def _left_out(norm: str, existing: frozenset[str], public: frozenset[str]) -> bool:
+    """`norm` (a file or folder) exists in the build repository but not in the public tree."""
+    folder = norm.rstrip("/") + "/"
+    if norm in public or any(p.startswith(folder) for p in public):
+        return False
+    return norm in existing or any(p.startswith(folder) for p in existing)
+
+
+def _excluded_target(
+    path: str,
+    target: str,
+    existing: frozenset[str] | None = None,
+    public: frozenset[str] | None = None,
+) -> str | None:
+    """The private or excluded file or folder a link target points at, or None. With `existing`
+    (the excluded tracked paths) and `public` (the public tree), a link to any file that exists
+    in the build repository but is left out of the public tree counts too."""
     if re.match(r"^[a-z][a-z0-9+.-]*:", target) or target.startswith("#"):
         return None
     target = target.split("#", 1)[0].split("?", 1)[0]
@@ -324,19 +434,21 @@ def _excluded_target(path: str, target: str) -> str | None:
         return None
     norm = posixpath.normpath(posixpath.join(posixpath.dirname(path), target))
     norm = norm.lstrip("/")
-    if norm in EXCLUDED_FILES or norm in EXCLUDED_SCRIPTS:
+    if norm in PRIVATE_FILES or norm in INTERNAL_SCRIPTS:
         return norm
-    for folder in EXCLUDED_DIRS:
+    for folder in PRIVATE_DIRS:
         if norm == folder.rstrip("/") or norm.startswith(folder):
             return folder
     if is_guarded(norm + "/x"):
         return "solution/"
-    # A wrong relative path still points the reader at an excluded file.
-    if posixpath.basename(norm) in EXCLUDED_FILES:
+    # A wrong relative path still points the reader at a private file.
+    if posixpath.basename(norm) in PRIVATE_FILES:
         return posixpath.basename(norm)
-    for folder in EXCLUDED_DIRS:
+    for folder in PRIVATE_DIRS:
         if f"/{folder}" in f"/{target}":
             return folder
+    if existing is not None and public is not None and _left_out(norm, existing, public):
+        return norm
     return None
 
 
@@ -382,12 +494,16 @@ def _names_existing(text: str, existing: frozenset[str] | None) -> bool:
 
 
 def _line_hits(
-    path: str, line: str, run_ids: frozenset[str], existing: frozenset[str] | None = None
+    path: str,
+    line: str,
+    run_ids: frozenset[str],
+    existing: frozenset[str] | None = None,
+    public: frozenset[str] | None = None,
 ) -> list[tuple[int, str, str, str]]:
     taken: list[tuple[int, int]] = []
     found: list[tuple[int, str, str, str]] = []
     for m in _LINK.finditer(line):
-        target = _excluded_target(path, m.group(1))
+        target = _excluded_target(path, m.group(1), existing, public)
         if target and _take(taken, m):
             found.append((m.start(), "link", m.group(0), _pattern("link", "", target)))
     for m in _SECTION.finditer(line):
@@ -413,14 +529,15 @@ def scan_references(
     text: str,
     run_ids: frozenset[str] = frozenset(),
     existing: frozenset[str] | None = None,
+    public: frozenset[str] | None = None,
 ) -> list[Hit]:
-    """Every place in `text` that links to, cites, or names an excluded file. Priority on
-    overlapping matches: link, section citation, run id, script, solution path, plain mention.
+    """Every place in `text` that links to, cites, or names a private or excluded file. Priority
+    on overlapping matches: link, section citation, run id, script, solution path, plain mention.
     `existing`: the tracked excluded paths, when known (research/ and instructor/ mentions must
-    name one of them)."""
+    name one of them); with `public` (the public tree) too, links to any excluded file count."""
     hits: list[Hit] = []
     for number, line in enumerate(text.splitlines(), start=1):
-        for _, kind, matched, label in _line_hits(path, line, run_ids, existing):
+        for _, kind, matched, label in _line_hits(path, line, run_ids, existing, public):
             hits.append(Hit(path, number, kind, matched, label, line.strip()[:160]))
     return hits
 
@@ -772,29 +889,30 @@ def _is_test_source(path: str) -> bool:
 
 @dataclass
 class Report:
+    """What the allow-list selects at `ref`, before anything is written."""
+
     ref: str
     selection: Selection
     excluded_tests: dict[str, list[str]]
-    guard: list[str]
+    leaks: list[tuple[str, str]]
     hits: list[Hit]
     references: References
     entries: dict[str, Entry] = field(default_factory=dict)
     commit: str = ""
 
-    def problems(self) -> list[str]:
-        out: list[str] = []
-        if self.guard:
-            out.append(f"{len(self.guard)} solution/grader/hidden path(s) would be included")
+    def dry_run_failures(self) -> list[str]:
+        if not self.leaks:
+            return []
+        return [f"{len(self.leaks)} private path(s) would be public"]
+
+    def build_failures(self) -> list[str]:
+        out = self.dry_run_failures()
         if self.hits:
             files = len({h.path for h in self.hits})
-            out.append(f"{len(self.hits)} reference(s) to excluded files in {files} file(s)")
+            out.append(f"{len(self.hits)} broken reference(s) in {files} public file(s)")
         if self.references.unresolved:
             out.append(f"unresolved finding ids: {', '.join(self.references.unresolved)}")
         return out
-
-    @property
-    def ok(self) -> bool:
-        return not self.problems()
 
 
 def analyze(repo: Path, ref: str = "HEAD") -> Report:
@@ -821,15 +939,16 @@ def analyze(repo: Path, ref: str = "HEAD") -> Report:
     references = build_references(sources.get("RESEARCH.md", ""), notes, texts)
     run_ids = run_ids_from(sources.get("VERIFICATION.md", ""))
     existing = frozenset(sel.excluded)
+    public = frozenset(sel.included) | {"REFERENCES.md"}
     hits: list[Hit] = []
     for path in sorted(texts):
-        hits += scan_references(path, texts[path], run_ids, existing)
-    hits += scan_references("REFERENCES.md", references.text, run_ids, existing)
+        hits += scan_references(path, texts[path], run_ids, existing, public)
+    hits += scan_references("REFERENCES.md", references.text, run_ids, existing, public)
     return Report(
         ref=ref,
         selection=sel,
         excluded_tests=excluded_tests,
-        guard=guard_violations(sel.included),
+        leaks=leaks(sel.included),
         hits=hits,
         references=references,
         entries=entries,
@@ -837,111 +956,178 @@ def analyze(repo: Path, ref: str = "HEAD") -> Report:
     )
 
 
-# -- report -------------------------------------------------------------------------------------
-
-
-def _top(path: str) -> str:
-    return path.split("/", 1)[0] + "/" if "/" in path else "(root files)"
-
-
-def _file_kind(path: str) -> str:
-    name = posixpath.basename(path)
-    ext = posixpath.splitext(name)[1].lstrip(".")
-    return ext or name
-
-
-def render(report: Report, list_file: str, references_file: str) -> str:
-    sel = report.selection
-    out: list[str] = []
-    w = out.append
-    sha = f" ({report.commit[:12]})" if report.commit else ""
-    w(f"== Learner tree from {report.ref}{sha}: {len(sel.included) + 1} files")
-    w("   (the tracked files below plus the generated REFERENCES.md)")
-    counts = Counter(_top(p) for p in sel.included)
-    for top, n in sorted(counts.items()):
-        w(f"   {top:<20} {n:>4}")
-    roots = [p for p in sel.included if "/" not in p]
-    w(f"   root files: {', '.join(roots)}")
-    w(f"   full list: {list_file}")
-    w("")
-    w("== Flagged inclusions (integrator decisions a and c)")
-    for path in EXTRA_SCRIPTS:
-        w(f"   {path}: {'included' if path in sel.included else 'MISSING at this ref'}")
-    for folder in FLAGGED_DIRS:
-        n = sum(p.startswith(folder) for p in sel.included)
-        w(f"   {folder}: {n} files included")
-    w("")
-    w("== Left out")
-    by_reason = Counter(r.split(":")[0] for r in sel.excluded.values())
-    for reason, n in sorted(by_reason.items()):
-        w(f"   {n:>4}  {reason}")
-    excl_tops = Counter(_top(p) for p, r in sel.excluded.items() if r == REASON_SOLUTION)
-    if excl_tops:
-        w(f"   solution/grader/hidden by top-level path: {dict(sorted(excl_tops.items()))}")
-    w("")
-    w(f"== Excluded tests (integrator decision b): {len(report.excluded_tests)}")
-    for path, reasons in report.excluded_tests.items():
-        named = sorted({r.split("names ", 1)[-1] for r in reasons})
-        w(f"   {path}  ({len(reasons)} reference(s) to: {', '.join(named[:4])}")
-        w(f"      {'' if len(named) <= 4 else f'and {len(named) - 4} more; '}first: {reasons[0]})")
-    w("")
-    w("== Solution/hidden guard: " + ("PASS" if not report.guard else "FAIL"))
-    for path in report.guard:
-        w(f"   would include {path}")
-    w("")
-    refs = report.references
-    w(
-        f"== REFERENCES.md: {len(refs.sources)} sources, {len(refs.findings)} findings "
-        f"(also written to {references_file})"
-    )
-    if refs.unresolved:
-        w(f"   UNRESOLVED finding ids: {', '.join(refs.unresolved)}")
-    w(refs.text)
-    w(_render_hits(report.hits))
-    w("== Result: " + ("PASS" if report.ok else "FAIL: " + "; ".join(report.problems())))
-    return "\n".join(out) + "\n"
-
-
-def _render_hits(hits: list[Hit]) -> str:
-    out: list[str] = []
-    w = out.append
-    files = sorted({h.path for h in hits})
-    w(f"== Reference check: {len(hits)} hits in {len(files)} files")
-    w(
-        "   by hit kind: "
-        + ", ".join(f"{k} {n}" for k, n in Counter(h.kind for h in hits).most_common())
-    )
-    w(
-        "   by file kind: "
-        + ", ".join(f"{k} {n}" for k, n in Counter(_file_kind(h.path) for h in hits).most_common())
-    )
-    w("   most frequent patterns:")
-    first: dict[str, Hit] = {}
-    for h in hits:
-        first.setdefault(h.pattern, h)
-    for pattern, n in Counter(h.pattern for h in hits).most_common(15):
-        ex = first[pattern]
-        w(f"   {n:>5}  {pattern}   e.g. {ex.path}:{ex.line}")
-    grouped: dict[str, dict[str, list[Hit]]] = defaultdict(lambda: defaultdict(list))
-    for h in hits:
-        grouped[h.path][h.kind].append(h)
-    for path in files:
-        total = sum(len(v) for v in grouped[path].values())
-        w(f"-- {path} ({total})")
-        for kind in sorted(grouped[path]):
-            w(f"   [{kind}]")
-            for h in grouped[path][kind]:
-                w(f"     {h.path}:{h.line}: {h.text}  |  {h.excerpt}")
-    return "\n".join(out) + "\n"
-
-
-# -- build --------------------------------------------------------------------------------------
+# -- public repository: tree, checkpoint tags, frozen record ------------------------------------
 
 
 @dataclass(frozen=True)
-class BuildResult:
+class TagCompare:
+    """One checkpoint tag in the build repository against the rebuilt public tag."""
+
+    name: str
+    build_tree: str | None
+    public_tree: str | None
+    build_app: str | None  # tree id of teamtrack/ (what an arm workspace is exported from)
+    public_app: str | None
+    differing: list[str]  # public paths whose content differs (REFERENCES.md not counted)
+
+    @property
+    def rebuilt(self) -> bool:
+        return self.public_tree is not None
+
+    @property
+    def full_match(self) -> bool:
+        return self.build_tree is not None and self.build_tree == self.public_tree
+
+    @property
+    def app_match(self) -> bool:
+        return self.build_app is not None and self.build_app == self.public_app
+
+
+@dataclass
+class FrozenResult:
+    basis: str  # "tag": the build repo's harness-frozen record; "head": a record made from HEAD
+    paths: dict[str, bool]  # frozen path -> content matches
+    checkpoint_differs: list[str]  # record checkpoint trees (whole-tree ids) the public tags lack
+    record_commit: str  # where the public harness-frozen tag points
+    self_check: list[str]  # the public record against the public repository itself
+
+
+@dataclass
+class Release:
+    report: Report
+    public: Path
     commit: str
     tags: list[str]
+    public_files: list[str]
+    tree_leaks: list[tuple[str, str]]
+    checkpoints: list[TagCompare]
+    frozen: FrozenResult
+    missing: list[str]
+    push: list[str]
+
+    def failures(self) -> list[str]:
+        """What fails the dry run: leaks and frozen content that differs."""
+        out = self.report.dry_run_failures()
+        if self.tree_leaks:
+            out.append(f"{len(self.tree_leaks)} private path(s) in the public repository")
+        differs = [p for p, ok in self.frozen.paths.items() if not ok]
+        if differs:
+            out.append("frozen content differs: " + ", ".join(differs))
+        if self.frozen.self_check:
+            out.append("public record check: " + "; ".join(self.frozen.self_check))
+        return out
+
+    def build_failures(self) -> list[str]:
+        out = self.failures()
+        out += [f for f in self.report.build_failures() if f not in out]
+        bad = [c.name for c in self.checkpoints if c.rebuilt and not c.app_match]
+        if bad:
+            out.append(
+                "checkpoint teamtrack/ tree differs from the build repository: " + ", ".join(bad)
+            )
+        return out
+
+
+def _rev(repo: Path, spec: str) -> str | None:
+    done = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", spec],
+        cwd=repo,
+        capture_output=True,
+        env=_git_env(),
+        check=False,
+    )
+    return done.stdout.decode().strip() if done.returncode == 0 else None
+
+
+def _tag_names(repo: Path, prefix: str = CHECKPOINT_PREFIX) -> list[str]:
+    return _git(repo, "tag", "--list", f"{prefix}*").decode().split()
+
+
+def _tree_blobs(repo: Path, spec: str) -> dict[str, str]:
+    out: dict[str, str] = {}
+    for item in _git(repo, "ls-tree", "-r", "-z", "--full-tree", spec).split(b"\0"):
+        if item:
+            meta, path = item.decode("utf-8").split("\t", 1)
+            out[path] = meta.split()[2]
+    return out
+
+
+def compare_checkpoints(repo: Path, public: Path, keep: Callable[[str], bool]) -> list[TagCompare]:
+    """Each checkpoint tag of either repository: whole tree, teamtrack/ tree, and the public
+    paths (`keep` filters the build tag's files) whose content differs."""
+    out: list[TagCompare] = []
+    for name in sorted(set(_tag_names(repo)) | set(_tag_names(public))):
+        ref = f"refs/tags/{name}"
+        build_tree, public_tree = _rev(repo, f"{ref}^{{tree}}"), _rev(public, f"{ref}^{{tree}}")
+        differing: list[str] = []
+        if build_tree and public_tree:
+            theirs = {p: s for p, s in _tree_blobs(repo, ref).items() if keep(p)}
+            ours = _tree_blobs(public, ref)
+            ours.pop("REFERENCES.md", None)
+            differing = sorted(p for p in set(theirs) | set(ours) if theirs.get(p) != ours.get(p))
+        out.append(
+            TagCompare(
+                name,
+                build_tree,
+                public_tree,
+                _rev(repo, f"{ref}:{APP_DIR}"),
+                _rev(public, f"{ref}:{APP_DIR}"),
+                differing,
+            )
+        )
+    return out
+
+
+def _frozen_dirty(repo: Path, paths: Iterable[str]) -> list[str]:
+    changed = _git(repo, "diff", "--name-only", "HEAD", "--", *paths).decode().split()
+    untracked = _git(repo, "ls-files", "--others", "--exclude-standard", "--", *paths)
+    return sorted(set(changed) | set(untracked.decode().split()))
+
+
+def frozen_check(repo: Path, ref: str, public: Path) -> FrozenResult:
+    """Owner rule 2: the public tree's frozen content against the build repo's harness-frozen
+    record (exceptions applied) or, without that tag, a record made from the build repo's HEAD.
+    Writes the record as the public repository's own harness-frozen tag, with the public
+    checkpoint trees (whole-tree ids differ between the two repositories by design)."""
+    from shipharness import freeze
+    from shipharness.config import Settings
+
+    record = freeze.expected_record(repo)
+    basis = "tag"
+    if record is None:
+        basis = "head"
+        head = _git(repo, "rev-parse", "HEAD^{commit}").decode().strip()
+        if _git(repo, "rev-parse", f"{ref}^{{commit}}").decode().strip() != head:
+            raise ReleaseError(
+                f"no {freeze.TAG} tag: the record comes from HEAD, so --ref must be HEAD"
+            )
+        dirty = _frozen_dirty(repo, freeze.FROZEN_PATHS)
+        if dirty:
+            raise ReleaseError("uncommitted changes under frozen paths: " + ", ".join(dirty[:10]))
+        record = freeze.make_record(repo, Settings(_env_file=None))  # never reads .env
+    found = freeze.compare_content(public, record)
+    paths = {p: f"content differs: {p}" not in found for p in record["frozen_paths"]}
+    prefix = "checkpoint content differs: "
+    differs = sorted(f[len(prefix) :] for f in found if f.startswith(prefix))
+    own = {
+        **record,
+        "checkpoint_trees": freeze.checkpoint_trees(public),
+        "checkpoint_tags": freeze.checkpoint_tags(public),
+    }
+    commit = freeze.write_record_tag(public, own, identity=(AUTHOR_NAME, AUTHOR_EMAIL))
+    written = freeze.read_record(public) or {}
+    return FrozenResult(basis, paths, differs, commit, freeze.compare_content(public, written))
+
+
+def push_commands(public: Path, tags: Iterable[str]) -> list[str]:
+    """What the owner's release step runs after a final yes (printed here, never executed)."""
+    refs = " ".join(f"refs/tags/{t}" for t in sorted(tags))
+    return [
+        f"cd {public}",
+        f"git remote add origin https://github.com/{TARGET}.git",
+        "git push origin main",
+        f"git push origin {refs} refs/tags/harness-frozen",
+    ]
 
 
 def write_tree(repo: Path, entries: Mapping[str, Entry], dest: Path) -> None:
@@ -958,12 +1144,9 @@ def write_tree(repo: Path, entries: Mapping[str, Entry], dest: Path) -> None:
             target.chmod(0o755)
 
 
-def build(
-    repo: Path, ref: str, dest: Path, verify: Iterable[str] | None = DEFAULT_VERIFY
-) -> BuildResult:
-    report = analyze(repo, ref)
-    if not report.ok:
-        raise ReleaseError("dry-run checks failed: " + "; ".join(report.problems()))
+def assemble(repo: Path, report: Report, dest: Path) -> Release:
+    """Write the public repository into `dest` (empty or new): one commit, the rebuilt checkpoint
+    tags, and the harness-frozen record tag. Nothing outside `dest` is changed."""
     dest = Path(dest)
     if dest.exists() and any(dest.iterdir()):
         raise ReleaseError(f"{dest} exists and is not empty")
@@ -977,17 +1160,207 @@ def build(
     _git(dest, "commit", "-q", "-m", COMMIT_MESSAGE)
     commit = _git(dest, "rev-parse", "HEAD").decode().strip()
 
-    from shipharness.ab.checkpoints import build_commits, load_checkpoints
+    from shipharness.ab.checkpoints import CheckpointError, build_commits, load_checkpoints
 
-    built = build_commits(dest, dry_run=False)
+    try:
+        built = build_commits(dest, dry_run=False)  # the logic of scripts/build_checkpoints.py
+    except CheckpointError as exc:
+        raise ReleaseError(f"checkpoint tags: {exc}") from None
     tags = [b.name for b in built]
     if sorted(tags) != sorted(load_checkpoints(dest)):
         raise ReleaseError(f"checkpoint tags {tags} do not match checkpoints.toml")
+    public_files = _git(dest, "ls-files", "-z").decode().split("\0")
+    public_files = sorted(p for p in public_files if p)
+    in_tags: set[str] = set(public_files)
+    for tag in tags:
+        in_tags |= set(_tree_blobs(dest, f"refs/tags/{tag}"))
+    excluded_tests = set(report.excluded_tests)
+
+    def keep(path: str) -> bool:
+        return classify(path) is None and path not in excluded_tests
+
+    checkpoints = compare_checkpoints(repo, dest, keep)
+    frozen = frozen_check(repo, report.ref, dest)
+    return Release(
+        report=report,
+        public=dest,
+        commit=commit,
+        tags=tags,
+        public_files=public_files,
+        tree_leaks=leaks(in_tags),
+        checkpoints=checkpoints,
+        frozen=frozen,
+        missing=missing_expected(public_files),
+        push=push_commands(dest, tags),
+    )
+
+
+def dry_run(repo: Path, ref: str, workdir: Path) -> Release:
+    return assemble(repo, analyze(repo, ref), workdir)
+
+
+# -- report -------------------------------------------------------------------------------------
+
+
+def _top(path: str) -> str:
+    return path.split("/", 1)[0] + "/" if "/" in path else "(root files)"
+
+
+def _file_kind(path: str) -> str:
+    name = posixpath.basename(path)
+    ext = posixpath.splitext(name)[1].lstrip(".")
+    return ext or name
+
+
+def render(rel: Release, list_file: str, references_file: str) -> str:
+    report, sel = rel.report, rel.report.selection
+    out: list[str] = []
+    w = out.append
+    sha = f" ({report.commit[:12]})" if report.commit else ""
+    w(f"== 1. Public tree from {report.ref}{sha}: {len(rel.public_files)} files")
+    w(f"   built in {rel.public} (one commit {rel.commit[:12]}; temporary, never pushed)")
+    for top, n in sorted(Counter(_top(p) for p in rel.public_files).items()):
+        w(f"   {top:<20} {n:>4}")
+    w(f"   root files: {', '.join(p for p in rel.public_files if '/' not in p)}")
+    w(f"   learner scripts: {', '.join(p for p in LEARNER_SCRIPTS if p in rel.public_files)}")
+    w(f"   full list: {list_file}")
+    w(f"   owner-listed files not present yet (listed, not failed): {len(rel.missing)}")
+    for path in rel.missing:
+        w(f"     - {path}")
+    w("   left out of the build repository's tracked files:")
+    by_reason = Counter(r.split(":")[0] for r in sel.excluded.values())
+    for reason, n in sorted(by_reason.items()):
+        w(f"   {n:>5}  {reason}")
+    unlisted = Counter(_top(p) for p, r in sel.excluded.items() if r == REASON_NOT_ALLOWED)
+    w(f"   not in the allow-list, by top-level path: {dict(sorted(unlisted.items()))}")
+    w(f"   tests left out because they exercise excluded files: {len(report.excluded_tests)}")
+    for path, reasons in report.excluded_tests.items():
+        w(f"     {path}  ({len(reasons)}; first: {reasons[0]})")
+    w("")
+    leaked = sorted(set(report.leaks) | set(rel.tree_leaks))
+    w("== 2. Leak check (commit and every checkpoint tag): " + ("FAIL" if leaked else "PASS"))
+    w("   no private file, solution/ folder, grader test, internal script, or export")
+    for path, reason in leaked:
+        w(f"   LEAK {path}: {reason}")
+    w("")
+    w(_render_hits(report.hits))
+    refs = report.references
+    w(
+        f"== 4. REFERENCES.md: {len(refs.sources)} sources, {len(refs.findings)} findings "
+        f"(generated from RESEARCH.md and research/notes/; copy in {references_file})"
+    )
+    w(f"   unresolved finding ids: {', '.join(refs.unresolved) or 'none'}")
+    w("")
+    w("== 5. Checkpoint tags: rebuilt tree against the build repository's tag tree")
+    for c in rel.checkpoints:
+        if not c.rebuilt:
+            w(f"   {c.name}: build repository only (not in checkpoints.toml, not rebuilt)")
+            continue
+        if c.build_tree is None:
+            w(f"   {c.name}: public only (no tag of that name in the build repository)")
+            continue
+        tops = Counter(_top(p) for p in c.differing)
+        detail = f" ({dict(sorted(tops.items()))})" if tops else ""
+        w(
+            f"   {c.name}: whole tree {'match' if c.full_match else 'differs'}; "
+            f"teamtrack/ {'match' if c.app_match else 'DIFFERS'}; "
+            f"{len(c.differing)} public file(s) differ{detail}"
+        )
+    w("   (whole trees differ by design: the build tree also holds the private files)")
+    w("")
+    f = rel.frozen
+    basis = (
+        "the build repository's harness-frozen record, exceptions applied"
+        if f.basis == "tag"
+        else "no harness-frozen tag yet: a record made from the build repository's HEAD"
+    )
+    bad = [p for p, ok in f.paths.items() if not ok]
+    w(f"== 6. Frozen content: {'PASS' if not bad else 'FAIL'} against {basis}")
+    for path, ok in f.paths.items():
+        w(f"   {'match  ' if ok else 'DIFFERS'} {path}")
+    if f.checkpoint_differs:
+        w(
+            f"   record checkpoint trees (whole-tree ids) not equal in the public repo: "
+            f"{len(f.checkpoint_differs)} ({', '.join(f.checkpoint_differs)}); see section 5"
+        )
+    w(f"   public harness-frozen tag written at {f.record_commit[:12]} with the public")
+    w(
+        "   checkpoint trees; its own check: "
+        + ("PASS" if not f.self_check else "; ".join(f.self_check))
+    )
+    w("")
+    w(f"== 7. Target: {TARGET} (recreated empty by the owner; nothing is pushed by this script)")
+    w("   push commands for the owner's release step (printed, never executed):")
+    for line in rel.push:
+        w(f"   $ {line}")
+    w("")
+    failures, blockers = rel.failures(), rel.build_failures()
+    w("== Dry run: " + ("PASS" if not failures else "FAIL: " + "; ".join(failures)))
+    w("== --build would " + ("pass" if not blockers else "refuse: " + "; ".join(blockers)))
+    return "\n".join(out) + "\n"
+
+
+def _render_hits(hits: list[Hit]) -> str:
+    out: list[str] = []
+    w = out.append
+    files = sorted({h.path for h in hits})
+    w(f"== 3. Broken references (reported here; --build fails): {len(hits)} in {len(files)} files")
+    w(
+        "   by hit kind: "
+        + ", ".join(f"{k} {n}" for k, n in Counter(h.kind for h in hits).most_common())
+    )
+    w(
+        "   by file kind: "
+        + ", ".join(f"{k} {n}" for k, n in Counter(_file_kind(h.path) for h in hits).most_common())
+    )
+    w("   top files:")
+    for path, n in Counter(h.path for h in hits).most_common(15):
+        w(f"   {n:>5}  {path}")
+    w("   most frequent patterns:")
+    first: dict[str, Hit] = {}
+    for h in hits:
+        first.setdefault(h.pattern, h)
+    for pattern, n in Counter(h.pattern for h in hits).most_common(15):
+        ex = first[pattern]
+        w(f"   {n:>5}  {pattern}   e.g. {ex.path}:{ex.line}")
+    grouped: dict[str, list[Hit]] = defaultdict(list)
+    for h in hits:
+        grouped[h.path].append(h)
+    for path in files:
+        w(f"-- {path} ({len(grouped[path])})")
+        for h in grouped[path]:
+            w(f"   {h.path}:{h.line}: [{h.kind}] {h.text}  |  {h.excerpt}")
+    return "\n".join(out) + "\n"
+
+
+# -- build --------------------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class BuildResult:
+    commit: str
+    tags: list[str]
+
+
+def build(
+    repo: Path, ref: str, dest: Path, verify: Iterable[str] | None = DEFAULT_VERIFY
+) -> BuildResult:
+    """The release build: refuses before writing on a leak, a broken reference, or an unresolved
+    finding id; after writing, on frozen content or a checkpoint teamtrack/ tree that differs."""
+    report = analyze(repo, ref)
+    if report.build_failures():
+        raise ReleaseError("release checks failed: " + "; ".join(report.build_failures()))
+    rel = assemble(repo, report, Path(dest))
+    if rel.build_failures():
+        raise ReleaseError(
+            f"release checks failed ({dest} kept for inspection): "
+            + "; ".join(rel.build_failures())
+        )
     if verify:
         done = subprocess.run(list(verify), cwd=dest, check=False)
         if done.returncode != 0:
             raise ReleaseError(f"verification failed ({' '.join(verify)}): exit {done.returncode}")
-    return BuildResult(commit, tags)
+    return BuildResult(rel.commit, rel.tags)
 
 
 # -- command line -------------------------------------------------------------------------------
@@ -1000,10 +1373,13 @@ def main(argv: list[str] | None = None) -> int:
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--dry-run", action="store_true", help="report only (the default)")
-    mode.add_argument("--build", type=Path, metavar="DIR", help="write the learner repo into DIR")
+    mode.add_argument("--dry-run", action="store_true", help="build in a temp folder (default)")
+    mode.add_argument("--build", type=Path, metavar="DIR", help="build the public repo into DIR")
     parser.add_argument("--repo", type=Path, default=REPO)
     parser.add_argument("--ref", default="HEAD")
+    parser.add_argument(
+        "--workdir", type=Path, default=None, help="dry run: empty folder (default: a new temp one)"
+    )
     parser.add_argument("--list-file", default=DEFAULT_LIST_FILE)
     parser.add_argument("--references-file", default=DEFAULT_REFERENCES_FILE)
     parser.add_argument("--report-file", default=DEFAULT_REPORT_FILE)
@@ -1016,17 +1392,20 @@ def main(argv: list[str] | None = None) -> int:
             verify = None if args.skip_verify else DEFAULT_VERIFY
             result = build(args.repo, args.ref, args.build, verify)
             print(f"built {args.build}: commit {result.commit[:12]}, tags {', '.join(result.tags)}")
+            print("nothing was pushed; the owner's release step pushes after a final yes")
             return 0
-        report = analyze(args.repo, args.ref)
+        workdir = args.workdir or Path(tempfile.mkdtemp(prefix="shipharness-public-"))
+        rel = dry_run(args.repo, args.ref, workdir)
     except ReleaseError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    Path(args.list_file).write_text("\n".join(report.selection.included) + "\n", encoding="utf-8")
-    Path(args.references_file).write_text(report.references.text, encoding="utf-8")
-    text = render(report, args.list_file, args.references_file)
+    Path(args.list_file).write_text("\n".join(rel.public_files) + "\n", encoding="utf-8")
+    Path(args.references_file).write_text(rel.report.references.text, encoding="utf-8")
+    text = render(rel, args.list_file, args.references_file)
     Path(args.report_file).write_text(text, encoding="utf-8")
     sys.stdout.write(text)
-    return 0 if report.ok else 1
+    print(f"full report: {args.report_file}")
+    return 0 if not rel.failures() else 1
 
 
 if __name__ == "__main__":
