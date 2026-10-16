@@ -10,8 +10,20 @@ TEAMTRACK = REPO / "teamtrack"
 _IGNORE = shutil.ignore_patterns("__pycache__", "*.db", ".referee", ".pytest_cache")
 
 
+def _ignore(directory: str, names: list[str]) -> set[str]:
+    """Like an arm or referee build: no hidden tests and no reference code (each test adds the
+    hidden tests it needs)."""
+    skipped = set(_IGNORE(directory, names))
+    here = Path(directory).resolve()
+    if here == TEAMTRACK.resolve():
+        skipped |= {"reference"} & set(names)
+    elif here == (TEAMTRACK / "tests").resolve():
+        skipped |= {"hidden"} & set(names)
+    return skipped
+
+
 def copy_teamtrack(dest: Path) -> Path:
-    shutil.copytree(TEAMTRACK, dest, ignore=_IGNORE)
+    shutil.copytree(TEAMTRACK, dest, ignore=_ignore)
     return dest
 
 
