@@ -139,3 +139,31 @@ def test_attach_scores_never_extends_trace_retention(tmp_path: Path) -> None:
     assert all(f["extend_trace_retention"] is False for f in client.feedback)
     assert {f["run_id"] for f in client.feedback} == {"0b8f1f6e-3c1a-4b9e-9a51-2a1f0c3d4e5f"}
     assert attach_scores(client, None, record()) == 0
+
+
+def test_experiment_summary_records_each_checkpoint_commit(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    import subprocess
+
+    sha = subprocess.run(
+        ["git", "rev-parse", "m1-s1-start^{commit}"],
+        cwd=course_repo, capture_output=True, text=True, check=True,
+    ).stdout.strip()  # fmt: skip
+    deps = make_deps(course_repo, tmp_path, Clients())
+    deps.client_factory = lambda arm: Clients()(arm)
+    plan = ExperimentPlan(
+        dataset="teamtrack-features-v1",
+        split="section-1",
+        k=1,
+        harness_layers=frozenset({"instructions"}),
+        batch="batch-1",
+        day="2026-10-16",
+    )
+    exports = run_experiments(
+        plan, deps, FakeLangSmith([example()]), evaluate_fn=FakeEvaluate(tmp_path / "exports")
+    )
+    for export in exports.values():
+        assert export["checkpoint_shas"] == {"m1-s1-start": sha}
+    rows = read_exports("scores", tmp_path / "exports")
+    assert rows and {row["checkpoint_sha"] for row in rows} == {sha}

@@ -32,7 +32,12 @@ from shipharness.ab.artifacts import (
 )
 from shipharness.ab.artifacts import strip_harness_artifacts as strip
 from shipharness.ab.score import ScoreRecord, evaluate_primary
-from shipharness.ab.workspace import export_checkpoint, export_hidden_tests, init_repo
+from shipharness.ab.workspace import (
+    export_checkpoint,
+    export_hidden_tests,
+    init_repo,
+    resolve_commit,
+)
 from shipharness.checks import params as P
 from shipharness.checks.base import CheckResult
 from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
@@ -254,6 +259,7 @@ class Referee:
         self.task, self.deps = task, deps
         self._baseline: str | None = None
         self._baseline_done = False
+        self._sha: str | None = None
 
     # -- container -----------------------------------------------------------------------------
 
@@ -593,6 +599,14 @@ class Referee:
             emit("reviewer_output", outcome.review.model_dump(mode="json"))
         return outcome
 
+    def _checkpoint_sha(self) -> str | None:
+        """The commit the exported checkpoint ref names (None: the working tree)."""
+        if self.deps.checkpoint_ref is None:
+            return None
+        if self._sha is None:
+            self._sha = resolve_commit(self.deps.course_repo, self.deps.checkpoint_ref)
+        return self._sha
+
     def _record(
         self,
         *,
@@ -683,6 +697,7 @@ class Referee:
             feature_id=self.task.feature_id,
             variant=self.task.variant,
             checkpoint=self.task.checkpoint,
+            checkpoint_sha=self._checkpoint_sha(),
             layers=sorted(layers),  # type: ignore[arg-type]
             status=result.status if result else "ERROR",
             claim=result.claim if result else "none",

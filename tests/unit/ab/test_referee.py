@@ -570,3 +570,26 @@ def test_explicit_task_exemptions_are_passed_through(course_repo: Path, tmp_path
     referee = Referee(task(exemptions=exempt), deps(course_repo, tmp_path, factory))
     judge(referee, tmp_path, PRODUCT)
     assert _referee_params(factory)["exemptions"] == exempt
+
+
+def test_score_record_carries_the_checkpoint_commit(course_repo: Path, tmp_path: Path) -> None:
+    import subprocess
+
+    sha = subprocess.run(
+        ["git", "rev-parse", "m1-s1-start^{commit}"],
+        cwd=course_repo, capture_output=True, text=True, check=True,
+    ).stdout.strip()  # fmt: skip
+    factory = Factory(all_green())
+    verdict, _ = judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    assert verdict.record.checkpoint_sha == sha
+    exported = read_exports("scores", tmp_path / "exports")
+    assert {row["checkpoint_sha"] for row in exported} == {sha}
+
+
+def test_working_tree_judging_records_no_checkpoint_commit(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    d = deps(course_repo, tmp_path, factory, checkpoint_ref=None)
+    verdict, _ = judge(Referee(task(), d), tmp_path, PRODUCT)
+    assert verdict.record.checkpoint_sha is None

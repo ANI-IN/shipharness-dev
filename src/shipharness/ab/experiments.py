@@ -251,6 +251,8 @@ def run_experiments(
             "k": plan.k,
             "metadata": metadata,
             "rows": sorted(r.run_id for r in exp.records),
+            # checkpoint name -> commit SHA each example was judged at (None: working tree)
+            "checkpoint_shas": {r.checkpoint: r.checkpoint_sha for r in exp.records},
             "stats": _stats(exp.records),
         }
         write_export("experiments", name, export, Path(deps.settings.exports_dir))

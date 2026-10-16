@@ -994,6 +994,8 @@ are folded in here) and the owner's pre-M6 decisions.
   and the referee export it) and `from_working_tree` (true with `checkpoint_sha: null`). Swap and replay
   export the checkpoint and hidden tests from `checkpoint_sha`, never the tag, and refuse a record without
   it (`UnpinnedRecord`); referee mutants are read at the same commit (`referee_mutants(..., ref=)`).
+  `ScoreRecord.checkpoint_sha` (the commit judged; null for working-tree judging) is in every score
+  export, and experiment summaries carry `checkpoint_shas` (checkpoint name -> commit).
   `RecordedDeps` has no `checkpoint_ref`. `Referee.judge(..., log_run_id=)` names the run whose events the
   run log holds; swap and replay pass the original run id. `ab --swap/--replay` and `replay` print one
   line and exit 2 when nothing matches or the record is unpinned.

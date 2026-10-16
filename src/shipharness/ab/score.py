@@ -22,6 +22,8 @@ class ScoreRecord(BaseModel):
     feature_id: str
     variant: str
     checkpoint: str
+    # The commit the checkpoint named when the run was judged (None: judged from the working tree).
+    checkpoint_sha: str | None = None
     layers: list[LayerName]
     status: str
     claim: str
