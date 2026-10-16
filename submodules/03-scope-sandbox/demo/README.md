@@ -1,7 +1,9 @@
 # Demo 3: scope and sandbox (F3, idempotency keys on issue creation)
 
-Runbook for the S3 live A/B. Class time (DESIGN §14.1): concepts 15 min, code walkthrough 10 min,
-live A/B 15 min, results 10 min. Concepts are in [../concepts.md](../concepts.md).
+Runbook for the S3 live A/B. Class time, in the approved class order (run sheet, "Section pattern";
+it differs from DESIGN §14.1): poll 3 min, launch of `make demo-3` 2 min, concepts 15 min and code
+walkthrough 10 min while the A/B runs in the background, demo block 15 min on the finished A/B,
+discussion 5 min. Concepts are in [../concepts.md](../concepts.md).
 
 All captured output, screenshots, experiment dots, times, costs, and the poll answer pattern are
 markers below until the pilot (M6), the experiment batches (M8), and the class host verification
@@ -93,7 +95,41 @@ they differ.
 
 ## 3. Screen sequence and code anchors
 
-Code walkthrough (10 min, before the live A/B). Open each anchor with
+### Order in class
+
+| Section minutes | Block | Terminal B and console |
+|---|---|---|
+| 0-3 | Poll (section 4) | Close the poll before the launch |
+| 3-5 | Launch | `make demo-3` at minute 3; open the new A/B on screen `1`; control glance |
+| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
+| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
+| 30-45 | Demo block | The finished A/B: screens, verdicts, experiment dots, swap test |
+| 45-50 | Discussion and transition | |
+
+The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
+running in parallel on the class host, before the approved referee speed-ups) every A/B finished
+within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
+run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
+class-host time for `make demo-3` is in section 8. If the A/B is still running at minute 25, open the
+demo block on the running A/B and run the swap test on the recorded fallback
+(`make swap-3 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
+are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
+
+Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
+(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
+turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
+screen `5`.
+
+Poll and launch (5 min, section minutes 0-5):
+
+| Step | Action | Console key | What to show |
+|---|---|---|---|
+| 1 | Poll (section 4) | — | Collect answers; close the poll before the launch |
+| 2 | `make demo-3` at minute 3 | — | Reload the runs list and open the newest `ab-...` (the terminal prints the A/B id only at the end) |
+| 3 | Arms starting | 1 Live Console | Sandbox header per arm, the same in both; say that the harness arm's zero on the primary measure is expected by construction |
+| 4 | Glance at the easy control task for this section, C3 "Filter a project's issues by priority" (dataset split `section-3`): both arms should pass it | — | Shows the comparison is fair |
+
+Code walkthrough (10 min, while the A/B runs). Open each anchor with
 `uv run python scripts/anchors.py extract <id>`:
 
 | Order | Anchor | File | Point at |
@@ -104,20 +140,17 @@ Code walkthrough (10 min, before the live A/B). Open each anchor with
 | 4 | `S3:run_args` | `src/shipharness/sandbox/policy.py` | `docker_run_args`: each field becomes a flag; secret-like environment names are refused |
 | 5 | `S3:dockerfile` | `sandbox/Dockerfile` | `USER 1000:1000`, `/work` as the only writable mount besides `/tmp`, dependencies baked in |
 
-Live A/B (15 min) and results (10 min):
+Demo block (15 min, section minutes 30-45) and discussion (section minutes 45-50):
 
 | Step | Action | Console key | What to show |
 |---|---|---|---|
-| 1 | Glance at the easy control task for this section, C3 "Filter a project's issues by priority" (dataset split `section-3`): both arms should pass it | — | Shows the comparison is fair |
-| 2 | Poll (section 4) | — | Collect answers before the run starts |
-| 3 | `make demo-3` | — | Terminal prints the A/B id; open it in the console |
-| 4 | Arms working | 1 Live Console | Sandbox header per arm; harness decisions (`blocked` and `revert`); turn flags |
-| 5 | Boards | 2 Boards | No S3-specific panel (DESIGN §13); a short look that both boards still serve. Skip if short of time |
-| 6 | Referee finished | 3 Evidence | "Scope and sandbox" panel: diff map and sandbox denials per arm |
-| 7 | Sandbox moment | 3 Evidence, then terminal | Tonight's `sandbox_denied` events, or the policy printout and the experiment denial log |
-| 8 | Results | 4 A/B Report | S3 dots: tonight's run next to the batch 1 dots |
-| 9 | Swap test or layer switch | terminal, then 4 | `make swap-3` or `make demo-3 LAYERS=-scope` |
-| 10 | Discussion | 4 | By-construction zero; secondary measures; what the bare arm changed |
+| 5 | Arms finished | 1 Live Console | Harness decisions (the last 3: `blocked` and `revert`); turn flags; "Agent said" vs "Referee" |
+| 6 | Boards | 2 Boards | No S3-specific panel (DESIGN §13); a short look that both boards still serve. Skip if short of time |
+| 7 | Referee finished | 3 Evidence | "Scope and sandbox" panel: diff map and sandbox denials per arm |
+| 8 | Sandbox moment | 3 Evidence, then terminal | Tonight's `sandbox_denied` events, or the policy printout and the experiment denial log |
+| 9 | Results | terminal, then 4 A/B Report | The A/B verdicts and the session figure; S3 dots: tonight's run next to the batch 1 dots |
+| 10 | Swap test or layer switch | terminal, then 4 | `make swap-3` or `make demo-3 LAYERS=-scope` |
+| 11 | Discussion | 4 | By-construction zero; secondary measures; what the bare arm changed |
 
 `F` toggles full screen for one arm.
 
@@ -245,6 +278,8 @@ the build and test phases, $0.04 per review, $2.50 per class session; 30 turns p
 harness work per arm, `TOOL_TIMEOUT_S` 120 s per command. The swap test makes no model calls.
 
 [[PENDING: measured wall time and cost per arm for demo-3 (typical and worst case seen), plus reviewer cost | source: M6 pilot | how: make demo-3; read the cost line and wall_s in exports/scores/<run_id>.json]]
+
+[[PENDING: wall time of make demo-3 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-3 on the class host (pilot run 3); VERIFICATION.md]]
 
 ---
 

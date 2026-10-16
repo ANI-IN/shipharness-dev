@@ -2,8 +2,10 @@
 
 Runbook for the S2 live A/B (`make demo-2`). It follows the brief's demo checklist: purpose,
 commands, screen sequence and anchors, poll, what to watch, captured output, experiment results, time
-and cost, troubleshooting and replay. In the 50-minute S2 block the demo takes the "live A/B" (15 min)
-and "results" (10 min) slots, after concepts and the code walkthrough (DESIGN §14.1).
+and cost, troubleshooting and replay. The 50-minute S2 block follows the approved class order (run
+sheet, "Section pattern"; it differs from DESIGN §14.1): poll (3 min), launch of `make demo-2` (2 min),
+concepts (15 min) and code walkthrough (10 min) while the A/B runs in the background, then the demo
+block (15 min) on the finished A/B and discussion (5 min).
 
 Everything marked PENDING needs real run output and is filled from the pilot, the
 experiment batches, or the class itself. Captured output is labelled "captured on <date>, run <id>;
@@ -72,7 +74,41 @@ does not fit, show the ablation dots instead (§7).
 
 ## 3. Screen sequence and code anchors
 
-### Code walkthrough (10 min, before the demo)
+### Order in class
+
+| Section minutes | Block | Terminal B and console |
+|---|---|---|
+| 0-3 | Poll (section 4) | Close the poll before the launch |
+| 3-5 | Launch | `make demo-2` at minute 3; open the new A/B on screen `1`; control glance |
+| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
+| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
+| 30-45 | Demo block | The finished A/B: screens, verdicts, experiment dots, swap test |
+| 45-50 | Discussion and transition | |
+
+The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
+running in parallel on the class host, before the approved referee speed-ups) every A/B finished
+within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
+run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
+class-host time for `make demo-2` is in section 8. If the A/B is still running at minute 25, open the
+demo block on the running A/B and run the swap test on the recorded fallback
+(`make swap-2 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
+are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
+
+Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
+(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
+turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
+screen `5`.
+
+### Poll and launch (5 min, before the concepts)
+
+| When | Key | Screen | Point at |
+|---|---|---|---|
+| Section minutes 0-3 | | | Poll (§4); close it before the launch |
+| Minute 3 | | | `make demo-2`. If a layer switch from S1 is still running, wait for its `Cost:` line first |
+| First turns | `1` | Live Console | Harness arm: the `note` decision "initializer step: init.sh, progress.md, session-handoff.md, docs/exec-plans/active/F2.md"; its prompt asks for Getting up to speed before any change (`pwd`, `progress.md`, `git log`, `bash init.sh`). Bare arm: only the ticket and the repository |
+| Minutes 4-5 | | | Glance at the easy control task, C2 "Search projects by name" (`teamtrack/docs/features/c2.md`); then the concept slides |
+
+### Code walkthrough (10 min, while the A/B runs)
 
 Open the three S2 anchors (`uv run python scripts/anchors.py extract <id>`):
 
@@ -86,24 +122,19 @@ Also worth a glance: `StateLayer.prepare_workspace` in `src/shipharness/harness/
 deterministic initializer step, DESIGN D-11) and `NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py`
 (the sentence both arms get).
 
-### Live A/B (15 min)
+### Demo block (15 min, after the walkthrough)
 
-| When | Key | Screen | Point at |
-|---|---|---|---|
-| Before the run | | | Poll (§4), then start `make demo-2` |
-| First turns | `1` | Live Console | Harness arm: the `note` decision "initializer step: init.sh, progress.md, session-handoff.md, docs/exec-plans/active/F2.md"; its prompt asks for Getting up to speed before any change (`pwd`, `progress.md`, `git log`, `bash init.sh`). Bare arm: only the ticket and the repository |
-| Turns 18-20 | `1` | Live Console | Wrap-up at three turns left; harness arm editing `progress.md`, the exec plan, and `session-handoff.md`, then committing. The marker row "■ Session 1 stopped" in each arm's turn list |
-| Session 2 starts | `1` | Live Console | "▶ Session 2 resumed". Compare each arm's first five tool calls in session 2: does it read what session 1 left, and does it run `alembic heads` before touching `migrations/versions/`? |
-| While session 2 runs | `2` | Boards | Each arm's `/board` page as Acme, refreshed every 5 s from the preview container |
-| After the run | `3` | Evidence | "Sessions" list per arm: turns and `ended_by` per session, and "↺ redone" lines for files changed again in a later session |
-
-### Results (10 min)
+The wrap-up at turns 18-20 and the start of session 2 happen while the concepts are on screen. In the
+demo block they are read from the finished A/B:
 
 | Key | Screen | Point at |
 |---|---|---|
-| `3` | Evidence | Referee list: `continuity` and `r7_migrations` results per arm |
+| `1` | Live Console | The last turns per arm; the markers "■ Session 1 stopped" and "▶ Session 2 resumed" if they are still among the last 8 rows; the harness arm's last decisions |
+| `3` | Evidence | "Sessions" list per arm: turns and `ended_by` per session, and "↺ redone" lines for files changed again in a later session; then the referee list: `continuity` and `r7_migrations` results per arm |
+| `5` | Traces | First wrong turn per arm (a heuristic: the earliest turn that edited a file a failing check names) and the LangSmith trace link. In the trace, compare each arm's first five tool calls in session 2: does it read what session 1 left, and does it run `alembic heads` before touching `migrations/versions/`? |
+| `2` | Boards | Each arm's `/board` page as Acme, the last capture from the preview container |
+| | Terminal B | The A/B verdicts (one line per arm) and the session figure from the `Cost:` line |
 | `4` | A/B Report | S2 dots: tonight's run next to the batch-1 dots (§7). Every run is a dot; read counts, not percentages (DESIGN §8.3) |
-| `5` | Traces | First wrong turn per arm (a heuristic: the earliest turn that edited a file a failing check names) and the LangSmith trace link |
 | | | Then `make swap-2`, or `make demo-2 LAYERS=-state` if the session meter has room |
 
 ---
@@ -129,6 +160,10 @@ change what that session did next?"
 ---
 
 ## 5. What to watch
+
+The initializer step and the first turns can be shown live at the launch. The rest is read in the
+demo block from screens 3 and 5 and the trace, because screen 1 then lists only the last 8 turn rows
+and the last 3 harness decisions.
 
 - **The initializer step** (screen 1, harness decisions): one `note` listing the four files, and the
   commit `harness: initializer step for F2`. Nothing like it in the bare arm.
@@ -212,6 +247,8 @@ that is a target, not a measurement.
 [[PENDING: measured wall time and cost per arm for make demo-2 (build, test, referee, reviewer), median and worst case seen | source: M6 pilot | how: make pilot]]
 
 [[PENDING: measured wall time and cost per arm for make demo-2 across batch 1 (worst case seen), from exports/scores | source: M8 batch 1 | how: make experiments BATCH=1 && make report]]
+
+[[PENDING: wall time of make demo-2 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-2 on the class host (pilot run 3); VERIFICATION.md]]
 
 [[PENDING: tonight's wall time and cost for make demo-2 | source: live class | how: make demo-2]]
 

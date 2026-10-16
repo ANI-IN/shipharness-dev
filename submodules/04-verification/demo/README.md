@@ -1,8 +1,10 @@
 # S4 demo: `make demo-4` (F4, all layers)
 
-Runbook for the S4 live A/B. Class plan (DESIGN §14.1): glance at an easy control task, poll,
-`make demo-4`, screens 1, 2, 3; then results on screen 4, the swap test or the layer switch, and
-discussion. Concepts: [../concepts.md](../concepts.md).
+Runbook for the S4 live A/B. Class plan, in the approved class order (run sheet, "Section pattern";
+it differs from DESIGN §14.1): poll (3 min); `make demo-4` launched right after it, with a glance at an
+easy control task (2 min); concepts (15 min) and code walkthrough (10 min) while the A/B runs in the
+background; demo block (15 min): screens 1, 2, 3, the A/B verdicts, screen 4, the swap test or the
+layer switch; discussion (5 min). Concepts: [../concepts.md](../concepts.md).
 
 Every captured output and screenshot in this file is labelled "captured on <date>, run <id>; your
 output will differ". Items that need a real run carry a PENDING marker until the pilot (M6),
@@ -52,8 +54,9 @@ What each one runs (`Makefile`):
 | `make demo-4 LAYERS=-verify` | `uv run shipharness ab --section demo-4 --feature F4 --layers=-verify` (harness arm: instructions, state, scope) |
 | `make replay RUN=<id>` | `uv run shipharness replay <id>` |
 
-`make demo-4` prints `A/B <ab_id> (F4, layers=[...])`. Open `http://localhost:8765/run/<ab_id>`
-(or pick the run on `http://localhost:8765/`). Keys `1` to `5` switch screens; `F` shows one arm
+`make demo-4` prints `A/B <ab_id> (F4, layers=[...])` when it finishes. At the launch the id is not
+printed yet, so pick the newest run on `http://localhost:8765/` (reload the list); after the run,
+`http://localhost:8765/run/<ab_id>` opens it directly. Keys `1` to `5` switch screens; `F` shows one arm
 full screen.
 
 The layer switch runs both arms again and calls the model. Each arm is capped at `MAX_RUN_COST_USD`
@@ -64,15 +67,45 @@ optional layer-switch rerun only if the session meter shows room; the session ca
 
 ## 3. Screen sequence and code anchors
 
+### Order in class
+
+| Section minutes | Block | Terminal B and console |
+|---|---|---|
+| 0-3 | Poll (section 4) | Close the poll before the launch |
+| 3-5 | Launch | `make demo-4` at minute 3; open the new A/B on screen `1`; control glance |
+| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
+| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
+| 30-45 | Demo block | The finished A/B: screens, verdicts, experiment dots, swap test |
+| 45-50 | Discussion and transition | |
+
+The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
+running in parallel on the class host, before the approved referee speed-ups) every A/B finished
+within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
+run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
+class-host time for `make demo-4` is in section 8. If the A/B is still running at minute 25, open the
+demo block on the running A/B and run the swap test on the recorded fallback
+(`make swap-4 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
+are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
+
+Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
+(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
+turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
+screen `5`.
+
+Launch (section minutes 3-5) and demo block (section minutes 30-45):
+
 | When | Key | Screen | Show |
 |---|---|---|---|
-| While the arms build | `1` | Live Console | Harness arm: gate pills ⏳ then ✓/✗ after each `finish(done)`; harness decisions; bare arm: "No gate (verify layer off)." |
-| End of the runs | `2` | Boards | The "Two-tab edit conflict" panel: ✗ lost update or ✓ conflict detected, per arm |
-| Referee running | `3` | Evidence | Verification panel: referee counters, test filter table (1-5) with discard reasons, coverage line, mutant matrix |
-| Results | `4` | A/B Report | S4 dots for both co-primary counts, tonight's run next to the experiment runs |
-| After results | `1` | Live Console | "Agent said" vs "Referee" for each arm |
+| Launch | `1` | Live Console | Both arms start; bare arm: "No gate (verify layer off)." The harness arm's gate pills appear only after its first `finish(done)`, while the concepts are on screen |
+| Launch | — | — | Glance at the easy control task, C4 "Store issue titles without surrounding whitespace" (`teamtrack/docs/features/c4.md`); then the concept slides |
+| Demo block | `1` | Live Console | Harness arm: the last gate's pills ✓/✗ and, after a failed gate, its feedback in the harness decisions (the last 3); bare arm: "No gate (verify layer off)." |
+| Demo block | `2` | Boards | The "Two-tab edit conflict" panel: ✗ lost update or ✓ conflict detected, per arm |
+| Demo block | `3` | Evidence | Verification panel: referee counters, test filter table (1-5) with discard reasons, coverage line, mutant matrix |
+| Demo block | — | Terminal B | The A/B and reviewer verdicts (one line per arm) and the session figure from the `Cost:` line |
+| Demo block | `4` | A/B Report | S4 dots for both co-primary counts, tonight's run next to the experiment runs |
+| Demo block | `1` | Live Console | "Agent said" vs "Referee" for each arm; then `make swap-4` or the layer switch |
 
-Code walkthrough (about 10 minutes, before the live A/B; `uv run python scripts/anchors.py extract
+Code walkthrough (about 10 minutes, while the A/B runs; `uv run python scripts/anchors.py extract
 <id>` prints each one):
 
 | Order | Anchor | File and lines | Point at |
@@ -101,6 +134,9 @@ Answer pattern from the experiments:
 [[PENDING: S4 poll answer pattern: referee mutants killed per arm across batch 1 runs (how often each of A-D held), plus tonight's result | source: M8 batch 1 | how: make report]]
 
 ## 5. What to watch
+
+The gate runs while the concepts are on screen. In the demo block screen 1 shows the last gate and
+the last 3 harness decisions; earlier gates are in the LangSmith trace linked on screen 5.
 
 Screen 1, Live Console:
 
@@ -196,6 +232,8 @@ S4 reviews (DESIGN §11.3). The design target for a demo is at most 6 minutes (D
 [[PENDING: measured wall time of make demo-4 per arm, plus referee time, worst case seen | source: M6 pilot | how: make demo-4 (wall_s, agent_wall_s, harness_wall_s in exports/scores)]]
 
 [[PENDING: measured cost of make demo-4 per arm and per review, worst case seen | source: M6 pilot | how: make demo-4 (cost line and exports/scores)]]
+
+[[PENDING: wall time of make demo-4 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-4 on the class host (pilot run 3); VERIFICATION.md]]
 
 [[PENDING: tonight's time and cost of make demo-4 | source: live class | how: make demo-4]]
 

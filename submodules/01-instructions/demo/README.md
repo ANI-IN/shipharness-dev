@@ -1,8 +1,10 @@
 # Demo 1: org-wide issue search (F1), instructions layer
 
-Runbook for the S1 live A/B. The S1 block is 50 minutes: concepts 15, walkthrough 10, live A/B 15,
-results 10 (DESIGN §14.1). This file covers the walkthrough, the live A/B, and the results. The
-concepts are in [../concepts.md](../concepts.md).
+Runbook for the S1 live A/B. The S1 block is 50 minutes, in the approved class order (run sheet,
+"Section pattern"; it differs from DESIGN §14.1): poll 3, launch of `make demo-1` 2, concepts 15 and
+walkthrough 10 while the A/B runs in the background, demo block 15 on the finished A/B, discussion 5.
+This file covers the poll and launch, the walkthrough, and the demo block. The concepts are in
+[../concepts.md](../concepts.md).
 
 There is no `run.sh`: every step is a Make target, and each target is a thin wrapper over
 `uv run shipharness ...` (see the `Makefile`). Run everything inside WSL2 on the class host.
@@ -75,7 +77,43 @@ any arm ended `ABORTED`, or 1 if any arm ended `ERROR` (`src/shipharness/ab/comm
 Console keys (DESIGN §13): `1` Live Console, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 `F` shows one arm full screen.
 
-### Walkthrough (10 minutes, before the A/B)
+### Order in class
+
+| Section minutes | Block | Terminal B and console |
+|---|---|---|
+| 0-3 | Poll (section 4) | Close the poll before the launch |
+| 3-5 | Launch | `make demo-1` at minute 3; open the new A/B on screen `1`; control glance |
+| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
+| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
+| 30-45 | Demo block | The finished A/B: screens, verdicts, experiment dots, swap test |
+| 45-50 | Discussion and transition | |
+
+The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
+running in parallel on the class host, before the approved referee speed-ups) every A/B finished
+within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
+run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
+class-host time for `make demo-1` is in section 8. If the A/B is still running at minute 25, open the
+demo block on the running A/B and run the swap test on the recorded fallback
+(`make swap-1 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
+are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
+
+Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
+(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
+turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
+screen `5`.
+
+### Poll and launch (5 minutes, before the concepts)
+
+| Step | Key | What to do |
+|---|---|---|
+| 1 | — | Poll (section 4). Close it before the launch |
+| 2 | — | `make demo-1` |
+| 3 | `1` | Reload the runs list and open the newest `ab-...`. Harness arm: the first decision `placed 31 instruction files ...`; bare arm: "None: bare arm has no layers." If the first turns have arrived, point at the first files each arm opens |
+| 4 | — | Glance at the easy control task in the `section-1` subset, C1 "Filter the user list by role" (`teamtrack/docs/features/c1.md`). Control tasks are ones both arms should pass (DESIGN §10.1), which shows the comparison is fair. Show the spec only; do not run it |
+
+Then switch to the concept slides and leave terminal B running.
+
+### Walkthrough (10 minutes, while the A/B runs)
 
 Open these in the editor, in this order. Print an anchor with
 `uv run python scripts/anchors.py extract <id>`.
@@ -87,25 +125,19 @@ Open these in the editor, in this order. Print an anchor with
 | 2 | Anchor `S1:progressive` (`src/shipharness/runner/skills_loader.py`) | Tier 1 only (`catalogue_block`); tiers 2 and 3 load through `read_file`; `skill_for_path` reports the tier |
 | 3 | Anchor `S1:prefix` (`src/shipharness/harness/instructions/router.py`) | `build_prefix`: the map plus the catalogue, built from the course checkout, never from the workspace |
 
-### Live A/B (15 minutes)
+### Demo block (15 minutes, after the walkthrough)
 
 | Step | Key | What to do |
 |---|---|---|
-| 1 | — | Glance at the easy control task in the `section-1` subset, C1 "Filter the user list by role" (`teamtrack/docs/features/c1.md`). Control tasks are ones both arms should pass (DESIGN §10.1), which shows the comparison is fair. Show the spec only; do not run it |
-| 2 | — | Poll (section 4) |
-| 3 | — | `make demo-1` |
-| 4 | `1` | Turn lists side by side. Harness arm: `note` lines when it opens a doc or the skill. Bare arm: which files it reads and searches first |
-| 5 | `2` | Both boards as an Acme user, cards from another org marked ⚠ |
-| 6 | `3` | Files-read map per arm, then the referee list (`R1: n new`) as checks finish |
-| 7 | `5` | Optional: live tail of the event stream |
+| 1 | `1` | Last turns and harness decisions per arm; "Agent said" vs "Referee" |
+| 2 | `2` | Both boards as an Acme user, cards from another org marked ⚠ |
+| 3 | `3` | Files-read map per arm (what each arm read before it wrote the query), then the referee list (`R1: n new`) |
+| 4 | `5` | Optional: first wrong turn, the event tail, and the LangSmith trace link |
+| 5 | — | Terminal B: the A/B verdicts (one line per arm) and the session figure from the `Cost:` line |
+| 6 | `4` | Tonight's run as one more dot next to the batch 1 dots for F1; runs failing out of k per arm |
+| 7 | — | `make swap-1`: "judged measures identical" (no model cost). If the session meter has room, `make demo-1 LAYERS=-instructions` instead or after; it runs into S2, and `make demo-2` waits for its `Cost:` line |
 
-### Results (10 minutes)
-
-| Step | Key | What to do |
-|---|---|---|
-| 1 | `4` | Tonight's run as one more dot next to the batch 1 dots for F1; runs failing out of k per arm |
-| 2 | — | `make swap-1`: "judged measures identical" (no model cost). If the session meter has room, `make demo-1 LAYERS=-instructions` instead or after |
-| 3 | — | Discussion: what did each arm read before it wrote the query? |
+Discussion (section minutes 45-50): what did each arm read before it wrote the query?
 
 ---
 
@@ -122,6 +154,9 @@ Answer pattern from the experiments:
 ---
 
 ## 5. What to watch
+
+The first screen 1 items appear during the launch; in the demo block screen 1 shows only the last 8
+turn rows and the last 3 harness decisions, so read the earlier ones on screen 3 or in the trace.
 
 Screen 1, Live Console:
 - Harness arm, first decision: `placed 31 instruction files (AGENTS.md map, docs, skills)` (the 31
@@ -196,6 +231,8 @@ switch is a second full A/B under the same caps; run it only if the `Cost:` line
 session cap (DESIGN §11.3).
 
 [[PENDING: measured wall time and cost per arm for make demo-1, worst case seen, with run ids | source: M6 pilot | how: make demo-1]]
+
+[[PENDING: wall time of make demo-1 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3); VERIFICATION.md]]
 
 [[PENDING: measured reviewer cost per review in demo-1 | source: M6 pilot | how: make demo-1]]
 
