@@ -54,7 +54,13 @@ def surviving_mutants(ctx: FilterContext) -> frozenset[str]:
         m.id
         for m in ctx.filter_mutants
         if run_mutant(
-            m, ctx.existing_tests, ctx.workspace, ctx.sandbox, ctx.timeout_s, python=ctx.python
+            m,
+            ctx.existing_tests,
+            ctx.workspace,
+            ctx.sandbox,
+            ctx.timeout_s,
+            python=ctx.python,
+            doctest_modules=ctx.doctest_modules,
         )
         == "survived"
     )

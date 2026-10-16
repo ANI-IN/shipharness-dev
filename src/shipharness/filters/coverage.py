@@ -65,18 +65,19 @@ def measure_coverage(
     *,
     python: str = "python",
     timeout_s: int = 300,
+    doctest_modules: bool = False,
 ) -> CoverageRun:
     """Run `tests` under coverage in the sandbox (cwd = workspace root) and read the report.
 
     Test failures still produce a report (exit code 1 is accepted); collection and usage errors
-    do not.
+    do not. `doctest_modules` runs pytest with `--doctest-modules` (baseline with doctests).
     """
     try:
         with scratch_dir(workspace, "cov") as scratch:
             data = f"{scratch.name}/.coverage"
             run_cmd = (
                 f'{python} -m coverage run --data-file="{data}" --source=. '
-                + pytest_command("", tests).lstrip()
+                + pytest_command("", tests, doctest_modules=doctest_modules).lstrip()
             )
             run = sandbox.exec(run_cmd, timeout_s)
             if run.timed_out:

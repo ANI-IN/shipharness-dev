@@ -60,3 +60,44 @@ def local_sandbox(workspace: Path) -> LocalSandbox:
     )
     sandbox.start()
     return sandbox
+
+
+MATHX = '''\
+def double(x):
+    """Twice x.
+
+    >>> double(4)
+    8
+    """
+    return x * 2
+
+
+def triple(x):
+    return x * 3
+'''
+
+MATHX_TEST = """\
+from mathx import triple
+
+
+def test_triple():
+    assert triple(2) == 6
+"""
+
+DOUBLE_TEST = """\
+from mathx import double
+
+
+def test_double():
+    assert double(5) == 10
+"""
+
+
+def make_doctest_repo(root: Path) -> Path:
+    """mathx.py: `double` is covered only by its doctest, `triple` by tests/test_mathx.py."""
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "pytest.ini").write_text("[pytest]\npythonpath = .\n", encoding="utf-8")
+    (root / "mathx.py").write_text(MATHX, encoding="utf-8")
+    (root / "tests").mkdir(exist_ok=True)
+    (root / "tests" / "test_mathx.py").write_text(MATHX_TEST, encoding="utf-8")
+    return root
