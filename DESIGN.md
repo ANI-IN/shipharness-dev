@@ -500,16 +500,24 @@ TeamTrack mutants; 10× flakiness re-runs of shipped tests.
 
 ### 10.4 Experiment plan (instructor, before class)
 
+Before launch (owner decision 2026-10-16: reduced plan):
+
 | Order | Batch set | Runs | Reviewer |
 |---|---|---|---|
 | 1 | Headline: F1-F4 canonical × 2 arms × k=10 | 80 | On |
-| 2 | Ablation: 12 tasks × 4 leave-one-layer-out configs × k=2 | 96 | Off |
-| 3 | Testgen: 40 targets × 2 arms × k=2 | 160 | Off |
-| 4 | Full dataset: 60 tasks × 2 arms × k=2 | 240 | Off |
+| 2 | Ablation: the 4 canonical section tasks × 4 leave-one-layer-out configs (harness arm, `all` minus one layer) × k=2 | 32 | Off |
 
-Each batch set is split into commands of at most $2.50 (`MAX_BATCH_COST_USD`). If the total would exceed
-$25, reduce k in batch 4 first, then batch 3; never reduce batch 1. M6 recomputes this table from measured
-per-run cost.
+Post-launch work (not run before the first class; recorded so the plan stays whole):
+
+| Batch set | Runs | Reviewer |
+|---|---|---|
+| Testgen: 40 targets × 2 arms × k=2 | 160 | Off |
+| Full dataset: 60 tasks × 2 arms × k=2 | 240 | Off |
+
+Each batch set is split into commands of at most $2.50 (`MAX_BATCH_COST_USD`). Batch 1 is never reduced.
+M6 recomputes the budget from measured per-run cost. Batch runs use `shipharness ab --no-preview`
+(board previews are for the live class only) and run several A/Bs at once (VERIFICATION records the
+number used).
 
 Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
 the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch
@@ -567,11 +575,13 @@ it otherwise.
 
 ### 11.4 Experiment budget (modelled; M6 replaces with measured values)
 Modelled per-run cost for gpt-6-luna at medium effort (RESEARCH §4.2): $0.032 with ideal caching, $0.105
-without, $0.128 if every cache lookup misses. Reviewer ≈ $0.006 per review (gpt-5.6-luna). At $0.032 per
-run, 576 runs + 80 reviews ≈ $19; at $0.06 per run, k in batches 4 and 3 drops to 1 (376 runs ≈ $23); above
-$0.065 per run, batch 2 k drops to 1 as well. Batch 1 is never reduced. If M6 confirms tool calling on
-Flex (§10.4), the experiments run at Batch-rate prices (half of the figures above) and the k reductions
-are recomputed from those prices.
+without, $0.128 if every cache lookup misses. Reviewer ≈ $0.006 per review (gpt-5.6-luna). The reduced
+plan is 112 runs + 80 reviews: about $4.10 at $0.032 per run, $12.20 at $0.105, $14.80 at $0.128, all
+within the $25 experiment cap even with every run at the $0.20 run cap (112 × $0.20 + 80 × $0.04 =
+$25.60 is the theoretical ceiling; the batch cap stops a command before it). Batch 1 is never reduced; if
+measured cost is high, ablation k drops to 1. If M6 confirms tool calling on Flex (§10.4), the experiments
+run at Batch-rate prices (half of the figures above). Post-launch batches (testgen, full dataset) get
+their own budget when they are scheduled.
 
 ### 11.5 Learner budget
 ≤ $6 OpenAI and ≤ 400 LangSmith traces across the four assignments; no single command > $2.50. Planned split:
@@ -596,9 +606,9 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Use | Runs | Traces | Budget |
 |---|---|---|---|
-| M6 pilot (≤ 3 efforts × 4 features × 2 arms × k=3) | ≤ 72 | ≤ 144 | — |
-| Experiment batches 1-4 | 576 | 1,152 | — |
-| **Instructor experiments total** | | **≤ 1,296** | ≤ 1,500 |
+| M6 pilot (medium effort × 4 features × 2 arms × k=3; other efforts only for sections without a gap; hard $10 total) | 24 (≤ 72) | 48 (≤ 144) | — |
+| Experiment batches 1 and 2 (reduced plan) | 112 | 224 | — |
+| **Instructor experiments total** | | **≤ 368** | ≤ 1,500 |
 | Class run (demos + final + ad hoc) | ~12 | ~40 | — |
 | Development and verification | — | ≤ 1,100 | — |
 | **Instructor per month** | | **≤ 2,500** | ≤ 2,500 |
