@@ -10,7 +10,8 @@ import pytest
 ASSIGNMENT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ASSIGNMENT))
 
-from a2_scenario.measures import CRITERIA, evaluate, total_points  # noqa: E402
+from a2_scenario.live_evidence import LIVE_KEY, LIVE_POINTS  # noqa: E402
+from a2_scenario.measures import CRITERIA, evaluate, scenario_points, total_points  # noqa: E402
 from a2_scenario.runner import run_scenario  # noqa: E402
 from a2_scenario.scenarios import VISIBLE  # noqa: E402
 
@@ -55,8 +56,11 @@ def outcomes(run) -> dict[str, float]:
 
 
 def test_the_grading_criteria_add_up_to_100() -> None:
+    """Scenario criteria plus the live-run evidence criterion (checked by the grader only)."""
+    assert scenario_points() == 90 and LIVE_POINTS == 10
     assert total_points() == 100
     assert len({c.key for c in CRITERIA}) == len(CRITERIA)
+    assert LIVE_KEY not in {c.key for c in CRITERIA}
 
 
 @pytest.fixture(scope="module")

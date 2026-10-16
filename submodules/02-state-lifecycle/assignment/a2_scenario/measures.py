@@ -16,6 +16,7 @@ from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 
+from a2_scenario.live_evidence import LIVE_POINTS
 from a2_scenario.runner import PRODUCT_PATHS, SCENARIO_ENV, ScenarioRun
 from shipharness.checks._proc import run_python, tail
 from shipharness.checks.continuity import REDONE_THRESHOLD_PCT, duplicate_tables, redone_pct
@@ -55,7 +56,7 @@ class Outcome:
 CRITERIA: tuple[Criterion, ...] = (
     Criterion(
         "finished",
-        15,
+        13,
         "Feature finished across three forced stops",
         "three session_stop events, the last session ends with finish(done), the visible tests "
         "pass, and every step's files exist. Usually fails because a session redid earlier work "
@@ -63,14 +64,14 @@ CRITERIA: tuple[Criterion, ...] = (
     ),
     Criterion(
         "one_head",
-        10,
+        9,
         "Migrations: exactly one Alembic head",
         "a session that does not see the current head in a `Migration heads: 1 (<rev>)` line "
         "writes its migration on the ticket's base revision (TODO 3, 6).",
     ),
     Criterion(
         "fresh_upgrade",
-        10,
+        9,
         "Migrations: `alembic upgrade head` works on an empty database",
         "two migrations that create the same table, or two heads, break a fresh upgrade.",
     ),
@@ -83,7 +84,7 @@ CRITERIA: tuple[Criterion, ...] = (
     ),
     Criterion(
         "no_redone_lines",
-        15,
+        13,
         "Redone work: no session removes lines an earlier one added",
         "0% earns all points, under 30% (the continuity threshold) earns half. A step whose files "
         "were written but not committed needs a `written` line naming them (TODO 1).",
@@ -102,14 +103,14 @@ CRITERIA: tuple[Criterion, ...] = (
     ),
     Criterion(
         "session_log",
-        10,
+        8,
         "progress.md logs every session exactly once, in order",
         "one `- Session <n> ...` entry per session under `## Session log`; keep the entries when "
         "the agent rewrites the file (TODO 4).",
     ),
     Criterion(
         "history_consistent",
-        5,
+        4,
         "Session log entries match the run (commits, how each session ended)",
         "use the SessionResult's start_sha, end_sha, and ended_by; the format is "
         "`shipharness.harness.state.progress.session_entry` (TODO 4).",
@@ -136,7 +137,7 @@ CRITERIA: tuple[Criterion, ...] = (
     ),
     Criterion(
         "handoff",
-        5,
+        4,
         "session-handoff.md: final summary, migration heads, agent notes kept",
         "`end of session <N>` for the last session, `Migration heads: 1 (`, and the "
         "`## Notes from the agent` section with the agent's notes as written (TODO 3).",
@@ -151,8 +152,14 @@ CRITERIA: tuple[Criterion, ...] = (
 )
 
 
-def total_points() -> int:
+def scenario_points() -> int:
+    """Points of the scenario criteria (the test stand-in agent runs; reproducible)."""
     return sum(c.points for c in CRITERIA)
+
+
+def total_points() -> int:
+    """All points: the scenario criteria plus the live-run evidence criterion."""
+    return scenario_points() + LIVE_POINTS
 
 
 # -- helpers ---------------------------------------------------------------------------------
