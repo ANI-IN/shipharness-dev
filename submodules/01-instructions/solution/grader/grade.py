@@ -5,8 +5,12 @@ Usage (from the repository root):
     uv run python submodules/01-instructions/solution/grader/grade.py [--work DIR]
         [--allow-pending] [--min-score N]
 
-Visible checks are the self-check (`assignment/check.py`). Hidden checks, kept here and not in the
-starter:
+DIR is the learner's submission: their work folder (instructions/, checker/, ab-report.md, live/),
+or a checkout of their repository, in which case the work folder is
+submodules/01-instructions/assignment/starter inside it. Default: the unchanged starter.
+
+Visible checks are the self-check (`assignment/check.py`), including the live-evidence checks of
+`assignment/live_evidence.py` (criterion F). Hidden checks, kept here and not in the starter:
 
 - rule coverage measured by the reference checker on the learner's tree (every active rule of the
   original defined once, with at least half of its content words), and the original unchanged;
@@ -15,9 +19,12 @@ starter:
   injected faults (each one found);
 - the learner's checker on eleven hidden cases (hidden/checker_cases.py).
 
-No API keys, no Docker, no model calls. The A/B part is graded from the structure of the learner's
-committed ab-report.md, never by re-running models. Exit 0 once a score is printed, or 1 when
---min-score is given and the score is below it.
+No API keys, no Docker, no model calls. The A/B part is graded from the learner's committed
+ab-report.md and from the live evidence in live/ (the ScoreRecords, experiment exports, harness run
+logs, and command output of their A/B run), checked as files, never by re-running models.
+`--allow-pending` accepts pending markers in place of A/B values and live evidence; only the
+reference solution uses it, until its live run is captured. Exit 0 once a score is printed, or 1
+when --min-score is given and the score is below it.
 """
 
 from __future__ import annotations
@@ -65,29 +72,36 @@ PRODUCT: Path = check.PRODUCT
 CRITERIA = {
     "A Map and layout": 15,
     "B Rule coverage": 25,
-    "C Skill": 15,
-    "D Docs checker": 30,
-    "E A/B report": 15,
+    "C Skill": 12,
+    "D Docs checker": 26,
+    "E A/B report": 10,
+    "F Live run evidence": 12,
 }
 VISIBLE_POINTS = {
     "layout": ("A Map and layout", 5),
     "map-length": ("A Map and layout", 3),
     "map-reach": ("A Map and layout", 4),
     "no-overwrite": ("A Map and layout", 3),
-    "skill-valid": ("C Skill", 5),
+    "skill-valid": ("C Skill", 4),
     "skill-frontmatter": ("C Skill", 2),
-    "skill-sections": ("C Skill", 3),
+    "skill-sections": ("C Skill", 2),
     "skill-linked": ("C Skill", 2),
-    "skill-cites": ("C Skill", 3),
+    "skill-cites": ("C Skill", 2),
     "checker-tests": ("D Docs checker", 2),
     "checker-clean": ("D Docs checker", 2),
-    "report-sections": ("E A/B report", 3),
-    "report-command": ("E A/B report", 3),
-    "report-results": ("E A/B report", 4),
-    "report-links": ("E A/B report", 2),
+    "report-sections": ("E A/B report", 2),
+    "report-command": ("E A/B report", 2),
+    "report-results": ("E A/B report", 2),
+    "report-links": ("E A/B report", 1),
     "report-cost": ("E A/B report", 1),
     "report-reading": ("E A/B report", 2),
+    "live-files": ("F Live run evidence", 3),
+    "live-command": ("F Live run evidence", 3),
+    "live-caps": ("F Live run evidence", 2),
+    "live-tree": ("F Live run evidence", 2),
+    "live-report": ("F Live run evidence", 2),
 }
+HIDDEN_CASES_POINTS = 10
 
 
 @dataclass(frozen=True)
@@ -262,7 +276,7 @@ def _reference_tree(checker: Path, original: Path) -> Item:
 def _hidden_cases(checker: Path) -> Item:
     crit = "D Docs checker"
     if not checker.is_file():
-        return Item(crit, "hidden-cases", 14, 0.0, "check_docs.py is missing")
+        return Item(crit, "hidden-cases", HIDDEN_CASES_POINTS, 0.0, "check_docs.py is missing")
     with tempfile.TemporaryDirectory() as tmp:
         outcomes = [(case, run_case(checker, case, Path(tmp))) for case in CASES]
     detection = [o.passed for c, o in outcomes if c.exit_code == 1]
@@ -272,10 +286,23 @@ def _hidden_cases(checker: Path) -> Item:
     note = f"{passed} of {len(CASES)} hidden cases"
     if failed:
         note += f"; failing: {', '.join(failed)}"
-    return Item(crit, "hidden-cases", 14, 14 * passed / len(CASES), note)
+    earned = HIDDEN_CASES_POINTS * passed / len(CASES)
+    return Item(crit, "hidden-cases", HIDDEN_CASES_POINTS, earned, note)
 
 
 # -- the grade ------------------------------------------------------------------------------------
+
+
+LEARNER_WORK = Path("submodules/01-instructions/assignment/starter")
+
+
+def resolve_work(path: Path) -> Path:
+    """The work folder of a submission: the folder itself, or the starter inside a checkout."""
+    path = path.resolve()
+    inside = path / LEARNER_WORK
+    if not (path / "instructions").is_dir() and inside.is_dir():
+        return inside
+    return path
 
 
 def grade(work: Path, *, allow_pending: bool = False, original: Path | None = None) -> list[Item]:
@@ -295,11 +322,13 @@ def grade(work: Path, *, allow_pending: bool = False, original: Path | None = No
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="A1 grader")
-    parser.add_argument("--work", type=Path, default=check.STARTER)
+    parser.add_argument(
+        "--work", type=Path, default=check.STARTER, help="work folder or repository checkout"
+    )
     parser.add_argument("--allow-pending", action="store_true")
     parser.add_argument("--min-score", type=float, default=0.0)
     args = parser.parse_args(argv)
-    work = args.work.resolve()
+    work = resolve_work(args.work)
     print(f"A1 grade: {check.shown(work)}")
     items = grade(work, allow_pending=args.allow_pending)
     for criterion, total in CRITERIA.items():
