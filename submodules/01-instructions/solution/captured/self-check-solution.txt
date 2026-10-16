@@ -1,4 +1,6 @@
-$ uv run python submodules/01-instructions/assignment/check.py --work submodules/01-instructions/solution/work --allow-pending
+# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+$ make --no-print-directory check-assignment-1 A1_WORK=submodules/01-instructions/solution/work
+uv run python submodules/01-instructions/assignment/check.py --work submodules/01-instructions/solution/work
 A1 self-check: submodules/01-instructions/solution/work
 PASS layout
 PASS map-length
@@ -13,16 +15,17 @@ PASS skill-cites
 PASS checker-tests
 PASS checker-clean
 PASS report-sections
-PASS report-command
-PASS report-results
-PASS report-links
-PASS report-cost
+FAIL report-command: Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
+FAIL report-results: Results needs an R1 row and an R3 row, each with 'failing/runs' counts per arm (for example 3/24), runs equal to 'Runs per arm', and no percentages
+FAIL report-links: Links needs the two LangSmith experiment URLs (bare and harness)
+FAIL report-cost: 'Cost: $<x>' at most 2.50 and 'Traces: <n>' at most 150
 PASS report-reading
-PASS live-files
-PASS live-command
-PASS live-caps
-PASS live-tree
-PASS live-report
+FAIL live-files: live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+FAIL live-command: live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+FAIL live-caps: live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+FAIL live-tree: live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+FAIL live-report: live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
 PASS todo
-self-check: 24 of 24 checks pass
-(exit 0)
+self-check: 15 of 24 checks pass
+make: *** [Makefile:127: check-assignment-1] Error 1
+(exit 2)

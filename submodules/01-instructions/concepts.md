@@ -8,6 +8,11 @@ how `shipharness` implements it, and what the A/B measures. Source IDs (A1, B1, 
 anchors `S1:agents_md`, `S1:progressive`, and `S1:prefix`; print any of them with
 `uv run python scripts/anchors.py extract S1:prefix`.
 
+A note on labels. "S1", "layer", "trap", and the house rules R1-R7 are course labels, not source
+terms. "House rules" is the course's name for what A1 calls "golden principles": "we started encoding
+what we call “golden principles” directly into the repository and built a recurring cleanup process."
+(A1, F-a-99; RESEARCH G-9).
+
 ---
 
 ## 1. The problem seen in the bare run
@@ -63,15 +68,33 @@ calls every endpoint and method as Acme with Globex IDs and expects 404. Any oth
 violation, and a 2xx whose body contains Globex data also counts as a leak (DESIGN §5). The `/v1/issues` leak is
 part of the checkpoint baseline, so it counts against neither arm. Only new violations count.
 
-[[PENDING: one bare-arm R1 finding for F1 (endpoint, probe, status) from the run log, with run id | source: M6 pilot | how: make demo-1]]
-
 The bare arm is not missing the rule. The rule is on disk in three places: the "Legacy /v1 API" section
 near the end of `docs/HANDBOOK.md` (line 136 of 150), the module docstring of `app/api/legacy_v1.py`,
 and the docstring of `list_all_legacy` above. Two of the three sit in the legacy code itself, next to
 the pattern. The handbook is the only place that states the rule before the agent reaches that code,
-and the agent reads it only if it opens the handbook and reads that far. The rule for the filters
-(another org's `project_id` or `assignee_id` is 404) is in the feature spec, and the general R1 rule is
-in the handbook's "R1 Tenant isolation" section (line 53); both are only on disk. The cause below is about that gap.
+and the agent has it only if it opens the handbook. The rule for the filters (another org's
+`project_id` or `assignee_id` is 404) is in the feature spec, and the general R1 rule is in the
+handbook's "R1 Tenant isolation" section (line 53); both are only on disk. The cause below is about
+that gap.
+
+### What the pilot showed on the canonical ticket
+
+The failure above did not happen in pilot run 2. All six F1 arms (three bare, three harness, ticket
+`F1-canonical`) passed the primary measure: 0 new R1 violations each, 52 of 52 hidden tests
+(VERIFICATION.md, M6 pilot run 2; score records of runs `r-20261016-181736-490aa2` to
+`r-20261016-185628-758650`, listed in [demo/README.md](demo/README.md) section 7). The run logs show
+why. The canonical ticket ends with "Follow the house rules in docs/HANDBOOK.md", and every bare arm
+opened `docs/HANDBOOK.md` with its third tool call. `read_file` returns up to 400 lines by default
+(`src/shipharness/runner/tools.py`), so the whole 150-line handbook, "Do not copy" note included, was
+in context before any code was read. No arm in either group opened `app/api/legacy_v1.py`.
+
+So the canonical ticket hands the bare arm the very pointer the map would give it. The pre-registered
+next step for a section with no gap is its trap variant (DESIGN §10.4, lever a): `F1-trap` names
+`app/api/legacy_v1.py` as the place where "a lot of the query code exists" and does not mention the
+handbook (`datasets/teamtrack-features-v1.jsonl`). Pilot run 3 runs it tonight; which ticket the class
+uses follows the decision recorded in VERIFICATION.md.
+
+[[PENDING: F1-trap result of pilot run 3 per arm (runs failing of 3 on r1_new_violations>=1) and one bare-arm R1 finding if any (endpoint, probe, status), with run ids | source: M6 pilot | how: uv run python scripts/pilot.py --variants F1=trap-legacy-pattern --k 3 --effort medium --parallel 2]]
 
 ---
 
@@ -394,6 +417,18 @@ opened with `read_file`, which helps explain a result but proves nothing by itse
 Live runs differ from run to run, so every live result is shown next to the experiment dots, never
 alone (DESIGN §16, AS-8).
 
+Pilot run 2 (2026-10-16, F1 canonical, k=3, gpt-6-luna, effort medium; VERIFICATION.md, M6 pilot run
+2):
+
+| Arm | Runs failing the primary measure | New R1 violations per run | Hidden tests per run | Agent time (s) |
+|---|---|---|---|---|
+| bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | 171-193 |
+| harness (instructions) | 0 of 3 | 0, 0, 0 | 52 of 52 each | 127-177 |
+
+No gap: on this ticket both arms ship a correctly scoped query. The per-run records, what each arm
+read, and the reviewer verdicts are in [demo/README.md](demo/README.md) sections 6 and 7. Three runs
+per arm is a pilot, not an experiment; the batch 1 dots below (k=10) are the result the class reports.
+
 [[PENDING: S1 dots for F1 canonical, runs failing out of k per arm (r1_new_violations>=1), with run ids | source: M8 batch 1 | how: make report]]
 
 [[PENDING: secondary counts for F1 canonical per arm (r1_leaks, r3_new_failures, hidden passed of 52) | source: M8 batch 1 | how: make report]]
@@ -405,6 +440,9 @@ alone (DESIGN §16, AS-8).
 - The harness arm's map names the trap ("Do not copy"), and so does the handbook. The A/B compares the
   same knowledge in two forms: a short map in the prefix with focused docs and a skill, against a
   handbook on disk. It does not test whether rules help at all.
+- The ticket matters as much as the harness. A ticket that points to the handbook puts the rules in
+  the bare arm's context too (pilot run 2, section 1), so the A/B can only show a gap on tickets that
+  do not.
 - The instructions layer advises; it does not enforce. A harness-arm run can still ship an R1
   violation, and the referee would count it.
 - One feature, one model, one effort setting. The reworded and alternate-checkpoint F1 tasks in the
@@ -420,12 +458,14 @@ alone (DESIGN §16, AS-8).
 2. Why does `build_prefix` read from the course checkout and not from the arm's workspace?
 3. A skill's description says only "Endpoint helper." Which tier of progressive disclosure fails, and
    what would the agent miss?
+4. In pilot run 2 the bare arm passed F1 three times out of three. What in the canonical ticket made
+   that likely, and what does the trap variant change?
 
 ## Sources
 
 - A1: Ryan Lopopolo, OpenAI, "Harness engineering: leveraging Codex in an agent-first world",
   2026-02-11. Findings F-a-05, F-a-06, F-a-07, F-a-20, F-a-22 to F-a-30, F-a-32, F-a-33, F-a-36,
-  F-a-37, F-a-41, F-a-97.
+  F-a-37, F-a-41, F-a-97, F-a-99.
 - A2: Justin Young, Anthropic, "Effective harnesses for long-running agents", 2025-11-26. F-a-59.
 - A3: Prithvi Rajasekaran, Anthropic, "Harness design for long-running application development",
   2026-03-24. F-a-125.

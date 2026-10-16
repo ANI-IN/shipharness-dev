@@ -1,6 +1,6 @@
 # A map, not a manual: A1's knowledge-base section, annotated
 
-Reading time: about 7 minutes.
+Reading time: about 8 minutes.
 
 Source: A1, Ryan Lopopolo (OpenAI), "Harness engineering: leveraging Codex in an agent-first world",
 2026-02-11, https://openai.com/index/harness-engineering/ , sections "Agent legibility is the goal" and
@@ -133,6 +133,21 @@ A1 describes one team's internal product. Its results "should not be assumed to 
 similar investment—at least, not yet." (F-a-143). The course takes the structure (map, system of
 record, progressive disclosure, checks) from A1 and measures one effect of it on one feature with the
 S1 A/B. It does not take A1's productivity numbers as a prediction.
+
+## Why it matters for your own repo
+
+- Count what your agent is told before it reads any code. If your instruction file is long enough
+  that a rule sits at line 136 of 150, the agent has it only if it reads that far (F-a-23, F-a-24).
+  Move the rule to a focused document and point to it from a short map.
+- Write the map by task, not by topic: "add or change an endpoint" leads to one file. That is the
+  table-of-contents idea (F-a-27) in a form an agent can act on at the moment it starts a change.
+- Look at what your tickets say. In the course's pilot run 2, the canonical F1 ticket told the agent
+  to follow the handbook, every bare arm opened it, and the two arms showed no difference
+  (VERIFICATION.md, M6 pilot run 2; [../demo/README.md](../demo/README.md) section 6). If your team
+  writes "see the handbook" in every ticket, part of the map's work is already done by people, and
+  it stops being done the day someone forgets the line.
+- Add one mechanical check before you split anything: dead links and missing rules (F-a-26, F-a-37).
+  A split knowledge base without a check drifts faster than the single file it replaced.
 
 ## Questions to take away
 

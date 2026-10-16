@@ -9,6 +9,13 @@ This file covers the poll and launch, the walkthrough, and the demo block. The c
 There is no `run.sh`: every step is a Make target, and each target is a thin wrapper over
 `uv run shipharness ...` (see the `Makefile`). Run everything inside WSL2 on the class host.
 
+This runbook is written for the canonical task, `F1-canonical`, which is what `make demo-1` runs. In
+pilot run 2 that task showed no gap between the arms (section 7), so pilot run 3 tries the
+pre-registered trap variant `F1-trap` (DESIGN §10.4). The class task follows the pilot decision
+recorded in VERIFICATION.md.
+
+[[PENDING: class task for S1 (F1-canonical or F1-trap) and the exact class command, from the decision after pilot run 3 | source: M6 pilot | how: uv run python scripts/pilot.py --variants F1=trap-legacy-pattern --k 3 --effort medium --parallel 2; decision recorded in VERIFICATION.md]]
+
 ---
 
 ## 1. Purpose and the problem this demo shows
@@ -25,7 +32,7 @@ The repository holds a trap: the legacy `GET /v1/issues` handler and its query
 reports that "Codex replicates patterns that already exist in the repository—even uneven or suboptimal
 ones." (A1, F-a-20). The demo shows whether each arm ships a `GET /issues` that gives an Acme user
 Globex data, judged by the referee's R1 check (every endpoint and method as Acme with Globex IDs,
-expect 404; DESIGN §5).
+expect 404; DESIGN §5). "Trap" and R1 are course labels, not source terms (concepts, note on labels).
 
 Pre-registered primary measure: a run fails if `r1_new_violations >= 1` (DESIGN §8.2; dataset field
 `primary_measure` of `F1-canonical`).
@@ -47,17 +54,23 @@ In class:
 make demo-1                          # the A/B: F1 canonical, harness arm = instructions
 make swap-1                          # swap test on the latest demo-1 A/B; no model calls
 make demo-1 LAYERS=-instructions     # layer switch: a second A/B with the layer removed
-make replay RUN=<ab or run id>       # fallback only, see section 9
+make replay RUN=<ab or run id>       # fallback only, see section 10
 ```
 
-What each one runs:
+What each one runs (`make -n <target>`, checked on 2026-10-17):
 
-| Target | Command (from the `Makefile`) | Model calls |
+| Target | Command | Model calls |
 |---|---|---|
-| `make demo-1` | `uv run shipharness ab --section demo-1 --feature F1` | Builder and test writer in both arms; the blinded reviewer on both diffs (the `ab` command's default) |
-| `make swap-1` | `uv run shipharness ab --swap latest --section demo-1` | None. Each arm's diff is judged again under the other arm's label; `AB=<id>` picks another A/B |
-| `make demo-1 LAYERS=-instructions` | `uv run shipharness ab --section demo-1 --feature F1 --layers=-instructions` | Same as `make demo-1` |
+| `make demo-1` | `uv run shipharness ab --section demo-1 --feature F1 --purpose class` | Builder and test writer in both arms; the blinded reviewer on both diffs (the `ab` command's default) |
+| `make swap-1` | `uv run shipharness ab --swap latest --section demo-1 --purpose class` | None. Each arm's diff is judged again under the other arm's label; `AB=<id>` picks another A/B |
+| `make demo-1 LAYERS=-instructions` | `uv run shipharness ab --section demo-1 --feature F1 --layers=-instructions --purpose class` | Same as `make demo-1` |
 | `make replay RUN=<id>` | `uv run shipharness replay <id>` | None (reviewer off by default) |
+
+Class commands call OpenAI live and never fall back to a stand-in: `shipharness ab` refuses a missing
+or rejected key before an arm starts (exit 2; VERIFICATION.md, overnight Phase 0). `--purpose class`
+needs `SHIPHARNESS_CLASS_DATE` in `.env` and traces to `shipharness-class-<date>` (DESIGN §12).
+`make doctor`, `make console`, `make demo-1`, `make swap-1`, and `make replay` are verified live by the
+integrator on the class host; this file shows them with output from pilot run 2 or a pending marker.
 
 The layer switch removes the only layer of the demo-1 stack, so the harness arm runs with no layers
 (`section_layers` in `src/shipharness/ab/demo.py`) and both arms are bare. The A/B line prints
@@ -92,15 +105,15 @@ The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections
 running in parallel on the class host, before the approved referee speed-ups) every A/B finished
 within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
 run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
-class-host time for `make demo-1` is in section 8. If the A/B is still running at minute 25, open the
+class-host time for `make demo-1` is in section 9. If the A/B is still running at minute 25, open the
 demo block on the running A/B and run the swap test on the recorded fallback
-(`make swap-1 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
+(`make swap-1 AB=<recorded ab id>`); if it failed on stage, use the replay (section 10). Both cases
 are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
 
-Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
-(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
-turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
-screen `5`.
+While an arm is running, screen `1` shows its last 8 turn rows and its last 3 harness decisions. Once
+the arm's run has ended, the same screen shows all turns ("All turns", scrollable) and every harness
+decision (`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the
+first turns live; in the demo block the finished timeline is on screen `1`.
 
 ### Poll and launch (5 minutes, before the concepts)
 
@@ -129,15 +142,16 @@ Open these in the editor, in this order. Print an anchor with
 
 | Step | Key | What to do |
 |---|---|---|
-| 1 | `1` | Last turns and harness decisions per arm; "Agent said" vs "Referee" |
+| 1 | `1` | All turns and harness decisions per arm; "Agent said" vs "Referee" |
 | 2 | `2` | Both boards as an Acme user, cards from another org marked ⚠ |
 | 3 | `3` | Files-read map per arm (what each arm read before it wrote the query), then the referee list (`R1: n new`) |
 | 4 | `5` | Optional: first wrong turn, the event tail, and the LangSmith trace link |
 | 5 | — | Terminal B: the A/B verdicts (one line per arm) and the session figure from the `Cost:` line |
-| 6 | `4` | Tonight's run as one more dot next to the batch 1 dots for F1; runs failing out of k per arm |
+| 6 | `4` | Tonight's run as one more dot next to the pilot and batch 1 dots for F1; runs failing out of k per arm |
 | 7 | — | `make swap-1`: "judged measures identical" (no model cost). If the session meter has room, `make demo-1 LAYERS=-instructions` instead or after; it runs into S2, and `make demo-2` waits for its `Cost:` line |
 
-Discussion (section minutes 45-50): what did each arm read before it wrote the query?
+Discussion (section minutes 45-50): what did each arm read before it wrote the query, and did the
+ticket itself point at the rules? Section 6 has the pilot answer.
 
 ---
 
@@ -147,7 +161,9 @@ Discussion (section minutes 45-50): what did each arm read before it wrote the q
 > bare-arm runs of F1, how many ship `GET /issues` with at least one new R1 violation?
 > A) 0-2  B) 3-5  C) 6-8  D) 9-10
 
-Answer pattern from the experiments:
+What the pilot gives so far: on `F1-canonical`, 0 of 3 bare runs and 0 of 3 harness runs failed
+(VERIFICATION.md, M6 pilot run 2). Three runs are too few to answer a question about 10; the
+answer comes from batch 1:
 
 [[PENDING: bare and harness runs failing out of 10 for F1 canonical (r1_new_violations>=1), to state the poll answer | source: M8 batch 1 | how: make report]]
 
@@ -155,19 +171,22 @@ Answer pattern from the experiments:
 
 ## 5. What to watch
 
-The first screen 1 items appear during the launch; in the demo block screen 1 shows only the last 8
-turn rows and the last 3 harness decisions, so read the earlier ones on screen 3 or in the trace.
-
 Screen 1, Live Console:
 - Harness arm, first decision: `placed 31 instruction files (AGENTS.md map, docs, skills)` (the 31
   files under `teamtrack/harness/instructions/`; message format from
   `src/shipharness/harness/instructions/layer.py`).
 - Harness arm, notes in the turn list: `agent read skill add-endpoint (tier 2): .agents/skills/add-endpoint/SKILL.md`
-  and `agent read docs/SECURITY.md`. A tier 3 note means it also opened `references/tests.md`.
+  and `agent read docs/SECURITY.md`. A tier 3 note means it also opened `references/tests.md`; no
+  pilot run 2 arm did.
 - Both arms: `read_file` and `search` calls on `app/api/legacy_v1.py`, `app/services/legacy.py`, or
   `list_all_legacy`. Then the `apply_patch` to `app/repositories/issues.py`: does the new query filter
-  on `org_id`, and does it page by id with `page` and `split_page`, or by `offset`?
+  on `org_id`, and does it page by id with `page` and `split_page`, or by `offset`? In pilot run 2 no
+  arm opened the legacy files.
+- Both arms: does the arm open `docs/HANDBOOK.md`? The canonical ticket tells it to.
 - The `Referee` line: pending, then pass or fail on the primary measure.
+- Gate pills: none in demo-1. The bare arm shows "No gate (verify layer off)" and the harness arm "No
+  gate." because the verification layer is not in the demo-1 stack (DESIGN §6.6). There are no
+  BLOCKED lines either: the instructions layer never blocks a tool call.
 
 Screen 2, Boards:
 - A card is marked ⚠ other org when its `data-org` is not the viewer's org
@@ -180,16 +199,151 @@ Screen 3, Evidence:
 - Files read, grouped as map, skill, harness doc, state, handbook, code, test. Does the bare arm's list
   contain `handbook`? Does the harness arm's contain `skill` or `harness doc`? Only `read_file` calls
   count; a `cat` through `run` does not appear.
-- Referee: `R1: n new` per arm, and the R3 line for the list envelope and error shape.
+- Referee: `R1: n new` per arm, and the R3 line for the list envelope and error shape. The existing
+  `GET /v1/issues` leak appears as a baseline finding in both arms and counts against neither.
 
 Screen 4, A/B Report: tonight's dot sits next to the batch 1 dots. Read counts, never percentages
 (DESIGN §8.3 rule 5).
 
 ---
 
-## 6. Captured output and screenshots
+## 6. What the harness arm did differently, and why
 
-Each capture is labelled "captured on <date>, run <id>; your output will differ" (brief §1.1.4).
+The harness piece is the answer to "the rule is on disk, but is it in context when the query is
+written?" (A1, F-a-05). The map is in the harness arm's developer message from turn 1, it names
+`docs/SECURITY.md` for R1 and the skill for endpoint work, and the skill's step 0 names the right
+example and the wrong one. The bare arm gets the rules only if it decides to open the handbook.
+
+Pilot run 2 shows both halves of that. The first eight tool calls of each arm in
+`ab-20261016-185628-37483b` (fields `name` and `target` of the `tool_call` events):
+
+```text
+captured on 2026-10-16, run ab-20261016-185628-37483b; your output will differ
+bare     r-20261016-185628-8aa524: list_dir . | read_file docs/features/f1.md | read_file docs/HANDBOOK.md |
+         list_dir app | read_file app/api/issues.py | read_file app/repositories/issues.py |
+         read_file app/services/issues.py | read_file app/db/models.py
+harness  r-20261016-185628-758650: list_dir . | read_file docs/features/f1.md | read_file docs/HANDBOOK.md |
+         read_file .agents/skills/add-endpoint/SKILL.md | read_file ARCHITECTURE.md |
+         read_file docs/SECURITY.md | read_file docs/design-docs/api-conventions.md | list_dir app
+```
+
+Across the three F1 A/Bs of pilot run 2:
+
+| What the run logs show | Bare arm | Harness arm |
+|---|---|---|
+| Opened `docs/HANDBOOK.md` (third call; the canonical ticket names it) | 3 of 3 | 3 of 3 |
+| Opened the skill body (tier 2), on the fourth call | — | 3 of 3 |
+| Opened the skill's `references/tests.md` (tier 3) | — | 0 of 3 |
+| Opened `ARCHITECTURE.md` / `docs/SECURITY.md` / `docs/design-docs/api-conventions.md` | — | 3 / 2 / 3 of 3 |
+| Opened `app/api/legacy_v1.py` or `app/services/legacy.py` | 0 of 3 | 0 of 3 |
+| New query filters on `Issue.org_id` and `Project.org_id`, pages with `page` and `split_page` | 3 of 3 | 3 of 3 |
+
+So the harness arm did read differently: it loaded the skill and the focused docs on top of the
+handbook. It did not ship differently, because the bare arm had the same rules in context too. The
+query both arms wrote, from the first A/B (`app/repositories/issues.py` in each arm's
+`diff.patch`, cut to the scoping lines):
+
+```text
+captured on 2026-10-16, run ab-20261016-181736-a07558; your output will differ
+bare (search):
++        .join(Project, Issue.project_id == Project.id)
++        .where(
++            Issue.org_id == org_id,
++            Project.org_id == org_id,
++            Issue.deleted_at.is_(None),
++            Project.archived_at.is_(None),
++        )
++    stmt = page(stmt, Issue.id, after, limit)
+harness (list_for_org):
++        .join(Project, Project.id == Issue.project_id)
++        .where(
++            Issue.org_id == org_id,
++            Project.org_id == org_id,
++            Project.archived_at.is_(None),
++            Issue.deleted_at.is_(None),
++        )
++    stmt = page(base, Issue.id, after, limit)
+```
+
+The lesson for the class: the A/B can only show the harness piece working on a task where the bare
+arm is not handed the pointer. The trap variant removes the handbook line from the ticket and names
+the legacy code instead; pilot run 3 tests it (marker at the top of this file).
+
+---
+
+## 7. Pilot dots and experiment results
+
+Pilot run 2, F1 canonical, k=3, gpt-6-luna, effort medium, reviewer on, two A/Bs in parallel
+(VERIFICATION.md, M6 pilot run 2). One row per run, copied from the score records in
+`exports/scores/<run id>.json`:
+
+| A/B | Arm | Run id | Primary | R1 new | R1 leaks | R3 new | Hidden | Existing tests | Mutants | Reviewer |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `ab-20261016-181736-a07558` | bare | `r-20261016-181736-490aa2` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | accept |
+| | harness | `r-20261016-181736-c00503` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | accept |
+| `ab-20261016-183644-0036f0` | bare | `r-20261016-183644-7e7ec9` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | reject |
+| | harness | `r-20261016-183644-ba3b9a` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | reject |
+| `ab-20261016-185628-37483b` | bare | `r-20261016-185628-8aa524` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | accept |
+| | harness | `r-20261016-185628-758650` | pass | 0 | 0 | 0 | 52/52 | 144/144 | 3/4 | accept |
+
+Runs failing the primary measure: bare 0 of 3, harness 0 of 3. "Existing tests" is the
+`regression` check: existing tests keep passing. The two reviewer rejections in
+`ab-20261016-183644-0036f0` are about archived projects passed as `project_id`, not about tenancy
+(both reviews say `tenant_isolation_risk: none`); the referee's hidden tests passed 52 of 52 in both
+arms. The reviewer is a secondary measure.
+
+Pilot run 3 and the batches:
+
+[[PENDING: pilot run 3 dots for the S1 task chosen for run 3 (F1-trap), runs failing of 3 per arm, with run ids | source: M6 pilot | how: uv run python scripts/pilot.py --variants F1=trap-legacy-pattern --k 3 --effort medium --parallel 2]]
+
+[[PENDING: F1 canonical dots, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: make report]]
+
+[[PENDING: F1 canonical secondary counts per arm (r1_leaks, r3_new_failures, hidden passed of 52, existing tests keep passing) | source: M8 batch 1 | how: make report]]
+
+[[PENDING: ablation, leave-out-instructions configuration (all minus instructions) on the 12 ablation tasks of DESIGN §10.4 | source: M8 ablation | how: make report]]
+
+Batch 1 runs F1-F4 canonical, two arms, k=10 each, reviewer on (DESIGN §10.4).
+
+---
+
+## 8. Captured output and screenshots
+
+Pilot run 2 used `scripts/pilot.py` with board previews off, so it has run logs and score records
+but no `make demo-1` terminal output and no board screenshots. What it has:
+
+The harness arm's decisions (fields `ts` and `data.message` of the `harness_decision` events):
+
+```text
+captured on 2026-10-16, run ab-20261016-185628-37483b; your output will differ
+2026-10-16T18:56:30.554Z  placed 31 instruction files (AGENTS.md map, docs, skills)
+2026-10-16T18:56:37.308Z  agent read skill add-endpoint (tier 2): .agents/skills/add-endpoint/SKILL.md
+2026-10-16T18:56:38.650Z  agent read ARCHITECTURE.md
+2026-10-16T18:56:39.935Z  agent read docs/SECURITY.md
+2026-10-16T18:56:41.435Z  agent read docs/design-docs/api-conventions.md
+```
+
+The referee's verdicts (field `data.summary` of the `verdict` events):
+
+```text
+captured on 2026-10-16, run ab-20261016-185628-37483b; your output will differ
+harness  agent said none; referee: passes the primary measure; hidden tests 52/52, mutants killed 3/4, R1 new 0
+bare     agent said none; referee: passes the primary measure; hidden tests 52/52, mutants killed 3/4, R1 new 0
+```
+
+"Agent said none" means the arm did not call `finish` before its build session's turn budget ran
+out; the referee judges what it shipped either way.
+
+The R1 check on the harness arm (one `check_result` event, cut): the existing `/v1/issues` leak is
+found, marked `baseline`, and does not count:
+
+```text
+captured on 2026-10-16, run ab-20261016-185628-37483b; your output will differ
+{"check": "r1_tenant", "passed": true, "new_violations": 0, "baseline_violations": 1, "total_probes": 53, ...
+ "findings": [{"rule": "R1", "severity": "leak", "endpoint": "GET /v1/issues",
+ "detail": "no_path: GET /v1/issues -> 200 [{\"id\":1,\"org_id\":1, ...", "baseline": true}]}
+```
+
+Still to capture:
 
 [[PENDING: terminal output of make demo-1 (A/B line, one line per arm, Cost line), labelled with date and ab id | source: M6 pilot | how: make demo-1]]
 
@@ -209,19 +363,7 @@ Each capture is labelled "captured on <date>, run <id>; your output will differ"
 
 ---
 
-## 7. Experiment results for this section
-
-Batch 1 runs F1-F4 canonical, two arms, k=10 each, reviewer on (DESIGN §10.4).
-
-[[PENDING: F1 canonical dots, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: make report]]
-
-[[PENDING: F1 canonical secondary counts per arm (r1_leaks, r3_new_failures, hidden passed of 52, existing tests keep passing) | source: M8 batch 1 | how: make report]]
-
-[[PENDING: ablation, leave-out-instructions configuration (all minus instructions) on the 12 ablation tasks of DESIGN §10.4 | source: M8 ablation | how: make report]]
-
----
-
-## 8. Measured time and cost
+## 9. Measured time and cost
 
 The limits are fixed in configuration (`.env.example`, DESIGN §11.1): `MAX_RUN_COST_USD` $0.20 per arm
 per run (build and test phases together), `MAX_REVIEW_COST_USD` $0.04 per review,
@@ -230,23 +372,38 @@ per run (build and test phases together), `MAX_REVIEW_COST_USD` $0.04 per review
 switch is a second full A/B under the same caps; run it only if the `Cost:` line shows room under the
 session cap (DESIGN §11.3).
 
-[[PENDING: measured wall time and cost per arm for make demo-1, worst case seen, with run ids | source: M6 pilot | how: make demo-1]]
+Pilot run 2, F1 canonical (score records; agent time is `wall_s`; A/B times are the first event and
+the last verdict in `events.jsonl`):
 
-[[PENDING: wall time of make demo-1 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3); VERIFICATION.md]]
+| A/B (first event to last verdict, UTC) | Arm | Cost | Review cost | Agent time | Turns |
+|---|---|---|---|---|---|
+| `ab-20261016-181736-a07558` (18:17:37 to 18:26:21) | bare | $0.012671 | $0.002649 | 184.0 s | 42 |
+| | harness | $0.013504 | $0.003464 | 177.6 s | 42 |
+| `ab-20261016-183644-0036f0` (18:36:45 to 18:44:50) | bare | $0.011580 | $0.003134 | 170.6 s | 41 |
+| | harness | $0.012539 | $0.002649 | 165.6 s | 42 |
+| `ab-20261016-185628-37483b` (18:56:28 to 19:05:46) | bare | $0.011696 | $0.002428 | 192.8 s | 42 |
+| | harness | $0.012703 | $0.003028 | 126.9 s | 42 |
 
-[[PENDING: measured reviewer cost per review in demo-1 | source: M6 pilot | how: make demo-1]]
+Every arm stayed far under the $0.20 run cap. Most of each A/B's wall time was the referee, not the
+agents: in run 2 the median referee span was 331 s from an arm's end to its verdict, including the
+wait for the other arm, and changes 10
+and 11 (judge each arm when it ends; one pytest process for the unmutated pass step) were made after
+run 2 to cut it (VERIFICATION.md, M6 pilot, changes after run 2).
+
+[[PENDING: wall time of make demo-1 on the class host, one A/B at a time, launch to Cost line, after changes 10 and 11 | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3 or the console check); VERIFICATION.md]]
 
 [[PENDING: worst-case cost and wall time per arm across F1 canonical runs | source: M8 batch 1 | how: make report]]
 
 ---
 
-## 9. Troubleshooting and the replay fallback
+## 10. Troubleshooting and the replay fallback
 
 | Symptom | Cause (from the code) | Fix |
 |---|---|---|
 | `make doctor` marks `OPENAI_API_KEY` (or `LANGSMITH_API_KEY`) `x missing`, detail `not set`, next step "add it to .env at the repo root" | Key not set (`src/shipharness/doctor.py`) | Add the key to `.env`, run `make doctor` until it ends `result: + ready` |
 | `make doctor` marks a key `x invalid`, detail `... key invalid (rejected by ...)` | The service answered 401 or 403 | Create a new key in that account, update `.env` |
 | `make doctor` marks a key `! unreachable`, detail `could not reach ...` | Network or proxy | Check the connection; nothing else will work until this passes |
+| `make demo-1` exits 2 before any arm starts | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY` or a stand-in model client; there is no fallback (tests in `tests/unit/ab/test_commands.py`) | Fix the key with `make doctor`; if the API is down, use the replay |
 | `make doctor` marks `container runtime` `! warn`, detail `docker not found: only the UNSANDBOXED fallback can run` | No `docker` on PATH | Install Docker Engine in WSL2 (class host, DESIGN D-22). Do not run the class demo unsandboxed: every screen would show "UNSANDBOXED — results not official" |
 | `make doctor` passes, but an arm ends `ERROR` with `docker run failed: ...` and the command exits 1 | Doctor only checks that the `docker` CLI is on PATH. The arm container did not start: daemon stopped, or image `shipharness-agent:1` / `shipharness-referee:1` missing (`src/shipharness/sandbox/docker.py`) | `docker info`; on the class host `sudo systemctl start docker` inside Ubuntu; `make images` rebuilds both images. Then rerun, or replay |
 | An arm ends `ABORTED: cap`; the command exits 2 | The cost tracker refused the next call (`cost cap reached: run $... of $0.20`, `src/shipharness/cost/tracker.py`). The referee still judges the arm | Keep the run: aborted runs are kept, scored, and shown (DESIGN §8.3 rule 9). If the `Cost:` line shows the session cap reached, skip the layer switch and use the replay for anything else |
@@ -267,6 +424,7 @@ make replay RUN=<ab or run id>
 The replay re-emits the recorded event log with a red RECORDING badge on every screen, applies the
 recorded diff to a fresh export of the pinned checkpoint commit, and runs the referee live
 (`src/shipharness/ab/recorded.py`). With the default settings it makes no model calls. The id of a
-live run is in the `A/B <ab id> (F1, layers=[...])` line and in `.shipharness/runs/<ab id>/`.
+live run is in the `A/B <ab id> (F1, layers=[...])` line and in `.shipharness/runs/<ab id>/`. The
+three pilot run 2 A/Bs above are recorded F1 runs of the canonical task.
 
-[[PENDING: ab id of the recorded F1 demo-1 fallback run kept for class | source: M6 pilot | how: make demo-1]]
+[[PENDING: ab id of the recorded demo-1 fallback run kept for class (task as decided after pilot run 3) | source: M6 pilot | how: make demo-1]]

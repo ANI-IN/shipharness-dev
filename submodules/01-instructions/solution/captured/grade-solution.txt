@@ -1,4 +1,6 @@
-$ uv run python submodules/01-instructions/solution/grader/grade.py --work submodules/01-instructions/solution/work --allow-pending
+# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+$ make --no-print-directory grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work
+uv run python scripts/grade_assignment.py 1 "submodules/01-instructions/solution/work"
 A1 grade: submodules/01-instructions/solution/work
 A Map and layout                          15.0/15
   layout                       5.0/5
@@ -25,18 +27,19 @@ D Docs checker                            26.0/26
   pristine-visible-tests       6.0/6
   reference-tree               6.0/6
   hidden-cases                10.0/10
-E A/B report                              10.0/10
+E A/B report                               5.0/10
   report-sections              2.0/2
-  report-command               2.0/2
-  report-results               2.0/2
-  report-links                 1.0/1
-  report-cost                  1.0/1
+  report-command               1.0/2  Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
+  report-results               0.0/2  Results needs an R1 row and an R3 row, each with 'failing/runs' counts per arm (for example 3/24), runs equal to 'Runs per arm', and no percentages
+  report-links                 0.0/1  Links needs the two LangSmith experiment URLs (bare and harness)
+  report-cost                  0.0/1  'Cost: $<x>' at most 2.50 and 'Traces: <n>' at most 150
   report-reading               2.0/2
-F Live run evidence                       12.0/12
-  live-files                   3.0/3
-  live-command                 3.0/3
-  live-caps                    2.0/2
-  live-tree                    2.0/2
-  live-report                  2.0/2
-Score: 100.0/100
+F Live run evidence                        0.0/12
+  live-files                   0.0/3  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-command                 0.0/3  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-caps                    0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-tree                    0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-report                  0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+Score: 83.0/100
+grading assignment 1: submodules/01-instructions/solution/work
 (exit 0)

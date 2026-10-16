@@ -426,14 +426,19 @@ See [the old notes](OLD.md).
 - [R1.2] Unrelated words entirely.
 ```
 
-checked against the original as the only file of a tree, prints (reference checker, captured
-2026-10-16; the 64 `missing-rule` lines are shortened to one):
+checked against the original as the only file of a tree, prints (reference checker, captured on
+2026-10-17 in the course build worktree; your output will differ). The 64 `missing-rule` lines are
+cut to three; `...` marks the cut:
 
 ```
 ERROR broken-link docs/SECURITY.md:2 OLD.md
+ERROR missing-rule CV-22
+...
+ERROR missing-rule CV-01
 ERROR weak-rule R1.1 docs/SECURITY.md:1 overlap=0.41
 ERROR weak-rule R1.2 docs/SECURITY.md:3 overlap=0.00
-ERROR missing-rule CV-22
+ERROR missing-rule R1.3
+...
 FAILED: 67 problems
 ```
 
@@ -441,20 +446,27 @@ R1.1 is weak although its first sentence is copied word for word: the original's
 ("Repositories take `org_id` as an explicit argument and filter on it; ..."), and the copy keeps 41%
 of its content words.
 
-The self-check on the unchanged starter (captured 2026-10-16, shortened):
+`make check-assignment-1` on the unchanged starter fails by design (captured on 2026-10-17 in the
+course build worktree; your output will differ; cut, with `...` where lines are left out):
 
 ```
+$ make check-assignment-1
+uv run python submodules/01-instructions/assignment/check.py
 A1 self-check: submodules/01-instructions/assignment/starter
-FAIL layout: missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, ...
+FAIL layout: missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, docs/QUALITY_SCORE.md, docs/PLANS.md, docs/design-docs/index.md, docs/product-specs/index.md; follow A1's layout (README, 'Expected project structure')
 FAIL map-length: AGENTS.md still holds the starter TODO stub
 ...
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.45s
+FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.68s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 ...
 FAIL live-files: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
 ...
+FAIL todo: TODO markers left in: ab-report.md, checker/check_docs.py, instructions/AGENTS.md
 self-check: 0 of 24 checks pass
+make: *** [Makefile:127: check-assignment-1] Error 1
 ```
+
+The full output is 24 FAIL lines, one per check. `make` exits 2 when the self-check exits 1.
 
 ## Grading criteria (100 points)
 
@@ -537,6 +549,9 @@ The learner budget for all four assignments is at most $6 of OpenAI usage and 40
 [[PENDING: wall time of the A1 A/B command | source: M8 batch 1 | how: time uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
 
 DESIGN §11.5 plans a fallback: if M6 measures more than $0.05 per run, the assignment subset drops to
-4 tasks. If that happens, the course publishes the replacement command here.
+4 tasks. If that happens, the course publishes the replacement command here. A first data point: in
+pilot run 2 each of the six F1 canonical arm runs cost between $0.011580 and $0.013504 (score
+records; run ids in [../demo/README.md](../demo/README.md), section 7). Those were `shipharness ab`
+runs, not the `experiments` command, so the decision waits for the measurement above.
 
 [[PENDING: whether the M6 per-run cost triggers the 4-task fallback, and the replacement command | source: M6 pilot | how: make pilot]]

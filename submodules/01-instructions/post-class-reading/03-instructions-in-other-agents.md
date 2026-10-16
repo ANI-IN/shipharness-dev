@@ -1,6 +1,6 @@
 # How instructions reach the agent in other harnesses
 
-Reading time: about 5 minutes.
+Reading time: about 6 minutes.
 
 The S1 layer in `shipharness` does two things: it puts a short map in the context prefix, and it lists
 skills by name and description so the agent can load the rest on demand. This piece compares that with
@@ -79,6 +79,18 @@ What differs is who builds the entry point. In A1 and in `shipharness` it is a f
 context. In the three coding agents it is the agent's own loader, scanning the directories in the table
 above. When you take the course skills home, the loader is the agent's; your job is to put the skill
 in a directory it scans and write a description that matches the tasks it should handle.
+
+## Why it matters for your own repo
+
+- Decide who builds the entry point in your setup. If your coding agent loads `AGENTS.md` and
+  skills itself, your work is the files and their locations (the table in section 3). If you run
+  your own harness, as `shipharness` does, you also decide what goes into the first message and
+  whether the agent can change it (`build_prefix` reads the course checkout, never the workspace).
+- Keep one source and generate or copy the rest. A team skill installed in both
+  `.claude/skills/<name>/` and `.agents/skills/<name>/` is two copies; a check that compares them is
+  the kind of mechanical check A1 asks for (F-a-26, F-a-37).
+- Prefer a short entry point that names where knowledge lives over pasting the knowledge in. A1
+  (F-a-28), A2 (F-a-59), and B1 (F-b-05) arrive at that shape from three directions.
 
 ## Questions to take away
 

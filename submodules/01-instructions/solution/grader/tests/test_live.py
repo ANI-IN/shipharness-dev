@@ -388,7 +388,7 @@ def test_a_pending_marker_stands_in_for_the_evidence_only_when_allowed(tmp_path:
 def test_the_reference_live_folder_holds_the_pending_marker_and_the_command() -> None:
     text = (SOLUTION_WORK / "live" / "README.md").read_text(encoding="utf-8")
     assert live.PENDING.search(text)
-    assert "source: M8 batch 1" in text
+    assert "source: M6 pilot" in text
     assert syn.COMMAND.replace(syn.BATCH, "a1-reference") in text
 
 

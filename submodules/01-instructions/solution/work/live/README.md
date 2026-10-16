@@ -33,4 +33,4 @@ After the capture, fill `../ab-report.md` from the `ab_summary.py` output, repla
 below with the capture date, and check that the grader gives the reference 100 without
 `--allow-pending`.
 
-[[PENDING: captured live run of the reference solution | source: M8 batch 1 | how: uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference, then live_evidence.py --batch a1-reference --output ~/a1-reference-output.txt --work submodules/01-instructions/solution/work]]
+[[PENDING: captured live run of the reference solution (output.txt, two experiment exports, 48 score records, 24 harness run logs), collected into this folder | source: M6 pilot | how: uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference, then uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-reference --output ~/a1-reference-output.txt --work submodules/01-instructions/solution/work]]
