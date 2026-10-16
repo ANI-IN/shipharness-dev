@@ -478,3 +478,95 @@ def test_referee_tells_continuity_which_run_it_scores(course_repo: Path, tmp_pat
     factory = Factory(all_green())
     judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT, run_id="r-h7")
     assert _referee_params(factory)["run_id"] == "r-h7"
+
+
+ADDS_FAILING_TESTS = """diff --git a/tests/visible/test_app.py b/tests/visible/test_app.py
+--- a/tests/visible/test_app.py
++++ b/tests/visible/test_app.py
+@@ -1,2 +1,6 @@
+ def test_app():
+     assert True
++
++
++def test_added_to_an_existing_file():
++    assert False
+diff --git a/tests/visible/test_added.py b/tests/visible/test_added.py
+new file mode 100644
+--- /dev/null
++++ b/tests/visible/test_added.py
+@@ -0,0 +1,2 @@
++def test_added_in_a_new_file():
++    assert False
+"""
+
+
+class LiveRegression(Factory):
+    """Runs the real regression check in-process on the referee build with the params the
+    referee sent; every other check is canned green."""
+
+    def __init__(self) -> None:
+        super().__init__(all_green())
+        self.regression: list[dict[str, Any]] = []
+
+    def __call__(self, build: Path, mounts: list[Any], arm: str) -> FakeSandbox:
+        from shipharness.checks.runner import run_checks
+
+        commands: list[str] = []
+
+        def exec_(cmd: str) -> ExecResult:
+            commands.append(cmd)
+            if "checks.runner" not in cmd:
+                return self._exec(cmd)
+            [params_cmd] = [c for c in commands if c.startswith("printf") and "params" in c]
+            params = json.loads(base64.b64decode(params_cmd.split()[2]))
+            [real], _crashed = run_checks(
+                build,
+                ["regression"],
+                checkpoint="m1-s1-start",
+                feature_id="F1",
+                seed=42,
+                params=params,
+            )
+            dumped = real.model_dump(mode="json")
+            self.regression.append(dumped)
+            results = [r if r["check"] != "regression" else dumped for r in all_green()]
+            output = runner_output(results, command=cmd)
+            return ExecResult(exit_code=0, output=output, duration_ms=1)
+
+        self.calls.append((build, mounts, arm))
+        box = FakeSandbox(exec_)
+        self.sandboxes.append(box)
+        return box
+
+
+def test_regression_runs_only_the_tests_that_existed_at_the_checkpoint(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = LiveRegression()
+    verdict, _ = judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, ADDS_FAILING_TESTS
+    )
+    assert verdict.apply_error is None
+    baseline, arm = factory.regression  # the clean checkpoint, then the arm's build
+    assert arm["new_violations"] == 0 and arm["passed"] is True, arm["findings"]
+    assert arm["total_probes"] == baseline["total_probes"] == 1
+    assert (verdict.record.regression_passed, verdict.record.regression_total) == (1, 1)
+    params = _referee_params(factory)
+    assert params["regression_targets"] == ["tests/visible/test_app.py::test_app"]
+    # The arm's added tests are judged by flakiness and mutants, not by regression.
+    assert "tests/visible/test_app.py::test_added_to_an_existing_file" in params["shipped_tests"]
+    assert "tests/visible/test_added.py::test_added_in_a_new_file" in params["shipped_tests"]
+
+
+def test_default_params_leave_exemptions_to_the_adapter(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    assert "exemptions" not in _referee_params(factory)
+
+
+def test_explicit_task_exemptions_are_passed_through(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    exempt = {"R4": ["POST /projects/{project_id}/issues"]}
+    referee = Referee(task(exemptions=exempt), deps(course_repo, tmp_path, factory))
+    judge(referee, tmp_path, PRODUCT)
+    assert _referee_params(factory)["exemptions"] == exempt

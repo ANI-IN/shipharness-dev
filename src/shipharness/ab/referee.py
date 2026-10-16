@@ -86,7 +86,9 @@ class RefereeTask:
     hidden_test_ids: list[str] = field(default_factory=list)
     allowed_paths: dict[str, list[str]] = field(default_factory=dict)
     primary_measure: str = ""
-    exemptions: dict[str, list[str]] = field(default_factory=dict)
+    # None: the check runner uses the adapter's documented exemptions for the checkpoint (as the
+    # verify gate does). Set it, even to {}, only to override them for this task.
+    exemptions: dict[str, list[str]] | None = None
     mutant_set: str = ""
 
 
@@ -379,8 +381,12 @@ class Referee:
         existing_ids: list[str],
         run_id: str = "",
     ) -> dict[str, Any]:
-        """Check params under the names the checks read (shipharness.checks.params)."""
-        return {
+        """Check params under the names the checks read (shipharness.checks.params).
+
+        Regression runs the checkpoint's own test ids only: tests the arm added (new files or new
+        functions in existing files) are judged by flakiness and mutants, never as regressions.
+        `file::name` selects every parameter of a parametrized test."""
+        params: dict[str, Any] = {
             **inputs,
             P.REGRESSION_EXPECTED: list(existing_ids),
             P.RUN_ID: run_id,
@@ -391,9 +397,13 @@ class Referee:
             P.PHASE_FILES: {"test": list(test_phase_files)},
             P.ALLOWED_PATHS: self.task.allowed_paths,
             P.HARNESS_ARTIFACTS: list(HARNESS_ARTIFACT_PATTERNS),
-            P.EXEMPTIONS: self.task.exemptions,
             P.FLAKY_RUNS: FLAKY_RUNS,
         }
+        if existing_ids:
+            params[P.REGRESSION_TARGETS] = list(existing_ids)
+        if self.task.exemptions is not None:
+            params[P.EXEMPTIONS] = self.task.exemptions
+        return params
 
     # -- judging -------------------------------------------------------------------------------
 

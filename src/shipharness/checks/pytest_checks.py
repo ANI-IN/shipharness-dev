@@ -2,9 +2,12 @@
 
 Params (runner --params):
 - `regression_targets`: pytest targets for the checkpoint's visible suite (default
-  ["tests/visible"]).
+  ["tests/visible"]). The referee sends the checkpoint's node ids (`file::test`, which runs every
+  parameter), so tests the arm added never run here; the gate sends the checkpoint's files. When a
+  node id no longer exists, the ids that remain still run.
 - `regression_expected`: node ids that existed at the checkpoint; one the run no longer reports
-  (removed or renamed by the arm) counts as failed. Parametrized ids match by their base name.
+  (removed or renamed by the arm) counts as failed and stays in the total. Parametrized ids match
+  by their base name.
 - `hidden_tests`: pytest node ids relative to the build directory (mount hidden tests inside the
   build tree, for example at tests/hidden/). A requested id that is not collected counts as failed.
 - `shipped_tests`: node ids or files the arm added; `flaky_runs`: repetitions (default 10).
@@ -15,7 +18,13 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from shipharness.checks._pytest import collect_ids, no_tests_finding, outcome_finding, run_pytest
+from shipharness.checks._pytest import (
+    PytestRun,
+    collect_ids,
+    no_tests_finding,
+    outcome_finding,
+    run_pytest,
+)
 from shipharness.checks.base import CheckContext, CheckResult, Finding, make_result, register_check
 
 DEFAULT_FLAKY_RUNS = 10
@@ -33,17 +42,33 @@ class RegressionCheck:
         targets = list(ctx.params.get("regression_targets") or ["tests/visible"])
         ctx.progress(0, 1, "existing tests")
         run = run_pytest(build_dir, targets)
+        if run.returncode == 4 and any("::" in t for t in targets):
+            # A node id the arm removed or renamed stops the whole run: run the ones that remain.
+            present = _collectable(build_dir, targets)
+            run = run_pytest(build_dir, present) if present else PytestRun(run.returncode)
         ctx.progress(1, 1, "existing tests")
         findings = [outcome_finding("regression", n, run.outcomes[n]) for n in run.failed]
         reported = {node.split("[", 1)[0] for node in run.outcomes}
-        for node in ctx.params.get("regression_expected") or []:
-            if node not in reported:
-                findings.append(
-                    outcome_finding("regression", node, "missing: existing test removed or renamed")
-                )
-        if not run.outcomes:
+        expected = ctx.params.get("regression_expected") or []
+        missing = [node for node in expected if node not in reported]
+        for node in missing:
+            findings.append(
+                outcome_finding("regression", node, "missing: existing test removed or renamed")
+            )
+        if not run.outcomes and not missing:
             findings.append(no_tests_finding("regression", run))
-        return make_result(self.name, findings, total_probes=len(run.outcomes), started=started)
+        # A missing existing test is still one of the checkpoint's tests: it counts in the total.
+        total = len(run.outcomes) + len(missing)
+        return make_result(self.name, findings, total_probes=total, started=started)
+
+
+def _collectable(build_dir: Path, targets: list[str]) -> list[str]:
+    """Targets pytest can still collect: node ids matched by base name (parameters stripped),
+    plain paths when they exist."""
+    files = sorted({t.split("::", 1)[0] for t in targets})
+    files = [f for f in files if (build_dir / f).is_file()]
+    listed = {node.split("[", 1)[0] for node in collect_ids(build_dir, files)} if files else set()
+    return [t for t in targets if (t in listed if "::" in t else (build_dir / t).exists())]
 
 
 @register_check
