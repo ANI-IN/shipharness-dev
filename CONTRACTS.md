@@ -1059,6 +1059,12 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   each check, each summary, and each write (writes hold an exclusive file lock), so the session,
   experiment, and build caps hold across concurrent commands (`make demo-4` with `make final`, and
   parallel pilot A/Bs); a line another command is still writing is read once complete.
+- `shipharness run|review|ab` take `--purpose class|pilot|assignment` (default class): LangSmith
+  project `shipharness-class-<SHIPHARNESS_CLASS_DATE>`, `shipharness-pilot`, or `shipharness-assignments`,
+  and the cost session id (the class date, `pilot`, `assignment`). A class command exits 2 with one
+  line when `SHIPHARNESS_CLASS_DATE` is empty; the setting no longer defaults to today. `build_runtime(...,
+  session_id=)`. Experiments use `shipharness-experiments` and session `experiments`. `pilot.py` passes
+  `--purpose pilot`; the Makefile's `PURPOSE ?= class` reaches demo-N, swap-N, and final.
 - The referee baseline runs while the arms work and is cached per task under
   `<RUNS_DIR>/../cache/referee-baseline`, keyed by checkpoint SHA, seed, hidden test ids, allowed
   paths, exemptions, checks, and a hash of the referee code (`RefereeDeps.baseline_cache_dir`).

@@ -13,6 +13,9 @@ LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 FEATURES ?= F5,F6,F7
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
+# demo-N, swap-N, final: LangSmith project (DESIGN §12). class needs SHIPHARNESS_CLASS_DATE (the
+# class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
+PURPOSE ?= class
 RUN ?=
 
 .PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
@@ -81,35 +84,35 @@ test-docker:
 
 # Section demos: section N's canonical task is feature FN, canonical variant (DESIGN §10.1).
 demo-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
 # picks another one.
 swap-1:
-	$(UV) run shipharness ab --swap $(AB) --section demo-1
+	$(UV) run shipharness ab --swap $(AB) --section demo-1 --purpose $(PURPOSE)
 
 swap-2:
-	$(UV) run shipharness ab --swap $(AB) --section demo-2
+	$(UV) run shipharness ab --swap $(AB) --section demo-2 --purpose $(PURPOSE)
 
 swap-3:
-	$(UV) run shipharness ab --swap $(AB) --section demo-3
+	$(UV) run shipharness ab --swap $(AB) --section demo-3 --purpose $(PURPOSE)
 
 swap-4:
-	$(UV) run shipharness ab --swap $(AB) --section demo-4
+	$(UV) run shipharness ab --swap $(AB) --section demo-4 --purpose $(PURPOSE)
 
 # One A/B per feature; every feature runs, and the exit code is the last non-zero one.
 final:
 	rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
-	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) || rc=$$?; \
+	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) --purpose $(PURPOSE) || rc=$$?; \
 	done; exit $$rc
 
 replay:

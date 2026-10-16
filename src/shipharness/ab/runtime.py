@@ -99,13 +99,18 @@ class Runtime:
 
 
 def build_runtime(
-    settings: Settings, *, project: str, experiment: bool = False, final: bool = False
+    settings: Settings,
+    *,
+    project: str,
+    experiment: bool = False,
+    final: bool = False,
+    session_id: str | None = None,
 ) -> Runtime:
     cost = CostTracker(
         Prices.load(settings.prices_file),
         Caps.from_settings(settings, final=final),
         LEDGER,
-        session_id=settings.shipharness_class_date,
+        session_id=session_id if session_id is not None else settings.shipharness_class_date,
         experiment=experiment,
     )
     tracer = make_tracer(settings, project)

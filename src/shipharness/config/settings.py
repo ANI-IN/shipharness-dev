@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -70,9 +69,10 @@ class Settings(BaseSettings):
     @field_validator("shipharness_class_date", mode="before")
     @classmethod
     def _default_today(cls, value: object) -> str:
-        """Class sessions are keyed by date, so the session cost cap resets each class day."""
-        text = str(value).strip() if value is not None else ""
-        return text or date.today().isoformat()
+        """The class day, set explicitly in .env for class commands (they refuse without it); the
+        class session cost cap and the class LangSmith project are keyed by it. Never today by
+        default (owner, 2026-10-17)."""
+        return str(value).strip() if value is not None else ""
 
     @field_validator("openai_api_key", "langsmith_api_key", mode="before")
     @classmethod

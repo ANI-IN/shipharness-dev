@@ -93,8 +93,10 @@ def test_prices_file_missing_field_is_rejected(tmp_path: Path) -> None:
         Prices.load(bad)
 
 
-def test_class_date_defaults_to_today(clean_env: pytest.MonkeyPatch) -> None:
-    from datetime import date
-
+def test_class_date_is_empty_unless_set_for_the_class_day(clean_env: pytest.MonkeyPatch) -> None:
+    # Owner, 2026-10-17: the class date is set explicitly for the class day, never today by default
+    # (pilot runs of 2026-10-16 were traced into a class project).
     clean_env.delenv("SHIPHARNESS_CLASS_DATE", raising=False)
-    assert Settings(_env_file=None).shipharness_class_date == date.today().isoformat()
+    assert Settings(_env_file=None).shipharness_class_date == ""
+    clean_env.setenv("SHIPHARNESS_CLASS_DATE", "2026-10-20")
+    assert Settings(_env_file=None).shipharness_class_date == "2026-10-20"
