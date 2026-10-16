@@ -22,8 +22,8 @@ HARNESS_ARTIFACT_PATTERNS: tuple[str, ...] = (
     "docs/PLANS.md",
     "docs/design-docs/**",
     "docs/product-specs/**",
-    "docs/references/*-llms.txt",
-    ".agents/**",
+    "docs/references/**",
+    ".agents/skills/**",
     # state layer
     "init.sh",
     "progress.md",

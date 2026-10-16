@@ -355,7 +355,11 @@ class _Run:
             else:
                 with self.tracer.child(f"tool:{call.name}", "tool", target=_target(call)):
                     result = self.toolbox.execute(call)
-                self.harness.after_tool(self.ctx, call, result)
+                decisions = self.harness.after_tool(self.ctx, call, result)
+                notes = [d.message for d in decisions if d.kind in ("block", "revert")]
+                if notes:  # the agent must see why its change was undone
+                    reverted = "\n".join(f"REVERTED: {m}" for m in notes)
+                    result = result.model_copy(update={"output": f"{result.output}\n{reverted}"})
             self.emit(
                 "tool_result",
                 {
@@ -434,7 +438,9 @@ class _Run:
         the arm's work. The bare arm has no layers: no commit, diff against the checkpoint."""
         if not self.harness.layers:
             return
-        self.sandbox.exec(SETUP_COMMIT, self.options.tool_timeout_s)
+        status = self.sandbox.exec("git status --porcelain", self.options.tool_timeout_s)
+        if status.exit_code == 0 and status.output.strip():  # layers may have committed already
+            self.sandbox.exec(SETUP_COMMIT, self.options.tool_timeout_s)
         setup_sha = git.head_sha(self.spec.workspace)
         if setup_sha:
             self.diff_base = setup_sha

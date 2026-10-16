@@ -448,7 +448,7 @@ def test_text_only_end_after_a_rejected_done_records_claim_none(tmp_path: Path) 
 
 # --- harness setup commit: placed artifacts never reach the harness arm's diff ----------------
 
-GIT_ID = ["-c", "user.name=t", "-c", "user.email=t@x"]
+GIT_ID = ["-c", "user.name=t", "-c", "user.email=t@x", "-c", "core.autocrlf=false"]
 
 
 def _git_repo(tmp_path: Path) -> Path:
@@ -457,6 +457,7 @@ def _git_repo(tmp_path: Path) -> Path:
     ws = tmp_path / "ws"
     (ws / "app").mkdir(parents=True)
     (ws / "app" / "main.py").write_text("x = 1\n", encoding="utf-8")
+    (ws / "app.py").write_text("x = 1\n", encoding="utf-8")  # spec() writes it too
     for args in (["init", "-q"], ["add", "."], ["commit", "-qm", "checkpoint"]):
         subprocess.run(["git", *GIT_ID, *args], cwd=ws, check=True, capture_output=True)
     return ws
@@ -475,6 +476,14 @@ class _RepoSandbox(FakeSandbox):
         from shipharness.sandbox import ExecResult
 
         self.commands.append(command)
+        if command.startswith("git status --porcelain"):
+            import os
+
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+            done = subprocess.run(
+                ["git", "status", "--porcelain"], cwd=self.ws, capture_output=True, env=env
+            )
+            return ExecResult(exit_code=0, output=done.stdout.decode(), duration_ms=1)
         if command.startswith("git add -A"):
             import os
 
@@ -533,3 +542,53 @@ def test_bare_arm_diff_is_against_the_checkpoint_and_no_setup_commit_runs(tmp_pa
     assert result.diff_path is not None
     text = result.diff_path.read_text(encoding="utf-8")
     assert "app/new.py" in text and "progress.md" in text
+
+
+def test_setup_commit_is_skipped_when_layers_already_committed_everything(
+    tmp_path: Path,
+) -> None:
+    import subprocess
+
+    class CommittingPlacer(BaseLayer):
+        name = "state"
+
+        def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
+            (ctx.workspace / "progress.md").write_text("# Progress\n", encoding="utf-8")
+            subprocess.run(
+                ["git", *GIT_ID, "-c", "core.autocrlf=false", "add", "progress.md"],
+                cwd=ctx.workspace,
+                check=True,
+            )
+            subprocess.run(
+                ["git", *GIT_ID, "commit", "-qm", "state setup"], cwd=ctx.workspace, check=True
+            )
+            return []
+
+    result, sandbox = _run_repo(tmp_path, Harness([CommittingPlacer()]))
+    assert any(c.startswith("git status --porcelain") for c in sandbox.commands)
+    assert not any(c.startswith("git add -A") for c in sandbox.commands)
+    assert result.diff_path is not None
+    text = result.diff_path.read_text(encoding="utf-8")
+    assert "app/new.py" in text
+    assert "--- /dev/null\n+++ b/progress.md" not in text  # setup version is the diff base
+
+
+def test_after_tool_revert_reasons_reach_the_agent(tmp_path: Path) -> None:
+    class Reverter(BaseLayer):
+        name = "scope"
+
+        def after_tool(self, ctx, call, result):  # type: ignore[no-untyped-def]
+            return [
+                HarnessDecision(
+                    kind="revert",
+                    layer="scope",
+                    message="app/api/middleware.py is outside the build phase's allowed paths",
+                    paths=["app/api/middleware.py"],
+                )
+            ]
+
+    _result, _events, client = run(tmp_path, [read_app(), finish()], harness=Harness([Reverter()]))
+    outputs = [item for item in client.inputs[1] if item.get("type") == "function_call_output"]
+    assert outputs[0]["output"].endswith(
+        "REVERTED: app/api/middleware.py is outside the build phase's allowed paths"
+    )
