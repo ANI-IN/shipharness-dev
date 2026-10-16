@@ -7,7 +7,7 @@ full list is in [REFERENCES.md](../../../REFERENCES.md).
 
 Captured output, dots, times, and costs below come from the course pilot's run 2 (2026-10-16), whose
 three F3 A/Bs ran the same A/B without board previews (`shipharness ab --section demo-3 --feature F3
---no-preview`). The live console check (2026-10-16, A/B ab-20261016-210339-909651) ran on F1, not F3.
+--no-preview`). The live console check (2026-10-16; A/B id in section 8) ran on F1, not F3.
 Pilot run 3, the class-host screenshots, and the experiment batches (M8) are markers until they are
 recorded. Captures carry the label "captured on <date>, run <id>; your output will differ".
 
@@ -145,7 +145,7 @@ the replay (section 9).
 
 While a run is live, screen `1` shows the last 8 turn rows and the last 3 harness decisions per arm.
 Once the run has finished, it shows the full timeline and every decision in scrollable lists (seen in
-the live console check, A/B ab-20261016-210339-909651). The launch is the moment to show the first
+the live console check; section 8). The launch is the moment to show the first
 turns live; in the demo block, scroll the finished timeline on screen `1` or open the LangSmith trace
 linked on screen `5`.
 
@@ -366,7 +366,7 @@ ab-20261016-184452-134b15, ab-20261016-190948-4054b5 and the other nine).
 
 Every run is a dot; results are counts.
 
-**Screen 4 note.** In the live console check (A/B ab-20261016-210339-909651), screen 4 pooled every
+**Screen 4 note.** In the live console check (section 8), screen 4 pooled every
 score record into one row per arm: all features, and pilot run 1's pre-fix records, which include
 invalid F3 dots with `out_of_scope_files` 4. Screen 4 groups by feature from tonight's console fix;
 until that fix is on the class host, read the S3 dots from the table below, not from screen 4.
