@@ -100,3 +100,29 @@ def test_fill_path_uses_names_then_the_resource_segment() -> None:
     assert fill_path("/projects/{project_id}/members/{user_id}", ids) == "/projects/3/members/6"
     assert fill_path("/issues/{id}/comments", ids) == "/issues/21/comments"
     assert fill_path("/widgets/{widget_id}", ids) == "/widgets/3"
+
+
+def test_issue_create_is_exempt_from_r4_at_the_alternate_checkpoints(
+    adapter: TeamTrackAdapter,
+) -> None:
+    for checkpoint in ("m1-alt-a", "m1-alt-b"):
+        assert "POST /projects/{project_id}/issues" in adapter.exemptions(checkpoint)["R4"]
+    for checkpoint in ("m1-final-start", "m1-complete"):
+        assert "R4" not in adapter.exemptions(checkpoint)
+
+
+def test_r4_exemption_follows_the_checkpoint_definitions(adapter: TeamTrackAdapter) -> None:
+    from shipharness.ab.checkpoints import load_checkpoints
+
+    for name, checkpoint in load_checkpoints().items():
+        exempt = "R4" in adapter.exemptions(name)
+        assert exempt == ("f3" not in checkpoint.tasks), name
+
+
+def test_feature_path_parameters_name_seeded_rows(adapter: TeamTrackAdapter) -> None:
+    # F2 seeds comments 1-2 (Acme) and 3-4 (Globex); F7 seeds labels 1-3 and 4-6.
+    assert (adapter.ids("acme")["comment_id"], adapter.ids("globex")["comment_id"]) == (1, 3)
+    assert (adapter.ids("acme")["label_id"], adapter.ids("globex")["label_id"]) == (1, 4)
+    assert fill_path("/comments/{comment_id}", adapter.ids("globex")) == "/comments/3"
+    path = fill_path("/issues/{issue_id}/labels/{label_id}", adapter.ids("acme"))
+    assert path == "/issues/1/labels/1"
