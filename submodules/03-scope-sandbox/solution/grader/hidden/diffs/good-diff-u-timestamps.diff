@@ -1,0 +1,6 @@
+--- app/api/issues.py	2026-10-16 12:00:00.000000000 +0000
++++ app/api/issues.py	2026-10-16 12:05:00.000000000 +0000
+@@ -6,2 +6,2 @@
+-def create_issue(project_id: int, body: dict, user: dict) -> dict:
++def create_issue(project_id: int, body: dict, user: dict, key: str) -> dict:
+     return service.create(project_id, body, user)

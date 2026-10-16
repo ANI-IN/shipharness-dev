@@ -1,0 +1,13 @@
+diff --git a/docs/HANDBOOK.md b/docs/HANDBOOK.md
+index 76da1a3..b075b64 100644
+--- a/docs/HANDBOOK.md
++++ b/docs/HANDBOOK.md
+@@ -5,7 +5,7 @@
+ R4 Idempotency. Changes to this rule are recorded as below.
+ 
+ ```text
+--- R4 covers POST /projects only
++++ R4 covers POST /projects and POST /projects/{id}/issues
+ ```
+ 
+ R5 Audit. Every write adds one audit row.

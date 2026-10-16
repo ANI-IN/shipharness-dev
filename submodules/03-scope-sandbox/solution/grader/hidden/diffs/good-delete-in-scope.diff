@@ -1,0 +1,8 @@
+diff --git a/tests/visible/test_old.py b/tests/visible/test_old.py
+deleted file mode 100644
+index 3ada1ee..0000000
+--- a/tests/visible/test_old.py
++++ /dev/null
+@@ -1,2 +0,0 @@
+-def test_placeholder():
+-    assert True

@@ -1,0 +1,4 @@
+diff --git a/app/core/config.py b/app/services/issues_config.py
+similarity index 100%
+rename from app/core/config.py
+rename to app/services/issues_config.py

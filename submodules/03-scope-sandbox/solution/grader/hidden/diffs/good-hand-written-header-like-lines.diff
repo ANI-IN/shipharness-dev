@@ -1,0 +1,13 @@
+--- app/services/issues.py
++++ app/services/issues.py
+@@ -1,4 +1,4 @@
+ """Issue service.
+ 
+--- legacy: issue creation takes no idempotency key
++++ issue creation honours Idempotency-Key (R4)
+ """
+--- docs/HANDBOOK.md
++++ docs/HANDBOOK.md
+@@ -7 +7 @@
+--- R4 covers POST /projects only
++++ R4 covers POST /projects and POST /projects/{id}/issues

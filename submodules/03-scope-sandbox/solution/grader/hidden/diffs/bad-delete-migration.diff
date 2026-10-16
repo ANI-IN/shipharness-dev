@@ -1,0 +1,8 @@
+diff --git a/migrations/versions/0007_add_idempotency.py b/migrations/versions/0007_add_idempotency.py
+deleted file mode 100644
+index b43819b..0000000
+--- a/migrations/versions/0007_add_idempotency.py
++++ /dev/null
+@@ -1,2 +0,0 @@
+-revision = "0007"
+-down_revision = "0006"

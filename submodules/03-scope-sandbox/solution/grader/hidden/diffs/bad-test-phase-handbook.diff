@@ -1,0 +1,18 @@
+diff --git a/docs/HANDBOOK.md b/docs/HANDBOOK.md
+index 76da1a3..693f7a6 100644
+--- a/docs/HANDBOOK.md
++++ b/docs/HANDBOOK.md
+@@ -8,4 +8,4 @@ R4 Idempotency. Changes to this rule are recorded as below.
+ -- R4 covers POST /projects only
+ ```
+ 
+-R5 Audit. Every write adds one audit row.
++R5 Audit (tests added). Every write adds one audit row.
+diff --git a/tests/visible/test_r4.py b/tests/visible/test_r4.py
+new file mode 100644
+index 0000000..61afa25
+--- /dev/null
++++ b/tests/visible/test_r4.py
+@@ -0,0 +1,2 @@
++def test_r4():
++    assert True

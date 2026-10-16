@@ -1,0 +1,7 @@
+diff --git a/tests/visible/fixtures/feature_list.json b/tests/visible/fixtures/feature_list.json
+index 00a3d5c..6439f64 100644
+--- a/tests/visible/fixtures/feature_list.json
++++ b/tests/visible/fixtures/feature_list.json
+@@ -1 +1 @@
+-{"features": []}
++{"features": [1]}

@@ -1,0 +1,8 @@
+diff --git a/tests/visible/api/v2/test_replay.py b/tests/visible/api/v2/test_replay.py
+new file mode 100644
+index 0000000..2225679
+--- /dev/null
++++ b/tests/visible/api/v2/test_replay.py
+@@ -0,0 +1,2 @@
++def test_r():
++    assert 1

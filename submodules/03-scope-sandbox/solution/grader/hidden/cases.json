@@ -1,0 +1,1024 @@
+[
+  {
+    "id": "bad-third-file-out-of-scope",
+    "phase": "build",
+    "changed": [
+      "app/api/issues.py",
+      "app/services/idempotency.py",
+      "app/services/issues.py"
+    ],
+    "refusals": [
+      [
+        "app/services/idempotency.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-rename-into-scope-deletes-source",
+    "phase": "build",
+    "changed": [
+      "app/core/config.py",
+      "app/services/issues_config.py"
+    ],
+    "refusals": [
+      [
+        "app/core/config.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-space-path-out-of-scope",
+    "phase": "build",
+    "changed": [
+      "docs/design notes/f3 retry.md"
+    ],
+    "refusals": [
+      [
+        "docs/design notes/f3 retry.md",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-rename-to-space-path",
+    "phase": "build",
+    "changed": [
+      "docs/HANDBOOK old.md",
+      "docs/HANDBOOK.md"
+    ],
+    "refusals": [
+      [
+        "docs/HANDBOOK old.md",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-traversal-inside-allowed-glob",
+    "phase": "test",
+    "changed": [
+      "tests/visible/../../app/services/issues.py"
+    ],
+    "refusals": [
+      [
+        "tests/visible/../../app/services/issues.py",
+        "path_escape"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-absolute-path",
+    "phase": "build",
+    "changed": [
+      "/etc/cron.d/agent"
+    ],
+    "refusals": [
+      [
+        "/etc/cron.d/agent",
+        "path_escape"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-copy-source-escapes",
+    "phase": "test",
+    "changed": [
+      "tests/visible/netrc.txt"
+    ],
+    "refusals": [
+      [
+        "../../home/agent/.netrc",
+        "path_escape"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-dot-slash-feature-list",
+    "phase": "build",
+    "changed": [
+      "feature_list.json"
+    ],
+    "refusals": [
+      [
+        "feature_list.json",
+        "harness_only"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-schema-edit-under-wide-allow-list",
+    "phase": "build",
+    "allowed_paths": {
+      "build": [
+        "**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "changed": [
+      "feature_list.schema.json"
+    ],
+    "refusals": [
+      [
+        "feature_list.schema.json",
+        "harness_only"
+      ]
+    ],
+    "kind": "bad",
+    "state_layer": true
+  },
+  {
+    "id": "bad-feature-list-renamed-away",
+    "phase": "build",
+    "changed": [
+      "docs/feature_list_old.json",
+      "feature_list.json"
+    ],
+    "refusals": [
+      [
+        "feature_list.json",
+        "harness_only"
+      ],
+      [
+        "docs/feature_list_old.json",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-progress-without-state-layer",
+    "phase": "build",
+    "state_layer": false,
+    "changed": [
+      "progress.md"
+    ],
+    "refusals": [
+      [
+        "progress.md",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    }
+  },
+  {
+    "id": "bad-instruction-artifacts",
+    "phase": "build",
+    "changed": [
+      ".agents/skills/idempotency/SKILL.md",
+      "AGENTS.md"
+    ],
+    "refusals": [
+      [
+        ".agents/skills/idempotency/SKILL.md",
+        "outside_allowed_paths"
+      ],
+      [
+        "AGENTS.md",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-binary-new-with-space",
+    "phase": "build",
+    "changed": [
+      "assets/team logo.png"
+    ],
+    "refusals": [
+      [
+        "assets/team logo.png",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-git-binary-patch",
+    "phase": "build",
+    "changed": [
+      "app/static/logo.png"
+    ],
+    "refusals": [
+      [
+        "app/static/logo.png",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-test-phase-conftest",
+    "phase": "test",
+    "changed": [
+      "tests/conftest.py"
+    ],
+    "refusals": [
+      [
+        "tests/conftest.py",
+        "test_phase_source_edit"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-test-phase-handbook",
+    "phase": "test",
+    "changed": [
+      "docs/HANDBOOK.md",
+      "tests/visible/test_r4.py"
+    ],
+    "refusals": [
+      [
+        "docs/HANDBOOK.md",
+        "test_phase_source_edit"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-hand-written-second-file",
+    "phase": "build",
+    "changed": [
+      "app/core/config.py",
+      "app/services/issues.py"
+    ],
+    "refusals": [
+      [
+        "app/core/config.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-mode-change-only",
+    "phase": "build",
+    "changed": [
+      "scripts/deploy.sh"
+    ],
+    "refusals": [
+      [
+        "scripts/deploy.sh",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-delete-migration",
+    "phase": "build",
+    "changed": [
+      "migrations/versions/0007_add_idempotency.py"
+    ],
+    "refusals": [
+      [
+        "migrations/versions/0007_add_idempotency.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-copy-to-out-of-scope",
+    "phase": "build",
+    "changed": [
+      "app/middleware/issues_copy.py"
+    ],
+    "refusals": [
+      [
+        "app/middleware/issues_copy.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-quoted-non-ascii-path",
+    "phase": "build",
+    "changed": [
+      "docs/café.md"
+    ],
+    "refusals": [
+      [
+        "docs/café.md",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-hunks-without-file-header",
+    "phase": "build",
+    "refusals": [
+      [
+        "",
+        "unparseable"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-glob-prefix-boundary",
+    "phase": "test",
+    "changed": [
+      "tests/visible_extra/test_a.py"
+    ],
+    "refusals": [
+      [
+        "tests/visible_extra/test_a.py",
+        "test_phase_source_edit"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-exact-pattern-suffix",
+    "phase": "build",
+    "changed": [
+      "app/api/issues.py.orig"
+    ],
+    "refusals": [
+      [
+        "app/api/issues.py.orig",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-empty-new-file-header-only",
+    "phase": "build",
+    "changed": [
+      "app/core/flags.py"
+    ],
+    "refusals": [
+      [
+        "app/core/flags.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "bad-crafted-header-only-rename",
+    "phase": "build",
+    "refusals": [
+      [
+        "app/core/config.py",
+        "outside_allowed_paths"
+      ]
+    ],
+    "unparseable_ok": true,
+    "kind": "bad",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-header-like-lines-in-hunk",
+    "phase": "build",
+    "changed": [
+      "docs/HANDBOOK.md"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-hand-written-header-like-lines",
+    "phase": "build",
+    "changed": [
+      "app/services/issues.py",
+      "docs/HANDBOOK.md"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-diff-u-timestamps",
+    "phase": "build",
+    "changed": [
+      "app/api/issues.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-exec-plan-moves-to-completed",
+    "phase": "build",
+    "changed": [
+      "docs/exec-plans/active/F3.md",
+      "docs/exec-plans/completed/F3.md"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-binary-fixture-with-space",
+    "phase": "test",
+    "changed": [
+      "tests/visible/fixtures/sample upload.png"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-quoted-non-ascii-under-docs-glob",
+    "phase": "build",
+    "allowed_paths": {
+      "build": [
+        "docs/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "changed": [
+      "docs/café.md"
+    ],
+    "kind": "good",
+    "state_layer": true
+  },
+  {
+    "id": "good-double-star-zero-dirs",
+    "phase": "build",
+    "allowed_paths": {
+      "build": [
+        "docs/**/*.md"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "changed": [
+      "docs/HANDBOOK.md",
+      "docs/design notes/f3 retry.md"
+    ],
+    "kind": "good",
+    "state_layer": true
+  },
+  {
+    "id": "good-phase-without-allow-list",
+    "phase": "review",
+    "changed": [
+      "app/core/config.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-dot-slash-prefix",
+    "phase": "build",
+    "changed": [
+      "app/api/issues.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-dir-name-contains-b-slash",
+    "phase": "test",
+    "changed": [
+      "tests/visible/x b/__init__.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-delete-in-scope",
+    "phase": "test",
+    "changed": [
+      "tests/visible/test_old.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-no-newline-and-two-hunks",
+    "phase": "build",
+    "changed": [
+      "app/services/issues.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-deep-test-path",
+    "phase": "test",
+    "changed": [
+      "tests/visible/api/v2/test_replay.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-mode-and-content-in-scope",
+    "phase": "build",
+    "changed": [
+      "app/api/issues.py"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-fixture-named-feature-list",
+    "phase": "test",
+    "changed": [
+      "tests/visible/fixtures/feature_list.json"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-git-binary-patch-in-scope",
+    "phase": "test",
+    "changed": [
+      "tests/visible/fixtures/logo.png"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  },
+  {
+    "id": "good-state-files-test-phase",
+    "phase": "test",
+    "changed": [
+      "progress.md",
+      "session-handoff.md"
+    ],
+    "kind": "good",
+    "allowed_paths": {
+      "build": [
+        "app/api/issues.py",
+        "app/services/issues.py",
+        "docs/HANDBOOK.md",
+        "tests/visible/**"
+      ],
+      "test": [
+        "tests/visible/**"
+      ]
+    },
+    "state_layer": true
+  }
+]

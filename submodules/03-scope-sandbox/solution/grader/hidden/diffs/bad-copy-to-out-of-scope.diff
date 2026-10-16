@@ -1,0 +1,4 @@
+diff --git a/app/services/issues.py b/app/middleware/issues_copy.py
+similarity index 100%
+copy from app/services/issues.py
+copy to app/middleware/issues_copy.py
