@@ -157,7 +157,7 @@ def arm_specs(
     task: ABTask,
     settings: Settings,
     *,
-    ab_id: str,
+    ab_id: str | None,
     harness_layers: frozenset[LayerName],
     workspaces: Mapping[Arm, Path],
     run_ids: Mapping[Arm, str],
@@ -186,7 +186,7 @@ def arm_specs(
             layers=harness_layers if arm == "harness" else frozenset(),
             workspace=workspaces[arm],
         )
-        for arm in ARMS
+        for arm in workspaces
     }
 
 
@@ -217,7 +217,7 @@ def _harness(
     return Harness.from_names(layers, deps.layer_registry, **kwargs)
 
 
-def _run_arm(
+def run_arm(
     task: ABTask, spec: AgentRunSpec, deps: ABDeps, bus: EventBus, run_dir: Path
 ) -> AgentRunResult:
     """One arm, start to finish. Never raises: a failure becomes an ERROR result."""
@@ -309,7 +309,7 @@ def run_ab(
         # The only difference is the harness. Both arms run at the same time.
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
             futures = {
-                arm: pool.submit(_run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
+                arm: pool.submit(run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
             }
             results = {arm: future.result() for arm, future in futures.items()}
         stop.set()
