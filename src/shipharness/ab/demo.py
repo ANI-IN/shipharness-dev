@@ -247,6 +247,7 @@ def run_arm(
         harness_timeout_s=s.harness_timeout_s,
         policy_summary=deps.policy_summary,
         tool_log_dir=run_dir / spec.arm / "tool-logs",
+        snapshot_dir=run_dir / spec.arm / "snapshots",
         diff_path=run_dir / spec.arm / "diff.patch",
         tags=list(deps.tags),
     )
@@ -450,15 +451,34 @@ def _judge(
         bus=bus,
         run_log=run_dir / "events.jsonl",
         test_phase_files=phase_changed_files(spec, result),
-        session_patches=session_patches(spec, result, run_dir / spec.arm / "sessions"),
+        session_patches=session_patches(
+            spec, result, run_dir / spec.arm / "sessions", store=snapshot_store(run_dir, spec.arm)
+        ),
     )
     return verdict.record
 
 
-def session_patches(spec: AgentRunSpec, result: AgentRunResult, out_dir: Path) -> list[Path]:
-    """One patch per session (for the continuity check): committed changes between the session's
-    start and end commits; the last session also includes uncommitted work."""
+def snapshot_store(run_dir: Path, arm: str) -> Path:
+    """Where an arm's session snapshots live (outside the workspace; RunOptions.snapshot_dir)."""
+    return run_dir / arm / "snapshots" / "store.git"
+
+
+def session_patches(
+    spec: AgentRunSpec, result: AgentRunResult, out_dir: Path, *, store: Path | None = None
+) -> list[Path]:
+    """One patch per session (for the continuity check). With working-tree snapshots (`store`),
+    each patch is the change between the session's start and end trees, so an arm that never
+    commits is measured like one that does. Without them: committed changes between the session's
+    start and end commits, and the last session also includes uncommitted work."""
     patches: list[Path] = []
+    sessions = list(result.sessions)
+    if store is not None and sessions and all(s.start_tree and s.end_tree for s in sessions):
+        for session in sessions:
+            out = out_dir / f"session-{session.index}.patch"
+            written = git.write_tree_diff(store, session.start_tree, session.end_tree, out)
+            if written is not None:
+                patches.append(written)
+        return patches
     for position, session in enumerate(result.sessions):
         out = out_dir / f"session-{session.index}.patch"
         if position == len(result.sessions) - 1:

@@ -58,6 +58,9 @@ class SessionResult(BaseModel):
     ]
     start_sha: str
     end_sha: str
+    # Working-tree snapshots (runner/git.py snapshot_tree), committed or not; "" when not taken.
+    start_tree: str = ""
+    end_tree: str = ""
 
 
 class AgentRunResult(BaseModel):

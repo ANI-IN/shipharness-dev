@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, ClassVar
 
 import pytest
@@ -264,3 +265,38 @@ def test_final_section_ab_runs_to_the_final_cap_not_the_run_cap(
 
 def test_harness_timeout_setting_defaults_to_120_seconds() -> None:
     assert Settings(_env_file=None).harness_timeout_s == 120
+
+
+def test_session_patches_come_from_snapshots_when_the_arm_never_commits(tmp_path: Path) -> None:
+    import subprocess
+
+    from shipharness.ab.demo import session_patches
+    from shipharness.runner import git as run_git
+    from shipharness.runner.models import SessionResult
+
+    ws = tmp_path / "ws"
+    ws.mkdir()
+    (ws / "app.py").write_text("a = 1\n", encoding="utf-8")
+    ident = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
+    subprocess.run(["git", *ident, "init", "-q"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "add", "-A"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "commit", "-qm", "base"], cwd=ws, check=True)
+    sha = run_git.head_sha(ws)
+    store = tmp_path / "run" / "harness" / "snapshots" / "store.git"
+    t0 = run_git.snapshot_tree(ws, store)
+    (ws / "app.py").write_text("a = 1\nb = 2\nc = 3\n", encoding="utf-8")  # session 1
+    t1 = run_git.snapshot_tree(ws, store)
+    (ws / "app.py").write_text("a = 1\n", encoding="utf-8")  # session 2 undoes session 1
+    t2 = run_git.snapshot_tree(ws, store)
+    sessions = [
+        SessionResult(index=1, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t0, end_tree=t1),
+        SessionResult(index=2, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t1, end_tree=t2),
+    ]  # fmt: skip
+    spec = SimpleNamespace(workspace=ws)
+    result = SimpleNamespace(sessions=sessions)
+    out_dir = tmp_path / "run" / "harness" / "sessions"
+    patches = session_patches(spec, result, out_dir, store=store)  # type: ignore[arg-type]
+    texts = [p.read_text(encoding="utf-8") for p in patches]
+    assert "+b = 2" in texts[0] and "-b = 2" in texts[1]

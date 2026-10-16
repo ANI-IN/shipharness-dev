@@ -226,3 +226,73 @@ def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_bytes(diff.stdout)
     return out_path
+
+
+def _store_prefix(store: Path, workspace: Path) -> list[str]:
+    return [
+        "git",
+        "--git-dir",
+        str(store),
+        "--work-tree",
+        str(Path(workspace).resolve()),
+        "-c",
+        "core.fsmonitor=false",
+        "-c",
+        f"core.hooksPath={os.devnull}",
+        "-c",
+        "core.autocrlf=false",
+        "-c",
+        "safe.directory=*",
+    ]
+
+
+def snapshot_tree(workspace: Path, store: Path) -> str:
+    """Tree id of the whole working tree (committed or not, untracked files included, generated
+    files excluded), written into `store`: a bare git directory outside the workspace that borrows
+    the workspace objects through alternates. Session snapshots make the S2 measure independent of
+    whether the arm commits. Never reads the workspace's git config. Empty string on failure."""
+    store = Path(store)
+    with tempfile.TemporaryDirectory(prefix="shipharness-snap-") as tmp:
+        env = _clean_env(Path(tmp))
+        if not (store / "HEAD").is_file():
+            store.parent.mkdir(parents=True, exist_ok=True)
+            init = subprocess.run(
+                ["git", "init", "-q", "--bare", str(store)],
+                capture_output=True,
+                env=env,
+                check=False,
+            )
+            if init.returncode != 0:
+                return ""
+            git_dir = workspace_git_dir(workspace)
+            if git_dir is not None:
+                alternates = store / "objects" / "info" / "alternates"
+                alternates.write_bytes(((git_dir / "objects").as_posix() + "\n").encode("utf-8"))
+        prefix = _store_prefix(store, workspace)
+        env = {**env, "GIT_INDEX_FILE": str(Path(tmp) / "index")}
+        add = [*prefix, "add", "-A", "--force", "--", ".", *_GENERATED_EXCLUDES]
+        if subprocess.run(add, capture_output=True, env=env, check=False).returncode != 0:
+            return ""
+        tree = subprocess.run([*prefix, "write-tree"], capture_output=True, env=env, check=False)
+    sha = tree.stdout.decode("ascii", errors="replace").strip()
+    return sha if tree.returncode == 0 and _SHA.match(sha) else ""
+
+
+def write_tree_diff(store: Path, from_tree: str, to_tree: str, out_path: Path) -> Path | None:
+    """Binary-safe diff between two snapshot trees of `store` (per-session patches)."""
+    if not (_SHA.match(from_tree or "") and _SHA.match(to_tree or "")):
+        return None
+    with tempfile.TemporaryDirectory(prefix="shipharness-snap-") as tmp:
+        env = _clean_env(Path(tmp))
+        diff = subprocess.run(
+            ["git", "--git-dir", str(store), "-c", "core.autocrlf=false", "diff", "--binary"]
+            + ["--no-ext-diff", "--no-textconv", "--no-color", from_tree, to_tree],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if diff.returncode != 0:
+        return None
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_bytes(diff.stdout)
+    return out_path
