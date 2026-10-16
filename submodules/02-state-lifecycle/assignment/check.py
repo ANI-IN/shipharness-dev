@@ -19,7 +19,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-from a2_scenario.report import load_layer, print_scenario, run_and_evaluate  # noqa: E402
+from a2_scenario.report import load_layer, print_scenario, run_and_evaluate, shown  # noqa: E402
 from a2_scenario.scenarios import VISIBLE  # noqa: E402
 
 
@@ -30,7 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     factory = load_layer(args.impl)
     root = Path(tempfile.mkdtemp(prefix="a2-check-"))
-    print(f"A2 self-check: {len(VISIBLE)} visible scenarios against {args.impl}")
+    print(f"A2 self-check: {len(VISIBLE)} visible scenarios against {shown(args.impl)}")
     print("Each scenario: four sessions, three forced stops by the session turn budget.\n")
     results = []
     try:

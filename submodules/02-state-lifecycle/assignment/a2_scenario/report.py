@@ -35,6 +35,14 @@ def load_layer(impl: Path) -> LayerFactory:
     return module.ResumableStateLayer
 
 
+def shown(path: Path) -> str:
+    """`path` relative to the working directory when it is inside it (no host paths in output)."""
+    try:
+        return Path(path).resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return Path(path).name
+
+
 @dataclass
 class ScenarioResult:
     scenario: Scenario

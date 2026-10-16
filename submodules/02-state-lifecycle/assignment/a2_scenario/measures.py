@@ -333,8 +333,10 @@ def _progress(run: ScenarioRun) -> list[Outcome]:
 
 def _plan(run: ScenarioRun) -> list[Outcome]:
     ws, feature = run.workspace, run.scenario.feature
-    active, completed = exec_plan_path(feature.id, "active"), exec_plan_path(feature.id)
-    completed = exec_plan_path(feature.id, "completed")
+    active, completed = (
+        exec_plan_path(feature.id, "active"),
+        exec_plan_path(feature.id, "completed"),
+    )
     done_text, active_text = _read(ws, completed), _read(ws, active)
     outcome_body = _section(done_text or "", "## Outcomes & Retrospective")
     moved = done_text is not None and active_text is None

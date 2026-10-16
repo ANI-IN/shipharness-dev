@@ -33,6 +33,7 @@ from a2_scenario.report import (  # noqa: E402
     load_layer,
     print_scenario,
     run_and_evaluate,
+    shown,
 )
 from a2_scenario.runner import LayerFactory  # noqa: E402
 from a2_scenario.scenarios import VISIBLE, Scenario  # noqa: E402
@@ -91,7 +92,7 @@ def main(argv: list[str] | None = None) -> int:
     scenarios = VISIBLE if args.visible_only else (*VISIBLE, *HIDDEN)
     print(
         f"A2 grade: {len(scenarios)} scenarios ({len(VISIBLE)} visible, "
-        f"{len(scenarios) - len(VISIBLE)} hidden) against {args.impl}\n"
+        f"{len(scenarios) - len(VISIBLE)} hidden) against {shown(args.impl)}\n"
     )
     root = Path(tempfile.mkdtemp(prefix="a2-grade-"))
     try:
