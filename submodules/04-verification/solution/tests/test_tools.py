@@ -64,6 +64,37 @@ def test_apply_filter_reports_duplicates_among_kept_tests(
     assert "filter 6 kept 1 of 2 kept tests (1 existing tests compared" in out
 
 
+def test_apply_filter_update_report_appends_filter_6_rows_once(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    repo, kept = _layout(tmp_path)
+    args = ["--repo", str(repo), "--kept", str(kept), "--existing", "tests", "--update-report"]
+    assert apply_filter.main(args) == 0
+    assert apply_filter.main(args) == 0  # a second run replaces its rows, it does not add more
+    report = json.loads((kept / "testgen-report.json").read_text(encoding="utf-8"))
+    assert report["results"][: len(REPORT["results"])] == REPORT["results"]
+    rows = report["results"][len(REPORT["results"]) :]
+    assert [(r["test_id"], r["filter"], r["passed"]) for r in rows] == [
+        ("tests/test_gen.py::test_copy", 6, False),
+        ("tests/test_gen.py::test_new", 6, True),
+    ]
+    assert report["kept"] == REPORT["kept"]
+    assert report["filter6"] == {"kept": ["tests/test_gen.py::test_new"], "existing_tests": 1}
+    assert "report updated:" in capsys.readouterr().out
+
+
+def test_apply_filter_leaves_the_report_alone_without_the_flag(tmp_path: Path) -> None:
+    repo, kept = _layout(tmp_path)
+    assert apply_filter.main(["--repo", str(repo), "--kept", str(kept), "--existing", "tests"]) == 0
+    assert json.loads((kept / "testgen-report.json").read_text(encoding="utf-8")) == REPORT
+
+
+def test_summary_counts_the_tests_filter_6_kept_when_present() -> None:
+    report = {**REPORT, "filter6": {"kept": ["tests/test_gen.py::test_new"], "existing_tests": 1}}
+    assert "| Kept after filter 6 | 1 |" in _script().summarize(report)
+    assert not any("filter 6" in line for line in _script().summarize(REPORT))
+
+
 def test_apply_filter_rejects_a_missing_report(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
@@ -84,7 +115,7 @@ def test_summary_table_counts_proposed_kept_and_discards_per_filter(tmp_path: Pa
     lines = _script().summarize(REPORT)
     assert lines[:2] == ["| Measure | Value |", "|---|---|"]
     assert "| Proposed tests (evaluated) | 4 |" in lines
-    assert "| Kept (passed every filter) | 2 |" in lines
+    assert "| Kept by testgen (filters 1-5) | 2 |" in lines
     assert "| Not evaluated (over --max-tests) | 1 |" in lines
     assert "| Discarded by filter 1 | 1 |" in lines
     assert "| Discarded by filter 2 | 1 |" in lines

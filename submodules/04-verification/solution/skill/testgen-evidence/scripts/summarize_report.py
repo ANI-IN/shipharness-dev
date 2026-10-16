@@ -27,9 +27,11 @@ def summarize(report: dict[str, Any]) -> list[str]:
         f"| Run id | {report.get('run_id', '')} |",
         f"| Status | {report.get('status', '')} |",
         f"| Proposed tests (evaluated) | {len(proposed)} |",
-        f"| Kept (passed every filter) | {len(report.get('kept', []))} |",
+        f"| Kept by testgen (filters 1-5) | {len(report.get('kept', []))} |",
         f"| Not evaluated (over --max-tests) | {len(report.get('not_evaluated', []))} |",
     ]
+    if isinstance(report.get("filter6"), dict):  # written by apply_filter --update-report
+        lines.append(f"| Kept after filter 6 | {len(report['filter6'].get('kept', []))} |")
     lines += [f"| Discarded by filter {n} | {per_filter[n]} |" for n in sorted(per_filter)]
     lines += ["", "Discarded tests:"]
     lines += [f"- {r['test_id']}: filter {r['filter']}: {r.get('reason', '')}" for r in failed]
