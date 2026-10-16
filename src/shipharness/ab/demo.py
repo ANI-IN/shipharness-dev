@@ -263,9 +263,11 @@ def run_arm(
         sandbox.stop()
 
 
-def _referee_mutants(task: ABTask, deps: ABDeps) -> list[Any]:
-    repo = deps.mutant_source_repo or deps.course_repo
-    return referee_mutants(task.mutant_set, repo, deps.mutants)
+def _referee_mutants(task: ABTask, deps: ABDeps, checkpoint_sha: str | None) -> list[Any]:
+    """From the pinned checkpoint commit (a separate `mutant_source_repo` reads its tree)."""
+    if deps.mutant_source_repo is not None:
+        return referee_mutants(task.mutant_set, deps.mutant_source_repo, deps.mutants)
+    return referee_mutants(task.mutant_set, deps.course_repo, deps.mutants, ref=checkpoint_sha)
 
 
 def _start_previews(
@@ -339,7 +341,7 @@ def run_ab(
             tracer=deps.tracer,
             reviewer=deps.reviewer,
             grading_criteria=deps.grading_criteria,
-            mutants=_referee_mutants(task, deps),
+            mutants=_referee_mutants(task, deps, checkpoint_sha),
             mutant_runner=deps.mutant_runner,
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,

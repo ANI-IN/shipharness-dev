@@ -83,6 +83,14 @@ class ArmExperiment:
         self._referees: dict[str, Referee] = {}
         self._lock = threading.Lock()
 
+    def _mutants(self, task: ABTask) -> list[Any]:
+        """Referee mutants from the example's checkpoint commit (or the working tree)."""
+        if self.deps.mutant_source_repo is not None:
+            return referee_mutants(task.mutant_set, self.deps.mutant_source_repo, self.deps.mutants)
+        return referee_mutants(
+            task.mutant_set, self.deps.course_repo, self.deps.mutants, ref=self._ref(task)
+        )
+
     def _ref(self, task: ABTask) -> str | None:
         """Each example names its own checkpoint (a git tag in the course repository)."""
         return None if self.plan.from_working_tree else task.checkpoint
@@ -148,11 +156,7 @@ class ArmExperiment:
                         tracer=self.deps.tracer,
                         reviewer=self.deps.reviewer,
                         grading_criteria=self.deps.grading_criteria,
-                        mutants=referee_mutants(
-                            task.mutant_set,
-                            self.deps.mutant_source_repo or self.deps.course_repo,
-                            self.deps.mutants,
-                        ),
+                        mutants=self._mutants(task),
                         mutant_runner=self.deps.mutant_runner,
                         sandboxed=self.deps.sandboxed,
                         container_paths=self.deps.container_paths,

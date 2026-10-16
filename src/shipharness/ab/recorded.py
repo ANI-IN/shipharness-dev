@@ -176,7 +176,9 @@ def _referee(ab: LoadedAB, deps: RecordedDeps, base: Path, reviewer: Reviewer | 
             tracer=deps.tracer,
             reviewer=reviewer,
             grading_criteria=deps.grading_criteria,
-            mutants=referee_mutants(ab.task.mutant_set, deps.course_repo, deps.mutants),
+            mutants=referee_mutants(
+                ab.task.mutant_set, deps.course_repo, deps.mutants, ref=ab.export_ref()
+            ),
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
         ),

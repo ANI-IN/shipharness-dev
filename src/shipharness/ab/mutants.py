@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -10,12 +12,23 @@ import structlog
 MUTANT_DIR = Path("teamtrack") / "mutants"
 
 
-def load_referee_mutants(mutant_set: str, course_repo: Path) -> list[Any]:
+def _blob(course_repo: Path, ref: str, rel: Path) -> bytes | None:
+    """The file `rel` at commit `ref` of the course repository (None when it does not exist)."""
+    done = subprocess.run(
+        ["git", "-C", str(course_repo), "show", f"{ref}:{rel.as_posix()}"],
+        capture_output=True,
+        check=False,
+    )
+    return done.stdout if done.returncode == 0 else None
+
+
+def load_referee_mutants(mutant_set: str, course_repo: Path, ref: str | None = None) -> list[Any]:
     """`mutant_set` is a comma-separated list of module names (`app.services.issues`, resolved to
     `teamtrack/mutants/<name>.jsonl`) or repo-relative `.jsonl` paths. Only the referee set is
     returned; filter-set mutants are never used to judge an arm. Records are validated, but not
     matched against source lines here: the arm may have changed a line, which the mutant runner
-    reports as an error for that mutant."""
+    reports as an error for that mutant. With `ref` (the A/B's pinned checkpoint commit), the
+    files are read from that commit, so swap and replay judge with the mutants the A/B used."""
     from shipharness.filters import load_mutants
 
     mutants: list[Any] = []
@@ -23,15 +36,28 @@ def load_referee_mutants(mutant_set: str, course_repo: Path) -> list[Any]:
         if not token:
             continue
         rel = Path(token) if token.endswith(".jsonl") else MUTANT_DIR / f"{token}.jsonl"
-        path = Path(course_repo) / rel
-        if not path.is_file():
-            raise ValueError(f"unknown mutant set {token!r}: {rel.as_posix()} does not exist")
-        mutants.extend(m for m in load_mutants(path, None) if m.set == "referee")
+        if ref is None:
+            path = Path(course_repo) / rel
+            if not path.is_file():
+                raise ValueError(f"unknown mutant set {token!r}: {rel.as_posix()} does not exist")
+            mutants.extend(m for m in load_mutants(path, None) if m.set == "referee")
+            continue
+        data = _blob(Path(course_repo), ref, rel)
+        if data is None:
+            raise ValueError(f"unknown mutant set {token!r}: {rel.as_posix()} not at {ref[:12]}")
+        with tempfile.TemporaryDirectory(prefix="shipharness-mutants-") as tmp:
+            path = Path(tmp) / rel.name
+            path.write_bytes(data)
+            mutants.extend(m for m in load_mutants(path, None) if m.set == "referee")
     return mutants
 
 
 def referee_mutants(
-    mutant_set: str, course_repo: Path, given: list[Any] | None = None
+    mutant_set: str,
+    course_repo: Path,
+    given: list[Any] | None = None,
+    *,
+    ref: str | None = None,
 ) -> list[Any]:
     """Mutants that judge one task, for every path that runs the referee (A/B, swap test, replay,
     experiments). `given` wins when set. A missing set is logged and scored 0/0 instead of
@@ -39,7 +65,7 @@ def referee_mutants(
     if given:
         return list(given)
     try:
-        return load_referee_mutants(mutant_set, course_repo)
+        return load_referee_mutants(mutant_set, course_repo, ref)
     except ValueError as exc:
         structlog.get_logger(__name__).warning("referee mutants unavailable", reason=str(exc))
         return []
