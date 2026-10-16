@@ -1,4 +1,4 @@
-"""Grading criteria for the reviewer (A3's term; DESIGN §6.5): SECURITY.md and ARCHITECTURE.md from
+"""Grading criteria for the reviewer (A3's term): SECURITY.md and ARCHITECTURE.md from
 the harness instruction docs, or the house rules when those files are not available."""
 
 from __future__ import annotations

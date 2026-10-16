@@ -1,4 +1,4 @@
-"""Referee-set mutants for a task's `mutant_set` (DESIGN §7: the two sets are disjoint)."""
+"""Referee-set mutants for a task's `mutant_set` (the filter and referee sets are disjoint)."""
 
 from __future__ import annotations
 

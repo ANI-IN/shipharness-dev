@@ -1,4 +1,4 @@
-"""Filter and referee sets stay disjoint across every TeamTrack mutant file (DESIGN D-4).
+"""Filter and referee sets stay disjoint across every TeamTrack mutant file.
 
 A module file (`teamtrack/mutants/<module>.jsonl`) and a feature file
 (`teamtrack/mutants/features/<task>.jsonl`) can mutate the same line. If one file puts a mutation in

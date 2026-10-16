@@ -1,4 +1,4 @@
-"""Layer hook interface and composition (CONTRACTS §5). The bare arm is Harness([])."""
+"""Layer hook interface and composition. The bare arm is Harness([])."""
 
 from __future__ import annotations
 

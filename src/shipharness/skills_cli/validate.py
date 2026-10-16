@@ -1,4 +1,4 @@
-"""Agent Skills validation (CONTRACTS §7).
+"""Agent Skills validation.
 
 Errors are the checks the reference validator skills-ref 0.1.1 runs (B5): frontmatter present and
 parseable, only the six spec fields, `name` rules (read with the ASCII charset `a-z0-9-`, RESEARCH

@@ -1,4 +1,4 @@
-"""Hand-written mutants and the targeted mutant runner (CONTRACTS §14, DESIGN §7).
+"""Hand-written mutants and the targeted mutant runner.
 
 A mutant replaces one line of one source file. The line is found by its exact text (`original` must
 match exactly one line of the file); the recorded line number is a hint for messages, so a mutant

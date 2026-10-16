@@ -1,4 +1,4 @@
-"""CLI: `shipharness skills validate <dir>` (CONTRACTS §7, §18). Wired into cli.py by `register`."""
+"""CLI: `shipharness skills validate <dir>`. Wired into cli.py by `register`."""
 
 from __future__ import annotations
 

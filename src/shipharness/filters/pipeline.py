@@ -147,7 +147,7 @@ def build_context(
     mutants that the existing suite does not kill, and source fingerprints (filter 5).
 
     With `doctest_modules`, the existing suite runs with `--doctest-modules`, so doctests count
-    in the baseline (RESEARCH G-19). Doctests are collected only from the given targets."""
+    in the baseline. Doctests are collected only from the given targets."""
     tests = list(existing_tests or [])
     baseline = measure_coverage(
         workspace,

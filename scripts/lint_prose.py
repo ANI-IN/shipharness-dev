@@ -21,6 +21,7 @@ DEFAULT_TARGETS = [
     "VERIFICATION.md",
     "CHANGELOG.md",
     "setup",
+    "docs",
     "submodules",
     "final-project",
     "slides",

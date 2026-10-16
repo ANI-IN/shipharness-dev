@@ -1,5 +1,5 @@
 """Host-side board preview: drives `board_capture` in the preview container through the Sandbox
-interface and turns each new frame into a `screenshot` event (DESIGN §9 "Board preview").
+interface and turns each new frame into a `screenshot` event.
 
 The preview container runs agent-written code, so its output is untrusted: the capture line is
 parsed strictly (known view and marks, integer-like issue ids, real PNG bytes, size cap), the

@@ -1,4 +1,4 @@
-"""Read run logs (CONTRACTS §8.1) without letting one bad line stop the reader.
+"""Read run logs without letting one bad line stop the reader.
 
 A line that is not JSON, or is JSON but not a valid event (unknown type, missing fields, wrong
 types, data that does not fit its type), is skipped: the reader logs one warning with the run id,

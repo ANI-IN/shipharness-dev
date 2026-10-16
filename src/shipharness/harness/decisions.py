@@ -1,4 +1,4 @@
-"""Harness decision type shared by the runner and the layers (CONTRACTS §5)."""
+"""Harness decision type shared by the runner and the layers."""
 
 from __future__ import annotations
 

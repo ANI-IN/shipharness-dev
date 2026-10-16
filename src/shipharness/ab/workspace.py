@@ -1,4 +1,4 @@
-"""Arm workspaces (contract I-6, DESIGN §8.3 rule 6).
+"""Arm workspaces (contract I-6).
 
 Each arm gets a fresh git repository made from a filtered export of `teamtrack/` at the checkpoint,
 with one commit, outside the course checkout (`<system temp>/shipharness-ws/<ab_id>/<arm>/ws`).

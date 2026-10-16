@@ -1,6 +1,6 @@
 """Fold run-log events into the view model behind the five console screens.
 
-The console's only input is events (CONTRACTS §8); this module never reads a workspace. Every
+The console's only input is events; this module never reads a workspace. Every
 string here can come from agent output, so templates must escape it (Jinja autoescape does).
 """
 

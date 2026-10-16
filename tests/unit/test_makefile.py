@@ -26,6 +26,8 @@ CONFTEST = REPO / "tests" / "conftest.py"
 # Sample values substituted for make variables before the CLI parses a recipe line.
 SAMPLES = {
     "$(LAYERS_OPT)": "--layers=-scope",
+    "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
+    "$(PURPOSE)": "pilot",
     "$(AB)": "ab-20261016-000000-abcdef",
     "$(RUN)": "r-20261016-000000-abcdef",
     "$$f": "F5",
@@ -189,3 +191,20 @@ def test_conftest_slow_list_names_existing_test_files() -> None:
         assert f"def {name.split('::')[-1]}(" in (REPO / path).read_text(encoding="utf-8"), pattern
         assert _is_slow(pattern) and _is_slow(f"{pattern}[x]")
     assert not _is_slow(f"{SLOW_TESTS[0]}_other")
+
+
+def test_demo_targets_pass_the_purpose_and_an_optional_session_budget() -> None:
+    # Owner, 2026-10-17: PURPOSE picks the LangSmith project; SESSION_BUDGET=12,38 applies the
+    # pre-registered F2 lever through make.
+    assert _variables()["SESSION_BUDGET_OPT"] == (
+        "$(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))"
+    )
+    for n in (1, 2, 3, 4):
+        _, params = _parse(_shipharness_calls(f"demo-{n}")[0])
+        assert params["purpose"] == "pilot"
+        assert params["session_budget"] == "12,38"
+
+
+def test_replay_target_passes_the_purpose() -> None:
+    _, params = _parse(_shipharness_calls("replay")[0])
+    assert params["purpose"] == "pilot"

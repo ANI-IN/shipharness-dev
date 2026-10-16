@@ -1,4 +1,4 @@
-"""Runner data models (CONTRACTS §4, §6)."""
+"""Runner data models."""
 
 from __future__ import annotations
 

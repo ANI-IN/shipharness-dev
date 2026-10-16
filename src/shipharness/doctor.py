@@ -1,4 +1,4 @@
-"""`shipharness doctor`: environment checks. Never prints any part of a key (CONTRACTS §20)."""
+"""`shipharness doctor`: environment checks. Never prints any part of a key."""
 
 from __future__ import annotations
 

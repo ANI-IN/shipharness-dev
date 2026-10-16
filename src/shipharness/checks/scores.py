@@ -1,4 +1,4 @@
-"""Map check results to the ScoreRecord fields they feed (CONTRACTS §11).
+"""Map check results to the ScoreRecord fields they feed.
 
 Only fields whose check is present are returned, so the referee can merge them with the rest of
 the record. "New" means counted (not info) and not present at the checkpoint baseline.

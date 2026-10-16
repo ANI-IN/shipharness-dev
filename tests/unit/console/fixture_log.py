@@ -15,6 +15,7 @@ import zlib
 from pathlib import Path
 from typing import Any
 
+from shipharness.ab.score import REFEREE_VERSION
 from shipharness.events import EventBus
 
 AB_ID = "ab-fixture"
@@ -577,7 +578,7 @@ def score(
         "run_id": f"{variant}-{arm}-{n:02d}",
         "ab_id": f"ab-{variant}-{n:02d}",
         "arm": arm,
-        "feature_id": f"F-{n:02d}",
+        "feature_id": {"s1": "F1", "s3": "F3"}.get(variant, f"F-{n:02d}"),
         "variant": variant,
         "checkpoint": f"m1-{variant}-start",
         "layers": layers,
@@ -593,6 +594,7 @@ def score(
         "sandboxed": True,
         "recorded": False,
         "captured_at": "2026-10-16T10:00:00Z",
+        "referee_version": REFEREE_VERSION,
     }
     record.update(extra)
     return record
@@ -620,8 +622,28 @@ def build_fixture_exports(exports_dir: Path) -> Path:
             )
             (scores / f"{record['run_id']}.json").write_text(json.dumps(record), encoding="utf-8")
     (scores / "broken.json").write_text("{not json", encoding="utf-8")
+    old = score(99, arm="bare", variant="s1", passed=False, layers=[])
+    del old["referee_version"]  # scored before the current referee version: not shown
+    (scores / "s1-bare-99.json").write_text(json.dumps(old), encoding="utf-8")
     experiments = Path(exports_dir) / "experiments"
     experiments.mkdir(parents=True, exist_ok=True)
+    (experiments / "teamtrack-ablation.json").write_text(
+        json.dumps(
+            {
+                "name": "teamtrack-ablation",
+                "url": None,
+                "comparison_url": None,
+                "dataset": "teamtrack-features-v1",
+                "split": "s3",
+                "arm": "harness",
+                "k": 1,
+                "metadata": {"batch": "ablation-1", "layers": ["instructions", "state"]},
+                "rows": [f"s3-harness-{n:02d}" for n in range(4)],
+                "stats": {},
+            }
+        ),
+        encoding="utf-8",
+    )
     for variant in ("s1", "s3"):
         (experiments / f"teamtrack-{variant}.json").write_text(
             json.dumps(

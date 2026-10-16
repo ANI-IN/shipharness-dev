@@ -140,7 +140,7 @@ def register(app: typer.Typer) -> None:
             python=python or "python",
             out_dir=out,
             doctest_modules=doctest_modules,
-            target_metadata=metadata,  # its baseline_includes_doctests wins (CONTRACTS §22)
+            target_metadata=metadata,  # its baseline_includes_doctests wins
         )
         result = run_testgen(options, settings, client=client)
         if result.baseline_includes_doctests:

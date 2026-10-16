@@ -26,7 +26,7 @@ def _runtime(settings: Settings, project: str, **kw: Any) -> Any:
     return build_runtime(settings, project=project, **kw)
 
 
-# LangSmith project and cost session per purpose (DESIGN §12). Class projects hold class runs only.
+# LangSmith project and cost session per purpose. Class projects hold class runs only.
 PURPOSE_HELP = "class (needs SHIPHARNESS_CLASS_DATE), pilot, or assignment: the LangSmith project."
 OTHER_PURPOSES = {
     "pilot": ("shipharness-pilot", "pilot"),
@@ -343,9 +343,10 @@ def register(app: typer.Typer) -> None:
     def replay_cmd(
         run: str = typer.Argument(..., help="A/B id or run id."),
         reviewer: bool = typer.Option(False, "--reviewer/--no-reviewer"),
+        purpose: str = typer.Option("class", help=PURPOSE_HELP),
     ) -> None:
         """Replay a recorded A/B (RECORDING) and re-run the referee live."""
-        _recorded(replay=run, swap=None, reviewer=reviewer)
+        _recorded(replay=run, swap=None, reviewer=reviewer, purpose=purpose)
 
     @app.command("report")
     def report_cmd(

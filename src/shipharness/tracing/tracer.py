@@ -1,4 +1,4 @@
-"""Tracing to LangSmith (CONTRACTS §17). Keys and credentials never reach a trace (§20)."""
+"""Tracing to LangSmith. Keys and credentials never reach a trace (§20)."""
 
 from __future__ import annotations
 

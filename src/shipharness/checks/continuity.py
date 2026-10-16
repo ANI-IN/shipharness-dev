@@ -1,4 +1,4 @@
-"""continuity (S2 measures, DESIGN §8.2). A run fails continuity if any of:
+"""continuity (S2 measures). A run fails continuity if any of:
 
 (a) R7 fails: migration heads != 1 or a fresh `alembic upgrade head` fails;
 (b) a second migration creates a table that another migration already creates;

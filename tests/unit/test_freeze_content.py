@@ -137,3 +137,25 @@ def test_expected_hashes_apply_valid_exceptions(tmp_path: Path) -> None:
     )
     record = freeze.expected_record(repo)
     assert record is not None and record["content_hashes"]["src/shipharness/runner"] == new
+
+
+def _tag_with(repo: Path, files: dict[str, str], message: str) -> None:
+    for rel, text in files.items():
+        (repo / rel).parent.mkdir(parents=True, exist_ok=True)
+        (repo / rel).write_text(text, encoding="utf-8")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", message)
+    git(repo, "tag", "-f", "m1-s1-start")
+
+
+def test_checkpoints_compare_by_their_teamtrack_tree(tmp_path: Path) -> None:
+    # The build repository's checkpoint commits also hold private files; the public rebuild does
+    # not. Only the checkpoint's teamtrack/ tree (what arms and the referee use) is compared.
+    build = make_repo(tmp_path, "build", "a")
+    public = make_repo(tmp_path, "public", "b")
+    _tag_with(build, {"teamtrack/app.py": "x = 1\n", "DESIGN.md": "private\n"}, "build cp")
+    _tag_with(public, {"teamtrack/app.py": "x = 1\n"}, "public cp")
+    record = freeze.make_record(build, S)
+    assert freeze.compare_content(public, record) == []
+    _tag_with(public, {"teamtrack/app.py": "x = 2\n"}, "public cp 2")
+    assert freeze.compare_content(public, record) == ["checkpoint content differs: m1-s1-start"]

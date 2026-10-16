@@ -1,4 +1,4 @@
-"""progress.md (CONTRACTS §15.2): the agent edits every section; the harness appends the log."""
+"""progress.md: the agent edits every section; the harness appends the log."""
 
 from __future__ import annotations
 

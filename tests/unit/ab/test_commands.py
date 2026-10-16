@@ -365,3 +365,18 @@ def test_session_budget_override_rejects_bad_values(env) -> None:  # type: ignor
         ["ab", "--feature", "F1", "--session-budget", "12,x", "--dataset", str(env.dataset)],
     )
     assert result.exit_code == 2
+
+
+def test_replay_traces_to_the_project_for_its_purpose(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    seen = _record_targets(monkeypatch, commands._runtime)
+    result = CliRunner().invoke(make_app(), ["replay", "ab-none", "--purpose", "pilot"])
+    assert result.exit_code == 2  # no such A/B; the runtime is never built for an unknown id
+    seen.clear()
+    first = CliRunner().invoke(
+        make_app(), ["ab", "--feature", "F1", "--no-preview", "--dataset", str(env.dataset)]
+    )
+    ab_id = next(line.split()[1] for line in first.output.splitlines() if line.startswith("A/B "))
+    seen.clear()
+    replay = CliRunner().invoke(make_app(), ["replay", ab_id, "--purpose", "pilot"])
+    assert replay.exit_code == 0, replay.output
+    assert seen and seen[0] == ("shipharness-pilot", "pilot")

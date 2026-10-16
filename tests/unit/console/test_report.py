@@ -16,27 +16,26 @@ def exports(tmp_path: Path) -> Path:
     return build_fixture_exports(tmp_path / "exports")
 
 
-def test_dot_groups_per_variant_and_arm_with_counts(exports: Path) -> None:
+def test_dot_groups_per_feature_variant_and_arm_with_counts(exports: Path) -> None:
+    # Owner, 2026-10-17: screen 4 groups by feature; records scored before the current referee
+    # version are left out (and counted).
     report = load_report(exports)
-    rows = [(g.variant, g.arm, g.count_label) for g in report.groups]
+    rows = [(g.feature, g.variant, g.arm, g.count_label) for g in report.groups]
     assert rows == [
-        ("s1", "bare", "3/10"),
-        ("s1", "harness", "9/10"),
-        ("s3", "bare", "2/10"),
-        ("s3", "harness", "8/10"),
+        ("F1", "s1", "bare", "3/10"),
+        ("F1", "s1", "harness", "9/10"),
+        ("F3", "s3", "bare", "2/10"),
+        ("F3", "s3", "harness", "8/10"),
     ]
+    assert report.older == 1
     s1_harness = report.groups[1]
     assert len(s1_harness.dots) == 10
     assert sum(d.passed for d in s1_harness.dots) == 9
 
 
-def test_ablation_bars_by_layer_set(exports: Path) -> None:
+def test_ablation_bars_come_only_from_ablation_experiments(exports: Path) -> None:
     bars = {b.label: b.count_label for b in load_report(exports).ablation}
-    assert bars == {
-        "none (bare)": "5/20",
-        "instructions": "9/10",
-        "instructions + state + scope": "8/10",
-    }
+    assert bars == {"instructions + state": "4/4"}
 
 
 def test_cost_per_verified_feature_and_reviewer_agreement(exports: Path) -> None:
@@ -52,8 +51,9 @@ def test_cost_per_verified_feature_and_reviewer_agreement(exports: Path) -> None
 
 def test_experiment_links_and_unreadable_files(exports: Path) -> None:
     report = load_report(exports)
-    assert [e.name for e in report.experiments] == ["teamtrack-s1", "teamtrack-s3"]
-    assert report.experiments[0].comparison_url.endswith("/compare/s1")
+    names = [e.name for e in report.experiments]
+    assert names == ["teamtrack-ablation", "teamtrack-s1", "teamtrack-s3"]
+    assert report.experiments[1].comparison_url.endswith("/compare/s1")
     assert report.skipped == 1  # broken.json
 
 

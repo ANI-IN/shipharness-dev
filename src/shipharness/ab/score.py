@@ -1,4 +1,4 @@
-"""ScoreRecord (CONTRACTS §11) and the pre-registered primary measures (DESIGN §8.2)."""
+"""ScoreRecord and the pre-registered primary measures."""
 
 from __future__ import annotations
 
@@ -9,6 +9,11 @@ from pydantic import BaseModel, ConfigDict
 
 from shipharness.events import Arm
 from shipharness.harness.decisions import LayerName
+
+# Bumped whenever a measurement change could change a score (the build repository's
+# verification log records each change).
+# The console's A/B report shows only records of the current version.
+REFEREE_VERSION = "2026-10-17"
 
 
 class ScoreRecord(BaseModel):
@@ -61,6 +66,7 @@ class ScoreRecord(BaseModel):
     sandboxed: bool
     recorded: bool
     captured_at: str
+    referee_version: str = REFEREE_VERSION
 
 
 # Primary measure grammar (dataset `outputs.primary_measure`):
@@ -107,7 +113,7 @@ def evaluate_primary(measure: str, fields: dict[str, Any]) -> tuple[dict[str, An
     return primary, not failed
 
 
-# The 12 scores of the combined referee evaluator (CONTRACTS §11).
+# The 12 scores of the combined referee evaluator.
 SCORE_KEYS: tuple[str, ...] = (
     "r1_new_violations",
     "r2_new_violations",

@@ -1,5 +1,5 @@
 """Test-phase hook of the verify layer: every test the agent proposed in the test phase goes through
-the five filters (CONTRACTS §14, owned by the filters package); discarded tests are removed from
+the five filters (owned by the filters package); discarded tests are removed from
 the workspace with their reason, kept tests are committed.
 
 Workspace files are read and written on the host without following links (untrusted workspace).
@@ -141,7 +141,7 @@ def delete_files(workspace: Path, rels: list[str]) -> None:
 def filters_pipeline(
     candidates: list[dict[str, str]], ctx: Any, source_shas: dict[str, str]
 ) -> list[Any]:
-    """Default pipeline: the filters package (CONTRACTS §14).
+    """Default pipeline: the filters package.
 
     `source_shas` is the phase-start snapshot of every workspace file. The filter context is built
     now, with baseline coverage measured by running only the tests that existed at phase start

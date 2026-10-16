@@ -33,7 +33,7 @@ def pytest_command(
     """`<python> -m pytest <flags> "<target>" ...`; every target is checked first.
 
     `doctest_modules` adds `--doctest-modules`, for runs of the existing suite whose baseline
-    includes doctests (RESEARCH G-19); generated candidate tests never get it."""
+    includes doctests; generated candidate tests never get it."""
     quoted = " ".join(f'"{check_test_id(t)}"' for t in targets)
     doctests = DOCTEST_FLAG if doctest_modules else ""
     parts = [python, "-m pytest", PYTEST_FLAGS, extra, doctests, quoted]

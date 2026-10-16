@@ -1,4 +1,4 @@
-"""Allowed paths per phase (DESIGN §6.4): which files the agent may change in this phase.
+"""Allowed paths per phase: which files the agent may change in this phase.
 
 Patterns are globs relative to the workspace root: `*` and `?` stay inside one path segment, `**`
 spans any number of segments (`tests/visible/**`, `docs/**/x.md`).
@@ -18,7 +18,7 @@ HARNESS_ONLY: dict[str, str] = {
     "feature_list.json": FEATURE_LIST_REASON,
     "feature_list.schema.json": "feature_list.schema.json is written only by the harness",
 }
-# Files the state layer asks the agent to keep current at wrap-up (CONTRACTS §15).
+# Files the state layer asks the agent to keep current at wrap-up.
 STATE_FILES: tuple[str, ...] = ("progress.md", "session-handoff.md", "docs/exec-plans/**")
 
 

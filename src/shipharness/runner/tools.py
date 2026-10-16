@@ -1,4 +1,4 @@
-"""The seven agent tools (CONTRACTS §6): identical schemas and behaviour for both arms."""
+"""The seven agent tools: identical schemas and behaviour for both arms."""
 
 from __future__ import annotations
 

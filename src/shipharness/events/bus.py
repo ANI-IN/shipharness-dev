@@ -1,4 +1,4 @@
-"""EventBus: validates events and appends them to a JSONL run log (CONTRACTS §8.1)."""
+"""EventBus: validates events and appends them to a JSONL run log."""
 
 from __future__ import annotations
 

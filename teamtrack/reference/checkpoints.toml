@@ -1,6 +1,6 @@
 # Checkpoints (M5 ruling R-3): each one is the base product (main's teamtrack/) plus an ordered
 # list of reference tasks, applied with `git apply` from teamtrack/reference/<task>/.
-# scripts/build_checkpoints.py turns each entry into one commit (parent: the current main commit)
+# the course build turns each entry into one commit (parent: the current main commit)
 # and the integrator tags it. `m1-base` is not listed: it stays where it is.
 
 [checkpoints."m1-s1-start"]

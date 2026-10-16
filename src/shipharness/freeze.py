@@ -1,4 +1,4 @@
-"""Harness freeze (DESIGN §10.4): what the `harness-frozen` tag pins before M8.
+"""Harness freeze: what the `harness-frozen` tag pins before M8.
 
 When the pilot gate passes, `scripts/freeze_harness.py` creates an annotated tag at HEAD. M8
 results are valid only for that state. The tag pins four things:
@@ -11,7 +11,7 @@ results are valid only for that state. The tag pins four things:
   values (with `.env`); secrets are never recorded.
 
 Rule 1: after the tag, a change to a frozen path passes only with an entry in the private
-`FREEZE-EXCEPTIONS.toml` (its content hash, and either the M8 experiments re-run or a VERIFICATION
+`FREEZE-EXCEPTIONS.toml` (its content hash, and either the M8 experiments re-run or a recorded
 check that it cannot change any score). No silent changes.
 
 Console, report, replay tooling, docs, slides, and course content stay editable.
@@ -122,9 +122,16 @@ def checkpoint_tags(repo: Path) -> dict[str, str]:
 
 
 def checkpoint_trees(repo: Path) -> dict[str, str]:
-    """Checkpoint tag name -> tree id (the checkpoint's content; compared, rule 2)."""
+    """Checkpoint tag name -> the id of its `teamtrack/` tree (what arms and the referee use; the
+    build repository's checkpoint commits also hold private files, the public rebuild does not),
+    or of the whole tree when the tag has no `teamtrack/` (compared, rule 2)."""
     names = _git(repo, "tag", "--list", f"{CHECKPOINT_TAG_PREFIX}*").stdout.split()
-    return {name: _git(repo, "rev-parse", f"{name}^{{tree}}").stdout.strip() for name in names}
+    trees: dict[str, str] = {}
+    for name in names:
+        sub = _git(repo, "rev-parse", "-q", "--verify", f"{name}:teamtrack")
+        whole = _git(repo, "rev-parse", f"{name}^{{tree}}")
+        trees[name] = (sub.stdout if sub.returncode == 0 else whole.stdout).strip()
+    return trees
 
 
 def content_hashes(repo: Path, paths: list[str] | tuple[str, ...]) -> dict[str, str]:
@@ -176,7 +183,8 @@ def read_record(repo: Path) -> dict[str, Any] | None:
 
 def read_exceptions(repo: Path) -> tuple[dict[str, str], list[str]]:
     """Accepted changes (path -> content hash) and problems with the exceptions file. An entry is
-    valid only with a kind, a VERIFICATION reference, and (for re-runs) the experiments re-run."""
+    valid only with a kind, a verification-record reference, and (for re-runs) the experiments
+    re-run."""
     file = Path(repo) / EXCEPTIONS_FILE
     if not file.is_file():
         return {}, []
@@ -188,7 +196,7 @@ def read_exceptions(repo: Path) -> tuple[dict[str, str], list[str]]:
             path in FROZEN_PATHS
             and len(str(entry.get("content_hash", ""))) == 64
             and entry.get("kind") in EXCEPTION_KINDS
-            and "VERIFICATION" in str(entry.get("verification", ""))
+            and len(str(entry.get("verification", "")).strip()) >= 8
             and (entry.get("kind") != "rerun" or bool(entry.get("experiments")))
         )
         if complete:
@@ -196,7 +204,8 @@ def read_exceptions(repo: Path) -> tuple[dict[str, str], list[str]]:
         else:
             issues.append(
                 f"exception incomplete: {path or '(no path)'} needs a frozen path, its content "
-                "hash, kind rerun (with experiments) or no-score-effect, and a VERIFICATION entry"
+                "hash, kind rerun (with experiments) or no-score-effect, and a verification-record "
+                "entry"
             )
     return accepted, issues
 

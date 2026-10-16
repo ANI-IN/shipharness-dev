@@ -17,7 +17,7 @@ _UNSAFE_ID = re.compile(r"[^A-Za-z0-9._-]")
 
 
 def exec_plan_path(feature_id: str, folder: str = "active") -> str:
-    """`docs/exec-plans/<folder>/<feature>.md` (CONTRACTS §15.4)."""
+    """`docs/exec-plans/<folder>/<feature>.md`."""
     return f"docs/exec-plans/{folder}/{_UNSAFE_ID.sub('_', feature_id) or 'feature'}.md"
 
 

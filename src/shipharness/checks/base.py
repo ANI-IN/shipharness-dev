@@ -1,4 +1,4 @@
-"""Check interface for the referee and verify gate (CONTRACTS §10). Checks never call a model."""
+"""Check interface for the referee and verify gate. Checks never call a model."""
 
 from __future__ import annotations
 

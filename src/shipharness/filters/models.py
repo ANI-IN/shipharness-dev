@@ -1,4 +1,4 @@
-"""Filter data models (CONTRACTS §14)."""
+"""Filter data models."""
 
 from __future__ import annotations
 
@@ -49,7 +49,7 @@ class FilterResult(BaseModel):
 class FilterContext(BaseModel):
     """Everything the filters need, captured at the start of the test phase.
 
-    Fields after `source_shas_at_phase_start` extend CONTRACTS §14 with defaults.
+    Fields after `source_shas_at_phase_start` are later additions with defaults.
     """
 
     model_config = ConfigDict(extra="forbid", frozen=True, arbitrary_types_allowed=True)
@@ -66,7 +66,7 @@ class FilterContext(BaseModel):
     timeout_s: int = 120  # per pytest invocation
     runs: int = 5  # filter 2: consecutive passing runs required
     # Existing-suite runs (baseline coverage, mutant kills by existing tests) pass
-    # `--doctest-modules`, so doctests count in the baseline (RESEARCH G-19). Candidates never do.
+    # `--doctest-modules`, so doctests count in the baseline. Candidates never do.
     doctest_modules: bool = False
 
 

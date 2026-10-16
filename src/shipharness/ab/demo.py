@@ -1,5 +1,5 @@
 """One A/B: the same task run by the bare arm and the harness arm in parallel, then judged by the
-same referee (DESIGN §3.4, §8.3). Used by `shipharness ab`, `make demo-N`, and the experiments.
+same referee. Used by `shipharness ab`, `make demo-N`, and the experiments.
 
 Integrity rules implemented here: both specs come from one set of values (model, effort, ticket,
 checkpoint, budgets, cost cap, tools, sandbox policy); the only differences are the arm label, run
@@ -58,7 +58,7 @@ SECTION_STACKS: dict[str, tuple[LayerName, ...]] = {
 
 
 def section_layers(section: str, modifier: str | None = None) -> frozenset[LayerName]:
-    """The harness arm's layers for a section demo (DESIGN §6.6); `-<layer>` removes one."""
+    """The harness arm's layers for a section demo; `-<layer>` removes one."""
     stack = set(SECTION_STACKS[section])
     if modifier:
         removed = parse_layers(modifier if modifier.startswith("-") else f"-{modifier}")

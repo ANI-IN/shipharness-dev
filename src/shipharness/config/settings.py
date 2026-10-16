@@ -1,4 +1,4 @@
-"""Settings loaded from the environment and `.env` (CONTRACTS §1). Keys are SecretStr (§20)."""
+"""Settings loaded from the environment and `.env`. Keys are SecretStr (§20)."""
 
 from __future__ import annotations
 
