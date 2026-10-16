@@ -4,7 +4,15 @@ from __future__ import annotations
 
 import importlib
 
-BUILTIN_MODULES = ("r1_tenant", "r2_roles", "r4_idempotency", "r5_audit")
+BUILTIN_MODULES = (
+    "r1_tenant",
+    "r2_roles",
+    "r3_conventions",
+    "r4_idempotency",
+    "r5_audit",
+    "r6_layering",
+    "r7_migrations",
+)
 # Short rule labels used in progress lines and by `shipharness check --rules R1,R2`.
 RULE_LABELS = {
     "r1_tenant": "R1",
