@@ -7,7 +7,8 @@
 Inputs: the build (a, b) and `params.session_patches`, one unified diff per session in order,
 each relative to that session's start (written by the host from the run's session SHAs with
 `shipharness.runner.git.write_diff`). `params.run_log` (optional) is the run's events.jsonl; when
-given, the number of `session_stop` events is reported. Without two patches, (c) is not judged
+given, the number of `session_stop` events is reported, counting only `params.run_id`'s events when
+set (an A/B writes both arms to one log). Without two patches, (c) is not judged
 and `redone_lines_pct` is None.
 """
 
@@ -62,13 +63,15 @@ def duplicate_tables(versions: Path) -> dict[str, list[str]]:
     return {t: files for t, files in creators.items() if len(files) > 1}
 
 
-def _sessions(run_log: str | None) -> int | None:
+def _sessions(run_log: str | None, run_id: str | None = None) -> int | None:
     if not run_log or not Path(run_log).exists():
         return None
     count = 0
     for line in Path(run_log).read_text(encoding="utf-8").splitlines():
         try:
-            count += json.loads(line).get("type") == "session_stop"
+            event = json.loads(line)
+            ours = not run_id or event.get("run_id") == run_id
+            count += ours and event.get("type") == "session_stop"
         except (ValueError, AttributeError):
             continue
     return count
@@ -102,6 +105,6 @@ class ContinuityCheck:
         ctx.progress(1, 1, "continuity")
         metrics: dict[str, float | int | bool | None] = {
             "redone_lines_pct": pct,
-            "sessions": _sessions(ctx.params.get("run_log")),
+            "sessions": _sessions(ctx.params.get("run_log"), ctx.params.get("run_id")),
         }
         return make_result(self.name, findings, total_probes=3, started=started, metrics=metrics)

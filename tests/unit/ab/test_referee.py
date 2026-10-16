@@ -388,12 +388,16 @@ def test_both_arms_go_through_the_same_checks(course_repo: Path, tmp_path: Path)
     referee = Referee(task(), deps(course_repo, tmp_path, factory))
     judge(referee, tmp_path, PRODUCT, run_id="r-b", arm="bare")
     judge(referee, tmp_path, PRODUCT, run_id="r-h", arm="harness")
-    commands = [
-        re.sub(r"--nonce \S+", "--nonce N", c)
-        for box in factory.sandboxes[1:]
-        for c in box.commands
-    ]
-    # Identical commands for both arms, apart from the per-run nonce.
+
+    def normalised(command: str) -> str:
+        if command.startswith("printf") and "params.json" in command:
+            params = json.loads(base64.b64decode(command.split()[2]))
+            params.pop("run_id")  # names the scored run, for the continuity count
+            return "params " + json.dumps(params, sort_keys=True)
+        return re.sub(r"--nonce \S+", "--nonce N", command)
+
+    commands = [normalised(c) for box in factory.sandboxes[1:] for c in box.commands]
+    # Identical commands for both arms, apart from the per-run nonce and the scored run id.
     assert len(set(commands)) == len(commands) // 2
 
 
@@ -468,3 +472,9 @@ def test_regression_expects_every_test_that_existed_at_the_checkpoint(
     judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
     params = _referee_params(factory)
     assert params["regression_expected"] == ["tests/visible/test_app.py::test_app"]
+
+
+def test_referee_tells_continuity_which_run_it_scores(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT, run_id="r-h7")
+    assert _referee_params(factory)["run_id"] == "r-h7"

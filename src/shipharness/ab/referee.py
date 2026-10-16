@@ -377,11 +377,13 @@ class Referee:
         shipped_ids: list[str],
         test_phase_files: list[str],
         existing_ids: list[str],
+        run_id: str = "",
     ) -> dict[str, Any]:
         """Check params under the names the checks read (shipharness.checks.params)."""
         return {
             **inputs,
             P.REGRESSION_EXPECTED: list(existing_ids),
+            P.RUN_ID: run_id,
             P.HIDDEN_TESTS: list(self.task.hidden_test_ids),
             P.SHIPPED_TESTS: shipped_ids,
             "shipped_test_files": shipped_files,  # informational, for reports
@@ -462,6 +464,7 @@ class Referee:
                         shipped_ids=shipped_ids,
                         test_phase_files=list(test_phase_files or []),
                         existing_ids=existing_ids,
+                        run_id=run_id,
                     )
                     results, progress, error = self._run_checks(
                         sandbox, params, baseline, REFEREE_CHECKS

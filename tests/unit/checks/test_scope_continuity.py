@@ -183,3 +183,22 @@ def test_continuity_catches_two_heads_and_duplicate_tables(
     result = run("continuity", seeds.r7_two_heads(make_build()))
     assert {"r7:heads", "duplicate_table:comments"} <= keys(result)
     assert result.metrics["redone_lines_pct"] is None
+
+
+def test_continuity_counts_only_the_scored_runs_session_stops(
+    base_build: Path, tmp_path: Path
+) -> None:
+    """Both arms of an A/B write to one events.jsonl; S2 counts must not mix them."""
+    import json
+
+    log = tmp_path / "events.jsonl"
+    events = [
+        {"type": "session_stop", "run_id": "r-bare", "arm": "bare"},
+        {"type": "session_stop", "run_id": "r-harness", "arm": "harness"},
+        {"type": "session_stop", "run_id": "r-harness", "arm": "harness"},
+        {"type": "turn", "run_id": "r-harness", "arm": "harness"},
+    ]
+    log.write_text("\n".join(json.dumps(e) for e in events) + "\n", encoding="utf-8")
+    harness = run("continuity", base_build, run_log=str(log), run_id="r-harness")
+    bare = run("continuity", base_build, run_log=str(log), run_id="r-bare")
+    assert (harness.metrics["sessions"], bare.metrics["sessions"]) == (2, 1)
