@@ -17,6 +17,7 @@ from shipharness.config import Settings
 from shipharness.reviewer import Review, ReviewOutcome
 from shipharness.tracing import NullTracer
 
+from ..fakes import fake_openai_key
 from .test_demo import LINE, Clients, make_deps
 from .test_referee import Factory, all_green
 from .test_report import fixture_exports
@@ -281,9 +282,7 @@ def run_ab(env, *args: str):  # type: ignore[no-untyped-def]
 
 
 def with_key(env) -> Settings:  # type: ignore[no-untyped-def]
-    return env.settings.model_copy(
-        update={"openai_api_key": SecretStr("sk-test-not-a-real-key-000000")}
-    )
+    return env.settings.model_copy(update={"openai_api_key": SecretStr(fake_openai_key())})
 
 
 @pytest.mark.parametrize("section", ["demo-1", "final"])
@@ -327,7 +326,7 @@ def test_key_problem_names_the_openai_error(monkeypatch) -> None:  # type: ignor
         models = Models()
 
     monkeypatch.setattr("shipharness.ab.clients.make_openai_client", lambda *a, **k: Client())
-    settings = Settings(_env_file=None, openai_api_key="sk-test-not-a-real-key-000000")
+    settings = Settings(_env_file=None, openai_api_key=fake_openai_key())
     assert commands._key_problem(settings) == "invalid key (AuthenticationError)"
 
 
@@ -337,7 +336,7 @@ def test_the_runtime_builds_the_live_openai_client(tmp_path: Path) -> None:
 
     settings = Settings(
         _env_file=None,
-        openai_api_key="sk-test-not-a-real-key-000000",
+        openai_api_key=fake_openai_key(),
         langsmith_tracing=False,
         runs_dir=tmp_path / "runs",
         sandbox_mode="none",
