@@ -104,9 +104,9 @@ def datasets_validate(
     kind: str = typer.Option(..., help="features or testgen"),
 ) -> None:
     """Validate one JSONL dataset file."""
-    from shipharness.datasets import validate_file
+    from shipharness.datasets import check_file
 
-    errors = validate_file(path, kind)  # type: ignore[arg-type]
+    errors = check_file(path, kind)  # type: ignore[arg-type]
     for error in errors[:50]:
         typer.echo(f"x {error}")
     lines = sum(1 for line in path.read_text(encoding="utf-8").splitlines() if line.strip())
@@ -119,7 +119,13 @@ def datasets_upload() -> None:
     """Validate and upload teamtrack-features-v1 (60) and testgen-targets-v1 (40) to LangSmith."""
     from langsmith import Client
 
-    from shipharness.datasets import STANDARD_DATASETS, build_examples, load_lines, upload
+    from shipharness.datasets import (
+        STANDARD_DATASETS,
+        build_examples,
+        check_file,
+        load_lines,
+        upload,
+    )
 
     settings = load_settings()
     if settings.langsmith_api_key is None:
@@ -132,10 +138,18 @@ def datasets_upload() -> None:
         if not path.exists():
             typer.echo(f"x {path} not found (datasets are built in milestone M5)")
             raise typer.Exit(1)
+        problems = check_file(path, kind)
+        if problems:
+            typer.echo(f"x {name}: {len(problems)} problem(s); first: {problems[0]}")
+            raise typer.Exit(1)
         lines = load_lines(path, kind)
         if len(lines) != expected:
             typer.echo(f"x {name}: expected {expected} examples, found {len(lines)}")
             raise typer.Exit(1)
-        count = upload(client, name, build_examples(lines))
+        try:
+            count = upload(client, name, build_examples(lines))
+        except ValueError as exc:
+            typer.echo(f"x {exc}")
+            raise typer.Exit(1) from None
         typer.echo(f"+ uploaded {name}: {count} examples")
     print_cost_summary()

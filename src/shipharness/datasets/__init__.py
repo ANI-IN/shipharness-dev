@@ -1,6 +1,7 @@
 from shipharness.datasets.io import (
     STANDARD_DATASETS,
     build_examples,
+    check_file,
     load_lines,
     upload,
     validate_file,
@@ -13,6 +14,7 @@ __all__ = [
     "FeatureTask",
     "TestgenTarget",
     "build_examples",
+    "check_file",
     "load_lines",
     "upload",
     "validate_file",

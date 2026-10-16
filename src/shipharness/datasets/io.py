@@ -45,6 +45,32 @@ def validate_file(path: Path, kind: DatasetKind) -> list[str]:
     return errors
 
 
+def check_file(path: Path, kind: DatasetKind, repo: Path = REPO_ROOT) -> list[str]:
+    """Schema errors, then (when the schema passes) the semantic checks against the course repo:
+    checkpoints, hidden test ids, mutant sets, primary measures, group counts, splits."""
+    errors = validate_file(path, kind)
+    if errors:
+        return errors
+    lines = [
+        json.loads(line)
+        for line in Path(path).read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    if kind == "features":
+        from shipharness.datasets.features_checks import check_features_file, check_features_line
+
+        check_line, check_all = check_features_line, check_features_file
+    else:
+        from shipharness.datasets.testgen_checks import check_testgen_file, check_testgen_line
+
+        check_line, check_all = check_testgen_line, check_testgen_file
+    for number, line in enumerate(lines, start=1):
+        errors += [f"line {number}: {e}" for e in check_line(line, Path(repo))]
+    if len(lines) == STANDARD_DATASETS[kind][2]:
+        errors += check_all(lines)
+    return errors
+
+
 def load_lines(path: Path, kind: DatasetKind) -> list[BaseModel]:
     errors = validate_file(path, kind)
     if errors:
@@ -79,6 +105,10 @@ def upload(
     """Create the dataset if needed and add the examples. Returns the number uploaded."""
     if client.has_dataset(dataset_name=dataset_name):
         dataset = client.read_dataset(dataset_name=dataset_name)
+        existing = getattr(dataset, "example_count", 0) or 0
+        if existing:
+            # Adding again would duplicate every example; a new version gets a new dataset name.
+            raise ValueError(f"{dataset_name} already has {existing} examples; not adding more")
     else:
         dataset = client.create_dataset(dataset_name, description=description)
     client.create_examples(dataset_id=dataset.id, examples=examples)
