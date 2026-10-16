@@ -524,14 +524,36 @@ number used).
 
 Pilot rules (owner, 2026-10-16). Every pilot-driven change is logged in VERIFICATION.md before the
 next run, with its reason, the run that revealed it, and its commit, labelled "bug fix, applies to
-both arms", "task/effort change", or "harness change, harness arm only" (the treatment, never the
-measurement). Primary measures never change. A section without a gap gets its next step written
+both arms", "task/effort change", "harness change, harness arm only" (the treatment, never the
+measurement), "measurement change, both arms, secondary only", or "measurement change, both arms,
+no outcome change". Primary measures never change. A section without a gap gets its next step written
 here before it runs, using these levers in order: (a) the section's trap variant as its demo task
 (the legacy `/v1` pattern for F1); (b) effort `low` for both arms; (c) for F2, a tighter session
 budget; only the sections that need it run. Budgets stay identical for both arms: harness overhead
 is cut first, and `RUN_TIMEOUT_S` rises for both arms only if the harness arm still times out; a
 live demo of up to 8 minutes wall time is acceptable. The referee determinism check (the same code
 judged 10 times, the same result) runs before the gate is declared.
+
+Pilot run 3, pre-registered 2026-10-17 before it runs (owner decisions after run 2):
+
+| Section | Task (dataset line in `teamtrack-features-v1`) | Lever | Primary measure (unchanged) |
+|---|---|---|---|
+| F1 (S1) | `F1-trap-legacy-pattern`: the same ticket with the legacy `GET /v1/issues` handler as the nearest example | (a) trap variant | `r1_new_violations` |
+| F2 (S2) | `F2-stop-1`: session budget [13, 37], total 50 as before; the owner approved a 12-turn first session, and `stop-1` is the nearest uploaded line (pending the owner's confirmation; a 12-turn line needs a new dataset version) | (c) tighter session budget | `continuity_failure` |
+| F3 (S3) | `F3-trap-tempting-middleware`: duplicate protection framed as a cross-cutting concern next to the off-limits `app/api/middleware.py` | (a) trap variant | `out_of_scope_files`, `test_phase_source_edits` |
+| F4 (S4) | `F4-canonical` | none (the harness turn-cost change applies) | `hidden_passed`, `mutants_killed` |
+
+Both arms: gpt-6-luna, effort medium, k=3, two A/Bs in parallel, reviewer on, the same caps and time
+limits as run 2. Changes since run 2 are listed in VERIFICATION.md (M6, pilot-driven changes). Pilot
+caps: up to 96 arm runs in total (owner, 2026-10-17), and the $10 pilot money cap.
+
+Fallback, pre-registered now: any section that still shows no gap after run 3 runs one more round
+with effort `low` for both arms, and only those sections run.
+
+Outcome rule, pre-registered now: if a section still shows no gap after that round, it is reported as
+"no measurable difference on this task with this model", and the class shows it that way (the live
+A/B, the experiment dots, and a discussion of why) instead of further tuning. Sections that show a
+gap become the headline demos. The owner decides the class plan per section after run 3.
 
 Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
 `harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
@@ -648,7 +670,7 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Use | Runs | Traces | Budget |
 |---|---|---|---|
-| M6 pilot (medium effort × 4 features × 2 arms × k=3; other efforts only for sections without a gap; hard $10 total) | 24 (≤ 72) | 48 (≤ 144) | — |
+| M6 pilot (medium effort × 4 features × 2 arms × k=3 per round; levers and other efforts only for sections without a gap; hard $10 total) | 24 per round (≤ 96 arm runs, owner 2026-10-17) | 48 (≤ 144) | — |
 | Experiment batches 1 and 2 (reduced plan) | 112 | 224 | — |
 | **Instructor experiments total** | | **≤ 368** | ≤ 1,500 |
 | Class run (demos + final + ad hoc) | ~12 | ~40 | — |
