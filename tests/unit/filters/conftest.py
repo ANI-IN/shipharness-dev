@@ -12,10 +12,12 @@ def _fast_child_pytest() -> Iterator[None]:
     environment has heavy pytest plugins (hypothesis, schemathesis, langsmith) that the trusted
     fixture repos and TeamTrack's visible tests do not use; skipping their autoload saves about
     two seconds per child run."""
-    old = os.environ.get("PYTEST_DISABLE_PLUGIN_AUTOLOAD")
-    os.environ["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = "1"
+    names = ("PYTEST_DISABLE_PLUGIN_AUTOLOAD", "PYTHONDONTWRITEBYTECODE")
+    old = {name: os.environ.get(name) for name in names}
+    os.environ.update(dict.fromkeys(names, "1"))
     yield
-    if old is None:
-        os.environ.pop("PYTEST_DISABLE_PLUGIN_AUTOLOAD", None)
-    else:
-        os.environ["PYTEST_DISABLE_PLUGIN_AUTOLOAD"] = old
+    for name, value in old.items():
+        if value is None:
+            os.environ.pop(name, None)
+        else:
+            os.environ[name] = value
