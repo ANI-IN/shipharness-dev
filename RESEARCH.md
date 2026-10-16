@@ -230,7 +230,7 @@ source terms; the concepts inside each section use the wording above.
 | Overage (with card) | 0.005 LSU per base trace; 0.0025 LSU per extended upgrade; 1 LSU = $1 (tooltip text) | docs-verified; recheck before publishing |
 | Trace | Root run plus all children = 1 trace; max 25,000 runs per trace | docs-verified |
 | Evaluator traces | Each evaluator call per run in `evaluate()` is its own trace in project `evaluators`; `disable_evaluator_tracing=True` turns this off | docs- and source-verified; live test pending |
-| Experiment retention | "Experiments: Runs are created at extended retention by default." Observed 2026-10-16 on a no-card account: `trace_tier: longlived`, `ttl_seconds: 34560000` (400 days), not the 180 days the docs state for new traces | docs-verified; live-verified |
+| Experiment retention | "Experiments: Runs are created at extended retention by default." Live, 2026-10-16: the API reports `trace_tier: longlived`, `ttl_seconds: 34560000` (400 days) on experiment runs created 2026-10-16, and the account's `/api/v1/ttl-settings` has `longlived_ttl_days: null`; the docs say extended traces get 180 days for new traces from 2026-09-14. The deletion date cannot be observed until expiry, so planning uses the documented 180 days; `exports/` is the durable record either way | docs-verified; live value conflicts (VERIFICATION.md, extended retention re-check) |
 | Feedback upgrades | SDK `create_feedback` defaults to `extend_trace_retention=True`; UI feedback and manual annotation-queue adds do not upgrade; datasets kept indefinitely | source- and docs-verified |
 | SDK | `langsmith` 0.14.9 (2026-10-15), Python >=3.10. `wrap_openai` traces `responses.create` and `responses.parse` with usage (since 0.3.16). `@traceable` nesting gives one trace per agent run. `RunTree.get_url()` for links | source-verified; live test pending |
 | evaluate() | `num_repetitions`, `max_concurrency`, `experiment_prefix`, `metadata`, `upload_results`, `disable_evaluator_tracing`; one evaluator may return a list of `{"key","score"}` dicts; `ExperimentResults.comparison_url`; UI comparison view | source- and docs-verified |
@@ -348,7 +348,8 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
    "reward hacking gap".
 8. gpt-6-luna has a cache-write price ($0.125 per 1M) that the brief omits.
 9. OpenAI "Tier 1" no longer exists; first paid tier is Build (2M TPM for luna).
-10. LangSmith extended retention is 180 days for new traces (not 400); experiment runs start at extended
+10. LangSmith extended retention is documented as 180 days for new traces since 2026-09-14 (the API on
+    the course account still reports a 400-day TTL on new experiment runs; planning uses 180); experiment runs start at extended
     retention; evaluator calls are separate traces.
 11. Codex on Linux uses bwrap plus seccomp (not Landlock); approval policy names changed.
 12. No single skills directory is read by Claude Code, Codex, and Cursor; skills-ref rejects vendor
@@ -376,7 +377,7 @@ Ten proposed target modules per library are in R-e. packaging 26.3 was rejected 
 | G-10 | "Rubric" is not A3's wording | Use "grading criteria" in docs; code identifiers may say `criteria` | M2 |
 | G-11 | Vendor-doc sentences (B7-B9) came through a summarising fetch tool | Re-copy any sentence before quoting it verbatim; path strings are reliable | M7 |
 | G-12 | SpecBench states its slope as both 27 and 28 pp per tenfold size | Quote the abstract (28 pp, P90) and note the paper's own variation | M7 |
-| G-13 | LangSmith behaviour on a no-card account (do experiment traces count against the 5,000 cap; are extended upgrades blocked or allowed; evaluator-trace tier; 401 vs 403 body; SDK behaviour on 429; dataset size limits) | **Partly closed 2026-10-16 by a live probe (VERIFICATION.md, M3):** on a personal no-card account, experiment runs are `longlived` with a 400-day TTL (upgrades are not blocked), evaluator traces are `shortlived` (14 days) and one per evaluator call, an invalid key gives HTTP 403 and SDK `LangSmithError`. Still open: cap accounting for long-lived traces and the response at the cap (read the usage page after M6) | M6 |
+| G-13 | LangSmith behaviour on a no-card account (do experiment traces count against the 5,000 cap; are extended upgrades blocked or allowed; evaluator-trace tier; 401 vs 403 body; SDK behaviour on 429; dataset size limits) | **Partly closed 2026-10-16 by a live probe (VERIFICATION.md, M3):** on a personal no-card account, experiment runs are `longlived` (upgrades are not blocked); the API reports a 400-day TTL while the docs say 180 days for new extended traces, so planning uses 180, evaluator traces are `shortlived` (14 days) and one per evaluator call, an invalid key gives HTTP 403 and SDK `LangSmithError`. Still open: cap accounting for long-lived traces and the response at the cap (read the usage page after M6) | M6 |
 | G-14 | OpenAI: whether replayed reasoning items are billed as input on later turns; real cache hit rates under parallel loops; reasoning tokens per turn; whether Free-tier orgs can call gpt-6-luna; flex with function calling | Measure in the M6 pilot from per-turn usage logs | M6 |
 | G-15 | Library timings measured on Windows only; one Windows-only baseline failure per library | Known-failures list per library in testgen-targets-v1; repeat timings in CI (Linux) | M5 |
 | G-16 | Mutant lines for the 40 testgen targets are sketches | Choose and validate in M5 (each mutant killed by at least one reference test, none equivalent) | M5 |

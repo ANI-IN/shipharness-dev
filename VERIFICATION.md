@@ -9,7 +9,7 @@ verification (M9) adds per-command costs, demo times, pilot and experiment resul
 | Item | Used so far | Budget |
 |---|---|---|
 | OpenAI spend (instructor, all milestones) | $0.000838 (3 live loop smoke runs, M3) | experiments ≤ $25; class ≤ $2.50 |
-| LangSmith traces (instructor, October 2026) | about 12 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks) | experiments ≤ 1,500; month ≤ 2,500 |
+| LangSmith traces (instructor, October 2026) | about 16 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check) | experiments ≤ 1,500; month ≤ 2,500 |
 
 ## M3 core (2026-10-16)
 
@@ -42,12 +42,25 @@ no OpenAI calls. The probe dataset was deleted afterwards.
 | Invalid key | HTTP 403 from `/api/v1/sessions`; SDK raises `LangSmithError` (not `LangSmithAuthError`) |
 | `@traceable` root with one child | 1 root run, 2 runs in total: one trace |
 | Retention of an ordinary trace | `trace_tier: shortlived`, `ttl_seconds: 1209600` (14 days) |
-| Retention of an `evaluate()` experiment run | `trace_tier: longlived`, `ttl_seconds: 34560000` (400 days), on the no-card account |
+| Retention of an `evaluate()` experiment run | `trace_tier: longlived`; the API reports `ttl_seconds: 34560000` (400 days). This conflicts with the docs (180 days for new extended traces from 2026-09-14); see "Extended retention re-check" below |
 | Evaluator calls inside `evaluate()` | One root run per evaluator call in project `evaluators` (2 for 2 examples); `shortlived`, 14 days |
 | One evaluator returning several scores | Works (`exact`, `diff` recorded) |
 | Dataset splits | `list_examples(splits=["smoke"])` returned 2, `["section-1"]` returned 1, as tagged |
 | Comparison link | `ExperimentResults.comparison_url` present |
 | Tracing without `LANGSMITH_TRACING` in the environment | Off: nothing is posted. Settings reads `.env` but does not export variables, so `LangSmithTracer` now enables tracing explicitly (`tracing_context(enabled=True)`); unit test added |
+
+### Extended retention re-check (2026-10-16)
+
+Re-run on request because the API value conflicts with the docs. One fresh experiment run (created 2026-10-16 06:06 UTC); probe dataset and projects deleted afterwards; 3 traces.
+
+| Source | Value |
+|---|---|
+| LangSmith docs, administration overview and billing pages (fetched 2026-10-16) | "Starting September 14, 2026, the maximum long-lived trace retention period for SaaS customers is changing to 180 days." Extended traces: 180 days by default |
+| Account retention settings, `GET /api/v1/ttl-settings` | `default_trace_tier: shortlived`, `longlived_ttl_days: null` (no custom value) |
+| Experiment run, `GET /api/v1/runs/{id}` | `trace_tier: longlived`, `ttl_seconds: 34560000` (400 days) |
+| Experiment project and a new plain project, `GET /api/v1/sessions/{id}` | `trace_tier: shortlived` (project default; experiment runs are upgraded individually) |
+
+Conclusion: the account's API reports a 400-day TTL on new experiment runs while the docs state 180 days. Which one LangSmith enforces cannot be observed until a run expires. Course material and planning use the documented 180 days (the shorter value) and do not claim 400. Reports read `exports/`, so neither value affects them. To re-check: open an experiment run created on or after 2026-10-16 after 2027-04-14 (day 180).
 
 Still open (needs usage-page access or a cap hit): whether experiment (long-lived) traces count against
 the 5,000-trace monthly cap differently from base traces, and the exact response when the cap is
