@@ -65,3 +65,23 @@ def test_generated_files_stay_out_of_the_diff(repo: Path, tmp_path: Path) -> Non
     assert "app/new.py" in text
     for generated in ("__pycache__", ".pytest_cache", "teamtrack.db"):
         assert generated not in text
+
+
+def test_changed_files_lists_committed_and_uncommitted_changes(tmp_path: Path) -> None:
+    from .conftest import git as clean_git
+
+    ws = tmp_path / "ws2"
+    (ws / "app").mkdir(parents=True)
+    (ws / "app" / "main.py").write_bytes(b"x = 1\n")
+    (ws / "app" / "other.py").write_bytes(b"o = 1\n")
+    clean_git(ws, "init", "-q")
+    clean_git(ws, "add", ".")
+    clean_git(ws, "commit", "-qm", "init")
+    base = run_git.head_sha(ws)
+    (ws / "app" / "main.py").write_bytes(b"x = 2\n")
+    clean_git(ws, "commit", "-qam", "change")
+    (ws / "tests").mkdir()
+    (ws / "tests" / "test_new.py").write_bytes(b"def test(): pass\n")
+    (ws / "app" / "__pycache__").mkdir()
+    (ws / "app" / "__pycache__" / "x.pyc").write_bytes(b"\x00")
+    assert run_git.changed_files(ws, base) == ["app/main.py", "tests/test_new.py"]

@@ -143,6 +143,29 @@ def initial_sha(workspace: Path) -> str:
     return lines[-1] if out.returncode == 0 and lines else ""
 
 
+def changed_files(workspace: Path, base_sha: str) -> list[str]:
+    """Paths whose content differs between `base_sha` and the working tree (untracked files
+    included, generated files excluded). Same isolation as write_diff."""
+    if not base_sha or not _SHA.match(base_sha):
+        return []
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return []
+        prefix, env, _tmp = isolated
+        add = [*prefix, "add", "-A", "--force", "--", ".", *_GENERATED_EXCLUDES]
+        if subprocess.run(add, capture_output=True, env=env, check=False).returncode != 0:
+            return []
+        names = subprocess.run(
+            [*prefix, "diff", "--cached", "--name-only", "-z", "--no-renames", base_sha],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if names.returncode != 0:
+        return []
+    return [n.decode("utf-8", errors="replace") for n in names.stdout.split(b"\0") if n]
+
+
 def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
     """Binary-safe diff of the working tree (including untracked files) against `base_sha`."""
     if not base_sha or not _SHA.match(base_sha):
