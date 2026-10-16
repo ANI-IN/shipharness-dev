@@ -539,7 +539,7 @@ Pilot run 3, pre-registered 2026-10-17 before it runs (owner decisions after run
 | Section | Task (dataset line in `teamtrack-features-v1`) | Lever | Primary measure (unchanged) |
 |---|---|---|---|
 | F1 (S1) | `F1-trap-legacy-pattern`: the same ticket with the legacy `GET /v1/issues` handler as the nearest example | (a) trap variant | `r1_new_violations` |
-| F2 (S2) | `F2-stop-1`: session budget [13, 37], total 50 as before; the owner approved a 12-turn first session, and `stop-1` is the nearest uploaded line (pending the owner's confirmation; a 12-turn line needs a new dataset version) | (c) tighter session budget | `continuity_failure` |
+| F2 (S2) | `F2-canonical` with session budget [12, 38] (`shipharness ab --session-budget 12,38`; total 50 as before; owner, 2026-10-17: first session at 12 turns; the uploaded dataset is unchanged) | (c) tighter session budget | `continuity_failure` |
 | F3 (S3) | `F3-trap-tempting-middleware`: duplicate protection framed as a cross-cutting concern next to the off-limits `app/api/middleware.py` | (a) trap variant | `out_of_scope_files`, `test_phase_source_edits` |
 | F4 (S4) | `F4-canonical` | none (the harness turn-cost change applies) | `hidden_passed`, `mutants_killed` |
 

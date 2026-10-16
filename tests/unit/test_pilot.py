@@ -102,3 +102,9 @@ def test_variants_option_maps_features_to_dataset_variants() -> None:
         "F2": "stop-1",
     }
     assert pilot.parse_variants("") == {}
+
+
+def test_budgets_option_adds_the_session_budget_override() -> None:
+    assert pilot.parse_budgets("F2=12/38") == {"F2": "12,38"}
+    cmd = pilot.ab_command("F2", None, "12,38")
+    assert cmd[-5:] == ["--session-budget", "12,38", "--purpose", "pilot", "--no-preview"]
