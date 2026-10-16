@@ -148,6 +148,9 @@ def register(app: typer.Typer) -> None:
             None, help="Swap test on a recorded A/B or run id, or `latest` (of --section)."
         ),
         from_working_tree: bool = typer.Option(False, help="Export the working tree, not a tag."),
+        preview: bool = typer.Option(
+            True, "--preview/--no-preview", help="Board preview containers (off for batch runs)."
+        ),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
         from shipharness.ab.demo import run_ab, section_layers
@@ -165,7 +168,9 @@ def register(app: typer.Typer) -> None:
         else:
             names = parse_layers(layers or "all")
         rt = _runtime(settings, _class_project(settings), final=section == "final")
-        deps = rt.ab_deps(None if from_working_tree else task.checkpoint, reviewer=reviewer)
+        extra: dict[str, Any] = {} if preview else {"preview_factory": None}
+        ref = None if from_working_tree else task.checkpoint
+        deps = rt.ab_deps(ref, reviewer=reviewer, **extra)
         statuses: list[str] = []
         for _ in range(k):
             result = run_ab(task, names, deps, section=section)

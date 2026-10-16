@@ -187,3 +187,21 @@ def test_run_command_runs_one_arm(env, tmp_path: Path) -> None:  # type: ignore[
     assert result.exit_code == 0, result.output
     assert result.output.startswith("bare: completed")
     assert "Cost: $" in result.output
+
+
+@pytest.mark.parametrize(("flag", "previews"), [([], True), (["--no-preview"], False)])
+def test_ab_previews_can_be_turned_off_for_batch_runs(env, flag, previews) -> None:  # type: ignore[no-untyped-def]
+    """Batch runs (pilot, experiments) need no board previews; the class demo keeps them."""
+    seen: list[dict] = []
+    runtime = commands._runtime(env.settings, "x")
+    original = runtime.ab_deps
+
+    def ab_deps(ref, reviewer=True, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return original(ref, reviewer=reviewer, **kw)
+
+    runtime.ab_deps = ab_deps
+    args = ["ab", "--feature", "F1", "--section", "demo-1", "--dataset", str(env.dataset), *flag]
+    result = CliRunner().invoke(make_app(), args)
+    assert result.exit_code == 0, result.output
+    assert ("preview_factory" in seen[0] and seen[0]["preview_factory"] is None) is (not previews)
