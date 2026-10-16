@@ -856,7 +856,7 @@ Built by the seven M4 builders against the builder contract
   violations, 3 new violations, 1 error. `-P` keeps the working directory (the arm's build, for the
   referee) off `sys.path`; callers pass a fresh nonce and accept only the results document carrying it.
 - Parameter names live in `shipharness.checks.params` (`hidden_tests`, `shipped_tests`,
-  `regression_targets`, `regression_expected`, `changed_files`, `phase_files`, `allowed_paths`,
+  `regression_targets`, `regression_expected`, `run_id`, `changed_files`, `phase_files`, `allowed_paths`,
   `harness_artifacts`, `exemptions`, `flaky_runs`, `run_log`, `session_patches`, `artifacts_dir`, ...).
   The referee and the gate build params only with these names; a test checks that every name a check
   reads is declared. Without `exemptions` the runner uses the adapter's documented exemptions; the gate
@@ -897,7 +897,10 @@ Built by the seven M4 builders against the builder contract
 - `ABDeps.preview_factory(arm, bus, spec)` returns an object with `start_server()` and `run(stop)`;
   the runtime builds one preview container per arm on the referee image when sandboxed, and none when
   unsandboxed. A preview that fails to start is logged and skipped; previews stop on every path. The
-  preview server reloads when the arm changes `app/`.
+  preview server reloads when the arm changes `app/`. Preview containers mount the arm workspace
+  read-only (`SandboxPolicy.workspace_read_only`), so a preview can never change the arm's diff.
+- `continuity` counts `session_stop` events of `params.run_id` only: an A/B writes both arms to one
+  run log, and the referee passes the scored run's id.
 
 **Console**
 - Routes: `GET /` (runs), `GET /run/{id}` (five screens), `GET /screens/{id}` (SSE of rendered screens),
