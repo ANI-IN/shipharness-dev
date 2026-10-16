@@ -10,6 +10,10 @@ from pydantic import BaseModel, ConfigDict
 from shipharness.events import Arm
 from shipharness.harness.decisions import LayerName
 
+# Bumped whenever a measurement change could change a score (VERIFICATION.md logs each change).
+# The console's A/B report shows only records of the current version.
+REFEREE_VERSION = "2026-10-17"
+
 
 class ScoreRecord(BaseModel):
     """One per arm per run; also the LangSmith evaluator output."""
@@ -61,6 +65,7 @@ class ScoreRecord(BaseModel):
     sandboxed: bool
     recorded: bool
     captured_at: str
+    referee_version: str = REFEREE_VERSION
 
 
 # Primary measure grammar (dataset `outputs.primary_measure`):

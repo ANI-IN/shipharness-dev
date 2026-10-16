@@ -9,6 +9,9 @@ CONSOLE_PORT ?= 8765
 # demo-N and final: LAYERS=-<layer> removes one layer from the section's stack (DESIGN §6.6).
 LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
+# demo-N: SESSION_BUDGET=12,38 overrides the task's session turn budget (pre-registered levers).
+SESSION_BUDGET ?=
+SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
 # final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
 FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
@@ -84,16 +87,16 @@ test-docker:
 
 # Section demos: section N's canonical task is feature FN, canonical variant (DESIGN §10.1).
 demo-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
 
 demo-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
 
 demo-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
 
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
 # picks another one.
@@ -117,7 +120,7 @@ final:
 
 replay:
 	@if [ -z "$(RUN)" ]; then echo "! replay needs RUN=<ab or run id>"; exit 2; fi
-	$(UV) run shipharness replay $(RUN)
+	$(UV) run shipharness replay $(RUN) --purpose $(PURPOSE)
 
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2

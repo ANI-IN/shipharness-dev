@@ -122,9 +122,16 @@ def checkpoint_tags(repo: Path) -> dict[str, str]:
 
 
 def checkpoint_trees(repo: Path) -> dict[str, str]:
-    """Checkpoint tag name -> tree id (the checkpoint's content; compared, rule 2)."""
+    """Checkpoint tag name -> the id of its `teamtrack/` tree (what arms and the referee use; the
+    build repository's checkpoint commits also hold private files, the public rebuild does not),
+    or of the whole tree when the tag has no `teamtrack/` (compared, rule 2)."""
     names = _git(repo, "tag", "--list", f"{CHECKPOINT_TAG_PREFIX}*").stdout.split()
-    return {name: _git(repo, "rev-parse", f"{name}^{{tree}}").stdout.strip() for name in names}
+    trees: dict[str, str] = {}
+    for name in names:
+        sub = _git(repo, "rev-parse", "-q", "--verify", f"{name}:teamtrack")
+        whole = _git(repo, "rev-parse", f"{name}^{{tree}}")
+        trees[name] = (sub.stdout if sub.returncode == 0 else whole.stdout).strip()
+    return trees
 
 
 def content_hashes(repo: Path, paths: list[str] | tuple[str, ...]) -> dict[str, str]:

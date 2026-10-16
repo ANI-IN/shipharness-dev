@@ -343,9 +343,10 @@ def register(app: typer.Typer) -> None:
     def replay_cmd(
         run: str = typer.Argument(..., help="A/B id or run id."),
         reviewer: bool = typer.Option(False, "--reviewer/--no-reviewer"),
+        purpose: str = typer.Option("class", help=PURPOSE_HELP),
     ) -> None:
         """Replay a recorded A/B (RECORDING) and re-run the referee live."""
-        _recorded(replay=run, swap=None, reviewer=reviewer)
+        _recorded(replay=run, swap=None, reviewer=reviewer, purpose=purpose)
 
     @app.command("report")
     def report_cmd(

@@ -13,6 +13,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from shipharness.ab.score import REFEREE_VERSION
+
 ARM_ORDER = {"bare": 0, "harness": 1}
 _REQUIRED = ("run_id", "arm", "variant", "passed_primary")
 
@@ -34,6 +36,7 @@ class Dot:
 
 @dataclass
 class DotGroup:
+    feature: str
     variant: str
     arm: str
     layers: str
@@ -97,6 +100,7 @@ class Report:
     reviewer: list[AgreementRow] = field(default_factory=list)
     experiments: list[Experiment] = field(default_factory=list)
     skipped: int = 0
+    older: int = 0  # records of an earlier referee version, left out
     unsandboxed: int = 0
     recorded: int = 0
 
@@ -151,8 +155,8 @@ def load_report(exports_dir: Path) -> Report:
     experiments, skipped_exp = _read_json_dir(exports_dir / "experiments")
     report = Report(skipped=skipped + skipped_exp)
 
-    groups: dict[tuple[str, str], DotGroup] = {}
-    ablation: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])  # passed, total, n_layers
+    groups: dict[tuple[str, str, str], DotGroup] = {}
+    by_run: dict[str, bool] = {}  # run_id -> passed, current-version records only
     spent: dict[str, float] = defaultdict(float)
     verified: dict[str, int] = defaultdict(int)
     agree: dict[str, list[int]] = defaultdict(lambda: [0, 0])
@@ -160,10 +164,16 @@ def load_report(exports_dir: Path) -> Report:
         if any(key not in record for key in _REQUIRED):
             report.skipped += 1
             continue
+        if record.get("referee_version") != REFEREE_VERSION:
+            report.older += 1  # scored before the current measurement rules
+            continue
         arm, variant = str(record["arm"]), str(record["variant"])
+        feature = str(record.get("feature_id") or "?")
         passed = bool(record["passed_primary"])
+        by_run[str(record["run_id"])] = passed
         layers = _layers_label(record.get("layers"))
-        group = groups.setdefault((variant, arm), DotGroup(variant, arm, layers))
+        key = (feature, variant, arm)
+        group = groups.setdefault(key, DotGroup(feature, variant, arm, layers))
         group.dots.append(
             Dot(
                 str(record["run_id"]),
@@ -172,10 +182,6 @@ def load_report(exports_dir: Path) -> Report:
                 bool(record.get("sandboxed", True)),
             )
         )
-        bar = ablation[layers]
-        bar[0] += passed
-        bar[1] += 1
-        bar[2] = len(record.get("layers") or [])
         with contextlib.suppress(TypeError, ValueError):
             spent[arm] += float(record.get("cost_usd") or 0) + float(
                 record.get("review_cost_usd") or 0
@@ -190,10 +196,24 @@ def load_report(exports_dir: Path) -> Report:
     def arm_key(arm: str) -> tuple[int, str]:
         return (ARM_ORDER.get(arm, 9), arm)
 
-    report.groups = [groups[k] for k in sorted(groups, key=lambda k: (k[0], *arm_key(k[1])))]
+    report.groups = [groups[k] for k in sorted(groups, key=lambda k: (k[0], k[1], *arm_key(k[2])))]
+    # Ablation bars come only from experiments run as an ablation batch (metadata.batch
+    # "ablation..."), one bar per layer configuration, counted over that experiment's runs.
+    ablation: dict[str, list[int]] = defaultdict(lambda: [0, 0, 0])  # passed, total, n_layers
+    for item in experiments:
+        meta = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+        if not str(meta.get("batch", "")).startswith("ablation"):
+            continue
+        bar = ablation[_layers_label(meta.get("layers"))]
+        bar[2] = len(meta.get("layers") or [])
+        for run_id in item.get("rows") or []:
+            if str(run_id) in by_run:
+                bar[0] += by_run[str(run_id)]
+                bar[1] += 1
     report.ablation = [
         Bar(label, v[0], v[1])
         for label, v in sorted(ablation.items(), key=lambda kv: (kv[1][2], kv[0]))
+        if v[1]
     ]
     report.costs = [CostRow(arm, spent[arm], verified[arm]) for arm in sorted(spent, key=arm_key)]
     report.reviewer = [AgreementRow(arm, *agree[arm]) for arm in sorted(agree, key=arm_key)]
