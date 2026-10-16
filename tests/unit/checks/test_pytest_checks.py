@@ -133,3 +133,72 @@ def test_regression_matches_parametrized_ids_by_their_base_name(tmp_path: Path) 
     )
     result = run("regression", tmp_path, regression_expected=["tests/visible/test_a.py::test_p"])
     assert result.passed is True
+
+
+CHECKPOINT_TESTS = """\
+import pytest
+
+
+def test_one():
+    assert True
+
+
+@pytest.mark.parametrize("x", [1, 2])
+def test_p(x):
+    assert x
+
+
+class TestK:
+    def test_m(self):
+        assert True
+"""
+CHECKPOINT_IDS = [
+    "tests/visible/test_a.py::test_one",
+    "tests/visible/test_a.py::test_p",
+    "tests/visible/test_a.py::TestK::test_m",
+    "tests/visible/test_b.py::test_b",
+]
+
+
+def _checkpoint(root: Path) -> Path:
+    visible = root / "tests" / "visible"
+    visible.mkdir(parents=True)
+    (visible / "test_a.py").write_text(CHECKPOINT_TESTS, encoding="utf-8")
+    (visible / "test_b.py").write_text("def test_b():\n    assert True\n", encoding="utf-8")
+    return root
+
+
+def _regression_on_ids(build: Path) -> CheckResult:
+    return run(
+        "regression", build, regression_targets=CHECKPOINT_IDS, regression_expected=CHECKPOINT_IDS
+    )
+
+
+def test_regression_on_checkpoint_ids_ignores_tests_the_arm_added(tmp_path: Path) -> None:
+    checkpoint = _regression_on_ids(_checkpoint(tmp_path / "checkpoint"))
+    assert checkpoint.passed is True and checkpoint.total_probes == 5  # test_p runs both params
+    build = _checkpoint(tmp_path / "arm")
+    with (build / "tests" / "visible" / "test_a.py").open("a", encoding="utf-8") as fh:
+        fh.write("\n\ndef test_added_by_the_arm():\n    assert False\n")
+    (build / "tests" / "visible" / "test_new.py").write_text(
+        "def test_new():\n    assert False\n", encoding="utf-8"
+    )
+    result = _regression_on_ids(build)
+    assert result.passed is True, result.findings
+    assert result.total_probes == checkpoint.total_probes
+
+
+def test_regression_on_checkpoint_ids_reports_removed_tests_and_runs_the_rest(
+    tmp_path: Path,
+) -> None:
+    build = _checkpoint(tmp_path)
+    edited = CHECKPOINT_TESTS.replace("def test_one():", "def test_renamed():")
+    (build / "tests" / "visible" / "test_a.py").write_text(edited, encoding="utf-8")
+    (build / "tests" / "visible" / "test_b.py").unlink()
+    result = _regression_on_ids(build)
+    assert failed_ids(result) == {
+        "test:tests/visible/test_a.py::test_one",
+        "test:tests/visible/test_b.py::test_b",
+    }
+    assert all("removed or renamed" in f.detail for f in result.findings)
+    assert result.total_probes == 5  # three still run, two missing
