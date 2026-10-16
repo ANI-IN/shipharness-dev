@@ -249,6 +249,22 @@ Owner instructions: `instructor/engineering-notes/overnight-2026-10-17.md` (verb
   removed when the live run is captured. Grader and solution tests: A1 109, A2 16, A3 48, A4 56 + 27, all
   passing.
 
+### Live console check (2026-10-17)
+
+`make console`, then `make demo-1 PURPOSE=pilot` with board previews on, in another terminal: A/B
+`ab-20261016-210339-909651` (F1 canonical), 9 min 10 s wall, $0.027821 (ledger), traced to
+`shipharness-pilot`; both arms passed the primary measure (bare `r1_new_violations` 0, hidden 52/52,
+mutants 2/4; harness 0, 52/52, 3/4). The run page was fetched every 15 s (36 polls) and each screen
+hashed: screen 1 (Live) changed in 17 polls, screen 3 (Evidence) in 21, screen 5 (Traces) in 21, screen 4
+(A/B) in 2 (the verdicts); screen 2 (Boards) did not change during the run: the preview takes a frame
+every 5 s and keeps only frames that differ, and F1 changes no board pixels (one frame per arm,
+`board-0001.png`). After the run, screen 1 showed the full timeline and all decisions in scrollable
+lists, screen 5 had 8 LangSmith links, no RECORDING badge (live run). Two findings: (1) a live update of
+screen 2 is still to be seen on a task that changes the board (F2, comments panel); (2) screen 4 pools
+every score record into one row per arm (all features, and pilot run 1's pre-fix measurements: 17/26
+against 14/26), and its ablation rows use the section layer stacks as labels; the report must group by
+feature and leave out records made before the measurement fixes. Both are console work (not frozen).
+
 ### Other changes since run 2 (owner decisions, not pilot-driven)
 
 | Change | Commit |
