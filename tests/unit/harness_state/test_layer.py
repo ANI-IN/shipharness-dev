@@ -349,3 +349,48 @@ def test_getting_up_to_speed_reuses_the_handoff_test_status(tmp_path: Path) -> N
     assert "Run the visible tests with run_visible_tests. If something" not in block
     assert '"Visible tests" line' in block and "session-handoff.md" in block
     assert "first session" in block
+
+
+# --- turn cost (harness change, harness arm only; owner-approved after pilot run 2) -------------
+# In run 2 the harness arm re-read every instruction document and the product code in every
+# session and kept progress.md and the exec plan up to date mid-session; in F2 it wrote no product
+# code in 50 build turns, and in F4 almost no tests in the 12-turn test phase.
+
+
+def test_getting_up_to_speed_reads_the_agent_notes_before_any_document(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    block = "\n".join(layer.context_prefix(ctx))
+    assert '"Notes from the agent"' in block
+    assert "only for a detail the notes do not cover" in block
+    assert block.index("session-handoff.md") < block.index("Notes from the agent")
+
+
+def test_bookkeeping_waits_for_the_wrap_up(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    block = "\n".join(layer.context_prefix(ctx))
+    assert "only when the harness asks you to wrap up" in block
+    assert "End each session with a git commit and a progress update" not in block
+
+
+def test_wrapup_asks_for_the_rules_that_matter_for_this_ticket(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    wrapup = layer.on_wrapup(ctx) or ""
+    assert "house rules and file locations" in wrapup
+    assert "does not need to read them again" in wrapup
+
+
+def test_machine_summary_lists_the_documents_read_so_far(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    ctx.state["instructions.files_read"] = ["AGENTS.md", "docs/SECURITY.md"]
+    stop_session(ctx, layer)
+    body = text(ctx, "session-handoff.md")
+    assert "- Harness documents read so far: AGENTS.md, docs/SECURITY.md" in body
+
+
+def test_test_phase_resume_puts_the_feature_tests_first(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    stop_session(ctx, layer, 1)
+    ctx.session_index, ctx.phase = 2, "build"
+    assert "tests for the feature first" not in "\n".join(layer.on_session_start(ctx))
+    ctx.phase = "test"
+    assert "tests for the feature first" in "\n".join(layer.on_session_start(ctx))
