@@ -4,12 +4,14 @@ from pathlib import Path
 
 import pytest
 from pydantic import ValidationError
+from structlog.testing import capture_logs
 
 from shipharness.events import (
     EVENT_DATA_MODELS,
     Event,
     EventBus,
     RunLogLocked,
+    SkippedLine,
     read_events,
     replay,
 )
@@ -127,3 +129,65 @@ def test_replay_marks_events_recorded_and_keeps_content(tmp_path: Path) -> None:
     assert [e.type for e in replayed] == [e.type for e in original]
     assert [e.data for e in replayed] == [e.data for e in original]
     assert all(e.recorded for e in replayed)
+
+
+SECRET = "AGENT-TEXT-DO-NOT-LOG"
+
+
+def log_with_bad_lines(tmp_path: Path) -> Path:
+    """Events 1..3 with an invalid-JSON line and an invalid-event line between them, and a
+    partial (unterminated) last line still being written."""
+    source = tmp_path / "source.jsonl"
+    with EventBus(source, ab_id=None) as bus:
+        for n in range(3):
+            bus.publish("tool_call", tool_call_data(n), run_id="r-1", arm="bare")
+    one, two, three = source.read_bytes().splitlines(keepends=True)
+    log = tmp_path / "run-x" / "events.jsonl"
+    log.parent.mkdir()
+    bad_json = f'{{"note": "{SECRET}"\n'.encode()
+    bad_event = f'{{"v": 1, "seq": 9, "type": "{SECRET}"}}\n'.encode()
+    log.write_bytes(one + bad_json + two + bad_event + three + three[:15])
+    return log
+
+
+def test_read_events_skips_malformed_lines_and_reports_them(tmp_path: Path) -> None:
+    log = log_with_bad_lines(tmp_path)
+    skipped: list[SkippedLine] = []
+    with capture_logs() as logs:
+        assert [e.seq for e in read_events(log, skipped=skipped)] == [1, 2, 3]
+    assert [(s.line, s.reason) for s in skipped] == [(2, "invalid JSON"), (4, "invalid event")]
+    warnings = [r for r in logs if r["log_level"] == "warning"]
+    assert [(w["run_id"], w["line"]) for w in warnings] == [("run-x", 2), ("run-x", 4)]
+    assert all(SECRET not in repr(record) for record in logs)
+
+
+def test_read_events_rejects_event_data_that_does_not_fit_its_type(tmp_path: Path) -> None:
+    log = tmp_path / "events.jsonl"
+    log.write_text(
+        '{"v": 1, "ab_id": null, "run_id": null, "arm": null, "seq": 1, "ts": "t", '
+        '"type": "turn", "data": {"turn": "x"}, "recorded": false}\n',
+        encoding="utf-8",
+    )
+    skipped: list[SkippedLine] = []
+    assert list(read_events(log, skipped=skipped)) == []
+    assert [s.reason for s in skipped] == ["invalid event data"]
+
+
+def test_bus_opens_a_log_with_a_malformed_line(tmp_path: Path) -> None:
+    log = log_with_bad_lines(tmp_path)
+    log.write_bytes(log.read_bytes().rsplit(b"\n", 1)[0] + b"\n")  # drop the partial line
+    with EventBus(log, ab_id=None) as bus:
+        again = bus.publish("tool_call", tool_call_data(4), run_id="r-1", arm="bare")
+    assert again.seq == 4
+
+
+def test_replay_counts_skipped_lines(tmp_path: Path) -> None:
+    source = log_with_bad_lines(tmp_path)
+    target = tmp_path / "replay.jsonl"
+    skipped: list[SkippedLine] = []
+    with capture_logs() as logs, EventBus(target, ab_id=None) as bus:
+        assert replay(source, bus, skipped=skipped) == 3
+    assert len(skipped) == 2
+    [summary] = [r for r in logs if r["event"] == "replay skipped malformed run-log lines"]
+    assert summary["skipped"] == 2
+    assert [e.seq for e in read_events(target)] == [1, 2, 3]

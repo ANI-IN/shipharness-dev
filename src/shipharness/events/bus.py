@@ -2,12 +2,11 @@
 
 from __future__ import annotations
 
-import json
 import os
 import sys
 import threading
 import time
-from collections.abc import Callable, Iterator
+from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -15,7 +14,10 @@ from typing import Any
 from pydantic import BaseModel
 
 from shipharness.events.models import EVENT_DATA_MODELS, Arm, Event, EventType
+from shipharness.events.reader import follow_events, read_events
 from shipharness.log_setup import redact
+
+__all__ = ["EventBus", "RunLogLocked", "follow_events", "pid_alive", "read_events"]
 
 
 class RunLogLocked(RuntimeError):
@@ -179,36 +181,3 @@ class EventBus:
         return event
 
     # [walkthrough:Opening:publish] end
-
-
-def read_events(log_path: Path, after_seq: int = 0) -> Iterator[Event]:
-    """Yield complete events from a run log with seq > after_seq."""
-    path = Path(log_path)
-    if not path.exists():
-        return
-    with path.open(encoding="utf-8") as handle:
-        for line in handle:
-            if not line.endswith("\n"):
-                break  # partial line still being written
-            if not line.strip():
-                continue
-            event = Event.model_validate(json.loads(line))
-            if event.seq > after_seq:
-                yield event
-
-
-def follow_events(
-    log_path: Path,
-    after_seq: int = 0,
-    poll_s: float = 0.2,
-    stop: Callable[[], bool] | None = None,
-) -> Iterator[Event]:
-    """Tail a run log, yielding each new event once, until `stop()` returns True."""
-    last = after_seq
-    while True:
-        for event in read_events(log_path, after_seq=last):
-            last = event.seq
-            yield event
-        if stop is not None and stop():
-            return
-        time.sleep(poll_s)
