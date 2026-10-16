@@ -3,6 +3,7 @@ Every command prints a cost line at exit."""
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 from typing import Any
@@ -229,6 +230,10 @@ def register(app: typer.Typer) -> None:
             True, "--preview/--no-preview", help="Board preview containers (off for batch runs)."
         ),
         purpose: str = typer.Option("class", help=PURPOSE_HELP),
+        session_budget: str | None = typer.Option(
+            None,
+            help="Override the task's session turn budget, e.g. 12,38 (pre-registered levers).",
+        ),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
         from shipharness.ab.demo import run_ab, section_layers
@@ -240,6 +245,17 @@ def register(app: typer.Typer) -> None:
             return
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
+        if session_budget:
+            try:
+                turns = [int(part) for part in session_budget.split(",")]
+            except ValueError:
+                turns = []
+            if not turns or min(turns) < 1:
+                typer.echo(
+                    f"x --session-budget takes positive integers, e.g. 12,38: {session_budget!r}"
+                )
+                raise typer.Exit(2)
+            task = dataclasses.replace(task, session_budget=turns)
         if section:
             modifier = layers if layers and layers.startswith("-") else None
             names = section_layers(section, modifier)

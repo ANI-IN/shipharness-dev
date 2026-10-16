@@ -344,3 +344,25 @@ def test_the_runtime_builds_the_live_openai_client(tmp_path: Path) -> None:
     )
     runtime = build_runtime(settings, project="shipharness-pilot", session_id="pilot")
     assert isinstance(runtime.client_factory("bare"), OpenAIModelClient)  # no network on build
+
+
+def test_session_budget_override_reaches_both_arms_and_the_record(env) -> None:  # type: ignore[no-untyped-def]
+    # Pre-registered F2 lever (owner, 2026-10-17): first session 12 turns, total unchanged.
+    result = CliRunner().invoke(
+        make_app(),
+        ["ab", "--feature", "F1", "--session-budget", "2,3", "--no-preview",
+         "--dataset", str(env.dataset)],
+    )  # fmt: skip
+    assert result.exit_code in (0, 1), result.output
+    ab_id = next(line.split()[1] for line in result.output.splitlines() if line.startswith("A/B "))
+    record = json.loads((Path(env.settings.runs_dir) / ab_id / "ab.json").read_text())
+    assert record["task"]["session_budget"] == [2, 3]
+    assert {a["spec"]["session_budget"] == [2, 3] for a in record["arms"].values()} == {True}
+
+
+def test_session_budget_override_rejects_bad_values(env) -> None:  # type: ignore[no-untyped-def]
+    result = CliRunner().invoke(
+        make_app(),
+        ["ab", "--feature", "F1", "--session-budget", "12,x", "--dataset", str(env.dataset)],
+    )
+    assert result.exit_code == 2

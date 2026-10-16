@@ -1065,6 +1065,9 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   line when `SHIPHARNESS_CLASS_DATE` is empty; the setting no longer defaults to today. `build_runtime(...,
   session_id=)`. Experiments use `shipharness-experiments` and session `experiments`. `pilot.py` passes
   `--purpose pilot`; the Makefile's `PURPOSE ?= class` reaches demo-N, swap-N, and final.
+- `shipharness ab --session-budget 12,38` overrides the task's session turn budget for both arms
+  (pre-registered levers; recorded in `ab.json`); `pilot.py --budgets F2=12/38`. Live A/B runs refuse
+  a missing or rejected `OPENAI_API_KEY` and any stand-in model client before an arm starts (exit 2).
 - The referee baseline runs while the arms work and is cached per task under
   `<RUNS_DIR>/../cache/referee-baseline`, keyed by checkpoint SHA, seed, hidden test ids, allowed
   paths, exemptions, checks, and a hash of the referee code (`RefereeDeps.baseline_cache_dir`).
