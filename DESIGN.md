@@ -670,7 +670,7 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Use | Runs | Traces | Budget |
 |---|---|---|---|
-| M6 pilot (medium effort × 4 features × 2 arms × k=3 per round; levers and other efforts only for sections without a gap; hard $10 total) | 24 per round (≤ 96 arm runs, owner 2026-10-17) | 48 (≤ 144) | — |
+| M6 pilot (medium effort × 4 features × 2 arms × k=3 per round; levers and other efforts only for sections without a gap; hard $10 total) | 24 per round (≤ 96 arm runs, owner 2026-10-17) | 48 per round (≤ 192) | — |
 | Experiment batches 1 and 2 (reduced plan) | 112 | 224 | — |
 | **Instructor experiments total** | | **≤ 368** | ≤ 1,500 |
 | Class run (demos + final + ad hoc) | ~12 | ~40 | — |
@@ -707,15 +707,18 @@ run the referee live.
 | Block | Min | Content |
 |---|---|---|
 | Opening | 10 | Problem with a real failure on the board (3) → why it happens (2) → the harness, four parts + sandbox (2) → shipharness, TeamTrack, console tour, `harness-setup` assessment (3) |
-| S1 Instructions | 50 | Concepts 15 · walkthrough 10 · live A/B 15 · results 10 |
+| S1 Instructions | 50 | Poll 3 · launch `make demo-1` 2 · concepts 15 · walkthrough 10 (the A/B runs meanwhile; Terminal B checked at minute 25) · demo block 15 · discussion 5 |
 | S2 State and session lifecycle | 50 | Same |
 | Break | 10 | |
 | S3 Scope and sandbox | 50 | Same |
 | S4 Verification | 50 | Same |
 | Final + wrap-up | 20 | Poll → `make final FEATURES=…` → all screens → report + LangSmith comparison → skills to take home → assignments |
 
-Live A/B within each section: glance at an easy control task, poll, `make demo-N`, screens 1→2→3. Results:
-screen 4, swap test or layer switch, discussion. S3 sandbox moment: tonight's `sandbox_denied` events, or
+Each section opens with its poll and launches `make demo-N` right away; concepts and the code
+walkthrough (25 minutes) run while the A/B proceeds, and the 15-minute demo block walks through the
+console screens and results (owner decision, 2026-10-17; pilot run 2: every A/B finished within 15.4
+minutes, VERIFICATION.md, M6). If the A/B is not finished at minute 25, the replay fallback in
+`instructor/run-sheet.md` applies. Results: screen 4, swap test or layer switch, discussion. S3 sandbox moment: tonight's `sandbox_denied` events, or
 the policy printout and the experiment denial log if none occurred.
 
 ### 14.2 Walkthrough anchors (`# [walkthrough:S<N>:<name>]` start/end, 30-40 lines each)
