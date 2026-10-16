@@ -83,7 +83,8 @@ def test_all_visible_text_is_at_least_20px(page: Any, console: tuple[str, Path])
                 const el = node.parentElement;
                 if (!el || el.offsetParent === null) continue;
                 const size = parseFloat(getComputedStyle(el).fontSize);
-                if (size < 20) out.push(el.tagName + ':' + size + ':' + node.textContent.trim().slice(0, 30));
+                const text = node.textContent.trim().slice(0, 30);
+                if (size < 20) out.push(el.tagName + ':' + size + ':' + text);
               }
               return out;
             }"""
@@ -159,6 +160,7 @@ def test_board_screenshot_images_load(page: Any, console: tuple[str, Path]) -> N
     page.goto(console[0])
     page.keyboard.press("2")
     loaded = page.evaluate(
-        "[...document.querySelectorAll('#screen-2 img.shot')].map(i => i.complete && i.naturalWidth > 0)"
+        "[...document.querySelectorAll('#screen-2 img.shot')]"
+        ".map(i => i.complete && i.naturalWidth > 0)"
     )
     assert loaded and all(loaded)
