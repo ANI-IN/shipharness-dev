@@ -711,8 +711,8 @@ run the referee live.
 | S2 State and session lifecycle | 50 | Same |
 | Break | 10 | |
 | S3 Scope and sandbox | 50 | Same |
-| S4 Verification | 50 | Same |
-| Final + wrap-up | 20 | Poll → `make final FEATURES=…` → all screens → report + LangSmith comparison → skills to take home → assignments |
+| S4 Verification | 50 | S4 poll 3 · final feature poll 1 · launch `make demo-4` and, right after it, `make final FEATURES=…` in a second terminal 2 (`make final` runs its features one after another, so at most two A/Bs run at a time, as in pilot run 2) · concepts 14 · walkthrough 10 · demo block 15 · discussion 5 |
+| Final + wrap-up | 20 | Results walkthrough of the final A/B launched in S4, no new run: all screens → screen 4, report + LangSmith comparison → assignments → skills to take home → references |
 
 Each section opens with its poll and launches `make demo-N` right away; concepts and the code
 walkthrough (25 minutes) run while the A/B proceeds, and the 15-minute demo block walks through the

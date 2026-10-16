@@ -7,7 +7,9 @@ the 240-minute schedule and the block lengths in DESIGN §14.1 and match
 [../instructor/run-sheet.md](../instructor/run-sheet.md). Within each section S1 to S4 the slides follow
 the approved class order, which differs from DESIGN §14.1: the poll opens the section, the next slide
 is the cue to launch the live A/B (`make demo-N`), the concept and code slides run while the A/B
-proceeds in the background, and the demo-block slides walk through the finished A/B.
+proceeds in the background, and the demo-block slides walk through the finished A/B. S4 opens with
+two polls (the S4 poll, then the final feature poll), and its launch slide cues both `make demo-4`
+and `make final`; the final block's slides walk through the finished final A/B.
 
 Status: M11 draft.
 
@@ -30,8 +32,8 @@ Rules for M10 (brief §7, shared writing rules):
 | S2 State and session lifecycle | 22-34 (poll and launch 2, concepts and code 8, demo block and discussion 3) | 50 |
 | Break | 35 (1) | 10 |
 | S3 Scope and sandbox | 36-48 (poll and launch 2, concepts and code 8, two on the sandbox; demo block and discussion 3) | 50 |
-| S4 Verification | 49-62 (poll and launch 2, concepts and code 9, demo block and discussion 3) | 50 |
-| Final run-through | 63-67 (5) | 13 |
+| S4 Verification | 49-63 (S4 poll, final feature poll, and launch 3; concepts and code 9; demo block and discussion 3) | 50 |
+| Final results | 64-67 (4) | 13 |
 | Wrap-up | 68-72 (5) | 7 |
 | **Total** | **72** | **240** |
 
@@ -68,8 +70,8 @@ flowchart LR
 | 24 | L2 |
 | 38 | L3 |
 | 42 | SB1, SB2 |
-| 51 | L4 |
-| 64 | L1 to L4 (the final runs all four layers) |
+| 52 | L4 |
+| 64 | L1 to L4 (the final ran all four layers) |
 
 ---
 
@@ -146,34 +148,37 @@ flowchart LR
 | 47 | Demo block: results and the sandbox moment | Tonight's `sandbox_denied` events (filled in live), or the policy printout and the experiment denial log (result slot); the A/B verdicts; tonight's dots (filled in live) next to the experiment dots (result slot); swap test verdict (filled in live) | DESIGN §14.1; VERIFICATION.md after M8; `make swap-3` | 7 |
 | 48 | Runbook and next | Link `submodules/03-scope-sandbox/demo/README.md`; discussion question; transition: who decides that the work is done | DESIGN §14.1 | 5 |
 
-## S4 Verification (slides 49-62, 50 minutes)
+## S4 Verification (slides 49-63, 50 minutes)
 
 | # | Title | Content | Source | Min |
 |---|---|---|---|---|
-| 49 | Poll | Feature F4 (optimistic concurrency) and the two counts at stake (hidden tests, mutants) in one line; the S4 question and options (room result filled in live); close the poll before the launch | `instructor/poll-questions.md` (S4) | 3 |
-| 50 | Launching the live A/B: F4 optimistic concurrency | Cue: run `make demo-4` in terminal B now; it runs in the background during slides 51-59 and the room sees it again on slide 60. ETag, If-Match, issue history; co-primary counts: hidden tests passed of 69, referee mutants killed of 4; harness arm layers: all four; blinded reviewer on both diffs; control glance: C4 (result slot) | DESIGN §8.2; `teamtrack/reference/f4/task.toml`; `teamtrack/mutants/features/f4.jsonl`; VERIFICATION.md M5 counts; run sheet S4 | 2 |
-| 51 | S4: what proves the work is done | Diagram with S4 highlighted; objectives; the problem the A/B is testing right now: the agent's tests pass while behaviour is wrong | DESIGN §2 (S4 row), §1 Problem | 1.5 |
-| 52 | Cause: self-grading and visible tests | "agents reliably skew positive when grading their own work" (A3, F-a-15); B13 F-b-45 and the compositional finding F-b-50; "it is easy to see tests pass and assume the job is done, when this is rarely the case." (A4, F-a-17) | RESEARCH §2, §3.4 | 2.5 |
-| 53 | Harness piece: test filters | Filters 1-3 from TestGen-LLM (B11, F-b-16 to F-b-22), with its evaluation funnel over 86 test classes (F-b-23; RESEARCH §4.6); filters 4 and 5 are course filters (G-7) | DESIGN §7; RESEARCH §3.4, §4.6 | 3 |
-| 54 | Mutants and hidden tests | ACH: mutants for the fault of concern, hardening (B12, F-b-29, F-b-32); 49% of tests that uniquely kill a mutant add no line coverage (F-b-40); filter-set and referee-set mutants never overlap (DESIGN D-4); hidden tests that compose features (B13, B14; F-b-42 to F-b-44); 441 hidden tests across F1-F7 and controls, 69 for F4 | DESIGN §7, §8; RESEARCH §4.6; VERIFICATION.md M5 counts | 3 |
-| 55 | A separate evaluator and a gate | Blinded reviewer with grading criteria (A3, F-a-110 to F-a-112; G-10); clean-state gate (A2, F-a-84; A4, F-a-127); house rules R1-R7 (G-9) | DESIGN §6.5; RESEARCH §3.4 | 3 |
-| 56 | Read the trace | First wrong turn (A3, F-a-126); leave one layer out to see what each part does (A3, F-a-125) | RESEARCH §3.4; DESIGN §6.6 | 2 |
-| 57 | Code: the filter pipeline | `S4:filters`: the inner `for flt in filters` loop with the exception branch folded (at most 12 lines) | anchor `S4:filters` | 2.5 |
-| 58 | Code: a tenant probe and blinding | `S4:probe` `judge` up to the second `failed = ...` (12 lines); `S4:blind` in the editor; speaker note: section minute 25 falls on this slide, check terminal B for the `Cost:` line | anchors `S4:probe`, `S4:blind`; run sheet "Check at section minute 25" | 4 |
-| 59 | Code: the gate | `S4:gate`: `names = ...`, the build-phase branch, the clean-state check, and `passed = ...` (at most 12 lines) | anchor `S4:gate` | 3.5 |
-| 60 | Demo block: what the console shows | The finished A/B. Screen 1: the harness arm's last gate pills ✓ or ✗ and gate feedback; screen 2: two-tab edit conflict; screen 3: filter table with discard reasons, mutant table, referee counters, reviewer verdict | DESIGN §13; run sheet S4 | 8 |
-| 61 | Demo block: results | The A/B and reviewer verdicts; tonight's two counts per arm (filled in live) next to the experiment dots (result slot); reviewer agreement with the referee (result slot); swap test verdict (filled in live) | VERIFICATION.md after M8; `make swap-4` | 7 |
-| 62 | Runbook and next | Link `submodules/04-verification/demo/README.md`; discussion question; transition to the final | DESIGN §14.1 | 5 |
+| 49 | Poll | Feature F4 (optimistic concurrency) and the two counts at stake (hidden tests, mutants) in one line; the S4 question and options (room result filled in live); the final feature poll follows on slide 50 | `instructor/poll-questions.md` (S4) | 3 |
+| 50 | Poll: the final feature | F5 bulk close, F6 watchers, F7 labels, with what each stresses (room result filled in live); the winner runs, and the runner-up after it if the session figure allows (run sheet S4); close the poll before the launch | `instructor/poll-questions.md` (final) | 1 |
+| 51 | Launching two live A/Bs: F4 and the final | Cue: run `make demo-4` in terminal B now, then `make final FEATURES=<poll winner(s)>` in terminal C; demo-4 runs in the background during slides 52-60 and the room sees it again on slide 61; the final returns on slides 64-67. `make final` runs its features one after another, so at most two A/Bs run at a time. F4: ETag, If-Match, issue history; co-primary counts: hidden tests passed of 69, referee mutants killed of 4; harness arm layers: all four (both A/Bs); blinded reviewer on both diffs; final run cap $0.25 per arm; control glance: C4 (result slot) | DESIGN §6.6, §8.2, §11.1; Makefile `final`; `teamtrack/reference/f4/task.toml`; `teamtrack/mutants/features/f4.jsonl`; VERIFICATION.md M5 counts; run sheet S4 | 2 |
+| 52 | S4: what proves the work is done | Diagram with S4 highlighted; objectives; the problem the A/B is testing right now: the agent's tests pass while behaviour is wrong | DESIGN §2 (S4 row), §1 Problem | 1 |
+| 53 | Cause: self-grading and visible tests | "agents reliably skew positive when grading their own work" (A3, F-a-15); B13 F-b-45 and the compositional finding F-b-50; "it is easy to see tests pass and assume the job is done, when this is rarely the case." (A4, F-a-17) | RESEARCH §2, §3.4 | 2.5 |
+| 54 | Harness piece: test filters | Filters 1-3 from TestGen-LLM (B11, F-b-16 to F-b-22), with its evaluation funnel over 86 test classes (F-b-23; RESEARCH §4.6); filters 4 and 5 are course filters (G-7) | DESIGN §7; RESEARCH §3.4, §4.6 | 3 |
+| 55 | Mutants and hidden tests | ACH: mutants for the fault of concern, hardening (B12, F-b-29, F-b-32); 49% of tests that uniquely kill a mutant add no line coverage (F-b-40); filter-set and referee-set mutants never overlap (DESIGN D-4); hidden tests that compose features (B13, B14; F-b-42 to F-b-44); 441 hidden tests across F1-F7 and controls, 69 for F4 | DESIGN §7, §8; RESEARCH §4.6; VERIFICATION.md M5 counts | 3 |
+| 56 | A separate evaluator and a gate | Blinded reviewer with grading criteria (A3, F-a-110 to F-a-112; G-10); clean-state gate (A2, F-a-84; A4, F-a-127); house rules R1-R7 (G-9) | DESIGN §6.5; RESEARCH §3.4 | 3 |
+| 57 | Read the trace | First wrong turn (A3, F-a-126); leave one layer out to see what each part does (A3, F-a-125) | RESEARCH §3.4; DESIGN §6.6 | 1.5 |
+| 58 | Code: the filter pipeline | `S4:filters`: the inner `for flt in filters` loop with the exception branch folded (at most 12 lines) | anchor `S4:filters` | 2.5 |
+| 59 | Code: a tenant probe and blinding | `S4:probe` `judge` up to the second `failed = ...` (12 lines); `S4:blind` in the editor; speaker note: section minute 25 falls on this slide, check terminal B for the demo-4 `Cost:` line and terminal C for the final | anchors `S4:probe`, `S4:blind`; run sheet "Check at section minute 25" | 4 |
+| 60 | Code: the gate | `S4:gate`: `names = ...`, the build-phase branch, the clean-state check, and `passed = ...` (at most 12 lines) | anchor `S4:gate` | 3.5 |
+| 61 | Demo block: what the console shows | The finished demo-4 A/B. Screen 1: the harness arm's last gate pills ✓ or ✗ and gate feedback; screen 2: two-tab edit conflict; screen 3: filter table with discard reasons, mutant table, referee counters, reviewer verdict | DESIGN §13; run sheet S4 | 8 |
+| 62 | Demo block: results | The A/B and reviewer verdicts; tonight's two counts per arm (filled in live) next to the experiment dots (result slot); reviewer agreement with the referee (result slot); swap test verdict (filled in live) | VERIFICATION.md after M8; `make swap-4` | 7 |
+| 63 | Runbook and next | Link `submodules/04-verification/demo/README.md`; discussion question; transition to the final results | DESIGN §14.1 | 5 |
 
-## Final run-through (slides 63-67, 13 minutes)
+## Final results (slides 64-67, 13 minutes)
+
+The final A/B was launched on slide 51 and ran during S4; these slides walk through its finished
+results. No run starts here.
 
 | # | Title | Content | Source | Min |
 |---|---|---|---|---|
-| 63 | Poll: the final feature | F5 bulk close, F6 watchers, F7 labels, with what each stresses (room result filled in live) | `instructor/poll-questions.md` (final) | 1 |
-| 64 | Run | `make final FEATURES=<winner>`; all four layers; run cap $0.25 per arm; diagram with all layers highlighted | Makefile `final`; DESIGN §6.6, §11.1 | 4 |
-| 65 | Console | All five screens, both arms (filled in live) | DESIGN §13 (Final column) | 3 |
-| 66 | Boards | Both boards side by side (filled in live) | DESIGN §13 | 2 |
-| 67 | Report and LangSmith comparison | `make report` output; the LangSmith comparison view; code: `Final:dots`, the fill and stroke lines (8 lines); experiment results (result slot); tonight's final (filled in live) | anchor `Final:dots`; DESIGN §12 | 3 |
+| 64 | Final results: the A/B lines | The poll winner (and runner-up, if it ran); all four layers; run cap $0.25 per arm; terminal C's arm lines and session figure (filled in live); no pre-registered primary measure, so read hidden tests and mutants per arm; diagram with all layers highlighted | Makefile `final`; DESIGN §6.6, §8.2, §11.1; `final-project/README.md` §5.1 | 2 |
+| 65 | Final results: console | Screens 1, 3, and 5 of the finished final A/B, both arms (filled in live) | DESIGN §13 (Final column) | 4 |
+| 66 | Final results: boards | Both boards side by side (filled in live) | DESIGN §13 | 2 |
+| 67 | Final results: screen 4, report, and LangSmith comparison | Screen 4 with tonight's final next to the experiment results; `make report` output; the LangSmith comparison view; code: `Final:dots`, the fill and stroke lines (8 lines); experiment results (result slot); tonight's final (filled in live) | anchor `Final:dots`; DESIGN §12 | 5 |
 
 ## Wrap-up (slides 68-72, 7 minutes)
 
@@ -187,15 +192,16 @@ flowchart LR
 
 ---
 
-## Poll, launch, and demo-block slides per section (5 each)
+## Poll, launch, and demo-block slides per section (5 each, S4 6)
 
 | Position | Content | S1 | S2 | S3 | S4 |
 |---|---|---|---|---|---|
 | 1, opens the section | Poll question, with the feature and the rule at risk in one line | 8 | 22 | 36 | 49 |
-| 2, right after the poll | Launching the live A/B: feature, rule at risk, `make demo-N`, control glance | 9 | 23 | 37 | 50 |
-| 3, demo block | Screen order and what to watch on the finished A/B | 19 | 32 | 46 | 60 |
-| 4, demo block | Results: A/B verdicts, tonight vs experiment dots, swap test | 20 | 33 | 47 | 61 |
-| 5 | Link to `submodules/0N-…/demo/README.md`, discussion, transition | 21 | 34 | 48 | 62 |
+| 1b, S4 only | Final feature poll | | | | 50 |
+| 2, right after the poll | Launching the live A/B: feature, rule at risk, `make demo-N`, control glance (S4: also `make final`) | 9 | 23 | 37 | 51 |
+| 3, demo block | Screen order and what to watch on the finished A/B | 19 | 32 | 46 | 61 |
+| 4, demo block | Results: A/B verdicts, tonight vs experiment dots, swap test | 20 | 33 | 47 | 62 |
+| 5 | Link to `submodules/0N-…/demo/README.md`, discussion, transition | 21 | 34 | 48 | 63 |
 
 The concept and code slides sit between positions 2 and 3; the A/B runs in the background while
 they are shown.
@@ -211,7 +217,7 @@ Slide 2:
 
 [[PENDING: board screenshot of a recorded bare-arm F1 run with other-org marks, and its run id | source: M6 pilot | how: make demo-1 on the class host; PNG under .shipharness/runs/<ab id>/screenshots/bare/]]
 
-Slides 9, 23, 37, 50 (control glance):
+Slides 9, 23, 37, 51 (control glance):
 
 [[PENDING: C1, C2, C3, C4 control results per arm | source: M8 batch 4 | how: make experiments, full dataset; make report; VERIFICATION.md]]
 
@@ -231,7 +237,7 @@ Slide 47:
 
 [[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden tests and existing tests as secondary | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
-Slide 61:
+Slide 62:
 
 [[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
@@ -241,20 +247,21 @@ Slide 67:
 
 [[PENDING: experiment report and LangSmith comparison link | source: M8 batch 1 | how: make report; comparison_url in exports/experiments/]]
 
-Speaker notes for slides 9, 23, 37, 50 (launch) and 17, 30, 44, 58 (the check at section minute 25):
+Speaker notes for slides 9, 23, 37, 51 (launch) and 17, 30, 44, 59 (the check at section minute 25):
 the A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
 running in parallel on the class host, before the approved referee speed-ups) every A/B finished
 within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
-run 2). The class-host time per section, one A/B at a time:
+run 2). The class-host time per section, one A/B at a time in S1 to S3 and two in S4:
 
-[[PENDING: wall time of make demo-1 to demo-4 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-N on the class host (pilot run 3); VERIFICATION.md]]
+[[PENDING: wall time of make demo-1 to demo-3 on the class host, one A/B at a time, and of make demo-4 with make final running in parallel | source: M6 pilot | how: time make demo-N on the class host (pilot run 3), demo-4 with make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 
-Speaker note for slide 64 (time left for the final run):
+Speaker notes for slides 51 and 59 (the final A/B, launched on slide 51, must be finished by 3:40,
+when slide 64 opens the final block; with two features `make final` runs them one after another):
 
-[[PENDING: wall time of one make final feature on the class host | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host]]
+[[PENDING: wall time of one make final feature on the class host while S4 runs (make demo-4 in parallel) | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host, started one minute after make demo-4]]
 
 ## Filled in live
 
-Slides 7 (doctor and assessment output), 8, 22, 36, 49, 63 (room poll results), 20, 33, 47, 61
-(tonight's dots, swap test verdict, and for 47 tonight's sandbox denials), 35 (return time), 65, 66,
-67 (the final run). M10 marks each slot on the slide with the words "filled in live".
+Slides 7 (doctor and assessment output), 8, 22, 36, 49, 50 (room poll results), 20, 33, 47, 62
+(tonight's dots, swap test verdict, and for 47 tonight's sandbox denials), 35 (return time), 64,
+65, 66, 67 (the final run). M10 marks each slot on the slide with the words "filled in live".

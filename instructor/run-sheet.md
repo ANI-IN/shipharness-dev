@@ -63,9 +63,11 @@ every command run that day (DESIGN §11.1).
 |---|---|
 | Terminal A | `make console` (server log; leave it alone) |
 | Terminal B | The commands below, large font |
+| Terminal C | `make final` only: launched at the S4 launch (2:55), read in the final block (3:40) |
 | Browser tab 1 | Slides |
 | Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current A/B at `/run/<ab id>` |
 | Browser tab 3 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
+| Browser tab 4 | Console: the final A/B at `/run/<ab id>`, opened at the S4 launch and shown in the final block |
 
 ### Console keys (DESIGN §13; `src/shipharness/console/static/stream.js`)
 
@@ -80,7 +82,8 @@ every command run that day (DESIGN §11.1).
 
 Finding the current A/B: `make demo-N` prints the A/B id only when it finishes. While it runs, reload
 the runs list (`http://127.0.0.1:8765/`) and open the newest `ab-...` entry (ids start with a time
-stamp). The runs list does not refresh by itself.
+stamp). The runs list does not refresh by itself. In S4 two A/Bs start a minute apart: open each
+one right after its own launch ([S4](#s4-verification-250-340)).
 
 ---
 
@@ -89,7 +92,10 @@ stamp). The runs list does not refresh by itself.
 Times are elapsed from the start of class. Slide numbers refer to
 [../slides/outline.md](../slides/outline.md). Each section S1 to S4 opens with its poll, launches
 `make demo-N` right after it, teaches the concepts and the walkthrough while the A/B runs, and ends
-with the demo block on the finished A/B ([Section pattern](#section-pattern-s1-to-s4)).
+with the demo block on the finished A/B ([Section pattern](#section-pattern-s1-to-s4)). S4 opens
+with two polls, the S4 poll and the final feature poll, and launches `make final` in terminal C
+right after `make demo-4`; the final block at 3:40 walks through the finished final A/B and starts
+no run.
 
 | Time | Block | What happens | Command or screen | Slides |
 |---|---|---|---|---|
@@ -119,44 +125,51 @@ with the demo block on the finished A/B ([Section pattern](#section-pattern-s1-t
 | 2:30-2:38 | S3 demo block | Live console of the finished A/B: screens 1, 2, 3 | Console | 46 |
 | 2:38-2:45 | S3 demo block | Sandbox moment; A/B verdicts; screen 4 with the experiment dots; `make swap-3` | Console, terminal B | 47 |
 | 2:45-2:50 | S3 discussion | Discussion; transition | | 48 |
-| 2:50-2:53 | S4 poll | Poll S4 (feature F4, hidden tests and mutants); close it before the launch | | 49 |
-| 2:53-2:55 | S4 launch | `make demo-4` at 2:53; open the new A/B on screen 1; glance at control C4 | Terminal B, console | 50 |
-| 2:55-3:10 | S4 concepts (A/B running) | | | 51-56 |
-| 3:10-3:20 | S4 walkthrough (A/B running) | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; at 3:15 check terminal B for the `Cost:` line | Editor | 57-59 |
-| 3:20-3:28 | S4 demo block | Live console of the finished A/B: screens 1, 2, 3 | Console | 60 |
-| 3:28-3:35 | S4 demo block | A/B and reviewer verdicts; screen 4 with the experiment dots; `make swap-4` | Console, terminal B | 61 |
-| 3:35-3:40 | S4 discussion | Discussion; transition | | 62 |
-| 3:40-3:41 | Final | Feature poll | | 63 |
-| 3:41-3:45 | Final | `make final FEATURES=<poll winner>` | Terminal B | 64 |
-| 3:45-3:48 | Final | All screens | Console | 65 |
-| 3:48-3:50 | Final | Both boards | Console screen 2 | 66 |
-| 3:50-3:53 | Final | Report and LangSmith comparison; `Final:dots` | `make report`, LangSmith tab | 67 |
+| 2:50-2:53 | S4 poll | Poll S4 (feature F4, hidden tests and mutants) | | 49 |
+| 2:53-2:54 | Final feature poll | Final feature poll (F5, F6, F7); close it before the launch; one or two features (cost note in S4) | | 50 |
+| 2:54-2:56 | S4 launch | `make demo-4` at 2:54 in terminal B, its A/B opened in browser tab 2; `make final FEATURES=<poll winner(s)>` at 2:55 in terminal C, its A/B opened in browser tab 4; back to demo-4 on screen 1; glance at control C4 | Terminals B and C, console | 51 |
+| 2:56-3:10 | S4 concepts (two A/Bs running) | | | 52-57 |
+| 3:10-3:20 | S4 walkthrough (two A/Bs running) | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; at 3:15 check terminal B for the demo-4 `Cost:` line and terminal C for the final | Editor | 58-60 |
+| 3:20-3:28 | S4 demo block | Live console of the finished demo-4 A/B: screens 1, 2, 3 | Console, tab 2 | 61 |
+| 3:28-3:35 | S4 demo block | A/B and reviewer verdicts; screen 4 with the experiment dots; `make swap-4` | Console, terminal B | 62 |
+| 3:35-3:40 | S4 discussion | Discussion; transition to the final results | | 63 |
+| 3:40-3:42 | Final results | The final A/B's arm lines and the session figure; all four layers | Terminal C | 64 |
+| 3:42-3:46 | Final results | Screens 1, 3, 5 of the finished final A/B, both arms | Console, tab 4 | 65 |
+| 3:46-3:48 | Final results | Both boards | Console screen 2 | 66 |
+| 3:48-3:53 | Final results | Screen 4; report and LangSmith comparison; `Final:dots` | Console, `make report`, LangSmith tab | 67 |
 | 3:53-3:56 | Wrap-up | Assignments | | 68-69 |
 | 3:56-3:58 | Wrap-up | Skills and templates to take home; `Final:skill_template` | | 70 |
 | 3:58-4:00 | Wrap-up | References | | 71-72 |
 
 ### How long the A/B runs
 
-The A/B starts at section minute 3 and must be finished by section minute 25 (0:35, 1:25, 2:25,
-3:15), five minutes before the demo block. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs running
-in parallel on the class host, before the approved referee speed-ups) every A/B finished within 923 s
-(15.4 min); the median was 641 s (10.7 min) and the minimum 485 s (8.1 min) (VERIFICATION.md, M6
-pilot run 2). Started at section minute 3, every one of those A/Bs would have been complete by about
-section minute 19. The class runs one A/B at a time, so class times are expected to be at or below
-these. The class-host time per section comes from pilot run 3 and from the class itself:
+The A/B starts at section minute 3 (in S4 at minute 4, after the second poll) and must be finished
+by section minute 25 (0:35, 1:25, 2:25, 3:15), five minutes before the demo block. In pilot run 2 (12
+A/Bs, sections F1-F4, two A/Bs running in parallel on the class host, before the approved referee
+speed-ups) every A/B finished within 923 s (15.4 min); the median was 641 s (10.7 min) and the minimum
+485 s (8.1 min) (VERIFICATION.md, M6 pilot run 2). Started at section minute 3, every one of those
+A/Bs would have been complete by about section minute 19. S1 to S3 run one A/B at a time, so class
+times are expected to be at or below these. S4 runs two A/Bs at a time (demo-4 and one final
+feature), the same load as pilot run 2. The class-host time per section comes from pilot run 3 and
+from the class itself:
 
-[[PENDING: wall time of make demo-1 to demo-4 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-N on the class host (pilot run 3); VERIFICATION.md]]
+[[PENDING: wall time of make demo-1 to demo-3 on the class host, one A/B at a time, and of make demo-4 with make final running in parallel | source: M6 pilot | how: time make demo-N on the class host (pilot run 3), demo-4 with make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 
 [[PENDING: tonight's wall time of make demo-1 to demo-4, from launch to the Cost line | source: live class | how: note the clock at launch and when terminal B prints the Cost line]]
 
-The final run is the exception: no concepts run alongside it, so its run time is waiting time (see
-[Final run-through and wrap-up](#final-run-through-and-wrap-up-340-400)):
+The final runs during S4, next to demo-4. Launched at 2:55, it must be finished by 3:40, when the
+final block starts ([Final results and wrap-up](#final-results-and-wrap-up-340-400)). `make final`
+runs its features one after another: with two features, the second starts when the first prints its
+`Cost:` line. At pilot run 2's longest time (923 s, two A/Bs in parallel), two features in a row
+launched at 2:55 would be complete by about 3:26. The class-host time:
 
-[[PENDING: wall time of one make final feature on the class host | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host]]
+[[PENDING: wall time of one make final feature on the class host while S4 runs (make demo-4 in parallel) | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host, started one minute after make demo-4]]
 
-One A/B at a time: launch `make demo-N` only after the previous A/B, including an optional layer
-switch, has printed its `Cost:` line. If it has not when the poll closes, wait for it before the
-launch.
+One A/B at a time in S1 to S3: launch `make demo-N` only after the previous A/B, including an
+optional layer switch, has printed its `Cost:` line. If it has not when the poll closes, wait for it
+before the launch. S4 is the one exception: `make final` starts a minute after `make demo-4`, and it
+runs its features one after another, so at most two A/Bs run at a time. `make demo-4` itself still
+waits for the previous `Cost:` line.
 
 ### Check at section minute 25
 
@@ -173,6 +186,10 @@ Halfway through the walkthrough, glance at terminal B.
   OpenAI; see the failure modes below). Follow the [Replay procedure](#replay-procedure):
   `make replay RUN=<recorded ab id>`, then `make swap-N AB=<recorded ab id>`. An A/B that finished
   with an unwelcome result is a result, not a failure: show it.
+- **S4 only: terminal C.** Look for the first final feature's `A/B <ab id> (<feature>, layers=[...])`
+  line and its `Cost:` line. Whether it is there or not, nothing changes now: the final has until
+  3:40. If an arm ended `ERROR` for a reason outside the experiment, note it and use the final's
+  recording in the final block ([Final results and wrap-up](#final-results-and-wrap-up-340-400)).
 
 ---
 
@@ -225,6 +242,10 @@ is hidden behind the concepts and the walkthrough. Minutes are counted from the 
    `exports/report.html` with `make report` (or `uv run shipharness report` while the target is still
    the placeholder) after the run and show the rows for the section's feature there.
 6. **Discussion and transition (minutes 45-50).**
+
+S4 differs in its first six minutes: two polls (minutes 0-4), then two launches, `make demo-4` and
+`make final` (minutes 4-6), so its concepts run from minute 6 to minute 20
+([S4](#s4-verification-250-340)).
 
 What the console keeps after a run: screen `1` lists the last 8 turn rows and the last 3 harness
 decisions per arm (`src/shipharness/console/templates/screens/live.html`), and screen `5` keeps the
@@ -420,21 +441,64 @@ four. The blinded reviewer runs on both arms' diffs.
 
 **Poll (2:50-2:53).** Slide 49; the S4 question in [poll-questions.md](poll-questions.md).
 
-**Command (2:53).** `make demo-4`, right after the poll closes.
+**Final feature poll (2:53-2:54).** Slide 50; the final feature question in
+[poll-questions.md](poll-questions.md): F5 bulk close, F6 watchers, or F7 labels. Close it before the
+launch. The brief asks for two poll-chosen features: the winner and the runner-up, in that order.
+Run both only if the session figure on demo-3's `Cost:` line is at most $0.86 (cost note below);
+otherwise run the winner only.
 
-**At launch (2:53-2:55).** Open the newest `ab-...`, press `1`: both arms start; the gate line reads
-"No gate (verify layer off)." on the bare arm. The harness arm's gate pills appear only after its
-first `finish`, which the room sees in the demo block. Then the control glance and slide 51.
+**Commands (2:54 and 2:55).**
+1. **2:54, terminal B:** `make demo-4`, right after the final poll closes. Reload the runs list and
+   open the newest `ab-...` in browser tab 2: that is demo-4. Open it now, before the second launch,
+   because the runs list shows only ids, newest first.
+2. **2:55, terminal C:** `make final FEATURES=<winner>,<runner-up>` (for example
+   `make final FEATURES=F6,F5`), or `make final FEATURES=<winner>`. Always pass `FEATURES`. Reload the
+   runs list in browser tab 4 and open the newest `ab-...`: the final's first A/B. Leave terminal C
+   and tab 4 alone until the final block.
+
+Two A/Bs now run in parallel: demo-4 and the final's first feature. `make final` runs its features
+one after another (Makefile `final` target), so at most two A/Bs run at a time, the load pilot run 2
+tested (VERIFICATION.md, M6 pilot run 2).
+
+**At launch (2:55-2:56).** Back to browser tab 2, press `1`: both demo-4 arms start; the gate line
+reads "No gate (verify layer off)." on the bare arm. The harness arm's gate pills appear only after
+its first `finish`, which the room sees in the demo block. Say: "Two A/Bs are running: F4 for this
+section and the final feature you picked. We come back to F4 in the demo block and to the final at
+the end of class." Then the control glance and slide 52.
 
 **Control glance.** C4, store issue titles without surrounding whitespace
 (`teamtrack/docs/features/c4.md`).
 
 [[PENDING: C4 control results for both arms | source: M8 batch 4 | how: make experiments, full dataset; VERIFICATION.md]]
 
-**Check at 3:15** (during slide 58): `Cost:` line in terminal B, or the fallback in
-[Check at section minute 25](#check-at-section-minute-25).
+**Cost with two A/Bs running.** Caps (DESIGN §11.1; `.env.example`): each arm of a final A/B stops at
+`MAX_FINAL_RUN_COST_USD` ($0.25), plus `MAX_REVIEW_COST_USD` ($0.04) for its blinded review; each demo
+arm at `MAX_RUN_COST_USD` ($0.20), plus the review cap; the whole class session at
+`MAX_SESSION_COST_USD` ($2.50, persisted across commands). Launching demo-4 and the final together
+keeps the run and review caps: each command enforces them on its own arms, and before every call the
+tracker reserves the call's worst case under one lock, so the two arms of one A/B cannot overshoot a
+shared cap (DESIGN §11.1). The session cap needs the launch rule: each command reads the session
+spend from the ledger when it starts and then adds only its own calls (`CostTracker.__post_init__`
+and `record` in `src/shipharness/cost/tracker.py`), so demo-4 and the final do not see each other's
+spend while both run. At the caps, a demo A/B costs 2 × $0.20 + 2 × $0.04 = $0.48 and a final
+feature 2 × $0.25 + 2 × $0.04 = $0.58. So:
 
-**Demo block, live console (3:20-3:28): screens and what to say.**
+- Session figure on demo-3's `Cost:` line at most $0.86: demo-4 and two final features fit under
+  $2.50 even at the caps ($0.86 + $0.48 + 2 × $0.58 = $2.50).
+- At most $1.44 (S1 to S3 at the caps, no layer switch): demo-4 and one final feature fit.
+- Above $1.44 (only after a layer switch): launch `make final FEATURES=<winner>` only when demo-4 has
+  printed its `Cost:` line, so the final reads demo-4's spend before it starts.
+
+[[PENDING: measured cost of one make demo-4 A/B and of one make final feature A/B (both arms plus reviews) on the class host | source: M6 pilot | how: cost lines of make demo-4 and make final FEATURES=F5 on the class host; VERIFICATION.md]]
+
+**Check at 3:15** (during slide 59), two terminals:
+- Terminal B: the demo-4 `Cost:` line, or the fallback in
+  [Check at section minute 25](#check-at-section-minute-25).
+- Terminal C: the first final feature's result lines and `Cost:` line, or nothing yet. Either is
+  fine: the final has until 3:40 (S4 bullet in
+  [Check at section minute 25](#check-at-section-minute-25)).
+
+**Demo block, live console (3:20-3:28), the demo-4 A/B in browser tab 2: screens and what to say.**
 
 | Order | Screen | Watch | Say |
 |---|---|---|---|
@@ -448,37 +512,49 @@ first `finish`, which the room sees in the demo block. Then the control glance a
 
 [[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
-3. `make swap-4`; expect `judged measures identical`.
+3. `make swap-4`; expect `judged measures identical`. It picks the latest demo-4 A/B (each
+   `ab.json` records its section), so the final A/B still running in terminal C does not get in
+   the way.
 
 **Discussion (3:35-3:40).**
 1. "Your agent's tests pass. What evidence would you accept before merging?"
-2. Transition: `submodules/04-verification/demo/README.md`.
+2. Transition: `submodules/04-verification/demo/README.md`; next, the results of the final A/B
+   launched at 2:55 (terminal C, browser tab 4).
 
 ---
 
-## Final run-through and wrap-up (3:40-4:00)
+## Final results and wrap-up (3:40-4:00)
 
-1. **3:40 Poll** (final feature poll in [poll-questions.md](poll-questions.md)): F5 bulk close, F6
-   watchers, or F7 labels.
-2. **3:41 Run** the winner only: `make final FEATURES=F6` (replace with the winner). Always pass
-   `FEATURES`: the Makefile default is `F5,F6,F7`, three A/Bs in a row, which does not fit the time or
-   the session cap. A second feature runs only if the session line after the first shows room for
-   another final A/B (each arm capped at `MAX_FINAL_RUN_COST_USD` $0.25, plus the review cap).
-3. **3:45 All screens**, `1` to `5`, both arms. Harness arm layers: all four.
-4. **3:48 Boards**, screen `2`.
-5. **3:50 Report**: `make report`, then open `exports/report.html`; then the LangSmith comparison
-   link (screen `4` "LangSmith" list, or screen `5`). Show `Final:dots`.
+The final A/B was launched at 2:55, at the start of S4 ([S4](#s4-verification-250-340)). This block
+walks through its finished results and starts no run.
+
+1. **3:40 The final A/B** (slide 64). Terminal C: read the arm lines of each final feature and the
+   session figure from the last `Cost:` line. Harness arm layers: all four. The final has no
+   pre-registered primary measure, so `passed=True` on an arm line does not mean the feature works:
+   read `hidden <x>/<total>` and `mutants <y>/<total>` (DESIGN §8.2; `final-project/README.md` §5.1).
+   If two features ran, walk through the winner on the screens and give the second its arm lines.
+2. **3:42 Console** (slide 65), browser tab 4: screens `1`, `3`, `5`, both arms; `F` for one arm.
+3. **3:46 Boards** (slide 66), screen `2`.
+4. **3:48 Screen 4, report, LangSmith** (slide 67): screen `4` with tonight's final next to the
+   experiment results; `make report`, then open `exports/report.html` (its dot plots cover F1-F4,
+   including tonight's demos; it draws none for F5-F7, `final-project/README.md` §5.1); then the
+   LangSmith comparison link (screen `4` "LangSmith" list, or screen `5`). Show `Final:dots`.
 
 [[PENDING: report output and LangSmith comparison link for the experiments | source: M8 batch 1 | how: make report; comparison_url in exports/experiments/]]
 
-6. **3:53 Assignments** (slides 68-69): A1 to A4 in `submodules/0N-*/assignment/README.md`; learner
+5. **3:53 Assignments** (slides 68-69): A1 to A4 in `submodules/0N-*/assignment/README.md`; learner
    budget ≤ $6 OpenAI and ≤ 400 LangSmith traces in total (DESIGN §11.5).
-7. **3:56 Skills** to take home: `skills/harness-setup`, `skills/assured-tests`, `skills/house-rules`,
+6. **3:56 Skills** to take home: `skills/harness-setup`, `skills/assured-tests`, `skills/house-rules`,
    `skills/skill-template`; show `Final:skill_template`.
-8. **3:58 References** (slides 71-72), then close.
+7. **3:58 References** (slides 71-72), then close.
 
-If the final A/B is still running at 3:53, go to the wrap-up slides and return to its screen `4` at
-the end.
+**If a final A/B is not finished at 3:40.** Open its live screens in browser tab 4 (`1`, then `2`)
+and walk through them instead of steps 2 and 3, then show the report and the LangSmith comparison
+from the experiments. If it is still running at 3:53, go to the wrap-up slides and return to its
+screen `4` at the end. If an arm failed for a reason outside the experiment (an arm `ERROR` from
+Docker, the network, or OpenAI), follow the [Replay procedure](#replay-procedure) with the recording
+of that feature: `make replay RUN=<recorded final ab id>` (ids in [fallbacks.md](fallbacks.md), rows
+"Final F5" to "Final F7").
 
 ---
 
@@ -508,7 +584,8 @@ one A/B at a time), and only if the cost line of `make demo-2` leaves room for t
 
 When a model call would exceed a cap, the run ends as `ABORTED: cap`, is still judged, and is shown
 (DESIGN §8.3 rule 9). A cap hit during the final would cost the final run, so when in doubt, skip the
-live layer switch.
+live layer switch. A layer switch also raises the session figure that decides, at the S4 launch,
+how many final features run.
 
 ---
 
@@ -536,7 +613,7 @@ Messages are copied from the code (file in the last column).
 | `make replay` without `RUN`: `! replay needs RUN=<ab or run id>` | Missing argument | `make replay RUN=<id>` | `Makefile` |
 | `x no recorded A/B for '<id>' under .shipharness/runs; check the A/B or run id` | Wrong id | Copy the id from [fallbacks.md](fallbacks.md) | `src/shipharness/ab/commands.py` |
 | `make report` prints `! report is available after milestones M6 and M8` and exits 2 | The Makefile target is still the placeholder | Run `uv run shipharness report` (the same command the target will run) | `Makefile`, `src/shipharness/ab/commands.py` |
-| `make final` with no `FEATURES` runs F5, F6, and F7 | Makefile default `FEATURES ?= F5,F6,F7` | Press Ctrl+C before the second feature starts; always pass `FEATURES=` | `Makefile` |
+| `make final` with no `FEATURES` runs F5, then F6 | Makefile default `FEATURES ?= F5,F6` | Always pass `FEATURES=` with the poll result. If the default does not match it, press Ctrl+C in terminal C at once and launch again with `FEATURES=` | `Makefile` |
 | Console header shows `reconnecting` | The console server stopped or restarted | Check terminal A; restart `make console`; reload the page | `src/shipharness/console/static/stream.js` |
 | Screen 4 rows are labelled only by variant and arm (for example `CANONICAL bare`) and mix runs of different features | Screen 4 groups exports by variant and arm, not by feature (`src/shipharness/console/report.py`, `load_report`) | For per-feature results use `exports/report.html` from `make report`, which groups by feature and primary measure | `src/shipharness/console/report.py`, `src/shipharness/ab/report.py` |
 | Replay: screen 2 shows broken board images | Replay copies the diffs but not the `screenshots/` folder into the new run directory | See the workaround in [fallbacks.md](fallbacks.md) | `src/shipharness/ab/recorded.py` |

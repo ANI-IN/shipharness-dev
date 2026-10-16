@@ -1,10 +1,12 @@
 # Final project: shipharness end to end
 
 This walkthrough takes you through one complete shipharness run on TeamTrack, shows how to read what
-it produces, and then points the same tools at your own repository. It is the class's closing block
-(Final + wrap-up, 20 minutes: poll, `make final FEATURES=…`, all screens, report and LangSmith
-comparison, skills to take home; DESIGN §14.1), written so you can repeat it alone afterwards. What
-you produce in part 6 is the raw material for the A4 portfolio (part 8).
+it produces, and then points the same tools at your own repository. In class, the final feature
+poll opens S4, and `make final FEATURES=…` runs during S4 next to `make demo-4`; the closing block
+(Final + wrap-up, 20 minutes; DESIGN §14.1) walks through its finished results: all screens,
+screen 4 and the report, the LangSmith comparison, skills to take home, and the assignments. This
+page is written so you can repeat the run alone afterwards. What you produce in part 6 is the raw
+material for the A4 portfolio (part 8).
 
 The harness is the environment around the agent. The course uses A1's description of that work:
 engineers "design environments, specify intent, and build feedback loops" (A1, F-a-02). A1 does not
@@ -34,7 +36,8 @@ Contents:
 
 ## 2. The final features
 
-In class the poll picks the features from F5-F7. Each feature is a separate A/B: a bare arm and a
+In class the poll at the start of S4 picks the features from F5-F7: the winner, and the runner-up
+when the session budget has room (instructor run sheet, S4). Each feature is a separate A/B: a bare arm and a
 harness arm with all four layers (instructions, state, scope, verify; DESIGN §6.6), the same ticket,
 model, tools, sandbox, turn budgets, and cost cap (DESIGN §6.1).
 
@@ -68,7 +71,7 @@ make console                  # terminal 1: live console on http://127.0.0.1:876
 make final FEATURES=F5,F6     # terminal 2: the features the poll chose
 ```
 
-`FEATURES` is a comma-separated list; the default is `F5,F6,F7`. `make final` runs one A/B per
+`FEATURES` is a comma-separated list; the default is `F5,F6`. `make final` runs one A/B per
 feature, one after the other:
 
 ```bash
@@ -79,6 +82,11 @@ uv run shipharness ab --section final --feature F6
 Every feature runs even if an earlier one fails, and the exit code is the last non-zero one
 (Makefile `final` target). `make final FEATURES=F5 LAYERS=-scope` removes one layer from the
 harness arm, the same leave-one-out idea as the ablation batch (A3, F-a-125).
+
+In class the instructor starts `make final` in a third terminal one minute after `make demo-4`, at
+the start of S4, so the final A/B runs while S4 is taught. Two A/Bs run at once, demo-4 and one
+final feature; because `make final` runs its features one after another, there are never more
+than two. The results are discussed in the closing block.
 
 What one A/B does (DESIGN §3.4, §8.1):
 
