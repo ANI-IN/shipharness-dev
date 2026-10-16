@@ -372,3 +372,43 @@ def test_test_phase_files_ignore_uncommitted_build_work(tmp_path: Path) -> None:
     result = SimpleNamespace(sessions=sessions, phase_shas={"test": (sha, sha)})
     assert phase_changed_files(spec, result) == ["app/a.py", "tests/visible/test_a.py"]  # type: ignore[arg-type]
     assert phase_changed_files(spec, result, store=store) == ["tests/visible/test_a.py"]  # type: ignore[arg-type]
+
+
+def test_each_arm_is_judged_as_soon_as_it_finishes(course_repo: Path, tmp_path: Path) -> None:
+    # Owner-approved after pilot run 2: no idle wait for the other arm before judging.
+    from .test_referee import Factory as RefereeFactory
+    from .test_referee import all_green
+
+    bare_judged = threading.Event()
+
+    class Watching(RefereeFactory):
+        def __call__(self, build, mounts, arm):  # type: ignore[no-untyped-def]
+            if arm == "bare" and build.parent.name != "baseline":
+                bare_judged.set()
+            return super().__call__(build, mounts, arm)
+
+    seen: list[bool] = []
+
+    class SlowHarness(Clients):
+        def __call__(self, arm: str):  # type: ignore[no-untyped-def]
+            client = super().__call__(arm)
+            if arm == "harness":
+                original = client.respond
+
+                def respond(*a, **kw):  # type: ignore[no-untyped-def]
+                    if not seen:
+                        seen.append(bare_judged.wait(5))
+                    return original(*a, **kw)
+
+                client.respond = respond  # type: ignore[method-assign]
+            return client
+
+    deps = make_deps(
+        course_repo, tmp_path, SlowHarness(), referee_sandbox_factory=Watching(all_green())
+    )
+    result = run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert seen == [True]  # the bare arm was being judged while the harness arm still ran
+    assert {arm: run.record.arm for arm, run in result.arms.items()} == {
+        "bare": "bare",
+        "harness": "harness",
+    }
