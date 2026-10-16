@@ -1,4 +1,4 @@
-"""`feature_list.json` (CONTRACTS §15.1): one feature from the task, written by the harness."""
+"""`feature_list.json`: one feature from the task, written by the harness."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Reviewer data models (CONTRACTS §12). `Review` is the strict structured-output schema; findings
+"""Reviewer data models. `Review` is the strict structured-output schema; findings
 come before the verdict so the model reasons about problems before it decides."""
 
 from __future__ import annotations

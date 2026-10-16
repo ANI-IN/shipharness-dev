@@ -1,4 +1,4 @@
-"""The referee (contract I-9, DESIGN §8.1): judges what an arm shipped, never how it got there.
+"""The referee (contract I-9): judges what an arm shipped, never how it got there.
 
 A fresh export of the checkpoint plus the arm's product diff (harness artifacts stripped), the
 check runner in a referee container (network none) with the hidden tests mounted read-only,
@@ -643,8 +643,8 @@ class Referee:
 
         One pytest process runs every shipped test and reports each one (`-rA`); a shipped id
         passes when every test under it passed. An id with no reported outcome (a collection
-        error, a timeout, a skip) is run on its own, as before (owner-approved after pilot run 2;
-        VERIFICATION, M6: batched and isolated outcomes compared on every run 2 arm)."""
+        error, a timeout, a skip) is run on its own, as before (batched and isolated
+        outcomes were compared on every arm of a pilot round and matched)."""
         safe: list[str] = []
         for test in tests:
             try:

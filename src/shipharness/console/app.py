@@ -2,12 +2,12 @@
 
 Routes:
 - `GET /` lists runs; `GET /run/{run_id}` is the five-screen page (keys 1-5, `F`).
-- `GET /events/{run_id}` streams raw events (id = seq, Last-Event-ID resumes; CONTRACTS §8.1).
+- `GET /events/{run_id}` streams raw events (id = seq, Last-Event-ID resumes).
 - `GET /screens/{run_id}` streams the screens: the server tails the same run log, folds the events
   into ConsoleState, renders the screens with autoescape, and sends only the screens that changed.
 - `GET /runs/{run_id}/files/{path}` serves board screenshots (PNG only, inside the run dir).
 
-The browser uses the EventSource API (DESIGN D-15); there is no frontend build step and nothing
+The browser uses the EventSource API; there is no frontend build step and nothing
 loads from a CDN.
 """
 

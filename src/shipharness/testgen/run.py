@@ -64,7 +64,7 @@ class TestgenOptions:
     python: str = "python"
     out_dir: Path | None = None
     test_phase_turns: int | None = None
-    doctest_modules: bool = False  # existing suite runs with --doctest-modules (RESEARCH G-19)
+    doctest_modules: bool = False  # existing suite runs with --doctest-modules
     # Metadata of a testgen-targets-v1 line, when the target comes from the dataset; its
     # `baseline_includes_doctests` overrides `doctest_modules`.
     target_metadata: dict[str, Any] | None = None

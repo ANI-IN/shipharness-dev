@@ -1,4 +1,4 @@
-"""Blinding the reviewer (CONTRACTS §12, DESIGN §8.3 rule 3): the reviewer gets the task and the
+"""Blinding the reviewer: the reviewer gets the task and the
 code and tests the arm shipped, nothing that tells it which arm wrote them."""
 
 from __future__ import annotations

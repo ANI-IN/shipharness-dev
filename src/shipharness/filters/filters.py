@@ -1,11 +1,11 @@
-"""The five test filters (DESIGN §7), cheapest first. Every discard carries a reason.
+"""The five test filters, cheapest first. Every discard carries a reason.
 
 1. Imports and runs: pytest collects the test without errors (TestGen-LLM "builds").
 2. Passes 5 consecutive runs (TestGen-LLM: "every one of five executions").
 3. Adds line coverage over the existing suite, or kills a filter-set mutant that no existing test
    kills (TestGen-LLM coverage; ACH hardening).
-4. Real assertions and no mocking of the unit under test (course filter, RESEARCH G-7).
-5. No source file changed during the test phase (course filter, RESEARCH G-7).
+4. Real assertions and no mocking of the unit under test (course filter).
+5. No source file changed during the test phase (course filter).
 """
 
 from __future__ import annotations

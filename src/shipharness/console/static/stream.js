@@ -1,6 +1,6 @@
 // shipharness console client. Keys 1-5 switch screens, F cycles full screen for one arm
 // (both -> bare -> harness -> both). Screens arrive as server-rendered, escaped HTML over
-// server-sent events (browser EventSource API; DESIGN D-15). No build step, no CDN.
+// server-sent events (browser EventSource API). No build step, no CDN.
 (function () {
   "use strict";
   var body = document.body;

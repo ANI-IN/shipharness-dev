@@ -1,4 +1,4 @@
-"""Sandbox policy: identical machine-level limits for both arms (CONTRACTS §9.1, DESIGN §9)."""
+"""Sandbox policy: identical machine-level limits for both arms."""
 
 from __future__ import annotations
 

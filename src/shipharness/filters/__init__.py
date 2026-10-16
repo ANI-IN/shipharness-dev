@@ -1,4 +1,4 @@
-"""Test filters and the targeted mutant runner (DESIGN §7, CONTRACTS §14)."""
+"""Test filters and the targeted mutant runner."""
 
 from shipharness.filters.coverage import CoverageRun, measure_coverage, parse_coverage_json
 from shipharness.filters.filters import (

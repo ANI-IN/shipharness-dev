@@ -1,4 +1,4 @@
-"""Filter 4 (course filter, RESEARCH G-7): real assertions, and no mocking of the unit under test.
+"""Filter 4 (course filter): real assertions, and no mocking of the unit under test.
 
 Static checks on the test's syntax tree; nothing is executed.
 """

@@ -1,4 +1,4 @@
-"""Model prices from `config/prices.toml` (CONTRACTS §2)."""
+"""Model prices from `config/prices.toml`."""
 
 from __future__ import annotations
 

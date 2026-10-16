@@ -1,4 +1,4 @@
-"""The verify gate (contract I-8, CONTRACTS §13): runs when the agent calls finish(claim="done").
+"""The verify gate (contract I-8): runs when the agent calls finish(claim="done").
 
 Everything runs in the arm's own container: visible tests, the check runner (R1-R7, existing tests,
 board) on a copy of the workspace in /tmp, and the clean-state check on the workspace itself. The

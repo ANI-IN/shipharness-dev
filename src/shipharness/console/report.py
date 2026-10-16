@@ -1,4 +1,4 @@
-"""Screen 4 (A/B Report) data: ScoreRecords and experiments read from `exports/` (CONTRACTS §11).
+"""Screen 4 (A/B Report) data: ScoreRecords and experiments read from `exports/`.
 
 Counts are shown as "9/10", never as percentages. Unreadable or incomplete files are counted and
 skipped so one bad export cannot blank the screen.

@@ -1,4 +1,4 @@
-"""Pre-class experiments (DESIGN §10.4, §12): LangSmith `evaluate()` once per arm on the same
+"""Pre-class experiments: LangSmith `evaluate()` once per arm on the same
 dataset split with `num_repetitions=k`, the two arms concurrently, and one combined referee
 evaluator that returns the 12 scores and writes the full ScoreRecord to `exports/scores/` before
 returning. The run summary goes to `exports/experiments/<name>.json`; reports read only exports.
@@ -279,7 +279,7 @@ def run_experiments(
 
 def attach_scores(client: Any, trace_url: str | None, record: ScoreRecord) -> int:
     """Attach the 12 scores to an agent trace as feedback without upgrading its retention
-    (DESIGN §12: experiment runs are already extended; direct feedback must not extend)."""
+    (experiment runs are already extended; direct feedback must not extend)."""
     match = _UUID.search(trace_url or "")
     if match is None:
         return 0

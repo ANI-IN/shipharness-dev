@@ -1,4 +1,4 @@
-"""The separate, blinded reviewer (A3's separate evaluator; CONTRACTS §12).
+"""The separate, blinded reviewer (A3's separate evaluator).
 
 One Responses API call with strict structured output (`responses.parse(text_format=Review)`),
 `store=False`, under its own cost scope. `max_output_tokens` is sized so the worst case of the call
@@ -149,5 +149,5 @@ def run_review(
 
 
 def review(inp: ReviewInput, cost: CostTracker, tracer: Tracer, **kwargs: Any) -> Review | None:
-    """CONTRACTS §12 signature: the Review, or None when there is no verdict."""
+    """The Review, or None when there is no verdict."""
     return run_review(inp, cost, tracer, **kwargs).review

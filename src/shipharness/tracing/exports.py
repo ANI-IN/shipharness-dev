@@ -1,4 +1,4 @@
-"""Local exports so reports keep working after LangSmith traces expire (CONTRACTS §11)."""
+"""Local exports so reports keep working after LangSmith traces expire."""
 
 from __future__ import annotations
 

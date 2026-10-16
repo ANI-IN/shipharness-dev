@@ -1,4 +1,4 @@
-"""Blinded reviewer (CONTRACTS §12)."""
+"""Blinded reviewer."""
 
 from shipharness.reviewer.blind import blind
 from shipharness.reviewer.criteria import grading_criteria

@@ -1,4 +1,4 @@
-"""Gate result types (CONTRACTS §13)."""
+"""Gate result types."""
 
 from __future__ import annotations
 

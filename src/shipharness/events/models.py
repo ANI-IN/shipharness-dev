@@ -1,4 +1,4 @@
-"""Event envelope and per-type data models (CONTRACTS §8)."""
+"""Event envelope and per-type data models."""
 
 from __future__ import annotations
 

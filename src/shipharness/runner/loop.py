@@ -1,4 +1,4 @@
-"""The agent loop (CONTRACTS §4): sessions, the finish tool, caps, and error handling."""
+"""The agent loop: sessions, the finish tool, caps, and error handling."""
 
 from __future__ import annotations
 

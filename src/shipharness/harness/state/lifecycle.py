@@ -1,4 +1,4 @@
-"""Session lifecycle text and the session stop (DESIGN §6.3).
+"""Session lifecycle text and the session stop.
 
 Getting up to speed follows A2 (F-a-58 to F-a-62); the session end follows A2's "End the session
 by writing a git commit and progress update" (F-a-63); the stop and resume are A3's context reset

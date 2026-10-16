@@ -1,5 +1,5 @@
 """VerifyLayer (S4): the gate on finish(claim="done") and the test filters at the end of the test
-phase. Contract I-8; CONTRACTS §5 (hooks), §13 (gate), §14 (filters)."""
+phase. Contract I-8 (hooks), §13 (gate), §14 (filters)."""
 
 from __future__ import annotations
 

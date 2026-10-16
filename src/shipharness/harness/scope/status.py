@@ -1,4 +1,4 @@
-"""The only writer of `passes` (DESIGN §6.4).
+"""The only writer of `passes`.
 
 A2 lets the coding agent change `passes` after careful testing (F-a-108). The course moves that
 decision to the harness, citing A3's separation of the agent doing the work from the agent judging

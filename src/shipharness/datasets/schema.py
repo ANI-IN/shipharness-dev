@@ -1,4 +1,4 @@
-"""JSONL dataset line models (CONTRACTS §16)."""
+"""JSONL dataset line models."""
 
 from __future__ import annotations
 

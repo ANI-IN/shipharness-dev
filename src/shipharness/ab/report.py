@@ -1,5 +1,5 @@
-"""A/B report from `exports/` only (DESIGN §12): one dot per run per arm for each primary
-measure, and counts ("2/3 runs failing"), never percentages (DESIGN §8.3 rule 5). Replays
+"""A/B report from `exports/` only: one dot per run per arm for each primary
+measure, and counts ("2/3 runs failing"), never percentages. Replays
 (`recorded=True`) are left out unless asked for. Output: report.json and a static report.html.
 """
 

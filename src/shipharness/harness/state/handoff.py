@@ -1,4 +1,4 @@
-"""session-handoff.md (CONTRACTS §15.3): the machine part, written by the harness at a session stop.
+"""session-handoff.md: the machine part, written by the harness at a session stop.
 
 Everything here reads the untrusted workspace as data: files on the host (no links followed, size
 caps), git through the sandbox only, and every agent-controlled string masked and capped.

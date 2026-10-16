@@ -1,7 +1,7 @@
 """Context prefix for the instructions layer (S1): the AGENTS.md map plus the skills catalogue.
 
 The brief names this module `router.py`; the course calls AGENTS.md a "map" or "table of contents"
-(RESEARCH §4.1, A1 F-a-27, F-a-28). The prefix is built from the course checkout, never from the
+(A1 F-a-27, F-a-28). The prefix is built from the course checkout, never from the
 workspace, so an agent edit to its own copy of AGENTS.md cannot change the cached prompt prefix.
 """
 

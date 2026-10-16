@@ -1,10 +1,10 @@
-"""Render the five console screens (DESIGN §13) from ConsoleState and the exports report.
+"""Render the five console screens from ConsoleState and the exports report.
 
 Screens are server-rendered HTML fragments with Jinja autoescape on: turn excerpts, tool targets,
 file paths, and check details come from the agent or its build and are hostile. The browser only
 swaps the fragments in, so it never builds markup from agent strings.
 
-Readability rules (DESIGN §13): text >= 20 px, high contrast, <= 3 panels per screen, symbol +
+Readability rules: text >= 20 px, high contrast, <= 3 panels per screen, symbol +
 label on every status (never colour alone), fixed 1920x1080 layout, `F` full screen for one arm.
 """
 

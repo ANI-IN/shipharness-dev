@@ -1,4 +1,4 @@
-"""Structured logging with key redaction (CONTRACTS §20)."""
+"""Structured logging with key redaction."""
 
 from __future__ import annotations
 

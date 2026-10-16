@@ -26,7 +26,7 @@ def _runtime(settings: Settings, project: str, **kw: Any) -> Any:
     return build_runtime(settings, project=project, **kw)
 
 
-# LangSmith project and cost session per purpose (DESIGN §12). Class projects hold class runs only.
+# LangSmith project and cost session per purpose. Class projects hold class runs only.
 PURPOSE_HELP = "class (needs SHIPHARNESS_CLASS_DATE), pilot, or assignment: the LangSmith project."
 OTHER_PURPOSES = {
     "pilot": ("shipharness-pilot", "pilot"),

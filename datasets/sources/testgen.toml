@@ -1,9 +1,9 @@
-# Sources for datasets/testgen-targets-v1.jsonl (DESIGN §10.2, CONTRACTS §16.2).
-# Regenerate with: uv run python scripts/build_testgen_dataset.py
+# Sources for datasets/testgen-targets-v1.jsonl.
+# Regenerate with: uv run python the course build repository's dataset builder
 #
 # Each target's mutant file is <mutants_dir>/<dotted module without package_prefix>.jsonl; its
 # `#filter` set feeds filter 3 and its `#referee` set is held out for the referee.
-# Library pins, licenses and Windows-only baseline failures: RESEARCH §4.8 and R-e.
+# Library pins and licenses are recorded per library below.
 # Library test paths are relative to the library clone (.shipharness/libs/<repo>/src);
 # TeamTrack test paths are relative to teamtrack/ (the referee's root, ruling R-1).
 
@@ -171,7 +171,7 @@ existing_tests = [
     "tests/visible/test_idempotency_and_audit.py",
 ]
 
-# boltons 26.2.0: the ten target modules from R-e.
+# boltons 26.2.0: the ten target modules.
 
 [[targets]]
 repo = "boltons"
@@ -223,7 +223,7 @@ repo = "boltons"
 module = "boltons/jsonutils.py"
 existing_tests = ["tests/test_jsonutils.py"]
 
-# WTForms 3.2.2: the ten target modules from R-e.
+# WTForms 3.2.2: the ten target modules.
 
 [[targets]]
 repo = "wtforms"

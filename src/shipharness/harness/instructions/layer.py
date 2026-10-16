@@ -3,11 +3,11 @@
 - prepare_workspace: copies `teamtrack/harness/instructions/` into the workspace. The tree mirrors
   the workspace layout: AGENTS.md and ARCHITECTURE.md at the root, docs/ as the system of record
   (A1, F-a-29, F-a-30), skills in `.agents/skills/` (B3). docs/HANDBOOK.md is never touched: both
-  arms read it (DESIGN §6.1).
+  arms read it.
 - context_prefix: one stable block from `router.build_prefix` (the map + skills tier 1).
 - after_tool: records which harness docs and skills the agent opened with read_file, into
   `ctx.state["instructions.files_read"]`, and returns one `note` decision per first read (skills
-  carry their tier, CONTRACTS §7). Reads through `run` (for example `cat`) are not seen.
+  carry their tier). Reads through `run` (for example `cat`) are not seen.
 """
 
 from __future__ import annotations

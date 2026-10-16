@@ -1,4 +1,4 @@
-"""Sandbox protocol and result types (CONTRACTS §9.2)."""
+"""Sandbox protocol and result types."""
 
 from __future__ import annotations
 

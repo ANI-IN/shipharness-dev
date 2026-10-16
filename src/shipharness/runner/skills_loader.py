@@ -1,4 +1,4 @@
-"""Agent Skills loader with progressive disclosure (Agent Skills spec, RESEARCH §4.5)."""
+"""Agent Skills loader with progressive disclosure (Agent Skills spec)."""
 
 from __future__ import annotations
 

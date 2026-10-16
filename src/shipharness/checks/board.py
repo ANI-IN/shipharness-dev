@@ -1,6 +1,6 @@
 """board: the web board loads for the home org and shows only that org's cards, once each.
 
-Cards carry `data-issue-id` and `data-org` (DESIGN §4.4), so the check does not depend on the
+Cards carry `data-issue-id` and `data-org`, so the check does not depend on the
 arm's markup beyond those attributes. Modes (`params.board_mode`):
 
 - "browser": the build runs under uvicorn on 127.0.0.1 (loopback works with network none) and a
