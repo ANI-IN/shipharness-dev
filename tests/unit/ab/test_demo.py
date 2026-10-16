@@ -224,3 +224,43 @@ def test_sandbox_failure_becomes_an_error_run_that_is_still_scored(
     assert result.arms["bare"].result.status == "ERROR"
     assert "docker run failed" in (result.arms["bare"].result.error or "")
     assert result.arms["bare"].record.status == "ERROR"
+
+
+def test_final_section_specs_carry_the_final_run_cap(tmp_path: Path) -> None:
+    task = ABTask.from_dataset_line(LINE)
+    settings = Settings(_env_file=None)
+    specs = arm_specs(
+        task,
+        settings,
+        ab_id="ab-1",
+        harness_layers=frozenset({"instructions"}),
+        workspaces={"bare": tmp_path / "b", "harness": tmp_path / "h"},
+        run_ids={"bare": "r-b", "harness": "r-h"},
+        run_cost_limit_usd=settings.max_final_run_cost_usd,
+    )
+    assert {s.cost_limit_usd for s in specs.values()} == {0.25}
+
+
+def test_final_section_ab_runs_to_the_final_cap_not_the_run_cap(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    settings = Settings(_env_file=None)
+    final = CostTracker(
+        Prices.load(DEFAULT_PRICES_FILE),
+        Caps.from_settings(settings, final=True),  # what `shipharness ab --section final` builds
+        tmp_path / "ledger.jsonl",
+        session_id="t",
+    )
+    per_call = Usage(input_tokens=0, output_tokens=8_000)  # $0.004, within the pre-check estimate
+    burner = [tool_step("list_dir", path=".", depth=None, usage=per_call)] * 90
+    line = {**LINE, "inputs": {**LINE["inputs"], "session_budget": [90]}}
+    deps = make_deps(course_repo, tmp_path, Clients(bare=burner), cost=final)
+    result = run_ab(ABTask.from_dataset_line(line), frozenset({"instructions"}), deps)
+    bare = result.arms["bare"]
+    assert {run.spec.cost_limit_usd for run in result.arms.values()} == {0.25}
+    assert bare.result.status == "ABORTED: cap"
+    assert 0.20 < bare.result.cost_usd <= 0.25  # spent past $0.20, stopped by the $0.25 cap
+
+
+def test_harness_timeout_setting_defaults_to_120_seconds() -> None:
+    assert Settings(_env_file=None).harness_timeout_s == 120

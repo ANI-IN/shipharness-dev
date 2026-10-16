@@ -61,6 +61,17 @@ class CostScope:
     key: str
     limit_usd: float
     spent_usd: float = 0.0
+    reserved_usd: float = 0.0  # worst cases of calls in flight (see CostTracker.reserve)
+
+
+@dataclass
+class Reservation:
+    """The worst-case cost of one model call, held against every cap until settled."""
+
+    scope: CostScope
+    model: str
+    amount_usd: float
+    open: bool = True
 
 
 @dataclass(frozen=True)
@@ -124,8 +135,11 @@ class CostTracker:
     ledger_path: Path
     session_id: str
     experiment: bool = False
-    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+    # Re-entrant: reserve() runs check_before_call() under the same lock, so the check and the
+    # hold are one step for concurrent arms.
+    _lock: threading.RLock = field(default_factory=threading.RLock, init=False, repr=False)
     _batch: float = field(default=0.0, init=False)
+    _reserved: float = field(default=0.0, init=False)
     _session: float = field(default=0.0, init=False)
     _experiment: float = field(default=0.0, init=False)
     _by_model: dict[str, float] = field(default_factory=lambda: defaultdict(float), init=False)
@@ -155,33 +169,85 @@ class CostTracker:
     def experiment_total_usd(self) -> float:
         return self._experiment
 
+    @property
+    def reserved_usd(self) -> float:
+        """Worst-case cost of the calls in flight on this tracker."""
+        return self._reserved
+
     def scope(self, kind: ScopeKind, key: str, limit_usd: float) -> CostScope:
         return CostScope(kind=kind, key=key, limit_usd=limit_usd)
 
-    def _active_limits(self, scope: CostScope) -> list[tuple[CapScope, float, float]]:
+    def _active_limits(
+        self, scope: CostScope, *, held: bool = False
+    ) -> list[tuple[CapScope, float, float]]:
+        """(cap, limit, spent) per active cap; `held` adds the worst cases of calls in flight.
+        Batch, session, and experiment are shared by every scope of this tracker, so their held
+        amount is the tracker's; the run or review cap holds only its own scope's calls."""
+        own = scope.reserved_usd if held else 0.0
+        shared = self._reserved if held else 0.0
         limits: list[tuple[CapScope, float, float]] = [
-            (scope.kind, scope.limit_usd, scope.spent_usd),
-            ("batch", self.caps.batch, self._batch),
+            (scope.kind, scope.limit_usd, scope.spent_usd + own),
+            ("batch", self.caps.batch, self._batch + shared),
         ]
         if self.experiment:
-            limits.append(("experiment", self.caps.experiment, self._experiment))
+            limits.append(("experiment", self.caps.experiment, self._experiment + shared))
         else:
-            limits.append(("session", self.caps.session, self._session))
+            limits.append(("session", self.caps.session, self._session + shared))
         return limits
+
+    def worst_case(self, model: str, est_input_tokens: int, max_output_tokens: int) -> float:
+        """Upper bound on one call: all input at the dearer uncached rate, full max output."""
+        price = self.prices.get(model)
+        return (
+            est_input_tokens * max(price.input, price.cache_write)
+            + max_output_tokens * price.output
+        ) / 1e6
 
     def check_before_call(
         self, scope: CostScope, model: str, est_input_tokens: int, max_output_tokens: int
     ) -> None:
-        """Raise CapExceeded if the worst case of the next call would cross any active cap."""
-        price = self.prices.get(model)
-        worst = (
-            est_input_tokens * max(price.input, price.cache_write)
-            + max_output_tokens * price.output
-        ) / 1e6
+        """Raise CapExceeded if the worst case of the next call, on top of what is spent and what
+        calls in flight hold, would cross any active cap."""
+        worst = self.worst_case(model, est_input_tokens, max_output_tokens)
         with self._lock:
-            for name, limit, spent in self._active_limits(scope):
+            for name, limit, spent in self._active_limits(scope, held=True):
                 if spent + worst > limit:
                     raise CapExceeded(name, limit, spent)
+
+    def reserve(
+        self, scope: CostScope, model: str, est_input_tokens: int, max_output_tokens: int
+    ) -> Reservation:
+        """Check and hold the worst case of the next call against every cap, as one step under
+        the lock, so concurrent arms cannot both pass the check for the last room under a shared
+        cap. Every reservation ends with settle() (call made) or release() (no call or no usage).
+        """
+        worst = self.worst_case(model, est_input_tokens, max_output_tokens)
+        with self._lock:
+            self.check_before_call(scope, model, est_input_tokens, max_output_tokens)
+            scope.reserved_usd += worst
+            self._reserved += worst
+        return Reservation(scope=scope, model=model, amount_usd=worst)
+
+    def _release_locked(self, reservation: Reservation) -> None:
+        if not reservation.open:
+            return
+        reservation.open = False
+        reservation.scope.reserved_usd = max(
+            reservation.scope.reserved_usd - reservation.amount_usd, 0.0
+        )
+        self._reserved = max(self._reserved - reservation.amount_usd, 0.0)
+
+    def release(self, reservation: Reservation) -> None:
+        """Drop a reservation without recording a cost (the call failed or was never made)."""
+        with self._lock:
+            self._release_locked(reservation)
+
+    def settle(self, reservation: Reservation, usage: Usage) -> float:
+        """Replace the reservation with the call's actual cost, in one step under the lock.
+        Same contract as record(): returns the call cost; raises CapExceeded after recording."""
+        with self._lock:
+            self._release_locked(reservation)
+            return self.record(reservation.scope, reservation.model, usage)
 
     def record(self, scope: CostScope, model: str, usage: Usage) -> float:
         """Record one call. Raises CapExceeded after recording if a cap is now crossed."""

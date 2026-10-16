@@ -74,9 +74,12 @@ class AgentRunResult(BaseModel):
     diff_path: Path | None
     cost_usd: float
     turns_total: int
-    wall_s: float
+    wall_s: float  # total wall time: agent_wall_s + harness_wall_s
     trace_url: str | None
     error: str | None = None
+    agent_wall_s: float = 0.0  # agent working time (model calls, tools); RUN_TIMEOUT_S applies
+    harness_wall_s: float = 0.0  # deterministic harness work; HARNESS_TIMEOUT_S applies
+    abort_reason: str | None = None  # ABORTED runs: the limit that ended the run
 
 
 class ToolCall(BaseModel):

@@ -168,7 +168,13 @@ def arm_specs(
     harness_layers: frozenset[LayerName],
     workspaces: Mapping[Arm, Path],
     run_ids: Mapping[Arm, str],
+    run_cost_limit_usd: float | None = None,
 ) -> dict[Arm, AgentRunSpec]:
+    """Both arms' specs from one set of values. `run_cost_limit_usd` is the per-arm run cap
+    (both phases together); it defaults to MAX_RUN_COST_USD, and the A/B passes the cost
+    tracker's run cap, which is MAX_FINAL_RUN_COST_USD for `--section final`."""
+    if run_cost_limit_usd is None:
+        run_cost_limit_usd = settings.max_run_cost_usd
     shared: dict[str, Any] = dict(
         ab_id=ab_id,
         feature_id=task.feature_id,
@@ -183,7 +189,7 @@ def arm_specs(
         reasoning_effort=settings.openai_reasoning_effort,
         max_output_tokens=settings.max_output_tokens,
         service_tier=settings.openai_service_tier,
-        cost_limit_usd=settings.max_run_cost_usd,
+        cost_limit_usd=run_cost_limit_usd,
     )
     return {
         arm: AgentRunSpec(
@@ -233,6 +239,7 @@ def run_arm(
         wrapup_turns=s.wrapup_turns,
         tool_timeout_s=s.tool_timeout_s,
         run_timeout_s=s.run_timeout_s,
+        harness_timeout_s=s.harness_timeout_s,
         policy_summary=deps.policy_summary,
         tool_log_dir=run_dir / spec.arm / "tool-logs",
         diff_path=run_dir / spec.arm / "diff.patch",
@@ -301,6 +308,7 @@ def run_ab(
         harness_layers=harness_layers,
         workspaces=workspaces,
         run_ids=run_ids,
+        run_cost_limit_usd=deps.cost.caps.run,  # final section: MAX_FINAL_RUN_COST_USD
     )
     seed = deps.seed if deps.seed is not None else default_seed(task.feature_id, task.checkpoint)
     referee = Referee(
