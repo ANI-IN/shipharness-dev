@@ -1,10 +1,39 @@
-"""F4 hidden tests: the board edit form version and the 409 conflict page (docs/features/f4.md)."""
+"""F4 hidden tests: the board edit form version and the 409 conflict page (docs/features/f4.md).
+
+The page is read with an HTML parser, so attribute order, quote style, and extra classes do not
+matter.
+"""
 
 from __future__ import annotations
 
-import re
+from html.parser import HTMLParser
 
 from hidden_support import auth
+
+Tag = tuple[str, set[str], dict[str, str], bool]  # tag, classes, attributes, inside the edit form
+
+
+def scan(html: str) -> list[Tag]:
+    """Start tags with their class tokens, marking those inside the issue page's edit form."""
+    tags: list[Tag] = []
+    state = {"form": False}
+
+    class Parser(HTMLParser):
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            values = {name: value or "" for name, value in attrs}
+            classes = set(values.get("class", "").split())
+            if tag == "form" and "edit-issue" in classes:
+                state["form"] = True
+            tags.append((tag, classes, values, state["form"]))
+
+        def handle_endtag(self, tag: str) -> None:
+            if tag == "form":
+                state["form"] = False
+
+    parser = Parser(convert_charrefs=True)
+    parser.feed(html)
+    parser.close()
+    return tags
 
 
 def login(client, email: str = "member@acme.test") -> None:  # type: ignore[no-untyped-def]
@@ -13,14 +42,13 @@ def login(client, email: str = "member@acme.test") -> None:  # type: ignore[no-u
 
 
 def form_version(html: str) -> str | None:
-    form = re.search(r'<form[^>]*class="edit-issue".*?</form>', html, re.S)
-    assert form, "no edit form"
-    match = re.search(r'<input[^>]*name="version"[^>]*>', form.group(0))
-    if not match:
-        return None
-    value = re.search(r'value="([^"]*)"', match.group(0))
-    hidden = 'type="hidden"' in match.group(0)
-    return value.group(1) if value and hidden else None
+    tags = scan(html)
+    assert any(tag == "form" and inside for tag, _, _, inside in tags), "no edit form"
+    for tag, _, values, inside in tags:
+        hidden = values.get("type", "").lower() == "hidden"
+        if inside and tag == "input" and values.get("name") == "version" and hidden:
+            return values.get("value")
+    return None
 
 
 def save(client, issue_id: int, title: str, version: str | None):  # type: ignore[no-untyped-def]
@@ -77,8 +105,10 @@ def test_conflict_page_is_html_with_a_conflict_message(client, acme) -> None:
     save(client, acme.issues[0], "Tab A", "1")
     response = save(client, acme.issues[0], "Tab B", "1")
     assert response.headers["content-type"].startswith("text/html")
-    assert re.search(r'class="[^"]*\bconflict\b', response.text)
-    assert f"/board/issues/{acme.issues[0]}" in response.text
+    tags = scan(response.text)
+    assert any("conflict" in classes for _, classes, _, _ in tags)
+    links = [values.get("href", "") for tag, _, values, _ in tags if tag == "a"]
+    assert any(href.endswith(f"/board/issues/{acme.issues[0]}") for href in links)
 
 
 def test_save_without_a_version_is_409(client, acme) -> None:

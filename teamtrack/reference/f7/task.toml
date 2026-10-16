@@ -42,4 +42,5 @@ test = ["tests/visible/**"]
     "tests/hidden/f7/test_f7_labels.py",
     "tests/hidden/f7/test_f7_guards.py",
     "tests/hidden/f7/test_f7_with_f1.py",
+    "tests/hidden/f7/test_f7_with_f4.py",
 ]
