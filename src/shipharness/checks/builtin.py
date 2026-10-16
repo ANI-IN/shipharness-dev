@@ -12,6 +12,7 @@ BUILTIN_MODULES = (
     "r5_audit",
     "r6_layering",
     "r7_migrations",
+    "pytest_checks",
 )
 # Short rule labels used in progress lines and by `shipharness check --rules R1,R2`.
 RULE_LABELS = {

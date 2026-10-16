@@ -1,0 +1,103 @@
+"""Checks that run tests: existing tests keep passing, hidden tests, flakiness of shipped tests.
+
+Params (runner --params):
+- `regression_targets`: pytest targets for the checkpoint's visible suite (default
+  ["tests/visible"]).
+- `hidden_tests`: pytest node ids relative to the build directory (mount hidden tests inside the
+  build tree, for example at tests/hidden/). A requested id that is not collected counts as failed.
+- `shipped_tests`: node ids or files the arm added; `flaky_runs`: repetitions (default 10).
+"""
+
+from __future__ import annotations
+
+import time
+from pathlib import Path
+
+from shipharness.checks._pytest import collect_ids, no_tests_finding, outcome_finding, run_pytest
+from shipharness.checks.base import CheckContext, CheckResult, Finding, make_result, register_check
+
+DEFAULT_FLAKY_RUNS = 10
+
+
+@register_check
+class RegressionCheck:
+    """Existing tests keep passing (internal key `regression`)."""
+
+    name = "regression"
+    rule = "regression"
+
+    def run(self, build_dir: Path, ctx: CheckContext) -> CheckResult:
+        started = time.monotonic()
+        targets = list(ctx.params.get("regression_targets") or ["tests/visible"])
+        ctx.progress(0, 1, "existing tests")
+        run = run_pytest(build_dir, targets)
+        ctx.progress(1, 1, "existing tests")
+        findings = [outcome_finding("regression", n, run.outcomes[n]) for n in run.failed]
+        if not run.outcomes:
+            findings.append(no_tests_finding("regression", run))
+        return make_result(self.name, findings, total_probes=len(run.outcomes), started=started)
+
+
+@register_check
+class HiddenTestsCheck:
+    name = "hidden_tests"
+    rule = "hidden"
+
+    def run(self, build_dir: Path, ctx: CheckContext) -> CheckResult:
+        started = time.monotonic()
+        ids = list(ctx.params.get("hidden_tests") or [])
+        if not ids:
+            missing = Finding(
+                rule="hidden",
+                severity="error",
+                detail_key="no_ids",
+                detail="no hidden test ids given (params.hidden_tests)",
+            )
+            return make_result(self.name, [missing], total_probes=0, started=started)
+        ctx.progress(0, len(ids), "hidden tests")
+        run = run_pytest(build_dir, ids)
+        outcomes = dict(run.outcomes)
+        if any(i not in outcomes for i in ids) and run.returncode == 4:
+            # An unknown node id stops the whole run: collect, then run only the ids that exist.
+            files = sorted({i.split("::", 1)[0] for i in ids})
+            listed = set(collect_ids(build_dir, files))
+            present = [i for i in ids if i in listed]
+            if present:
+                outcomes.update(run_pytest(build_dir, present).outcomes)
+        ctx.progress(len(ids), len(ids), "hidden tests")
+        findings: list[Finding] = []
+        for node in ids:
+            outcome = outcomes.get(node, "not collected")
+            if outcome != "passed":
+                findings.append(outcome_finding("hidden", node, outcome))
+        return make_result(self.name, findings, total_probes=len(ids), started=started)
+
+
+@register_check
+class FlakinessCheck:
+    """Shipped tests re-run N times; a test that both passes and fails is flaky."""
+
+    name = "flakiness"
+    rule = "flaky"
+
+    def run(self, build_dir: Path, ctx: CheckContext) -> CheckResult:
+        started = time.monotonic()
+        targets = list(ctx.params.get("shipped_tests") or [])
+        runs = int(ctx.params.get("flaky_runs", DEFAULT_FLAKY_RUNS))
+        if not targets:
+            return make_result(self.name, [], total_probes=0, started=started)
+        seen: dict[str, set[str]] = {}
+        for n in range(1, runs + 1):
+            for node, outcome in run_pytest(build_dir, targets).outcomes.items():
+                if outcome != "skipped":
+                    seen.setdefault(node, set()).add("passed" if outcome == "passed" else "failed")
+            ctx.progress(n, runs, f"flakiness run {n}/{runs}")
+        findings: list[Finding] = []
+        for node, outcomes in sorted(seen.items()):
+            if outcomes == {"passed", "failed"}:
+                findings.append(outcome_finding("flaky", node, f"passed and failed in {runs} runs"))
+            elif outcomes == {"failed"}:
+                findings.append(
+                    outcome_finding("flaky", node, f"failed in all {runs} runs", "info")
+                )
+        return make_result(self.name, findings, total_probes=len(seen), started=started)
