@@ -126,18 +126,13 @@ def _check_hidden(ids: list[str], repo: Path) -> list[str]:
 
 
 def checkpoint_names(repo: Path) -> set[str]:
-    """Checkpoint names defined in `teamtrack/reference/checkpoints.toml`. Accepts a
-    `[checkpoints.<name>]` table, top-level `[<name>]` tables, or `[[checkpoint]]` entries with a
-    `name`. INTEGRATION: switch to `shipharness.ab.checkpoints.load_checkpoints()` once merged."""
+    """Checkpoint names defined in `teamtrack/reference/checkpoints.toml`."""
+    from shipharness.ab.checkpoints import load_checkpoints
+
     path = Path(repo) / CHECKPOINTS_FILE
     if not path.is_file():
         raise FileNotFoundError(f"{CHECKPOINTS_FILE.as_posix()} not found")
-    data = tomllib.loads(path.read_text(encoding="utf-8"))
-    if isinstance(data.get("checkpoints"), dict):
-        return set(data["checkpoints"])
-    if isinstance(data.get("checkpoint"), list):
-        return {str(entry["name"]) for entry in data["checkpoint"] if "name" in entry}
-    return {name for name, value in data.items() if isinstance(value, dict)}
+    return set(load_checkpoints(Path(repo)))
 
 
 # -- primary measure ----------------------------------------------------------------------------

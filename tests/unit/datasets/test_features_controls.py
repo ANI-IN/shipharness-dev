@@ -19,8 +19,8 @@ from typing import Any
 
 import pytest
 
+from shipharness.ab import checkpoints
 from shipharness.ab.mutants import load_referee_mutants
-from shipharness.ab.workspace import export_checkpoint
 from shipharness.datasets.features_checks import hidden_test_ids
 from shipharness.filters.mutants import check_against_source, run_mutant_detailed
 from tests.unit.filters.helpers import PY, local_sandbox
@@ -113,19 +113,10 @@ def test_referee_mutant_set_is_not_in_a_file_the_reference_changes(task: str) ->
 
 
 def materialize(dest: Path, task: str | None) -> Path:
-    """The start checkpoint (`m1-s1-start` = the base product, ruling R-3) exported from the working
-    tree, plus the control's reference patch.
-
-    INTEGRATION: replace with `shipharness.ab.checkpoints.materialize(REPO, START, dest)` and
-    `apply_reference(task, START, dest)` from B-features, then delete this helper."""
-    export_checkpoint(REPO, None, dest)
+    """The start checkpoint plus, when given, the control's reference patch."""
+    checkpoints.materialize(REPO, START, dest)
     if task is not None:
-        subprocess.run(
-            ["git", "apply", "--whitespace=nowarn", str(patch_path(task))],
-            cwd=dest,
-            check=True,
-            capture_output=True,
-        )
+        checkpoints.apply_reference(task, START, dest, REPO)
     return dest
 
 

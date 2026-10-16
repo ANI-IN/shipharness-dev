@@ -78,18 +78,10 @@ def test_checkpoint_names_reads_the_checkpoints_table(repo: Path) -> None:
     assert {"m1-s1-start", "m1-alt-a", "m1-alt-b", "m1-complete"} <= checkpoint_names(repo)
 
 
-@pytest.mark.parametrize(
-    "text",
-    [
-        '[checkpoints."m1-s1-start"]\ntasks = []\n',
-        '["m1-s1-start"]\ntasks = []\n',
-        '[[checkpoint]]\nname = "m1-s1-start"\ntasks = []\n',
-    ],
-)
-def test_checkpoint_names_accepts_the_plausible_layouts(tmp_path: Path, text: str) -> None:
+def test_checkpoint_names_uses_the_checkpoints_module(tmp_path: Path) -> None:
     path = tmp_path / "teamtrack" / "reference" / "checkpoints.toml"
     path.parent.mkdir(parents=True)
-    path.write_text(text, encoding="utf-8")
+    path.write_text('[checkpoints."m1-s1-start"]\ntasks = []\n', encoding="utf-8")
     assert checkpoint_names(tmp_path) == {"m1-s1-start"}
 
 
