@@ -4,6 +4,23 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### M4 Harness layers and tooling (2026-10-16)
+- Seven builders merged on `main`: checks R1-R7 plus regression, hidden tests, diff scope, flakiness,
+  continuity, and board, with a container check runner and tenant app adapter; layers S1 instructions,
+  S2 state and session lifecycle, S3 scope; S4 verify layer and gate; five test filters, targeted mutant
+  runner, `shipharness testgen`, TeamTrack mutant sets; blinded reviewer, A/B runner, referee,
+  experiments, report; five live console screens with board capture; four Agent Skills and
+  `shipharness skills validate`.
+- Integration: one module of check parameter names (`checks/params.py`) shared by the referee, the gate,
+  and the checks, with a contract test; the verify test phase runs the real filter pipeline; referee
+  mutants load by the task's mutant set (a missing set scores 0/0); one board preview container per arm
+  when sandboxed; failing counts stay right when findings are capped.
+- `logging.py` renamed `log_setup.py`; engineering notes moved to `instructor/engineering-notes/`;
+  learner skill folder `skills/skill-template` (DESIGN D-17).
+- TeamTrack: ids bounded to 64-bit, field validation in the issue service, catch-all error envelope,
+  request logging off by default.
+- CONTRACTS 1.3 (§21 M4 additions); DESIGN D-17 to D-21 and walkthrough anchors as built.
+
 ### M3 Core (2026-10-16)
 - Package `shipharness` with pinned dependencies (uv) and CLI: `doctor`, `up`, `console`,
   `datasets validate|upload`.

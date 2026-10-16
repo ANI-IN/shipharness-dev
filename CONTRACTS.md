@@ -4,7 +4,8 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.2` (2026-10-16, M3: ledger file name, runner fields, sandbox and tracer
+Contract version: `1.3` (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
+where §21 and an earlier section differ, §21 wins). Version 1.2 (M3): ledger file name, runner fields, sandbox and tracer
 signatures as built; see CHANGELOG). Version 1.1: approved at the M2 checkpoint with changes: `finish` tool;
 `feature_list.json` read-only to the agent; Flex tier rule; secrets rules in §20).
 
@@ -249,7 +250,7 @@ class Harness:
 
 Seven function tools, identical for both arms: six working tools plus `finish`. All use `strict: true`,
 `additionalProperties: false`, all properties required (optional = `["type", "null"]`). Tool results are strings; every result is truncated to `TOOL_OUTPUT_MAX_CHARS` (8,000)
-with a trailer `[truncated: N more chars; full output in .shipharness/tool-logs/<call_id>.txt]` (A4
+with a trailer `[truncated: N more chars; the full output is kept in the run log outside the workspace, where you cannot read it; narrow the command instead, for example pipe it through grep or tail]` (A4
 "Context window pollution", F-a-131).
 
 | Tool | Parameters | Result |
@@ -824,3 +825,73 @@ if an anchor in DESIGN.md §14.2 is missing, unbalanced, or longer than 40 lines
 - `shipharness doctor` reports each key separately as `missing`, `invalid` (auth error from the provider),
   `unreachable` (network error), or `ok`, with the next step for each (for example "OPENAI_API_KEY is
   missing: add it to .env at the repo root"). It never echoes any part of a key.
+
+---
+
+## 21. M4 additions (binding)
+
+Built by the seven M4 builders against the builder contract
+(`instructor/engineering-notes/2026-10-16-m4-builder-contract.md`) and integrated on `main`.
+
+**Runner and layers**
+- `AgentRunResult.claims: dict[Phase, ClaimValue] = {}` (one claim per phase); `claim` stays as the last claim.
+- Shared `LayerContext.state` keys: `last_claim` (`{"phase", "claim", "summary"}`, set by the loop at
+  every `finish`), `verify.gate` (last `GateResult` dict), `scope.passes_set` (bool),
+  `state.handoff_path` (workspace-relative), `instructions.files_read` (list), `harness.setup_sha`
+  (commit after `prepare_workspace`).
+- The loop appends `REVERTED: <reason>` lines to a tool result when `after_tool` returns `block` or
+  `revert` decisions; `session_stop.handoff_path` comes from `state.handoff_path`.
+- `shipharness.harness.layers` imports all four layers; `Harness.from_names(names, **kwargs)` passes the
+  same keyword arguments to every layer, and every layer ignores unknown ones. State/scope kwargs:
+  `feature_category`, `feature_description`, `feature_steps`, `now`, `status_test_timeout_s`,
+  `handoff_test_timeout_s`.
+- Host-side tool limits: `read_file` refuses files over 1,000,000 bytes and cuts lines at 2,000 chars;
+  `search` skips files over 1,000,000 bytes, matches the first 2,000 chars of a line, and stops after
+  10 s, saying so. Tool logs stay outside the workspace.
+
+**Checks**
+- Runner: `python -m shipharness.checks.runner --build <dir> --checks a,b --checkpoint <tag> --feature <id>
+  --seed <n> [--params f.json] [--baseline f.json]`; stdout `{"results": [CheckResult, ...]}`, stderr one
+  JSON progress line per update; exit 0 no new violations, 3 new violations, 1 error.
+- Parameter names live in `shipharness.checks.params` (`hidden_tests`, `shipped_tests`,
+  `regression_targets`, `changed_files`, `phase_files`, `allowed_paths`, `harness_artifacts`,
+  `exemptions`, `flaky_runs`, `run_log`, `session_patches`, `artifacts_dir`, ...). The referee and the gate
+  build params only with these names; a test checks that every name a check reads is declared.
+- `Finding.detail_key: str = ""` is part of the baseline key `(rule, endpoint, severity, detail_key)`;
+  `info` findings are shown, never counted. `CheckResult.metrics: dict[str, float | int | bool | None]`.
+  `CheckContext.params` and `CheckContext.is_exempt(rule, endpoint)`.
+- Tenant app adapter `shipharness.checks.adapter.TenantAppAdapter` (TeamTrack built in;
+  `shipharness check --adapter module:attr`). Endpoint discovery includes every operation except the
+  public allowlist (`GET /health`, `POST /auth/login`).
+- `shipharness.checks.scores.score_fields(results)` maps runner results to ScoreRecord fields; failing
+  counts use `max(counted findings, new + baseline violations)` because findings are capped at 200.
+
+**Filters and testgen**
+- `FilterContext` adds `existing_tests`, `surviving_mutant_ids`, `target_module`, `python`,
+  `timeout_s`, `runs` (all defaulted). `build_context(workspace, sandbox, *, existing_tests, mutants,
+  target_module, python, timeout_s, runs)`.
+- `run_pipeline(cands, ctx, bus, *, filters, run_id, arm, phase)`; `run_mutant(..., python=)`.
+- `Mutant.target` is the dotted module (`app.services.issues`); ids `<target>-m<n>`; files
+  `teamtrack/mutants/<target>.jsonl`. The verify layer's test phase builds the context with the tests that
+  existed at phase start and phase-start fingerprints restricted to source files.
+- `shipharness testgen --repo --module [--layers none|verify] [--max-tests N] [--sandbox local|docker]
+  [--image] [--tests] [--python] [--out]`.
+
+**A/B, referee, sandbox**
+- `docker_run_args(..., extra_mounts: list[tuple[Path, str, "ro" | "rw"]] | None = None)` and the same on
+  `DockerSandbox`; mounts inside `/work` must be `ro`, and nothing may cover `/work` itself.
+- `ab/artifacts.py: HARNESS_ARTIFACT_PATTERNS` (DESIGN D-18). Referee-set mutants load by
+  `mutant_set` (`ab/mutants.py`; names resolve to `teamtrack/mutants/<name>.jsonl`; DESIGN D-21).
+- `ABDeps.preview_factory(arm, bus, spec)` returns an object with `start_server()` and `run(stop)`;
+  the runtime builds one preview container per arm on the referee image when sandboxed, and none when
+  unsandboxed.
+
+**Console**
+- Routes: `GET /` (runs), `GET /run/{id}` (five screens), `GET /screens/{id}` (SSE of rendered screens),
+  `GET /events/{id}` (raw events, `Last-Event-ID`), `GET /runs/{id}/files/{path}` (PNG files inside the
+  run directory only). `create_console_app(runs_dir, exports_dir=None)`.
+- `screenshot.overlays[].mark` is one of `other_org`, `duplicate`, `lost_update`, `conflict_detected`,
+  `error`.
+
+**CLI**: `doctor`, `up`, `console`, `datasets`, `check`, `testgen`, `run`, `review`, `ab`, `replay`,
+`report`, `experiments`, `skills validate`.

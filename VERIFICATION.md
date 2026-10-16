@@ -1,15 +1,15 @@
 # VERIFICATION
 
 Record of what was run, what it cost, and what it showed. Every number in course material that is not
-cited to a source points to an entry here. Status: in progress (milestone M3 entries). The full
+cited to a source points to an entry here. Status: in progress (milestones M3 and M4). The full
 verification (M9) adds per-command costs, demo times, pilot and experiment results.
 
 ## Running totals
 
 | Item | Used so far | Budget |
 |---|---|---|
-| OpenAI spend (instructor, all milestones) | $0.000838 (3 live loop smoke runs, M3) | experiments ≤ $25; class ≤ $2.50 |
-| LangSmith traces (instructor, October 2026) | about 16 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check) | experiments ≤ 1,500; month ≤ 2,500 |
+| OpenAI spend (instructor, all milestones) | about $0.0022 (M3: $0.000838 for 3 live loop smoke runs; M4: about $0.0014 for the blinded-reviewer live test, from the builder report) | experiments ≤ $25; class ≤ $2.50 |
+| LangSmith traces (instructor, October 2026) | about 18 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check; M4: about 2) | experiments ≤ 1,500; month ≤ 2,500 |
 
 ## M3 core (2026-10-16)
 
@@ -22,7 +22,7 @@ Branch `m3-core`. Machine: Windows 11 Pro, Python 3.12.10, uv 0.13.0; no Docker,
 | Lint | `uv run ruff check .`, `uv run ruff format --check .` | clean |
 | Prose lint | `uv run python scripts/lint_prose.py` | 0 problems |
 | Walkthrough anchors | `uv run python scripts/anchors.py check` | 5 anchors, 0 problems |
-| Import contract (R6) | `cd teamtrack && uv run lint-imports --config .importlinter` | 2 contracts kept, 0 broken |
+| Import contract (R6) | `cd teamtrack && uv run lint-imports --config .importlinter` | 2 contracts kept, 0 broken (from M4 the layers contract is named "Layers: web -> api -> services -> repositories -> db") |
 | Doctor | `uv run shipharness doctor` | ready; container runtime: warning (Docker not installed) |
 | TeamTrack size | OpenAPI operations / visible tests | 25 operations; 142 visible tests (design targets ≈ 25 and ≈ 120) |
 
@@ -103,3 +103,25 @@ Seven important findings were fixed the same way (loop exception safety, redacti
 masking in tool output and run logs, board validation, discovery of unauthenticated endpoints, tool-log
 file names from model-chosen ids, class-date default). Thirteen minor findings are deferred and listed in
 the M3 hand-off.
+
+## M4 harness layers and tooling (2026-10-16)
+
+Seven builders in separate worktrees from `d25df1e`, merged into `main` in the order checks, filters,
+instructions, state-scope, verify, console, skills, with the full suite after each merge; no merge
+conflicts. Same machine as M3 (no Docker, no WSL, no make).
+
+| Check | Command | Result |
+|---|---|---|
+| Unit + TeamTrack visible tests | `uv run pytest -q -p no:cacheprovider -n 6` | 1094 passed, 6 skipped (Docker, symlink privilege, browser where Chromium is absent), 469 s |
+| Lint | `uv run ruff check .`, `uv run ruff format --check .` | clean |
+| Prose lint | `uv run python scripts/lint_prose.py` | 0 problems |
+| Walkthrough anchors | `uv run python scripts/anchors.py check` | 19 anchors, 0 problems |
+| Course skills | `uv run shipharness skills validate skills` | 4 skills, 0 errors, 0 warnings (also in `make lint`) |
+| Checks against TeamTrack base | `uv run shipharness check --app teamtrack --rules R1,R2,R4,R5,R6,R7` | one R1 leak on `/v1/issues` (the documented legacy endpoint); nothing else |
+| Line endings | `tests/unit/test_line_endings.py` | 0 tracked files with CRLF (69 normalized in M4) |
+
+Integration findings fixed with a failing test first: check parameter names differed between the
+referee, the gate, and the checks (`checks/params.py` plus a contract test); the verify test phase did
+not reach the real filter pipeline (`test_filters_wiring.py`); referee mutants and board previews were not
+wired into `run_ab` (`test_preview_and_mutants_wiring.py`); failing counts dropped when findings were
+capped at 200 (`test_scores.py`).

@@ -285,9 +285,11 @@ forms. The harness changes how knowledge, state, scope, and verification are org
 never adds facts the bare arm cannot read.
 
 ### 6.2 instructions (S1)
-- Places `AGENTS.md` at the workspace root: a map of roughly 100 lines (A1, F-a-28) pointing to
-  `ARCHITECTURE.md` (root) and `docs/` (`SECURITY.md`, `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`,
-  `design-docs/`, `product-specs/`, `references/*-llms.txt`, `exec-plans/`), following A1's layout
+- Places `AGENTS.md` at the workspace root (source: `teamtrack/harness/instructions/`): a map of
+  roughly 100 lines (A1, F-a-28) pointing to `ARCHITECTURE.md` (root) and `docs/` (`SECURITY.md`,
+  `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/`,
+  `references/*-llms.txt`); the state layer adds its own prefix block for `exec-plans/` and progress
+  files, following A1's layout
   (F-a-30). AGENTS.md is injected into the stable context prefix; the files it points to are read on
   demand.
 - Places skills in `.agents/skills/` and puts each skill's `name` and `description` in the context
@@ -636,18 +638,19 @@ the policy printout and the experiment denial log if none occurred.
 
 | Section | Anchors |
 |---|---|
-| Opening | `ab/demo.py:two_arms`, `Opening:publish` in `src/shipharness/events/bus.py` (+ architecture diagram) |
-| S1 | `teamtrack/AGENTS.md` (whole file), `S1:progressive` in `src/shipharness/runner/skills_loader.py`, `harness/instructions/router.py:prefix` |
-| S2 | `init.sh` template, `harness/state/lifecycle.py:stop_resume`, `harness/state/progress.py:write` |
-| S3 | `harness/scope/guard.py:allowed_paths`, `harness/scope/status.py:passes`, `S3:policy` and `S3:run_args` in `src/shipharness/sandbox/policy.py`, `S3:dockerfile` in `sandbox/Dockerfile` |
-| S4 | `filters/pipeline.py:filters`, `checks/r1_tenant.py:probe`, `reviewer/blind.py:blind`, `harness/verify/gate.py:gate` |
-| Final | `ab/report.py:dots`, `skills/_template/SKILL.md` |
+| Opening | `Opening:two_arms` in `src/shipharness/ab/demo.py`, `Opening:publish` in `src/shipharness/events/bus.py` (+ architecture diagram) |
+| S1 | `S1:agents_md` in `teamtrack/harness/instructions/AGENTS.md` (the map's core, 36 of 94 lines; the 40-line anchor limit), `S1:progressive` in `src/shipharness/runner/skills_loader.py`, `S1:prefix` in `src/shipharness/harness/instructions/router.py` |
+| S2 | `S2:init` in `src/shipharness/harness/state/assets/init.sh`, `S2:stop_resume` in `src/shipharness/harness/state/lifecycle.py`, `S2:write` in `src/shipharness/harness/state/progress.py` |
+| S3 | `S3:allowed_paths` in `src/shipharness/harness/scope/guard.py`, `S3:passes` in `src/shipharness/harness/scope/status.py`, `S3:policy` and `S3:run_args` in `src/shipharness/sandbox/policy.py`, `S3:dockerfile` in `sandbox/Dockerfile` |
+| S4 | `S4:filters` in `src/shipharness/filters/pipeline.py`, `S4:probe` in `src/shipharness/checks/r1_tenant.py`, `S4:blind` in `src/shipharness/reviewer/blind.py`, `S4:gate` in `src/shipharness/harness/verify/gate.py` |
+| Final | `Final:dots` in `src/shipharness/ab/report.py`, `Final:skill_template` in `skills/skill-template/SKILL.md` |
 
 The S1 router module is named `router.py` per the brief; it builds the context prefix, and the docs call the
 AGENTS.md file a map (RESEARCH §4.1).
 
 ### 14.3 Assignments (detailed in M7)
-A1 Instructions: restructure a 900-line instruction file into an AGENTS.md map + docs + one skill; link and
+A1 Instructions: restructure a 900-line instruction file into an AGENTS.md map + docs + one skill built
+from `skills/skill-template`; link and
 rule-coverage checker; A/B on `section-1` (k=3). A2 State: three forced stops, no duplicate migration,
 consistent progress and exec-plan history. A3 Scope and sandbox: per-phase diff-scope policy,
 evidence-gated status, one sandbox policy rule with a denial test; hidden scripted diffs. A4 Verification +
@@ -675,6 +678,11 @@ LangSmith link, case study, own skill.
 | D-13 | Runner tools: "six tools" (§2.6 of the brief) | Seven tools: the six working tools plus `finish(claim, summary)`, identical for both arms | Owner change at the M2 review: a structured claim replaces regex detection of "done" |
 | D-14 | Agent may set the status field | Agent may not edit `feature_list.json` at all; only `harness/scope/status.py` writes it | Owner change at the M2 review; A2 F-a-80 |
 | D-15 | HTMX + SSE extension | HTMX 2.0.11 (0BSD) for the board and console; live streaming uses the browser `EventSource` API with a small script instead of `htmx-ext-sse` | The htmx-extensions repository states no license (checked 2026-10-16; RESEARCH G-17), so the file is not redistributed |
+| D-17 | Blank learner skill `skills/_template` | `skills/skill-template` | The Agent Skills spec requires `name` to equal the folder name and allows only lowercase `a-z`, `0-9`, and hyphens; `_template` can never validate. Owner decision 2026-10-16 |
+| D-18 | Harness artifacts in the arm repository | After `prepare_workspace` the loop commits the placed artifacts inside the sandbox ("harness setup"); the harness arm's diff is taken against that commit, and one pattern list (`ab/artifacts.py`) marks harness-owned files for the referee, the blind reviewer, and `diff_scope` | Otherwise AGENTS.md, progress.md, feature_list.json, and similar files would count as shipped product changes and out-of-scope edits |
+| D-19 | Console screens built in the browser from events | The server folds events per arm and streams rendered HTML over SSE; the browser swaps screens in; no HTMX | Agent text never becomes markup in the browser; strict content security policy |
+| D-20 | Referee scores from container checks | Out-of-scope files, test-phase source edits, shipped-test count, and mutant results are computed by the referee on the host from the applied diff; container checks receive the diff too, so the `diff_scope` result shown on screen agrees | One authoritative source for the S3 primary measure |
+| D-21 | Missing mutant set | Logged and scored 0/0; the run continues | A dataset typo must not abort a live class demo; M5 dataset validation checks every mutant set exists |
 | D-16 | Sandbox policy file at `sandbox/policy.py` | Policy code in `src/shipharness/sandbox/policy.py`; repo-root `sandbox/` holds the Dockerfile and runtime notes | The policy is imported by the package; one source of truth |
 
 ---

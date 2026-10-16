@@ -171,7 +171,7 @@ term; it is described plainly and not given a concept name.
 | `harness-setup` | A1 (map, docs layout, plans, quality doc), A2 (init.sh, progress file, feature list, clean state, getting up to speed), A3 (structured handoff, separate evaluator), A7 (ExecPlan sections), B1 (format) | Direct for each template; templates written from these sources, not copied |
 | `assured-tests` | B11 (filters, five executions, line coverage), B12 (mutant-guided hardening, equivalence), B1 | Direct |
 | `house-rules` | A1 (golden principles, taste invariants, custom lints with remediation messages, structural tests), B1 | Composite (label "house rules", G-9) |
-| `_template` | B1 (frontmatter, directories, size guidance, references one level deep), B3 (`.agents/skills/` convention), B7-B9 (install paths) | Direct |
+| `skill-template` | B1 (frontmatter, directories, size guidance, references one level deep), B3 (`.agents/skills/` convention), B7-B9 (install paths) | Direct |
 
 Coverage result: every concept in §2.7-2.8 has at least one §1.9 source. Items marked Composite or
 Course mechanism carry the citation rules above and are listed in Open gaps.
@@ -270,7 +270,8 @@ no-card account in M3.
 - Validator: `skills-ref` 0.1.1 (PyPI, Apache-2.0, Python >=3.11), "for demonstration purposes only".
   It rejects any frontmatter key outside the six spec fields. It does not check body length, file
   references, or token budget. The npm package `skills-ref` is by an unrelated author.
-- Decision input: course skills use only the six spec fields so they pass `skills-ref validate` and
+- Decision input: course skills use only the six spec fields so they pass the reference validator
+  (skills-ref 0.1.1 installs its CLI as `agentskills`: `uv run agentskills validate <dir>`) and
   load in all three agents. `shipharness skills validate` runs the skills-ref checks (ASCII reading of the
   name charset) plus warnings for the 500-line and one-level-deep recommendations.
 - Install paths: Claude Code `~/.claude/skills/<name>/`, `.claude/skills/<name>/`. Codex
