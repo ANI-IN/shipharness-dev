@@ -1,10 +1,11 @@
 """Live step for assignment A3: one live A/B on F3, then your policy applied to what it recorded.
 
 Usage (from the repository root; README "Live step"):
-    uv run shipharness ab --section demo-3 --feature F3 --no-preview 2>&1 | tee ab-output.txt
+    uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment \\
+        2>&1 | tee ab-output.txt
     uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl PATH \\
-        --ab-output ab-output.txt \\
-        --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview"
+        --ab-output ab-output.txt --command \\
+        "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
     uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl PATH
 
 collect copies the A/B's evidence into PATH/live/ (both ScoreRecords from exports/scores/, the
@@ -48,7 +49,7 @@ SCHEMA = "a3-live-verdict/1"
 
 
 def _default(name: str) -> Any:
-    """The class value of a setting (CONTRACTS §1), not the local .env."""
+    """The class value of a setting (the code default in shipharness.config), not the local .env."""
     return Settings.model_fields[name].default
 
 
@@ -447,7 +448,7 @@ def _command_problems(command: str) -> list[str]:
         return []
     return [
         f"command.txt: the command must be `make demo-3` or `shipharness ab --section demo-3 "
-        f"--feature F3` (optionally --no-preview), not {command!r}"
+        f"--feature F3` (optionally --no-preview and --purpose assignment), not {command!r}"
     ]
 
 

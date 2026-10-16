@@ -3,18 +3,18 @@
 Reading time: about 10 minutes.
 
 The S3 sandbox is one Docker container per arm with a fixed policy (`SandboxPolicy` in
-`src/shipharness/sandbox/policy.py`; DESIGN §9). This piece puts that policy next to the boundaries
-described in two teaching sources (A4, A5) and in the official docs of another coding agent, Codex
-(D21-D23). Everything about the other systems comes from the entries recorded in
-[RESEARCH.md](../../../RESEARCH.md) and its notes (`research/notes/R-a.md`, `research/notes/R-d.md`).
-Where a cell says "not recorded", RESEARCH has no entry for it; that does not mean the source lacks
-it.
+`src/shipharness/sandbox/policy.py`; the values are **course design**). This piece puts that policy
+next to the boundaries described in two teaching sources (A4, A5) and in the official docs of another
+coding agent, Codex (D21-D23). Everything about the other systems comes from the course's research
+record of those sources, cited by ID; the full list is in [REFERENCES.md](../../../REFERENCES.md).
+Where a cell says "not recorded", the course recorded nothing on it; that does not mean the source
+lacks it.
 
 ## Side by side
 
 | | shipharness arm container | A4: parallel Claudes | A5: quickstart (README only) | Codex (official docs) |
 |---|---|---|---|---|
-| Where commands run | A Docker container per arm. The agent loop and the API keys stay on the host (DESIGN §3.2) | "for each agent, a Docker container is spun up with the repo mounted to /upstream." (F-a-88) | An OS-level sandbox, the first of three layers (F-a-86) | An OS sandbox per command: Seatbelt on macOS, bwrap plus seccomp on Linux, MXC on Windows, the Linux implementation on WSL2 (D21) |
+| Where commands run | A Docker container per arm. The agent loop and the API keys stay on the host | "for each agent, a Docker container is spun up with the repo mounted to /upstream." (F-a-88) | An OS-level sandbox, the first of three layers (F-a-86) | An OS sandbox per command: Seatbelt on macOS, bwrap plus seccomp on Linux, MXC on Windows, the Linux implementation on WSL2 (D21) |
 | Network | `--network none`: "Within the container, only the loopback device is created." (D27) | "Claude did not have internet access at any point during its development" (F-a-90) | Not recorded | "By default, the agent runs with network access turned off." (D21); can be turned on for `workspace-write` |
 | What the agent can write | `/work` (the arm's repository) and `/tmp`; the root filesystem is read-only | Its container, with the repository mounted at `/upstream` (F-a-88) | "File operations restricted to the project directory only" (F-a-86) | `workspace-write`: the workspace and temp directories; `.git`, `.agents`, `.codex`, `.aws` under writable roots stay read-only (D21) |
 | Which commands | Any command; six deny rules refuse network commands before they run; output is checked afterwards | Not recorded | An allowlist: "Commands not in the allowlist are blocked by the security hook." (F-a-87) | Set by the sandbox mode (`read-only`, `workspace-write`, `danger-full-access`) and the approval policy (`on-request`, `never`, `granular`) (D22, D23) |
@@ -32,8 +32,8 @@ the image. The trade-off is the usual one. An allowlist is tight but has to be k
 every tool a task needs; a container boundary with a short deny list is looser on commands and
 tighter on what any command can reach.
 
-**2. Codex on Linux uses bwrap plus seccomp.** RESEARCH correction 11: Codex on Linux uses bubblewrap
-(`bwrap`) plus seccomp, not Landlock. The docs say: "Linux uses bwrap plus seccomp by default." (D21).
+**2. Codex on Linux uses bwrap plus seccomp.** Codex on Linux uses bubblewrap (`bwrap`) plus
+seccomp, not Landlock as older descriptions say. The docs say: "Linux uses bwrap plus seccomp by default." (D21).
 `landlock` survives only as an alias of the `codex sandbox` test command. The approval policy names
 changed too: `untrusted` is retired and `on-failure` is deprecated; the valid values are `on-request`,
 `never`, and `granular` (D23).
@@ -43,11 +43,12 @@ inside a writable workspace (D21), so the agent cannot rewrite its own configura
 the whole of `/work` is writable, `.git` included, because both arms commit their work. The harness
 files are protected one level up, on the host: the scope layer refuses any change to
 `feature_list.json` in every phase, and the referee strips harness artifacts from the diff and
-restores the checkpoint's test configuration before judging (CONTRACTS §15.1, §21). This keeps the
+restores the checkpoint's test configuration before judging (`strip` and `restore_judge_config` in
+`src/shipharness/ab/referee.py`). This keeps the
 container identical for both arms; the protection that differs between arms lives in the harness.
 
 **4. Out of memory is not an exit code.** Exit code 137 is the SIGKILL convention (128 + 9), not a
-code the Docker pages document (RESEARCH §4.4); Docker's documented out-of-memory signal is the
+code the Docker pages document; Docker's documented out-of-memory signal is the
 `State.OOMKilled` field (D29). Because an arm container stays up for the whole run and runs many
 commands, `DockerSandbox.exec` in `src/shipharness/sandbox/docker.py` reads the container's cgroup v2
 `oom_kill` counter before and after each command. A quick exit 137 is reported as `memory` when the
@@ -60,8 +61,8 @@ time. It does not decide which files inside `/work` belong to this feature. That
 job (`blocked`, harness arm only); the container's refusals are `sandbox_denied` events (both arms).
 Module 2 covers detailed sandbox design.
 
-In M6 pilot run 2, no command in any of the 12 A/Bs (24 arm runs) produced a `sandbox_denied` event
-(`grep -c sandbox_denied` on each run log, read 2026-10-17). The agent used what the image had and
+In the course pilot's run 2 (2026-10-16), no command in any of the 12 A/Bs (24 arm runs) produced a
+`sandbox_denied` event (`grep -c sandbox_denied` on each run log, read 2026-10-17). The agent used what the image had and
 never tried the network. A boundary that is never hit in normal work is still doing its job: it
 bounds the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19).
 
@@ -77,8 +78,7 @@ bounds the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19)
 - **Protect the files that grade the agent.** Codex keeps `.git` and its own configuration read-only
   inside the workspace (D21). Whatever your harness uses as evidence (a feature list, a test config, a
   commit) needs the same protection from the agent, at the container level or in harness code.
-- **Report out-of-memory from the kernel, not from an exit code.** Exit 137 alone is ambiguous
-  (RESEARCH §4.4); read the cgroup counter or `State.OOMKilled` (D29) before you tell the agent it ran
+- **Report out-of-memory from the kernel, not from an exit code.** Exit 137 alone is ambiguous; read the cgroup counter or `State.OOMKilled` (D29) before you tell the agent it ran
   out of memory.
 
 ## Sources

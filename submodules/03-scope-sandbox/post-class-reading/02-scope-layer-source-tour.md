@@ -134,16 +134,17 @@ The harness runs the visible suite itself, in the arm's container, after the age
 does not read the agent's own test output. Zero passing tests is not evidence. The evidence records
 the commit it was taken at, so a reviewer can check out exactly what was tested. With the verify layer
 on (demo-4 and the final), `_gate_evidence` uses the verify gate's result instead and records which
-house-rule checks passed.
+house-rule checks passed ("house rules" is the course's label for what A1 calls "golden
+principles", A1 F-a-99).
 
 How this compares with A2:
 
 | | A2 | shipharness |
 |---|---|---|
-| Who writes the feature list | The initializer agent (A2, F-a-78) | Harness code before the first session (DESIGN D-11) |
-| Who changes `passes` | The coding agent, "only by changing the status of a passes field" (A2, F-a-79), after "careful testing" (A2, F-a-108) | `status.py` only; the agent may not edit the file (DESIGN D-14) |
+| Who writes the feature list | The initializer agent (A2, F-a-78) | Harness code before the first session (course design) |
+| Who changes `passes` | The coding agent, "only by changing the status of a passes field" (A2, F-a-79), after "careful testing" (A2, F-a-108) | `status.py` only; the agent may not edit the file (course design) |
 | What `passes: true` rests on | The agent's own testing | A visible-test run or a verify gate the harness ran, recorded in `evidence` with the commit |
-| Extra fields | none | `evidence`, `testedAt` (course design, RESEARCH G-6) |
+| Extra fields | none | `evidence`, `testedAt` (course design) |
 
 The source basis for moving the decision is A3: "Separating the agent doing the work from the agent
 judging it proves to be a strong lever to address this issue." (A3, F-a-110).
@@ -187,10 +188,10 @@ def phase_changed_files(
 ```
 
 - The referee never uses the scope layer's decisions. It judges the shipped diff, the same way for
-  both arms (DESIGN §8.3, rule 1).
+  both arms.
 - Harness artifacts (`AGENTS.md`, `progress.md`, `feature_list.json`, and the rest of the list in
   `src/shipharness/ab/artifacts.py`) are stripped first, so the harness arm is not charged for its own
-  state files (DESIGN D-18).
+  state files.
 - A file is in scope if either phase allows it. The test-phase rule is separate: a file changed after
   the test phase started must match the test list.
 - The test-phase files are the difference between two working-tree snapshots: the start of the first
@@ -198,10 +199,10 @@ def phase_changed_files(
   test phase leaves no trace and is not counted.
 - The snapshot version is a pilot fix. The first version compared the working tree with the commit
   at the start of the test phase, so an arm that never committed its build work had that work
-  counted as test-phase source edits: in M6 pilot run 1 the bare arms' `app/api/issues.py` and
-  `app/services/issues.py` were counted that way (VERIFICATION.md, M6 pilot, change 6). Run 1 also
-  counted 4 files of the import linter's cache (`.import_linter_cache/`) as out of scope in every F3
-  arm (change 5). Both fixes apply to both arms; the measure itself did not change.
+  counted as test-phase source edits: in the course pilot's run 1 (2026-10-16, before the
+  measurement fixes) the bare arms' `app/api/issues.py` and `app/services/issues.py` were counted
+  that way. Pilot run 1 also counted 4 files of the import linter's cache (`.import_linter_cache/`) as
+  out of scope in every F3 arm. Both fixes apply to both arms; the measure itself did not change.
 
 ## Try it without a model call
 

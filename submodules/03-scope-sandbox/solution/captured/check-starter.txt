@@ -1,4 +1,4 @@
-# captured on 2026-10-17 (IST) at commit e7287f4 (offline: no model calls, no containers); your output will differ
+# captured on 2026-10-17 from `make check-assignment-3` at commit 61ec849 (offline: no model calls, no containers); your output will differ
 $ make check-assignment-3
 uv run python submodules/03-scope-sandbox/assignment/check.py 
 A3 self-check: submodules/03-scope-sandbox/assignment/starter

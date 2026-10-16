@@ -5,8 +5,7 @@ against scripted inputs: a per-phase diff-scope policy, an evidence-gated update
 and one new sandbox policy rule with a test that proves the denial. Then run one live A/B on F3 and
 apply your own policy and status gate to what the two real arms changed.
 
-- Difficulty: 3 to 6 hours for a strong engineer (brief §5.1). The hidden cases go past what class
-  shows: renames, paths with spaces, quoted names, `../` traversal, harness files, binary files, empty
+- Difficulty: the work is in the edge cases. The hidden cases go past what class shows: renames, paths with spaces, quoted names, `../` traversal, harness files, binary files, empty
   new files, hunks whose content looks like file headers, and source edits in the test phase.
 - Cost: Parts A to C need no API keys, no agent runs, and no container runtime. The required live
   step runs one `demo-3` A/B (two agent runs under the class caps; see "Cost and trace budget").
@@ -45,14 +44,15 @@ close in a package that mirrors the real interfaces:
   names a commit SHA that such a rewrite would orphan. You add a sandbox rule that refuses history
   rewrites before they run.
 
-Path checks are easy to get wrong in both directions, and the course's own pilot shows it. In M6
-pilot run 1, every F3 arm was charged with 4 out-of-scope files that were the import linter's cache
-(`.import_linter_cache/`), written by the agent's lint step; the harness arm's scope layer reverted
-them after every lint run. The same run counted uncommitted build work as test-phase source edits
-for arms that never commit. Both were measurement bugs, fixed in pilot changes 5 and 6
-(VERIFICATION.md, M6 pilot). Your policy reads diffs, not working trees, so the cache does not reach
-it, but the lesson carries over: decide what counts as a changed file before deciding whether it is
-allowed.
+Path checks are easy to get wrong in both directions, and the course's own pilot shows it. In the
+course pilot's run 1 (2026-10-16, before the measurement fixes), every F3 arm was charged with 4
+out-of-scope files that were the import linter's cache (`.import_linter_cache/`), written whenever
+the linter ran (for example inside the visible suite that the agent's `bash init.sh` started); the
+harness arm's scope layer reverted them after every linter run. The same run counted uncommitted
+build work as test-phase source edits for arms that never commit. Both were measurement bugs, fixed
+for both arms before pilot run 2. Your policy reads diffs, not working trees, so the cache does not
+reach it, but the lesson carries over: decide what counts as a changed file before deciding whether
+it is allowed.
 
 ## Background
 
@@ -66,16 +66,16 @@ Read these before you start; each is short.
 - **Allowed paths per phase** are the course's application of two source statements: A5's security
   model has "File operations restricted to the project directory only" (A5, F-a-86), and A1 says to
   "enforce boundaries centrally, allow autonomy locally" (A1, F-a-98). The per-phase lists come from
-  each dataset example's `outputs.allowed_paths` (CONTRACTS §16.1). In the real harness,
-  `src/shipharness/harness/scope/guard.py` decides per path (`uv run python scripts/anchors.py extract
-  S3:allowed_paths`) and `src/shipharness/harness/scope/layer.py` blocks patches and reverts command
-  changes (DESIGN §6.4).
+  each dataset example's `outputs.allowed_paths` (`datasets/teamtrack-features-v1.jsonl`). In the
+  real harness, `src/shipharness/harness/scope/guard.py` decides per path (`uv run python
+  scripts/anchors.py extract S3:allowed_paths`) and `src/shipharness/harness/scope/layer.py` blocks
+  patches and reverts command changes.
 - **Only the harness sets `passes`.** A2 lets the agent mark a feature passing after "careful testing"
   (A2, F-a-108). The course moves that decision to the harness, citing A3: "Separating the agent doing
   the work from the agent judging it proves to be a strong lever" (A3, F-a-110). The `evidence` and
-  `testedAt` fields and "only the harness sets `passes`" are course design, not source terms (RESEARCH
-  G-6). Real code: `src/shipharness/harness/scope/status.py` (anchor `S3:passes`).
-- **The sandbox** is identical for both arms and is not an A/B variable (DESIGN §9). Sources: "for each
+  `testedAt` fields and "only the harness sets `passes`" are course design, not source terms. Real
+  code: `src/shipharness/harness/scope/status.py` (anchor `S3:passes`).
+- **The sandbox** is identical for both arms and is not an A/B variable (course design). Sources: "for each
   agent, a Docker container is spun up" (A4, F-a-88); "Claude did not have internet access at any point
   during its development" (A4, F-a-90); A5's bash allowlist, where "Commands not in the allowlist are
   blocked by the security hook." (A5, F-a-87). The course policy refuses network commands before they
@@ -113,7 +113,8 @@ Given, no TODO: `a3scope/sandbox.py` (`PolicySandbox`, which refuses a command t
 
 ## Prerequisites
 
-- S3 class (the scope layer, `passes`, the sandbox policy) and the code at the four anchors above.
+- S3 class (the scope layer, `passes`, the sandbox policy) and the code at the three anchors above
+  (`S3:allowed_paths`, `S3:passes`, `S3:policy`).
 - Python 3.12 and `uv`; the repository set up with `uv sync` (or `make setup`).
 - Comfort with regular expressions and `pytest`.
 - For the live step: `OPENAI_API_KEY` (and `LANGSMITH_API_KEY` for traces) in `.env`, `make doctor`
@@ -264,7 +265,8 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
   serves. You may import `shipharness.sandbox` (required for Part B and C) and the standard library.
 - Do not edit `visible_tests/`, `fixtures/`, `check.py`, or `live.py`.
 - The live step uses the class settings: `OPENAI_MODEL=gpt-6-luna`, `MAX_RUN_COST_USD=0.20` per arm,
-  `MAX_BATCH_COST_USD=2.50` per command (CONTRACTS §1, `.env.example`). The grader rejects evidence
+  `MAX_BATCH_COST_USD=2.50` per command (defaults in `src/shipharness/config/settings.py`, and
+  `.env.example`). The grader rejects evidence
   from another model, a raised cap, a replay, a swap test, or an A/B from the working tree.
 - Keep the interfaces (names, fields, argument order) exactly as given; the tests call them.
 - No network, API keys, or agent runs are needed or allowed in tests.
@@ -306,11 +308,14 @@ files you submit and re-runs your policy on them, offline.
    ```
 
    This is `make demo-3` without the board preview containers, with its traces in the
-   `shipharness-assignments` LangSmith project (`--purpose assignment`, DESIGN §12) instead of a class
-   project (`make demo-3` uses `--purpose class`, which needs `SHIPHARNESS_CLASS_DATE`). The M6 pilot
-   ran the same A/B, without `--purpose`, three times per pilot run (VERIFICATION.md, M6 pilot). The
-   command prints one line per arm and a cost line (`Cost: $...`). Each arm stops at
-   `MAX_RUN_COST_USD`, the command at `MAX_BATCH_COST_USD`.
+   `shipharness-assignments` LangSmith project (`--purpose assignment`; `uv run shipharness ab
+   --help` lists class, pilot, and assignment) instead of a class project (`make demo-3` uses
+   `--purpose class`, which needs `SHIPHARNESS_CLASS_DATE`). The course pilot ran the same A/B three
+   times per pilot run. The command prints one line per arm and a cost line (`Cost: $...`). Each arm
+   stops at `MAX_RUN_COST_USD`, the command at `MAX_BATCH_COST_USD`. The A/B calls OpenAI and starts
+   containers, so it was not run while this page was written;
+   `live.py verify` accepts this exact command in `command.txt` (tested offline on the synthetic
+   evidence of the course's own tests).
 3. Right after it, collect the evidence into your submission folder (the arm workspaces live in the
    temp folder and are not kept forever):
 
@@ -375,8 +380,9 @@ What the grader checks (criterion 6, no model calls, no keys, no container):
 - your code, re-run on the included diffs with `sandbox-log.json` replayed, gives both verdict files
   exactly, and the log holds no result your gate did not ask for.
 
-What to expect from the referee's side, from the three F3 A/Bs of M6 pilot run 2 (VERIFICATION.md,
-M6 pilot run 2): every arm, bare and harness, had `out_of_scope_files` 0 and
+What to expect from the referee's side, from the three F3 A/Bs of the course pilot's run 2
+(2026-10-16; ab-20261016-182624-6403f7, ab-20261016-184452-134b15, ab-20261016-190948-4054b5):
+every arm, bare and harness, had `out_of_scope_files` 0 and
 `test_phase_source_edits` 0. The bare arms' diffs held `app/api/issues.py`,
 `app/services/issues.py`, `docs/HANDBOOK.md`, and one test file under `tests/visible/`; the harness
 arms' diffs also held `progress.md`, `session-handoff.md`, the exec plan, and in two of three runs
@@ -452,7 +458,8 @@ Add your own cases: `fixtures/make_fixtures.py` shows how to turn file operation
   rule allows everything.
 - On a complete solution without `live/`, every row is `ok` and the live row says `missing`; the
   self-check exits 0, and the instructor's grader prints 90.0 / 100 and `Result: FAIL` (the live
-  evidence is required). With valid live evidence it prints 100.0 / 100 and `Result: PASS`.
+  evidence is required). Valid live evidence adds criterion 6 (up to 10 points) and meets the last
+  pass condition.
 - `live.py verify` prints `evidence ok` and `verdicts ok` on a complete live step.
 - With `HISTORY_RULES = ()`, your denial test fails.
 - The optional container test fails on the starter (the amend runs and rewrites the commit) and passes
@@ -497,8 +504,8 @@ decision.evidence  # {"gate_id": "visible-tests", "commit": "c0ffee...", "visibl
                    #  "existing": "not run (verify layer off)", "checks": []}
 ```
 
-The self-check on the starter, cut to the table and the last lines (captured on 2026-10-17 (IST) at
-commit e7287f4 with `make check-assignment-3`; offline, no model calls; your output will differ):
+The self-check on the starter, cut to the table and the last lines (captured on 2026-10-17 from
+`make check-assignment-3` at commit 61ec849; offline, no model calls; your output will differ):
 
 ```text
 uv run python submodules/03-scope-sandbox/assignment/check.py 
@@ -576,12 +583,14 @@ its criteria.
 
 Parts A to C call no model and write no traces. The live step is the only paid command: one
 `demo-3` A/B, two agent runs on `gpt-6-luna`. Its caps bound the cost: each arm stops at
-`MAX_RUN_COST_USD` ($0.20), each blinded review at `MAX_REVIEW_COST_USD` ($0.04), and the command at
-`MAX_BATCH_COST_USD` ($2.50) (CONTRACTS §1). It writes two traces per run, the agent root and the
-referee evaluator (DESIGN §12), so four traces. `collect` and `verify` call no model. DESIGN §11.5
-planned A3 at ≤ $0.25 and ≤ 30 traces before the live step was added. Measured on the same A/B in M6
-pilot run 2 (score records `exports/scores/<run id>.json`, fields `cost_usd` and `review_cost_usd`;
-captured on 2026-10-16, runs as listed; your output will differ):
+`MAX_RUN_COST_USD` ($0.20), each review at `MAX_REVIEW_COST_USD` ($0.04), and the command at
+`MAX_BATCH_COST_USD` ($2.50) (defaults in `src/shipharness/config/settings.py`). The review is
+blinded: the reviewer does not see which arm wrote a diff ("blinded" is this course's A/B design, not
+a source term). It writes two traces per run, the agent root and the referee evaluator, so four
+traces per A/B (the course pilot's run 2 wrote 48 traces for its 12 A/Bs). `collect` and `verify`
+call no model. Measured on the same A/B in the course pilot's run 2 (score records
+`exports/scores/<run id>.json`, fields `cost_usd` and `review_cost_usd`; captured on 2026-10-16, runs
+as listed; your output will differ):
 
 | A/B | Bare arm | Bare review | Harness arm | Harness review |
 |---|---|---|---|---|
@@ -591,5 +600,5 @@ captured on 2026-10-16, runs as listed; your output will differ):
 
 Each figure is far below its cap; your run uses your own key and will cost a different amount.
 
-The live step logs no separate LangSmith experiment: the A/B's traces go to the class project, as in
-the section demo.
+The live step logs no separate LangSmith experiment: with `--purpose assignment`, the A/B's traces go
+to the `shipharness-assignments` project, not to a class project.

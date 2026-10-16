@@ -270,11 +270,13 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    - {marker}")
     print()
     if ok and not live["present"]:
-        print("Self-check PASSED. Next: the live step (README 'Live step'), then make")
-        print("grade-assignment-3 (adds the hidden cases and requires live/).")
+        print("Self-check PASSED. Next: the live step (README 'Live step'), then submit your")
+        print("folder; the instructor grades it with make grade-assignment-3 SUBMISSION=<folder>")
+        print("(adds the hidden cases and requires live/).")
         return 0
     if ok:
-        print("Self-check PASSED. Next: make grade-assignment-3 (adds the hidden cases).")
+        print("Self-check PASSED. Next: submit your folder; the instructor grades it with")
+        print("make grade-assignment-3 SUBMISSION=<folder> (adds the hidden cases).")
         return 0
     print("Self-check FAILED: fix the FAIL rows above (README 'Step-by-step tasks').")
     return 1
