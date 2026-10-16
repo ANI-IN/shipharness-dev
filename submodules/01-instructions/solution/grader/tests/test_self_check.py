@@ -188,6 +188,7 @@ def test_a_code_span_that_is_neither_in_the_original_nor_a_path_is_a_new_fact(tr
     result = tree_checks(tree)["no-new-facts"]
     assert not result.ok
     assert "make_tenant_safe()" in result.detail
+    assert result.score == pytest.approx(2 / 3)  # one of three points off per unknown span
     assert "require_writer" not in result.detail and "deps.py" not in result.detail
 
 

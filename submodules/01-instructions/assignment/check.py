@@ -233,7 +233,8 @@ def check_no_new_facts(tree: Path, product: Path, original: Path) -> Result:
         + ("; ..." if len(unknown) > 8 else "")
         + " (restructure, do not add facts: the A/B must stay fair)"
     )
-    return _result("no-new-facts", 1.0 - len(unknown) / 5 if unknown else 1.0, detail)
+    # Worth 3 points in the grader: one point off per unknown span.
+    return _result("no-new-facts", 1.0 - len(unknown) / 3 if unknown else 1.0, detail)
 
 
 def check_tree(tree: Path, product: Path = PRODUCT, original: Path = ORIGINAL) -> list[Result]:
