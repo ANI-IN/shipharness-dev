@@ -168,3 +168,10 @@ td.reason { color: var(--bad); padding-left: 24px; }
 body.index .bar { height: auto; padding: 16px 24px; }
 .index-main { display: grid; gap: 16px; padding: 16px 24px; max-width: 1200px; }
 .runs li { margin: 6px 0; font-size: 22px; }
+
+/* Screen 1 after the run: the whole timeline, scrollable inside the panel. */
+.turns.full,
+.decisions.full {
+  max-height: 55vh;
+  overflow-y: auto;
+}

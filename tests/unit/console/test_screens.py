@@ -268,3 +268,62 @@ def test_screen_updates_follow_new_events_and_send_only_changed_screens(
     assert "CPU 91%" in update["screens"]["1"]  # type: ignore[index]
     assert "4" not in update["screens"]  # type: ignore[operator]
     assert update["seq"] == first["seq"] + 1  # type: ignore[operator]
+
+
+# --- screen 1 after the run (owner, 2026-10-17): the full timeline, scrollable ------------------
+
+
+def _long_run(runs: Path, *, finished: bool) -> None:
+    with EventBus(runs / "ab-long" / "events.jsonl", ab_id="ab-long") as bus:
+
+        def emit(type_: str, data: dict) -> None:  # type: ignore[type-arg]
+            bus.publish(type_, data, run_id="run-h", arm="harness")
+
+        spec = {"feature_id": "F1", "ticket": "t", "layers": ["instructions"]}
+        emit("run_start", {"spec": spec, "policy_summary": "network none"})
+        for n in range(1, 13):
+            emit(
+                "turn",
+                {
+                    "session_index": 1,
+                    "turn": n,
+                    "turns_left": 30 - n,
+                    "input_tokens": 100,
+                    "cached_tokens": 0,
+                    "cache_write_tokens": 0,
+                    "output_tokens": 10,
+                    "reasoning_tokens": 0,
+                    "message_excerpt": f"step-{n:02d}",
+                },
+            )
+        for n in range(1, 6):
+            emit(
+                "harness_decision",
+                {"kind": "note", "layer": "instructions", "message": f"decision-{n}x", "paths": []},
+            )
+        if finished:
+            emit(
+                "run_end",
+                {"status": "completed", "claim": "none", "cost_usd": 0.01, "turns_total": 12,
+                 "wall_s": 100.0},
+            )  # fmt: skip
+
+
+def _live_screen(tmp_path: Path, *, finished: bool) -> str:
+    _long_run(tmp_path / "runs", finished=finished)
+    app = create_console_app(tmp_path / "runs", exports_dir=tmp_path / "exports")
+    return screens_of(TestClient(app).get("/run/ab-long").text)["1"]
+
+
+def test_finished_run_shows_every_turn_and_decision_in_a_scrollable_list(tmp_path: Path) -> None:
+    live = _live_screen(tmp_path, finished=True)
+    assert all(f"step-{n:02d}" in live for n in range(1, 13))
+    assert all(f"decision-{n}x" in live for n in range(1, 6))
+    assert 'class="turns full"' in live and 'class="decisions full"' in live
+
+
+def test_live_run_keeps_the_short_view(tmp_path: Path) -> None:
+    live = _live_screen(tmp_path, finished=False)
+    assert "step-04" not in live and all(f"step-{n:02d}" in live for n in range(5, 13))
+    assert "decision-2x" not in live and "decision-3x" in live and "decision-5x" in live
+    assert 'class="turns full"' not in live
