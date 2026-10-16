@@ -1,15 +1,15 @@
 # VERIFICATION
 
 Record of what was run, what it cost, and what it showed. Every number in course material that is not
-cited to a source points to an entry here. Status: in progress (milestones M3 to M5). The full
+cited to a source points to an entry here. Status: in progress (milestones M3 to M6). The full
 verification (M9) adds per-command costs, demo times, pilot and experiment results.
 
 ## Running totals
 
 | Item | Used so far | Budget |
 |---|---|---|
-| OpenAI spend (instructor, all milestones) | about $0.0022 (M3: $0.000838 for 3 live loop smoke runs; M4: about $0.0014 for the blinded-reviewer live test, from the builder report) | experiments ≤ $25; class ≤ $2.50 |
-| LangSmith traces (instructor, October 2026) | about 18 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check; M4: about 2) | experiments ≤ 1,500; month ≤ 2,500 |
+| OpenAI spend (instructor, all milestones) | about $0.4620 (M3: $0.000838 for 3 live loop smoke runs; M4: about $0.0014 for the blinded-reviewer live test, from the builder report; M6: $0.0183 smoke run, $0.4415 pilot run 1) | experiments ≤ $25; class ≤ $2.50 |
+| LangSmith traces (instructor, October 2026) | about 69 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check; M4: about 2; M6: 3 smoke run, 48 pilot run 1) | experiments ≤ 1,500; month ≤ 2,500 |
 
 ## M3 core (2026-10-16)
 
@@ -104,6 +104,63 @@ masking in tool output and run logs, board validation, discovery of unauthentica
 file names from model-chosen ids, class-date default). Thirteen minor findings are deferred and listed in
 the M3 hand-off.
 
+
+## M6 pilot (2026-10-16)
+
+Machine: the class host (see M5). Model gpt-6-luna, reasoning effort medium, both arms. Command:
+`scripts/pilot.py --k 3 --effort medium --parallel 2` (each A/B runs `shipharness ab --section demo-N
+--feature FN --no-preview`; 2 A/Bs at a time). Pilot cap: up to 72 arm runs and $10 in total, on top of
+the per-arm cap. Primary measures are the pre-registered ones (DESIGN §10); no pilot change touches them.
+
+### GitHub
+
+The repository was created private by the owner's choice (2026-10-16), first as `ANI-IN/shipharness`, then
+renamed `ANI-IN/shipharness-dev` (private). History check before the first push: no tracked `.env`; the
+real key values do not occur in any commit (hash comparison; two test blobs hold placeholder strings); one
+identity on every commit; no attribution lines. At this entry `origin/main` is 334483d (205 commits) with 9
+tags (`m1-base` and the 8 checkpoint tags). An earlier chat statement that `origin/main` already held the M1
+commit was wrong (the repository did not exist yet); no entry in this file carried that claim.
+
+### Smoke run
+
+One A/B (F1, `ab-20261016-163551`), $0.0183, 3 traces. The harness arm ended `ERROR` with zero turns: on the
+live path the layer registry was empty because no code imported the layer modules.
+
+### Run 1 (before the fixes below)
+
+12 A/Bs (F1-F4, k=3), 24 arm runs, $0.4415 (agents and reviewer; cost ledger, 16:49:25-18:17:36),
+48 traces (distinct trace links in the run logs). A/B wall time 466-875 s.
+
+| Section | Arm | Primary passed | Agent time limit hit | Agent time (s) | Harness time (s) | Patches failed |
+|---|---|---|---|---|---|---|
+| F1 | bare | 3/3 | 0/3 | 173-258 | 0 | 27/29 |
+| F1 | harness | 3/3 | 0/3 | 175-189 | under 1 | 20/21 |
+| F2 | bare | 3/3 | 0/3 | 149-259 | 0 | 22/25 |
+| F2 | harness | 3/3 | 3/3 | 314-342 | 91-129 | 13/13 |
+| F3 | bare | 0/3 | 0/3 | 202-318 | 0 | 48/52 |
+| F3 | harness | 0/3 | 2/3 | 279-334 | 50-80 | 22/22 |
+| F4 | bare | 0/3 | 0/3 | 174-266 | 0 | 41/49 |
+| F4 | harness | 0/3 | 2/3 | 280-344 | 57-132 | 24/26 |
+
+Gate: not met (no section with the harness arm ahead; F1 and F2 without a gap; F3 and F4 fail in both arms).
+The F2 and F3 results are not valid measurements: F2 because of change 2 below, F3 because of changes 5
+and 6 (every F3 arm reported 4 out-of-scope files; they were the import linter's cache).
+
+### Pilot-driven changes
+
+Every change the pilot caused, before the next run. Label: "bug fix, applies to both arms" or "task/effort
+change". Primary measures unchanged.
+
+| # | Change | Label | Reason | Revealed by | Commit |
+|---|---|---|---|---|---|
+| 1 | The default layer registry imports the layer modules | bug fix, applies to both arms (the bare arm loads no layers, so its runs were unaffected) | Harness arm could not start on the live path | Smoke run `ab-20261016-163551` | e4e8d04 |
+| 2 | Session patches come from working-tree snapshot trees, not commits | bug fix, applies to both arms | An arm that never commits could not fail part (c) of the S2 measure | Run 1, F2 (bare arms make no commits) | b1cdb8d |
+| 3 | Referee baseline runs while the arms work and is cached per task | bug fix, applies to both arms (speed only; no measurement change) | A/B wall time 466-875 s against the 6-minute target; the baseline ran after the arms, about 70 s | Run 1, all sections | 02204bb |
+| 4 | `apply_patch` accepts the `*** Begin Patch` format and unified hunks without line numbers or with wrong counts (CONTRACTS §23) | bug fix, applies to both arms | 217 of 237 patches failed (92%): the model writes the anchored format, the tool required strict unified diffs; wasted turns explain most agent time limits | Run 1 traces, for example `ab-20261016-170314-4a3b4b` (harness: 8 of 9 patches failed, no feature code at the end) | 7aaac10 |
+| 5 | `.import_linter_cache` treated as generated (diff, scope snapshots, clean-state check) | bug fix, applies to both arms | 4 cache files counted as out-of-scope files and test-phase source edits in every arm; the scope layer reverted them after every lint run and reported a block to the agent | Run 1, F3 (every arm: `out_of_scope_files` 4) | 7aaac10 |
+| 6 | Test-phase files come from the test sessions' snapshot trees | bug fix, applies to both arms | Comparing with HEAD at the start of the test phase counted an uncommitted build phase as test-phase source edits (S3 measure) | Run 1, F3 (bare: `app/api/issues.py` and `app/services/issues.py` counted as test-phase edits) | 7aaac10 |
+
+After the fixes: fast suite on `main` (a5cbc5a) 1575 passed; images rebuilt from that source before run 2.
 
 ## M5 features, datasets, checkpoints (2026-10-16)
 
