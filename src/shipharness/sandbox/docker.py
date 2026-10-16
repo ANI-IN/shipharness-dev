@@ -15,6 +15,7 @@ from shipharness.events import Arm, EventBus
 from shipharness.sandbox._events import emit_denial
 from shipharness.sandbox.base import ExecResult
 from shipharness.sandbox.policy import (
+    Mount,
     SandboxPolicy,
     check_command,
     detect_denial,
@@ -56,6 +57,9 @@ class DockerSandbox:
         runner: Runner = subprocess.run,
         runtime: str = "docker",
         env: dict[str, str] | None = None,
+        extra_mounts: list[Mount] | None = None,
+        clock: Callable[[], float] = time.monotonic,
+        name_prefix: str = "shipharness",
     ) -> None:
         self.policy = policy
         self.image = image
@@ -66,8 +70,11 @@ class DockerSandbox:
         self.runner = runner
         self.runtime = runtime
         self.env = env
-        self.name = f"shipharness-{arm}-{uuid.uuid4().hex[:8]}"
+        self.extra_mounts = list(extra_mounts or [])
+        self.clock = clock
+        self.name = f"{name_prefix}-{arm}-{uuid.uuid4().hex[:8]}"
         self.container_id = ""
+        self._oom_kills = 0  # a new container has a new cgroup: its oom_kill counter starts at 0
 
     def _run(
         self, argv: list[str], timeout: float | None = None
@@ -81,7 +88,13 @@ class DockerSandbox:
 
     def start(self) -> str:
         argv = docker_run_args(
-            self.policy, self.image, self.workspace, self.name, self.runtime, self.env
+            self.policy,
+            self.image,
+            self.workspace,
+            self.name,
+            self.runtime,
+            self.env,
+            extra_mounts=self.extra_mounts,
         )
         result = self._run(argv, timeout=120)
         if result.returncode != 0:
@@ -128,16 +141,20 @@ class DockerSandbox:
             "-lc",
             command,
         ]
-        started = time.monotonic()
+        started = self.clock()
         try:
             result = self._run(argv, timeout=timeout_s + 15)
             exit_code, output = result.returncode, (result.stdout or "") + (result.stderr or "")
-            timed_out = exit_code == 124
+            elapsed = self.clock() - started
+            # timeout(1) exits 124 at the limit, or 137 when --kill-after had to send SIGKILL.
+            # A quick 124 is the command's own exit code; a quick 137 is a kill (OOM or signal).
+            timed_out = exit_code in (124, 137) and elapsed >= timeout_s - 0.5
         except subprocess.TimeoutExpired as exc:
             exit_code, timed_out = 124, True
             output = _decode(exc.stdout) + _decode(exc.stderr)
-        duration_ms = int((time.monotonic() - started) * 1000)
-        oom = exit_code == 137 and not timed_out
+            elapsed = self.clock() - started
+        duration_ms = int(elapsed * 1000)
+        oom = exit_code == 137 and not timed_out and self._oom_kill_happened()
         denial = detect_denial(self.policy, output, exit_code, oom, timed_out)
         if denial is not None:
             emit_denial(self.bus, self.run_id, self.arm, denial, command)
@@ -148,6 +165,32 @@ class DockerSandbox:
             timed_out=timed_out,
             denied=denial,
         )
+
+    def _read_oom_kills(self) -> int | None:
+        """The container cgroup's oom_kill counter (cgroup v2), or None if it cannot be read."""
+        try:
+            result = self._run(
+                [self.runtime, "exec", self.name, "cat", "/sys/fs/cgroup/memory.events"],
+                timeout=15,
+            )
+        except (subprocess.TimeoutExpired, OSError):
+            return None
+        if result.returncode != 0:
+            return None
+        for line in result.stdout.splitlines():
+            name, _, value = line.partition(" ")
+            if name == "oom_kill" and value.strip().isdigit():
+                return int(value.strip())
+        return None
+
+    def _oom_kill_happened(self) -> bool:
+        """True if the OOM killer acted since the last check. Without the counter, an early
+        SIGKILL is reported as memory (the conservative reading)."""
+        before, now = self._oom_kills, self._read_oom_kills()
+        if now is None:
+            return True
+        self._oom_kills = now
+        return now > before
 
     def usage(self) -> dict[str, float]:
         result = self._run(

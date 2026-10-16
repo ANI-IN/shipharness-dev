@@ -68,8 +68,10 @@ def _text_item(role: str, text: str) -> dict[str, Any]:
     return {"role": role, "content": [{"type": "input_text", "text": text}]}
 
 
-def _estimate_tokens(items: list[dict[str, Any]]) -> int:
-    return len(json.dumps(items, default=str)) // 3 + 200
+def estimate_input_tokens(items: list[dict[str, Any]], tools: list[dict[str, Any]]) -> int:
+    """Rough input size for the cost pre-check: the transcript plus the tool schemas, which are
+    sent (and billed) with every call."""
+    return (len(json.dumps(items, default=str)) + len(json.dumps(tools))) // 3 + 200
 
 
 def _target(call: ToolCall) -> str:
@@ -126,6 +128,7 @@ class _Run:
         self.sessions: list[SessionResult] = []
         self.status: RunStatus = "completed"
         self.claim: ClaimValue = "none"
+        self.claims: dict[Phase, ClaimValue] = {}
         self.claim_summary = ""
         self.error: str | None = None
         self.turns_total = 0
@@ -139,7 +142,10 @@ class _Run:
 
     def call_model(self, items: list[dict[str, Any]]) -> ModelResponse:
         self.cost.check_before_call(
-            self.scope, self.spec.model, _estimate_tokens(items), self.spec.max_output_tokens
+            self.scope,
+            self.spec.model,
+            estimate_input_tokens(items, TOOL_SCHEMAS),
+            self.spec.max_output_tokens,
         )
         attempt = 0
         while True:
@@ -235,6 +241,9 @@ class _Run:
         claim = call.arguments["claim"]
         summary = str(call.arguments.get("summary", ""))
         self.claim, self.claim_summary = claim, summary
+        self.claims[phase] = claim
+        # I-5: layers read the claim (the scope layer's status, the verify gate) from state.
+        self.ctx.state["last_claim"] = {"phase": phase, "claim": claim, "summary": summary}
         gate_id: str | None = None
         end: str | None = "claim_not_done"
         output = "accepted"
@@ -300,6 +309,7 @@ class _Run:
                     text_only += 1
                     if text_only >= 2:
                         ended_by, self.claim = "no_tool_call", "none"
+                        self.claims[phase] = "none"
                         break
                     items.append(_text_item("user", REMINDER))
                     continue
@@ -370,6 +380,7 @@ class _Run:
                 if self.status != "completed":
                     break
                 self.ctx.phase = phase
+                self.claims[phase] = "none"
                 phase_start = git.head_sha(self.spec.workspace)
                 budgets = (
                     self.spec.session_budget if phase == "build" else [self.spec.test_phase_turns]
@@ -397,7 +408,7 @@ class _Run:
                                     "session_index": session_index,
                                     "ended_by": result.ended_by,
                                     "end_sha": result.end_sha,
-                                    "handoff_path": None,
+                                    "handoff_path": self._handoff_path(),
                                 },
                             )
                     self.harness.on_phase_end(self.ctx)
@@ -408,6 +419,10 @@ class _Run:
                     self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             root.set_outputs({"status": self.status, "claim": self.claim})
         return trace_url
+
+    def _handoff_path(self) -> str | None:
+        value = self.ctx.state.get("state.handoff_path")
+        return str(value) if value else None
 
     def run(self) -> AgentRunResult:
         self.emit(
@@ -436,6 +451,7 @@ class _Run:
             status=self.status,
             claim=self.claim,
             claim_summary=self.claim_summary,
+            claims=self.claims,
             sessions=self.sessions,
             phase_shas=phase_shas,
             diff_path=diff_path,

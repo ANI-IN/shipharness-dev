@@ -19,6 +19,24 @@ from pathlib import Path
 
 _SHA = re.compile(r"^[0-9a-f]{40}([0-9a-f]{24})?$")
 
+# The diff is what the referee judges, so the agent's own ignore files (.gitignore) must not decide
+# what it contains: files are added with --force, and only this fixed list of generated files is
+# left out (decision for review finding M12).
+GENERATED_PATTERNS: tuple[str, ...] = (
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/.pytest_cache/**",
+    "**/.ruff_cache/**",
+    "**/.mypy_cache/**",
+    "**/.venv/**",
+    "**/node_modules/**",
+    "**/.coverage",
+    "**/*.db",
+    "**/*.sqlite",
+    "**/*.sqlite3",
+)
+_GENERATED_EXCLUDES = [f":(exclude,glob){pattern}" for pattern in GENERATED_PATTERNS]
+
 
 def _clean_env(home: Path) -> dict[str, str]:
     keep = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
@@ -135,7 +153,10 @@ def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
         prefix, env, _tmp = isolated
         if (
             subprocess.run(
-                [*prefix, "add", "-A"], capture_output=True, env=env, check=False
+                [*prefix, "add", "-A", "--force", "--", ".", *_GENERATED_EXCLUDES],
+                capture_output=True,
+                env=env,
+                check=False,
             ).returncode
             != 0
         ):

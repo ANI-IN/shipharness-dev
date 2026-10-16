@@ -199,8 +199,10 @@ def test_invalid_json_arguments_become_an_error_result(tmp_path: Path) -> None:
 
 
 class FakeAPIError(Exception):
-    def __init__(self, status_code: int | None, code: str | None = None) -> None:
-        super().__init__(f"status {status_code}")
+    def __init__(
+        self, status_code: int | None, code: str | None = None, message: str | None = None
+    ) -> None:
+        super().__init__(message or f"status {status_code}")
         self.status_code = status_code
         self.code = code
 
@@ -232,11 +234,15 @@ def test_rate_limit_is_retried_with_backoff(tmp_path: Path) -> None:
 def test_auth_error_ends_with_error_naming_the_variable_not_the_key(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", fake_openai_key())
-    result, events, _ = run(tmp_path, [Step(error=FakeAPIError(401))])
+    key = fake_openai_key()
+    monkeypatch.setenv("OPENAI_API_KEY", key)
+    error = FakeAPIError(401, message=f"Incorrect API key provided: {key}")
+    assert key in str(error)  # the provider error text carries the key: the check is not vacuous
+    result, events, _ = run(tmp_path, [Step(error=error)])
     assert result.status == "ERROR"
     assert result.error is not None and "OPENAI_API_KEY" in result.error
-    assert fake_openai_key() not in result.error
+    assert key not in result.error
+    assert key not in (tmp_path / "events.jsonl").read_text(encoding="utf-8")
     assert types(events)[-1] == "run_end"
 
 
@@ -298,3 +304,130 @@ def test_trace_link_is_retried_at_the_end_when_unavailable_at_start(tmp_path: Pa
     assert [e.data["url"] for e in read_events(log) if e.type == "trace_link"] == [
         "https://smith.example/trace/1"
     ]
+
+
+# --- M4: claims per phase, last_claim state, handoff path, cost pre-check, error paths ----------
+
+
+def test_claims_are_recorded_per_phase(tmp_path: Path) -> None:
+    steps = [finish("done", "built"), finish("not_done", "no tests")]
+    result, _events, _ = run(tmp_path, steps, phases=("build", "test"))
+    assert result.claims == {"build": "done", "test": "not_done"}
+    assert result.claim == "not_done"  # last finish call, as before
+
+
+def test_phase_without_finish_has_claim_none(tmp_path: Path) -> None:
+    steps = [read_app(), finish("done", "tests written")]
+    result, _events, _ = run(tmp_path, steps, phases=("build", "test"), session_budget=[1])
+    assert result.claims == {"build": "none", "test": "done"}
+
+
+def test_last_claim_is_in_layer_state_before_the_gate_runs(tmp_path: Path) -> None:
+    seen: list[object] = []
+
+    class Spy(BaseLayer):
+        name = "verify"
+
+        def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None:
+            seen.append(dict(ctx.state["last_claim"]))
+            return None
+
+        def on_phase_end(self, ctx: LayerContext) -> list[HarnessDecision]:
+            seen.append(dict(ctx.state["last_claim"]))
+            return []
+
+    run(
+        tmp_path,
+        [finish("not_done", "stuck"), finish("done", "ok")],
+        harness=Harness([Spy()]),
+        phases=("build", "test"),
+    )
+    assert seen == [
+        {"phase": "build", "claim": "not_done", "summary": "stuck"},
+        {"phase": "test", "claim": "done", "summary": "ok"},
+        {"phase": "test", "claim": "done", "summary": "ok"},
+    ]
+
+
+def test_session_stop_carries_the_handoff_path_from_layer_state(tmp_path: Path) -> None:
+    class State(BaseLayer):
+        name = "state"
+
+        def on_session_end(self, ctx: LayerContext, result):  # type: ignore[no-untyped-def]
+            ctx.state["state.handoff_path"] = "session-handoff.md"
+            return []
+
+    _result, events, _ = run(
+        tmp_path, [read_app()] * 4, harness=Harness([State()]), session_budget=[2, 2]
+    )
+    stops = [e for e in events if e.type == "session_stop"]
+    assert [e.data["handoff_path"] for e in stops] == ["session-handoff.md"]
+
+
+def test_session_stop_handoff_path_is_null_for_the_bare_arm(tmp_path: Path) -> None:
+    _result, events, _ = run(tmp_path, [read_app()] * 4, session_budget=[2, 2])
+    assert [e.data["handoff_path"] for e in events if e.type == "session_stop"] == [None]
+
+
+def test_cost_precheck_counts_tool_schema_tokens(tmp_path: Path) -> None:
+    from shipharness.runner.loop import estimate_input_tokens
+    from shipharness.runner.tools import TOOL_SCHEMAS
+
+    items = [{"role": "user", "content": [{"type": "input_text", "text": "hi"}]}]
+    schema_chars = len(json.dumps(TOOL_SCHEMAS))
+    assert estimate_input_tokens(items, TOOL_SCHEMAS) - estimate_input_tokens(items, []) >= (
+        schema_chars // 3
+    )
+
+    estimates: list[int] = []
+
+    class Spy(CostTracker):
+        def check_before_call(self, scope, model, est_input_tokens, max_output_tokens):  # type: ignore[no-untyped-def]
+            estimates.append(est_input_tokens)
+            return super().check_before_call(scope, model, est_input_tokens, max_output_tokens)
+
+    client = ScriptedModelClient([finish()])
+    tracker = Spy(PRICES, Caps(0.2, 0.04, 2.5, 2.5, 25.0), tmp_path / "l.jsonl", session_id="t")
+    with EventBus(tmp_path / "events.jsonl", ab_id=None) as bus:
+        run_agent(spec(tmp_path), Harness([]), FakeSandbox(), bus, tracker, NullTracer(), client)
+    assert estimates and estimates[0] >= schema_chars // 3
+
+
+def test_billing_429_aborts_without_retry(tmp_path: Path) -> None:
+    sleeps: list[float] = []
+    steps = [Step(error=FakeAPIError(429, "insufficient_quota")), finish()]
+    result, events, client = run(
+        tmp_path, steps, options=RunOptions(wrapup_turns=2, sleep=sleeps.append)
+    )
+    assert result.status == "ERROR"
+    assert result.error is not None and "billing" in result.error
+    assert sleeps == []
+    assert len(client.inputs) == 1
+    assert types(events)[-1] == "run_end"
+
+
+def test_unknown_tool_name_becomes_an_error_result_and_the_loop_continues(tmp_path: Path) -> None:
+    bogus = Step(
+        output_items=[
+            {"type": "function_call", "call_id": "c7", "name": "delete_repo", "arguments": "{}"}
+        ]
+    )
+    result, events, client = run(tmp_path, [bogus, finish()])
+    assert result.status == "completed" and result.claim == "done"
+    outputs = [item for item in client.inputs[1] if item.get("type") == "function_call_output"]
+    assert "unknown tool" in outputs[0]["output"]
+    results = [e for e in events if e.type == "tool_result"]
+    assert results[0].data["ok"] is False
+
+
+def test_non_object_arguments_become_an_error_result(tmp_path: Path) -> None:
+    listy = Step(
+        output_items=[
+            {"type": "function_call", "call_id": "c8", "name": "read_file", "arguments": "[1, 2]"}
+        ]
+    )
+    result, _events, client = run(tmp_path, [listy, finish()])
+    assert result.status == "completed"
+    outputs = [item for item in client.inputs[1] if item.get("type") == "function_call_output"]
+    assert "invalid arguments" in outputs[0]["output"]
+    assert "JSON object" in outputs[0]["output"]
