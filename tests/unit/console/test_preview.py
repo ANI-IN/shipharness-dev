@@ -56,7 +56,7 @@ def test_capture_writes_png_and_emits_a_screenshot_event(run_dir: Path) -> None:
     [command] = sandbox.commands
     assert "python -m shipharness.console.board_capture once" in command
     assert "--user admin@acme.test" in command and "--org acme" in command
-    assert "--view board" in command and "HOME=/tmp" in command
+    assert "--view board" in command and command.startswith("env HOME=/tmp ")
 
 
 def test_identical_frames_are_not_written_twice(run_dir: Path) -> None:

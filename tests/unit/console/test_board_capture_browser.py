@@ -135,7 +135,7 @@ class SubprocessSandbox:
 
     def exec(self, command: str, timeout_s: int) -> ExecResult:
         self.commands.append(command)
-        argv = shlex.split(command.removeprefix("HOME=/tmp "))
+        argv = shlex.split(command.removeprefix("env HOME=/tmp "))
         if argv and argv[0] == "python":
             argv[0] = sys.executable
         started = time.monotonic()

@@ -141,7 +141,7 @@ class BoardPreview:
 
     def _module(self, *args: str) -> str:
         quoted = " ".join(shlex.quote(a) for a in args)
-        return f"HOME=/tmp {shlex.quote(self.python)} -m {MODULE} {quoted}"
+        return f"env HOME=/tmp {shlex.quote(self.python)} -m {MODULE} {quoted}"
 
     def start_server(self, ready_timeout_s: int = 60) -> None:
         """Start the arm's TeamTrack in the container (detached), then wait for /health."""
