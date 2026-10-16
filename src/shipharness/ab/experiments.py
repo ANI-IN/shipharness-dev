@@ -16,7 +16,15 @@ from datetime import date
 from pathlib import Path
 from typing import Any
 
-from shipharness.ab.demo import ARMS, ABDeps, ABTask, arm_specs, phase_changed_files, run_arm
+from shipharness.ab.demo import (
+    ARMS,
+    ABDeps,
+    ABTask,
+    arm_specs,
+    phase_changed_files,
+    run_arm,
+    snapshot_store,
+)
 from shipharness.ab.demo import session_patches as write_session_patches
 from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import Referee, RefereeDeps
@@ -122,8 +130,13 @@ class ArmExperiment:
             spec,
             result,
             run_dir,
-            phase_changed_files(spec, result),
-            write_session_patches(spec, result, run_dir / self.arm / "sessions"),
+            phase_changed_files(spec, result, store=snapshot_store(run_dir, self.arm)),
+            write_session_patches(
+                spec,
+                result,
+                run_dir / self.arm / "sessions",
+                store=snapshot_store(run_dir, self.arm),
+            ),
         )
         with self._lock:
             self.runs[run_id] = local
@@ -158,6 +171,7 @@ class ArmExperiment:
                         grading_criteria=self.deps.grading_criteria,
                         mutants=self._mutants(task),
                         mutant_runner=self.deps.mutant_runner,
+                        baseline_cache_dir=self.deps.baseline_cache_dir,
                         sandboxed=self.deps.sandboxed,
                         container_paths=self.deps.container_paths,
                     ),

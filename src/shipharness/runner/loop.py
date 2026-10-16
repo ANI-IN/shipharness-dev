@@ -33,7 +33,7 @@ from shipharness.runner.prompts import (
     TEST_PHASE,
     wrapup_message,
 )
-from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox
+from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox, patch_paths
 from shipharness.sandbox.base import Sandbox
 from shipharness.tracing import Tracer
 
@@ -63,6 +63,7 @@ class RunOptions:
     max_attempts: int = 3
     policy_summary: str = ""
     tool_log_dir: Path | None = None
+    snapshot_dir: Path | None = None  # session working-tree snapshots (outside the workspace)
     diff_path: Path | None = None
     sleep: Callable[[float], None] = time.sleep
     clock: Callable[[], float] = time.monotonic
@@ -89,11 +90,7 @@ def _target(call: ToolCall) -> str:
     args = call.arguments
     value = args.get("path") or args.get("command") or args.get("pattern") or args.get("selector")
     if call.name == "apply_patch":
-        value = ", ".join(
-            line[6:]
-            for line in str(args.get("patch", "")).splitlines()
-            if line.startswith("+++ b/")
-        )
+        value = ", ".join(patch_paths(str(args.get("patch", "")))[0])
     if call.name == "finish":
         value = args.get("claim")
     return str(value or "")[:200]
@@ -318,6 +315,12 @@ class _Run:
                     f"({self.harness_s:.1f} s of harness work)",
                 )
 
+    def snapshot(self) -> str:
+        """Tree id of the working tree now (S2 session boundaries); "" without a snapshot dir."""
+        if self.options.snapshot_dir is None:
+            return ""
+        return git.snapshot_tree(self.spec.workspace, self.options.snapshot_dir / "store.git")
+
     def harness_time_left(self) -> float | None:
         """Seconds of harness work left under HARNESS_TIMEOUT_S, counting the work running now."""
         limit = self.options.harness_timeout_s
@@ -359,6 +362,7 @@ class _Run:
     def run_session(self, phase: Phase, index: int, budget: int, resume: bool) -> SessionResult:
         self.ctx.session_index, self.ctx.turn = index, 0
         start_sha = git.head_sha(self.spec.workspace)
+        start_tree = self.snapshot()
         items = self.base_items(phase, resume)
         turns, text_only, wrapup_sent = 0, 0, False
         ended_by: str = "turn_budget"
@@ -418,6 +422,8 @@ class _Run:
             ended_by=ended_by,  # type: ignore[arg-type]
             start_sha=start_sha,
             end_sha=git.head_sha(self.spec.workspace),
+            start_tree=start_tree,
+            end_tree=self.snapshot(),
         )
         self.harness_work("session end", lambda: self.harness.on_session_end(self.ctx, result), [])
         return result

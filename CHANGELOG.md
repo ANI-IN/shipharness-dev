@@ -4,6 +4,14 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### M6 pilot fixes (2026-10-16)
+- `apply_patch` accepts the context-anchored `*** Begin Patch` format and unified diffs without line
+  numbers or with wrong counts (most pilot patches failed under strict `git apply`); CONTRACTS §23.
+- `.import_linter_cache` is a generated directory everywhere (diff, scope snapshots, clean state).
+- S2 session patches and S3 test-phase files come from working-tree snapshots, so arms that never
+  commit are measured correctly.
+- Referee baseline runs in parallel with the arms and is cached per task.
+
 ### M5 Features, datasets, checkpoints (2026-10-16)
 - F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks
   with 49 hidden tests; `teamtrack/reference/checkpoints.toml` and 8 checkpoint tags (D-23).

@@ -593,3 +593,36 @@ def test_working_tree_judging_records_no_checkpoint_commit(
     d = deps(course_repo, tmp_path, factory, checkpoint_ref=None)
     verdict, _ = judge(Referee(task(), d), tmp_path, PRODUCT)
     assert verdict.record.checkpoint_sha is None
+
+
+def _baseline_calls(factory: Factory) -> int:
+    return sum(1 for build, _m, _a in factory.calls if build.parent.name == "baseline")
+
+
+def test_referee_baseline_is_cached_per_checkpoint_commit_and_task(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    cache = tmp_path / "cache"
+    one = Referee(task(), deps(course_repo, tmp_path / "a", factory, baseline_cache_dir=cache))
+    two = Referee(task(), deps(course_repo, tmp_path / "b", factory, baseline_cache_dir=cache))
+    assert one.baseline() is not None
+    assert two.baseline() == one.baseline()
+    assert _baseline_calls(factory) == 1  # the second A/B of the same task reuses the baseline
+    other = Referee(
+        task(hidden_test_ids=["tests/hidden/f1/test_secret.py::test_other"]),
+        deps(course_repo, tmp_path / "c", factory, baseline_cache_dir=cache),
+    )
+    other.baseline()
+    assert _baseline_calls(factory) == 2  # different task inputs, different key
+
+
+def test_no_baseline_cache_for_working_tree_judging(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    cache = tmp_path / "cache"
+    for name in ("a", "b"):
+        d = deps(
+            course_repo, tmp_path / name, factory, baseline_cache_dir=cache, checkpoint_ref=None
+        )
+        Referee(task(), d).baseline()
+    assert _baseline_calls(factory) == 2

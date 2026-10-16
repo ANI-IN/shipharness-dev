@@ -149,6 +149,7 @@ class ABDeps:
     preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
     mutant_runner: Any = None  # referee mutant runner; None = the filters package runner
     mutant_source_repo: Path | None = None  # where teamtrack/mutants lives (default course_repo)
+    baseline_cache_dir: Path | None = None  # referee baselines reused across A/Bs of a task
 
 
 @dataclass
@@ -247,6 +248,7 @@ def run_arm(
         harness_timeout_s=s.harness_timeout_s,
         policy_summary=deps.policy_summary,
         tool_log_dir=run_dir / spec.arm / "tool-logs",
+        snapshot_dir=run_dir / spec.arm / "snapshots",
         diff_path=run_dir / spec.arm / "diff.patch",
         tags=list(deps.tags),
     )
@@ -343,10 +345,14 @@ def run_ab(
             grading_criteria=deps.grading_criteria,
             mutants=_referee_mutants(task, deps, checkpoint_sha),
             mutant_runner=deps.mutant_runner,
+            baseline_cache_dir=deps.baseline_cache_dir,
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
         ),
     )
+    # The baseline depends only on the checkpoint, so it runs while the arms work.
+    baseline = threading.Thread(target=referee.baseline, name="referee-baseline", daemon=True)
+    baseline.start()
     with EventBus(run_dir / "events.jsonl", ab_id=ab_id) as bus:
         stop, previews = _start_previews(deps, bus, specs)
         # [walkthrough:Opening:two_arms] start
@@ -364,7 +370,8 @@ def run_ab(
                 thread.join(timeout=10)
 
         # Both arms are judged by the same referee on what they shipped (aborted runs too).
-        referee.baseline()
+        baseline.join()
+        referee.baseline()  # computed by the thread (or now, if the thread failed)
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="referee") as pool:
             verdicts = {
                 arm: pool.submit(_judge, referee, specs[arm], results[arm], bus, run_dir)
@@ -413,7 +420,9 @@ def write_ab_record(
                 "spec": run.spec.public_dict(),
                 "result": run.result.model_dump(mode="json", exclude={"diff_path"}),
                 "diff": f"{arm}/diff.patch",
-                "test_phase_files": phase_changed_files(run.spec, run.result),
+                "test_phase_files": phase_changed_files(
+                    run.spec, run.result, store=snapshot_store(run_dir, arm)
+                ),
                 "session_patches": [
                     p.relative_to(run_dir).as_posix()
                     for p in sorted(
@@ -430,8 +439,16 @@ def write_ab_record(
     return path
 
 
-def phase_changed_files(spec: AgentRunSpec, result: AgentRunResult) -> list[str]:
-    """Files the arm changed during the test phase (the S3 measure's second half)."""
+def phase_changed_files(
+    spec: AgentRunSpec, result: AgentRunResult, *, store: Path | None = None
+) -> list[str]:
+    """Files the arm changed during the test phase (the S3 measure's second half). With
+    working-tree snapshots (`store`): the change from the first test session's start tree to the
+    last test session's end tree, so build-phase work the arm never committed is not counted.
+    Without them: the working tree against the commit at the start of the test phase."""
+    tests = [s for s in result.sessions if s.phase == "test"]
+    if store is not None and tests and all(s.start_tree and s.end_tree for s in tests):
+        return git.tree_changed_files(store, tests[0].start_tree, tests[-1].end_tree)
     shas = result.phase_shas.get("test")
     return git.changed_files(spec.workspace, shas[0]) if shas else []
 
@@ -449,16 +466,35 @@ def _judge(
         diff=diff,
         bus=bus,
         run_log=run_dir / "events.jsonl",
-        test_phase_files=phase_changed_files(spec, result),
-        session_patches=session_patches(spec, result, run_dir / spec.arm / "sessions"),
+        test_phase_files=phase_changed_files(spec, result, store=snapshot_store(run_dir, spec.arm)),
+        session_patches=session_patches(
+            spec, result, run_dir / spec.arm / "sessions", store=snapshot_store(run_dir, spec.arm)
+        ),
     )
     return verdict.record
 
 
-def session_patches(spec: AgentRunSpec, result: AgentRunResult, out_dir: Path) -> list[Path]:
-    """One patch per session (for the continuity check): committed changes between the session's
-    start and end commits; the last session also includes uncommitted work."""
+def snapshot_store(run_dir: Path, arm: str) -> Path:
+    """Where an arm's session snapshots live (outside the workspace; RunOptions.snapshot_dir)."""
+    return run_dir / arm / "snapshots" / "store.git"
+
+
+def session_patches(
+    spec: AgentRunSpec, result: AgentRunResult, out_dir: Path, *, store: Path | None = None
+) -> list[Path]:
+    """One patch per session (for the continuity check). With working-tree snapshots (`store`),
+    each patch is the change between the session's start and end trees, so an arm that never
+    commits is measured like one that does. Without them: committed changes between the session's
+    start and end commits, and the last session also includes uncommitted work."""
     patches: list[Path] = []
+    sessions = list(result.sessions)
+    if store is not None and sessions and all(s.start_tree and s.end_tree for s in sessions):
+        for session in sessions:
+            out = out_dir / f"session-{session.index}.patch"
+            written = git.write_tree_diff(store, session.start_tree, session.end_tree, out)
+            if written is not None:
+                patches.append(written)
+        return patches
     for position, session in enumerate(result.sessions):
         out = out_dir / f"session-{session.index}.patch"
         if position == len(result.sessions) - 1:

@@ -15,6 +15,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from shipharness.events import Arm, EventBus
 from shipharness.harness.decisions import HarnessDecision
 from shipharness.log_setup import mask_keys
+from shipharness.runner import patch_format
 from shipharness.runner.git import workspace_git_dir
 from shipharness.runner.models import ToolCall, ToolResult
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
@@ -28,7 +29,15 @@ TRUNCATION_ADVICE = (
     "the full output is kept in the run log outside the workspace, where you cannot read it; "
     "narrow the command instead, for example pipe it through grep or tail"
 )
-SKIP_DIRS = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", ".ruff_cache"}
+SKIP_DIRS = {
+    ".git",
+    ".venv",
+    "node_modules",
+    "__pycache__",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".import_linter_cache",
+}
 PATCH_FILE = ".git/shipharness-patch.diff"
 _SAFE_ID = re.compile(r"[^A-Za-z0-9_-]")
 
@@ -99,8 +108,10 @@ TOOL_SCHEMAS: list[dict[str, Any]] = [
     ),
     _fn(
         "apply_patch",
-        "Apply a unified diff to the workspace. Use '--- /dev/null' for new files.",
-        {"patch": {"type": "string", "description": "Unified diff for one or more files."}},
+        "Apply a patch to the workspace: the '*** Begin Patch' format (*** Add File, "
+        "*** Update File, *** Delete File sections; @@ hunks are found by their context lines) "
+        "or a unified diff.",
+        {"patch": {"type": "string", "description": "Patch text for one or more files."}},
     ),
     _fn(
         "run",
@@ -200,10 +211,16 @@ def truncate(text: str, limit: int = TOOL_OUTPUT_MAX_CHARS) -> tuple[str, bool]:
 
 
 def patch_paths(patch: str) -> tuple[list[str], bool]:
-    """Paths named in ---/+++ headers, and whether they carry git's a/ b/ prefixes."""
+    """Paths named in ---/+++ headers or anchored headers (`*** Update File: <path>` and the
+    rest), in order, and whether the ---/+++ names carry git's a/ b/ prefixes."""
     paths: list[str] = []
     prefixed = True
     for line in patch.splitlines():
+        anchored = patch_format.header_path(line)
+        if anchored is not None:
+            if anchored not in paths:
+                paths.append(anchored)
+            continue
         if not line.startswith(("--- ", "+++ ")):
             continue
         name = line[4:].split("\t", 1)[0].strip()
@@ -371,28 +388,40 @@ class ToolBox:
     ) -> tuple[bool, str, int | None, list[str]]:
         paths, prefixed = patch_paths(a.patch)
         if not paths:
-            return False, "patch names no files (expected ---/+++ headers)", None, []
+            return (
+                False,
+                "patch names no files (expected '*** Update File: <path>' or ---/+++ headers)",
+                None,
+                [],
+            )
         for rel in paths:
             resolve_in_workspace(self.workspace, rel)
         if workspace_git_dir(self.workspace) is None:
             return False, "the workspace .git is missing or is not a real directory", None, []
+        text, strip = a.patch, "-p1" if prefixed else "-p0"
+        if patch_format.needs_conversion(a.patch):
+            try:
+                text, strip = self._converted(a.patch), "-p1"
+            except patch_format.PatchFormatError as exc:
+                return False, f"patch not applied: {exc}", None, []
         before = self._snapshot()
-        patch_file = self.workspace / PATCH_FILE
-        patch_file.parent.mkdir(parents=True, exist_ok=True)
-        text = a.patch if a.patch.endswith("\n") else a.patch + "\n"
-        patch_file.write_text(text, encoding="utf-8", newline="\n")
-        strip = "-p1" if prefixed else "-p0"
-        try:
-            check = self.sandbox.exec(
-                f"git apply --check {strip} --whitespace=nowarn {PATCH_FILE}", self.tool_timeout_s
-            )
-            if check.exit_code != 0:
-                return False, f"patch does not apply:\n{check.output.strip()}", check.exit_code, []
-            applied = self.sandbox.exec(
-                f"git apply {strip} --whitespace=nowarn {PATCH_FILE}", self.tool_timeout_s
-            )
-        finally:
-            patch_file.unlink(missing_ok=True)
+        recount = False
+        check = self._git_apply(text, strip, check=True)
+        if check.exit_code != 0 and text is a.patch:
+            # A unified diff with wrong line counts: let git recount them; failing that, locate
+            # the hunks by their context lines.
+            if self._git_apply(text, strip, check=True, recount=True).exit_code == 0:
+                recount = True
+            else:
+                try:
+                    text, strip = self._converted(a.patch), "-p1"
+                except patch_format.PatchFormatError as exc:
+                    output = f"patch does not apply:\n{check.output.strip()}\n{exc}"
+                    return False, output, check.exit_code, []
+            check = self._git_apply(text, strip, check=True, recount=recount)
+        if check.exit_code != 0:
+            return False, f"patch does not apply:\n{check.output.strip()}", check.exit_code, []
+        applied = self._git_apply(text, strip, check=False, recount=recount)
         changed = self._changed_since(before)
         if applied.exit_code != 0:
             return (
@@ -428,6 +457,40 @@ class ToolBox:
         return True, "accepted", None, []
 
     # -- helpers ------------------------------------------------------------------------------
+
+    def _git_apply(self, text: str, strip: str, *, check: bool, recount: bool = False) -> Any:
+        """`git apply` in the sandbox. `--recount` (hunk counts not trusted) is only for the
+        agent's own unified diffs: git mishandles new and deleted files with it."""
+        patch_file = self.workspace / PATCH_FILE
+        patch_file.parent.mkdir(parents=True, exist_ok=True)
+        patch_file.write_text(
+            text if text.endswith("\n") else text + "\n", encoding="utf-8", newline="\n"
+        )
+        mode = ("--check " if check else "") + ("--recount " if recount else "")
+        try:
+            return self.sandbox.exec(
+                f"git apply {mode}{strip} --whitespace=nowarn {PATCH_FILE}",
+                self.tool_timeout_s,
+            )
+        finally:
+            patch_file.unlink(missing_ok=True)
+
+    def _converted(self, patch: str) -> str:
+        return patch_format.to_unified(patch_format.parse(patch), self._read_text)
+
+    def _read_text(self, rel: str) -> str | None:
+        """A workspace file's text for patch conversion (host read, links refused)."""
+        path = resolve_in_workspace(self.workspace, rel)
+        if not path.exists():
+            return None
+        if not path.is_file():
+            raise patch_format.PatchFormatError(f"{rel} is not a regular file")
+        if path.stat().st_size > MAX_FILE_BYTES:
+            raise patch_format.PatchFormatError(f"{rel} is over {MAX_FILE_BYTES} bytes")
+        try:
+            return path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise patch_format.PatchFormatError(f"{rel} is not UTF-8 text") from exc
 
     def _snapshot(self) -> dict[str, str]:
         """Content hash of every workspace file. No git process: the agent controls .git/config,

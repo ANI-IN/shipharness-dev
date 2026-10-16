@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any, ClassVar
 
 import pytest
@@ -264,3 +265,110 @@ def test_final_section_ab_runs_to_the_final_cap_not_the_run_cap(
 
 def test_harness_timeout_setting_defaults_to_120_seconds() -> None:
     assert Settings(_env_file=None).harness_timeout_s == 120
+
+
+def test_session_patches_come_from_snapshots_when_the_arm_never_commits(tmp_path: Path) -> None:
+    import subprocess
+
+    from shipharness.ab.demo import session_patches
+    from shipharness.runner import git as run_git
+    from shipharness.runner.models import SessionResult
+
+    ws = tmp_path / "ws"
+    ws.mkdir()
+    (ws / "app.py").write_text("a = 1\n", encoding="utf-8")
+    ident = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
+    subprocess.run(["git", *ident, "init", "-q"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "add", "-A"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "commit", "-qm", "base"], cwd=ws, check=True)
+    sha = run_git.head_sha(ws)
+    store = tmp_path / "run" / "harness" / "snapshots" / "store.git"
+    t0 = run_git.snapshot_tree(ws, store)
+    (ws / "app.py").write_text("a = 1\nb = 2\nc = 3\n", encoding="utf-8")  # session 1
+    t1 = run_git.snapshot_tree(ws, store)
+    (ws / "app.py").write_text("a = 1\n", encoding="utf-8")  # session 2 undoes session 1
+    t2 = run_git.snapshot_tree(ws, store)
+    sessions = [
+        SessionResult(index=1, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t0, end_tree=t1),
+        SessionResult(index=2, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t1, end_tree=t2),
+    ]  # fmt: skip
+    spec = SimpleNamespace(workspace=ws)
+    result = SimpleNamespace(sessions=sessions)
+    out_dir = tmp_path / "run" / "harness" / "sessions"
+    patches = session_patches(spec, result, out_dir, store=store)  # type: ignore[arg-type]
+    texts = [p.read_text(encoding="utf-8") for p in patches]
+    assert "+b = 2" in texts[0] and "-b = 2" in texts[1]
+
+
+def test_referee_baseline_runs_while_the_arms_work(course_repo: Path, tmp_path: Path) -> None:
+    import threading
+
+    from .test_referee import Factory as RefereeFactory
+    from .test_referee import all_green
+
+    started = threading.Event()
+
+    class Baseline(RefereeFactory):
+        def __call__(self, build, mounts, arm):  # type: ignore[no-untyped-def]
+            if build.parent.name == "baseline":
+                started.set()
+            return super().__call__(build, mounts, arm)
+
+    seen: list[bool] = []
+
+    class Waiting(Clients):
+        def __call__(self, arm: str):  # type: ignore[no-untyped-def]
+            client = super().__call__(arm)
+            original = client.respond
+
+            def respond(*a, **kw):  # type: ignore[no-untyped-def]
+                if not seen or len(seen) < 2:
+                    seen.append(started.wait(10))
+                return original(*a, **kw)
+
+            client.respond = respond  # type: ignore[method-assign]
+            return client
+
+    deps = make_deps(
+        course_repo, tmp_path, Waiting(), referee_sandbox_factory=Baseline(all_green())
+    )
+    run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert seen and all(seen)  # the arms saw the baseline already started
+
+
+def test_test_phase_files_ignore_uncommitted_build_work(tmp_path: Path) -> None:
+    # M6 pilot: the bare arm never commits, so comparing the working tree with HEAD at the start
+    # of the test phase counted all of its build-phase work as test-phase source edits (S3).
+    import subprocess
+
+    from shipharness.ab.demo import phase_changed_files
+    from shipharness.runner import git as run_git
+    from shipharness.runner.models import SessionResult
+
+    ws = tmp_path / "ws"
+    (ws / "app").mkdir(parents=True)
+    (ws / "app" / "a.py").write_text("a = 1\n", encoding="utf-8")
+    ident = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
+    subprocess.run(["git", *ident, "init", "-q"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "add", "-A"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "commit", "-qm", "base"], cwd=ws, check=True)
+    sha = run_git.head_sha(ws)
+    store = tmp_path / "run" / "bare" / "snapshots" / "store.git"
+    t0 = run_git.snapshot_tree(ws, store)
+    (ws / "app" / "a.py").write_text("a = 2\n", encoding="utf-8")  # build session, no commit
+    t1 = run_git.snapshot_tree(ws, store)
+    (ws / "tests" / "visible").mkdir(parents=True)
+    (ws / "tests" / "visible" / "test_a.py").write_text("def test_a():\n    pass\n", "utf-8")
+    t2 = run_git.snapshot_tree(ws, store)
+    sessions = [
+        SessionResult(index=1, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t0, end_tree=t1),
+        SessionResult(index=2, phase="test", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t1, end_tree=t2),
+    ]  # fmt: skip
+    spec = SimpleNamespace(workspace=ws)
+    result = SimpleNamespace(sessions=sessions, phase_shas={"test": (sha, sha)})
+    assert phase_changed_files(spec, result) == ["app/a.py", "tests/visible/test_a.py"]  # type: ignore[arg-type]
+    assert phase_changed_files(spec, result, store=store) == ["tests/visible/test_a.py"]  # type: ignore[arg-type]

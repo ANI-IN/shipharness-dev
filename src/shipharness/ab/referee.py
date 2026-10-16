@@ -16,6 +16,7 @@ import json
 import os
 import shutil
 import subprocess
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -113,6 +114,9 @@ class RefereeDeps:
     container_paths: bool = True  # False for the UNSANDBOXED fallback (no mounts)
     sandboxed: bool = True
     timeout_s: int = 1200
+    # Baselines are deterministic for a checkpoint commit, task inputs, seed, and check code, so
+    # A/Bs of the same task reuse them (None: no cache).
+    baseline_cache_dir: Path | None = None
 
 
 @dataclass
@@ -259,6 +263,7 @@ class Referee:
         self.task, self.deps = task, deps
         self._baseline: str | None = None
         self._baseline_done = False
+        self._baseline_lock = threading.Lock()
         self._sha: str | None = None
 
     # -- container -----------------------------------------------------------------------------
@@ -343,9 +348,49 @@ class Referee:
         return results, progress, None
 
     def baseline(self, arm: Arm = "bare") -> str | None:
-        """Runner output on the clean checkpoint (computed once, shared by both arms)."""
-        if self._baseline_done:
+        """Runner output on the clean checkpoint (computed once, shared by both arms; reused
+        across A/Bs of the same task through the baseline cache). Thread-safe: run_ab starts it
+        while the arms work."""
+        with self._baseline_lock:
+            if self._baseline_done:
+                return self._baseline
+            cached = self._baseline_cache_path()
+            if cached is not None and cached.is_file():
+                self._baseline = cached.read_text(encoding="utf-8")
+                self._baseline_done = True
+                return self._baseline
+            self._baseline = self._compute_baseline(arm)
+            self._baseline_done = True
+            if cached is not None and self._baseline is not None:
+                cached.parent.mkdir(parents=True, exist_ok=True)
+                partial = cached.with_suffix(".part")
+                partial.write_text(self._baseline, encoding="utf-8")
+                partial.replace(cached)
             return self._baseline
+
+    def _baseline_cache_path(self) -> Path | None:
+        if self.deps.baseline_cache_dir is None or self.deps.checkpoint_ref is None:
+            return None
+        import shipharness.checks as checks_package
+        from shipharness.harness.verify import checkrun
+
+        code = hashlib.sha256()
+        for path in sorted(Path(checks_package.__file__).parent.glob("*.py")):
+            code.update(path.name.encode() + b"\0" + path.read_bytes())
+        code.update(Path(checkrun.__file__).read_bytes())
+        key = {
+            "checkpoint_sha": resolve_commit(self.deps.course_repo, self.deps.checkpoint_ref),
+            "seed": self.deps.seed,
+            "hidden_test_ids": sorted(self.task.hidden_test_ids),
+            "allowed_paths": self.task.allowed_paths,
+            "exemptions": self.task.exemptions,
+            "checks": list(REFEREE_CHECKS),
+            "code": code.hexdigest(),
+        }
+        digest = hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()[:32]
+        return Path(self.deps.baseline_cache_dir) / f"{digest}.json"
+
+    def _compute_baseline(self, arm: Arm) -> str | None:
         root = self.deps.base_dir / "baseline"
         build = export_checkpoint(self.deps.course_repo, self.deps.checkpoint_ref, root / "build")
         init_repo(build, f"checkpoint {self.task.checkpoint}")
@@ -355,7 +400,6 @@ class Referee:
         inputs, mounts = self._paths(build, hidden, None, [])
         sandbox, start_error = self._start(build, mounts, arm)
         if sandbox is None:
-            self._baseline_done = True
             log.warning("referee baseline unavailable", reason=start_error)
             return None
         try:
@@ -371,10 +415,9 @@ class Referee:
             results, _p, error = self._run_checks(sandbox, params, None, checks)
         finally:
             sandbox.stop()
-        self._baseline_done = True
-        if error is None:
-            self._baseline = json.dumps({"results": [r.model_dump(mode="json") for r in results]})
-        return self._baseline
+        if error is not None:
+            return None
+        return json.dumps({"results": [r.model_dump(mode="json") for r in results]})
 
     def _params(
         self,
