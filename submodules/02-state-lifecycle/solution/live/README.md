@@ -14,7 +14,7 @@ Command (from the repository root, with keys, Docker, and the checkpoints; `make
 uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops
 ```
 
-[[PENDING: captured live run of the reference solution (task.jsonl, command.txt, output.txt, summary.json, scores/) | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops]]
+[[PENDING: captured live run of the reference solution | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops]]
 
 After recording it, re-capture the grader output:
 `uv run python submodules/02-state-lifecycle/solution/grader/grade.py --impl submodules/02-state-lifecycle/solution`.
