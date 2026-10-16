@@ -66,6 +66,9 @@ def test_the_inner_command_is_an_ab_on_the_live_task() -> None:
     assert command[command.index("--example") + 1] == le.LIVE_EXAMPLE_ID
     assert command[command.index("--layers") + 1] == "instructions,state"
     assert "--no-reviewer" in command
+    # The LangSmith project for assignments: without it `ab` defaults to the class purpose, which
+    # needs SHIPHARNESS_CLASS_DATE and traces into the class project.
+    assert command[command.index("--purpose") + 1] == "assignment"
 
 
 def test_the_caps_and_model_come_from_the_course_settings() -> None:

@@ -1,6 +1,6 @@
 # starter
 
-Your starting point for assignment A2 (brief: `../README.md`).
+Your starting point for assignment A2 (task and grading criteria: [`../README.md`](../README.md)).
 
 `a2_state/` is a state layer that runs without errors: the initializer step writes init.sh,
 progress.md, session-handoff.md, and the exec plan, and every session gets the Getting up to speed
@@ -19,6 +19,6 @@ make check-assignment-2                 # visible scenarios (test stand-in agent
 ```
 
 The scenarios run the test stand-in agent (`../a2_scenario/literal_agent.py`), a deterministic
-program, not a model. When your layer is final, run the required live step once (brief, "Required
-live step"); it writes `live/` next to `a2_state/`. Submit the folder with both. The instructor's
-grader adds hidden scenarios and checks `live/`; the score is out of 100.
+program, not a model. When your layer is final, run the required live step once (`../README.md`,
+"Required live step"); it writes `live/` next to `a2_state/`. Submit the folder with both. The
+instructor's grader adds hidden scenarios and checks `live/`; the score is out of 100.

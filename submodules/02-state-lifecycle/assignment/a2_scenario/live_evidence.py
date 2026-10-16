@@ -109,6 +109,8 @@ def inner_command(task_path: str) -> list[str]:
         "--layers",
         LIVE_LAYERS,
         "--no-reviewer",
+        "--purpose",
+        "assignment",
     ]
 
 
