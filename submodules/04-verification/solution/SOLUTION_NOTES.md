@@ -150,22 +150,22 @@ a committed mutation check of the grader is an open item.
 
 ## Captured output
 
-Real output, no model calls, captured on 2026-10-16 at commit 7de5bc9 (each file starts with that
-label and the `make` target that runs the same command today). Since 7de5bc9 the only change in
-this folder is `solution/tests/conftest.py`. The files were not re-run on 2026-10-17; the
-integrator re-runs the four commands below once the live run is in `live/`:
+Real output, no model calls, captured on 2026-10-17 at commit 155dc77, each command run once.
+Each text file starts with the label "captured on 2026-10-17 from `<command>` at commit 155dc77
+(no model calls); your output will differ", then `$ <command>`, then everything `make` printed and
+the exit code. The integrator re-runs these commands once the live run is in `live/`:
 
-| File | Command (today's target) | Result |
+| File | Command | Result |
 |---|---|---|
-| `captured/self-check-starter.txt` | `make check-assignment-4` | exit 1, 2 of 23 visible tests pass, every failure names its TODO |
-| `captured/self-check-solution.txt` | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23; the four live-evidence tests pass on the `live/` marker |
-| `captured/grade-solution.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, of which live-evidence (10 points) passes on the marker, not on a real run (see "Known limits") |
-| `captured/grade-starter.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 |
-| `captured/r8-teamtrack.json` | `run_r8 --build teamtrack` as in step 3 of the brief, with `PYTHONPATH` set to this folder (JSON, so it carries no label line) | 15 probes, one finding at `GET /v1/issues` |
+| `captured/self-check-starter.txt` | `make check-assignment-4` | 2 of 23 visible tests pass, every failure names its TODO, 32 TODO markers listed; `check.py` exits 1, so `make` exits 2 |
+| `captured/self-check-solution.txt` | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23; the four live-evidence tests and the three portfolio tests pass on `[[PENDING]]` markers (see "Known limits") |
+| `captured/grade-solution.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, of which 20 points (live-evidence 10, portfolio 5 + 2 + 3) pass on markers, not on a real run (see "Known limits") |
+| `captured/grade-starter.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
+| `captured/r8-teamtrack.json` | `PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
 
-The captured grades came from `grade.py` called directly; `make grade-assignment-4` runs it
-through `scripts/grade_assignment.py`, which adds a `grading assignment 4: <folder>` line and
-passes the absolute folder.
+`make grade-assignment-4` runs `grade.py` through `scripts/grade_assignment.py`, which passes the
+absolute folder (hence `A4 grade for /home/ani/wt/f04/...`) and adds a `grading assignment 4:
+<folder>` line.
 
 ## Live step and model-run parts (pending)
 

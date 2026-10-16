@@ -366,13 +366,14 @@ A4_IMPL=submodules/04-verification/assignment/starter \
 ## Expected behaviour
 
 - On the starter, the self-check runs, prints FAIL lines that name the TODO each failure comes
-  from, lists the TODO markers left, and exits 1. An excerpt of `make check-assignment-4` on the
-  starter (captured on 2026-10-16, commit 7de5bc9, no model calls; your output will differ; "..."
-  marks a cut):
+  from, lists the TODO markers left, and exits 1 (`make` then reports `Error 1` and exits 2). An
+  excerpt (captured on 2026-10-17 from `make check-assignment-4` at commit 155dc77, no model calls;
+  your output will differ; "..." marks a cut):
 
   ```
-  $ uv run python submodules/04-verification/assignment/check.py
-  A4 self-check for submodules/04-verification/assignment/starter
+  $ make check-assignment-4
+  uv run python submodules/04-verification/assignment/check.py
+  A4 self-check for /home/ani/wt/f04/submodules/04-verification/assignment/starter
 
   [F6-interface]
     PASS test_filter_has_number_6_and_a_name
@@ -386,10 +387,11 @@ A4_IMPL=submodules/04-verification/assignment/starter \
   ...
   self-check: FAILED (2/23 visible tests pass)
   Cost: $0.000000 (no model calls)
-  [exit code 1]
+  make: *** [Makefile:136: check-assignment-4] Error 1
   ```
 
-  The first line is the command `make check-assignment-4` runs (`make -n check-assignment-4`).
+  The second line is the command `make check-assignment-4` runs (`make -n check-assignment-4`
+  prints it too).
 - When you are done, the self-check prints `self-check: PASSED (23/23 visible tests pass)` and
   exits 0. Four of those tests are the live-evidence checks; they fail until `live/` is filled.
 - R8 on TeamTrack reports exactly one counted finding, `GET /v1/issues` (`deleted_list`, severity
