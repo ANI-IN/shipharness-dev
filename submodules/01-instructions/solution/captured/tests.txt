@@ -1,3 +1,4 @@
+# captured on 2026-10-16 in the M7 worktree; not re-run on 2026-10-17 (the test suite stays off while the live pilot runs); your output will differ
 $ uv run python -m pytest -q -p no:cacheprovider -n 2 submodules/01-instructions/solution/grader/tests
 109 passed
 $ uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/work/checker

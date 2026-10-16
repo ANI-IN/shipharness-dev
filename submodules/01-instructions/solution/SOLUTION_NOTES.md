@@ -38,9 +38,9 @@ the sources.
    measures are R1 and R3. Its description is the only part loaded up front (B1, F-b-05); the steps
    and `references/tests.md` load when the skill is used.
 6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and it
-   has not been captured yet: the report (`work/ab-report.md`) carries pending markers, and
-   `work/live/README.md` holds the exact commands and the pending marker where the captured files
-   go.
+   has not been captured yet: the report (`work/ab-report.md`) carries pending markers for its
+   values, and `work/live/README.md` holds the exact commands and the pending marker where the
+   captured files go.
 
 ## Design choices
 
@@ -140,29 +140,42 @@ the sources.
   `[text][label]` with no definition is not reported.
 - The hidden-case outcome lists failing case names in the grader output, which hints at the area of
   a bug without showing the fixture.
-- The reference A/B has not been run. Results, cost, time, and trace counts (the captured files go
-  in `work/live/`, see the marker in `work/live/README.md`):
-
-[[PENDING: R1 and R3 runs-failing counts per arm for the reference tree on section-1, k=3 | source: M8 batch 1 | how: uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-reference]]
-
-[[PENDING: measured cost, wall time, and LangSmith trace count of the a1-reference A/B | source: M8 batch 1 | how: uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
+- The reference A/B (the live step) has not been run yet. The integrator captures it tonight; the
+  one pending marker for it, with the exact commands, is in
+  [work/live/README.md](work/live/README.md). Its R1 and R3 counts, cost, wall time, and trace count
+  then go into `work/ab-report.md` from `ab_summary.py`.
 
 ## Captured output
 
-Real output of the commands below, captured on 2026-10-16 in the M7 worktree, is in `captured/`:
+Real output of these offline commands (no keys, no Docker, no model calls) is in `captured/`. Each
+file starts with a line saying when and where it was captured, then the command:
 
-| File | Command |
-|---|---|
-| `captured/self-check-starter.txt` | `uv run python submodules/01-instructions/assignment/check.py` |
-| `captured/self-check-solution.txt` | `uv run python submodules/01-instructions/assignment/check.py --work submodules/01-instructions/solution/work --allow-pending` |
-| `captured/grade-starter.txt` | `uv run python submodules/01-instructions/solution/grader/grade.py` |
-| `captured/grade-solution.txt` | `uv run python submodules/01-instructions/solution/grader/grade.py --work submodules/01-instructions/solution/work --allow-pending` |
-| `captured/grade-solution-no-pending.txt` | the same without `--allow-pending` |
-| `captured/checker-solution.txt` | the reference checker on the reference tree |
-| `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests |
+| File | Command | Captured |
+|---|---|---|
+| `captured/self-check-starter.txt` | `make check-assignment-1` | 2026-10-17 |
+| `captured/self-check-solution.txt` | `make check-assignment-1 A1_WORK=submodules/01-instructions/solution/work` | 2026-10-17 |
+| `captured/grade-starter.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter` | 2026-10-17 |
+| `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work` | 2026-10-17 |
+| `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
+| `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests | 2026-10-16 (not re-run while the live pilot runs) |
 
-Summary: the self-check passes 0 of 24 checks on the starter and 24 of 24 on the solution; the
-grader gives the starter 1.8/100, the solution 100.0/100 with `--allow-pending`, and 83.0/100
-without it (no live evidence yet). The grader tests also grade a SYNTHETIC submission (the
-reference work folder plus invented live evidence from `grader/tests/synthetic_live.py`), which
-scores 100 without `--allow-pending`; that is a test fixture, not a run.
+Summary, as captured on 2026-10-17:
+
+- The self-check passes 0 of 24 checks on the starter (exit 1; `make` exits 2) and 15 of 24 on the
+  solution. The nine that fail on the solution are the four A/B value checks of the report
+  (`report-command`, `report-results`, `report-links`, `report-cost`) and the five live-evidence
+  checks: the report holds pending markers and `work/live/` holds a marker instead of a captured run.
+- The grader gives the starter 1.8/100 and the solution 83.0/100. The solution loses exactly the
+  live-step points: 5 of the 10 points of criterion E (the A/B values the live run supplies) and all
+  12 points of criterion F (live run evidence). This is expected until the reference live run is
+  captured (VERIFICATION.md, overnight Phase 0, records "A1 83/100").
+- `--allow-pending` makes the grader accept the markers in place of the A/B values and the evidence
+  (100.0/100 on the solution, checked on 2026-10-17); `make grade-assignment-1` never passes it, and
+  learners are graded without it.
+- The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
+  evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that
+  is a test fixture, not a run.
+
+The grading criteria table in the brief ([../assignment/README.md](../assignment/README.md), "Grading
+criteria (100 points)") was checked against `grader/grade.py` (`CRITERIA`, `VISIBLE_POINTS`, and the
+hidden items) on 2026-10-17: every criterion total and every item weight agree, and they sum to 100.

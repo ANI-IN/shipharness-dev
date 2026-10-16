@@ -10,26 +10,26 @@ is [../assignment/README.md](../assignment/README.md).
 | `grader/grade.py` | the grader: the self-check's visible checks (live evidence included) plus hidden checks; prints the score out of 100 |
 | `grader/hidden/checker_cases.py` | the eleven hidden checker cases |
 | `grader/tests/` | tests for the self-check, the grader, the live evidence, and `ab_summary.py`; `synthetic_live.py` builds the SYNTHETIC live evidence they use (invented values, batch `a1-synthetic`, never a real run) |
-| `captured/` | the output of the self-check and the grader on the starter and on this solution |
+| `captured/` | the output of the self-check and the grader on the starter and on this solution, each file labelled with its capture date |
 | `SOLUTION_NOTES.md` | approach, design choices, alternatives, trade-offs, known limits |
 
 Commands (repository root):
 
 ```bash
-uv run python submodules/01-instructions/solution/grader/grade.py --work submodules/01-instructions/solution/work --allow-pending
+make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work
+make check-assignment-1 A1_WORK=submodules/01-instructions/solution/work
 uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
 uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/work/checker
 ```
 
-Grading a submission: `--work` takes the learner's work folder, or a checkout of their repository
-(the grader then uses `submodules/01-instructions/assignment/starter` inside it):
+Grading a submission: `make grade-assignment-1 SUBMISSION=<folder or git URL>` (instructor only).
+It runs `grader/grade.py --work <submission>`; the submission is the learner's work folder, or a
+checkout of their repository (the grader then uses `submodules/01-instructions/assignment/starter`
+inside it). A git URL is cloned shallow first (`scripts/grade_assignment.py`).
 
-```bash
-uv run python submodules/01-instructions/solution/grader/grade.py --work <work folder or checkout>
-```
-
-`--allow-pending` accepts a well-formed `[[PENDING: ...]]` marker in place of the A/B values and of
-the live evidence, because the reference live run has not been captured. Without it the reference
-scores 83: the five points for the A/B values and the twelve points of criterion F (live run
-evidence) are not awarded. Learners are graded without the flag. The commands that capture the
-reference run are in [work/live/README.md](work/live/README.md).
+The reference scores 83.0/100 today (`captured/grade-solution.txt`, captured on 2026-10-17): the
+five points for the A/B values (criterion E) and the twelve points of criterion F (live run evidence)
+are not awarded, because the reference live run has not been captured. That is expected and is not
+a defect of the solution. `grade.py --allow-pending` accepts a well-formed `[[PENDING: ...]]` marker
+in place of those values and gives the reference 100; learners are graded without the flag. The
+commands that capture the reference run are in [work/live/README.md](work/live/README.md).

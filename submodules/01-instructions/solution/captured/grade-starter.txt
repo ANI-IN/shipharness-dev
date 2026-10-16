@@ -1,4 +1,6 @@
-$ uv run python submodules/01-instructions/solution/grader/grade.py
+# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+$ make --no-print-directory grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter
+uv run python scripts/grade_assignment.py 1 "submodules/01-instructions/assignment/starter"
 A1 grade: submodules/01-instructions/assignment/starter
 A Map and layout                           0.6/15
   layout                       0.6/5  missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, docs/QUALITY_SCORE.md, docs/PLANS.md, docs/design-docs/index.md, docs/product-specs/index.md; follow A1's layout (README, 'Expected project structure')
@@ -20,7 +22,7 @@ C Skill                                    0.0/12
   skill-linked                 0.0/2  need exactly one skill in .agents/skills/ (found: none)
   skill-cites                  0.0/2  need exactly one skill in .agents/skills/ (found: none)
 D Docs checker                             1.2/26
-  checker-tests                0.0/2  pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.43s
+  checker-tests                0.0/2  pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.41s
   checker-clean                0.0/2  make the checker tests pass first: a checker that finds nothing proves nothing
   pristine-visible-tests       1.2/6  3 of 15 visible tests
   reference-tree               0.0/6  clean on the reference tree: True; injected faults found: 0 of 3
@@ -39,4 +41,5 @@ F Live run evidence                        0.0/12
   live-tree                    0.0/2  live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
   live-report                  0.0/2  live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
 Score: 1.8/100
+grading assignment 1: submodules/01-instructions/assignment/starter
 (exit 0)
