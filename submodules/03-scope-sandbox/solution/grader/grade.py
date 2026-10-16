@@ -116,7 +116,7 @@ def grade(impl: Path) -> dict[str, Any]:
         and groups["good"]["passed"] == groups["good"]["total"],
     }
     return {
-        "impl": str(impl),
+        "impl": check.shown(impl),
         "total": total,
         "passed": total >= PASS_MARK and all(zero_tolerance.values()),
         "zero_tolerance": zero_tolerance,
@@ -144,11 +144,11 @@ def report(result: dict[str, Any]) -> str:
     def head(key: str) -> None:
         c = criteria[key]
         note = "  (0: imports the reference implementation)" if c["zeroed"] else ""
-        lines.append(f"  {c['title']:<50} {'':>9} {c['points']:>6.1f} / {c['max']:<5.0f}{note}")
+        lines.append(f"  {c['title']:<50} {'':>9} {c['points']:>6.1f} / {c['max']:.0f}{note}")
 
     def sub(key: str) -> None:
         g = groups[key]
-        lines.append(f"      {check.GROUPS[key][1]:<46} {g['passed']:>4}/{g['total']:<4}")
+        lines.append(f"      {check.GROUPS[key][1]:<46} {g['passed']:>4}/{g['total']}")
 
     head("parse")
     sub("parse")

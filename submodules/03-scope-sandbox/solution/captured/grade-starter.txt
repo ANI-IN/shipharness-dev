@@ -1,0 +1,38 @@
+$ uv run python submodules/03-scope-sandbox/solution/grader/grade.py
+A3 grade: submodules/03-scope-sandbox/assignment/starter
+  criterion                                              tests         points
+  1 Diff parsing and path matching                                0.0 / 15
+      diff parsing and path matching                    0/75
+  2 Diff-scope policy                                             0.0 / 45
+      out-of-scope diffs rejected                       0/35
+      legitimate diffs accepted                         0/24
+  3 Evidence-gated status                                         0.0 / 20
+      passes set with evidence                          0/9
+      passes kept false without evidence                0/38
+  4 Sandbox history rule                                          0.0 / 10
+      history rule denies                               0/37
+      history rule allows (no false positives)         52/52
+  5 Denial test proves the denial                                 0.0 / 10
+      passes with the rule (4)                              no
+      fails with the rule removed (4)                       no
+      uses check_command or PolicySandbox (2)               no
+  Total                                                           0.0 / 100
+  Every out-of-scope diff rejected: no; zero false positives: no
+  Failed tests (218; first 15):
+    - test_parse_changed_paths[bad-middleware-file]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[bad-test-phase-source-edit]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[bad-parent-traversal]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[bad-rename-out-of-scope]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[bad-binary-out-of-scope]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-in-scope-build]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-state-files]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-rename-in-scope]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-space-in-path]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-copy-from-out-of-scope]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_parse_changed_paths[good-empty-diff]: NotImplementedError: TODO(A3 Part A1): parse_diff
+    - test_bad_diff_rejected[bad-middleware-file]: NotImplementedError: TODO(A3 Part A2): check_diff
+    - test_bad_diff_rejected[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
+    - test_bad_diff_rejected[bad-test-phase-source-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
+Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, and zero false positives)
+(exit code 1)

@@ -165,6 +165,11 @@ def _status(passed: int, total: int) -> str:
     return "ok" if total and passed == total else "FAIL"
 
 
+def shown(path: Path) -> str:
+    """The path relative to the repository root when it is inside it."""
+    return path.relative_to(REPO).as_posix() if path.is_relative_to(REPO) else str(path)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--impl", type=Path, default=STARTER, help="folder holding a3scope/")
@@ -174,7 +179,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"x no a3scope package in {impl}")
         return 2
 
-    print(f"A3 self-check: {impl}")
+    print(f"A3 self-check: {shown(impl)}")
     cases, output = run_pytest([VISIBLE], impl)
     if not cases:
         print("x the visible tests did not run; pytest said:\n" + output[-2000:])
@@ -187,7 +192,7 @@ def main(argv: list[str] | None = None) -> int:
         status = _status(passed, total)
         ok &= status == "ok"
         where = "" if status == "ok" else WHERE[key]
-        print(f"  {label:<50} {f'{passed}/{total}':>13}  {status:<6}  {where}")
+        print(f"  {label:<50} {f'{passed}/{total}':>13}  {status:<6}  {where}".rstrip())
 
     checks, _ = denial_test_checks(impl)
     labels = {
@@ -199,7 +204,7 @@ def main(argv: list[str] | None = None) -> int:
         status = "ok" if checks[key] else "FAIL"
         ok &= checks[key]
         where = "" if checks[key] else LEARNER_TEST.as_posix()
-        print(f"  {label:<50} {'':>13}  {status:<6}  {where}")
+        print(f"  {label:<50} {'':>13}  {status:<6}  {where}".rstrip())
 
     failed = [c for c in cases if not c.passed]
     if failed:

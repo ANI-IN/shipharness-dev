@@ -1,0 +1,16 @@
+$ uv run python submodules/03-scope-sandbox/assignment/check.py --impl submodules/03-scope-sandbox/solution
+A3 self-check: submodules/03-scope-sandbox/solution
+  check                                              visible tests  status  where
+  diff parsing and path matching                             28/28  ok
+  out-of-scope diffs rejected                                  8/8  ok
+  legitimate diffs accepted                                    6/6  ok
+  passes set with evidence                                     2/2  ok
+  passes kept false without evidence                           5/5  ok
+  history rule denies                                          8/8  ok
+  history rule allows (no false positives)                     6/6  ok
+  your denial test passes                                           ok
+  your denial test fails with the rule removed                      ok
+  your denial test uses check_command/PolicySandbox                 ok
+
+Self-check PASSED. Next: make grade-assignment-3 (adds the hidden cases).
+(exit code 0)
