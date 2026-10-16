@@ -4,8 +4,8 @@ Seven builders work in parallel, each in its own git worktree branched from `mai
 adds this file. The integrator (lead) merges in this order, running the full suite after each merge:
 **checks → filters → instr → state-scope → verify → console → skills**.
 
-Spec: [DESIGN.md](../../../DESIGN.md), [CONTRACTS.md](../../../CONTRACTS.md) v1.2,
-[RESEARCH.md](../../../RESEARCH.md). This file adds the cross-builder interfaces M4 needs. Where this file
+Spec: [DESIGN.md](../../DESIGN.md), [CONTRACTS.md](../../CONTRACTS.md) v1.2,
+[RESEARCH.md](../../RESEARCH.md). This file adds the cross-builder interfaces M4 needs. Where this file
 and CONTRACTS.md differ, this file wins for M4; the integrator folds it into CONTRACTS.md at merge.
 
 ---
@@ -34,7 +34,7 @@ and CONTRACTS.md differ, this file wins for M4; the integrator folds it into CON
    `LocalSandbox` (labelled UNSANDBOXED). Agent-written code runs only in a container (gate: arm container;
    referee: referee container).
 6. **Secrets.** Keys are `SecretStr`; never print, log, trace, export, or pass them into a container. Use
-   `shipharness.logging.redact` / `mask_keys` on anything derived from agent output that you persist.
+   `shipharness.log_setup.redact` / `mask_keys` on anything derived from agent output that you persist.
 7. **Writing rules** (any Markdown you write, including skills and TeamTrack docs): source wording from
    RESEARCH.md (for example "map" / "table of contents" for AGENTS.md, "grading criteria" not "rubric",
    "existing tests keep passing" not PASS_TO_PASS); no banned words (`uv run python scripts/lint_prose.py
@@ -253,13 +253,13 @@ list[tuple[host, container, "ro"|"rw"]]` (B-verify adds it).
 
 ### B-skills
 - **Writes:** `skills/**`, `src/shipharness/skills_cli/**`, `tests/unit/skills/**`.
-- **Builds:** `harness-setup`, `assured-tests`, `house-rules`, `_template` (brief §2.8, DESIGN §6, RESEARCH
+- **Builds:** `harness-setup`, `assured-tests`, `house-rules`, `_template` (built as `skill-template`, DESIGN D-17) (brief §2.8, DESIGN §6, RESEARCH
   §4.5): six spec frontmatter fields only; SKILL.md under 500 lines; references one level deep; Python scripts
   only; `harness-setup/scripts/assess.py` deterministic assessment of a repo's instructions, state, scope,
   verification, and session lifecycle → HTML; templates (AGENTS.md map, ARCHITECTURE.md, SECURITY.md,
   feature_list.json + schema, progress.md, session-handoff.md, exec plan, clean-state checklist, init.sh) written
   from the sources; `assured-tests` scripts call `shipharness testgen`; `house-rules` has `new_rule.py` and a
-  rule template; `_template` README explains how to write, test, and install a skill in Claude Code
+  rule template; the template skill's README explains how to write, test, and install a skill in Claude Code
   (`.claude/skills/`), Codex (`.agents/skills/`), and Cursor (reads both). `shipharness skills validate <dir>`
   (CONTRACTS §7: skills-ref checks as errors; 500-line and one-level-deep as warnings).
 - **Done when:** all four skills pass `shipharness skills validate` and `skills-ref validate`; assess.py tested
