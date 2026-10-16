@@ -1,6 +1,6 @@
 # Mutation-guided test generation (ACH) and the course's targeted mutants
 
-Reading time: about 7 minutes.
+Reading time: about 8 minutes.
 
 Source: B12, "Mutation-Guided LLM-based Test Generation at Meta" (Foster et al., Meta, submitted to
 FSE 2025 Industry Track), https://arxiv.org/abs/2501.12862. Quotes are copied from RESEARCH.md and
@@ -82,6 +82,21 @@ the arm's unmutated build (CONTRACTS §21), so a broken test does not count as a
 
 Counts in the repository (VERIFICATION.md, M5): TeamTrack module files 41 filter / 40 referee;
 feature files 14 filter / 25 referee; boltons 22 / 27; WTForms 21 / 24.
+
+## Why it matters for your own repo
+
+- Coverage tells you a line ran, not that a test would notice it going wrong in the way you fear.
+  Almost half of ACH's mutant-killing tests added no line coverage (F-b-40), so a coverage target
+  alone would have rejected them.
+- A real case from this course: in pilot run 2 the bare arm of run 1 shipped 30 tests (score record
+  `r-20261016-182828-1daced`), and the lost-update mutant `app.services.issues-m401` still survived
+  (captured on 2026-10-16, run ab-20261016-182828-c81fc0, `mutant_result` event; your output will
+  differ). Thirty tests, and none of them noticed writes that no longer move the version.
+- Start with one record: pick the line whose failure would hurt a customer most, write the mutant
+  as `original` and `replacement`, apply it by hand, and run your suite. If nothing fails, you have
+  found a test to write.
+- If you use mutants to steer an agent, keep a second set it never sees. Otherwise the agent's
+  tests are judged by the same mutants they were written against (DESIGN D-4).
 
 ## Questions to take away
 

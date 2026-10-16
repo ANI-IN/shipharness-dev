@@ -94,6 +94,14 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 - Body probes look for a top-level `issue_id` key; a nested or differently named reference
   (`parent_issue_id`) is not probed.
 - Filter 6 renames names inside nested functions in a test body along with the test's own locals.
+- The reference solution's live evidence is not captured yet, and the grader hides that. When
+  `--impl` is this folder, the four live-evidence tests pass on the `[[PENDING]]` marker in
+  `live/README.md` (`pending_only` in `assignment/visible_tests/a4_live.py`), and the portfolio
+  tests accept the portfolio markers the same way. So `captured/grade-solution.txt` shows 100/100,
+  but 10 of those points (live-evidence) rest on a marker, not on a real run. This special case
+  applies to the reference folder only; for any other folder a missing file fails. The grader code
+  stays as it is until the integrator captures the real live run; the integrator then removes the
+  special case and recaptures the grade.
 
 ## Hidden tests (reveal in the Thursday review)
 
@@ -133,25 +141,30 @@ fails 3 filter tests; renaming every name fails the global-helper test.
 
 ## Captured output
 
-Real output, produced on this branch with no model calls (paths relative to the repository root):
+Real output, no model calls, captured on 2026-10-16 at commit 7de5bc9 (each file starts with that
+label and the `make` target that runs the same command today). Since 7de5bc9 the only change in
+this folder is `solution/tests/conftest.py`. The files were not re-run on 2026-10-17; the
+integrator re-runs the four commands below once the live run is in `live/`:
 
-- `captured/self-check-starter.txt`: the self-check on the starter (exit 1, 2 of 23 visible tests
-  pass, every failure names its TODO).
-- `captured/self-check-solution.txt`: the self-check on this folder (exit 0, 23 of 23; the four
-  live-evidence tests pass on the `live/` markers, see below).
-- `captured/grade-solution.txt`: the grader on this folder, Score: 100/100 (live-evidence passes on the `live/`
-  markers until the M8 batch 1 capture).
-- `captured/grade-starter.txt`: the grader on the starter, Score: 3/100.
-- `captured/r8-teamtrack.json`: `run_r8` on `teamtrack/` (15 probes, one finding at
-  `GET /v1/issues`).
+| File | Command (today's target) | Result |
+|---|---|---|
+| `captured/self-check-starter.txt` | `make check-assignment-4` | exit 1, 2 of 23 visible tests pass, every failure names its TODO |
+| `captured/self-check-solution.txt` | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23; the four live-evidence tests pass on the `live/` marker |
+| `captured/grade-solution.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, of which live-evidence (10 points) passes on the marker, not on a real run (see "Known limits") |
+| `captured/grade-starter.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 |
+| `captured/r8-teamtrack.json` | `run_r8 --build teamtrack` as in step 3 of the brief, with `PYTHONPATH` set to this folder (JSON, so it carries no label line) | 15 probes, one finding at `GET /v1/issues` |
+
+The captured grades came from `grade.py` called directly; `make grade-assignment-4` runs it
+through `scripts/grade_assignment.py`, which adds a `grading assignment 4: <folder>` line and
+passes the absolute folder.
 
 ## Live step and model-run parts (pending)
 
 The live step of the brief applies to this folder too. `live/README.md` lists the exact commands
-and holds the two markers where the captured files go; the integrator records them in M8 batch 1.
-Until then the live-evidence tests accept the markers for this folder only (`pending_only` in
-`assignment/visible_tests/a4_live.py`, the same rule as the portfolio markers). Once the files are
-there, they are validated like any submission's.
+and holds the one marker where the captured files go; the integrator records the run (M6 pilot,
+2026-10-17). Until then the live-evidence tests accept the marker for this folder only
+(`pending_only` in `assignment/visible_tests/a4_live.py`, the same rule as the portfolio markers).
+Once the files are there, they are validated like any submission's.
 
 How the grader reads "filter 6 in the pipeline": `shipharness testgen` runs filters 1-5 and writes
 their rows to `testgen-report.json`; it has no option to add a filter (`src/shipharness/testgen/`).
@@ -167,27 +180,28 @@ Why the F4 A/B replaces the section-4 experiment: by the caps, the A/B (two runs
 reviews at $0.04) costs at most $0.48 and the live step at most $0.68, inside the A4 plan of $1.75
 (DESIGN §11.5); the experiment's per-command cap alone ($2.50) was above that plan.
 
-Model-run output still pending in `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
-`portfolio/case-study.md`:
+Model-run output is still pending in `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
+`portfolio/case-study.md`; each holds its own marker and is filled from the files of the live run
+above (marker in `live/README.md`).
 
-[[PENDING: testgen run on TG-teamtrack-app-repositories-issues: kept and discarded tests with reasons, filter 6 output, and cost line | source: M8 batch 1 | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen]]
-
-[[PENDING: trace links and per-arm counts of the F4 A/B (k=1) | source: M8 batch 1 | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
+What pilot run 2 says about the F4 A/B in the live step (VERIFICATION.md, M6 pilot run 2): both
+arms failed the primary measure in all three F4 runs. The bare arm killed 3, 4, 3 of 4 referee
+mutants and passed 69, 66, 69 of 69 hidden tests; the harness arm shipped 0, 0, 3 tests in the
+12-turn test phase and so killed 0, 0, 2 mutants. Change 9 (a test-phase session starts with the
+feature's tests) is the harness-arm fix; changes 10 and 11 (judge each arm when it finishes; one
+batched unmutated-pass step, shown equivalent on 181 tests) change referee speed, not outcomes. The
+live step is graded on its files, not on these results.
 
 ## Make targets
 
-The integrator adds these rules to the `Makefile` (and removes `check-assignment-4` and
-`grade-assignment-4` from the placeholder rule):
+Both targets are in the `Makefile` (9fd8273); `make -n` shows what they run:
 
-```make
-check-assignment-4:
-	$(UV) run python submodules/04-verification/assignment/check.py --impl $(or $(A4_IMPL),submodules/04-verification/assignment/starter)
+| Target | Command |
+|---|---|
+| `make check-assignment-4` | `uv run python submodules/04-verification/assignment/check.py` (with `A4_IMPL=<folder>`: `--impl <folder>`) |
+| `make grade-assignment-4 SUBMISSION=<folder or git URL>` | `uv run python scripts/grade_assignment.py 4 "<folder or git URL>"`, which runs `grade.py --impl <folder>` (instructor only) |
 
-grade-assignment-4:
-	$(UV) run python submodules/04-verification/solution/grader/grade.py --impl $(or $(SUBMISSION),$(A4_IMPL),submodules/04-verification/solution)
-```
-
-`SUBMISSION` is a folder: the learner's implementation folder (with `live/`), or a checkout of
-the learner's course repo, in which case `grade.py` grades
-`submodules/04-verification/assignment/starter/` inside it (`resolve_impl`). For a git URL the
-integrator's Makefile part clones it into a temporary folder and passes that folder.
+`SUBMISSION` is a folder (the learner's implementation folder with `live/`, or a checkout of the
+learner's course repo, in which case `grade.py` grades
+`submodules/04-verification/assignment/starter/` inside it, `resolve_impl`) or a git URL, which
+`scripts/grade_assignment.py` clones shallow into a temporary folder first.

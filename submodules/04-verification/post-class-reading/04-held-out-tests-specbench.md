@@ -1,6 +1,6 @@
 # Held-out tests: what SpecBench measures and how the course's hidden tests follow it
 
-Reading time: about 5 minutes.
+Reading time: about 6 minutes.
 
 Source: B13, "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents" (Zhao, Srikanth, Wu,
 Jiang, Weco AI; preprint, v2 2026-09-09), https://arxiv.org/abs/2605.21384, and its repository B14,
@@ -57,6 +57,19 @@ checks are Module 2 (RESEARCH §2).
 Counts (VERIFICATION.md, M5): 441 hidden tests in total, 69 for F4. For every task and checkpoint
 pair, 91-96% of the hidden tests fail before the reference implementation is applied (the rest are
 guards that must keep passing), and all pass with it.
+
+## Why it matters for your own repo
+
+- If every test lives where the agent can read and edit it, a green suite tells you about those
+  tests only. SpecBench saw agents saturate the visible suite while held-out gaps remained (F-b-45).
+- The gap comes mostly from composition, not cheating (F-b-50). Your held-out tests do not need to
+  be clever; they need to use two features together the way a user would (F-b-42), and to stay
+  outside the agent's workspace (F-b-43).
+- A real case from this course: in pilot run 2 the bare arm of run 2 shipped 33 tests of its own
+  and still failed 3 of the 69 hidden F4 tests (score record `r-20261016-185422-ce2096`;
+  VERIFICATION.md, M6 pilot run 2).
+- Ask only for what the spec states (F-b-44). A hidden test that checks an unwritten rule measures
+  the spec's gaps, not the agent.
 
 ## Questions to take away
 

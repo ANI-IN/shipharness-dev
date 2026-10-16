@@ -49,9 +49,40 @@ diff in its own container against two counts the agent never saw: the 69 hidden 
 the four referee-set mutants in `teamtrack/mutants/features/f4.jsonl` (counts in VERIFICATION.md,
 M5). Screen 1 puts "Agent said" next to "Referee", so the class sees whether the claim holds up.
 
-What the bare arm actually shipped in the pilot runs:
+### What the pilot showed on F4
 
-[[PENDING: bare-arm F4 outcome in the pilot: claim, two-tab mark (lost update or conflict detected), hidden x/69, referee mutants y/4 | source: M6 pilot | how: make demo-4, then make report]]
+Pilot run 2 (2026-10-16) ran F4 three times, both arms on gpt-6-luna at effort medium. Both arms
+failed the primary measure in all three runs, for different reasons (VERIFICATION.md, M6 pilot
+run 2; tests shipped from the score records in `exports/scores/<run_id>.json`):
+
+| Count per run (runs 1, 2, 3) | Bare arm | Harness arm |
+|---|---|---|
+| Hidden tests passed, of 69 | 69, 66, 69 | 69, 61, 69 |
+| Referee mutants killed, of 4 | 3, 4, 3 | 0, 0, 2 |
+| Tests shipped | 30, 33, 8 | 0, 0, 3 |
+
+- **The bare arm** wrote tests that killed most referee mutants, but every run missed something:
+  run 2 failed 3 hidden tests, and runs 1 and 3 each left one referee mutant alive. In run 1 the
+  survivor was the lost-update mutant `app.services.issues-m401`. The measure needs all 69 and all
+  4, so a near miss is a fail.
+- **The harness arm** shipped almost no tests: 0, 0, and 3 in the 12-turn test phase, so it killed
+  0, 0, and 2 mutants. The pilot logs show why: every session repeated the getting-up-to-speed
+  steps, re-read 3 to 7 instruction documents and about 15 product files, and updated state files
+  mid-session (VERIFICATION.md, M6 pilot run 2, "Harness arm turn use").
+- **No arm called `finish(claim="done")`.** Every arm used up its 40 build turns, so its claim was
+  `none` and the verify gate never ran (VERIFICATION.md: "no arm claimed done, so no gate ran").
+- The two-tab board check was not part of the pilot: pilot A/Bs run with `--no-preview`
+  (VERIFICATION.md, M6 command), so the conflict panel first appears in class.
+
+The referee's verdicts for run 1, two lines of `events.jsonl` cut to their key fields ("..." marks
+a cut; captured on 2026-10-16, run ab-20261016-182828-c81fc0; your output will differ):
+
+```text
+{... "arm":"harness","seq":404, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 0/4, R1 new 0"} ...
+{... "arm":"bare","seq":436, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 3/4, R1 new 0"} ...
+```
+
+What changed after run 2 is in section 5 under "Results".
 
 ---
 
@@ -95,6 +126,14 @@ listed in `task.toml`).
 SpecBench also warns that better visible tests alone do not close the gap: "These findings suggest
 that reward hacking cannot be eliminated by improving the test suite alone" (B13, F-b-51). That is
 why the harness piece below has a separate judge as well as better tests.
+
+### How the pilot fits this cause
+
+In pilot run 2 no F4 agent reached a "done" claim, so the cause did not show as an unsupported
+claim. It showed as shipped work that nothing inside the arm had judged: the bare arm's own tests
+passed while a referee mutant or a few hidden tests still failed, and the separate reviewer
+rejected all six F4 arms (`reviewer_verdict` in the six score records). Held-out checks caught what
+the arm's own checks did not, which is SpecBench's point (B13, F-b-45).
 
 ---
 
@@ -175,7 +214,10 @@ Filters 4 and 5 have no direct source sentence (RESEARCH G-7). They guard agains
 generated test can pass without proving anything: a test that asserts nothing or mocks away the code
 it claims to test, and a test phase that "fixes" the source until the new test passes.
 
-Every discard carries a reason, and the console shows it. Two limits of the current build: in
+Every discard carries a reason, and the console shows it. In pilot run 2 the only test a harness
+arm proposed in an F4 test phase stopped at filter 2, with the reason `failed on run 1 of 5: assert
+None is not None` (captured on 2026-10-16, run ab-20261016-191626-6100f6, `test_filter_result`
+event; your output will differ). Two limits of the current build: in
 `make demo-4` the test-phase context is built without a mutant list
 (`filters_pipeline` in `src/shipharness/harness/verify/testphase.py`), so filter 3 keeps a TeamTrack
 test through its coverage branch; and no single target module is set, so filter 4 checks assertions
@@ -415,6 +457,20 @@ exported repository (DESIGN §8.3 rule 6), and the referee set shares no mutatio
 
 ### Results
 
+Pilot run 2: both F4 arms failed the primary measure in 3 of 3 runs (table in section 1;
+VERIFICATION.md, M6 pilot run 2). The changes logged before run 3 that touch F4:
+
+| # | Change | Label (VERIFICATION.md) | Effect on F4 |
+|---|---|---|---|
+| 9 | Turn cost: the handoff's agent notes come before any document, state files are updated only in the wrap-up turns, and a test-phase session starts with the feature's tests | harness change, harness arm only | Targets the harness arm's 0, 0, 3 shipped tests. The test-phase session now opens with "write the tests for the feature first" (`TEST_PHASE_FIRST` in `src/shipharness/harness/state/lifecycle.py`) |
+| 10 | Each arm is judged as soon as its run ends | measurement change, both arms, no outcome change | Shorter wait for the verdict; the same counts |
+| 11 | The unmutated-pass step before referee mutants runs all shipped tests in one pytest process | measurement change, both arms, no outcome change | Checked on 181 shipped tests from 17 run 2 arms: every test had the same pass or fail outcome alone and in the batch |
+
+Changes 10 and 11 change how fast the referee works, not what it measures. Change 9 is the
+treatment: only the harness arm gets it. The prompt text is course design, not a source sentence.
+
+[[PENDING: F4 results of pilot run 3 (hidden x/69 and referee mutants y/4 per run, bare vs harness, k=3) with run ids | source: M6 pilot | how: scripts/pilot.py run 3; VERIFICATION.md, M6 pilot run 3]]
+
 [[PENDING: S4 co-primary dots from batch 1 (hidden x/69 and referee mutants y/4 per run, bare vs harness, k=10) with run ids | source: M8 batch 1 | how: make experiments BATCH=1, then make report]]
 
 [[PENDING: S4 secondary measures from batch 1 (existing tests, R1-R7 new violations, flaky tests, reviewer agreement) | source: M8 batch 1 | how: make report]]
@@ -432,4 +488,5 @@ exported repository (DESIGN §8.3 rule 6), and the referee set shares no mutatio
   still generous to model-written output (F-a-112).
 - `evidence`, `testedAt`, and "only the harness sets `passes`" extend A2's design (G-6).
 
-Further reading: [post-class-reading/](post-class-reading/README.md).
+After class: [session-notes.md](session-notes.md). Further reading:
+[post-class-reading/](post-class-reading/README.md).
