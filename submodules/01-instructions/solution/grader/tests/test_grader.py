@@ -9,7 +9,8 @@ import shutil
 from pathlib import Path
 
 import pytest
-from helpers import GRADER, SOLUTION_WORK, STARTER, load
+import synthetic_live as syn
+from helpers import A1, GRADER, SOLUTION_WORK, STARTER, load
 
 grade = load("a1_grade", GRADER / "grade.py")
 REFERENCE = SOLUTION_WORK / "checker" / "check_docs.py"
@@ -50,11 +51,13 @@ def test_the_reference_solution_scores_100_when_pending_markers_are_allowed() ->
     assert points(items) == 100
 
 
-def test_without_pending_markers_the_reference_loses_only_ab_report_points() -> None:
+def test_without_pending_markers_the_reference_loses_only_ab_and_live_points() -> None:
     items = grade.grade(SOLUTION_WORK)
     lost = {i.name for i in items if i.earned < i.points}
-    assert lost == {"report-command", "report-results", "report-links", "report-cost"}
-    assert points(items) == 92
+    live = {"live-files", "live-command", "live-caps", "live-tree", "live-report"}
+    assert lost == {"report-command", "report-results", "report-links", "report-cost"} | live
+    assert points(items, "F Live run evidence") == 0
+    assert points(items) == 83
 
 
 def test_the_starter_scores_low_without_crashing() -> None:
@@ -102,3 +105,55 @@ def test_main_prints_each_criterion_and_the_score(capsys: pytest.CaptureFixture[
 
 def test_min_score_turns_a_low_score_into_exit_1() -> None:
     assert grade.main(["--work", str(STARTER), "--min-score", "50"]) == 1
+
+
+# -- the live step --------------------------------------------------------------------------------
+
+live = load("a1_live", A1 / "assignment" / "live_evidence.py")
+
+
+def synthetic_submission(root: Path) -> Path:
+    """The reference work folder plus SYNTHETIC live evidence (never a real run) and a report
+    whose values match it."""
+    work = root / "work"
+    shutil.copytree(SOLUTION_WORK, work, ignore=shutil.ignore_patterns("__pycache__", "live"))
+    placed = live.tree_files(work / "instructions")
+    summary = syn.write_live(work, sorted(live.section_tasks()), placed, r1_fail={"bare": 3})
+    text = syn.report(summary, r1=("3/24", "0/24"), r3=("0/24", "0/24"), runs=24)
+    (work / "ab-report.md").write_text(text, encoding="utf-8")
+    return work
+
+
+def test_live_evidence_is_its_own_criterion_of_12_points() -> None:
+    assert grade.CRITERIA["F Live run evidence"] == 12
+
+
+def test_a_submission_with_valid_live_evidence_scores_100_without_pending(tmp_path: Path) -> None:
+    items = grade.grade(synthetic_submission(tmp_path))
+    assert [(i.name, i.note) for i in items if i.earned < i.points] == []
+    assert points(items) == 100
+
+
+def test_missing_live_evidence_fails_the_live_criterion_by_name(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    work = synthetic_submission(tmp_path)
+    shutil.rmtree(work / "live")
+    items = grade.grade(work)
+    assert points(items, "F Live run evidence") == 0
+    assert points(items) == 88
+    grade.main(["--work", str(work)])
+    out = capsys.readouterr().out
+    assert any(
+        line.startswith("F Live run evidence") and "0.0/12" in line for line in out.splitlines()
+    )
+
+
+def test_a_repository_checkout_is_accepted_as_the_submission(tmp_path: Path) -> None:
+    work = synthetic_submission(tmp_path)
+    checkout = tmp_path / "learner-repo"
+    starter = checkout / "submodules" / "01-instructions" / "assignment" / "starter"
+    shutil.copytree(work, starter)
+    assert grade.resolve_work(checkout) == starter
+    assert grade.resolve_work(work) == work
+    assert grade.main(["--work", str(checkout), "--min-score", "100"]) == 0

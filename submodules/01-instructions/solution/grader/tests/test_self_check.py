@@ -6,6 +6,8 @@ Run: uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/s
 from __future__ import annotations
 
 import shutil
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -82,6 +84,41 @@ def test_the_reference_solution_passes_every_check_when_pending_markers_are_allo
     assert [r.name for r in results if not r.ok] == []
     assert check.main(["--work", str(SOLUTION_WORK), "--allow-pending"]) == 0
     assert "FAIL" not in capsys.readouterr().out
+
+
+def test_the_self_check_lists_the_five_live_items(capsys: pytest.CaptureFixture[str]) -> None:
+    names = [r.name for r in check.run_checks(STARTER)]
+    for name in ("live-files", "live-command", "live-caps", "live-tree", "live-report"):
+        assert name in names
+    assert len(names) == 24
+
+
+def test_learner_facing_files_never_point_into_the_solution_folder() -> None:
+    assignment = A1 / "assignment"
+    files = [p for p in assignment.rglob("*") if p.is_file() and "__pycache__" not in p.parts]
+    for path in files:
+        text = path.read_text(encoding="utf-8")
+        assert "solution/" not in text, path.relative_to(A1).as_posix()
+
+
+def test_the_self_check_runs_in_a_learner_repository_without_solution(tmp_path: Path) -> None:
+    repo = A1.parents[1]
+    copy = tmp_path / "repo"
+    shutil.copytree(
+        A1 / "assignment",
+        copy / "submodules" / "01-instructions" / "assignment",
+        ignore=shutil.ignore_patterns("__pycache__"),
+    )
+    for name in ("teamtrack", "datasets", "skills"):
+        (copy / name).symlink_to(repo / name, target_is_directory=True)
+    script = copy / "submodules" / "01-instructions" / "assignment" / "check.py"
+    run = subprocess.run(
+        [sys.executable, str(script)], capture_output=True, text=True, timeout=600, cwd=copy
+    )
+    assert not (copy / "submodules" / "01-instructions" / "solution").exists()
+    assert "Traceback" not in run.stderr, run.stderr
+    assert run.returncode == 1
+    assert run.stdout.strip().splitlines()[-1] == "self-check: 0 of 24 checks pass"
 
 
 def test_pending_markers_do_not_count_as_results_by_default() -> None:
