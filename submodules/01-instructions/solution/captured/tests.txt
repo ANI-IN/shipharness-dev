@@ -1,0 +1,5 @@
+$ uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
+...........................................................              [100%]
+59 passed
+$ uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/work/checker
+15 passed
