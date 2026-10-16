@@ -16,7 +16,7 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-from collections.abc import AsyncIterator, Callable, Iterator
+from collections.abc import AsyncIterator, Callable
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
@@ -28,7 +28,7 @@ from sse_starlette.sse import EventSourceResponse
 from shipharness.console.report import Report, exports_signature, load_report
 from shipharness.console.screens import ScreenContext, ScreenRenderer
 from shipharness.console.state import ConsoleState
-from shipharness.events import Event, read_events
+from shipharness.events import LogTail, read_events
 
 HERE = Path(__file__).parent
 _RUN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_-]{0,80}$")
@@ -46,39 +46,21 @@ async def sse_events(
     poll_s: float = 0.25,
     should_stop: Callable[[], bool] | None = None,
 ) -> AsyncIterator[dict[str, str]]:
-    """Yield SSE messages (id = seq, event = type, data = event JSON) after `after_seq`."""
+    """Yield SSE messages (id = seq, event = type, data = event JSON) after `after_seq`.
+
+    The log is tailed by byte offset, so a malformed line is skipped and logged once (not on
+    every poll) and a partial last line is held until it is complete."""
+    tail = LogTail(log_path)
     last = after_seq
     while True:
-        for event in read_events(log_path, after_seq=last):
+        for event in tail.read():
+            if event.seq <= last:
+                continue
             last = event.seq
             yield {"id": str(event.seq), "event": event.type, "data": event.model_dump_json()}
         if not follow or (should_stop is not None and should_stop()):
             return
         await asyncio.sleep(poll_s)
-
-
-class LogTail:
-    """Read only the complete lines appended since the last call (byte offset), so following a
-    long run log does not re-parse it on every poll."""
-
-    def __init__(self, path: Path) -> None:
-        self.path = Path(path)
-        self.offset = 0
-
-    def read(self) -> Iterator[Event]:
-        try:
-            with self.path.open("rb") as handle:
-                handle.seek(self.offset)
-                chunk = handle.read()
-        except FileNotFoundError:
-            return
-        end = chunk.rfind(b"\n")
-        if end < 0:
-            return
-        self.offset += end + 1
-        for line in chunk[: end + 1].splitlines():
-            if line.strip():
-                yield Event.model_validate_json(line)
 
 
 async def screen_updates(
