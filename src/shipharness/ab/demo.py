@@ -27,7 +27,12 @@ from shipharness.ab.referee import (
     SandboxFactory,
 )
 from shipharness.ab.score import ScoreRecord
-from shipharness.ab.workspace import create_arm_workspace, new_ab_id, new_run_id
+from shipharness.ab.workspace import (
+    create_arm_workspace,
+    new_ab_id,
+    new_run_id,
+    resolve_commit,
+)
 from shipharness.config import Settings
 from shipharness.cost import CostTracker
 from shipharness.events import Arm, EventBus
@@ -296,9 +301,19 @@ def run_ab(
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
     run_ids = {arm: new_run_id() for arm in ARMS}
+    # The checkpoint is pinned to the commit its tag names now: both arms, the referee, and later
+    # swap tests and replays export that commit, even if the tag moves afterwards.
+    checkpoint_sha = (
+        resolve_commit(deps.course_repo, deps.checkpoint_ref) if deps.checkpoint_ref else None
+    )
     workspaces = {
         arm: create_arm_workspace(
-            ab_id, arm, deps.course_repo, deps.checkpoint_ref, base=deps.workspace_base
+            ab_id,
+            arm,
+            deps.course_repo,
+            checkpoint_sha,
+            base=deps.workspace_base,
+            label=deps.checkpoint_ref,
         )
         for arm in ARMS
     }
@@ -316,7 +331,7 @@ def run_ab(
         task.referee_task(),
         RefereeDeps(
             course_repo=deps.course_repo,
-            checkpoint_ref=deps.checkpoint_ref,
+            checkpoint_ref=checkpoint_sha,
             sandbox_factory=deps.referee_sandbox_factory,
             exports_dir=Path(deps.settings.exports_dir),
             base_dir=workspaces["bare"].parent.parent / "referee",
@@ -356,7 +371,15 @@ def run_ab(
             records = {arm: future.result() for arm, future in verdicts.items()}
         # [walkthrough:Opening:two_arms] end
     arms = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in ARMS}
-    write_ab_record(run_dir, task, seed, arms, section=section)
+    write_ab_record(
+        run_dir,
+        task,
+        seed,
+        arms,
+        section=section,
+        checkpoint_sha=checkpoint_sha,
+        from_working_tree=deps.checkpoint_ref is None,
+    )
     return ABResult(ab_id=ab_id, arms=arms, run_dir=run_dir)
 
 
@@ -370,13 +393,19 @@ def write_ab_record(
     arms: Mapping[Arm, ArmRun],
     *,
     section: str | None = None,
+    checkpoint_sha: str | None = None,
+    from_working_tree: bool = False,
 ) -> Path:
     """Everything swap and replay need, without host paths or keys. `section` (demo-N or final)
-    lets `make swap-N` find the section's most recent A/B."""
+    lets `make swap-N` find the section's most recent A/B. `checkpoint_sha` is the commit the
+    arms started from (swap and replay export it, never the tag); a working-tree A/B records
+    null and `from_working_tree: true`."""
     data = {
         "task": asdict(task),
         "seed": seed,
         "section": section,
+        "checkpoint_sha": checkpoint_sha,
+        "from_working_tree": from_working_tree,
         "arms": {
             arm: {
                 "spec": run.spec.public_dict(),

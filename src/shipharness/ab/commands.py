@@ -186,10 +186,9 @@ def register(app: typer.Typer) -> None:
         settings = _settings()
         rt = _runtime(settings, _class_project(settings))
         run_dir = find_run_dir(Path(settings.runs_dir), (replay or swap) or "", section=section)
-        ab = load_ab(run_dir)
+        load_ab(run_dir)
         deps = RecordedDeps(
             course_repo=rt.course_repo,
-            checkpoint_ref=ab.task.checkpoint,
             referee_sandbox_factory=rt.referee_sandbox_factory,
             runs_dir=Path(settings.runs_dir),
             exports_dir=Path(settings.exports_dir),

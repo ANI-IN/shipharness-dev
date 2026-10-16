@@ -51,10 +51,17 @@ JUDGED_FIELDS: tuple[str, ...] = (
 )
 
 
+class UnpinnedRecord(ValueError):
+    """The A/B record has no `checkpoint_sha`: it predates SHA pinning, so the tree its arms
+    started from cannot be recovered with certainty (the tag may have moved since)."""
+
+
 @dataclass
 class RecordedDeps:
+    """Swap and replay export the checkpoint from the A/B record's `checkpoint_sha`, never from a
+    tag name."""
+
     course_repo: Path
-    checkpoint_ref: str | None
     referee_sandbox_factory: SandboxFactory
     runs_dir: Path
     exports_dir: Path
@@ -82,6 +89,23 @@ class LoadedAB:
     task: ABTask
     seed: int
     arms: dict[Arm, LoadedArm]
+    checkpoint_sha: str | None = None
+    from_working_tree: bool = False
+    pinned: bool = False  # False: the record predates checkpoint_sha
+
+    def export_ref(self) -> str | None:
+        """What swap and replay export: the recorded commit (None = the working tree, for an
+        A/B that ran from it). Refuses a record without a pinned commit."""
+        if self.from_working_tree:
+            return None
+        if not self.pinned or not self.checkpoint_sha:
+            raise UnpinnedRecord(
+                f"{self.ab_id} predates checkpoint SHA pinning: its ab.json has no "
+                f"checkpoint_sha, and the tag {self.task.checkpoint} may have moved since, so "
+                "swap and replay cannot be sure to judge the tree the arms started from; "
+                "run the A/B again"
+            )
+        return self.checkpoint_sha
 
 
 def load_ab(run_dir: Path) -> LoadedAB:
@@ -96,7 +120,16 @@ def load_ab(run_dir: Path) -> LoadedAB:
             test_phase_files=list(entry.get("test_phase_files", [])),
             session_patches=[run_dir / p for p in entry.get("session_patches", [])],
         )
-    return LoadedAB(run_dir.name, run_dir, ABTask(**data["task"]), int(data["seed"]), arms)
+    return LoadedAB(
+        run_dir.name,
+        run_dir,
+        ABTask(**data["task"]),
+        int(data["seed"]),
+        arms,
+        checkpoint_sha=data.get("checkpoint_sha"),
+        from_working_tree=bool(data.get("from_working_tree", False)),
+        pinned="checkpoint_sha" in data,
+    )
 
 
 def latest_ab_dir(runs_dir: Path, section: str | None) -> Path:
@@ -135,7 +168,7 @@ def _referee(ab: LoadedAB, deps: RecordedDeps, base: Path, reviewer: Reviewer | 
         ab.task.referee_task(),
         RefereeDeps(
             course_repo=deps.course_repo,
-            checkpoint_ref=deps.checkpoint_ref,
+            checkpoint_ref=ab.export_ref(),  # the recorded commit, never the tag name
             sandbox_factory=deps.referee_sandbox_factory,
             exports_dir=deps.exports_dir,
             base_dir=base,
@@ -178,9 +211,11 @@ def swap_test(run_dir: Path, deps: RecordedDeps) -> SwapReport:
                 result=loaded.result,
                 diff=loaded.diff,
                 bus=bus,
+                run_log=run_dir / "events.jsonl",
                 test_phase_files=loaded.test_phase_files,
                 session_patches=loaded.session_patches,
                 export=False,
+                log_run_id=loaded.spec["run_id"],  # the recorded log holds the original ids
             )
             swapped[arm] = verdict.record
             original = json.loads(
@@ -231,6 +266,7 @@ def replay_ab(run_dir: Path, deps: RecordedDeps, *, ab_id: str | None = None) ->
                 test_phase_files=loaded.test_phase_files,
                 session_patches=loaded.session_patches,
                 recorded=True,
+                log_run_id=loaded.spec["run_id"],  # continuity counts the original run's sessions
             )
             records[arm] = verdict.record
     return ReplayResult(new_id, ab.ab_id, count, records, new_dir)

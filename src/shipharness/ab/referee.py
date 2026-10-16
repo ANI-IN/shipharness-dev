@@ -422,7 +422,11 @@ class Referee:
         session_patches: list[Path] | None = None,
         recorded: bool = False,
         export: bool = True,  # False for the swap test: its records are not runs
+        log_run_id: str | None = None,
     ) -> ArmVerdict:
+        """`log_run_id` is the run id whose events `run_log` holds (continuity counts that run's
+        sessions); swap and replay pass the original run id while scoring under their own."""
+
         def emit(type_: str, data: Any) -> None:
             if bus is not None:
                 bus.publish(type_, data, run_id=run_id, arm=arm, recorded=recorded)  # type: ignore[arg-type]
@@ -474,7 +478,7 @@ class Referee:
                         shipped_ids=shipped_ids,
                         test_phase_files=list(test_phase_files or []),
                         existing_ids=existing_ids,
-                        run_id=run_id,
+                        run_id=log_run_id or run_id,
                     )
                     results, progress, error = self._run_checks(
                         sandbox, params, baseline, REFEREE_CHECKS

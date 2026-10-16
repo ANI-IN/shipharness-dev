@@ -175,12 +175,12 @@ def test_swap_and_replay_referee_loads_the_task_mutant_set(tmp_path: Path) -> No
     task = dataclasses.replace(ABTask.from_dataset_line(LINE), mutant_set="app.services.issues")
     deps = RecordedDeps(
         course_repo=REPO,
-        checkpoint_ref=None,
         referee_sandbox_factory=lambda *a: None,  # type: ignore[arg-type,return-value]
         runs_dir=tmp_path / "runs",
         exports_dir=tmp_path / "exports",
     )
-    referee = _referee(SimpleNamespace(task=task, seed=1), deps, tmp_path, None)  # type: ignore[arg-type]
+    ab = SimpleNamespace(task=task, seed=1, export_ref=lambda: None)
+    referee = _referee(ab, deps, tmp_path, None)  # type: ignore[arg-type]
     assert len(referee.deps.mutants) == len(load_referee_mutants("app.services.issues", REPO))
 
 

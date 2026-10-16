@@ -125,10 +125,17 @@ def _extract(tar_bytes: bytes, prefix: str, dest: Path, keep: Callable[[str], bo
     return count
 
 
-def _archive(repo: Path, ref: str, path: str) -> bytes:
+def resolve_commit(repo: Path, ref: str) -> str:
+    """The commit SHA a checkpoint ref (tag or commit) points at now. A/B records keep it, so
+    swap and replay judge the same tree even if the tag moves later."""
     check = _git(repo, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}", check=False)
     if check.returncode != 0:
         raise CheckpointNotFound(f"checkpoint {ref!r} not found in {repo} (git tag or commit)")
+    return check.stdout.decode().strip()
+
+
+def _archive(repo: Path, ref: str, path: str) -> bytes:
+    resolve_commit(repo, ref)
     return _git(repo, "archive", "--format=tar", ref, "--", path).stdout
 
 
@@ -209,7 +216,10 @@ def create_arm_workspace(
     *,
     base: Path | None = None,
     course_root: Path = REPO_ROOT,
+    label: str | None = None,
 ) -> Path:
+    """`label` names the checkpoint in the workspace commit message when `checkpoint` is a
+    pinned commit SHA (the A/B exports the tag's commit; the arm sees the tag name)."""
     base = Path(base) if base is not None else workspace_base()
     ws = base / ab_id / arm / "ws"
     for checkout in {Path(repo), Path(course_root)}:
@@ -218,6 +228,6 @@ def create_arm_workspace(
     if ws.exists():
         raise FileExistsError(f"workspace already exists (never reused): {ws}")
     export_checkpoint(repo, checkpoint, ws)
-    init_repo(ws, f"checkpoint {checkpoint or 'working tree'}")
+    init_repo(ws, f"checkpoint {label or checkpoint or 'working tree'}")
     _open_permissions(ws)
     return ws
