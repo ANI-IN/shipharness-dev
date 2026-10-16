@@ -179,14 +179,34 @@ def register(app: typer.Typer) -> None:
     def _recorded(
         *, replay: str | None, swap: str | None, reviewer: bool, section: str | None = None
     ) -> None:
-        from shipharness.ab.recorded import RecordedDeps, find_run_dir, load_ab, replay_ab
+        from shipharness.ab.recorded import (
+            RecordedDeps,
+            UnpinnedRecord,
+            find_run_dir,
+            load_ab,
+            replay_ab,
+        )
         from shipharness.ab.recorded import swap_test as run_swap
         from shipharness.ab.runtime import cost_line
 
         settings = _settings()
+        wanted = (replay or swap) or ""
+        try:
+            run_dir = find_run_dir(Path(settings.runs_dir), wanted, section=section)
+            load_ab(run_dir).export_ref()  # refuses a record without a pinned checkpoint commit
+        except FileNotFoundError as exc:
+            if wanted != "latest":
+                hint = "check the A/B or run id"
+            elif section:
+                hint = f"run `make {section}` first, or pass AB=<id>"
+            else:
+                hint = "run an A/B first (make demo-N), or pass AB=<id>"
+            typer.echo(f"x {exc}; {hint}")
+            raise typer.Exit(2) from None
+        except UnpinnedRecord as exc:
+            typer.echo(f"x {exc}")
+            raise typer.Exit(2) from None
         rt = _runtime(settings, _class_project(settings))
-        run_dir = find_run_dir(Path(settings.runs_dir), (replay or swap) or "", section=section)
-        load_ab(run_dir)
         deps = RecordedDeps(
             course_repo=rt.course_repo,
             referee_sandbox_factory=rt.referee_sandbox_factory,
