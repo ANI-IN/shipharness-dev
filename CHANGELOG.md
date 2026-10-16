@@ -5,6 +5,7 @@ All notable changes to this project are recorded here.
 ## Unreleased
 
 ### M6 pilot fixes (2026-10-16)
+- Cost caps hold across concurrent commands: trackers read each other's ledger entries.
 - Total build budget: `MAX_BUILD_TOTAL_USD` $15 over every ledger entry, enforced before each call;
   the cost line shows build spent and remaining.
 - `apply_patch` accepts the context-anchored `*** Begin Patch` format and unified diffs without line
