@@ -2,7 +2,8 @@
 
 Reading time: about 7 minutes.
 
-Sources (all accessed 2026-10-16; see RESEARCH.md §1.1 and §4.5, and `research/notes/R-b.md`):
+Sources (all accessed 2026-10-16; titles, links, and finding IDs in
+[REFERENCES.md](../../../REFERENCES.md), generated at release):
 
 - B1, Agent Skills Specification, https://agentskills.io/specification
 - B2, What are skills?, https://agentskills.io/what-are-skills
@@ -10,8 +11,8 @@ Sources (all accessed 2026-10-16; see RESEARCH.md §1.1 and §4.5, and `research
   https://agentskills.io/client-implementation/adding-skills-support.md
 - B5 and B6, the `skills-ref` reference validator (source and PyPI package 0.1.1)
 
-Quotes are verbatim from those files. Where a quote has no finding ID, it comes from the "Agent Skills
-spec — normative rules" table in `research/notes/R-b.md`.
+Quotes are verbatim from those sources. A quote without a finding ID is from the source named next
+to it, read on the same date.
 
 The concepts page shows the three tiers in one table. This piece reads the specification more closely:
 what a skill must contain, what loads when, what a client is told to do, and how `shipharness` maps
@@ -25,7 +26,7 @@ each rule to code.
 
 > "The `SKILL.md` file must contain YAML frontmatter followed by Markdown content." (B1, F-b-01)
 
-The specification defines six frontmatter fields (RESEARCH §4.5):
+The specification defines six frontmatter fields (B1, F-b-01 to F-b-04):
 
 | Field | Required | Rule (B1) |
 |---|---|---|
@@ -36,8 +37,8 @@ The specification defines six frontmatter fields (RESEARCH §4.5):
 | `metadata` | no | A map from string keys to string values |
 | `allowed-tools` | no | "Experimental. Support for this field may vary between agent implementations" (F-b-04) |
 
-The `name` rule is why the course's blank skill is `skills/skill-template`, not the brief's
-`skills/_template`: an underscore can never pass (DESIGN D-17).
+The `name` rule is why the course's blank skill is `skills/skill-template`, not `skills/_template`:
+a name with an underscore can never pass (B1, F-b-02).
 
 Optional folders are `scripts/`, `references/`, and `assets/`. File references use relative paths
 from the skill root, and B1 says: "Keep file references one level deep from `SKILL.md`. Avoid deeply
@@ -93,7 +94,7 @@ should follow B1; clients follow B3.
 | Skip a skill with no description (B3) | `catalogue()` skips any skill whose frontmatter lacks `name` or `description` | same |
 | Tier 1 at startup (B1) | `catalogue_block()` writes one line per skill (name, description, path to `SKILL.md`) into the context prefix | same, anchor `S1:progressive` |
 | Tiers 2 and 3 on demand (B1) | Never pre-loaded; the agent uses `read_file`. `skill_for_path` reports tier 2 for `SKILL.md` and tier 3 for any other file in the skill folder | same |
-| Validation (B1 points to skills-ref) | `uv run shipharness skills validate <dir>`: the skills-ref checks as errors, plus warnings for over 500 lines and references deeper than one level (CONTRACTS §7) | `src/shipharness/skills_cli/` |
+| Validation (B1 points to skills-ref) | `uv run shipharness skills validate <dir>`: the skills-ref checks as errors, plus warnings for over 500 lines and references deeper than one level | `src/shipharness/skills_cli/` |
 
 The loader parses frontmatter with a small reader of top-level scalar fields, enough for `name` and
 `description`; it is not a full YAML parser (`parse_frontmatter` in `skills_loader.py`).
@@ -101,7 +102,7 @@ The loader parses frontmatter with a small reader of top-level scalar fields, en
 ## 5. The reference validator
 
 B1 says to "Use the skills-ref reference library to validate your skills" (B1). Facts from its source
-and package (RESEARCH §4.5, B5, B6):
+and package (B5, B6):
 
 - Its README says: "This library is intended for demonstration purposes only. It is not meant to be
   used in production." (F-b-10)
@@ -112,8 +113,18 @@ and package (RESEARCH §4.5, B5, B6):
 
 The F-b-11 rule decides portability. Vendor extension fields (see
 [03-instructions-in-other-agents.md](03-instructions-in-other-agents.md)) fail the reference validator,
-so the course skills use only the six spec fields (RESEARCH §4.5). VERIFICATION.md records the four
-course skills passing `shipharness skills validate skills` with 0 errors and 0 warnings (M4).
+so the course skills use only the six spec fields. You can check the four course skills yourself
+(captured on 2026-10-17 from `uv run shipharness skills validate skills` at commit 5e8fb08; your output
+will differ):
+
+```text
++ assured-tests: valid (SKILL.md 96 lines)
++ harness-setup: valid (SKILL.md 103 lines)
++ house-rules: valid (SKILL.md 94 lines)
++ skill-template: valid (SKILL.md 46 lines)
+4 skills checked, 0 errors, 0 warnings
+Cost: $0.000000 (no model calls)
+```
 
 ## 6. Read one skill against the specification
 
@@ -126,8 +137,9 @@ Open `teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md` and c
 4. Is `references/tests.md` one level deep, linked with a relative path?
 
 Then run `uv run shipharness skills validate teamtrack/harness/instructions/.agents/skills` and compare
-its result with your answers. On 2026-10-17 in the course build worktree it printed (your output will
-differ):
+its result with your answers (captured on 2026-10-17 from
+`uv run shipharness skills validate teamtrack/harness/instructions/.agents/skills` at commit 5e8fb08;
+your output will differ):
 
 ```text
 + add-endpoint: valid (SKILL.md 100 lines)

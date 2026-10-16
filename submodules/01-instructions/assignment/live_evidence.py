@@ -10,8 +10,8 @@ script copies, into `<work>/live/`:
 
 - `output.txt`: that file (first line `$ <the exact command>`, last line `Cost: $...`);
 - `experiments/<name>.json`: the two experiment exports of the batch (one per arm);
-- `scores/<run_id>.json`: the ScoreRecord of every run in them (CONTRACTS §11);
-- `runs/<run_id>/events.jsonl`: the run log of every harness-arm run (CONTRACTS §8).
+- `scores/<run_id>.json`: the ScoreRecord of every run in them (`shipharness.ab.score`);
+- `runs/<run_id>/events.jsonl`: the run log of every harness-arm run (`shipharness.events.models`).
 
 Then it runs the live checks and prints one PASS or FAIL line per check. The self-check and the
 grader run the same checks. They read files only: no keys, no Docker, no model calls, and they
@@ -47,10 +47,10 @@ SPLIT = "section-1"
 K = 3
 LAYERS = ["instructions"]
 DATASET_NAME = "teamtrack-features-v1"
-MODEL = "gpt-6-luna"  # OPENAI_MODEL, CONTRACTS §1
-MAX_RUN_COST_USD = 0.20  # MAX_RUN_COST_USD, per arm per run (CONTRACTS §1)
-MAX_REVIEW_COST_USD = 0.04  # MAX_REVIEW_COST_USD, per review (CONTRACTS §1)
-MAX_COMMAND_COST_USD = 2.50  # MAX_BATCH_COST_USD, per command (CONTRACTS §1; DESIGN §11.5)
+MODEL = "gpt-6-luna"  # OPENAI_MODEL (src/shipharness/config/settings.py)
+MAX_RUN_COST_USD = 0.20  # MAX_RUN_COST_USD, per arm per run (settings.py)
+MAX_REVIEW_COST_USD = 0.04  # MAX_REVIEW_COST_USD, per review (settings.py)
+MAX_COMMAND_COST_USD = 2.50  # MAX_BATCH_COST_USD, per command (settings.py; the A1 budget)
 NAMES = ["live-files", "live-command", "live-caps", "live-tree", "live-report"]
 HOW = "collect it with live_evidence.py (README, task 6)"
 

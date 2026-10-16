@@ -6,10 +6,10 @@ Usage (from the repository root, after the A/B command in the README has finishe
         [--exports exports] [--bare NAME] [--harness NAME]
 
 Reads only local files: `exports/experiments/<name>.json` (one per arm, picked by the batch label
-in its metadata) and `exports/scores/<run_id>.json` (one ScoreRecord per run, CONTRACTS §11). No
+in its metadata) and `exports/scores/<run_id>.json` (one ScoreRecord per run). No
 API keys, no model calls. Prints Markdown blocks for ab-report.md. A run fails R1 when it has at
-least one new R1 violation (the section 1 primary measure, DESIGN §8.2) and fails R3 when it has
-at least one new R3 failure. Counts, never percentages (DESIGN §8.3 rule 5).
+least one new R1 violation (the section 1 primary measure) and fails R3 when it has at least one
+new R3 failure. Counts, never percentages (a course rule).
 
 Exit 0 when both arms were found, 2 when an arm is missing or ambiguous.
 """
@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any
 
 ARMS = ("bare", "harness")
-TRACES_PER_RUN = 2  # agent root + referee evaluator (DESIGN §12)
+TRACES_PER_RUN = 2  # agent root + referee evaluator
 
 
 def _experiments(exports: Path, batch: str) -> dict[str, list[dict[str, Any]]]:
