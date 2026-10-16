@@ -172,6 +172,11 @@ body.index .bar { height: auto; padding: 16px 24px; }
 /* Screen 1 after the run: the whole timeline, scrollable inside the panel. */
 .turns.full,
 .decisions.full {
-  max-height: 55vh;
   overflow-y: auto;
+}
+.turns.full {
+  max-height: 12em;
+}
+.decisions.full {
+  max-height: 5em;
 }
