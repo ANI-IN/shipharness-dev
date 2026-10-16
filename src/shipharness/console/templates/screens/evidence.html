@@ -67,11 +67,11 @@
     <h4>Referee</h4>
     <ul class="checks">
     {% for c in a.checks.values() %}
-      <li>{{ status("pass" if c.passed else "fail", c.check) }} {{ c.new_violations }} new · {{ c.total_probes }} probes</li>
+      <li title="{{ c.total_probes }} probes">{{ status("pass" if c.passed else "fail", c.check ~ ": " ~ c.new_violations ~ " new") }}</li>
     {% else %}
       {% for p in a.progress.values() %}<li>{{ status("pending", p.label) }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
     {% endfor %}
-    {% if a.reviewer %}<li>reviewer {{ status(a.reviewer.verdict) }} · tenant risk {{ a.reviewer.tenant_isolation_risk }}</li>{% endif %}
+    {% if a.reviewer %}<li>{{ status(a.reviewer.verdict, "reviewer " ~ a.reviewer.verdict) }} tenant risk {{ a.reviewer.tenant_isolation_risk }}</li>{% endif %}
     </ul>
     {% if a.tests %}
     <h4>Test filters (1-5)</h4>
@@ -80,13 +80,14 @@
       <tbody>
       {% for t in a.tests.values() %}
         <tr>
-          <td>{{ short_test(t.test_id)|truncate(24, true, "…") }}</td>
+          <td>{{ short_test(t.test_id)|truncate(22, true, "…") }}</td>
           {% for n in range(1, 6) %}
           {% set r = t.filters.get(n) %}
           <td class="cell {% if r is none %}tone-muted{% elif r[0] %}tone-good{% else %}tone-bad{% endif %}">{% if r is none %}·{% elif r[0] %}✓{% else %}✗{% endif %}</td>
           {% endfor %}
-          <td>{% if t.kept %}{{ status("kept") }}{% elif t.kept is none %}{{ status("pending") }}{% else %}{{ status("discarded", t.discard_reason) }}{% endif %}</td>
+          <td>{% if t.kept %}{{ status("kept") }}{% elif t.kept is none %}{{ status("pending") }}{% else %}{{ status("discarded") }}{% endif %}</td>
         </tr>
+        {% if t.kept == false %}<tr><td colspan="7" class="reason">{{ t.discard_reason|truncate(48, true, "…") }}</td></tr>{% endif %}
       {% endfor %}
       </tbody>
     </table>

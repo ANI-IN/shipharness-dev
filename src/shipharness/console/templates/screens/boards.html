@@ -9,7 +9,6 @@
 <article class="panel arm-panel" data-arm="{{ arm }}">
   <h2>{{ arm_label(arm, a) }} board{% if shot %} <span class="muted">as {{ shot.as_user }}</span>{% endif %}</h2>
   {% if shot %}
-  <img class="shot" src="{{ file_url(run_id, shot.path) }}" alt="{{ arm }} board screenshot">
   <ul class="marks">
     {% for o in shot.overlays %}
     <li>{{ status(o.mark) }} card #{{ o.issue_id }}</li>
@@ -17,6 +16,7 @@
     <li>{{ status("pass", "only own-org cards, no duplicates") }}</li>
     {% endfor %}
   </ul>
+  <img class="shot" src="{{ file_url(run_id, shot.path) }}" alt="{{ arm }} board screenshot">
   {% else %}
   <p class="muted">No board screenshot yet (the preview container takes one every 5 s).</p>
   {% endif %}

@@ -28,8 +28,8 @@
 <article class="panel">
   <h2>Ablation</h2>
   {% for b in report.ablation %}
-  <div class="bar">
-    <span class="bar-label">{{ b.label }}</span>
+  <div class="abl">
+    <span class="abl-label">{{ b.label }}</span>
     <span class="track"><span class="fill {{ width_class(b.passed, b.total) }}"></span></span>
     <span class="count">{{ b.count_label }}</span>
   </div>
