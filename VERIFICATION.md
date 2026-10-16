@@ -280,6 +280,40 @@ experiment budget as approved. WSL's `/tmp` was cleared at 23:02 (no reboot); th
 console logs there were lost; the results are kept in `.shipharness/runs`, `exports/`, and the pilot
 summaries in `.shipharness/pilot/`.
 
+### Parallelism test (2026-10-16 23:03-23:24, WSL clock)
+
+`scripts/pilot.py --parallel 3 --budget 2.5` (F1-F3, one A/B each: `ab-20261016-230306-48c2b2`,
+`-6f74f4`, `-d698c9`), then `--parallel 4` (F1-F4: `ab-20261016-231208-18ad4b`, `-217016`, `-6a76c2`,
+`-76f91d`), effort medium, run-3 tasks. A sampler logged free memory, load, and containers every few
+seconds (`.shipharness/pilot/partest/`). Cost $0.0798 and $0.1241 (pilot summaries), counted against the
+experiment budget as approved. Reliability criteria (set before the test): agent and container command
+times no more than about 10% longer than at 2 in parallel (run 3), no extra timeouts or errors, no OOM,
+at least 1.5 GB free, load below 8.
+
+| Setting | Visible-test command median, same feature (s) | Agent median, same feature (s) | Timeouts | Min free memory | Max load | Containers | Wall |
+|---|---|---|---|---|---|---|---|
+| 2 (run 3) | F1 26.7, F2 26.8, F3 26.8, F4 29.9 | F1 195, F2 270, F3 197, F4 318 | 8 of 24 arms | not sampled | not sampled | 4 | 384-620 s per A/B |
+| 3 | F1 20.1, F2 23.4, F3 20.8 | F1 165, F2 239, F3 184 | 0 of 6 | 5,346 MB | 6.44 | 6 | 543 s |
+| 4 | F1 19.8, F2 36.2, F3 25.1, F4 46.9 | F1 174, F2 316, F3 211, F4 284 | 2 of 8 (both F2 arms) | 4,799 MB | 9.2 | 8 | 661 s |
+
+Command times count executed commands only; calls the tool refused before running (an invalid test
+selector, 0 ms: 15 at 2, 2 at 3, 4 at 4) are left out. All executed container commands pooled (`run` and
+`run_visible_tests`): median 8.6 s at 2, 11.1 s at 3, 13.5 s at 4; p90 30.4, 27.7, 36.4 s. The samples at 3
+and 4 are small (one A/B per feature; 34 and 56 commands).
+
+Decision: **3 A/Bs in parallel** for M8. Reason: at 3 there were no timeouts, no errors and no OOM, at least
+5.3 GB stayed free, load peaked at 6.44, and the same command on the same feature (visible tests) ran no
+slower than at 2, with agent times lower in all three features. The pooled command median at 3 is 29% above
+2, which on its own misses the 10% criterion; I judged by the same-command comparison because the pooled
+mix differs (F1-F3 only at 3, F4's long commands in run 3). Cost if wrong: M8 arms run slower than the
+pilot's, so more agent time limits could be hit; the M8 report gives timeouts per arm, which shows it. At
+4 the load exceeds 8, visible tests take 35% (F2) and 57% (F4) longer than at 2, and both F2 arms hit the
+agent time limit. `.wslconfig` not
+changed (memory was never the limit). Expected M8 duration at 3 in parallel, if the gate passes: batch 1
+(40 A/Bs) about 14 rounds of about 9 minutes, about 2 h 10 min; ablation (32 harness-arm runs) about 11
+rounds of about 6-7 minutes, about 1 h 15 min; about 3.5 h in total. Projected cost from run 3 ($0.032
+per A/B at medium): batch 1 about $1.27, ablation about $0.50 (reviewer off).
+
 ### Overnight run 2026-10-17: Phase 0 and decisions
 
 Owner instructions: `instructor/engineering-notes/overnight-2026-10-17.md` (verbatim).
