@@ -15,7 +15,7 @@ from typing import Any
 from pydantic import BaseModel
 
 from shipharness.events.models import EVENT_DATA_MODELS, Arm, Event, EventType
-from shipharness.logging import redact
+from shipharness.log_setup import redact
 
 
 class RunLogLocked(RuntimeError):

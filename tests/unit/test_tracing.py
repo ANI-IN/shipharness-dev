@@ -8,7 +8,7 @@ from typing import Any
 import pytest
 
 from shipharness.config import Settings
-from shipharness.logging import REDACTED
+from shipharness.log_setup import REDACTED
 from shipharness.tracing import (
     LangSmithTracer,
     NullTracer,

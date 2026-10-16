@@ -4,7 +4,7 @@ import pytest
 import structlog
 from pydantic import SecretStr
 
-from shipharness.logging import REDACTED, configure_logging, redact
+from shipharness.log_setup import REDACTED, configure_logging, redact
 
 from .fakes import fake_langsmith_key, fake_openai_key
 

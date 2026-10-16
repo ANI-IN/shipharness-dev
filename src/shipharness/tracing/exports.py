@@ -8,7 +8,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel
 
-from shipharness.logging import redact
+from shipharness.log_setup import redact
 
 ExportKind = Literal["scores", "experiments", "traces", "batches"]
 _KINDS = {"scores", "experiments", "traces", "batches"}

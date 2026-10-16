@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from shipharness.logging import mask_keys
+from shipharness.log_setup import mask_keys
 from shipharness.runner.models import SessionResult
 
 SESSION_LOG = "## Session log"

@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from shipharness.harness.scope.status import VISIBLE_TESTS_COMMAND
-from shipharness.logging import mask_keys
+from shipharness.log_setup import mask_keys
 from shipharness.runner.models import SessionResult
 from shipharness.runner.tools import _is_link, iter_workspace_files, summarise_pytest
 from shipharness.sandbox.base import Sandbox

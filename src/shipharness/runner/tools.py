@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from shipharness.events import Arm, EventBus
 from shipharness.harness.decisions import HarnessDecision
-from shipharness.logging import mask_keys
+from shipharness.log_setup import mask_keys
 from shipharness.runner.git import workspace_git_dir
 from shipharness.runner.models import ToolCall, ToolResult
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace

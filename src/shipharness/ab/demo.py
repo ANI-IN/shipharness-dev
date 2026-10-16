@@ -31,7 +31,7 @@ from shipharness.events import Arm, EventBus
 from shipharness.harness.base import LAYER_ORDER, Harness, parse_layers
 from shipharness.harness.decisions import LayerName
 from shipharness.harness.verify.layer import default_seed
-from shipharness.logging import redact
+from shipharness.log_setup import redact
 from shipharness.runner import git
 from shipharness.runner.loop import RunOptions, run_agent
 from shipharness.runner.model import ModelClient

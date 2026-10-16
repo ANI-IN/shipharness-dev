@@ -9,7 +9,7 @@ from typing import Any, Protocol
 import structlog
 
 from shipharness.config import Settings
-from shipharness.logging import redact
+from shipharness.log_setup import redact
 
 log = structlog.get_logger(__name__)
 
