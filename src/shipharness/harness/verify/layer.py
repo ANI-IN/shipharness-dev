@@ -140,7 +140,8 @@ class VerifyLayer(BaseLayer):
             ctx.sandbox,
             self._config(ctx),
             gate_id=gate_id,
-            base_sha=git.initial_sha(ctx.workspace),
+            # The arm's own changes start after the harness setup commit (placed artifacts).
+            base_sha=str(ctx.state.get("harness.setup_sha") or git.initial_sha(ctx.workspace)),
             phase=ctx.phase,
             on_update=update,
             on_progress=progress,

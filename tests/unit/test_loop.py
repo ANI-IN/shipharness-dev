@@ -431,3 +431,105 @@ def test_non_object_arguments_become_an_error_result(tmp_path: Path) -> None:
     outputs = [item for item in client.inputs[1] if item.get("type") == "function_call_output"]
     assert "invalid arguments" in outputs[0]["output"]
     assert "JSON object" in outputs[0]["output"]
+
+
+def test_text_only_end_after_a_rejected_done_records_claim_none(tmp_path: Path) -> None:
+    class Gate(BaseLayer):
+        name = "verify"
+
+        def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None:
+            return HarnessDecision(kind="gate_fail", layer="verify", message="R1 fails")
+
+    steps = [finish(), text_step("hmm"), text_step("hmm")]
+    result, _events, _ = run(tmp_path, steps, harness=Harness([Gate()]))
+    assert result.claims == {"build": "none"}
+    assert result.claim == "none"
+
+
+# --- harness setup commit: placed artifacts never reach the harness arm's diff ----------------
+
+GIT_ID = ["-c", "user.name=t", "-c", "user.email=t@x"]
+
+
+def _git_repo(tmp_path: Path) -> Path:
+    import subprocess
+
+    ws = tmp_path / "ws"
+    (ws / "app").mkdir(parents=True)
+    (ws / "app" / "main.py").write_text("x = 1\n", encoding="utf-8")
+    for args in (["init", "-q"], ["add", "."], ["commit", "-qm", "checkpoint"]):
+        subprocess.run(["git", *GIT_ID, *args], cwd=ws, check=True, capture_output=True)
+    return ws
+
+
+class _RepoSandbox(FakeSandbox):
+    """Runs the setup commit for real (as the container would) and simulates the agent's edit."""
+
+    def __init__(self, ws: Path) -> None:
+        super().__init__()
+        self.ws = ws
+
+    def exec(self, command: str, timeout_s: int):  # type: ignore[no-untyped-def]
+        import subprocess
+
+        from shipharness.sandbox import ExecResult
+
+        self.commands.append(command)
+        if command.startswith("git add -A"):
+            import os
+
+            # Like the container: no global git config (on Windows a global autocrlf would
+            # rewrite line endings at commit time).
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull, "GIT_CONFIG_NOSYSTEM": "1"}
+            done = subprocess.run(command, cwd=self.ws, shell=True, capture_output=True, env=env)
+            return ExecResult(exit_code=done.returncode, output="", duration_ms=1)
+        if command == "make-change":
+            (self.ws / "app" / "new.py").write_text("y = 2\n", encoding="utf-8")
+            (self.ws / "progress.md").write_text("# Progress\n\nworked\n", encoding="utf-8")
+        return ExecResult(exit_code=0, output="", duration_ms=1)
+
+
+class _Placer(BaseLayer):
+    name = "instructions"
+
+    def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
+        (ctx.workspace / "AGENTS.md").write_text("# Map\n", encoding="utf-8")
+        (ctx.workspace / "progress.md").write_text("# Progress\n", encoding="utf-8")
+        return [HarnessDecision(kind="note", layer="instructions", paths=["AGENTS.md"])]
+
+
+def _run_repo(tmp_path: Path, harness: Harness):  # type: ignore[no-untyped-def]
+    ws = _git_repo(tmp_path)
+    sandbox = _RepoSandbox(ws)
+    steps = [tool_step("run", command="make-change", timeout_s=None), finish()]
+    tracker = CostTracker(PRICES, Caps(0.2, 0.04, 2.5, 2.5, 25.0), tmp_path / "l.jsonl", "t")
+    with EventBus(tmp_path / "events.jsonl", ab_id=None) as bus:
+        result = run_agent(
+            spec(tmp_path, workspace=ws),
+            harness,
+            sandbox,
+            bus,
+            tracker,
+            NullTracer(),
+            ScriptedModelClient(steps),
+            RunOptions(sleep=lambda _s: None),
+        )
+    return result, sandbox
+
+
+def test_harness_arm_diff_excludes_placed_setup_files(tmp_path: Path) -> None:
+    result, sandbox = _run_repo(tmp_path, Harness([_Placer()]))
+    assert any(c.startswith("git add -A") for c in sandbox.commands)
+    assert result.diff_path is not None
+    text = result.diff_path.read_text(encoding="utf-8")
+    assert "app/new.py" in text
+    assert "AGENTS.md" not in text
+    assert "+worked" in text  # the agent's own state update is in the diff (referee strips it)
+
+
+def test_bare_arm_diff_is_against_the_checkpoint_and_no_setup_commit_runs(tmp_path: Path) -> None:
+    result, sandbox = _run_repo(tmp_path, Harness([]))
+    assert not any(c.startswith("git add -A") for c in sandbox.commands)
+    assert result.diff_path is not None
+    text = result.diff_path.read_text(encoding="utf-8")
+    assert "app/new.py" in text and "progress.md" in text

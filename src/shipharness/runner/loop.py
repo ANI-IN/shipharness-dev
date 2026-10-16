@@ -36,6 +36,12 @@ from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox
 from shipharness.sandbox.base import Sandbox
 from shipharness.tracing import Tracer
 
+# Runs inside the sandbox (never host git on the agent's repo); --no-verify skips repo hooks.
+SETUP_COMMIT = (
+    "git add -A && git -c user.name=shipharness -c user.email=harness@shipharness.invalid "
+    'commit -q --no-verify -m "harness setup"'
+)
+
 _ERROR_TEXT = {
     "abort_auth": "OpenAI rejected the request: check OPENAI_API_KEY (authentication failed).",
     "abort_billing": "OpenAI billing limit reached (quota or spend limit); add credit and retry.",
@@ -132,6 +138,7 @@ class _Run:
         self.claim_summary = ""
         self.error: str | None = None
         self.turns_total = 0
+        self.diff_base: str | None = None  # set to the harness setup commit for harness arms
 
     # -- events --------------------------------------------------------------------------------
 
@@ -375,6 +382,7 @@ class _Run:
             if trace_url:
                 self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             self.harness.prepare_workspace(self.ctx)
+            self._commit_harness_setup()
             session_index = 0
             for phase in self.spec.phases:
                 if self.status != "completed":
@@ -420,6 +428,18 @@ class _Run:
             root.set_outputs({"status": self.status, "claim": self.claim})
         return trace_url
 
+    def _commit_harness_setup(self) -> None:
+        """Commit the files the layers placed (AGENTS.md, progress.md, feature_list.json, ...) in
+        the sandbox, and diff the harness arm against that commit, so setup files never count as
+        the arm's work. The bare arm has no layers: no commit, diff against the checkpoint."""
+        if not self.harness.layers:
+            return
+        self.sandbox.exec(SETUP_COMMIT, self.options.tool_timeout_s)
+        setup_sha = git.head_sha(self.spec.workspace)
+        if setup_sha:
+            self.diff_base = setup_sha
+            self.ctx.state["harness.setup_sha"] = setup_sha
+
     def _handoff_path(self) -> str | None:
         value = self.ctx.state.get("state.handoff_path")
         return str(value) if value else None
@@ -441,7 +461,7 @@ class _Run:
         diff_out = self.options.diff_path or (self.spec.workspace.parent / "diff.patch")
         diff_path = None
         try:
-            diff_path = git.write_diff(self.spec.workspace, base_sha, diff_out)
+            diff_path = git.write_diff(self.spec.workspace, self.diff_base or base_sha, diff_out)
         except Exception as exc:  # noqa: BLE001
             self.error = self.error or f"diff failed: {type(exc).__name__}"
         wall_s = round(self.options.clock() - self.started, 3)
