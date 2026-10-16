@@ -50,6 +50,55 @@ def _trace_target(settings: Settings, purpose: str) -> tuple[str, str]:
     return f"shipharness-class-{day}", day
 
 
+def _key_problem(settings: Settings) -> str | None:
+    """None when OpenAI accepts the key for the agent model (a model metadata request: no tokens,
+    no cost); otherwise the error type, never the key or the message text."""
+    import openai
+
+    from shipharness.ab import clients
+
+    try:
+        clients.make_openai_client(settings, timeout_s=30).models.retrieve(settings.openai_model)
+    except openai.AuthenticationError:
+        return "invalid key (AuthenticationError)"
+    except openai.PermissionDeniedError:
+        return "no access (PermissionDeniedError)"
+    except openai.NotFoundError:
+        return f"no access to {settings.openai_model} (NotFoundError)"
+    except openai.APIConnectionError:
+        return "OpenAI unreachable (APIConnectionError)"
+    except openai.APIError as exc:
+        return type(exc).__name__
+    return None
+
+
+def _live_guard(settings: Settings, deps: Any) -> None:
+    """Every live A/B (demo-N, final, pilot) calls OpenAI: refuse before any arm starts when the key
+    is missing or rejected, or the runtime would use a stand-in model client. Never falls back to a
+    scripted or recorded run; replay (RECORDING) is the explicit fallback (owner, 2026-10-17)."""
+    from shipharness.runner.model import OpenAIModelClient
+
+    key = settings.openai_api_key.get_secret_value().strip() if settings.openai_api_key else ""
+    if not key:
+        typer.echo(
+            "x OPENAI_API_KEY is missing: live A/B runs call OpenAI and never fall back to a "
+            "stand-in; add the key to .env (or use make replay, which shows RECORDING)"
+        )
+        raise typer.Exit(2)
+    problem = _key_problem(settings)
+    if problem:
+        typer.echo(f"x OpenAI refused the key: {problem}; no arm was started")
+        raise typer.Exit(2)
+    try:
+        client = deps.client_factory("bare")
+    except Exception as exc:  # noqa: BLE001 - reported as one line
+        typer.echo(f"x the live OpenAI client could not be created: {type(exc).__name__}")
+        raise typer.Exit(2) from None
+    if not isinstance(client, OpenAIModelClient):
+        typer.echo("x live A/B runs need the OpenAI client; a stand-in model client is refused")
+        raise typer.Exit(2)
+
+
 def _purpose_runtime(settings: Settings, purpose: str, **kw: Any) -> Any:
     project, session = _trace_target(settings, purpose)
     return _runtime(settings, project, session_id=session, **kw)
@@ -200,6 +249,7 @@ def register(app: typer.Typer) -> None:
         extra: dict[str, Any] = {} if preview else {"preview_factory": None}
         ref = None if from_working_tree else task.checkpoint
         deps = rt.ab_deps(ref, reviewer=reviewer, **extra)
+        _live_guard(settings, deps)
         statuses: list[str] = []
         for _ in range(k):
             result = run_ab(task, names, deps, section=section)
