@@ -83,7 +83,11 @@ def via_browser(
     except ImportError as exc:  # pragma: no cover - playwright is a dev dependency
         raise BrowserUnavailable(str(exc)) from exc
     port = _free_port()
-    server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port, log_level="warning"))
+    server = uvicorn.Server(
+        uvicorn.Config(
+            app, host="127.0.0.1", port=port, log_level="warning", timeout_graceful_shutdown=1
+        )
+    )
     thread = threading.Thread(target=server.run, daemon=True)
     thread.start()
     try:
@@ -101,7 +105,7 @@ def via_browser(
                 path, form = adapter.board_login(home, "member")
                 context.request.post(base + path, form=form, max_redirects=0)
                 page = context.new_page()
-                response = page.goto(base + adapter.board_path(home), wait_until="networkidle")
+                response = page.goto(base + adapter.board_path(home), wait_until="load")
                 status = response.status if response is not None else 0
                 cards = [
                     (el.get_attribute("data-issue-id") or "", el.get_attribute("data-org") or "")
