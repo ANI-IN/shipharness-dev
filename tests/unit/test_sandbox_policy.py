@@ -162,7 +162,7 @@ def test_docker_exec_wraps_command_in_timeout_and_emits_start(
     exec_argv = runner.calls[1]
     assert exec_argv[:3] == ["docker", "exec", sandbox.name]
     assert "timeout" in exec_argv and "30" in exec_argv
-    assert exec_argv[-3:] == ["bash", "-lc", "pytest -q"]
+    assert exec_argv[-3:] == ["bash", "-c", "pytest -q"]
     [start] = [e for e in read_events(log) if e.type == "sandbox_start"]
     assert start.data["network"] == "none"
     assert start.data["unsandboxed"] is False

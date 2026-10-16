@@ -139,7 +139,7 @@ class DockerSandbox:
             "--kill-after=5",
             str(timeout_s),
             "bash",
-            "-lc",
+            "-c",  # not a login shell: /etc/profile would drop the image venv from PATH
             command,
         ]
         started = self.clock()
