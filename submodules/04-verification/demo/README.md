@@ -5,7 +5,7 @@ Runbook for the S4 live A/B. Class plan (DESIGN §14.1): glance at an easy contr
 discussion. Concepts: [../concepts.md](../concepts.md).
 
 Every captured output and screenshot in this file is labelled "captured on <date>, run <id>; your
-output will differ". Items that need a real run are marked `[[PENDING ...]]` until the pilot (M6),
+output will differ". Items that need a real run carry a PENDING marker until the pilot (M6),
 batch 1 (M8), or the live class fills them.
 
 ---
