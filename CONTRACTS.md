@@ -897,8 +897,9 @@ Built by the seven M4 builders against the builder contract
 - `Mutant.target` is the dotted module (`app.services.issues`); ids `<target>-m<n>`; files
   `teamtrack/mutants/<target>.jsonl`. The verify layer's test phase builds the context with the tests that
   existed at phase start and phase-start fingerprints restricted to source files.
-- `shipharness testgen --repo --module [--layers none|verify] [--max-tests N] [--sandbox local|docker]
-  [--image] [--tests] [--python] [--out]`.
+- `shipharness testgen [--target <id>] --repo --module [--layers none|verify] [--max-tests N]
+  [--sandbox local|docker] [--image] [--tests] [--python] [--out]` (`--repo` and `--module` are
+  optional when `--target` is given).
 
 **A/B, referee, sandbox**
 - `docker_run_args(..., extra_mounts: list[tuple[Path, str, "ro" | "rw"]] | None = None)` and the same on
@@ -972,8 +973,12 @@ are folded in here) and the owner's pre-M6 decisions.
 - `arm_specs(..., run_cost_limit_usd=...)`; `run_ab` passes the tracker's run cap, so `--section final`
   arms run to $0.25.
 - `CostTracker.reserve(scope, model, est_input_tokens, max_output_tokens)`, `settle(reservation, actual)`,
-  `release(reservation)`, `reserved_usd`: before each model call the worst case is reserved against every
-  active cap under one lock and settled afterwards (released on failure).
+  `release(reservation)`, `reserved_usd`: before each model call (agent loop and blinded reviewer) the
+  worst case is reserved against every active cap under one lock and settled afterwards (released on
+  failure).
+- Tool calls after the run or session ends within one model response are not executed; each gets a
+  `Refused, not run: ...` result. ABORTED is never overwritten by ERROR. A failed gate input write fails
+  the check items instead of crashing the run.
 
 **Referee and checks**
 - `continuity` counts only `params.run_id`'s `session_stop` events (the A/B log holds both arms).
@@ -985,11 +990,27 @@ are folded in here) and the owner's pre-M6 decisions.
 **A/B, console, testgen, Make**
 - `run_ab(..., section=...)`; `ab.json` records `section`. `shipharness ab --swap latest --section
   demo-N` picks the section's most recent A/B; `make swap-N` uses it (`AB=<id>` overrides).
+- `ab.json` records `checkpoint_sha` (the commit the checkpoint tag named when the A/B started; both arms
+  and the referee export it) and `from_working_tree` (true with `checkpoint_sha: null`). Swap and replay
+  export the checkpoint and hidden tests from `checkpoint_sha`, never the tag, and refuse a record without
+  it (`UnpinnedRecord`); referee mutants are read at the same commit (`referee_mutants(..., ref=)`).
+  `RecordedDeps` has no `checkpoint_ref`. `Referee.judge(..., log_run_id=)` names the run whose events the
+  run log holds; swap and replay pass the original run id. `ab --swap/--replay` and `replay` print one
+  line and exit 2 when nothing matches or the record is unpinned.
+- `scripts/build_checkpoints.py`: `--force` moves existing tags only while no recorded result exists
+  (`<RUNS_DIR>/*/ab.json`, any `*.json` under `EXPORTS_DIR`); `--owner-approved-move` moves them and
+  prints `moved <tag>: <old> -> <new>`; `--dry-run` reports would-move tags and recorded results.
+- `shipharness testgen --target <id> [--targets-file f]` fills repo, module, existing tests, the filter
+  mutant set, and `target_metadata` from the target's line; library targets use
+  `.shipharness/libs/<lib>/src` and its `.venv` python; explicit options override.
+- `check_file` always runs the file-level checks; `upload` checks for existing examples with
+  `list_examples(limit=1)`. `WORKSPACE_EXCLUDES` adds the tool caches (`.import_linter_cache`,
+  `.pytest_cache`, `.ruff_cache`, `.mypy_cache`, `.hypothesis`).
 - The run-log reader (`shipharness.events.reader`) skips a malformed line with one warning that names the
   run, line, and reason, never the content; a partial last line is held and read again.
 - `shipharness testgen --doctest-modules/--no-doctest-modules` (default off; target metadata
   `baseline_includes_doctests` wins): doctests count in the existing-suite baseline, coverage, and mutant
   kills; generated tests run as plain ids.
 - `make test` (default `pytest`) deselects `slow`; `make test-all` runs everything except live and
-  Docker; `make demo-N`, `swap-N`, `final`, `replay` call the real commands.
+  Docker, in parallel (`-n auto`); `make demo-N`, `swap-N`, `final`, `replay` call the real commands.
 - `.python-version` pins Python 3.12 for uv.
