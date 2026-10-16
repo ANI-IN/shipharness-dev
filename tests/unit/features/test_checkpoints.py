@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -137,3 +138,36 @@ def test_build_creates_one_commit_per_checkpoint_on_main(toy_repo: Path) -> None
     assert _git(toy_repo, "rev-parse", "HEAD") == head  # no branch moved
     with pytest.raises(cp.CheckpointError, match="already exist"):
         cp.build_commits(toy_repo, dry_run=False)
+
+
+def test_script_dry_run_lists_what_it_would_tag(toy_repo: Path) -> None:
+    script = REPO_ROOT / "scripts" / "build_checkpoints.py"
+    done = subprocess.run(
+        [sys.executable, str(script), "--dry-run", "--repo", str(toy_repo)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.returncode == 0, done.stderr
+    assert "would tag c-base: base" in done.stdout
+    assert "would tag c-one: F1" in done.stdout
+    assert _git(toy_repo, "tag", "--list") == ""
+
+
+def test_script_refuses_an_unknown_checkpoint(toy_repo: Path) -> None:
+    script = REPO_ROOT / "scripts" / "build_checkpoints.py"
+    done = subprocess.run(
+        [sys.executable, str(script), "--dry-run", "--repo", str(toy_repo), "nowhere"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert done.returncode == 1
+    assert "unknown checkpoint" in done.stderr
+
+
+@pytest.mark.slow
+def test_every_checkpoint_applies_to_head_in_a_dry_run() -> None:
+    results = cp.build_commits(REPO_ROOT, dry_run=True)
+    assert [r.name for r in results] == list(R3_TAGS)
+    assert all(r.commit is None for r in results)
