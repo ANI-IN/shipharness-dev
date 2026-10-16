@@ -143,3 +143,55 @@ def test_cli_exit_code_and_output(monkeypatch: pytest.MonkeyPatch, tmp_path: Pat
     assert result.exit_code == 1
     assert "x missing" in result.output
     assert "OPENAI_API_KEY" in result.output
+
+
+class LangSmithError(Exception):
+    """Same class name as langsmith.utils.LangSmithError, raised for an invalid key (HTTP 403)."""
+
+
+def test_langsmith_error_is_reported_as_invalid_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    report = run_doctor(
+        settings_with_keys(monkeypatch),
+        offline=False,
+        probes=Probes(langsmith_exc=LangSmithError("403 Forbidden")),
+        which=which_all,
+    )
+    check = next(c for c in report.checks if c.name == "LANGSMITH_API_KEY")
+    assert check.status == "invalid"
+    assert "LangSmith key invalid" in check.detail
+    assert report.ok is False
+
+
+def test_real_langsmith_probe_maps_http_403_to_invalid(monkeypatch: pytest.MonkeyPatch) -> None:
+    import httpx
+
+    from shipharness.doctor import RealProbes
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        assert request.headers["x-api-key"]  # sent, never printed
+        return httpx.Response(403, json={"detail": "Forbidden"})
+
+    probes = RealProbes(http=httpx.Client(transport=httpx.MockTransport(handler)))
+    report = run_doctor(
+        settings_with_keys(monkeypatch), offline=False, probes=probes, which=which_all
+    )
+    check = next(c for c in report.checks if c.name == "LANGSMITH_API_KEY")
+    assert check.status == "invalid"
+    assert "LangSmith key invalid" in check.detail
+
+
+def test_real_langsmith_probe_maps_connection_failure_to_unreachable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    from shipharness.doctor import RealProbes
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("no route", request=request)
+
+    probes = RealProbes(http=httpx.Client(transport=httpx.MockTransport(handler)))
+    report = run_doctor(
+        settings_with_keys(monkeypatch), offline=False, probes=probes, which=which_all
+    )
+    assert next(c for c in report.checks if c.name == "LANGSMITH_API_KEY").status == "unreachable"

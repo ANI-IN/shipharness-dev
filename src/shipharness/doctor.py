@@ -8,6 +8,7 @@ import sys
 from collections.abc import Callable
 from typing import Literal, Protocol
 
+import httpx
 from pydantic import BaseModel
 
 from shipharness.config import Prices, Settings, UnknownModelPrice
@@ -49,8 +50,25 @@ class DoctorProbes(Protocol):
     def langsmith(self, settings: Settings) -> None: ...
 
 
+class KeyRejected(Exception):
+    """The service answered 401 or 403 for the configured key."""
+
+    def __init__(self, status_code: int) -> None:
+        super().__init__(f"status {status_code}")
+        self.status_code = status_code
+
+
+class ServiceHTTPError(Exception):
+    def __init__(self, status_code: int) -> None:
+        super().__init__(f"status {status_code}")
+        self.status_code = status_code
+
+
 class RealProbes:
     """Cheapest authenticated call for each service; no model tokens are used."""
+
+    def __init__(self, http: httpx.Client | None = None) -> None:
+        self.http = http
 
     def openai(self, settings: Settings) -> None:
         from openai import OpenAI
@@ -62,30 +80,43 @@ class RealProbes:
         client.models.list()
 
     def langsmith(self, settings: Settings) -> None:
-        from langsmith import Client
-
+        """GET /api/v1/sessions?limit=1 and check the status code directly: an invalid key gives
+        HTTP 403, which the SDK surfaces only as a generic LangSmithError."""
         assert settings.langsmith_api_key is not None
-        client = Client(
-            api_key=settings.langsmith_api_key.get_secret_value(),
-            api_url=settings.langsmith_endpoint,
+        http = self.http or httpx.Client(timeout=20)
+        response = http.get(
+            f"{settings.langsmith_endpoint.rstrip('/')}/api/v1/sessions",
+            params={"limit": 1},
+            headers={"x-api-key": settings.langsmith_api_key.get_secret_value()},
         )
-        next(iter(client.list_projects(limit=1)), None)
+        if response.status_code in (401, 403):
+            raise KeyRejected(response.status_code)
+        if response.status_code >= 400:
+            raise ServiceHTTPError(response.status_code)
 
 
-def _classify(exc: BaseException) -> tuple[Status, str]:
+_AUTH_NAMES = {
+    "AuthenticationError",
+    "PermissionDeniedError",
+    "LangSmithAuthError",
+    "LangSmithError",
+    "KeyRejected",
+}
+
+
+def _classify(exc: BaseException, service: str) -> tuple[Status, str]:
     """Map a probe failure to a status. Uses only the class name and status code, never the
     message, because provider messages can echo part of the key."""
     name = type(exc).__name__
     status = getattr(exc, "status_code", None)
-    if status in (401, 403) or name in {
-        "AuthenticationError",
-        "PermissionDeniedError",
-        "LangSmithAuthError",
-    }:
-        return "invalid", f"rejected by the service ({name}, status {status or 'n/a'})"
-    if "Connection" in name or "Timeout" in name or isinstance(exc, OSError):
-        return "unreachable", f"could not reach the service ({name})"
-    return "invalid", f"unexpected error ({name}, status {status or 'n/a'})"
+    if status in (401, 403) or name in _AUTH_NAMES:
+        return (
+            "invalid",
+            f"{service} key invalid (rejected by {service}, {name}, status {status or 'n/a'})",
+        )
+    if "Connect" in name or "Timeout" in name or isinstance(exc, OSError | httpx.TransportError):
+        return "unreachable", f"could not reach {service} ({name})"
+    return "invalid", f"unexpected error from {service} ({name}, status {status or 'n/a'})"
 
 
 def _key_check(
@@ -103,7 +134,7 @@ def _key_check(
     try:
         probe()
     except Exception as exc:  # noqa: BLE001 - every failure is classified and reported
-        status, detail = _classify(exc)
+        status, detail = _classify(exc, service)
         step = (
             f"check {name} in .env (create a new key in your {service} account)"
             if status == "invalid"

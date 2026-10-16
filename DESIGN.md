@@ -484,6 +484,10 @@ Subsets (LangSmith splits): `smoke` (6), `section-1` … `section-4` (8 each).
 20 TeamTrack modules + 10 boltons 26.2.0 modules + 10 WTForms 3.2.2 modules (RESEARCH §4.8), about 4
 mutants each (≈160), split into filter and referee sets. Library suites run on Linux (WSL2/CI); each
 library has a known-failures list for its Windows-only baseline failure.
+boltons doctests are part of the baseline suite (upstream command), and WTForms keeps its upstream
+`filterwarnings = ["error"]`, so a generated test that triggers a warning is discarded with the
+warning as the reason (owner decisions, 2026-10-16; RESEARCH G-19, G-20). Both are recorded in each
+target's metadata.
 
 ### 10.3 Referee inventory (design targets; no model cost)
 ≈400 hidden tests across F1-F7; R1 probes for every endpoint × method (100+); R2 probes (60+);
