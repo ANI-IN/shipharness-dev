@@ -3,6 +3,7 @@ build caps."""
 
 from __future__ import annotations
 
+import contextlib
 import json
 import threading
 from collections import defaultdict
@@ -14,6 +15,11 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict
 
 from shipharness.config import ModelPrice, Prices, Settings
+
+try:  # POSIX file locks; the class host and CI are Linux
+    import fcntl
+except ImportError:  # pragma: no cover - Windows without WSL
+    fcntl = None  # type: ignore[assignment]
 
 ScopeKind = Literal["run", "review"]
 CapScope = Literal["run", "review", "session", "batch", "experiment", "build"]
@@ -148,21 +154,39 @@ class CostTracker:
     _session: float = field(default=0.0, init=False)
     _experiment: float = field(default=0.0, init=False)
     _build: float = field(default=0.0, init=False)
+    _offset: int = field(default=0, init=False)  # ledger bytes already counted
     _by_model: dict[str, float] = field(default_factory=lambda: defaultdict(float), init=False)
     _by_key: dict[str, float] = field(default_factory=lambda: defaultdict(float), init=False)
 
     def __post_init__(self) -> None:
         self.ledger_path = Path(self.ledger_path)
+        self._refresh_locked()
+
+    def _absorb(self, data: bytes) -> None:
+        """Count complete ledger lines (other commands' entries, or all of them at start)."""
+        for raw in data.splitlines():
+            if not raw.strip():
+                continue
+            entry = json.loads(raw)
+            self._build += entry["cost_usd"]
+            if entry.get("experiment"):
+                self._experiment += entry["cost_usd"]
+            elif entry.get("session") == self.session_id:
+                self._session += entry["cost_usd"]
+
+    def _read_new(self, handle: Any) -> None:
+        handle.seek(self._offset)
+        data = handle.read()
+        complete = data[: data.rfind(b"\n") + 1]  # a line another command is writing waits
+        self._absorb(complete)
+        self._offset += len(complete)
+
+    def _refresh_locked(self) -> None:
+        """Totals include what concurrent commands appended to the shared ledger since the last
+        read (session, experiment, and build caps hold across commands)."""
         if self.ledger_path.exists():
-            for line in self.ledger_path.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
-                    continue
-                entry = json.loads(line)
-                self._build += entry["cost_usd"]
-                if entry.get("experiment"):
-                    self._experiment += entry["cost_usd"]
-                elif entry.get("session") == self.session_id:
-                    self._session += entry["cost_usd"]
+            with self.ledger_path.open("rb") as handle:
+                self._read_new(handle)
 
     @property
     def batch_total_usd(self) -> float:
@@ -170,15 +194,21 @@ class CostTracker:
 
     @property
     def session_total_usd(self) -> float:
-        return self._session
+        with self._lock:
+            self._refresh_locked()
+            return self._session
 
     @property
     def experiment_total_usd(self) -> float:
-        return self._experiment
+        with self._lock:
+            self._refresh_locked()
+            return self._experiment
 
     @property
     def build_total_usd(self) -> float:
-        return self._build
+        with self._lock:
+            self._refresh_locked()
+            return self._build
 
     @property
     def reserved_usd(self) -> float:
@@ -222,6 +252,7 @@ class CostTracker:
         calls in flight hold, would cross any active cap."""
         worst = self.worst_case(model, est_input_tokens, max_output_tokens)
         with self._lock:
+            self._refresh_locked()
             for name, limit, spent in self._active_limits(scope, held=True):
                 if spent + worst > limit:
                     raise CapExceeded(name, limit, spent)
@@ -276,8 +307,19 @@ class CostTracker:
         }
         with self._lock:
             self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
-            with self.ledger_path.open("a", encoding="utf-8") as handle:
-                handle.write(json.dumps(entry) + "\n")
+            with self.ledger_path.open("a+b") as handle:
+                if fcntl is not None:
+                    fcntl.flock(handle, fcntl.LOCK_EX)  # one writer at a time across commands
+                try:
+                    self._read_new(handle)  # entries other commands wrote first
+                    handle.seek(0, 2)
+                    handle.write((json.dumps(entry) + "\n").encode("utf-8"))
+                    handle.flush()
+                    self._offset = handle.tell()
+                finally:
+                    if fcntl is not None:
+                        with contextlib.suppress(OSError):
+                            fcntl.flock(handle, fcntl.LOCK_UN)
             scope.spent_usd += cost
             self._batch += cost
             self._build += cost
@@ -294,6 +336,7 @@ class CostTracker:
 
     def summary(self) -> CostSummary:
         with self._lock:
+            self._refresh_locked()
             return CostSummary(
                 total_usd=self._batch,
                 by_model=dict(self._by_model),
