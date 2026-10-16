@@ -6,6 +6,7 @@ skipped so one bad export cannot blank the screen.
 
 from __future__ import annotations
 
+import contextlib
 import json
 from collections import defaultdict
 from dataclasses import dataclass, field
@@ -175,12 +176,10 @@ def load_report(exports_dir: Path) -> Report:
         bar[0] += passed
         bar[1] += 1
         bar[2] = len(record.get("layers") or [])
-        try:
+        with contextlib.suppress(TypeError, ValueError):
             spent[arm] += float(record.get("cost_usd") or 0) + float(
                 record.get("review_cost_usd") or 0
             )
-        except (TypeError, ValueError):
-            pass
         verified[arm] += passed
         if record.get("reviewer_agrees") is not None:
             agree[arm][0] += bool(record["reviewer_agrees"])
