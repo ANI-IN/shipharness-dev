@@ -40,6 +40,7 @@ _CATEGORIES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(^|/)tests?/"), "test"),
 )
 HARNESS_CATEGORIES = {"map", "skill", "state", "harness doc"}
+CATEGORY_ORDER = ("map", "skill", "harness doc", "state", "handbook", "code", "test")
 
 
 def categorise(path: str) -> str:
@@ -194,6 +195,19 @@ class ArmState:
             return None
         said_done = claim["claim"] == "done"
         return said_done == bool(self.verdict["passed_primary"])
+
+    def files_by_category(self) -> list[tuple[str, list[FileRead]]]:
+        """Files-read map: categories in a fixed order (map first), files in read order."""
+        groups: dict[str, list[FileRead]] = {}
+        for entry in self.files_read.values():
+            groups.setdefault(entry.category, []).append(entry)
+        order = {name: i for i, name in enumerate(CATEGORY_ORDER)}
+        return sorted(groups.items(), key=lambda kv: order.get(kv[0], len(order)))
+
+    def filter_counts(self, number: int) -> tuple[int, int]:
+        """(passed, reached) for one test filter across proposed tests."""
+        results = [t.filters[number][0] for t in self.tests.values() if number in t.filters]
+        return sum(results), len(results)
 
     def turns(self) -> list[TimelineRow]:
         return [row for row in self.timeline if row.kind == "turn"]

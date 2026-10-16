@@ -1,0 +1,66 @@
+{% from "screens/_macros.html" import screen_head %}
+{{ screen_head(key, title, state) }}
+{% set comparison = safe_url(state.ab.traces.get("comparison")) %}
+{% if report.empty %}
+<div class="grid one">
+<article class="panel">
+  <h2>No exports yet</h2>
+  <p>No exports yet in {{ exports_dir }}. Screen 4 reads ScoreRecords from <code>exports/scores/</code> and experiments from <code>exports/experiments/</code>; they appear after the referee or <code>shipharness experiments</code> writes them.</p>
+  {% if comparison %}<p>LangSmith comparison for this run: <a href="{{ comparison }}">{{ comparison }}</a></p>{% endif %}
+</article>
+</div>
+{% else %}
+<div class="grid three">
+<article class="panel">
+  <h2>Primary measures, one dot per run</h2>
+  {% for g in report.groups %}
+  <div class="dot-row">
+    <span class="dot-label"><span class="arm-name arm-{{ g.arm }}">{{ g.variant|upper }} {{ g.arm }}</span> <span class="muted">{{ g.layers }}</span></span>
+    <span class="dots">{% for d in g.dots %}<span class="dot {{ 'pass' if d.passed else 'fail' }}" title="{{ d.run_id }}: {{ 'passed' if d.passed else 'failed' }}">{{ "●" if d.passed else "○" }}</span>{% endfor %}</span>
+    <span class="count">{{ g.count_label }}</span>
+  </div>
+  {% endfor %}
+  <p class="legend"><span class="dot pass-legend">●</span> passed the primary measures · <span class="dot fail-legend">○</span> failed</p>
+  {% if report.unsandboxed %}<p>{{ status("unknown", report.unsandboxed ~ " runs unsandboxed: not official") }}</p>{% endif %}
+  {% if report.recorded %}<p class="muted">{{ report.recorded }} runs are replays (recorded).</p>{% endif %}
+</article>
+
+<article class="panel">
+  <h2>Ablation</h2>
+  {% for b in report.ablation %}
+  <div class="bar">
+    <span class="bar-label">{{ b.label }}</span>
+    <span class="track"><span class="fill {{ width_class(b.passed, b.total) }}"></span></span>
+    <span class="count">{{ b.count_label }}</span>
+  </div>
+  {% endfor %}
+  <h2>Cost per verified feature</h2>
+  <ul class="costs">
+  {% for c in report.costs %}
+    <li><span class="arm-name arm-{{ c.arm }}">{{ c.arm|upper }}</span>
+      {% if c.per_verified_usd is not none %}{{ usd(c.per_verified_usd, 2) }} per verified feature{% else %}no verified feature{% endif %}
+      <span class="muted">({{ c.verified }} verified, {{ usd(c.spent_usd, 2) }} spent)</span></li>
+  {% endfor %}
+  </ul>
+</article>
+
+<article class="panel">
+  <h2>Reviewer agreement</h2>
+  <ul class="agreement">
+  {% for r in report.reviewer %}
+    <li><span class="arm-name arm-{{ r.arm }}">{{ r.arm|upper }}</span> reviewer agrees with the referee in {{ r.count_label }} runs</li>
+  {% else %}
+    <li class="muted">No reviewer verdicts yet.</li>
+  {% endfor %}
+  </ul>
+  <h2>LangSmith</h2>
+  <ul class="links">
+  {% for e in report.experiments %}
+    <li>{{ e.name }}{% if e.comparison_url %}: <a href="{{ e.comparison_url }}">{{ e.comparison_url }}</a>{% elif e.url %}: <a href="{{ e.url }}">{{ e.url }}</a>{% endif %}</li>
+  {% endfor %}
+  {% if comparison %}<li>this run: <a href="{{ comparison }}">{{ comparison }}</a></li>{% endif %}
+  </ul>
+  {% if report.skipped %}<p>{{ status("error", report.skipped ~ " export files skipped (unreadable)") }}</p>{% endif %}
+</article>
+</div>
+{% endif %}

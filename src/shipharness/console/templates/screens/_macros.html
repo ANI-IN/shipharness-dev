@@ -1,0 +1,15 @@
+{% macro screen_head(key, title, state) -%}
+<div class="screen-head">
+  <h1><kbd>{{ key }}</kbd> {{ title }}</h1>
+  <div class="badges">
+    {% if state.recorded %}<span class="badge recording"><span class="sym" aria-hidden="true">●</span> RECORDING</span>{% endif %}
+    {% if state.unsandboxed %}<span class="badge unsandboxed"><span class="sym" aria-hidden="true">⚠</span> UNSANDBOXED — results not official</span>{% endif %}
+  </div>
+</div>
+{%- endmacro %}
+
+{% macro arm_label(arm, a) -%}
+<span class="arm-name arm-{{ arm }}">{{ arm|upper }}</span>
+{%- if a.run_start and a.run_start.spec.get("layers") %} <span class="layers">{{ a.run_start.spec.get("layers")|join(" + ") }}</span>
+{%- elif arm == "bare" %} <span class="layers">no layers</span>{% endif %}
+{%- endmacro %}

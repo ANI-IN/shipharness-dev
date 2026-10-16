@@ -5,17 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>shipharness console</title>
   <link rel="stylesheet" href="/static/console.css">
-  <script src="/static/stream.js" defer></script>
 </head>
-<body>
+<body class="index">
   <header class="bar"><h1>shipharness console</h1></header>
-  <main>
+  <main class="index-main">
     <section class="panel">
       <h2>Runs</h2>
       {% if runs %}
       <ul class="runs">
         {% for run in runs %}
-        <li><button type="button" data-run="{{ run }}">{{ run }}</button></li>
+        <li><a href="/run/{{ run }}">{{ run }}</a></li>
         {% endfor %}
       </ul>
       {% else %}
@@ -23,8 +22,8 @@
       {% endif %}
     </section>
     <section class="panel">
-      <h2>Live events <span id="status">(select a run)</span></h2>
-      <ol id="events" class="events"></ol>
+      <h2>Keys</h2>
+      <p><kbd>1</kbd> Live Console · <kbd>2</kbd> Boards · <kbd>3</kbd> Evidence · <kbd>4</kbd> A/B Report · <kbd>5</kbd> Traces · <kbd>F</kbd> full screen for one arm</p>
     </section>
   </main>
 </body>
