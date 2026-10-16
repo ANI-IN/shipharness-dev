@@ -1,0 +1,17 @@
+diff --git a/app/services/issues.py b/app/services/issues.py
+index 37ea6b6..7ec3e72 100644
+--- a/app/services/issues.py
++++ b/app/services/issues.py
+@@ -6,9 +6,8 @@
+ from app.repositories import issues as repo
+ 
+ 
+-def create(project_id: int, body: dict, user: dict) -> dict:
++def create_once(project_id: int, body: dict, user: dict) -> dict:
+     return repo.insert(project_id, body, org_id=user["org_id"])
+ 
+-
+ def list_for(project_id: int, user: dict) -> list[dict]:
+-    return repo.select(project_id, org_id=user["org_id"])
++    return repo.select(project_id, org_id=user["org_id"])
+\ No newline at end of file

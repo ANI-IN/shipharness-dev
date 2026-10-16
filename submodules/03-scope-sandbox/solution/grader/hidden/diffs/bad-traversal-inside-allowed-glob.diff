@@ -1,0 +1,6 @@
+diff --git a/tests/visible/../../app/services/issues.py b/tests/visible/../../app/services/issues.py
+--- a/tests/visible/../../app/services/issues.py
++++ b/tests/visible/../../app/services/issues.py
+@@ -10 +10 @@
+-    return repo.insert(project_id, body, org_id=user["org_id"])
++    return repo.insert(project_id, body, org_id=0)
