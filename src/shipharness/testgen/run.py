@@ -18,7 +18,7 @@ import uuid
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
-from typing import Literal
+from typing import Any, Literal
 
 from shipharness.config import Prices, Settings
 from shipharness.cost import Caps, CostTracker
@@ -63,6 +63,10 @@ class TestgenOptions:
     python: str = "python"
     out_dir: Path | None = None
     test_phase_turns: int | None = None
+    doctest_modules: bool = False  # existing suite runs with --doctest-modules (RESEARCH G-19)
+    # Metadata of a testgen-targets-v1 line, when the target comes from the dataset; its
+    # `baseline_includes_doctests` overrides `doctest_modules`.
+    target_metadata: dict[str, Any] | None = None
 
 
 @dataclass
@@ -81,6 +85,26 @@ class TestgenResult:
     out_dir: Path | None = None
     events_path: Path | None = None
     cost_usd: float = 0.0
+    baseline_includes_doctests: bool = False
+
+
+def baseline_doctests(options: TestgenOptions) -> bool:
+    """Whether doctests are part of the baseline suite: the dataset target's
+    `baseline_includes_doctests` when present, else the --doctest-modules option."""
+    value = (options.target_metadata or {}).get("baseline_includes_doctests")
+    if isinstance(value, bool):
+        return value
+    return options.doctest_modules
+
+
+def baseline_tests(existing: list[str], module_rel: str, doctests: bool) -> list[str]:
+    """Existing-suite targets. With doctests, the module under test is added so pytest collects
+    its doctests (upstream boltons runs `pytest --doctest-modules boltons tests`). An empty list
+    stays empty: the repo's configured suite decides what is collected."""
+    tests = list(existing)
+    if doctests and tests and module_rel not in tests:
+        tests.append(module_rel)
+    return tests
 
 
 def module_to_dotted(module: str) -> str:
@@ -167,6 +191,7 @@ def _write_outputs(out_dir: Path, workspace: Path, result: TestgenResult, files:
         "run_id": result.run_id,
         "status": result.status,
         "unsandboxed": result.unsandboxed,
+        "baseline_includes_doctests": result.baseline_includes_doctests,
         "kept": result.kept,
         "not_evaluated": result.not_evaluated,
         "results": [r.model_dump() for r in result.results],
@@ -225,6 +250,10 @@ def run_testgen(
         result.error = f"invalid mutant file: {exc}"
         return result
 
+    doctests = baseline_doctests(options)
+    result.baseline_includes_doctests = doctests
+    arm: Literal["bare", "harness"] = "harness" if options.layers != "none" else "bare"
+
     run_dir = Path(settings.runs_dir) / run_id
     workspace = Path(tempfile.gettempdir()) / "shipharness-ws" / run_id / "ws"
     result.events_path = run_dir / "events.jsonl"
@@ -245,14 +274,32 @@ def run_testgen(
             shutil.rmtree(workspace.parent, ignore_errors=True)
             return result
         try:
+            existing = baseline_tests(options.existing_tests, module_rel, doctests)
+            bus.publish(
+                "harness_decision",
+                {
+                    "kind": "baseline",
+                    "layer": "testgen",
+                    "message": (
+                        "baseline suite includes doctests (--doctest-modules)"
+                        if doctests
+                        else "baseline suite without doctests"
+                    ),
+                    "paths": existing,
+                    "data": {"doctest_modules": doctests},
+                },
+                run_id=run_id,
+                arm=arm,
+            )
             ctx = build_context(
                 workspace,
                 sandbox,
-                existing_tests=options.existing_tests,
+                existing_tests=existing,
                 mutants=mutants,
                 target_module=dotted,
                 python=options.python,
                 timeout_s=settings.tool_timeout_s,
+                doctest_modules=doctests,
             )
             before = _test_hashes(workspace)
             spec = AgentRunSpec(

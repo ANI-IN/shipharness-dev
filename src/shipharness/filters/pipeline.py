@@ -141,11 +141,22 @@ def build_context(
     python: str = "python",
     timeout_s: int = 300,
     runs: int = 5,
+    doctest_modules: bool = False,
 ) -> FilterContext:
     """Snapshot at the start of the test phase: baseline coverage of the existing suite, filter-set
-    mutants that the existing suite does not kill, and source fingerprints (filter 5)."""
+    mutants that the existing suite does not kill, and source fingerprints (filter 5).
+
+    With `doctest_modules`, the existing suite runs with `--doctest-modules`, so doctests count
+    in the baseline (RESEARCH G-19). Doctests are collected only from the given targets."""
     tests = list(existing_tests or [])
-    baseline = measure_coverage(workspace, sandbox, tests, python=python, timeout_s=timeout_s)
+    baseline = measure_coverage(
+        workspace,
+        sandbox,
+        tests,
+        python=python,
+        timeout_s=timeout_s,
+        doctest_modules=doctest_modules,
+    )
     if not baseline.ok:
         raise FilterSetupError(f"baseline coverage of the existing suite failed: {baseline.detail}")
     ctx = FilterContext(
@@ -159,5 +170,6 @@ def build_context(
         python=python,
         timeout_s=timeout_s,
         runs=runs,
+        doctest_modules=doctest_modules,
     )
     return ctx.model_copy(update={"surviving_mutant_ids": surviving_mutants(ctx)})

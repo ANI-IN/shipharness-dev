@@ -196,9 +196,7 @@ def _creation_patch(path: str, text: str) -> str:
 def _script() -> ScriptedModelClient:
     return ScriptedModelClient(
         [
-            tool_step(
-                "apply_patch", patch=_creation_patch("tests/test_generated.py", DOUBLE_TEST)
-            ),
+            tool_step("apply_patch", patch=_creation_patch("tests/test_generated.py", DOUBLE_TEST)),
             tool_step("finish", claim="done", summary="wrote one test"),
         ]
     )

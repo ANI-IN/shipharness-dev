@@ -184,8 +184,10 @@ def run_mutant_detailed(
     timeout_s: int,
     *,
     python: str = "python",
+    doctest_modules: bool = False,
 ) -> MutantRun:
-    """Apply `m` to a temporary copy of `workdir` and run `tests` there (stop at first failure)."""
+    """Apply `m` to a temporary copy of `workdir` and run `tests` there (stop at first failure).
+    `doctest_modules` adds `--doctest-modules` (existing suite whose baseline has doctests)."""
     try:
         for test in tests:
             check_test_id(test)
@@ -198,7 +200,9 @@ def run_mutant_detailed(
             if not target.is_file():
                 return MutantRun("error", detail=f"{m.file} not found in the workspace")
             target.write_bytes(apply_mutant(target.read_bytes().decode("utf-8"), m).encode("utf-8"))
-            command = f'cd "{copy.name}" && ' + pytest_command(python, tests, extra="-x")
+            command = f'cd "{copy.name}" && ' + pytest_command(
+                python, tests, extra="-x", doctest_modules=doctest_modules
+            )
             result = sandbox.exec(command, timeout_s)
     except (MutantError, ScratchError, UnicodeDecodeError, OSError) as exc:
         return MutantRun("error", detail=str(exc)[:300])
@@ -218,8 +222,11 @@ def run_mutant(
     timeout_s: int,
     *,
     python: str = "python",
+    doctest_modules: bool = False,
 ) -> Outcome:
-    return run_mutant_detailed(m, tests, workdir, sandbox, timeout_s, python=python).outcome
+    return run_mutant_detailed(
+        m, tests, workdir, sandbox, timeout_s, python=python, doctest_modules=doctest_modules
+    ).outcome
 
 
 def run_mutant_set(
@@ -233,11 +240,14 @@ def run_mutant_set(
     run_id: str | None = None,
     arm: Arm | None = None,
     python: str = "python",
+    doctest_modules: bool = False,
 ) -> dict[str, MutantRun]:
     """Run mutants one at a time and emit one `mutant_result` event each."""
     runs: dict[str, MutantRun] = {}
     for m in mutants:
-        run = run_mutant_detailed(m, tests, workdir, sandbox, timeout_s, python=python)
+        run = run_mutant_detailed(
+            m, tests, workdir, sandbox, timeout_s, python=python, doctest_modules=doctest_modules
+        )
         runs[m.id] = run
         if bus is not None:
             bus.publish(

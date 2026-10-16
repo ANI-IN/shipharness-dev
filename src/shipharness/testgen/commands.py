@@ -53,6 +53,12 @@ def register(app: typer.Typer) -> None:
         ),
         python: str = typer.Option("python", help="Python command inside the sandbox."),
         out: Path | None = typer.Option(None, help="Directory for kept tests and the report."),
+        doctest_modules: bool = typer.Option(
+            False,
+            "--doctest-modules/--no-doctest-modules",
+            help="Run the existing suite with --doctest-modules, so the module's doctests "
+            "count in the baseline (filter 3 and mutant kills).",
+        ),
     ) -> None:
         """Generate tests for one module and keep only those that pass all five filters."""
         from shipharness.testgen.run import TestgenOptions, run_testgen
@@ -89,8 +95,13 @@ def register(app: typer.Typer) -> None:
             existing_tests=list(tests),
             python=python,
             out_dir=out,
+            doctest_modules=doctest_modules,
         )
         result = run_testgen(options, settings, client=client)
+        if result.baseline_includes_doctests:
+            typer.echo("Baseline: existing suite with doctests (--doctest-modules)")
+        else:
+            typer.echo("Baseline: existing suite without doctests")
         evaluated = len({r.test_id for r in result.results})
         typer.echo(
             f"testgen {result.run_id}: {result.status}; kept {len(result.kept)} of "

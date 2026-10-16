@@ -10,6 +10,7 @@ import re
 
 SAFE_TEST_ID = re.compile(r"^[A-Za-z0-9_./\-]+(::[A-Za-z0-9_.\-\[\]]+)*$")
 PYTEST_FLAGS = "-q -p no:cacheprovider --no-header -rfE"
+DOCTEST_FLAG = "--doctest-modules"
 _SUMMARY = re.compile(r"(\d+) (passed|failed|errors?|skipped|xfailed|xpassed|deselected)\b")
 _SUMMARY_LINE = re.compile(r"\d+ (passed|failed|errors?|skipped|xfailed|xpassed).* in [\d.]+s")
 _SHORT = re.compile(r"^(FAILED|ERROR) (\S+)(?: - (.*))?$")
@@ -26,10 +27,16 @@ def check_test_id(test_id: str) -> str:
     return test_id
 
 
-def pytest_command(python: str, targets: list[str], extra: str = "") -> str:
-    """`<python> -m pytest <flags> "<target>" ...`; every target is checked first."""
+def pytest_command(
+    python: str, targets: list[str], extra: str = "", *, doctest_modules: bool = False
+) -> str:
+    """`<python> -m pytest <flags> "<target>" ...`; every target is checked first.
+
+    `doctest_modules` adds `--doctest-modules`, for runs of the existing suite whose baseline
+    includes doctests (RESEARCH G-19); generated candidate tests never get it."""
     quoted = " ".join(f'"{check_test_id(t)}"' for t in targets)
-    parts = [python, "-m pytest", PYTEST_FLAGS, extra, quoted]
+    doctests = DOCTEST_FLAG if doctest_modules else ""
+    parts = [python, "-m pytest", PYTEST_FLAGS, extra, doctests, quoted]
     return " ".join(part for part in parts if part)
 
 

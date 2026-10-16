@@ -65,6 +65,9 @@ class FilterContext(BaseModel):
     python: str = "python"  # interpreter command inside the sandbox
     timeout_s: int = 120  # per pytest invocation
     runs: int = 5  # filter 2: consecutive passing runs required
+    # Existing-suite runs (baseline coverage, mutant kills by existing tests) pass
+    # `--doctest-modules`, so doctests count in the baseline (RESEARCH G-19). Candidates never do.
+    doctest_modules: bool = False
 
 
 class Filter(Protocol):
