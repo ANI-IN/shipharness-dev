@@ -1,4 +1,5 @@
-"""CostTracker: token usage x prices, with run, review, batch, session, experiment caps."""
+"""CostTracker: token usage x prices, with run, review, batch, session, experiment, and total
+build caps."""
 
 from __future__ import annotations
 
@@ -15,7 +16,7 @@ from pydantic import BaseModel, ConfigDict
 from shipharness.config import ModelPrice, Prices, Settings
 
 ScopeKind = Literal["run", "review"]
-CapScope = Literal["run", "review", "session", "batch", "experiment"]
+CapScope = Literal["run", "review", "session", "batch", "experiment", "build"]
 
 
 class Usage(BaseModel):
@@ -43,6 +44,7 @@ class Caps:
     session: float
     batch: float
     experiment: float
+    build: float = 15.0  # every ledger entry, whatever its session or experiment flag
 
     @classmethod
     def from_settings(cls, settings: Settings, *, final: bool = False) -> Caps:
@@ -52,6 +54,7 @@ class Caps:
             session=settings.max_session_cost_usd,
             batch=settings.max_batch_cost_usd,
             experiment=settings.max_experiment_total_usd,
+            build=settings.max_build_total_usd,
         )
 
 
@@ -84,12 +87,14 @@ class CostSummary:
     experiment_total_usd: float
     caps: Caps
     experiment: bool = False
+    build_total_usd: float = 0.0
 
     def remaining(self) -> dict[str, float]:
         return {
             "batch": round(self.caps.batch - self.batch_total_usd, 6),
             "session": round(self.caps.session - self.session_total_usd, 6),
             "experiment": round(self.caps.experiment - self.experiment_total_usd, 6),
+            "build": round(self.caps.build - self.build_total_usd, 6),
         }
 
 
@@ -142,6 +147,7 @@ class CostTracker:
     _reserved: float = field(default=0.0, init=False)
     _session: float = field(default=0.0, init=False)
     _experiment: float = field(default=0.0, init=False)
+    _build: float = field(default=0.0, init=False)
     _by_model: dict[str, float] = field(default_factory=lambda: defaultdict(float), init=False)
     _by_key: dict[str, float] = field(default_factory=lambda: defaultdict(float), init=False)
 
@@ -152,6 +158,7 @@ class CostTracker:
                 if not line.strip():
                     continue
                 entry = json.loads(line)
+                self._build += entry["cost_usd"]
                 if entry.get("experiment"):
                     self._experiment += entry["cost_usd"]
                 elif entry.get("session") == self.session_id:
@@ -168,6 +175,10 @@ class CostTracker:
     @property
     def experiment_total_usd(self) -> float:
         return self._experiment
+
+    @property
+    def build_total_usd(self) -> float:
+        return self._build
 
     @property
     def reserved_usd(self) -> float:
@@ -188,6 +199,7 @@ class CostTracker:
         limits: list[tuple[CapScope, float, float]] = [
             (scope.kind, scope.limit_usd, scope.spent_usd + own),
             ("batch", self.caps.batch, self._batch + shared),
+            ("build", self.caps.build, self._build + shared),
         ]
         if self.experiment:
             limits.append(("experiment", self.caps.experiment, self._experiment + shared))
@@ -268,6 +280,7 @@ class CostTracker:
                 handle.write(json.dumps(entry) + "\n")
             scope.spent_usd += cost
             self._batch += cost
+            self._build += cost
             if self.experiment:
                 self._experiment += cost
             else:
@@ -290,4 +303,27 @@ class CostTracker:
                 experiment_total_usd=self._experiment,
                 caps=self.caps,
                 experiment=self.experiment,
+                build_total_usd=self._build,
             )
+
+
+def record_opening_balance(ledger_path: Path, amount_usd: float, *, note: str) -> None:
+    """Append, once, spend made before the ledger existed (so the build total counts from the
+    start). Its timestamp precedes the first entry, so windows by time leave it out."""
+    ledger_path = Path(ledger_path)
+    lines = [ln for ln in ledger_path.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    entries = [json.loads(ln) for ln in lines]
+    if any(e.get("kind") == "opening" for e in entries):
+        raise ValueError("an opening balance is already recorded")
+    first = min((str(e.get("ts", "")) for e in entries), default="2026-10-16T00:00:00.000Z")
+    entry = {
+        "ts": first[:10] + "T00:00:00.000Z",
+        "session": "",
+        "experiment": False,
+        "kind": "opening",
+        "key": note,
+        "model": "",
+        "cost_usd": round(amount_usd, 9),
+    }
+    with ledger_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(entry) + "\n")

@@ -79,6 +79,7 @@ RUN_SETTINGS: tuple[str, ...] = (
     "max_session_cost_usd",
     "max_batch_cost_usd",
     "max_experiment_total_usd",
+    "max_build_total_usd",
     "max_turns_per_session",
     "max_output_tokens",
     "wrapup_turns",

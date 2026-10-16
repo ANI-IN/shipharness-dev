@@ -578,6 +578,7 @@ result and the tier used per batch are recorded in VERIFICATION.md.
 | `MAX_SESSION_COST_USD` | 2.50 (one class session, persisted across commands in `.shipharness/session.json`) |
 | `MAX_BATCH_COST_USD` | 2.50 (any single command) |
 | `MAX_EXPERIMENT_TOTAL_USD` | 25.00 (persisted across experiment batches) |
+| `MAX_BUILD_TOTAL_USD` | 15.00: every model call in the build ledger from its first entry, plus the pre-ledger M3-M4 spend as an opening entry (owner, 2026-10-17); it binds before the experiment total; every command's cost line shows build spent and remaining |
 | Also | max turns per session, max output tokens per call, `TOOL_TIMEOUT_S` per tool command, `RUN_TIMEOUT_S` 300 s of agent time per arm per run (harness work excluded), `HARNESS_TIMEOUT_S` 120 s of harness work per arm per run |
 
 One run cap covers both phases: the build phase and the test phase share the $0.20 (final $0.25). M6
