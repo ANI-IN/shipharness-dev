@@ -171,6 +171,7 @@ class ArmExperiment:
                         grading_criteria=self.deps.grading_criteria,
                         mutants=self._mutants(task),
                         mutant_runner=self.deps.mutant_runner,
+                        baseline_cache_dir=self.deps.baseline_cache_dir,
                         sandboxed=self.deps.sandboxed,
                         container_paths=self.deps.container_paths,
                     ),

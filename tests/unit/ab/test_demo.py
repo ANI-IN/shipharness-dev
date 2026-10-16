@@ -300,3 +300,39 @@ def test_session_patches_come_from_snapshots_when_the_arm_never_commits(tmp_path
     patches = session_patches(spec, result, out_dir, store=store)  # type: ignore[arg-type]
     texts = [p.read_text(encoding="utf-8") for p in patches]
     assert "+b = 2" in texts[0] and "-b = 2" in texts[1]
+
+
+def test_referee_baseline_runs_while_the_arms_work(course_repo: Path, tmp_path: Path) -> None:
+    import threading
+
+    from .test_referee import Factory as RefereeFactory
+    from .test_referee import all_green
+
+    started = threading.Event()
+
+    class Baseline(RefereeFactory):
+        def __call__(self, build, mounts, arm):  # type: ignore[no-untyped-def]
+            if build.parent.name == "baseline":
+                started.set()
+            return super().__call__(build, mounts, arm)
+
+    seen: list[bool] = []
+
+    class Waiting(Clients):
+        def __call__(self, arm: str):  # type: ignore[no-untyped-def]
+            client = super().__call__(arm)
+            original = client.respond
+
+            def respond(*a, **kw):  # type: ignore[no-untyped-def]
+                if not seen or len(seen) < 2:
+                    seen.append(started.wait(10))
+                return original(*a, **kw)
+
+            client.respond = respond  # type: ignore[method-assign]
+            return client
+
+    deps = make_deps(
+        course_repo, tmp_path, Waiting(), referee_sandbox_factory=Baseline(all_green())
+    )
+    run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    assert seen and all(seen)  # the arms saw the baseline already started

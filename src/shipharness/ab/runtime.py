@@ -84,6 +84,10 @@ class Runtime:
             container_paths=self.sandboxed,
             policy_summary=self.policy_summary,
             preview_factory=kw.pop("preview_factory", self.preview_factory),
+            baseline_cache_dir=kw.pop(
+                "baseline_cache_dir",
+                Path(self.settings.runs_dir).parent / "cache" / "referee-baseline",
+            ),
             **kw,
         )
 

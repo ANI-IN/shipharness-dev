@@ -149,6 +149,7 @@ class ABDeps:
     preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
     mutant_runner: Any = None  # referee mutant runner; None = the filters package runner
     mutant_source_repo: Path | None = None  # where teamtrack/mutants lives (default course_repo)
+    baseline_cache_dir: Path | None = None  # referee baselines reused across A/Bs of a task
 
 
 @dataclass
@@ -344,10 +345,14 @@ def run_ab(
             grading_criteria=deps.grading_criteria,
             mutants=_referee_mutants(task, deps, checkpoint_sha),
             mutant_runner=deps.mutant_runner,
+            baseline_cache_dir=deps.baseline_cache_dir,
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
         ),
     )
+    # The baseline depends only on the checkpoint, so it runs while the arms work.
+    baseline = threading.Thread(target=referee.baseline, name="referee-baseline", daemon=True)
+    baseline.start()
     with EventBus(run_dir / "events.jsonl", ab_id=ab_id) as bus:
         stop, previews = _start_previews(deps, bus, specs)
         # [walkthrough:Opening:two_arms] start
@@ -365,7 +370,8 @@ def run_ab(
                 thread.join(timeout=10)
 
         # Both arms are judged by the same referee on what they shipped (aborted runs too).
-        referee.baseline()
+        baseline.join()
+        referee.baseline()  # computed by the thread (or now, if the thread failed)
         with ThreadPoolExecutor(max_workers=2, thread_name_prefix="referee") as pool:
             verdicts = {
                 arm: pool.submit(_judge, referee, specs[arm], results[arm], bus, run_dir)
