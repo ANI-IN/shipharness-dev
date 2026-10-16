@@ -14,6 +14,9 @@ All notable changes to this project are recorded here.
 - Harness overhead cuts (harness arm only): `init.sh` runs one end-to-end test file, the session
   start reuses the handoff's visible-test status, and the gate baseline is cached per checkpoint
   commit. Pilot rules and the `harness-frozen` rule recorded in DESIGN §10.4.
+- `shipharness.freeze` and `scripts/freeze_harness.py`: the `harness-frozen` tag pins treatment,
+  measurement, tasks (with checkpoint tag commits), and environment (with run settings by value);
+  `tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
 
 ### M5 Features, datasets, checkpoints (2026-10-16)
 - F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks

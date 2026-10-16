@@ -533,11 +533,19 @@ is cut first, and `RUN_TIMEOUT_S` rises for both arms only if the harness arm st
 live demo of up to 8 minutes wall time is acceptable. The referee determinism check (the same code
 judged 10 times, the same result) runs before the gate is declared.
 
-Harness freeze. When the pilot gate passes, the tag `harness-frozen` marks the harness, runner,
-prompts, and tools (`src/shipharness/harness/`, `src/shipharness/runner/`, and the instruction files
-in `teamtrack/harness/`) before M8. No change to those paths after the tag: a change would
-invalidate the M8 results and require re-running them. `tests/unit/test_harness_freeze.py` fails on
-any such change once the tag exists. VERIFICATION.md records the tag and its commit.
+Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
+`harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
+treatment (`src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
+`teamtrack/harness/`); measurement (`checks/` with the check runner, the referee and A/B code in
+`ab/`, `reviewer/` with its prompt and grading criteria); tasks (`datasets/`, hidden tests, mutant
+files, `teamtrack/reference/`, and the checkpoint tags with their commits, recorded in the tag
+message); environment (sandbox policy and Dockerfile, cost caps, prices, the lock file, and the run
+settings by value: model, reasoning effort, turn limits, `RUN_TIMEOUT_S`, `HARNESS_TIMEOUT_S`, caps,
+concurrency, images, as code defaults and as effective values with `.env`). No change to any of it
+after the tag: a change would invalidate the M8 results and require re-running them.
+`tests/unit/test_harness_freeze.py` fails on any such change once the tag exists, and M8 commands run
+only while it passes (not skipped). Console, report, replay tooling, docs, slides, and course content
+stay editable. VERIFICATION.md records the tag and its commit.
 
 Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
 the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch
