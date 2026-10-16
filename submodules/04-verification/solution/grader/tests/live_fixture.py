@@ -27,7 +27,7 @@ TESTGEN_COMMAND = (
     "uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 "
     "--out .shipharness/a4/testgen"
 )
-AB_COMMAND = "uv run shipharness ab --section demo-4 --feature F4 --no-preview"
+AB_COMMAND = "uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview"
 
 
 def checkpoint_sha(repo: Path, tag: str = "m1-s4-start") -> str:
@@ -153,8 +153,9 @@ def ab_transcript(records: list[dict[str, Any]]) -> str:
             f"$ {AB_COMMAND}",
             f"A/B {AB_ID} (F4, layers={HARNESS_LAYERS})",
             *[_record_line(r) for r in records],
+            # The format of `cost_line` in src/shipharness/ab/runtime.py.
             "Cost: $0.120000 (this command: gpt-5.6-luna $0.010000, gpt-6-luna $0.110000; "
-            "session $0.120000 of $2.50)",
+            "session $0.120000 of $2.50; build $0.120000 of $15.00 ($14.880000 left))",
             "",
         ]
     )

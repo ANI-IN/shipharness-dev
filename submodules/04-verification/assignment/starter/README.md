@@ -1,6 +1,6 @@
 # starter
 
-Your implementation folder for assignment A4 (brief: `../README.md`). Work here on your own branch,
+Your implementation folder for assignment A4 (instructions: `../README.md`). Work here on your own branch,
 or copy the folder and pass the copy as `A4_IMPL=<folder>` to the make targets.
 
 | Path | State | TODO |

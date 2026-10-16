@@ -1,6 +1,6 @@
 """Run A4 test folders against one implementation and read back per-test outcomes.
 
-Used by `assignment/check.py` (visible tests) and `solution/grader/grade.py` (visible + hidden).
+Used by `assignment/check.py` (visible tests) and by the instructor's grader (visible + hidden).
 pytest runs in a subprocess, so the implementation's `a4_verification` package is imported in a
 fresh process and the check registry starts empty.
 """

@@ -1,8 +1,7 @@
-# captured on 2026-10-16, commit 7de5bc9 (no model calls); your output will differ.
-# The same command today: make grade-assignment-4 SUBMISSION=submodules/04-verification/solution (adds a 'grading assignment 4: <folder>' line and prints the absolute folder).
-# Not re-run on 2026-10-17; since 7de5bc9 only solution/tests/conftest.py changed in this folder.
-$ uv run python submodules/04-verification/solution/grader/grade.py
-A4 grade for submodules/04-verification/solution
+# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` at commit 155dc77 (no model calls); your output will differ.
+$ make grade-assignment-4 SUBMISSION=submodules/04-verification/solution
+uv run python scripts/grade_assignment.py 4 "submodules/04-verification/solution"
+A4 grade for /home/ani/wt/f04/submodules/04-verification/solution
 
 Criterion                     Points  Tests
 R8-interface                     5/5  5/5
@@ -22,4 +21,5 @@ live-evidence                  10/10  4/4
 
 Score: 100/100
 Cost: $0.000000 (no model calls)
+grading assignment 4: submodules/04-verification/solution
 [exit code 0]
