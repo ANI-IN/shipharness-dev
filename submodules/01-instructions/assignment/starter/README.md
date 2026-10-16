@@ -1,6 +1,6 @@
 # starter
 
-Your work folder for assignment A1. The brief, the specification, and the grading criteria are in
+Your work folder for assignment A1. The task, the specification, and the grading criteria are in
 [../README.md](../README.md).
 
 | Path | What it is | What you do |

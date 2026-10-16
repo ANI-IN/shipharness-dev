@@ -96,7 +96,7 @@ the sources.
 - **Points for F** come from criteria whose weight the live evidence now covers or that had slack:
   E A/B report 15 to 10 (its counts are now cross-checked in F), D hidden cases 14 to 10, C Skill 15
   to 12. The totals stay at 100.
-- **`ab_summary.py` reads only `exports/`**, as `make report` does (DESIGN §12), so the numbers in a
+- **`ab_summary.py` reads only `exports/`**, as `uv run shipharness report` does (DESIGN §12), so the numbers in a
   report come from the score records and never from memory.
 
 ## Alternatives considered
@@ -148,7 +148,8 @@ the sources.
 ## Captured output
 
 Real output of these offline commands (no keys, no Docker, no model calls) is in `captured/`. Each
-file starts with a line saying when and where it was captured, then the command:
+file starts with a line "captured on <date> from `<command>` at commit <sha>; your output will
+differ", then the command:
 
 | File | Command | Captured |
 |---|---|---|
@@ -157,6 +158,7 @@ file starts with a line saying when and where it was captured, then the command:
 | `captured/grade-starter.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter` | 2026-10-17 |
 | `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work` | 2026-10-17 |
 | `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
+| `captured/grade-solution-allow-pending.txt` | `grade.py --work submodules/01-instructions/solution/work --allow-pending` | 2026-10-17 |
 | `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests | 2026-10-16 (not re-run while the live pilot runs) |
 
 Summary, as captured on 2026-10-17:
@@ -170,7 +172,7 @@ Summary, as captured on 2026-10-17:
   12 points of criterion F (live run evidence). This is expected until the reference live run is
   captured (VERIFICATION.md, overnight Phase 0, records "A1 83/100").
 - `--allow-pending` makes the grader accept the markers in place of the A/B values and the evidence
-  (100.0/100 on the solution, checked on 2026-10-17); `make grade-assignment-1` never passes it, and
+  (100.0/100 on the solution, `captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes it, and
   learners are graded without it.
 - The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
   evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that

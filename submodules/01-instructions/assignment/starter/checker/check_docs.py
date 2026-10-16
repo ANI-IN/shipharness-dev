@@ -66,8 +66,10 @@ class Definition:
 
 def slugify(heading: str) -> str:
     """GitHub-style anchor for a heading text (without the leading #s)."""
-    # TODO(A1-3): lowercase; remove backticks and asterisks; drop every character that is not a
-    # letter, digit, space, hyphen, or underscore; turn each space into a hyphen.
+    # TODO(A1-3): trim surrounding whitespace; lowercase; remove backticks and asterisks; drop every
+    # character that is not a letter, digit, space, hyphen, or underscore; turn each space into a
+    # hyphen. The -1, -2, ... suffix of a repeated heading is added where you collect a file's
+    # anchors (check_links), not here.
     return ""
 
 
@@ -111,7 +113,9 @@ def check_rules(original: Path, tree: Path) -> list[Problem]:
 
 def count_links(tree: Path) -> int:
     """Local links and code-span paths checked (for the summary line)."""
-    # TODO(A1-3): count what check_links looked at.
+    # TODO(A1-3): the number of local link targets (Markdown links, images, and reference
+    # definitions, leaving out targets with a scheme such as https:) plus the number of path-like
+    # code spans, summed over every .md file under tree: the items check_links checks.
     return 0
 
 

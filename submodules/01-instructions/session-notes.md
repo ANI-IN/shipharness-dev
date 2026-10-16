@@ -1,8 +1,9 @@
 # S1 session notes: what the agent knows
 
 For learners, after class. Reading time: about 8 minutes. Source IDs (A1, B1, ...) and finding IDs
-(F-a-NN, F-b-NN) point to [RESEARCH.md](../../RESEARCH.md). "S1", "layer", "trap", and the house
-rules R1-R7 are course labels, not source terms ([concepts.md](concepts.md), note on labels).
+(F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../REFERENCES.md), which is generated when the course
+is released. "S1", "layer", "trap", "blinded reviewer", and the house rules R1-R7 are course labels,
+not source terms ([concepts.md](concepts.md), note on labels).
 
 ---
 
@@ -38,7 +39,7 @@ Tonight's class run:
    with pointers to deeper sources of truth elsewhere." (A1, F-a-28). TeamTrack's map is 94 lines.
 5. **docs/ is the system of record**, in A1's layout: `ARCHITECTURE.md` at the root, `SECURITY.md`,
    `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/` under `docs/`
-   (A1, F-a-29, F-a-30; RESEARCH §5 correction 2).
+   (A1, F-a-29, F-a-30).
 6. **Progressive disclosure, for docs and for skills.** "agents start with a small, stable entry
    point and are taught where to look next" (A1, F-a-36). For skills, only `name` and `description`
    load at startup (B1, F-b-05); the body loads when the skill is used, and resources only when
@@ -47,8 +48,8 @@ Tonight's class run:
    skills catalogue, sent as the developer message of every session, built from the course checkout
    so the agent cannot rewrite it (`src/shipharness/harness/instructions/router.py`). This is course
    design, not a source term.
-8. **The harness may reorganise knowledge, never add it.** Every rule in the harness docs is also in
-   `docs/HANDBOOK.md`, which both arms have (DESIGN §6.1; `tests/unit/harness_instructions/test_parity.py`).
+8. **The harness may reorganise knowledge, never add it** (a course rule). Every rule in the harness
+   docs is also in `docs/HANDBOOK.md`, which both arms have (`tests/unit/harness_instructions/test_parity.py`).
 9. **Docs are checked like code.** "Dedicated linters and CI jobs validate that the knowledge base is
    up to date, cross-linked, and structured correctly." (A1, F-a-37). Assignment A1 asks you to build
    one such checker.
@@ -58,17 +59,18 @@ Tonight's class run:
 ## 3. What the A/B showed
 
 Read every live result next to the experiment dots, never alone; results are counts of failing runs,
-never percentages (DESIGN §8.3, rule 5).
+never percentages (a course rule).
 
 ### Pilot run 2 (2026-10-16)
 
-Twelve A/Bs, F1-F4 canonical, k=3 per section, gpt-6-luna at effort medium for both arms, two A/Bs in
-parallel (VERIFICATION.md, M6 pilot run 2). Primary measure passed, per section and arm:
+Measured in the course pilot, run 2, 2026-10-16: twelve A/Bs, F1-F4 canonical, k=3 per section,
+gpt-6-luna at effort medium for both arms, two A/Bs in parallel. Primary measure passed, per section
+and arm (the F1 run ids are in [demo/README.md](demo/README.md), section 7):
 
-| Section | Bare arm | Harness arm | Why runs failed (VERIFICATION.md) |
+| Section | Bare arm | Harness arm | Why runs failed |
 |---|---|---|---|
 | F1 (S1) | 3/3 | 3/3 | none failed: no new R1 violation |
-| F2 (S2) | 3/3 | 0/3 | harness arms failed on a measurement bug, fixed after run 2 (change 7) |
+| F2 (S2) | 3/3 | 0/3 | harness arms failed on a measurement bug, fixed after run 2 |
 | F3 (S3) | 3/3 | 3/3 | none failed |
 | F4 (S4) | 0/3 | 0/3 | the measure needs every hidden test passed and every mutant killed; no run had both |
 
@@ -80,20 +82,26 @@ handbook too, then the `add-endpoint` skill and the focused docs. No arm opened 
 Both arms wrote the same org-scoped query. Per-run records with run ids, and what each arm read, are
 in [demo/README.md](demo/README.md), sections 6 and 7.
 
-What changed because of it: the pre-registered next step for a section with no gap is its trap
-variant (DESIGN §10.4, lever a). `F1-trap` names the legacy code as the place where the query code
-exists and does not point to the handbook.
+The live console check on 2026-10-16 (A/B `ab-20261016-210339-909651`, `make demo-1 PURPOSE=pilot`,
+F1 canonical) adds one more pair of dots: both arms passed, 0 new R1 violations and 52 of 52 hidden
+tests each, 9 min 10 s and $0.027821 for the whole A/B (run ids in
+[demo/README.md](demo/README.md), section 7).
+
+What changed because of it: the course's pre-registered next step for a section with no gap is its
+trap variant. `F1-trap` names the legacy code as the place where the query code exists and does not
+point to the handbook.
 
 ### Pilot run 3 and the experiments
 
-[[PENDING: pilot run 3 result for S1 (F1-trap), runs failing of 3 per arm on r1_new_violations>=1, with run ids, and the class decision for S1 | source: M6 pilot | how: uv run python scripts/pilot.py --variants F1=trap-legacy-pattern --k 3 --effort medium --parallel 2]]
+[[PENDING: pilot run 3 result for S1 (F1-trap), runs failing of 3 per arm on r1_new_violations>=1, with run ids, and the class decision for S1 | source: M6 pilot | how: course pilot (build repository)]]
 
-[[PENDING: batch 1 dots for F1 canonical, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: make report]]
+[[PENDING: batch 1 dots for F1 canonical, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: uv run shipharness report]]
 
-[[PENDING: ablation result for the leave-out-instructions configuration (all minus instructions) | source: M8 ablation | how: make report]]
+[[PENDING: ablation result for the leave-out-instructions configuration (all minus instructions) | source: M8 ablation | how: uv run shipharness report]]
 
-If S1 still shows no gap after these, DESIGN §10.4 pre-registers how it is reported: "no measurable
-difference on this task with this model", shown with the live A/B, the dots, and a discussion of why.
+If S1 still shows no gap after these, the course has pre-registered how it is reported: as no
+measurable difference on this task with this model, shown with the live A/B, the dots, and a
+discussion of why.
 
 ---
 
@@ -106,10 +114,10 @@ is why the pre-registered next task is the trap variant, and why "what did each 
 wrote the query?" is the question for the discussion.
 
 **Is the harness arm not just given more information?**
-No. The harness may change how knowledge is organised and delivered, not add facts the bare arm
-cannot read (DESIGN §6.1); a unit test checks that every rule in the harness docs is also in the
+No. By course rule the harness may change how knowledge is organised and delivered, not add facts
+the bare arm cannot read; a unit test checks that every rule in the harness docs is also in the
 handbook (`tests/unit/harness_instructions/test_parity.py`). Both arms always get the same ticket,
-model, effort, tools, turn budget, cost cap, and sandbox (DESIGN §6.1).
+model, effort, tools, turn budget, cost cap, and sandbox.
 
 **Why not paste the whole handbook into the prompt?**
 A1 gives four reasons against one large instruction file: it crowds out the task (F-a-23), too much
@@ -127,10 +135,12 @@ So that the agent cannot change what it is told by editing its own copy of `AGEN
 stays the same for the whole run (docstring of `router.py`).
 
 **The reviewer rejected both arms in one A/B, but the referee passed them. Which is right?**
-Both, on different questions. The referee's R1 check is the pre-registered primary measure (DESIGN
-§8.2). The blinded reviewer is a secondary measure; in `ab-20261016-183644-0036f0` it objected to how
-both arms handled an archived project passed as `project_id`, said `tenant_isolation_risk: none`, and
-the hidden tests passed 52 of 52 in both arms (demo/README.md, section 7).
+Both, on different questions. The referee's R1 check is the pre-registered primary measure
+(`REGISTERED_PRIMARY` in `src/shipharness/datasets/features_checks.py`). The blinded reviewer, a course
+design after A3's separate evaluator (A3, F-a-110), is a secondary measure; in
+`ab-20261016-183644-0036f0` it objected to how both arms handled an archived project passed as
+`project_id`, said `tenant_isolation_risk: none`, and the hidden tests passed 52 of 52 in both arms
+([demo/README.md](demo/README.md), section 7).
 
 **Does the files-read map on screen 3 prove the harness worked?**
 No. It shows which documents each arm opened with `read_file`, which helps explain a result. The
@@ -138,8 +148,8 @@ score is what the referee finds in the shipped code. Reads through `run` (for ex
 appear.
 
 **Why counts and not percentages?**
-DESIGN §8.3, rule 5: "Every run is a dot; results are counts ("9/10"), not percentages." With k=3 or
-k=10, a percentage hides how few runs there are.
+It is a course rule: every run is a dot, and results are counts such as 9/10. With k=3 or k=10, a
+percentage hides how few runs there are.
 
 ---
 

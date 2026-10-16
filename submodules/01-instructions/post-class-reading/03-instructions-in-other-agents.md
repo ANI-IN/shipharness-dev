@@ -8,9 +8,9 @@ what the primary sources say about other harnesses: the two harnesses the teachi
 (A1 at OpenAI, A2 and A5 at Anthropic) and the skill loading of three coding agents (B7-B10).
 
 A note on wording: the vendor documentation pages (B7-B9) were read through a summarising fetch tool,
-so RESEARCH G-11 requires each sentence to be copied again from the live page before it is quoted.
-This piece therefore quotes none of them. The directory paths are reliable (G-11) and are given
-exactly. Findings F-b-12 to F-b-15 are in `research/notes/R-b.md`.
+so this piece quotes none of their sentences; it reports what they say in its own words and gives the
+directory paths exactly. Findings F-b-12 to F-b-15 are listed in
+[REFERENCES.md](../../../REFERENCES.md) (generated at release).
 
 ---
 
@@ -36,13 +36,14 @@ recently worked on." (A2, F-a-59).
 
 So A2 also gives the agent a small entry point that names where the knowledge is (here the state
 files), rather than pasting the knowledge in. S2 builds on this routine. A5 is the reference
-implementation of the A2 pattern; the course read its README only, and its prompts were not opened
-(RESEARCH, clean-room statement).
+implementation of the A2 pattern; the course read its README only and did not open its prompts (the
+course's clean-room rule).
 
 ## 3. Skills in three coding agents
 
-All three agents below state that they follow the Agent Skills standard (B7, B8, B9; F-b-12, F-b-14,
-F-b-15). They differ in where they look (RESEARCH §4.5):
+Claude Code states that its skills follow the Agent Skills open standard (B7, F-b-12). Codex
+discovers skills in `.agents/skills` directories (B8, F-b-14). Cursor supports Agent Skills and also
+loads skills from the Claude and Codex directories (B9, F-b-15). They differ in where they look:
 
 | Agent | Project skills | User skills | Also reads | Finding |
 |---|---|---|---|---|
@@ -51,7 +52,7 @@ F-b-15). They differ in where they look (RESEARCH §4.5):
 | Cursor (2.4 and later, B10) | `.agents/skills/`, `.cursor/skills/` | `~/.agents/skills/`, `~/.cursor/skills/` | `.claude/skills/`, `.codex/skills/` and their home equivalents | F-b-15 |
 
 No single directory is read by all three. To reach all of them, install a skill into both
-`.claude/skills/<name>/` and `.agents/skills/<name>/` (RESEARCH §4.5, inference from this table).
+`.claude/skills/<name>/` and `.agents/skills/<name>/` (the course's inference from this table).
 
 ## 4. Frontmatter: the standard and the extensions
 
@@ -60,7 +61,7 @@ documents extra optional fields too (B9). The reference validator rejects any ke
 specification fields: "Unexpected fields in frontmatter: {extras}. Only {allowed} are allowed." (B5,
 F-b-11).
 
-The course's choice (RESEARCH §4.5): skills use only `name`, `description`, `license`,
+The course's choice: skills use only `name`, `description`, `license`,
 `compatibility`, `metadata`, and `allowed-tools`, so they pass the reference validator and load in all
 three agents. Vendor-specific data can go under `metadata`. `uv run shipharness skills validate skills`
 checks the four course skills (`harness-setup`, `assured-tests`, `house-rules`, `skill-template`).

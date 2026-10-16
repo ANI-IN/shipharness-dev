@@ -4,9 +4,8 @@ Course material for section S1: AGENTS.md as a map, progressive disclosure throu
 
 | Path | What goes there |
 |---|---|
-| `concepts.md` | The section's concepts, written from the sources in RESEARCH.md |
+| `concepts.md` | The section's concepts, written from the sources listed in [REFERENCES.md](../../REFERENCES.md) (generated at release) |
 | `demo/` | Live A/B runbook for `make demo-1`, with pilot results |
-| `assignment/` | Assignment brief, grading criteria, starter files |
-| `solution/` | Reference solution |
+| `assignment/` | Assignment A1: instructions, grading criteria, starter files, self-check |
 | `post-class-reading/` | Cited reading notes that go deeper than class time |
 | `session-notes.md` | After class: what was shown, key ideas, what the A/B showed, common questions, what to try next |

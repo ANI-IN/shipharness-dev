@@ -18,7 +18,8 @@
 | R1: runs with at least one new R1 violation | TODO | TODO |
 | R3: runs with at least one new R3 failure | TODO | TODO |
 
-Secondary (optional, from ab_summary.py): R1 leaks summed over runs, runs aborted or errored.
+Secondary (optional, not graded; you may delete this line): R1 leaks summed over runs, and the number
+of runs aborted or errored, copied from the ab_summary.py output.
 
 ## Links
 

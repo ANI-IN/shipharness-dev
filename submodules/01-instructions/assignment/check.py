@@ -49,7 +49,7 @@ def _load_live() -> ModuleType:
 
 live = _load_live()
 
-# A1's layout (F-a-30) as the instructions layer places it (DESIGN §6.2).
+# A1's layout (F-a-30) as the course's instructions layer places it.
 REQUIRED = [
     "AGENTS.md",
     "ARCHITECTURE.md",
@@ -70,8 +70,8 @@ REPORT_SECTIONS = [
     "Reading the result",
     "Limits",
 ]
-MAX_COST_USD = 2.50  # DESIGN §11.5: A1 at most $2.50
-MAX_TRACES = 150  # DESIGN §11.5: A1 at most 150 traces
+MAX_COST_USD = 2.50  # course budget: A1 at most $2.50
+MAX_TRACES = 150  # course budget: A1 at most 150 traces
 TIMEOUT_S = 300
 
 PENDING = live.PENDING

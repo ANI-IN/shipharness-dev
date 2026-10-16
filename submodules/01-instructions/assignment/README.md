@@ -1,12 +1,12 @@
-# Assignment A1: from a 900-line instruction file to a map, docs, and a skill
+# Assignment A1: from an 899-line instruction file to a map, docs, and a skill
 
-Section S1 Instructions. Expected effort: 3 to 6 hours for a strong engineer, plus the A/B run time
-(see "Cost and trace budget"). Source ids (A1, B1, F-a-NN, F-b-NN) refer to the course research register,
-`RESEARCH.md`.
+Section S1 Instructions. The A/B run time and cost are under "Cost and trace budget". Source ids (A1,
+B1, F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../../REFERENCES.md), which is generated when the
+course is released.
 
 ## Objective
 
-Take a TeamTrack variant whose only instructions are one 900-line `AGENTS.md`, and restructure that
+Take a TeamTrack variant whose only instructions are one 899-line `AGENTS.md`, and restructure that
 knowledge into what section S1 taught: a short `AGENTS.md` map, a structured `docs/` folder, and one
 Agent Skill. Then prove mechanically that nothing was lost (a link and rule-coverage checker you
 write), and measure the effect on agents with an A/B on the `section-1` dataset subset (k=3),
@@ -43,7 +43,8 @@ Read the section S1 material first. The ideas this assignment exercises, with th
 - The docs. "The repository’s knowledge base lives in a structured docs/ directory treated as the
   system of record." (A1, F-a-29). The file names (`ARCHITECTURE.md` at the root; `SECURITY.md`,
   `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/` under `docs/`)
-  come from A1's layout figure (F-a-30), as the instructions layer places them (DESIGN §6.2).
+  come from A1's layout figure (F-a-30), as the course's instructions layer places them
+  (`teamtrack/harness/instructions/`).
 - Progressive disclosure: "agents start with a small, stable entry point and are taught where to look
   next" (A1, F-a-36). For skills, B1 states the same idea: "The `name` and `description` fields are
   loaded at startup for all skills" (B1, F-b-05), and the body loads only when the skill is used.
@@ -57,8 +58,8 @@ Read the section S1 material first. The ideas this assignment exercises, with th
   in-context while running effectively doesn’t exist." (A1, F-a-05), and agents copy what is nearby:
   "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones."
   (A1, F-a-20). The legacy `GET /v1/issues` handler is that trap.
-- "House rules" is the course's label for what A1 calls "golden principles" (F-a-99) and invariants
-  enforced "with custom lints" (F-a-96); see RESEARCH G-9.
+- "House rules" is the course's label, not a source term, for what A1 calls "golden principles"
+  (F-a-99) and invariants enforced "with custom lints" (F-a-96).
 
 A1 describes one team's experience on one product and says its results "should not be assumed to
 generalize without similar investment—at least, not yet." (F-a-143). Your A/B is a small test of the
@@ -101,8 +102,8 @@ flowchart LR
 - Skill format: for `name`, "Must match the parent directory name" (B1, F-b-02); the description
   "Should describe both what the skill does and when to use it" (B1, F-b-03).
 - Docs checked mechanically, with messages an agent can act on (F-a-37, F-a-97).
-- Reading an A/B as counts of failing runs per arm, with the pre-registered S1 measure (DESIGN §8.2,
-  §8.3), with every number traceable to a score record.
+- Reading an A/B as counts of failing runs per arm, with the course's pre-registered S1 measure, with
+  every number traceable to a score record.
 
 ## Prerequisites
 
@@ -149,8 +150,8 @@ Output (all inside your work folder, by default `assignment/starter/`):
   `docs/HANDBOOK.md`.
 - R-T7. No new facts. Every inline code span in the tree either appears in the original (ignoring
   case, backticks, and runs of whitespace) or is a path that exists in the tree or in `teamtrack/`.
-  The harness may change how knowledge is organised, never add facts the bare arm cannot read
-  (DESIGN §6.1). This is what keeps your A/B fair.
+  The harness may change how knowledge is organised, never add facts the bare arm cannot read (a
+  course rule). This is what keeps your A/B fair.
 - R-T8. Your checker exits 0 on your tree.
 
 ### The skill
@@ -245,9 +246,9 @@ Overlap:
 - Setup: the exact command you ran (with `--split section-1`, `--k 3`, `--layers instructions`, and a
   `--batch` label), `Instructions tree commit: <sha>`, and `Runs per arm: <n>`.
 - Results: an R1 row and an R3 row with `failing/runs` per arm (for example `3/24`), runs equal to
-  "Runs per arm", no percentages (DESIGN §8.3, rule 5).
+  "Runs per arm", no percentages (a course rule).
 - Links: the two LangSmith experiment URLs.
-- Cost and traces: `Cost: $<x>` at most 2.50 and `Traces: <n>` at most 150 (DESIGN §11.5).
+- Cost and traces: `Cost: $<x>` at most 2.50 and `Traces: <n>` at most 150 (the course's A1 budget).
 - Reading the result: at least 60 words that discuss R1 and R3. Limits: at least 20 words.
 - The command, "Runs per arm", the R1 and R3 counts, and the two links equal what the live evidence
   says (R-L5).
@@ -256,15 +257,16 @@ Overlap:
 
 The A/B is the required live step. You run it once, live, with the course agent model
 (`OPENAI_MODEL`, `gpt-6-luna`), through the real runner and the Docker sandbox, with the class caps
-(`MAX_RUN_COST_USD` $0.20 per arm per run, `MAX_BATCH_COST_USD` $2.50 per command; `CONTRACTS.md`
-§1). `live_evidence.py` copies what the run wrote into `live/` in your work folder:
+(`MAX_RUN_COST_USD` $0.20 per arm per run, `MAX_BATCH_COST_USD` $2.50 per command;
+`src/shipharness/config/settings.py`). `live_evidence.py` copies what the run wrote into `live/` in
+your work folder:
 
 | Path | What it is | Written by the run to |
 |---|---|---|
 | `live/output.txt` | first line `$ <the exact command>`, then everything the command printed, ending with its `Cost: $...` line | your terminal (task 6 saves it) |
 | `live/experiments/<name>.json` | the two experiment exports, one per arm | `exports/experiments/` |
-| `live/scores/<run_id>.json` | the ScoreRecord of every run listed in the exports (CONTRACTS §11, with `checkpoint_sha`) | `exports/scores/` |
-| `live/runs/<run_id>/events.jsonl` | the run log of every harness-arm run (CONTRACTS §8) | `.shipharness/runs/` |
+| `live/scores/<run_id>.json` | the ScoreRecord of every run listed in the exports (`ScoreRecord` in `src/shipharness/ab/score.py`, with `checkpoint_sha`) | `exports/scores/` |
+| `live/runs/<run_id>/events.jsonl` | the run log of every harness-arm run (`Event` in `src/shipharness/events/models.py`) | `.shipharness/runs/` |
 
 The self-check and the grader read these files only: they never re-run a model and need no keys.
 
@@ -295,7 +297,7 @@ The self-check and the grader read these files only: they never re-run a model a
   is graded from the report and the live evidence, checked as files, never by re-running models.
 - The checker uses only the Python standard library.
 - One A/B command, within the budget below. Do not re-run it until the bare arm "looks bad": every
-  run is a dot, and dropping runs is forbidden (DESIGN §8.3).
+  run is a dot, and dropping runs is forbidden (a course rule).
 
 ## Step-by-step tasks
 
@@ -305,7 +307,8 @@ The self-check and the grader read these files only: they never re-run a model a
    are background, not rules.
 2. **Write the checker first** (TODO(A1-3), TODO(A1-4) in `starter/checker/check_docs.py`). Make the
    visible tests pass, then add your own tests for the rest of the specification above. Running it
-   on the starter tree now should print 66 `missing-rule` lines.
+   on the starter tree now should print 69 problems: 66 `missing-rule` lines and 3 `broken-path`
+   lines for paths the stub mentions but the tree does not have yet.
 3. **Split the file** (TODO(A1-1)). Create the docs, move each tagged rule into exactly one of them,
    and run your checker after every document. Leave out the retired rules.
 4. **Write the map**: roughly 100 lines, a "where to look" table, the house rules at a glance as
@@ -383,7 +386,8 @@ make setup                         # uv sync, container images if a runtime is p
 uv run python submodules/01-instructions/assignment/check.py   # see what fails on the starter
 ```
 
-On Windows, run everything inside WSL2 (DESIGN §9). Work on your own branch; commit the work folder.
+On Windows, run everything inside WSL2 ([docs/setup-windows.md](../../../docs/setup-windows.md)). Work
+on your own branch; commit the work folder.
 
 ## How to run
 
@@ -426,9 +430,10 @@ See [the old notes](OLD.md).
 - [R1.2] Unrelated words entirely.
 ```
 
-checked against the original as the only file of a tree, prints (reference checker, captured on
-2026-10-17 in the course build worktree; your output will differ). The 64 `missing-rule` lines are
-cut to three; `...` marks the cut:
+checked against the original as the only file of a tree, prints the following (the course's reference
+checker; captured on 2026-10-17 from `check_docs.py --original starter/original/AGENTS.md --tree
+<that tree>` at commit 5e8fb08; your output will differ). The 64 `missing-rule` lines are cut to
+three; `...` marks the cut:
 
 ```
 ERROR broken-link docs/SECURITY.md:2 OLD.md
@@ -446,8 +451,9 @@ R1.1 is weak although its first sentence is copied word for word: the original's
 ("Repositories take `org_id` as an explicit argument and filter on it; ..."), and the copy keeps 41%
 of its content words.
 
-`make check-assignment-1` on the unchanged starter fails by design (captured on 2026-10-17 in the
-course build worktree; your output will differ; cut, with `...` where lines are left out):
+`make check-assignment-1` on the unchanged starter fails by design (captured on 2026-10-17 from
+`make check-assignment-1` at commit 5e8fb08; your output will differ; cut, with `...` where lines are
+left out):
 
 ```
 $ make check-assignment-1
@@ -456,7 +462,7 @@ A1 self-check: submodules/01-instructions/assignment/starter
 FAIL layout: missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, docs/QUALITY_SCORE.md, docs/PLANS.md, docs/design-docs/index.md, docs/product-specs/index.md; follow A1's layout (README, 'Expected project structure')
 FAIL map-length: AGENTS.md still holds the starter TODO stub
 ...
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.68s
+FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.72s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 ...
 FAIL live-files: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
@@ -539,19 +545,21 @@ same score on every run.
 |---|---|---|
 | Self-check, grader, checker, validator, `ab_summary.py`, `live_evidence.py` | $0 (no model calls) | 0 |
 | `make datasets` (upload, once) | $0 | 0 |
-| The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (DESIGN §11.5); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `CONTRACTS.md` §1) | 2 per run (DESIGN §12): 96, within A1's 150 |
+| The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (the course budget); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `src/shipharness/config/settings.py`) | 2 per run (the agent run and the referee's evaluation): 96, within A1's 150 |
 
-The learner budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces
-(DESIGN §11.5). Measured values for this command:
+The course budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces.
+The course has not yet run this command end to end; the reference solution's run will give the
+measured values:
 
-[[PENDING: measured cost per run and total cost of the A1 A/B on section-1, k=3 | source: M6 pilot | how: make pilot, then uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
+[[PENDING: measured cost per run and total cost of the A1 A/B on section-1, k=3 | source: M6 pilot | how: uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
 
 [[PENDING: wall time of the A1 A/B command | source: M8 batch 1 | how: time uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
 
-DESIGN §11.5 plans a fallback: if M6 measures more than $0.05 per run, the assignment subset drops to
-4 tasks. If that happens, the course publishes the replacement command here. A first data point: in
-pilot run 2 each of the six F1 canonical arm runs cost between $0.011580 and $0.013504 (score
-records; run ids in [../demo/README.md](../demo/README.md), section 7). Those were `shipharness ab`
-runs, not the `experiments` command, so the decision waits for the measurement above.
+The course plans a fallback: if the pilot measures more than $0.05 per run, the assignment subset
+drops to 4 tasks, and the course publishes the replacement command here. A first data point, measured
+in the course pilot, run 2, 2026-10-16: each of the six F1 canonical arm runs cost between $0.011580
+and $0.013504 (score records; run ids in [../demo/README.md](../demo/README.md), section 7). Those
+were `shipharness ab` runs, not the `experiments` command, so the decision waits for the measurement
+above.
 
-[[PENDING: whether the M6 per-run cost triggers the 4-task fallback, and the replacement command | source: M6 pilot | how: make pilot]]
+[[PENDING: whether the measured per-run cost triggers the 4-task fallback, and the replacement command | source: M6 pilot | how: course pilot (build repository)]]

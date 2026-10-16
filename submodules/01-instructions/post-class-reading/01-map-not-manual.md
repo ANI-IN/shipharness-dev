@@ -4,8 +4,8 @@ Reading time: about 8 minutes.
 
 Source: A1, Ryan Lopopolo (OpenAI), "Harness engineering: leveraging Codex in an agent-first world",
 2026-02-11, https://openai.com/index/harness-engineering/ , sections "Agent legibility is the goal" and
-"We made repository knowledge the system of record". Accessed 2026-10-16. Quotes are verbatim from
-RESEARCH.md and `research/notes/R-a.md`, with their finding IDs.
+"We made repository knowledge the system of record". Accessed 2026-10-16. Quotes are verbatim, with
+their finding IDs; [REFERENCES.md](../../../REFERENCES.md) (generated at release) lists every finding.
 
 Read the whole A1 section after this piece; it is short. The excerpts below follow its argument and
 place each step next to the TeamTrack file that applies it.
@@ -72,8 +72,7 @@ not the manual", and its main table is keyed by what the agent is about to do ("
 endpoint", "decide who may see or change data"), each row naming one file.
 
 The course says "map" and "table of contents", A1's words. It does not call AGENTS.md a "routing
-file" (RESEARCH §4.1), although the module that builds the prefix is named `router.py` after the
-course brief.
+file", although the module that builds the prefix is named `router.py`.
 
 ## 5. Where the map points
 
@@ -83,8 +82,8 @@ course brief.
 A1's layout figure (F-a-30) puts `AGENTS.md` and `ARCHITECTURE.md` at the root, and `design-docs/`,
 `exec-plans/` (`active/`, `completed/`, `tech-debt-tracker.md`), `generated/db-schema.md`,
 `product-specs/`, `references/` (`*-llms.txt` files), and documents such as `PLANS.md`,
-`QUALITY_SCORE.md`, `RELIABILITY.md`, and `SECURITY.md` inside `docs/`. RESEARCH §5 correction 2
-records that `ARCHITECTURE.md` is at the root, not in `docs/`.
+`QUALITY_SCORE.md`, `RELIABILITY.md`, and `SECURITY.md` inside `docs/`. Note that `ARCHITECTURE.md`
+is at the root, not in `docs/`.
 
 A1 describes some of these files in one sentence each:
 
@@ -97,7 +96,7 @@ A1 describes some of these files in one sentence each:
 TeamTrack mirrors this: `docs/design-docs/index.md` and `core-beliefs.md`, `docs/QUALITY_SCORE.md`
 with known gaps (including the legacy endpoint), and two `references/*-llms.txt` files for Alembic and
 import-linter. A1 gives only the file names of the `*-llms.txt` references and does not explain their
-format (RESEARCH §3.1), so the course uses them as plain reference notes.
+format, so the course uses them as plain reference notes.
 
 ## 6. Progressive disclosure
 
@@ -141,9 +140,9 @@ S1 A/B. It does not take A1's productivity numbers as a prediction.
   Move the rule to a focused document and point to it from a short map.
 - Write the map by task, not by topic: "add or change an endpoint" leads to one file. That is the
   table-of-contents idea (F-a-27) in a form an agent can act on at the moment it starts a change.
-- Look at what your tickets say. In the course's pilot run 2, the canonical F1 ticket told the agent
-  to follow the handbook, every bare arm opened it, and the two arms showed no difference
-  (VERIFICATION.md, M6 pilot run 2; [../demo/README.md](../demo/README.md) section 6). If your team
+- Look at what your tickets say. Measured in the course pilot, run 2, 2026-10-16: the canonical F1
+  ticket told the agent to follow the handbook, every bare arm opened it, and the two arms showed no
+  difference ([../demo/README.md](../demo/README.md) sections 6 and 7 list the A/B ids). If your team
   writes "see the handbook" in every ticket, part of the map's work is already done by people, and
   it stops being done the day someone forgets the line.
 - Add one mechanical check before you split anything: dead links and missing rules (F-a-26, F-a-37).

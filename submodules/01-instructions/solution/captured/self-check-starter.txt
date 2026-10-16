@@ -1,4 +1,4 @@
-# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+# captured on 2026-10-17 from `make --no-print-directory check-assignment-1` at commit d52d8c6 (offline command, no model calls); your output will differ
 $ make --no-print-directory check-assignment-1
 uv run python submodules/01-instructions/assignment/check.py 
 A1 self-check: submodules/01-instructions/assignment/starter
@@ -12,7 +12,7 @@ FAIL skill-frontmatter: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-sections: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-linked: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-cites: need exactly one skill in .agents/skills/ (found: none)
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.68s
+FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.31s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 FAIL report-sections: TODO markers are left in the report (sections needed: Setup, Results, Links, Cost and traces, Reading the result, Limits)
 FAIL report-command: Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
