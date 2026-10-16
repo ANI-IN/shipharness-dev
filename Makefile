@@ -71,7 +71,7 @@ test:
 
 # Everything that needs no keys and no container runtime, including slow validations.
 test-all:
-	$(UV) run pytest -m "not live and not docker"
+	$(UV) run pytest -n auto -m "not live and not docker"
 
 test-live:
 	$(UV) run pytest -m live tests/live

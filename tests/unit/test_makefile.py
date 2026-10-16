@@ -168,8 +168,10 @@ def test_make_test_is_the_default_run_and_test_all_adds_slow() -> None:
     rules = _rules()
     assert rules["test"] == ["$(UV) run pytest"]
     (line,) = rules["test-all"]
-    assert line.startswith("$(UV) run pytest -m ")
-    expression = _marker_expression(shlex.split(line))
+    assert line.startswith("$(UV) run pytest ")
+    args = shlex.split(line)
+    assert args[args.index("-n") + 1] == "auto"  # the full suite runs in parallel
+    expression = _marker_expression(args)
     assert _selects(expression)
     assert _selects(expression, "slow")
     assert not _selects(expression, "live")
