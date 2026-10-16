@@ -6,13 +6,19 @@ Reference solution: `a2_state/` (layer.py, ledger.py, progress_log.py). Grader:
 
 ## Results (captured)
 
-The full outputs are in `captured/`, produced by the commands on their first line.
+The full outputs are in `captured/`, captured on 2026-10-17 at commit e7287f4 with the make
+targets on each file's first command line (offline: the test stand-in agent, no model calls, so no
+run id; commit hashes in the output change on every run).
 
-| Layer | Self-check (visible) | Grade (visible and hidden) | File |
+| Layer | Self-check (visible), `make check-assignment-2 A2_IMPL=<folder>` | Grade (visible and hidden), `make grade-assignment-2 SUBMISSION=<folder>` | File |
 |---|---|---|---|
-| Reference solution (`--impl submodules/02-state-lifecycle/solution`) | 28 of 28 checks | 90.0/100 (scenarios 90 of 90; `live_run` 0 until its live run is recorded) | `check-solution.txt`, `grade-solution.txt` |
-| Starter (default `--impl`) | 2 of 28 checks, exit 1 | 4.3/100 | `check-starter.txt`, `grade-starter.txt` |
-| Class S2 layer (`--impl submodules/02-state-lifecycle/solution/class_s2_layer`) | not run | 27.6/100 | `grade-class-s2-layer.txt` |
+| Reference solution (`submodules/02-state-lifecycle/solution`) | 28 of 28 checks, exit 0 | 90.0/100 (scenarios 90 of 90; `live_run` 0 of 10) | `check-solution.txt`, `grade-solution.txt` |
+| Starter (`submodules/02-state-lifecycle/assignment/starter`, the default) | 2 of 28 checks; `check.py` exits 1, make exits 2 | 4.3/100 | `check-starter.txt`, `grade-starter.txt` |
+| Class S2 layer (`submodules/02-state-lifecycle/solution/class_s2_layer`) | not run | 27.6/100 | `grade-class-s2-layer.txt` |
+
+The reference solution loses exactly the 10 `live_run` points, and that is expected: its live run is
+not captured yet (`live/README.md` holds the PENDING marker). Every scenario criterion earns full
+points.
 
 The scenarios are deterministic (the test stand-in agent and the scripted token counts never
 vary), so the scores repeat; only commit hashes and timestamps differ between runs. The test

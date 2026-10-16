@@ -1,4 +1,7 @@
-$ uv run python submodules/02-state-lifecycle/assignment/check.py --impl submodules/02-state-lifecycle/solution
+# Captured on 2026-10-17 at commit e7287f4 (offline: test stand-in agent, no model calls, no run id).
+# Your output will differ: commit hashes change on every run.
+$ make check-assignment-2 A2_IMPL=submodules/02-state-lifecycle/solution
+uv run python submodules/02-state-lifecycle/assignment/check.py --impl submodules/02-state-lifecycle/solution
 A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/solution
 Agent: the test stand-in agent (a2_scenario/literal_agent.py), deterministic, not a model.
 Each scenario: four sessions, three forced stops by the session turn budget.

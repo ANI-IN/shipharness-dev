@@ -1,11 +1,11 @@
 # Reading the S2 measure: what `continuity_failure` sees and what it misses
 
-Reading time: about 8 minutes.
+Reading time: about 10 minutes.
 
 In class you see one dot per run for `continuity_failure`. Before you trust a dot, know how it is
 computed. This piece walks through the referee's continuity check and the host code that feeds it,
-and lists the cases the measure does not catch. The measure itself was registered before any run
-(DESIGN §8.2); nothing here changes it.
+shows a measurement bug the pilot found in it, and lists the cases the measure does not catch. The
+measure itself was registered before any run (DESIGN §8.2); nothing here changes it.
 
 ## The three parts
 
@@ -37,14 +37,25 @@ session 2 removed with the same text.
 
 ## Where the session patches come from
 
-The patches are written on the host after the run, from the commits the runner recorded at each
-session's start and end (`src/shipharness/ab/demo.py`, lines 458-470):
+The patches are written on the host after the run (`src/shipharness/ab/demo.py`, lines 481-505):
 
 ```python
-def session_patches(spec: AgentRunSpec, result: AgentRunResult, out_dir: Path) -> list[Path]:
-    """One patch per session (for the continuity check): committed changes between the session's
-    start and end commits; the last session also includes uncommitted work."""
+def session_patches(
+    spec: AgentRunSpec, result: AgentRunResult, out_dir: Path, *, store: Path | None = None
+) -> list[Path]:
+    """One patch per session (for the continuity check). With working-tree snapshots (`store`),
+    each patch is the change between the session's start and end trees, so an arm that never
+    commits is measured like one that does. Without them: committed changes between the session's
+    start and end commits, and the last session also includes uncommitted work."""
     patches: list[Path] = []
+    sessions = list(result.sessions)
+    if store is not None and sessions and all(s.start_tree and s.end_tree for s in sessions):
+        for session in sessions:
+            out = out_dir / f"session-{session.index}.patch"
+            written = git.write_tree_diff(store, session.start_tree, session.end_tree, out)
+            if written is not None:
+                patches.append(written)
+        return patches
     for position, session in enumerate(result.sessions):
         out = out_dir / f"session-{session.index}.patch"
         if position == len(result.sessions) - 1:
@@ -56,18 +67,62 @@ def session_patches(spec: AgentRunSpec, result: AgentRunResult, out_dir: Path) -
     return patches
 ```
 
-`result.sessions` holds every session of the run, build and test phases together, in order. The
-check uses the first two patches.
+The snapshot path is the normal one in an A/B. It exists because of pilot run 1: the bare arms never
+committed, so commit-based patches left session 1's work out of part (c) entirely (VERIFICATION.md,
+M6 pilot, change 2). `result.sessions` holds every session of the run, build and test phases
+together, in order. The check uses the first two patches.
+
+Before the check, the referee hands it copies with harness artifacts removed
+(`src/shipharness/ab/referee.py`, lines 267-277):
+
+```python
+def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
+    """Copies of the per-session patches without harness artifacts, for the continuity check.
+    The state layer rewrites progress.md and the handoff every session; those are not product
+    work (M6 pilot run 2: they read as session 2 removing session 1's lines)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    copies: list[Path] = []
+    for index, patch in enumerate(patches, start=1):
+        copy = out_dir / f"session-{index}.patch"
+        copy.write_bytes(strip(patch.read_bytes()) if patch.is_file() else b"")
+        copies.append(copy)
+    return copies
+```
+
+`strip` is `strip_harness_artifacts` from `src/shipharness/ab/artifacts.py`; its pattern list includes
+`init.sh`, `progress.md`, `session-handoff.md`, and `docs/exec-plans/**` for the state layer.
+
+## A measurement bug the pilot found
+
+Until that function existed, the check read the raw patches. In pilot run 2 every F2 harness arm
+failed part (c): "session 1 added only progress.md, session-handoff.md, and the exec plan; session 2
+rewrote them (50-84% of session 1's lines)" (VERIFICATION.md, M6 pilot run 2). The score records show
+the three values: 84.0 (`r-20261016-181736-260803`), 76.5 (`r-20261016-184318-fdee0c`), and 50.0
+(`r-20261016-190548-9352c4`), captured on 2026-10-16 in `exports/scores/`. The bare arms in the same
+A/Bs scored 2.1, 0.0, and 0.0.
+
+The arithmetic was right and the harness did what it was built to do: the wrap-up asks the agent to
+rewrite its notes, and the state layer rewrites the machine summary at every stop. The check simply
+counted the treatment's own bookkeeping as product work. The fix (change 7) is labelled "bug fix,
+applies to both arms": the bare arm has no such files, so its numbers cannot move, and the primary
+measure's definition is unchanged. The run 2 harness dots stay in the record as they were scored, with
+the bug named next to them.
+
+Two habits this teaches. Read the per-run detail behind a surprising dot before reading the total:
+here the session patches named the files. And when a measure compares two arms, check that nothing
+one arm writes for its own use can reach the measure; the shipped diff already had this filter, the
+session patches did not.
 
 ## Cases to keep in mind
 
 | Case | What the measure does |
 |---|---|
-| Session 1 leaves its work uncommitted | Session 1's patch has only committed changes, so its uncommitted lines are not in the denominator. The work stays on disk and shows up in a later patch. Committing at the end of a session is in both arms' prompt ("Commit your work to git with descriptive messages", `runner/prompts.py`), but the measure depends on it |
+| Session 1 leaves its work uncommitted | Counted: the snapshot patches compare working trees, so uncommitted lines are in session 1's patch (change 2). Without snapshots, the commit-based fallback would leave them out |
 | Session 2 moves code to another file | Removal is matched per file and per line text, so lines moved to a new file count as removed only from the old file; lines rewritten with different text in the same place count as removed |
 | Session 2 reformats lines | Leading and trailing spaces are stripped before matching, so re-indenting alone does not count as redone if the text is unchanged; any other text change does |
-| The build phase ends in one session | No stop happens. Patch 2 is then the test phase's session, which also starts with an empty context (`runner/loop.py`), so (c) compares the build session with the test session |
-| The harness commits between sessions | `session_stop` commits the handoff and log after session 1's end commit is recorded and before session 2 starts, so those commits are in neither patch |
+| The build phase ends in one session | No stop happens. Patch 2 is then the test phase's session, which also starts with an empty context (`runner/loop.py`), so (c) compares the build session with the test session. Pilot run 2 had one such arm (`r-20261016-184318-fdee0c`) |
+| The harness writes between sessions | The state layer's files are stripped before the check (change 7); a harness that wrote product files between sessions would still be counted |
+| Session 1 writes only harness files | After stripping, session 1 has no added lines, `redone_pct` returns 0.0, and (c) passes; (a) and (b) still judge the migrations |
 | The second migration has a different table name | (b) does not fire; (a) fires only if the history now has two heads or fails to upgrade |
 
 None of these favour one arm: both arms go through the same code. They do mean a single dot can be a
@@ -101,8 +156,9 @@ session also changed (`src/shipharness/console/state.py`, `ArmState.sessions`, l
 ```
 
 That is a live, file-level hint from tool events while the run is going. Continuing work on the same
-file in session 2 is normal and also gets the marker. The judged number is `redone_lines_pct` from the
-referee, shown on screen 4 after the run.
+file in session 2 is normal and also gets the marker, and the harness arm's own `progress.md` gets it
+in every session. The judged number is `redone_lines_pct` from the referee, shown on screen 4 after
+the run.
 
 ## Other stop points
 
@@ -122,9 +178,18 @@ full-dataset batch (DESIGN §10.4, batch 4, k=2). `make report` groups dots by f
 (`src/shipharness/ab/report.py`), so these runs appear among the F2 dots; each score export
 (`exports/scores/<run_id>.json`) carries its `variant`, which is how to separate them.
 
-## Questions for your own harness
+Pilot run 3 uses a fifth split that is not a dataset line: F2 canonical with `--session-budget 12,38`,
+an override of the task's budget for one A/B (DESIGN §10.4). Its score records carry `variant`
+`canonical`, so keep the A/B ids of such runs if you compare them with the dataset's dots.
 
-1. If your agent's work spans sessions, which repository facts would show that a later session redid
-   or broke earlier work? For a schema, heads and duplicate tables; for an API, maybe duplicate routes.
-2. Can you compute them from git and the build alone, without trusting the agent's own notes? The
-   referee here never reads `progress.md` or the handoff; it reads the build and the diffs.
+## Why it matters for your own repo
+
+If your agent's work spans sessions, the question "did a later session redo or break earlier work?"
+can be answered from the repository, without trusting the agent's notes:
+
+1. List the facts that would show it. For a schema: heads and duplicate tables. For an API: maybe
+   duplicate routes. For a library: a public function defined twice.
+2. Compute them from git and the build alone. The referee here never reads `progress.md` or the
+   handoff; it reads the build and the diffs.
+3. Keep your harness's own files out of the comparison, and test that with an arm that writes
+   nothing but those files. That test would have caught the pilot's bug before a run.

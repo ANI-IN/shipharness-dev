@@ -1,6 +1,6 @@
 # How the sources carry work across sessions
 
-Reading time: about 8 minutes.
+Reading time: about 9 minutes.
 
 Class time covers A2's initializer agent and A3's context reset. This piece puts five sources next to
 each other, so you can see which parts they agree on and which parts are one team's choice. Quotes
@@ -98,3 +98,20 @@ other structured formats" (F-a-77).
   migration heads), so it exists even if the agent writes nothing (course design, DESIGN §6.3).
 - The stop is produced by a session turn budget, the same for both arms. That mechanism is the
   course's; the reset it produces is A3's (RESEARCH G-5).
+
+## Why it matters for your own repo
+
+The table above is a menu, not one design. Two points from it decide most of what you build:
+
+- **Whether you need a reset at all depends on the model.** A3 dropped resets once the model stopped
+  needing them (F-a-69). In pilot run 2 the bare arm, with no state files, found session 1's
+  uncommitted migration with `git status` and carried on (run `r-20261016-181736-a05ddb`,
+  [concepts.md](../concepts.md) §1), which is what A6 describes for Claude models (F-a-76). Measure
+  your own agent across a stop before you add machinery.
+- **Git is part of the state.** A2, A5, and A6 all keep it next to their files (F-a-53, F-a-74,
+  F-a-77).
+  If your agent's sessions end before the work is done, make sure what it did reaches the working
+  tree and, at the end of a session, a commit, so the next session and your measurements can see it.
+
+Then pick the smallest set of files that answers "what happened, and what is next" for your
+tickets, and give each one an owner (agent or harness).

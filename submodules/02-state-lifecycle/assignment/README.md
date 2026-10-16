@@ -31,6 +31,13 @@ turns before the last step.
 The class's S2 layer (`shipharness.harness.state.layer.StateLayer`) is not enough. It never tells
 the next session which steps are done, so step 1 is redone in every session.
 
+The pilot showed the same gap from the other side. In pilot run 2 the class layer's harness arm on F2
+re-read 3 to 7 instruction documents and about 15 product files in every session, because nothing in
+its state said what was already known or done, and made 0 to 1 product patches in 50 build turns
+(VERIFICATION.md, M6 pilot run 2; the harness change that followed is change 9). A state layer that
+says exactly which steps are done, and which files are already written, saves the next session
+those turns.
+
 ## Background
 
 - A2 keeps the state of a long task in files and git: "the claude-progress.txt file alongside the
@@ -231,7 +238,7 @@ my-a2/
 
 ```
 make setup                      # once: uv sync and the images (the images are for the live step)
-make check-assignment-2         # see the starter fail
+make check-assignment-2         # see the starter fail: "Self-check: 2 of 28 checks pass.", make exits 2
 ```
 
 To keep the starter untouched, copy it and point the commands at the copy:
@@ -273,14 +280,29 @@ The visible feature's ticket (`Feature.ticket()` in `a2_scenario/feature.py`), i
 - S3 Index and tests: one migration that adds an index on comments.issue_id, and tests/visible/test_comments.py
 ```
 
-Self-check on the starter, scenario V1 (lines from a run of `make check-assignment-2` on the
-starter, shortened with `...`):
+Self-check on the starter, scenario V1 and the summary (captured on 2026-10-17 from
+`make check-assignment-2` on the starter; offline, so there is no run id; lines cut with `...`; your
+commit hashes will differ). The full output is in the reference solution's captured files, which the
+instructor keeps:
 
 ```
+$ make check-assignment-2
+uv run python submodules/02-state-lifecycle/assignment/check.py
+A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/assignment/starter
+...
   session 2 (6 turns, ended by turn_budget): 3 reads, write S1 migrations/versions/c1a2_comments.py [REDO: S1 was committed in session 1], ...
+...
   FAIL one_head: 4 heads: c1a2 (head) | c1a3 (head) | c1a4 (head)
+...
   FAIL no_duplicate_table: comments created by c1a1_comments.py, c1a2_comments.py, c1a3_comments.py, c1a4_comments.py
+...
+Self-check: 2 of 28 checks pass.
+...
+Fix the FAIL and HALF lines (the hints name the TODOs in a2_state), then run again.
+make: *** [Makefile:130: check-assignment-2] Error 1
 ```
+
+`check.py` exits 1 on any failing check; make reports that as `Error 1` and itself exits 2.
 
 Ledger lines that work with the test stand-in agent:
 

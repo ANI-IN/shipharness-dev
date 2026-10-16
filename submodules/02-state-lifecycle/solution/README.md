@@ -15,10 +15,13 @@ Reference solution and hidden grader for assignment A2 (brief: `../assignment/RE
 | `live/` | The captured live run of the reference solution (pending) and the command that records it |
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/check.py --impl submodules/02-state-lifecycle/solution
-uv run python submodules/02-state-lifecycle/solution/grader/grade.py --impl submodules/02-state-lifecycle/solution
+make check-assignment-2 A2_IMPL=submodules/02-state-lifecycle/solution
+make grade-assignment-2 SUBMISSION=submodules/02-state-lifecycle/solution
 uv run python -m pytest -q -p no:cacheprovider submodules/02-state-lifecycle
 ```
+
+The first two are what produced `captured/` (2026-10-17). Without make they run
+`assignment/check.py --impl <folder>` and `scripts/grade_assignment.py 2 <folder>`.
 
 Grading a learner's submission (the folder with `a2_state/` and `live/`, or a cloned repository
 with exactly one such folder):
