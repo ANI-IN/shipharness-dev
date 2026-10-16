@@ -12,6 +12,7 @@ or copy the folder and pass the copy as `A4_IMPL=<folder>` to the make targets.
 | `tests/` | two example tests, failing until you implement | A4-8, A4-9 |
 | `skill/` | empty: copy `skills/skill-template` here | see `skill/README.md` |
 | `portfolio/` | templates | every TODO line |
+| `live/` | empty: the files of your two live runs go here | see `live/README.md` |
 
 The starter imports and runs: `make check-assignment-4` executes every visible test, prints FAIL
 with the TODO each failure comes from, and exits 1. Start with `issue_param` and its tests.

@@ -16,7 +16,7 @@ A4 self-check for submodules/04-verification/assignment/starter
 [R8-interface]
   PASS test_check_is_registered_through_the_shipharness_registry
   FAIL test_result_has_probes_and_r8_findings_with_detail_keys: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
-  FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-of-...ey": "crashed", "baseline": false}], "duration_ms": 498, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
+  FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-of-...ey": "crashed", "baseline": false}], "duration_ms": 754, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
 
 [R8-no-false-positives]
   FAIL test_clean_build_reports_only_the_legacy_list: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
@@ -26,9 +26,15 @@ A4 self-check for submodules/04-verification/assignment/starter
   FAIL test_finds_a_deleted_issue_that_resolves_by_id: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
   FAIL test_finds_a_deleted_issue_in_the_project_issue_list: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
 
+[live-evidence]
+  FAIL test_live_testgen_run: AssertionError: live/testgen.txt: missing (the command line and its printed output) live/testgen-report.json: missing assert not ['live/testgen.txt: missing (the command line and its printed output)', 'live/testgen-report.json: missing']
+  FAIL test_live_testgen_report_shows_filter_6: AssertionError: live/testgen-report.json: missing assert not ['live/testgen-report.json: missing']
+  FAIL test_live_ab_command_and_cost: AssertionError: live/ab.txt: missing (the command line and its printed output) assert not ['live/ab.txt: missing (the command line and its printed output)']
+  FAIL test_live_ab_score_records: AssertionError: live/scores: expected 2 score records (bare and harness) from one A/B, found 0 assert not ['live/scores: expected 2 score records (bare and harness) from one A/B, found 0']
+
 [own-tests]
   FAIL test_at_least_eight_own_tests: AssertionError: tests/ has 2 test functions: ['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue'] assert 2 >= 8 + where 2 = len(['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue
-  FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.67s; FAILED submodules/04-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED submodules/04-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 +
+  FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.71s; FAILED submodules/04-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED submodules/04-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 +
 
 [portfolio-case-study]
   FAIL test_case_study_structure: AssertionError: portfolio/case-study.md: still contains TODO portfolio/case-study.md: 90 words; one page means 250 to 700 assert not ['portfolio/case-study.md: still contains TODO', 'portfolio/case-study.md: 90 words; one page means 250 to 700']
@@ -72,10 +78,10 @@ TODO markers left (32):
   portfolio/evidence-report.md:28: TODO: the `run_r8` result on `teamtrack/` (probes, findings), and what happens with `--baseline`.
   portfolio/evidence-report.md:32: TODO: what this evidence does not show.
   portfolio/langsmith.md:3: <!-- Keep the three sections below. Replace every TODO. -->
-  portfolio/langsmith.md:7: TODO: the comparison link (https://smith.langchain.com/...) printed by the command below.
-  portfolio/langsmith.md:11: TODO: the exact `shipharness experiments ...` command you ran, in a code block.
-  portfolio/langsmith.md:15: TODO: per-arm counts you read in the comparison view, and the cost line the command printed.
+  portfolio/langsmith.md:7: TODO: the `trace_url` of each arm (https://smith.langchain.com/...), copied from your two files in
+  portfolio/langsmith.md:12: TODO: the exact `shipharness ab ...` command you ran (the first line of `live/ab.txt`), in a code
+  portfolio/langsmith.md:17: TODO: per arm, the counts from your score records (hidden tests passed, mutants killed, existing
 
-self-check: FAILED (2/19 visible tests pass)
+self-check: FAILED (2/23 visible tests pass)
 Cost: $0.000000 (no model calls)
 [exit code 1]

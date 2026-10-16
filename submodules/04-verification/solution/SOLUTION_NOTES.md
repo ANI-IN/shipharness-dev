@@ -1,7 +1,7 @@
 # Solution notes: assignment A4
 
 Reference solution for R8 (soft delete respected on every endpoint), filter 6 (no duplicate test),
-the testgen and LangSmith steps, the portfolio, and the learner skill. Brief:
+the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the learner skill. Brief:
 `../assignment/README.md`. Source ids point to `RESEARCH.md` and `research/notes/`.
 
 ## Approach
@@ -51,6 +51,7 @@ the testgen and LangSmith steps, the portfolio, and the learner skill. Brief:
 - Filter 6 as number 6, outside `DEFAULT_FILTERS`. The pipeline takes a `filters` sequence, so the
   filter runs without changing `src/`. It reads source only, so it could run first (cheapest); it
   runs last in `apply_filter` because it is applied to testgen's kept tests after the fact.
+  `--update-report` appends its rows to the testgen report, so one file shows all six filters.
 - Parameters are never renamed. Two tests that differ only in fixture names use different fixtures
   and so test different setups.
 - Grader in process. Seeded violations are text patches on a fresh copy of `teamtrack/app`, loaded
@@ -134,22 +135,44 @@ fails 3 filter tests; renaming every name fails the global-helper test.
 
 Real output, produced on this branch with no model calls (paths relative to the repository root):
 
-- `captured/self-check-starter.txt`: the self-check on the starter (exit 1, 2 of 19 visible tests
+- `captured/self-check-starter.txt`: the self-check on the starter (exit 1, 2 of 23 visible tests
   pass, every failure names its TODO).
-- `captured/self-check-solution.txt`: the self-check on this folder (exit 0, 19 of 19).
-- `captured/grade-solution.txt`: the grader on this folder, Score: 100/100.
+- `captured/self-check-solution.txt`: the self-check on this folder (exit 0, 23 of 23; the four
+  live-evidence tests pass on the `live/` markers, see below).
+- `captured/grade-solution.txt`: the grader on this folder, Score: 100/100 (live-evidence passes on the `live/`
+  markers until the M8 batch 1 capture).
 - `captured/grade-starter.txt`: the grader on the starter, Score: 3/100.
 - `captured/r8-teamtrack.json`: `run_r8` on `teamtrack/` (15 probes, one finding at
   `GET /v1/issues`).
 
-## Model-run parts (pending)
+## Live step and model-run parts (pending)
 
-The testgen run and the LangSmith experiment need model calls; their output is pending in
-`portfolio/evidence-report.md`, `portfolio/langsmith.md`, and `portfolio/case-study.md`:
+The live step of the brief applies to this folder too. `live/README.md` lists the exact commands
+and holds the two markers where the captured files go; the integrator records them in M8 batch 1.
+Until then the live-evidence tests accept the markers for this folder only (`pending_only` in
+`assignment/visible_tests/a4_live.py`, the same rule as the portfolio markers). Once the files are
+there, they are validated like any submission's.
 
-[[PENDING: testgen run on TG-teamtrack-app-repositories-issues: kept and discarded tests with reasons, filter 6 output, and cost line | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen]]
+How the grader reads "filter 6 in the pipeline": `shipharness testgen` runs filters 1-5 and writes
+their rows to `testgen-report.json`; it has no option to add a filter (`src/shipharness/testgen/`).
+`apply_filter --update-report` runs the learner's `NoDuplicateTest` through `run_pipeline` over
+the tests testgen kept and appends one row with `"filter": 6` per kept test, after the testgen
+rows, plus a `filter6` object (`kept`, `existing_tests`). The grader requires that shape: at least
+one kept test, exactly one filter-6 row with a reason per kept test, rows after filters 1-5, and
+`filter6.kept` equal to the passed filter-6 rows. It cannot prove the rows came from the learner's
+filter without the target repository's existing tests, which a submission does not carry; the
+hidden filter tests grade the filter itself.
 
-[[PENDING: LangSmith comparison link and per-arm counts for the section-4 split at k=1 | source: M6 pilot | how: uv run shipharness experiments --dataset teamtrack-features-v1 --split section-4 --k 1 --batch a4-reference]]
+Why the F4 A/B replaces the section-4 experiment: by the caps, the A/B (two runs at $0.20 and two
+reviews at $0.04) costs at most $0.48 and the live step at most $0.68, inside the A4 plan of $1.75
+(DESIGN §11.5); the experiment's per-command cap alone ($2.50) was above that plan.
+
+Model-run output still pending in `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
+`portfolio/case-study.md`:
+
+[[PENDING: testgen run on TG-teamtrack-app-repositories-issues: kept and discarded tests with reasons, filter 6 output, and cost line | source: M8 batch 1 | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen]]
+
+[[PENDING: trace links and per-arm counts of the F4 A/B (k=1) | source: M8 batch 1 | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
 
 ## Make targets
 
@@ -161,5 +184,10 @@ check-assignment-4:
 	$(UV) run python submodules/04-verification/assignment/check.py --impl $(or $(A4_IMPL),submodules/04-verification/assignment/starter)
 
 grade-assignment-4:
-	$(UV) run python submodules/04-verification/solution/grader/grade.py --impl $(or $(A4_IMPL),submodules/04-verification/solution)
+	$(UV) run python submodules/04-verification/solution/grader/grade.py --impl $(or $(SUBMISSION),$(A4_IMPL),submodules/04-verification/solution)
 ```
+
+`SUBMISSION` is a folder: the learner's implementation folder (with `live/`), or a checkout of
+the learner's course repo, in which case `grade.py` grades
+`submodules/04-verification/assignment/starter/` inside it (`resolve_impl`). For a git URL the
+integrator's Makefile part clones it into a temporary folder and passes that folder.

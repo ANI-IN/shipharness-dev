@@ -1,29 +1,32 @@
-# LangSmith experiment: section-4 split, bare vs harness
+# LangSmith traces: F4 A/B, bare vs harness
 
-Reference version. The link and the numbers come from the instructor's run.
+Reference version. The links and the numbers come from the reference solution's live run, whose
+files go in `../live/`.
 
-## Experiment link
+## Trace links
 
-[[PENDING: LangSmith comparison URL for the bare and harness experiments (the `url` printed per arm by the command below) | source: M6 pilot | how: uv run shipharness experiments --dataset teamtrack-features-v1 --split section-4 --k 1 --batch a4-reference]]
+[[PENDING: trace_url of the bare and the harness arm, each with its run id (from live/scores/<run_id>.json) | source: M8 batch 1 | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
 
 ## Command
 
 ```
-uv run shipharness experiments --dataset teamtrack-features-v1 --split section-4 --k 1 \
-    --batch a4-reference
+uv run shipharness ab --section demo-4 --feature F4 --no-preview
 ```
 
-The command runs LangSmith `evaluate()` once per arm on the same 8 examples of the `section-4`
-split (`datasets/teamtrack-features-v1.jsonl`), with the referee as the evaluator, and writes the
-score records to `exports/` (DESIGN §12). It prints one line per arm with the experiment name,
-summary statistics, and URL, then the cost line.
+The command runs the F4 ticket (example `F4-canonical` in `datasets/teamtrack-features-v1.jsonl`,
+checkpoint `m1-s4-start`) in both arms: bare with no harness layer, harness with the demo-4 stack
+(instructions, state, scope, verify; `SECTION_STACKS` in `src/shipharness/ab/demo.py`). The
+referee judges both builds the same way and writes one score record per arm to
+`exports/scores/<run_id>.json`. `--no-preview` skips the board preview containers. The command
+prints the A/B id, one line per arm, and the cost line; each run is traced to the LangSmith
+project `shipharness-class-<date>` (agent root and referee, DESIGN §12).
 
 ## What the comparison shows
 
-[[PENDING: per-arm counts from the comparison view: runs whose hidden tests all pass, existing tests that keep passing, new R1-R7 violations, kept tests and mutant kills | source: M6 pilot | how: open the comparison link; or read exports/experiments/<name>.json]]
+[[PENDING: per-arm counts from the two score records: hidden tests passed, mutants killed, existing tests that keep passing, new R1-R7 violations, reviewer verdict | source: M8 batch 1 | how: read live/scores/<run_id>.json after uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
 
-[[PENDING: cost line printed by the experiments command | source: M6 pilot | how: last line of the command above]]
+[[PENDING: cost line printed by the ab command | source: M8 batch 1 | how: last line of live/ab.txt]]
 
-What to read in the comparison view: the referee's scores are evaluator feedback on each run, so
-the view lines up both arms per example. With k=1 each example has one run per arm; a difference
-on one example is a single observation, so the page reports counts, not rates.
+How to read it: F4's primary measure has two parts, hidden tests passed and mutants killed, each
+against its total (`primary_measure` in the F4 dataset line). One A/B at k=1 is one run per arm,
+so a difference between the arms is a single observation; the page reports counts, not rates.

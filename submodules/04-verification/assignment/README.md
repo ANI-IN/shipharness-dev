@@ -2,9 +2,10 @@
 
 Add house rule R8 (soft delete respected on every endpoint) to the shipharness check framework,
 add a sixth test filter to the filter pipeline, run filtered test generation on a repository you
-choose, and publish the evidence: an evidence report, a LangSmith experiment link, a one-page case
-study, and a skill of your own. Sized for 3 to 6 hours (brief §5.1). Source ids such as (A1,
-F-a-96) point to the research register in `RESEARCH.md` and `research/notes/`.
+choose and pass its kept tests through your filter 6, run one live A/B on feature F4, and publish
+the evidence: the live run files, an evidence report, a LangSmith page with the A/B's trace
+links, a one-page case study, and a skill of your own. Sized for 3 to 6 hours (brief §5.1). Source
+ids such as (A1, F-a-96) point to the research register in `RESEARCH.md` and `research/notes/`.
 
 ## Objective
 
@@ -49,6 +50,11 @@ generated tests that check the same thing in the same way are both kept. Nothing
   that idea; ignoring renamed local variables is a course addition.
 - Skills. A skill is a folder whose `SKILL.md` "must contain YAML frontmatter followed by Markdown
   content" (B1, F-b-01); `name` "Must match the parent directory name" (B1, F-b-02).
+- Live step (course design). Grading runs offline so that scores are reproducible: R8 and filter 6
+  are graded on seeded builds and candidate tests, never by calling a model. The live step adds
+  one run of each model-backed command with the course model (`gpt-6-luna`), the real runner and
+  sandbox, and the class cost caps. The grader validates the files those runs wrote; it does not
+  re-run them and needs no keys.
 
 Read the code you extend before you start:
 
@@ -74,6 +80,8 @@ Read the code you extend before you start:
 4. `tests/`: at least 8 tests of your own, written before the code they check.
 5. `skill/<your-skill>/`: one skill of your own, from `skills/skill-template`.
 6. `portfolio/`: `evidence-report.md`, `langsmith.md`, `case-study.md` from your own runs.
+7. `live/`: the files of your two live runs (testgen with filter 6, and the F4 A/B), in the layout
+   under "Live step" below.
 
 ## Concepts tested
 
@@ -87,8 +95,9 @@ Read the code you extend before you start:
 
 - Section S4 (verify gate, checks, filters, mutants) and the walkthrough anchors above.
 - `make setup` done; `make doctor` passes. Python 3.12 and uv.
-- For the testgen and experiment steps only: `OPENAI_API_KEY` and `LANGSMITH_API_KEY` in `.env`,
-  and Docker for `shipharness experiments` (both arms run in containers).
+- For the live step only: `OPENAI_API_KEY` and `LANGSMITH_API_KEY` in `.env`, and Docker for
+  `shipharness ab` (both arms and the referee run in containers). The checkpoint tags must be in
+  your clone (`git tag` lists `m1-s4-start`).
 
 ## Expected input and output
 
@@ -97,8 +106,9 @@ Read the code you extend before you start:
 | R8 | A build directory with TeamTrack's `app/` package; a `CheckContext` | A `CheckResult` named `r8_soft_delete` with R8 findings |
 | Filter 6 | A `CandidateTest` and a `FilterContext`; the existing tests at construction | A `FilterResult` with `filter=6`, `passed`, and a reason |
 | `run_r8` CLI | `--build`, `--checkpoint`, `--feature`, optional `--baseline` | The check runner's JSON on stdout; exit 0, 3, or 1 |
-| `apply_filter` CLI | A testgen output folder and the repo's existing tests | One line per kept test and a summary line |
-| Portfolio | Your testgen run, your experiment, your skill | Three Markdown files and one skill folder |
+| `apply_filter` CLI | A testgen output folder and the repo's existing tests | One line per kept test and a summary line; with `--update-report`, the filter-6 rows in `testgen-report.json` |
+| Live step | One `shipharness testgen` run, one `shipharness ab` run | `live/`: two transcripts, the testgen report, two score records |
+| Portfolio | Your live runs and your skill | Three Markdown files and one skill folder |
 
 ## Detailed requirements
 
@@ -144,13 +154,53 @@ Filter 6 (`NoDuplicateTest`):
    reason, a candidate whose file does not parse or has no such function. Keep anything else.
 4. Every result has `filter=6`, the candidate's `test_id`, and a non-empty reason.
 
+Live step (required; the files are validated, the runs are not repeated):
+
+Keep the evidence in `live/` inside your implementation folder:
+
+| File | What it holds |
+|---|---|
+| `live/testgen.txt` | A first line `$ <the exact testgen command>`, then everything the command printed |
+| `live/testgen-report.json` | `testgen-report.json` from the testgen `--out` folder, after `apply_filter ... --update-report` |
+| `live/ab.txt` | A first line `$ <the exact ab command>`, then everything the command printed |
+| `live/scores/<run_id>.json` | The two ScoreRecord files that A/B wrote to `exports/scores/` (bare and harness) |
+
+The grader checks, with no model call:
+
+1. testgen: the command is `shipharness testgen ... --out <dir>`; the output has one
+   `testgen <run_id>: <status>; kept N of M proposed tests` line whose run id, status, and N match
+   the report; one `Cost: $X (testgen, model gpt-6-luna)` line with X above 0 and at most
+   `MAX_RUN_COST_USD` ($0.20, `src/shipharness/config/settings.py`). The report has the keys
+   testgen writes, every row of `results` is a `FilterResult`, and `kept` follows from the rows
+   of filters 1-5.
+2. Filter 6 in the pipeline: testgen kept at least one test, and the report holds exactly one row
+   with `"filter": 6` (and a reason) per kept test, after all rows of filters 1-5, plus a
+   `filter6` object whose `kept` lists the tests those rows passed. `apply_filter
+   --update-report` writes exactly this; testgen itself runs only filters 1-5.
+3. A/B command and cost: the command is `shipharness ab --section demo-4 --feature F4
+   --no-preview` (`--k 1`, `--reviewer`, or `--no-reviewer` may be added; nothing else); the
+   output has one `A/B <ab_id> (F4, layers=[...])` line with the four demo-4 layers and one
+   `Cost:` line at most $2.50 (the per-command cap) that lists a `gpt-6-luna` cost and no model
+   other than `gpt-6-luna` and the reviewer's `gpt-5.6-luna`.
+4. A/B score records: exactly two files, each valid against `ScoreRecord`
+   (`src/shipharness/ab/score.py`) and named `<run_id>.json`; one bare arm (no layers) and one
+   harness arm (the demo-4 layers); both with the `ab_id` that `ab.txt` printed, `feature_id` F4,
+   variant `canonical`, checkpoint `m1-s4-start`, `checkpoint_sha` equal to the commit the
+   `m1-s4-start` tag names, `recorded` false, `sandboxed` true, `cost_usd` at most $0.20,
+   `review_cost_usd` at most $0.04 (`MAX_REVIEW_COST_USD`), and a status equal to the one
+   `ab.txt` printed for that arm. Their costs together are not more than the command's cost line.
+
+The live runs are not graded on their results: an arm that fails its primary measure still counts.
+Only missing, malformed, or inconsistent files lose the `live-evidence` points.
+
 Portfolio and skill (checked for presence and structure, not for run results):
 
 - `portfolio/evidence-report.md`: sections `## Target`, `## Commands`, `## Results` (with a
   Markdown table), `## Filter 6 on the kept tests`, `## R8 on TeamTrack`, `## Limits`; mentions
   `shipharness testgen` and `run_r8`.
-- `portfolio/langsmith.md`: sections `## Experiment link` (with a `https://smith.langchain.com/`
-  link), `## Command` (mentions `shipharness experiments`), `## What the comparison shows`.
+- `portfolio/langsmith.md`: sections `## Trace links` (with a `https://smith.langchain.com/`
+  link that is the `trace_url` or `referee_trace_url` of one of your two score records),
+  `## Command` (mentions `shipharness ab`), `## What the comparison shows`.
 - `portfolio/case-study.md`: sections `## Problem`, `## What I built`, `## Evidence`,
   `## What I learned`, `## Next steps`; 250 to 700 words.
 - No `TODO` and no `[[PENDING` marker left in any portfolio file.
@@ -189,37 +239,52 @@ Portfolio and skill (checked for presence and structure, not for run results):
    endpoint) and check that R8 reports each at the right endpoint and nothing else.
 5. Write failing tests for filter 6, then implement `normalized` and `NoDuplicateTest` (A4-5 to
    A4-7). Rerun the self-check until only the portfolio and skill checks fail.
-6. Run testgen on your own repository or a pinned target (model calls; see the budget):
+6. Live run 1, testgen (model calls; see the budget). Pick a pinned target or your own
+   repository, write the command as the first line of `live/testgen.txt`, then append what it
+   prints. With `IMPL` set to your implementation folder:
 
    ```
+   IMPL=submodules/04-verification/assignment/starter
+   mkdir -p $IMPL/live/scores
    uv run python scripts/fetch_testgen_libs.py      # once, for boltons or WTForms targets
-   uv run shipharness testgen --target TG-boltons-listutils --max-tests 10 \
-       --out .shipharness/a4/testgen
-   uv run shipharness testgen --repo <your repo> --module <pkg/module.py> \
-       --tests <tests/test_module.py> --max-tests 10 --out .shipharness/a4/testgen
+   CMD="uv run shipharness testgen --target TG-boltons-listutils --max-tests 10 --out .shipharness/a4/testgen"
+   echo "\$ $CMD" > $IMPL/live/testgen.txt
+   $CMD 2>&1 | tee -a $IMPL/live/testgen.txt
    ```
 
-   Without `--image` the generated tests run on your machine and the command prints an
-   UNSANDBOXED warning; with a prepared image add `--sandbox docker --image <image>`.
-7. Run filter 6 over the kept tests (no model call; `PYTHONPATH` as in step 3):
+   For your own repository use `--repo <your repo> --module <pkg/module.py> --tests
+   <tests/test_module.py>` in place of `--target`. Without `--image` the generated tests run on
+   your machine and the command prints an UNSANDBOXED warning; with a prepared image add
+   `--sandbox docker --image <image>`. If testgen keeps no test, filter 6 has nothing to show: run
+   it once more on another module, inside the budget.
+7. Run filter 6 over the kept tests and write its rows into the report (no model call;
+   `PYTHONPATH` as in step 3), then copy the report:
 
    ```
    uv run python -m a4_verification.apply_filter --repo <repo> --kept .shipharness/a4/testgen \
-       --existing <existing test file or folder>
+       --existing <existing test file or folder> --update-report
+   cp .shipharness/a4/testgen/testgen-report.json $IMPL/live/
    ```
 
-8. Run the LangSmith experiment (model calls and Docker; upload the datasets once with
-   `make datasets`, which makes no model calls):
+8. Live run 2, the F4 A/B (model calls and Docker): both arms on F4 at `m1-s4-start`, the harness
+   arm with the demo-4 layers, k=1. The A/B prints its id but not the run ids, so copy the two
+   score records by `ab_id`:
 
    ```
-   uv run shipharness experiments --dataset teamtrack-features-v1 --split section-4 --k 1 \
-       --batch a4-<your-handle>
+   CMD="uv run shipharness ab --section demo-4 --feature F4 --no-preview"
+   echo "\$ $CMD" > $IMPL/live/ab.txt
+   $CMD 2>&1 | tee -a $IMPL/live/ab.txt
+   AB=$(grep -o 'ab-[0-9]\{8\}-[0-9]\{6\}-[0-9a-f]\{6\}' $IMPL/live/ab.txt | head -1)
+   grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $IMPL/live/scores/
    ```
 
-9. Write the three portfolio files from the real output, create your skill from
-   `skills/skill-template`, and validate it with `uv run shipharness skills validate <folder>`.
-10. Run `make check-assignment-4` until it passes, then `make grade-assignment-4 A4_IMPL=<folder>`
-    if you have the grader.
+   Do not rerun to get a better result: the live step is graded on its files, not on which arm
+   passed.
+9. Write the three portfolio files from the real output (the LangSmith page links the
+   `trace_url` of your score records), create your skill from `skills/skill-template`, and
+   validate it with `uv run shipharness skills validate <folder>`.
+10. Run `make check-assignment-4` until it passes. It runs the live-evidence checks too, so a
+    malformed file shows up before you submit.
 
 ## Expected project structure
 
@@ -239,6 +304,7 @@ submodules/04-verification/assignment/
     tests/               your tests (two examples to start; TODO A4-8, A4-9)
     skill/               your skill folder goes here
     portfolio/           evidence-report.md, langsmith.md, case-study.md (templates)
+    live/                testgen.txt, testgen-report.json, ab.txt, scores/<run_id>.json
 ```
 
 ## Setup
@@ -248,8 +314,8 @@ make setup
 make doctor
 ```
 
-The self-check and R8 need no keys. The testgen and experiment steps need both keys in `.env`;
-the experiment also needs Docker and the uploaded datasets (`make datasets`).
+The self-check and R8 need no keys. The live step needs both keys in `.env`; the A/B also needs
+Docker (`make doctor` checks both).
 
 ## How to run
 
@@ -257,9 +323,12 @@ the experiment also needs Docker and the uploaded datasets (`make datasets`).
 |---|---|
 | Self-check | `make check-assignment-4` (or with `A4_IMPL=<folder>`) |
 | R8 on TeamTrack | `PYTHONPATH=<impl> uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` |
-| Filter 6 on testgen output | `PYTHONPATH=<impl> uv run python -m a4_verification.apply_filter --repo <repo> --kept <out> --existing <tests>` |
+| Filter 6 on testgen output | `PYTHONPATH=<impl> uv run python -m a4_verification.apply_filter --repo <repo> --kept <out> --existing <tests> --update-report` |
+| Live A/B | `uv run shipharness ab --section demo-4 --feature F4 --no-preview` |
 | Skill validation | `uv run shipharness skills validate <impl>/skill` |
-| Grader | `make grade-assignment-4 A4_IMPL=<impl>` |
+
+The instructor grades your implementation folder (with its `live/`) at review time; you submit
+that folder.
 
 Without make: `uv run python submodules/04-verification/assignment/check.py --impl <impl>`.
 
@@ -283,8 +352,8 @@ A4_IMPL=submodules/04-verification/assignment/starter \
 
 - On the starter, the self-check runs, prints FAIL lines that name the TODO each failure comes
   from, lists the TODO markers left, and exits 1.
-- When you are done, the self-check prints `self-check: PASSED (19/19 visible tests pass)` and
-  exits 0.
+- When you are done, the self-check prints `self-check: PASSED (23/23 visible tests pass)` and
+  exits 0. Four of those tests are the live-evidence checks; they fail until `live/` is filled.
 - R8 on TeamTrack reports exactly one counted finding, `GET /v1/issues` (`deleted_list`, severity
   `leak`); with that run as `--baseline` it exits 0.
 - Filter 6 discards a renamed, reformatted copy of an existing test and keeps a test with a
@@ -292,8 +361,8 @@ A4_IMPL=submodules/04-verification/assignment/starter \
 
 ## Example inputs and outputs
 
-R8 on TeamTrack with the reference solution (real output; the full JSON is in
-`../solution/captured/r8-teamtrack.json`): 15 probes, one finding:
+R8 on TeamTrack with the reference solution (real output, an excerpt of the JSON document): 15
+probes, one finding:
 
 ```
 "endpoint": "GET /v1/issues",
@@ -312,30 +381,32 @@ solution):
 filter 6 kept 1 of 3 kept tests (1 existing tests compared; 0 kept ids not found)
 ```
 
-The self-check on the starter and the grader on the reference solution are captured in
-`../solution/captured/`.
+With `--update-report` the same run adds three rows with `"filter": 6` to `results` in
+`testgen-report.json` and a `filter6` object, `{"kept": [...], "existing_tests": 1}`, which here
+lists `test_project_list_first_page_has_no_cursor`, and prints `report updated: <path>`.
 
 ## Grading criteria (100 points)
 
-`make grade-assignment-4` runs the visible tests and the hidden tests (hidden seeded violations on
-TeamTrack copies and hidden candidate tests) and splits each criterion's points evenly over its
-tests.
+The grader runs the visible tests and the hidden tests (hidden seeded violations on TeamTrack
+copies and hidden candidate tests) on your implementation folder and splits each criterion's
+points evenly over its tests. It makes no model calls and needs no keys.
 
 | Criterion | What earns the points | Points |
 |---|---|---|
 | R8-interface | Registered through shipharness; the shipharness runner, the `run_r8` CLI exit codes, and progress work | 5 |
-| R8-visible | Finds the visible seeded violations | 10 |
-| R8-hidden | Finds the hidden seeded violations | 20 |
+| R8-visible | Finds the visible seeded violations | 9 |
+| R8-hidden | Finds the hidden seeded violations | 17 |
 | R8-no-false-positives | Reports nothing that a correct build does not violate | 8 |
 | R8-baseline | Stable detail keys: baseline deltas and exemptions behave | 7 |
 | F6-interface | Follows the Filter protocol and runs inside `run_pipeline` | 4 |
 | F6-visible | Correct on the visible candidate tests | 6 |
-| F6-hidden | Correct on the hidden candidate tests | 15 |
+| F6-hidden | Correct on the hidden candidate tests | 13 |
 | own-tests | At least 8 tests of your own in `tests/`, all passing | 5 |
-| skill | One valid skill, renamed, placeholders replaced | 8 |
+| skill | One valid skill, renamed, placeholders replaced | 6 |
 | portfolio-evidence | Evidence report sections, commands, results table | 5 |
-| portfolio-langsmith | Experiment link and command | 3 |
-| portfolio-case-study | Case study sections, one page | 4 |
+| portfolio-langsmith | Trace link of your A/B and command | 2 |
+| portfolio-case-study | Case study sections, one page | 3 |
+| live-evidence | `live/` holds the testgen run with filter 6 in its report and the F4 A/B score records, valid and within the caps (four checks, 2.5 points each) | 10 |
 | **Total** | | **100** |
 
 ## Common mistakes
@@ -351,16 +422,27 @@ tests.
 - Comparing tests as text. Formatting and comments change the text, not the test.
 - Renaming fixture parameters in filter 6. `client` and `admin_client` are different fixtures.
 - Pasting estimated numbers into the portfolio. Only output you ran counts.
+- Running `apply_filter` without `--update-report`, or copying the report before running it. The
+  report then has no filter-6 rows.
+- Copying score records from another A/B, or a replay (`recorded` true). The grader matches the
+  records to the `ab_id` that `live/ab.txt` printed.
+- Editing a transcript. The run id, kept count, statuses, and costs are checked against the JSON
+  files.
 
 ## Cost and trace budget
 
 - R8, filter 6, the self-check, and the grader make no model calls.
 - `shipharness testgen` is one agent run, capped at `MAX_RUN_COST_USD` ($0.20, DESIGN §11.1); it
   traces one agent run to LangSmith.
-- `shipharness experiments --split section-4 --k 1` runs both arms on the 8 examples of the
-  `section-4` split: 16 runs, each capped at $0.20, the command capped at `MAX_BATCH_COST_USD`
-  ($2.50), with 2 traces per run (agent root and referee evaluator, DESIGN §12).
+- `shipharness ab --section demo-4 --feature F4 --no-preview` (k=1) is two agent runs, each capped
+  at `MAX_RUN_COST_USD` ($0.20), plus one reviewer call per arm, each capped at
+  `MAX_REVIEW_COST_USD` ($0.04) (`src/shipharness/config/settings.py`), with 2 traces per run
+  (agent root and referee, DESIGN §12). By the caps, the A/B costs at most $0.48 and the live step
+  at most $0.68.
 - DESIGN §11.5 plans A4 at no more than $1.75 and 120 LangSmith traces, inside the learner total of
-  $6 and 400 traces across the four assignments.
+  $6 and 400 traces across the four assignments. This single A/B replaces the earlier section-4
+  experiment (`shipharness experiments --split section-4 --k 1`: 16 runs at up to $0.20 each,
+  capped per command at $2.50), whose cap alone was above the A4 plan; with the A/B, A4 stays
+  within $1.75 by the caps.
 
-[[PENDING: measured cost of one testgen run and of the section-4 experiment (k=1), and whether A4 keeps all 8 section-4 examples within $1.75 | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10; uv run shipharness experiments --dataset teamtrack-features-v1 --split section-4 --k 1 --batch a4-reference]]
+[[PENDING: measured cost of one testgen run and of the F4 A/B (k=1), and the LangSmith trace count of the live step | source: M8 batch 1 | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; uv run shipharness ab --section demo-4 --feature F4 --no-preview]]

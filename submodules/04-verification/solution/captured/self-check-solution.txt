@@ -26,6 +26,12 @@ A4 self-check for submodules/04-verification/solution
   PASS test_finds_a_deleted_issue_that_resolves_by_id
   PASS test_finds_a_deleted_issue_in_the_project_issue_list
 
+[live-evidence]
+  PASS test_live_testgen_run
+  PASS test_live_testgen_report_shows_filter_6
+  PASS test_live_ab_command_and_cost
+  PASS test_live_ab_score_records
+
 [own-tests]
   PASS test_at_least_eight_own_tests
   PASS test_own_tests_pass
@@ -42,7 +48,7 @@ A4 self-check for submodules/04-verification/solution
 [skill]
   PASS test_own_skill_is_valid_and_not_the_template
 
-self-check: PASSED (19/19 visible tests pass)
-Next: make grade-assignment-4 A4_IMPL=<this folder> runs the hidden tests too.
+self-check: PASSED (23/23 visible tests pass)
+Next: submit this folder with its live/; the grader adds the hidden tests.
 Cost: $0.000000 (no model calls)
 [exit code 0]
