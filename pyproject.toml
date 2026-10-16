@@ -84,6 +84,7 @@ markers = [
     "live: needs OPENAI_API_KEY and LANGSMITH_API_KEY and calls external services",
     "docker: needs a working Docker or Podman runtime",
     "browser: needs a Playwright Chromium browser (uv run playwright install chromium)",
-    "slow: long-running validation (mutant kill checks)",
+    "slow: long-running validation (mutant kills, referee on references, full check runs); make test-all",
 ]
-addopts = "-m 'not live and not docker'"
+# A -m on the command line replaces this one: `-m slow`, or `make test-all` for everything.
+addopts = "-m 'not live and not docker and not slow'"

@@ -6,6 +6,14 @@ UV ?= uv
 RUNTIME ?= docker
 PORT ?= 8000
 CONSOLE_PORT ?= 8765
+# demo-N and final: LAYERS=-<layer> removes one layer from the section's stack (DESIGN §6.6).
+LAYERS ?=
+LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
+# final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
+FEATURES ?= F5,F6,F7
+# swap-N: the A/B (or one of its run ids) to swap-test. replay: the A/B or run id to replay.
+AB ?=
+RUN ?=
 
 .PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
 	test-docker demo-1 demo-2 demo-3 demo-4 swap-1 swap-2 swap-3 swap-4 final replay experiments \
@@ -13,8 +21,9 @@ CONSOLE_PORT ?= 8765
 	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4 slides
 
 help:
-	@echo "setup doctor up console datasets lint format lint-prose test test-live test-docker"
-	@echo "demo-N swap-N final replay experiments report pilot (later milestones)"
+	@echo "setup doctor up console datasets lint format lint-prose test test-all test-live test-docker"
+	@echo "demo-N [LAYERS=-<layer>]  swap-N AB=<id>  final [FEATURES=F5,F6]  replay RUN=<id>"
+	@echo "experiments report pilot (later milestones)"
 
 setup:
 	$(UV) sync --frozen
@@ -56,8 +65,13 @@ lint-prose:
 anchors:
 	$(UV) run python scripts/anchors.py list
 
+# Fast suite: pyproject addopts deselects slow, live, and docker tests.
 test:
 	$(UV) run pytest
+
+# Everything that needs no keys and no container runtime, including slow validations.
+test-all:
+	$(UV) run pytest -m "not live and not docker"
 
 test-live:
 	$(UV) run pytest -m live tests/live
@@ -65,9 +79,33 @@ test-live:
 test-docker:
 	$(UV) run pytest -m docker tests/unit/test_sandbox_docker.py
 
-# Targets delivered in later milestones (M4-M10) report when they become available.
-demo-1 demo-2 demo-3 demo-4 swap-1 swap-2 swap-3 swap-4 final replay:
-	@echo "! $@ is available after milestone M4 (A/B runner and console screens)"; exit 2
+# Section demos: section N's canonical task is feature FN, canonical variant (DESIGN §10.1).
+demo-1:
+	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT)
+
+demo-2:
+	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT)
+
+demo-3:
+	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT)
+
+demo-4:
+	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT)
+
+# Swap test on a recorded A/B. `shipharness ab --swap` takes an id; it has no "latest" lookup.
+swap-1 swap-2 swap-3 swap-4:
+	@if [ -z "$(AB)" ]; then echo "! $@ needs AB=<ab or run id> (see the A/B line of demo-N)"; exit 2; fi
+	$(UV) run shipharness ab --swap $(AB)
+
+# One A/B per feature; every feature runs, and the exit code is the last non-zero one.
+final:
+	rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
+	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) || rc=$$?; \
+	done; exit $$rc
+
+replay:
+	@if [ -z "$(RUN)" ]; then echo "! replay needs RUN=<ab or run id>"; exit 2; fi
+	$(UV) run shipharness replay $(RUN)
 
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2
