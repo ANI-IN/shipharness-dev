@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+import json
 from pathlib import Path
 from typing import Any
 
@@ -13,7 +14,9 @@ from shipharness.datasets.features_checks import (
     SPLIT_SIZES,
     check_features_file,
     check_features_line,
+    check_mutants_apply,
     checkpoint_names,
+    checkpoint_tree,
     collect_tests,
 )
 
@@ -174,6 +177,130 @@ def test_bare_primary_field_must_be_boolean(repo: Path) -> None:
 def test_allowed_paths_are_non_empty_relative_globs(repo: Path, paths: dict[str, Any]) -> None:
     errors = check_features_line(with_change("outputs.allowed_paths", paths), repo)
     assert any("allowed_paths" in e for e in errors)
+
+
+# -- referee mutants apply at the line's checkpoint (M5 fix pass, owner decision) ---------------
+
+SOURCE = "def f():\n    return 1\n"
+MUTANT = {
+    "id": "app.x-m1",
+    "target": "app.x",
+    "set": "referee",
+    "file": "app/x.py",
+    "line": 2,
+    "original": "    return 1",
+    "replacement": "    return 0",
+    "rationale": "wrong value",
+}
+PATCHES = {  # task -> patch against the base app/x.py
+    "t1": "@@ -1,2 +1,4 @@\n+import os\n+\n def f():\n     return 1\n",  # moves the line down
+    "t2": "@@ -1,2 +1,2 @@\n def f():\n-    return 1\n+    return 2\n",  # removes the original
+    "t3": "@@ -1,2 +1,6 @@\n def f():\n     return 1\n+\n+\n+def g():\n+    return 1\n",
+}
+
+
+@pytest.fixture
+def app_repo(tmp_path: Path) -> Path:
+    """A course repository with TeamTrack source: base app/x.py and checkpoints c-one..c-three."""
+    tt = tmp_path / "teamtrack"
+    (tt / "app").mkdir(parents=True)
+    (tt / "app" / "x.py").write_text(SOURCE, encoding="utf-8")
+    ref = tt / "reference"
+    toml = ['[checkpoints."c-base"]\ntasks = []\n']
+    for n, (task, hunk) in enumerate(PATCHES.items(), start=1):
+        (ref / task).mkdir(parents=True)
+        header = "diff --git a/app/x.py b/app/x.py\n--- a/app/x.py\n+++ b/app/x.py\n"
+        (ref / task / f"{task}.patch").write_text(header + hunk, encoding="utf-8")
+        toml.append(f'[checkpoints."c-{["one", "two", "three"][n - 1]}"]\ntasks = ["{task}"]\n')
+    (ref / "checkpoints.toml").write_text("\n".join(toml), encoding="utf-8")
+    (tt / "mutants" / "features").mkdir(parents=True)
+    (tt / "mutants" / "features" / "fx.jsonl").write_text(json.dumps(MUTANT) + "\n", "utf-8")
+    return tmp_path
+
+
+def test_referee_mutants_apply_by_text_at_the_checkpoint(app_repo: Path) -> None:
+    assert check_mutants_apply("features/fx", "c-base", app_repo) == []
+    assert check_mutants_apply("features/fx", "c-one", app_repo) == []  # line 2 is now line 4
+
+
+def test_a_mutant_whose_original_is_gone_at_the_checkpoint_is_reported(app_repo: Path) -> None:
+    errors = check_mutants_apply("features/fx", "c-two", app_repo)
+    assert len(errors) == 1
+    assert "app.x-m1" in errors[0] and "c-two" in errors[0] and "not found" in errors[0]
+
+
+def test_a_mutant_that_matches_several_lines_is_reported(app_repo: Path) -> None:
+    errors = check_mutants_apply("features/fx", "c-three", app_repo)
+    assert len(errors) == 1 and "matches 2 lines" in errors[0]
+
+
+def test_each_checkpoint_is_materialized_once(
+    app_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from shipharness.ab import checkpoints as cp
+
+    calls: list[str] = []
+    real = cp.materialize
+
+    def counting(repo: Path, name: str, dest: Path) -> Path:
+        calls.append(name)
+        return real(repo, name, dest)
+
+    monkeypatch.setattr(cp, "materialize", counting)
+    for _ in range(3):
+        check_mutants_apply("features/fx", "c-one", app_repo)
+        check_mutants_apply("features/fx", "c-base", app_repo)
+    assert sorted(calls) == ["c-base", "c-one"]
+
+
+def test_check_features_line_applies_the_mutants_when_the_source_is_there(app_repo: Path) -> None:
+    hidden = app_repo / "teamtrack" / "tests" / "hidden" / "f1"
+    hidden.mkdir(parents=True)
+    (hidden / "test_f1_fixture.py").write_text(
+        "def test_f1_one():\n    pass\n\n\ndef test_f1_two():\n    pass\n", encoding="utf-8"
+    )
+    line = with_change("inputs.checkpoint", "c-two")
+    line["outputs"]["mutant_set"] = "features/fx"
+    errors = check_features_line(line, app_repo)
+    assert any("app.x-m1" in e and "c-two" in e for e in errors), errors
+    line["inputs"]["checkpoint"] = "c-one"
+    assert check_features_line(line, app_repo) == []
+    # A repository without TeamTrack source (fixture manifests only) skips this check.
+    assert check_features_line(line, app_repo, apply_mutants=False) == []
+
+
+def test_unbuildable_checkpoint_is_reported(app_repo: Path) -> None:
+    (app_repo / "teamtrack" / "app" / "x.py").write_text("other\n", encoding="utf-8")
+    errors = check_mutants_apply("features/fx", "c-two", app_repo)
+    assert errors and "c-two" in errors[0] and "cannot be built" in errors[0]
+
+
+REAL = Path(__file__).resolve().parents[3]
+
+
+def test_f4_mutants_apply_at_m1_alt_b_where_their_line_numbers_moved() -> None:
+    from shipharness.ab.mutants import load_referee_mutants
+    from shipharness.filters.mutants import source_line
+
+    assert check_mutants_apply("features/f4", "m1-alt-b", REAL) == []
+    tree = checkpoint_tree(REAL, "m1-alt-b")
+    moved = [
+        m.id
+        for m in load_referee_mutants("features/f4", REAL)
+        if source_line((tree / m.file).read_text(encoding="utf-8"), m.line) != m.original
+    ]
+    assert "app.services.issues-m401" in moved  # found by its text, not its recorded line
+
+
+def test_every_manifest_pair_has_referee_mutants_that_apply() -> None:
+    from shipharness.ab import checkpoints as cp
+
+    problems = []
+    for task in cp.task_names(REAL):
+        manifest = cp.load_task(task, REAL)
+        for checkpoint in manifest.hidden:
+            problems += check_mutants_apply(manifest.mutant_set, checkpoint, REAL)
+    assert problems == []
 
 
 def line_for(group: str, n: int, splits: list[str]) -> dict[str, Any]:

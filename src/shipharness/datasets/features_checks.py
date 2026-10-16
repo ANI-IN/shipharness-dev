@@ -2,7 +2,8 @@
 
 `check_features_line(line, repo)` checks one line against the course repository: the checkpoint is
 defined in `teamtrack/reference/checkpoints.toml`, every hidden test id exists in its file, the
-mutant set resolves to a non-empty referee set, the primary measure parses against `ScoreRecord`
+mutant set resolves to a non-empty referee set whose every mutant applies at the line's checkpoint
+(its `original` matches exactly one line there), the primary measure parses against `ScoreRecord`
 (and is the measure registered for the feature, ruling R-5), and the allowed paths are non-empty
 relative globs. `check_features_file(lines)` checks the whole file: group counts, split sizes,
 unique example ids. Both return a list of messages; an empty list means the check passed.
@@ -11,6 +12,8 @@ unique example ids. Both return a list of messages; an empty list means the chec
 from __future__ import annotations
 
 import ast
+import hashlib
+import tempfile
 import tomllib
 import types
 import typing
@@ -188,6 +191,63 @@ def _check_mutants(mutant_set: str, repo: Path) -> list[str]:
     return []
 
 
+_TREES: dict[tuple[str, str, str], Path] = {}
+_TREES_ROOT: list[tempfile.TemporaryDirectory[str]] = []
+
+
+def _signature(repo: Path, name: str) -> str:
+    """Hash of what a checkpoint is built from (its definition and its reference patches), so a
+    cached tree is rebuilt when either changes."""
+    from shipharness.ab import checkpoints as cp
+
+    digest = hashlib.sha256((Path(repo) / CHECKPOINTS_FILE).read_bytes())
+    for task in cp.checkpoint(name, repo).tasks:
+        digest.update(cp.patch_for(task, name, repo).read_bytes())
+    return digest.hexdigest()
+
+
+def checkpoint_tree(repo: Path, name: str) -> Path:
+    """The checkpoint `name` built from `repo` (base TeamTrack plus its reference patches). Each
+    checkpoint is materialized once per process and cached in a temporary directory."""
+    from shipharness.ab import checkpoints as cp
+
+    key = (str(Path(repo).resolve()), name, _signature(repo, name))
+    if key not in _TREES:
+        if not _TREES_ROOT:
+            _TREES_ROOT.append(tempfile.TemporaryDirectory(prefix="shipharness-checkpoints-"))
+        dest = Path(_TREES_ROOT[0].name) / f"{len(_TREES)}-{name}"
+        cp.materialize(Path(repo), name, dest)
+        _TREES[key] = dest
+    return _TREES[key]
+
+
+def check_mutants_apply(mutant_set: str, checkpoint: str, repo: Path) -> list[str]:
+    """Every referee mutant of `mutant_set` applies at `checkpoint`: its `original` matches
+    exactly one line of its file there (mutants are located by text; the recorded line is a
+    hint). An unknown set is reported by `_check_mutants`, not here."""
+    from shipharness.ab.checkpoints import CheckpointError
+    from shipharness.ab.mutants import load_referee_mutants
+    from shipharness.filters.mutants import MutantError, check_against_source
+
+    try:
+        mutants = load_referee_mutants(mutant_set, Path(repo))
+    except (ValueError, MutantError):
+        return []
+    try:
+        tree = checkpoint_tree(Path(repo), checkpoint)
+    except (CheckpointError, OSError, KeyError, tomllib.TOMLDecodeError) as exc:
+        return [
+            f"outputs.mutant_set {mutant_set!r}: checkpoint {checkpoint!r} cannot be built ({exc})"
+        ]
+    errors: list[str] = []
+    for m in mutants:
+        try:
+            check_against_source(m, tree)
+        except MutantError as exc:
+            errors.append(f"outputs.mutant_set {mutant_set!r}: at {checkpoint}: {exc}")
+    return errors
+
+
 def _bad_glob(pattern: str) -> bool:
     return (
         not pattern.strip()
@@ -223,8 +283,14 @@ def _as_task(line: FeatureTask | BaseModel | dict[str, Any]) -> FeatureTask:
     return FeatureTask.model_validate(data)
 
 
-def check_features_line(line: FeatureTask | dict[str, Any], repo: Path) -> list[str]:
-    """Problems with one dataset line, checked against the course repository at `repo`."""
+def check_features_line(
+    line: FeatureTask | dict[str, Any], repo: Path, *, apply_mutants: bool | None = None
+) -> list[str]:
+    """Problems with one dataset line, checked against the course repository at `repo`.
+
+    `apply_mutants` re-validates every referee mutant at the line's checkpoint (built from the
+    reference patches, once per checkpoint). The default runs it when `repo` has the TeamTrack
+    source (`teamtrack/app`); repositories made of fixture manifests only have nothing to build."""
     try:
         task = _as_task(line)
     except ValidationError as exc:
@@ -238,8 +304,14 @@ def check_features_line(line: FeatureTask | dict[str, Any], repo: Path) -> list[
             )
     except (FileNotFoundError, tomllib.TOMLDecodeError) as exc:
         errors.append(f"inputs.checkpoint: cannot read {CHECKPOINTS_FILE.as_posix()} ({exc})")
+    checkpoint_ok = not errors
     errors += _check_hidden(task.outputs.hidden_test_ids, repo)
-    errors += _check_mutants(task.outputs.mutant_set, repo)
+    mutant_errors = _check_mutants(task.outputs.mutant_set, repo)
+    errors += mutant_errors
+    if apply_mutants is None:
+        apply_mutants = (Path(repo) / APP_DIR / "app").is_dir()
+    if apply_mutants and checkpoint_ok and not mutant_errors:
+        errors += check_mutants_apply(task.outputs.mutant_set, task.inputs.checkpoint, repo)
     errors += _check_primary(task.outputs.primary_measure, task.inputs.feature_id)
     errors += _check_paths(task.outputs.allowed_paths)
     example = task.metadata.get("example_id", task.inputs.feature_id)
