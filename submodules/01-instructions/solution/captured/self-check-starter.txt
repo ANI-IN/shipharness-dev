@@ -10,7 +10,7 @@ FAIL skill-frontmatter: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-sections: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-linked: need exactly one skill in .agents/skills/ (found: none)
 FAIL skill-cites: need exactly one skill in .agents/skills/ (found: none)
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.24s
+FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.45s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 FAIL report-sections: TODO markers are left in the report (sections needed: Setup, Results, Links, Cost and traces, Reading the result, Limits)
 FAIL report-command: Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
@@ -18,6 +18,11 @@ FAIL report-results: Results needs an R1 row and an R3 row, each with 'failing/r
 FAIL report-links: Links needs the two LangSmith experiment URLs (bare and harness)
 FAIL report-cost: 'Cost: $<x>' at most 2.50 and 'Traces: <n>' at most 150
 FAIL report-reading: Reading the result: at least 60 words that discuss R1 and R3; Limits: at least 20
+FAIL live-files: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
+FAIL live-command: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
+FAIL live-caps: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
+FAIL live-tree: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
+FAIL live-report: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
 FAIL todo: TODO markers left in: ab-report.md, checker/check_docs.py, instructions/AGENTS.md
-self-check: 0 of 19 checks pass
+self-check: 0 of 24 checks pass
 (exit 1)

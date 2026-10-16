@@ -13,24 +13,30 @@ B Rule coverage                           25.0/25
   no-unknown                   2.0/2
   no-rule-in-map               2.0/2
   no-new-facts                 3.0/3
-C Skill                                   15.0/15
-  skill-valid                  5.0/5
+C Skill                                   12.0/12
+  skill-valid                  4.0/4
   skill-frontmatter            2.0/2
-  skill-sections               3.0/3
+  skill-sections               2.0/2
   skill-linked                 2.0/2
-  skill-cites                  3.0/3
-D Docs checker                            30.0/30
+  skill-cites                  2.0/2
+D Docs checker                            26.0/26
   checker-tests                2.0/2
   checker-clean                2.0/2
   pristine-visible-tests       6.0/6
   reference-tree               6.0/6
-  hidden-cases                14.0/14
-E A/B report                               7.0/15
-  report-sections              3.0/3
-  report-command               2.0/3  Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
-  report-results               0.0/4  Results needs an R1 row and an R3 row, each with 'failing/runs' counts per arm (for example 3/24), runs equal to 'Runs per arm', and no percentages
-  report-links                 0.0/2  Links needs the two LangSmith experiment URLs (bare and harness)
+  hidden-cases                10.0/10
+E A/B report                               5.0/10
+  report-sections              2.0/2
+  report-command               1.0/2  Setup needs the exact command (--split section-1 --k 3 --layers instructions --batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'
+  report-results               0.0/2  Results needs an R1 row and an R3 row, each with 'failing/runs' counts per arm (for example 3/24), runs equal to 'Runs per arm', and no percentages
+  report-links                 0.0/1  Links needs the two LangSmith experiment URLs (bare and harness)
   report-cost                  0.0/1  'Cost: $<x>' at most 2.50 and 'Traces: <n>' at most 150
   report-reading               2.0/2
-Score: 92.0/100
+F Live run evidence                        0.0/12
+  live-files                   0.0/3  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-command                 0.0/3  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-caps                    0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-tree                    0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+  live-report                  0.0/2  live/ holds a pending marker, not a captured run; collect it with live_evidence.py (README, task 6)
+Score: 83.0/100
 (exit 0)

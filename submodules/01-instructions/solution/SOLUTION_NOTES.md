@@ -37,8 +37,10 @@ the sources.
    alternate checkpoints, and the trap variant; `datasets/teamtrack-features-v1.jsonl`), and the
    measures are R1 and R3. Its description is the only part loaded up front (B1, F-b-05); the steps
    and `references/tests.md` load when the skill is used.
-6. **The A/B** is the command in the brief with `--batch a1-reference`. It has not been run; the
-   report (`work/ab-report.md`) carries pending markers.
+6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and it
+   has not been captured yet: the report (`work/ab-report.md`) carries pending markers, and
+   `work/live/README.md` holds the exact commands and the pending marker where the captured files
+   go.
 
 ## Design choices
 
@@ -73,7 +75,27 @@ the sources.
 - **Report graded by structure.** The brief forbids re-running models in grading. The structure
   checks enforce what DESIGN §8.3 asks of every A/B: counts, not percentages, one primary measure
   (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` exists only so the reference can
-  reach 100 before its A/B runs; learners are graded without it.
+  reach 100 before its live run is captured; learners are graded without it.
+- **The A/B is the required live step** (course design, owner decision). The learner submits what
+  the run wrote: the experiment exports, the ScoreRecord of every run (`exports/scores/`), the
+  harness arm's run logs, and the command with its output. `assignment/live_evidence.py` collects
+  them into `live/` and holds the checks, so the self-check and the grader (criterion F, 12 points)
+  apply the same rules. The checks validate files only: the ScoreRecord schema with every field
+  present, events against the event models, run ids and tasks against the command and the
+  `section-1` split of `datasets/teamtrack-features-v1.jsonl`, `gpt-6-luna` (export metadata, the
+  run logs' `run_start` and `cost` events, the cost line), `recorded` false, `sandboxed` true, and
+  the caps of CONTRACTS §1. Missing or malformed evidence zeroes all of F.
+- **Proof that the learner's tree was used.** `ScoreRecord` names the layers, not the tree, so the
+  check reads the run log instead: `InstructionsLayer.prepare_workspace` writes one
+  `harness_decision` note per harness run, "placed N instruction files", whose `paths` are the files
+  it copied from `teamtrack/harness/instructions/`. Every harness log must list exactly the files of
+  the submitted `instructions/` tree. The course's own tree (one skill, `add-endpoint`) fails this.
+- **The report checked against the evidence.** The report's command, runs per arm, R1 and R3 counts,
+  and links must equal what the score records and exports say, so the numbers can no longer be typed
+  by hand without losing points (criterion F, `live-report`).
+- **Points for F** come from criteria whose weight the live evidence now covers or that had slack:
+  E A/B report 15 to 10 (its counts are now cross-checked in F), D hidden cases 14 to 10, C Skill 15
+  to 12. The totals stay at 100.
 - **`ab_summary.py` reads only `exports/`**, as `make report` does (DESIGN §12), so the numbers in a
   report come from the score records and never from memory.
 
@@ -101,8 +123,14 @@ the sources.
   is not caught. Checking commands would need running them.
 - The fixed stopword list makes overlap values identical across implementations but is English-only
   and small.
-- Grading the report by structure cannot tell a real result from invented numbers. The report must
-  name the experiment URLs and the tree commit, which an instructor can open.
+- Grading from files cannot prove that the files came from a real run: a learner could edit JSON by
+  hand. The checks make that much more work than running the A/B (48 consistent records, 24 run
+  logs, checkpoint SHAs that match the tags), and the experiment URLs in the exports can be opened
+  in LangSmith by the instructor.
+- The tree check compares file lists, not file contents, because the placement note lists paths
+  only. An edit inside a document after the run is not detected; adding or removing a document is.
+- R-L2 asks for all 24 runs per arm. If `MAX_BATCH_COST_USD` stops the command early, the
+  learner keeps the shorter batch (dropping runs is forbidden) and loses part of `live-command`.
 
 ## Known limits
 
@@ -112,7 +140,8 @@ the sources.
   `[text][label]` with no definition is not reported.
 - The hidden-case outcome lists failing case names in the grader output, which hints at the area of
   a bug without showing the fixture.
-- The reference A/B has not been run. Results, cost, time, and trace counts:
+- The reference A/B has not been run. Results, cost, time, and trace counts (the captured files go
+  in `work/live/`, see the marker in `work/live/README.md`):
 
 [[PENDING: R1 and R3 runs-failing counts per arm for the reference tree on section-1, k=3 | source: M8 batch 1 | how: uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-reference]]
 
@@ -130,8 +159,10 @@ Real output of the commands below, captured on 2026-10-16 in the M7 worktree, is
 | `captured/grade-solution.txt` | `uv run python submodules/01-instructions/solution/grader/grade.py --work submodules/01-instructions/solution/work --allow-pending` |
 | `captured/grade-solution-no-pending.txt` | the same without `--allow-pending` |
 | `captured/checker-solution.txt` | the reference checker on the reference tree |
-| `captured/tests.txt` | the grader tests and the checker tests |
+| `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests |
 
-Summary: the self-check passes 0 of 19 checks on the starter and 19 of 19 on the solution; the
-grader gives the starter 1.8/100, the solution 100.0/100 with `--allow-pending`, and 92.0/100
-without it.
+Summary: the self-check passes 0 of 24 checks on the starter and 24 of 24 on the solution; the
+grader gives the starter 1.8/100, the solution 100.0/100 with `--allow-pending`, and 83.0/100
+without it (no live evidence yet). The grader tests also grade a SYNTHETIC submission (the
+reference work folder plus invented live evidence from `grader/tests/synthetic_live.py`), which
+scores 100 without `--allow-pending`; that is a test fixture, not a run.
