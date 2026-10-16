@@ -1,9 +1,11 @@
 # live
 
 Live evidence of the reference solution, in the layout every submission uses (brief:
-`../../assignment/README.md`, "Live step"). The captured files replace the two markers below. Until
-then the grader accepts the markers for this folder only; for any other folder a missing file
-fails the `live-evidence` criterion.
+`../../assignment/README.md`, "Live step"). The captured files replace the marker below. Until
+then the grader accepts the marker for this folder only (`pending_only` in
+`assignment/visible_tests/a4_live.py`); for any other folder a missing file fails the
+`live-evidence` criterion. So the reference solution's 10 live-evidence points are not yet earned
+on real evidence. The integrator records the run and then removes that special case.
 
 | File | What goes in it |
 |---|---|
@@ -32,9 +34,7 @@ grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $L/scores/
 uv run python submodules/04-verification/solution/grader/grade.py
 ```
 
-Then remove both markers, fill the `[[PENDING]]` sections of `../portfolio/` from these files, and
+Then remove the marker, fill the `[[PENDING]]` sections of `../portfolio/` from these files, and
 recapture `../captured/grade-solution.txt`.
 
-[[PENDING: captured live run of the reference solution | source: M8 batch 1 | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; then apply_filter --update-report as above; files to live/testgen.txt and live/testgen-report.json]]
-
-[[PENDING: captured live run of the reference solution | source: M8 batch 1 | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview; files to live/ab.txt and live/scores/<run_id>.json]]
+[[PENDING: captured live run of the reference solution (testgen with filter 6, then the F4 A/B) | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; apply_filter --update-report as above; uv run shipharness ab --section demo-4 --feature F4 --no-preview; files to live/testgen.txt, live/testgen-report.json, live/ab.txt, live/scores/<run_id>.json]]

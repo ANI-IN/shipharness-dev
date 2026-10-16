@@ -26,6 +26,12 @@ the claim. In the harness arm the verify gate runs before "done" is accepted, th
 decide which tests the agent ships, and the referee judges both arms on two counts neither arm can
 see: hidden tests passed (of 69) and referee-set mutants killed by the shipped tests (of 4).
 
+This runbook is written for the canonical F4 task, which pilot run 3 also uses (DESIGN §10.4, the
+pre-registered run 3 table: `F4-canonical`, no lever, the harness turn-cost change applies). The
+class task follows the pilot decision recorded in VERIFICATION.md after run 3:
+
+[[PENDING: final F4 task for the class (canonical or another variant) after pilot run 3 | source: M6 pilot | how: owner decision after scripts/pilot.py run 3; VERIFICATION.md, M6 pilot]]
+
 ## 2. Commands
 
 Run everything inside WSL2 from the repository root (`~/shipharness`).
@@ -47,15 +53,22 @@ make demo-4 LAYERS=-verify      # layer switch: harness arm without the verify l
 make replay RUN=<ab or run id>  # fallback only: replays a recorded A/B, referee runs live
 ```
 
-What each one runs (`Makefile`):
+What each one runs, as `make -n <target>` prints it (run on 2026-10-17; `make -n` only prints the
+commands, it starts nothing):
 
 | Target | Command |
 |---|---|
-| `make demo-4` | `uv run shipharness ab --section demo-4 --feature F4` |
-| `make final FEATURES=<ids>` | `uv run shipharness ab --section final --feature <id>` for each id, one after another |
-| `make swap-4` | `uv run shipharness ab --swap latest --section demo-4` (`AB=<id>` picks another A/B) |
-| `make demo-4 LAYERS=-verify` | `uv run shipharness ab --section demo-4 --feature F4 --layers=-verify` (harness arm: instructions, state, scope) |
+| `make demo-4` | `uv run shipharness ab --section demo-4 --feature F4 --purpose class` |
+| `make final FEATURES=<ids>` | `uv run shipharness ab --section final --feature <id> --purpose class` for each id, one after another |
+| `make swap-4` | `uv run shipharness ab --swap latest --section demo-4 --purpose class` (`AB=<id>` replaces `latest`) |
+| `make demo-4 LAYERS=-verify` | `uv run shipharness ab --section demo-4 --feature F4 --layers=-verify --purpose class` (harness arm: instructions, state, scope) |
 | `make replay RUN=<id>` | `uv run shipharness replay <id>` |
+| `make console` | `uv run shipharness console --port 8765` |
+
+None of these were run for this runbook: they call OpenAI or start containers (`make doctor` also
+calls OpenAI to check the key, `client.models.list()` in `src/shipharness/doctor.py`). The integrator runs
+them live (pilot run 3 and the console check); the captured output in section 6 comes from pilot
+run 2.
 
 `make demo-4` prints `A/B <ab_id> (F4, layers=[...])` when it finishes. At the launch the id is not
 printed yet, so pick the newest run on `http://localhost:8765/` (reload the list); after the run,
@@ -94,10 +107,11 @@ demo block on the running A/B and run the swap test on the recorded fallback
 (`make swap-4 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
 are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
 
-Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per arm
-(`src/shipharness/console/templates/screens/live.html`). The launch is the moment to show the first
-turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
-screen `5`.
+While a run is live, screen `1` keeps only the last 8 turn rows and the last 3 harness decisions
+per arm; once the run has finished, it lists every turn row and every harness decision in
+scrollable lists (`src/shipharness/console/templates/screens/live.html`; VERIFICATION.md, "Other
+changes since run 2"). The launch is the moment to show the first turns live; in the demo block,
+scroll the finished arm's lists, or open the LangSmith trace linked on screen `5`.
 
 Launch (section minutes 4-6) and demo block (section minutes 30-45):
 
@@ -105,7 +119,7 @@ Launch (section minutes 4-6) and demo block (section minutes 30-45):
 |---|---|---|---|
 | Launch | `1` | Live Console | Both arms start; bare arm: "No gate (verify layer off)." The harness arm's gate pills appear only after its first `finish(done)`, while the concepts are on screen |
 | Launch | — | — | Glance at the easy control task, C4 "Store issue titles without surrounding whitespace" (`teamtrack/docs/features/c4.md`); then the concept slides |
-| Demo block | `1` | Live Console | Harness arm: the last gate's pills ✓/✗ and, after a failed gate, its feedback in the harness decisions (the last 3); bare arm: "No gate (verify layer off)." |
+| Demo block | `1` | Live Console | Harness arm: the last gate's pills ✓/✗ and, after a failed gate, its feedback in the harness decisions (full list once the run has finished); if no pills appear, the agent never claimed done (section 5); bare arm: "No gate (verify layer off)." |
 | Demo block | `2` | Boards | The "Two-tab edit conflict" panel: ✗ lost update or ✓ conflict detected, per arm |
 | Demo block | `3` | Evidence | Verification panel: referee counters, test filter table (1-5) with discard reasons, coverage line, mutant matrix |
 | Demo block | — | Terminal B | The A/B and reviewer verdicts (one line per arm) and the session figure from the `Cost:` line |
@@ -124,17 +138,26 @@ Code walkthrough (about 10 minutes, while the A/B runs; `uv run python scripts/a
 
 ## 4. Poll question and answer pattern
 
-Ask before `make demo-4`; the final feature poll follows it (`instructor/poll-questions.md`):
+Ask before `make demo-4`; the final feature poll follows it. The question, from
+[poll-questions.md](../../../instructor/poll-questions.md) (S4, slide 49):
 
-> Both arms will probably say "done". F4's `If-Match` header is optional, so every existing test
-> passes even if no concurrency check was built. The referee holds four mutants the agents never
-> see; one makes writes stop moving the version (`version += 0`), which brings back lost updates.
-> How many of the four will each arm's shipped tests kill?
+> Building F4 (ETag, If-Match, issue history), both arms' visible tests pass at the end. The referee
+> then runs 69 hidden tests (VERIFICATION.md, M5 counts) and 4 referee-set mutants
+> (`teamtrack/mutants/features/f4.jsonl`) against the tests each arm shipped. Which arm passes more
+> hidden tests and kills more mutants?
 >
-> A. Both arms kill all four.
-> B. The harness arm kills more than the bare arm.
-> C. About the same for both arms.
-> D. Neither arm kills the lost-update mutant.
+> A. Harness arm on both counts
+> B. Harness arm on hidden tests only
+> C. Harness arm on mutants only
+> D. No clear difference
+
+Hint for the room after the vote: one referee mutant makes writes stop moving the version
+(`issue.version += 1` becomes `+= 0`), which brings back lost updates. A shipped test catches it
+only if it checks that a write moves the ETag, or that a save with the old version gets 412.
+
+What pilot run 2 showed (VERIFICATION.md, M6 pilot run 2): none of A to C held in any of the three
+runs. The bare arm killed 3, 4, 3 mutants against the harness arm's 0, 0, 2, and passed 69, 66, 69
+hidden tests against 69, 61, 69. Run 3 has the turn-cost change for the harness arm (section 5a).
 
 Answer pattern from the experiments:
 
@@ -142,8 +165,9 @@ Answer pattern from the experiments:
 
 ## 5. What to watch
 
-The gate runs while the concepts are on screen. In the demo block screen 1 shows the last gate and
-the last 3 harness decisions; earlier gates are in the LangSmith trace linked on screen 5.
+The gate runs while the concepts are on screen. In the demo block the run has finished, so screen
+1 shows the last gate's pills and the full list of harness decisions, including every gate's
+feedback; the LangSmith trace linked on screen 5 has the same turns.
 
 Screen 1, Live Console:
 
@@ -197,9 +221,79 @@ Cost: $<this command> (this command: <model> $<usd>, ...; session $<spent> of $2
 `make swap-4` prints `Swap test on <ab_id>: judged measures identical` and exits 0; any difference
 is listed field by field and the exit code is 1 (`src/shipharness/ab/commands.py`).
 
+If the harness arm never calls `finish(claim="done")`, no gate pills appear at all. That is what
+happened in all three F4 runs of pilot run 2: every arm used its 40 build turns and its claim was
+`none` (VERIFICATION.md: "no arm claimed done, so no gate ran"). Say so; the referee still judges
+the shipped diff.
+
+## 5a. What the harness arm does differently, and why
+
+By design (DESIGN §6.6; concepts section 3), the harness arm differs from the bare arm in four
+places on F4. The bare arm has none of them:
+
+| Where | Harness arm | Why (concepts) |
+|---|---|---|
+| Start | 31 instruction files placed (map, docs, skills), the state files written, `feature_list.json` with F4 at `passes: false`, the gate baseline recorded (harness decisions at the start of every pilot run) | The map points to the rules both arms can read in `docs/HANDBOOK.md`; only the harness sets `passes` (course design, G-6) |
+| `finish(claim="done")` in the build phase | The verify gate runs visible tests, existing tests, R1-R7, the board check, and clean state in the arm's container; a failure goes back as the `finish` result | The agent does not judge its own work (A3, F-a-110) |
+| Test phase | Each proposed test goes through the five filters; only kept tests ship | Filters 1-3 from B11 and B12; 4 and 5 are course filters (G-7) |
+| Every session start (after change 9) | The handoff's agent notes come before any document; a test-phase session starts with "write the tests for the feature first" (`TEST_PHASE_FIRST` in `src/shipharness/harness/state/lifecycle.py`) | Turns go to the ticket, not to re-reading (VERIFICATION.md, change 9) |
+
+What it did in pilot run 2, from the logs (VERIFICATION.md, M6 pilot run 2): it did not get ahead.
+Every session repeated the getting-up-to-speed steps, re-read 3 to 7 instruction documents and
+about 15 product files, and updated progress.md and the exec plan mid-session. It shipped 0, 0, and
+3 tests, against the bare arm's 30, 33, and 8 (score records), so its shipped tests killed 0, 0,
+and 2 referee mutants. The gate never ran, because no arm claimed done. The fix for run 3 is
+change 9 above, a harness change for the harness arm only. The two referee changes since run 2
+(judge each arm when it finishes; run the unmutated-pass step for all shipped tests in one batch)
+are measurement changes with no outcome change. The batch step gave the same pass or fail outcome
+as one-test-at-a-time on all 181 shipped tests of run 2 (VERIFICATION.md, equivalence check for
+change 11).
+
+[[PENDING: what the harness arm did differently in pilot run 3 on F4 (tests shipped in the test phase, gate runs, filter discards) | source: M6 pilot | how: scripts/pilot.py run 3; .shipharness/runs/<ab id>/events.jsonl and VERIFICATION.md]]
+
 ## 6. Captured output and screenshots
 
-Each item below is labelled "captured on <date>, run <id>; your output will differ" once filled.
+Each item below is labelled "captured on <date>, run <id>; your output will differ". The excerpts
+are lines of `events.jsonl` from pilot run 2, cut to their key fields ("..." marks a cut). Pilot A/Bs
+run through `scripts/pilot.py` with `--no-preview`, so they have no terminal transcript of `make
+demo-4` and no board screenshots; those stay PENDING until run 3 and the console check.
+
+The harness arm's start, the same in every run (captured on 2026-10-16, run
+ab-20261016-185422-8a8c2a; your output will differ):
+
+```text
+{... "arm":"harness","seq":83, ... "type":"harness_decision","data":{"kind":"note","layer":"instructions","message":"placed 31 instruction files (AGENTS.md map, docs, skills)", ...
+{... "arm":"harness","seq":85, ... "type":"harness_decision","data":{"kind":"note","layer":"scope","message":"feature_list.json written with F4 (passes: false)", ...
+{... "arm":"harness","seq":86, ... "type":"harness_decision","data":{"kind":"note","layer":"verify","message":"gate baseline recorded", ...
+{... "arm":"harness","seq":134, ... "type":"harness_decision","data":{"kind":"note","layer":"instructions","message":"agent read ARCHITECTURE.md", ...
+```
+
+The harness arm's test phase in run 3: one proposed test, discarded at filter 2 (captured on
+2026-10-16, run ab-20261016-191626-6100f6; your output will differ):
+
+```text
+{... "arm":"harness","seq":435, ... "type":"test_filter_result","data":{"test_id":"tests/visible/test_issue_history_etag.py::test_issue_history_is_oldest_first_and_tenant_scoped","filter":1,"passed":true,"reason":"collected 1 test"}, ...
+{... "arm":"harness","seq":436, ... "type":"test_filter_result","data":{"test_id":"tests/visible/test_issue_history_etag.py::test_issue_history_is_oldest_first_and_tenant_scoped","filter":2,"passed":false,"reason":"failed on run 1 of 5: assert None is not None"}, ...
+{... "arm":"harness","seq":437, ... "type":"harness_decision","data":{"kind":"note","layer":"verify","message":"test filters: kept 0, discarded 1", ...
+```
+
+Referee mutants and verdicts in run 1: the lost-update mutant survived in both arms (captured on
+2026-10-16, run ab-20261016-182828-c81fc0; your output will differ):
+
+```text
+{... "arm":"harness","seq":399, ... "type":"mutant_result","data":{"mutant_id":"app.services.issues-m401","set":"referee","outcome":"survived","killed_by":null}, ...
+{... "arm":"harness","seq":404, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 0/4, R1 new 0"} ...
+{... "arm":"bare","seq":431, ... "type":"mutant_result","data":{"mutant_id":"app.services.issues-m401","set":"referee","outcome":"survived","killed_by":null}, ...
+{... "arm":"bare","seq":436, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 3/4, R1 new 0"} ...
+```
+
+One blinded-reviewer finding on the harness arm of run 1, which names the same weakness as the
+surviving mutant (captured on 2026-10-16, run ab-20261016-182828-c81fc0, `reviewer_output`; your
+output will differ):
+
+```text
+{... "arm":"harness","seq":403, ... "type":"reviewer_output","data":{"findings":[{"file":"app/services/issues.py","line":100,"severity":"blocker","criterion":"Stop lost updates and return a new ETag for every successful write","comment":"Writes without If-Match do not increment issue.version. An unconditional edit can therefore leave the same ETag in place, allowing a later conditional edit based on the old version to overwrite it."}, ...
+```
 
 [[PENDING: terminal output of make demo-4 (A/B line, both record lines, cost line) | source: M6 pilot | how: make demo-4]]
 
@@ -218,6 +312,29 @@ Each item below is labelled "captured on <date>, run <id>; your output will diff
 [[PENDING: terminal output and screen 1 of make demo-4 LAYERS=-verify | source: M6 pilot | how: make demo-4 LAYERS=-verify]]
 
 ## 7. Experiment results for this section
+
+### Pilot run 2 (2026-10-16, F4 canonical, k=3)
+
+One row per arm run, copied from the score records in `exports/scores/<run_id>.json` (captured on
+2026-10-16; your output will differ). The section summary is in VERIFICATION.md, M6 pilot run 2.
+
+| A/B | Arm | Run id | Status | Hidden of 69 | Referee mutants of 4 | Tests shipped | Existing tests | Reviewer |
+|---|---|---|---|---|---|---|---|---|
+| ab-20261016-182828-c81fc0 | bare | r-20261016-182828-1daced | ABORTED: timeout | 69 | 3 | 30 | 190/190 | reject |
+| ab-20261016-182828-c81fc0 | harness | r-20261016-182828-7d66af | ABORTED: timeout | 69 | 0 | 0 | 190/190 | reject |
+| ab-20261016-185422-8a8c2a | bare | r-20261016-185422-ce2096 | completed | 66 | 4 | 33 | 190/190 | reject |
+| ab-20261016-185422-8a8c2a | harness | r-20261016-185422-618828 | completed | 61 | 0 | 0 | 190/190 | reject |
+| ab-20261016-191626-6100f6 | bare | r-20261016-191626-e55f2f | completed | 69 | 3 | 8 | 190/190 | reject |
+| ab-20261016-191626-6100f6 | harness | r-20261016-191626-7aebe4 | ABORTED: timeout | 69 | 2 | 3 | 190/190 | reject |
+
+In all six records the claim is `none`, `passed_primary` is false, the new R1-R7 violation counts
+are 0, `board_ok` is true, `flaky_tests` is 0, and `reviewer_agrees` is true. Every arm passes all
+hidden tests in at least one run, so the hidden-test count alone does not separate the arms here;
+the mutant count does, in the bare arm's favour.
+
+[[PENDING: F4 dots of pilot run 3 (hidden of 69, referee mutants of 4, per run, bare vs harness) with run ids | source: M6 pilot | how: scripts/pilot.py run 3; exports/scores/<run_id>.json; VERIFICATION.md]]
+
+### Batch 1
 
 Batch 1 runs F4 canonical, two arms, k=10 (DESIGN §10.4). Each run is a dot for each co-primary
 count.
@@ -238,9 +355,27 @@ S4 reviews (DESIGN §11.3). The design target for a demo is at most 6 minutes (D
 The final A/B running beside demo-4 has its own caps ($0.25 per arm, $0.04 per review); the run
 sheet's S4 cost note explains how the two commands share the session cap.
 
-[[PENDING: measured wall time of make demo-4 per arm, plus referee time, worst case seen | source: M6 pilot | how: make demo-4 (wall_s, agent_wall_s, harness_wall_s in exports/scores)]]
+Measured in pilot run 2 (VERIFICATION.md, M6 pilot run 2, F4 rows): agent time 225-310 s for the
+bare arm and 269-314 s for the harness arm, harness time 101-132 s for the harness arm; the agent
+time limit was hit in 1 of 3 bare runs and 2 of 3 harness runs. Across all 12 run 2 A/Bs (two in
+parallel), wall time from first event to last verdict was 485 s minimum, 641 s median, 923 s
+maximum, with the referee taking a median 331 s from an arm's end to its verdict before changes 10
+and 11. All 12 run 2 A/Bs with reviews cost $0.3966.
 
-[[PENDING: measured cost of make demo-4 per arm and per review, worst case seen | source: M6 pilot | how: make demo-4 (cost line and exports/scores)]]
+Per arm, from the score records (captured on 2026-10-16; your output will differ):
+
+| Run id | Arm | `wall_s` | `cost_usd` | `review_cost_usd` |
+|---|---|---|---|---|
+| r-20261016-182828-1daced | bare | 310.173 | 0.015296 | 0.004127 |
+| r-20261016-182828-7d66af | harness | 422.691 | 0.016684 | 0.004066 |
+| r-20261016-185422-ce2096 | bare | 225.33 | 0.016903 | 0.004038 |
+| r-20261016-185422-618828 | harness | 369.779 | 0.016342 | 0.003399 |
+| r-20261016-191626-e55f2f | bare | 281.933 | 0.019123 | 0.004327 |
+| r-20261016-191626-7aebe4 | harness | 409.127 | 0.018463 | 0.004193 |
+
+Every arm stayed below the $0.20 arm cap and every review below the $0.04 review cap.
+
+[[PENDING: measured wall time and cost of make demo-4 per arm and per review in pilot run 3, after changes 8-11 | source: M6 pilot | how: scripts/pilot.py run 3 (wall_s, cost_usd, review_cost_usd in exports/scores); VERIFICATION.md]]
 
 [[PENDING: wall time of make demo-4 on the class host with make final running in parallel, launch to Cost line | source: M6 pilot | how: time make demo-4 on the class host (pilot run 3), make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 
@@ -250,6 +385,7 @@ sheet's S4 cost note explains how the two commands share the session cap.
 
 | Symptom | Cause (from the code) | What to do |
 |---|---|---|
+| Harness arm shows no gate pills by the end of the run | The agent never called `finish(claim="done")`; the gate runs only on a done claim (`run_gate` in `gate.py`). Seen in every F4 arm of pilot run 2 (VERIFICATION.md) | Nothing to fix: the claim is `none` and the referee judges the shipped diff. Show the test-phase decision and the referee counts instead |
 | `make swap-4` prints a line starting `x` that ends "run `make demo-4` first, or pass AB=<id>", and exits 2 | No demo-4 A/B in `RUNS_DIR` (`.shipharness/runs`) | Run `make demo-4`, or pass `AB=<id>` of a recorded A/B |
 | `make swap-4` or `make replay` prints `x ...` about an unpinned record and exits 2 | The A/B record has no `checkpoint_sha` (`UnpinnedRecord` in `src/shipharness/ab/recorded.py`) | Use an A/B recorded after SHA pinning |
 | Every gate pill ✗ with `could not write the check inputs in the container` or `check runner failed (exit <n>)` | The harness time limit (`HARNESS_TIMEOUT_S`) ran out; every gate command is capped by the harness time left (`GateConfig.limit`) | Keep the run: it is scored like any other (DESIGN §8.3 rule 9). Say what happened; show the experiment dots |
@@ -270,5 +406,9 @@ recorded diffs to a fresh export of the pinned checkpoint commit, and runs the r
 (`src/shipharness/ab/recorded.py`). The reviewer is off by default for `replay`, so no model is
 called. The terminal prints `RECORDING: replay <new id> of <source id> (<n> events)`, the record
 lines, and the cost line.
+
+The three F4 A/Bs of pilot run 2 are recorded (section 7), but they predate changes 9-11. The A/B
+id to replay in class is chosen after pilot run 3 and listed in
+[fallbacks.md](../../../instructor/fallbacks.md):
 
 [[PENDING: run id of the recorded F4 A/B to use for make replay, with its capture date | source: M6 pilot | how: make demo-4, then note the A/B id]]

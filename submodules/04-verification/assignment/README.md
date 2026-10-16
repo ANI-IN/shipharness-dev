@@ -351,7 +351,30 @@ A4_IMPL=submodules/04-verification/assignment/starter \
 ## Expected behaviour
 
 - On the starter, the self-check runs, prints FAIL lines that name the TODO each failure comes
-  from, lists the TODO markers left, and exits 1.
+  from, lists the TODO markers left, and exits 1. An excerpt of `make check-assignment-4` on the
+  starter (captured on 2026-10-16, commit 7de5bc9, no model calls; your output will differ; "..."
+  marks a cut):
+
+  ```
+  $ uv run python submodules/04-verification/assignment/check.py
+  A4 self-check for submodules/04-verification/assignment/starter
+
+  [F6-interface]
+    PASS test_filter_has_number_6_and_a_name
+    FAIL test_filter_runs_inside_the_shipharness_pipeline: assert [False, False] == [False, True] At index 1 diff: False != True Use -v to get more diff
+
+  [F6-visible]
+    FAIL test_renamed_and_reformatted_copy_is_discarded_with_the_original_named: NotImplementedError: TODO(A4-7): NoDuplicateTest.evaluate
+  ...
+  TODO markers left (32):
+    a4_verification/adapter.py:37: # TODO(A4-1): soft-delete the lowest-id live issue of each of `org`'s projects.
+  ...
+  self-check: FAILED (2/23 visible tests pass)
+  Cost: $0.000000 (no model calls)
+  [exit code 1]
+  ```
+
+  The first line is the command `make check-assignment-4` runs (`make -n check-assignment-4`).
 - When you are done, the self-check prints `self-check: PASSED (23/23 visible tests pass)` and
   exits 0. Four of those tests are the live-evidence checks; they fail until `live/` is filled.
 - R8 on TeamTrack reports exactly one counted finding, `GET /v1/issues` (`deleted_list`, severity
@@ -445,4 +468,7 @@ points evenly over its tests. It makes no model calls and needs no keys.
   capped per command at $2.50), whose cap alone was above the A4 plan; with the A/B, A4 stays
   within $1.75 by the caps.
 
-[[PENDING: measured cost of one testgen run and of the F4 A/B (k=1), and the LangSmith trace count of the live step | source: M8 batch 1 | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
+For scale, not a promise: in pilot run 2 each of the six F4 arm runs cost less than $0.02 and each
+review less than $0.005 (score records listed in [the demo runbook](../demo/README.md), section 8).
+
+[[PENDING: measured cost of one testgen run and of the F4 A/B (k=1), and the LangSmith trace count of the live step | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; uv run shipharness ab --section demo-4 --feature F4 --no-preview]]

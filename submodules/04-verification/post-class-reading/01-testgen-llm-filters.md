@@ -1,6 +1,6 @@
 # TestGen-LLM's filters and the course's five
 
-Reading time: about 7 minutes.
+Reading time: about 8 minutes.
 
 Source: B11, "Automated Unit Test Improvement using Large Language Models at Meta" (Alshahwan et al.,
 Meta, FSE '24), https://arxiv.org/abs/2402.09171. Quotes are copied from RESEARCH.md and
@@ -85,6 +85,22 @@ module and its filter-set mutants, so filter 3's mutant branch and filter 4's mo
 run (`src/shipharness/testgen/run.py`). The verify layer's test phase in an A/B builds the filter
 context without a mutant list or target module (`src/shipharness/harness/verify/testphase.py`), so
 there filter 3 decides by coverage and filter 4 checks assertions only.
+
+## Why it matters for your own repo
+
+- The tests an agent leaves in your repository guard every later change. A test that asserts
+  nothing, mocks the code it claims to test, or fails one run in five costs review time and gives
+  no signal. TestGen-LLM's funnel says most candidates fail at least one filter (F-b-23 to F-b-25),
+  so expect the same of an agent's tests until a filter shows otherwise.
+- Order the checks by cost, as B11 does (F-b-16): run a new test file five times (F-b-19) before
+  you measure what it adds, and measure coverage only for tests that already pass.
+- A real case from this course: in pilot run 2 the only F4 test a harness arm proposed failed
+  filter 2 on its first run, reason `failed on run 1 of 5: assert None is not None` (captured on
+  2026-10-16, run ab-20261016-191626-6100f6; your output will differ). Without filter 2 it would
+  have shipped as a red test.
+- Filters 4 and 5 answer a risk that B11 did not have: an agent can edit the code under test. If
+  your agent may touch both source and tests in one task, add a check like filter 5 (course
+  filter, RESEARCH G-7).
 
 ## Questions to take away
 

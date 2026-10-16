@@ -5,7 +5,7 @@ files go in `../live/`.
 
 ## Trace links
 
-[[PENDING: trace_url of the bare and the harness arm, each with its run id (from live/scores/<run_id>.json) | source: M8 batch 1 | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
+[[PENDING: trace_url of the bare and the harness arm, each with its run id (from live/scores/<run_id>.json) | source: M6 pilot | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
 
 ## Command
 
@@ -23,9 +23,9 @@ project `shipharness-class-<date>` (agent root and referee, DESIGN §12).
 
 ## What the comparison shows
 
-[[PENDING: per-arm counts from the two score records: hidden tests passed, mutants killed, existing tests that keep passing, new R1-R7 violations, reviewer verdict | source: M8 batch 1 | how: read live/scores/<run_id>.json after uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
+[[PENDING: per-arm counts from the two score records: hidden tests passed, mutants killed, existing tests that keep passing, new R1-R7 violations, reviewer verdict | source: M6 pilot | how: read live/scores/<run_id>.json after uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
 
-[[PENDING: cost line printed by the ab command | source: M8 batch 1 | how: last line of live/ab.txt]]
+[[PENDING: cost line printed by the ab command | source: M6 pilot | how: last line of live/ab.txt]]
 
 How to read it: F4's primary measure has two parts, hidden tests passed and mutants killed, each
 against its total (`primary_measure` in the F4 dataset line). One A/B at k=1 is one run per arm,

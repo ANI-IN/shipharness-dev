@@ -1,6 +1,6 @@
 # Separate evaluators: what A3 found and how the course reviewer uses it
 
-Reading time: about 6 minutes.
+Reading time: about 7 minutes.
 
 Source: A3, "Harness design for long-running application development" (Prithvi Rajasekaran,
 Anthropic, 2026-03-24),
@@ -87,6 +87,20 @@ The course adds two things A3 did not need, because the course compares two arms
 
 Each review is capped at `MAX_REVIEW_COST_USD` ($0.04, DESIGN §11.1). An incomplete or refused
 response gives no verdict rather than a guessed one (`reviewer/review.py` docstring).
+
+## Why it matters for your own repo
+
+- An agent that reviews its own pull request has the leniency A3 describes (F-a-15). If you add a
+  model reviewer, make it a separate call with grading criteria taken from your repository's own
+  documents, the same text every time (F-a-114, F-a-119).
+- Keep its verdict secondary to checks that run code. A3 says the separate evaluator "is still an
+  LLM that is inclined to be generous towards LLM-generated outputs." (F-a-112).
+- A real case from this course: in pilot run 2 the blinded reviewer rejected all six F4 arms and
+  agreed with the referee each time (`reviewer_verdict` and `reviewer_agrees` in the six score
+  records). One of its findings on run 1 named the weakness behind the mutant that survived:
+  "Writes without If-Match do not increment issue.version." (captured on 2026-10-16, run
+  ab-20261016-182828-c81fc0, `reviewer_output`; your output will differ). Every arm failed there,
+  so this shows agreement on failures, not that the reviewer finds what the referee misses.
 
 ## Questions to take away
 
