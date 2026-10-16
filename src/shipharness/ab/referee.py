@@ -256,6 +256,19 @@ def default_mutant_runner(mutant: Any, tests: list[str], build: Path, sandbox: S
     return str(run_mutant(m, tests, build, sandbox, 300))
 
 
+def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
+    """Copies of the per-session patches without harness artifacts, for the continuity check.
+    The state layer rewrites progress.md and the handoff every session; those are not product
+    work (M6 pilot run 2: they read as session 2 removing session 1's lines)."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    copies: list[Path] = []
+    for index, patch in enumerate(patches, start=1):
+        copy = out_dir / f"session-{index}.patch"
+        copy.write_bytes(strip(patch.read_bytes()) if patch.is_file() else b"")
+        copies.append(copy)
+    return copies
+
+
 class Referee:
     """Judges both arms of one task with the same checks, seed, and baseline."""
 
@@ -516,7 +529,8 @@ class Referee:
                 emit("trace_link", {"url": referee_url, "kind": "referee"})
             sandbox: Sandbox | None = None
             if apply_error is None:
-                inputs, mounts = self._paths(build, hidden, run_log, list(session_patches or []))
+                sessions = _product_sessions(list(session_patches or []), rdir / "sessions")
+                inputs, mounts = self._paths(build, hidden, run_log, sessions)
                 sandbox, error = self._start(build, mounts, arm)
             if sandbox is not None:
                 try:

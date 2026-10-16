@@ -213,7 +213,8 @@ def test_run_log_and_session_patches_are_mounted_read_only(
     )
     _build, mounts, _arm = factory.calls[-1]
     by_target = {container: (host, mode) for host, container, mode in mounts}
-    assert by_target["/referee-in/session-2.patch"] == (sessions[1], "ro")
+    host, mode = by_target["/referee-in/session-2.patch"]
+    assert mode == "ro" and host.read_bytes() == sessions[1].read_bytes()  # stripped copy
     assert by_target["/referee-in/events.jsonl"][1] == "ro"
     [params_cmd] = [
         c for c in factory.sandboxes[-1].commands if c.startswith("printf") and "params" in c
@@ -626,3 +627,29 @@ def test_no_baseline_cache_for_working_tree_judging(course_repo: Path, tmp_path:
         )
         Referee(task(), d).baseline()
     assert _baseline_calls(factory) == 2
+
+
+def test_session_patches_reach_continuity_without_harness_files(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    # M6 pilot run 2: the harness rewrites progress.md and session-handoff.md every session, and
+    # the continuity check counted that as session 2 removing session 1's work.
+    first = tmp_path / "s1.patch"
+    first.write_text(STATE + PRODUCT, encoding="utf-8")
+    second = tmp_path / "s2.patch"
+    second.write_text(STATE, encoding="utf-8")
+    factory = Factory(all_green())
+    judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)),
+        tmp_path,
+        PRODUCT,
+        run_log=tmp_path / "events.jsonl",
+        session_patches=[first, second],
+    )
+    _build, mounts, _arm = factory.calls[-1]
+    by_target = {container: host for host, container, _mode in mounts}
+    one = by_target["/referee-in/session-1.patch"].read_text(encoding="utf-8")
+    two = by_target["/referee-in/session-2.patch"].read_text(encoding="utf-8")
+    assert "progress.md" not in one and "app/api/issues.py" in one
+    assert two == ""
+    assert "progress.md" in first.read_text(encoding="utf-8")  # the arm's record is unchanged

@@ -84,7 +84,7 @@ class StateLayer(BaseLayer):
         return decisions
 
     def on_session_start(self, ctx: LayerContext) -> list[str]:
-        return [lifecycle.resume_text(self._last_summary)]
+        return [lifecycle.resume_text(self._last_summary, ctx.phase)]
 
     def on_phase_end(self, ctx: LayerContext) -> list[HarnessDecision]:
         if self._plan_moved or not ctx.state.get("scope.passes_set"):
