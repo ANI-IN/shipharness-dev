@@ -8,13 +8,14 @@ inside the scratch directory (never through a link) and below a size cap.
 
 from __future__ import annotations
 
+import os
 import shutil
 import uuid
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-from shipharness.runner.tools import iter_workspace_files
+from shipharness.runner.tools import SKIP_DIRS
 
 SCRATCH_PREFIX = ".shipharness-"
 MAX_READ_BYTES = 50_000_000
@@ -45,23 +46,44 @@ def is_scratch(rel: str) -> bool:
     return rel.split("/", 1)[0].startswith(SCRATCH_PREFIX)
 
 
+def _copy_candidates(root: Path) -> list[tuple[Path, str]]:
+    """Like `iter_workspace_files`, but never descends into scratch directories: other mutant
+    runs may be creating or deleting their copies there at the same time."""
+    files: list[tuple[Path, str]] = []
+    for dirpath, dirnames, filenames in os.walk(root, followlinks=False):
+        current = Path(dirpath)
+        dirnames[:] = sorted(
+            d
+            for d in dirnames
+            if d not in SKIP_DIRS
+            and not (current == root and d.startswith(SCRATCH_PREFIX))
+            and not _is_link(current / d)
+        )
+        for name in sorted(filenames):
+            path = current / name
+            if name.endswith(".pyc") or _is_link(path):
+                continue
+            files.append((path, path.relative_to(root).as_posix()))
+    return files
+
+
 def copy_workspace(workspace: Path, dest: Path) -> int:
     """Copy regular workspace files (no links, no skipped dirs, no scratch dirs) into `dest`."""
     root = Path(workspace)
-    files = [
-        (path, rel)
-        for path in iter_workspace_files(root)
-        if not is_scratch(rel := path.relative_to(root).as_posix()) and path.suffix != ".pyc"
-    ]
     total = 0
-    for path, rel in files:
-        size = path.stat().st_size
-        total += size
+    for path, rel in _copy_candidates(root):
+        try:
+            if not path.is_file():
+                continue
+            data = path.read_bytes()
+        except FileNotFoundError:
+            continue  # removed while copying
+        total += len(data)
         if total > MAX_COPY_BYTES:
             raise ScratchError(f"workspace larger than {MAX_COPY_BYTES} bytes")
         target = dest / rel
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_bytes(path.read_bytes())
+        target.write_bytes(data)
     return total
 
 

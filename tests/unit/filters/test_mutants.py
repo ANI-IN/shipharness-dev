@@ -122,6 +122,38 @@ def test_run_mutant_killed_and_survived(tmp_path: Path) -> None:
     assert not [p for p in repo.iterdir() if p.name.startswith(".shipharness-")]
 
 
+def test_copy_workspace_prunes_scratch_dirs_and_tolerates_vanishing_files(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from shipharness.filters import scratch
+
+    repo = make_repo(tmp_path / "repo")
+    busy = repo / ".shipharness-mutant-other" / "deep"
+    busy.mkdir(parents=True)
+    (busy / "calc.py").write_text("x = 1\n", encoding="utf-8")
+    visited: list[str] = []
+    real_walk = scratch.os.walk
+
+    def spy(top, **kwargs):  # type: ignore[no-untyped-def]
+        for dirpath, dirnames, filenames in real_walk(top, **kwargs):
+            visited.append(Path(dirpath).name)
+            yield dirpath, dirnames, filenames
+
+    monkeypatch.setattr(scratch.os, "walk", spy)
+    real_read = Path.read_bytes
+
+    def flaky_read(self: Path) -> bytes:
+        if self.name == "pytest.ini":
+            raise FileNotFoundError(self)  # deleted by a concurrent run
+        return real_read(self)
+
+    monkeypatch.setattr(Path, "read_bytes", flaky_read)
+    dest = tmp_path / "copy"
+    scratch.copy_workspace(repo, dest)
+    assert "deep" not in visited and ".shipharness-mutant-other" not in visited
+    assert (dest / "calc.py").is_file() and not (dest / "pytest.ini").exists()
+
+
 def test_run_mutant_error_when_original_does_not_match(tmp_path: Path) -> None:
     repo = make_repo(tmp_path / "repo")
     stale = mutant(original="    return a+b")
