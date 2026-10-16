@@ -128,24 +128,50 @@ def delete_files(workspace: Path, rels: list[str]) -> None:
 def filters_pipeline(
     candidates: list[dict[str, str]], ctx: Any, source_shas: dict[str, str]
 ) -> list[Any]:
-    """Default pipeline: the filters package (CONTRACTS §14). It must expose CandidateTest,
-    run_pipeline, and build_filter_context(workspace, sandbox, source_shas_at_phase_start)."""
+    """Default pipeline: the filters package (CONTRACTS §14).
+
+    `source_shas` is the phase-start snapshot of every workspace file. The filter context is built
+    now, with baseline coverage measured by running only the tests that existed at phase start
+    (filter 5 guarantees the source is unchanged, so this equals the phase-start baseline), and
+    with phase-start fingerprints restricted to source files, the format filter 5 compares.
+    """
     try:
-        from shipharness import filters  # type: ignore[attr-defined]
+        from shipharness.filters import CandidateTest, build_context, run_pipeline
+        from shipharness.filters.source import is_source_path, is_test_path
     except ImportError as exc:
-        raise PipelineUnavailable(f"shipharness.filters is not installed ({exc})") from None
-    missing = [
-        n
-        for n in ("CandidateTest", "run_pipeline", "build_filter_context")
-        if not hasattr(filters, n)
-    ]
-    if missing:
-        raise PipelineUnavailable(f"shipharness.filters lacks {', '.join(missing)}")
-    fctx = filters.build_filter_context(
-        workspace=ctx.workspace, sandbox=ctx.sandbox, source_shas_at_phase_start=source_shas
+        raise PipelineUnavailable(f"shipharness.filters is not available ({exc})") from None
+    existing = sorted(
+        rel
+        for rel in source_shas
+        if rel.startswith(TEST_ROOT)
+        and rel.endswith(".py")
+        and is_test_path(rel)
+        and pathlib_name(rel).startswith("test_")
     )
-    cands = [filters.CandidateTest(**c) for c in candidates]
-    return list(filters.run_pipeline(cands, fctx, ctx.bus))
+    fctx = build_context(ctx.workspace, ctx.sandbox, existing_tests=existing or None)
+    fctx = fctx.model_copy(
+        update={
+            "source_shas_at_phase_start": {
+                rel: sha for rel, sha in source_shas.items() if is_source_path(rel)
+            }
+        }
+    )
+    cands = [CandidateTest(**c) for c in candidates]
+    spec = getattr(ctx, "spec", None)
+    return list(
+        run_pipeline(
+            cands,
+            fctx,
+            ctx.bus,
+            run_id=getattr(spec, "run_id", None),
+            arm=getattr(spec, "arm", None),
+            phase="test",
+        )
+    )
+
+
+def pathlib_name(rel: str) -> str:
+    return rel.rsplit("/", 1)[-1]
 
 
 def _field(result: Any, name: str) -> Any:

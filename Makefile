@@ -43,6 +43,7 @@ lint:
 	$(UV) run ruff format --check .
 	cd teamtrack && $(UV) run lint-imports --config .importlinter
 	$(UV) run python scripts/anchors.py check
+	$(UV) run shipharness skills validate skills
 
 format:
 	$(UV) run ruff check --fix .

@@ -16,7 +16,10 @@ def _new(result: CheckResult) -> list[Finding]:
 
 
 def _failing(result: CheckResult) -> int:
-    return sum(1 for f in result.findings if f.counted)
+    """Failing items, baseline included. Findings are capped at 200 per result, so the violation
+    totals are the floor when the list is truncated or absent."""
+    counted = sum(1 for f in result.findings if f.counted)
+    return max(counted, result.new_violations + result.baseline_violations)
 
 
 def _prefixed(result: CheckResult, prefix: str) -> int:

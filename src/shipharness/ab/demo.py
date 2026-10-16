@@ -16,6 +16,9 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, get_args
 
+import structlog
+
+from shipharness.ab.mutants import load_referee_mutants
 from shipharness.ab.referee import (
     Referee,
     RefereeDeps,
@@ -136,7 +139,11 @@ class ABDeps:
     container_paths: bool = True
     policy_summary: str = ""
     tags: list[str] = field(default_factory=list)
-    preview_factory: Callable[[Arm, EventBus, str], Any] | None = None  # board preview (console)
+    # Board preview per arm (console screen 2): called with (arm, bus, arm spec); the object
+    # needs start_server() and run(stop_event).
+    preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
+    mutant_runner: Any = None  # referee mutant runner; None = the filters package runner
+    mutant_source_repo: Path | None = None  # where teamtrack/mutants lives (default course_repo)
 
 
 @dataclass
@@ -244,6 +251,16 @@ def run_arm(
         sandbox.stop()
 
 
+def _referee_mutants(task: ABTask, deps: ABDeps) -> list[Any]:
+    """Referee-set mutants for the task. A missing set is logged and scored as 0/0 instead of
+    aborting a live run; dataset validation (M5) checks that every mutant set exists."""
+    try:
+        return load_referee_mutants(task.mutant_set, deps.mutant_source_repo or deps.course_repo)
+    except ValueError as exc:
+        structlog.get_logger(__name__).warning("referee mutants unavailable", reason=str(exc))
+        return []
+
+
 def _start_previews(
     deps: ABDeps, bus: EventBus, specs: Mapping[Arm, AgentRunSpec]
 ) -> tuple[threading.Event, list[threading.Thread]]:
@@ -252,7 +269,7 @@ def _start_previews(
     if deps.preview_factory is None:
         return stop, threads
     for arm, spec in specs.items():
-        preview = deps.preview_factory(arm, bus, spec.run_id)
+        preview = deps.preview_factory(arm, bus, spec)
         preview.start_server()
         thread = threading.Thread(target=preview.run, args=(stop,), daemon=True)
         thread.start()
@@ -297,7 +314,8 @@ def run_ab(
             tracer=deps.tracer,
             reviewer=deps.reviewer,
             grading_criteria=deps.grading_criteria,
-            mutants=deps.mutants,
+            mutants=deps.mutants or _referee_mutants(task, deps),
+            mutant_runner=deps.mutant_runner,
             sandboxed=deps.sandboxed,
             container_paths=deps.container_paths,
         ),

@@ -180,8 +180,8 @@ def test_runner_gets_the_fixed_seed_and_params(course_repo: Path, tmp_path: Path
     params = json.loads(base64.b64decode(params_cmd.split()[2]))
     assert params["hidden_dir"] == "tests/hidden"
     assert "progress.md" in params["harness_artifacts"]
-    assert params["hidden_test_ids"] == ["teamtrack/tests/hidden/f1/test_secret.py::test_secret"]
-    assert params["shipped_test_ids"] == [
+    assert params["hidden_tests"] == ["teamtrack/tests/hidden/f1/test_secret.py::test_secret"]
+    assert params["shipped_tests"] == [
         "tests/visible/test_issues_new.py::test_filtered",
         "tests/visible/test_issues_new.py::test_second",
     ]

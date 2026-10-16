@@ -58,3 +58,30 @@ def test_baseline_findings_do_not_count_as_new_leaks() -> None:
         }
     )
     assert score_fields([r1])["r1_leaks"] == 0
+
+
+def test_failing_counts_use_violation_totals_when_findings_are_capped_or_absent() -> None:
+    from shipharness.checks.base import CheckResult
+    from shipharness.checks.scores import score_fields
+
+    no_findings = CheckResult(
+        check="hidden_tests",
+        passed=False,
+        new_violations=1,
+        baseline_violations=0,
+        total_probes=4,
+        findings=[],
+        duration_ms=1,
+    )
+    capped = CheckResult(
+        check="regression",
+        passed=False,
+        new_violations=250,
+        baseline_violations=10,
+        total_probes=400,
+        findings=[],
+        duration_ms=1,
+    )
+    fields = score_fields([no_findings, capped])
+    assert (fields["hidden_passed"], fields["hidden_total"]) == (3, 4)
+    assert (fields["regression_passed"], fields["regression_total"]) == (140, 400)

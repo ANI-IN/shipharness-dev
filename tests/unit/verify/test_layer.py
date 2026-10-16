@@ -148,7 +148,7 @@ def test_gate_params_carry_existing_tests_and_exemptions(tmp_path: Path) -> None
     layer.on_claim_done(ctx)
     [params_cmd] = [c for c in sandbox.commands if c.startswith("printf") and "params" in c]
     params = json.loads(base64.b64decode(params_cmd.split()[2]))
-    assert params["existing_test_files"] == ["tests/visible/test_a.py"]
+    assert params["regression_targets"] == ["tests/visible/test_a.py"]
     assert params["exemptions"] == {"R4": ["POST /projects/{id}/issues"]}
 
 

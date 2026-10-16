@@ -30,6 +30,7 @@ from shipharness.ab.artifacts import (
 from shipharness.ab.artifacts import strip_harness_artifacts as strip
 from shipharness.ab.score import ScoreRecord, evaluate_primary
 from shipharness.ab.workspace import export_checkpoint, export_hidden_tests, init_repo
+from shipharness.checks import params as P
 from shipharness.checks.base import CheckResult
 from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
 from shipharness.harness.verify.checkrun import (
@@ -274,7 +275,9 @@ class Referee:
         sandbox.start()
         try:
             checks = tuple(c for c in REFEREE_CHECKS if c not in ("continuity", "flakiness"))
-            params = self._params(inputs, [], [], [])
+            params = self._params(
+                inputs, changed_files=[], shipped_files=[], shipped_ids=[], test_phase_files=[]
+            )
             results, _p, error = self._run_checks(sandbox, params, None, checks)
         finally:
             sandbox.stop()
@@ -286,20 +289,24 @@ class Referee:
     def _params(
         self,
         inputs: dict[str, Any],
+        *,
+        changed_files: list[str],
         shipped_files: list[str],
         shipped_ids: list[str],
         test_phase_files: list[str],
     ) -> dict[str, Any]:
+        """Check params under the names the checks read (shipharness.checks.params)."""
         return {
             **inputs,
-            "hidden_test_ids": list(self.task.hidden_test_ids),
-            "shipped_test_files": shipped_files,
-            "shipped_test_ids": shipped_ids,
-            "allowed_paths": self.task.allowed_paths,
-            "test_phase_files": test_phase_files,
-            "harness_artifacts": list(HARNESS_ARTIFACT_PATTERNS),
-            "exemptions": self.task.exemptions,
-            "flaky_runs": FLAKY_RUNS,
+            P.HIDDEN_TESTS: list(self.task.hidden_test_ids),
+            P.SHIPPED_TESTS: shipped_ids,
+            "shipped_test_files": shipped_files,  # informational, for reports
+            P.CHANGED_FILES: list(changed_files),
+            P.PHASE_FILES: {"test": list(test_phase_files)},
+            P.ALLOWED_PATHS: self.task.allowed_paths,
+            P.HARNESS_ARTIFACTS: list(HARNESS_ARTIFACT_PATTERNS),
+            P.EXEMPTIONS: self.task.exemptions,
+            P.FLAKY_RUNS: FLAKY_RUNS,
         }
 
     # -- judging -------------------------------------------------------------------------------
@@ -360,7 +367,13 @@ class Referee:
                 sandbox = self.deps.sandbox_factory(build, mounts, arm)
                 sandbox.start()
                 try:
-                    params = self._params(inputs, shipped_files, shipped_ids, phase_edits)
+                    params = self._params(
+                        inputs,
+                        changed_files=paths,
+                        shipped_files=shipped_files,
+                        shipped_ids=shipped_ids,
+                        test_phase_files=list(test_phase_files or []),
+                    )
                     results, progress, error = self._run_checks(
                         sandbox, params, baseline, REFEREE_CHECKS
                     )
@@ -519,7 +532,15 @@ class Referee:
             "redone_lines_pct": None,
             "board_ok": ok("board"),
         }
-        own = {"mutants_killed", "mutants_total"}  # mutants are run here, not by the runner
+        # Computed here on the host from the applied diff (authoritative), not taken from the
+        # container checks: mutants, scope counts, and the shipped-test count.
+        own = {
+            "mutants_killed",
+            "mutants_total",
+            "out_of_scope_files",
+            "test_phase_source_edits",
+            "shipped_tests",
+        }
         fields.update(
             {k: v for k, v in _score_fields(results).items() if k in fields and k not in own}
         )

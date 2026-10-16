@@ -3,6 +3,7 @@ Kept in one place so the commands stay thin and tests can swap the whole runtime
 
 from __future__ import annotations
 
+import threading
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -13,16 +14,40 @@ from shipharness.ab.demo import ABDeps
 from shipharness.ab.referee import Reviewer
 from shipharness.config import Prices, Settings
 from shipharness.config.prices import REPO_ROOT
+from shipharness.console.preview import BoardPreview
 from shipharness.cost import Caps, CostTracker
 from shipharness.events import Arm, EventBus
 from shipharness.reviewer import ReviewInput, ReviewOutcome, grading_criteria, run_review
 from shipharness.runner.model import ModelClient, OpenAIModelClient
+from shipharness.runner.models import AgentRunSpec
 from shipharness.sandbox import DockerSandbox, LocalSandbox, default_policy, render_policy
 from shipharness.sandbox.base import Sandbox
 from shipharness.sandbox.policy import Mount
 from shipharness.tracing import Tracer, make_tracer
 
 LEDGER = Path(".shipharness") / "ledger.jsonl"
+
+
+class PreviewHandle:
+    """Runs a BoardPreview until stopped, optionally captures the two-tab conflict view (S4),
+    then stops its container."""
+
+    def __init__(self, preview: BoardPreview, sandbox: Sandbox, *, capture_conflict: bool) -> None:
+        self.preview = preview
+        self.sandbox = sandbox
+        self.capture_conflict = capture_conflict
+
+    def start_server(self) -> None:
+        self.preview.start_server()
+
+    def run(self, stop: threading.Event) -> int:
+        try:
+            frames = self.preview.run(stop)
+            if self.capture_conflict:
+                self.preview.capture("conflict")
+            return frames
+        finally:
+            self.sandbox.stop()
 
 
 @dataclass
@@ -37,6 +62,7 @@ class Runtime:
     sandboxed: bool
     policy_summary: str
     course_repo: Path = REPO_ROOT
+    preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
 
     def ab_deps(self, checkpoint_ref: str | None, *, reviewer: bool = True, **kw: Any) -> ABDeps:
         return ABDeps(
@@ -53,6 +79,7 @@ class Runtime:
             sandboxed=self.sandboxed,
             container_paths=self.sandboxed,
             policy_summary=self.policy_summary,
+            preview_factory=kw.pop("preview_factory", self.preview_factory),
             **kw,
         )
 
@@ -108,6 +135,22 @@ def build_runtime(
             )
         return LocalSandbox(policy, build, None, f"referee-{arm}", arm)
 
+    def preview_factory(arm: Arm, bus: EventBus, spec: AgentRunSpec) -> PreviewHandle:
+        """Board preview container for one arm: referee image (has Chromium), network none,
+        the arm's workspace mounted, screenshots written to the run directory."""
+        sandbox = DockerSandbox(
+            policy,
+            settings.sandbox_image_referee,
+            spec.workspace,
+            None,
+            f"preview-{arm}",
+            arm,
+            runtime=settings.sandbox_runtime,
+        )
+        sandbox.start()
+        preview = BoardPreview(sandbox, bus, Path(bus.log_path).parent, run_id=spec.run_id, arm=arm)
+        return PreviewHandle(preview, sandbox, capture_conflict=spec.feature_id == "F4")
+
     def reviewer(inp: ReviewInput) -> ReviewOutcome:
         return run_review(
             inp,
@@ -128,6 +171,7 @@ def build_runtime(
         reviewer=reviewer,
         sandboxed=sandboxed,
         policy_summary=render_policy(policy),
+        preview_factory=preview_factory if sandboxed else None,  # never run arm code on the host
     )
 
 

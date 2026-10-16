@@ -7,6 +7,7 @@ import hashlib
 import json
 from typing import Any, ClassVar
 
+from shipharness.checks import params as P
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision, LayerName
 from shipharness.harness.verify import testphase
@@ -67,9 +68,9 @@ class VerifyLayer(BaseLayer):
 
     def _params(self, ctx: LayerContext) -> dict[str, Any]:
         return {
-            "existing_test_files": self.existing_tests,
-            "exemptions": self.exemptions,
-            "allowed_paths": {k: list(v) for k, v in ctx.spec.allowed_paths.items()},
+            P.REGRESSION_TARGETS: list(self.existing_tests),
+            P.EXEMPTIONS: self.exemptions,
+            P.ALLOWED_PATHS: {k: list(v) for k, v in ctx.spec.allowed_paths.items()},
         }
 
     def _config(self, ctx: LayerContext) -> GateConfig:
