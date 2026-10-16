@@ -1,4 +1,4 @@
-# captured on 2026-10-17 (IST) at commit e7287f4 (offline: no model calls, no containers); your output will differ
+# captured on 2026-10-17 from `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` at commit 61ec849 (offline: no model calls, no containers); your output will differ
 $ make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution
 uv run python submodules/03-scope-sandbox/assignment/check.py --impl submodules/03-scope-sandbox/solution
 A3 self-check: submodules/03-scope-sandbox/solution
@@ -15,6 +15,7 @@ A3 self-check: submodules/03-scope-sandbox/solution
   your denial test uses check_command/PolicySandbox                 ok
   live A/B evidence (live/)                                         missing (required for the grade: README 'Live step')
 
-Self-check PASSED. Next: the live step (README 'Live step'), then make
-grade-assignment-3 (adds the hidden cases and requires live/).
+Self-check PASSED. Next: the live step (README 'Live step'), then submit your
+folder; the instructor grades it with make grade-assignment-3 SUBMISSION=<folder>
+(adds the hidden cases and requires live/).
 (exit code 0)

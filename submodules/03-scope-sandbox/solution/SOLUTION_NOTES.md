@@ -202,10 +202,10 @@ commit it was captured at. `make` exits 2 whenever the script it runs exits non-
 
 | File | Command | Captured | Result |
 |---|---|---|---|
-| `check-starter.txt` | `make check-assignment-3` | 2026-10-17 (IST), e7287f4 | every part FAIL, script exit 1 |
-| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17 (IST), e7287f4 | every row ok, live row `missing`, exit 0 |
-| `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17 (IST), e7287f4 | 0.0 / 100, FAIL |
-| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17 (IST), e7287f4 | 90.0 / 100, FAIL |
+| `check-starter.txt` | `make check-assignment-3` | 2026-10-17, 61ec849 | every part FAIL, script exit 1 |
+| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, 61ec849 | every row ok, live row `missing`, exit 0 |
+| `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17, e7287f4 | 0.0 / 100, FAIL |
+| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, e7287f4 | 90.0 / 100, FAIL |
 | `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
 
 The 90.0 / 100 and `Result: FAIL` on the reference solution are expected until its live run is
@@ -261,17 +261,17 @@ under the single PENDING marker in [README.md](README.md), "Captured live run of
 The M6 pilot ran the live step's A/B (`shipharness ab --section demo-3 --feature F3 --no-preview`)
 three times per pilot run (VERIFICATION.md, M6 pilot). Two findings matter for the live verdicts:
 
-- Run 1 charged every F3 arm with 4 out-of-scope files that were the import linter's cache
+- Pilot run 1 (before the measurement fixes) charged every F3 arm with 4 out-of-scope files that were the import linter's cache
   (`.import_linter_cache/`), and counted uncommitted build work as test-phase source edits for arms
   that never commit. Pilot changes 5 and 6 fixed both for both arms. A learner verdict built on a run
   from before those changes would disagree with today's referee for that reason alone.
-- Run 2, with the measures fixed, had `out_of_scope_files` 0 and `test_phase_source_edits` 0 in all
+- Pilot run 2, with the measures fixed, had `out_of_scope_files` 0 and `test_phase_source_edits` 0 in all
   six F3 arms. On the canonical task, a learner's `check_diff` should accept the bare arm's diff in
   both phases; on the harness arm's whole-run diff, rule 2 refuses `feature_list.json` when the
-  harness set `passes` (two of the three run 2 harness arms), while the referee strips it. That
+  harness set `passes` (two of the three pilot run 2 harness arms), while the referee strips it. That
   difference is the one the assignment README asks learners to explain.
 
-Run 3 uses the trap variant for F3 (`trap-tempting-middleware`, DESIGN §10.4); the live step stays on
+Pilot run 3 uses the trap variant for F3 (`trap-tempting-middleware`, DESIGN §10.4); the live step stays on
 the canonical task (`--feature F3`), and the grader checks for that.
 
 ## Integration notes
@@ -281,8 +281,10 @@ the canonical task (`--feature F3`), and the grader checks for that.
   `scripts/grade_assignment.py`).
 - The live-step command now carries `--purpose assignment` (traces to `shipharness-assignments`,
   DESIGN §12). `assignment/live.py` accepts it (it bans only `--replay`, `--swap`, `--layers`, `--k`,
-  `--example`, and `--from-working-tree`); the usage text at the top of `live.py` still shows the
-  command without it.
+  `--example`, and `--from-working-tree`), its usage text shows the flag, and
+  `test_verify_accepts_the_assignment_purpose` covers it.
+- `check.py`'s closing hint names the instructor grader (`make grade-assignment-3
+  SUBMISSION=<folder>`); `test_check_points_to_the_instructor_grader` covers both branches.
 - `solution/grader/tests/` is not under the repository's `testpaths`
   (`["tests/unit", "teamtrack/tests/visible"]` in `pyproject.toml`); run it on its own. Its last test
   is marked `slow`.

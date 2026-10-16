@@ -1,4 +1,4 @@
-# captured on 2026-10-17 (IST) at commit e7287f4 (offline: no model calls, no containers); your output will differ
+# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` at commit e7287f4 (offline: no model calls, no containers); your output will differ
 $ make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter
 uv run python scripts/grade_assignment.py 3 "submodules/03-scope-sandbox/assignment/starter"
 A3 grade: submodules/03-scope-sandbox/assignment/starter
