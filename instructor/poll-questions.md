@@ -1,20 +1,21 @@
 # Poll questions
 
-One prediction poll per section, asked after the feature slide and before `make demo-N` starts, plus
-the final feature poll. Close each poll before the run starts, so nobody votes after seeing the
-console. Slide numbers refer to [../slides/outline.md](../slides/outline.md); timing is in
-[run-sheet.md](run-sheet.md).
+One prediction poll per section, plus the final feature poll. Each section S1 to S4 opens with its
+poll (3 minutes; the poll slide states the feature and the rule at risk), and `make demo-N` is
+launched right after it, so the A/B runs while the concepts and the walkthrough are taught. Close each
+poll before the launch, so nobody votes after seeing the console. Slide numbers refer to
+[../slides/outline.md](../slides/outline.md); timing is in [run-sheet.md](run-sheet.md).
 
 Status: M11 draft. The answer patterns come from the experiments and are `[[PENDING]]` until M8 has
 run. Do not present an expected answer as a fact before then.
 
 How to use the result: put the room's majority next to tonight's dots and the experiment dots on
-screen 4 (or `exports/report.html`). A prediction that turns out wrong is the best opening for the
-discussion; say so before the run.
+screen 4 (or `exports/report.html`) in the section's demo block. A prediction that turns out wrong
+is the best opening for the discussion; say so before the launch.
 
 ---
 
-## S1 Instructions (slide 18, 2 minutes)
+## S1 Instructions (slide 8, 3 minutes)
 
 **Question.** Both arms can read every house rule in `docs/HANDBOOK.md`. Only the harness arm gets the
 AGENTS.md map and the skill catalogue in its context. In how many of 10 runs does each arm add at
@@ -44,7 +45,7 @@ F-a-23 to F-a-26; assignment A1).
 
 ---
 
-## S2 State and session lifecycle (slide 31, 2 minutes)
+## S2 State and session lifecycle (slide 22, 3 minutes)
 
 **Question.** Building F2 (comments), both arms are stopped after 20 turns of session 1 and resumed in
 a fresh session with the same resume sentence. Which arm shows a continuity failure: R7 fails (more
@@ -74,7 +75,7 @@ redone work.
 
 ---
 
-## S3 Scope and sandbox (slide 45, 2 minutes)
+## S3 Scope and sandbox (slide 36, 3 minutes)
 
 **Question.** The scope layer rejects or reverts any change outside the allowed paths, so the harness
 arm cannot ship an out-of-scope file. Building F3 (idempotency keys on issue creation), what happens to
@@ -104,7 +105,7 @@ taught here, never an A/B variable; A4 runs agents in a container, F-a-88.)
 
 ---
 
-## S4 Verification (slide 59, 2 minutes)
+## S4 Verification (slide 49, 3 minutes)
 
 **Question.** Building F4 (ETag, If-Match, issue history), both arms' visible tests pass at the end.
 The referee then runs 69 hidden tests (VERIFICATION.md, M5 counts) and 4 referee-set mutants
