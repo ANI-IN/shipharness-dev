@@ -4,12 +4,12 @@ Reading time: about 15 minutes. Source ids (A1-A7) and finding ids (F-a-NN) poin
 [RESEARCH.md](../../RESEARCH.md) and [research/notes/R-a.md](../../research/notes/R-a.md). The section
 title is a course label (RESEARCH §4.1); the ideas inside it use the sources' own words.
 
-Order: the problem seen in the bare run, its cause, the harness piece, how `shipharness` implements
-it, and what the A/B measures.
+Order: the problem, its cause, the harness piece, how `shipharness` implements it, what the A/B
+measures, and what the pilot found when it measured it.
 
 ---
 
-## 1. The problem seen in the bare run
+## 1. The problem
 
 The S2 task is F2, comments on issues ([teamtrack/docs/features/f2.md](../../teamtrack/docs/features/f2.md)):
 three endpoints, a new `comments` table "in exactly one new Alembic migration whose `down_revision` is
@@ -37,9 +37,40 @@ Both arms get the same rule in their docs: the bare arm reads it in `docs/HANDBO
 a second migration for a change that already has one"), so this is not a knowledge gap (DESIGN §6.1).
 The question is whether the agent still knows, after the stop, what it already did.
 
-A captured bare-arm example from the pilot goes here:
+### What the pilot saw on this task
 
-[[PENDING: one bare-arm F2 run with a continuity failure: session timeline (screen 3), migration heads line from the referee, redone_lines_pct, run id | source: M6 pilot | how: make pilot]]
+In pilot run 2 (gpt-6-luna, effort medium, three A/Bs of F2 canonical), the bare arm did not show
+this failure: it passed the continuity measure in 3 of 3 runs (VERIFICATION.md, M6 pilot run 2). The
+event log shows how. In `ab-20261016-181736-08a9c4` the bare arm wrote the model, repository,
+service, and `migrations/versions/0002_comments.py` in session 1 without committing them. Its fourth
+tool call in session 2 was a look at the working tree (captured on 2026-10-16, run
+`r-20261016-181736-a05ddb`, the `tool_call` event's target and the start of its result, cut; your
+output will differ):
+
+```text
+git status --short && git log -3 --oneline && find app -type f | sort && ls migrations/versions
+exit=0
+ M app/api/issues.py
+ M app/api/schemas.py
+ M app/db/models.py
+?? app/repositories/comments.py
+?? app/services/comments.py
+?? migrations/versions/0002_comments.py
+```
+
+It then read `migrations/versions/0002_comments.py` and carried on with the API, the board, the
+seed, and tests. A6, writing about Claude models, says the same thing happens there: "Claude's latest
+models are extremely effective at discovering state from the local filesystem." (A6, F-a-76; A6 is
+supplementary, RESEARCH G-3). The pilot model is not a Claude model, so read this as one observation
+that fits A6, not as a test of it. It also fits A3's caution that resets are model-dependent
+(A3, F-a-69, section 2.3).
+
+The harness arm failed the measure in all three runs, but only because of a measurement bug; it also
+spent most of its turns re-reading documents and keeping its state files up to date. Both were the
+course's own problems, not the agent forgetting (section 6). The pilot's next step for F2 is a tighter session turn
+budget: a 12-turn first session, so session 1 stops earlier in the feature (DESIGN §10.4).
+
+[[PENDING: one bare-arm F2 run with the 12-turn first session (--session-budget 12,38): session timeline (screen 3), migration heads line from the referee, redone_lines_pct, run id | source: M6 pilot | how: uv run shipharness ab --section demo-2 --feature F2 --session-budget 12,38 --purpose pilot]]
 
 ---
 
@@ -58,6 +89,10 @@ A2 lists what goes wrong without help. The agent tried "to do too much at once�
 to one-shot the app." (A2, F-a-11), which ended with "leaving the next session to start with a feature
 half-implemented and undocumented. The agent would then have to guess at what had happened"
 (A2, F-a-12). F2's duplicate migration is that guess going wrong.
+
+A4's phrase "spend significant time orienting itself" (F-a-10) names the other cost: even an agent
+that guesses right spends turns finding out. The pilot measured that cost in the harness arm too
+(section 6).
 
 ### 2.2 Compaction is not the fix
 
@@ -79,7 +114,9 @@ The course needs a reset to happen at a known point, in both arms, every run. Th
 **session turn budget**: each session has a fixed number of turns, and the first session's budget is
 smaller than the feature. This is a course mechanism, not a source term (RESEARCH G-5), and it is one
 of the allowed task-design techniques because both arms get the same budget (DESIGN §8.3). What
-happens at the stop is A3's context reset: the context is cleared and a fresh session starts.
+happens at the stop is A3's context reset: the context is cleared and a fresh session starts. The
+budget can be changed per A/B without touching the dataset: `shipharness ab --session-budget 12,38`
+gives the 12-turn first session the pilot pre-registered for run 3 (DESIGN §10.4).
 
 Two cautions from A3 itself. Resets are not free: "This solves the core issue, but adds orchestration
 complexity, token overhead, and latency to each harness run." (A3, F-a-68). And they are
@@ -154,8 +191,8 @@ three walkthrough anchors are `S2:init`, `S2:stop_resume`, and `S2:write`
 `docs/exec-plans/active/F2.md` (`templates.py`, `initial_files`). With the scope layer on (from demo-3),
 the scope layer adds `feature_list.json`; in demo-2 it is not there.
 
-The `init.sh` the agent gets (anchor `S2:init`, from
-`src/shipharness/harness/state/assets/init.sh`, lines 9-21):
+The `init.sh` the agent gets (anchor `S2:init`, `src/shipharness/harness/state/assets/init.sh`,
+lines 9-21):
 
 ```bash
 set -euo pipefail
@@ -169,12 +206,15 @@ echo "== migrations (house rule R7: exactly one head)"
 python -m alembic heads
 python -m alembic upgrade head
 
-echo "== basic test: visible suite, stop at the first failure"
-python -m pytest tests/visible -x -q --no-header -p no:cacheprovider
+echo "== basic end-to-end test: issues, stop at the first failure (full suite: run_visible_tests)"
+python -m pytest tests/visible/test_issues.py -x -q --no-header -p no:cacheprovider
 ```
 
 The first thing it prints in a resumed session is the list of migration heads. If session 1 already
-wrote the comments migration, session 2 sees it before writing anything.
+wrote the comments migration, session 2 sees it before writing anything. The basic test is one
+end-to-end test file, not the whole visible suite: in pilot run 1 the full suite ran twice at every
+session start, about 44 s for `init.sh` and 36 s for `run_visible_tests` of agent time (VERIFICATION.md,
+M6 pilot, change 8).
 
 The exec plan template (`assets/exec-plan.md`) has the A7 sections: Purpose (with the ticket's steps),
 Progress, Surprises & Discoveries, Decision Log, Outcomes & Retrospective, and Validation
@@ -182,22 +222,49 @@ Progress, Surprises & Discoveries, Decision Log, Outcomes & Retrospective, and V
 
 ### 4.2 Getting up to speed (every session)
 
-`lifecycle.getting_up_to_speed` is a block in the harness arm's stable context prefix. It tells the
-agent, before changing code, to run `pwd`, read `progress.md` and `git log --oneline -20`, read
-`session-handoff.md` and the exec plan, run `bash init.sh`, and run the visible tests, fixing anything
-already broken first. It ends with A2's session end: "End each session with a git commit and a
-progress update."
+`lifecycle.getting_up_to_speed` is a block in the harness arm's stable context prefix
+(`src/shipharness/harness/state/lifecycle.py`, lines 21-53, shown without the `scope` branch):
+
+```python
+    steps = [
+        "Run `pwd` to see the directory you are working in. You can only edit files in this "
+        "directory.",
+        "Read progress.md and the git log (`git log --oneline -20`) to see what was recently "
+        "worked on.",
+        f"Read session-handoff.md (the structured handoff from the last session) and the exec "
+        f"plan {exec_plan_path(spec.feature_id)}.",
+        'Read the "Notes from the agent" in session-handoff.md before any other document: '
+        "earlier sessions wrote down the house rules and files that matter for this ticket. Open a "
+        "document from the AGENTS.md map only for a detail the notes do not cover (in the first "
+        "session, only the documents for the parts you will change).",
+    ]
+    ...
+    steps += [
+        "Run `bash init.sh` to set up the database and run a basic end-to-end test.",
+        'Read the "Visible tests" line in session-handoff.md: the harness ran the full visible '
+        "suite when the last session ended. If it lists failures, fix them before you start new "
+        "work. In the first session there is no such line yet: run the visible tests once with "
+        "run_visible_tests.",
+    ]
+```
+
+The block ends: "Spend the session on the ticket: update progress.md, the exec plan, and the handoff
+only when the harness asks you to wrap up." The steps follow A2's list (F-a-58 to F-a-62). Two parts
+are the course's answer to what pilot run 2 showed (section 6): the agent's own notes come before any
+document, and the bookkeeping waits for the wrap-up (VERIFICATION.md, M6 pilot, change 9).
 
 ### 4.3 Wrap-up and the stop (end of session 1)
 
-When three turns are left (`WRAPUP_TURNS`, `config/settings.py`), the runner sends both arms "This
+When three turns are left (`wrapup_turns`, `config/settings.py`), the runner sends both arms "This
 session is ending soon. Turns left in this session: 3." (`runner/prompts.py`). The harness arm's
-message continues with `lifecycle.wrapup_text`: update `progress.md`, update the exec plan's Progress
-and Decision Log, write notes in `session-handoff.md`, and commit. The bare arm gets only the first
-sentence. Both arms get the same number of turns (DESIGN §6.3).
+message continues with `lifecycle.wrapup_text`: update `progress.md`; update the exec plan's Progress
+and Decision Log; write notes in `session-handoff.md`, including "the house rules and file locations
+from the documents you read that matter for this ticket, so the next session does not need to read
+them again"; and commit. The bare arm gets only the first sentence. Both arms get the same number of
+turns (DESIGN §6.3).
 
 When the session ends, the harness writes its own part of the handoff, whether or not the agent did
-anything (anchor `S2:stop_resume`, `src/shipharness/harness/state/lifecycle.py`, lines 81-105):
+anything (anchor `S2:stop_resume`, `src/shipharness/harness/state/lifecycle.py`, lines 96-120):
 
 ```python
 def session_stop(
@@ -228,11 +295,12 @@ def session_stop(
 ```
 
 The machine summary (`handoff.py`, `MachineSummary.render`) lists the start and end commits, the files
-changed in the session, the visible-test status, the last five commits, open TODO markers in changed
-files, and the migration heads, read from `migrations/versions/*.py` as text. When there is more than
-one head it adds "house rule R7 needs exactly one". The agent's own notes stay under "Notes from the
-agent"; the harness only rewrites "Machine summary". Writing a machine part even when the agent writes
-nothing is course design (DESIGN §6.3).
+changed in the session, the visible-test status (the harness runs the full visible suite here), the
+last five commits, open TODO markers in changed files, the migration heads read from
+`migrations/versions/*.py` as text, and the harness documents the agent has read so far. When there is
+more than one head it adds "house rule R7 needs exactly one". The agent's own notes stay under "Notes
+from the agent"; the harness only rewrites "Machine summary". Writing a machine part even when the
+agent writes nothing is course design (DESIGN §6.3).
 
 The progress log line (anchor `S2:write`, `src/shipharness/harness/state/progress.py`, lines 12-22):
 
@@ -270,23 +338,24 @@ off, so the plan stays in `active/`; the move first happens in demo-3.
 ```mermaid
 sequenceDiagram
   participant H as state layer
-  participant P1 as session 1 (20 turns)
+  participant P1 as session 1
   participant Repo as workspace + git
-  participant P2 as session 2 (30 turns)
+  participant P2 as session 2
   H->>Repo: initializer step: init.sh, progress.md,<br/>session-handoff.md, exec plan; commit
-  P1->>Repo: Getting up to speed, then code and commits
+  P1->>Repo: Getting up to speed, then code and commits<br/>(no bookkeeping yet)
   H->>P1: wrap-up at 3 turns left
-  P1->>Repo: progress, exec plan, handoff notes, commit
+  P1->>Repo: progress, exec plan, handoff notes<br/>(rules and files that matter), commit
   Note over P1: turn budget used, session_stop
   H->>Repo: machine summary + session log entry; commit
   Note over P2: empty context, session_resume
   H->>P2: neutral resume sentence + handoff summary
-  P2->>Repo: reads progress.md, git log, handoff, plan,<br/>runs init.sh (sees migration heads)
+  P2->>Repo: reads handoff notes first, progress.md, git log,<br/>runs init.sh (sees migration heads)
   P2->>Repo: continues the feature
 ```
 
-*The state layer's flow across one forced stop. The bare arm has the same two sessions, the same
-wrap-up turns, and the same resume sentence, with none of the files.*
+*The state layer's flow across one forced stop (canonical budget: 20 then 30 turns; run 3 lever: 12
+then 38). The bare arm has the same two sessions, the same wrap-up turns, and the same resume
+sentence, with none of the files.*
 
 ---
 
@@ -309,10 +378,13 @@ secondary (DESIGN §8.2). Two numbers go with it:
   log holds for that run id (an A/B writes both arms into one log, so the check counts only the scored
   run's events; CONTRACTS §22).
 
-Session patches are written on the host after the run (`ab/demo.py`, `session_patches`): committed
-changes between each session's start and end commits, and, for the last session, uncommitted work as
-well. The referee runs the check in its own container on a fresh export with the arm's diff applied,
-never in the arm's container (DESIGN §8.1).
+Session patches are written on the host after the run (`ab/demo.py`, `session_patches`): the change
+between each session's start and end working-tree snapshots, so an arm that never commits is measured
+like one that does (VERIFICATION.md, M6 pilot, change 2). Before the check, the referee strips the
+harness artifacts (`progress.md`, `session-handoff.md`, the exec plan) from those patches, as it
+already did for the shipped diff (`ab/referee.py`, `_product_sessions`; change 7). The referee runs
+the check in its own container on a fresh export with the arm's diff applied, never in the arm's
+container (DESIGN §8.1).
 
 ```mermaid
 flowchart TD
@@ -320,7 +392,7 @@ flowchart TD
   A -- no --> F["continuity_failure = true"]
   A -- yes --> D{"(b) a table created by<br/>two migrations?"}
   D -- yes --> F
-  D -- no --> P{"(c) two session patches and<br/>redone_lines_pct ≥ 30?"}
+  D -- no --> P{"(c) two session patches,<br/>harness files stripped,<br/>redone_lines_pct ≥ 30?"}
   P -- yes --> F
   P -- no --> OK["continuity_failure = false"]
 ```
@@ -329,17 +401,55 @@ flowchart TD
 
 Read the result with these limits in mind:
 
-- If an arm calls `finish(claim="done")` before turn 20, its build phase has one session and no stop.
-  Parts (a) and (b) still apply. Part (c) compares the first two session patches of the run, so in
-  that case the second patch is the test phase's session (every phase starts a new session with an
-  empty context, `runner/loop.py`).
-- The harness writes `progress.md` and the handoff for its own arm only; those files are harness
-  artifacts and are excluded from the shipped diff that the referee and the blinded reviewer see
-  (DESIGN §15 D-18).
+- If an arm calls `finish` before its first session's budget is used, its build phase has one session
+  and no stop. Parts (a) and (b) still apply. Part (c) compares the first two session patches of the
+  run, so in that case the second patch is the test phase's session (every phase starts a new session
+  with an empty context, `runner/loop.py`).
 - A3 dropped resets for a later model (F-a-69). A bare arm that passes S2 on a given model is a
-  result about that model at that effort, not evidence that state files are never needed.
+  result about that model at that effort and that budget, not evidence that state files are never
+  needed.
 
-Results from the batch-1 experiments and tonight's run go here:
+---
+
+## 6. What the pilot found
+
+The M6 pilot ran the A/B before the class, k=3 per section (VERIFICATION.md, M6 pilot). Run 2's F2 rows
+(VERIFICATION.md, M6 pilot run 2):
+
+| Arm | Primary passed | Agent time limit hit | Agent time (s) | Harness time (s) |
+|---|---|---|---|---|
+| bare | 3/3 | 0/3 | 215-242 | 0 |
+| harness | 0/3 | 1/3 | 265-303 | 54-64 |
+
+The harness arm failed the measure only because of a measurement bug. A second finding, turn cost,
+explains why it built so little. Neither is the forgetting this section is about.
+
+**A measurement bug.** The continuity check read the raw session patches, which included the
+harness's own files. In every F2 harness arm, session 1 added only `progress.md`,
+`session-handoff.md`, and the exec plan, and session 2 rewrote them; part (c) scored that as session 2
+removing 50-84% of session 1's lines (VERIFICATION.md, M6 pilot run 2, "Why it failed"). The fix,
+change 7, strips harness artifacts from the session patches before the check. It is labelled "bug fix,
+applies to both arms", and the primary measure is unchanged.
+
+**Turn cost.** "Every session repeated the getting-up-to-speed steps, re-read 3 to 7 instruction
+documents and about 15 product files, and updated progress.md and the exec plan mid-session. F2
+harness arms made 0 to 1 product patches in 50 build turns." (VERIFICATION.md, M6 pilot run 2). This is
+A4's "spend significant time orienting itself" (F-a-10) caused by the harness itself. Change 9 is a
+harness change, harness arm only: the session start reads the handoff's agent notes before any
+document, progress.md, the exec plan, and the handoff are updated only in the wrap-up turns, the
+wrap-up asks the agent to record the rules that matter, and the handoff lists the documents already
+read (section 4.2 and 4.3).
+
+The lesson for your own harness: state files have a cost in turns, and an A/B can show that cost.
+A3 says the same of resets ("token overhead, and latency", F-a-68).
+
+**The next run.** With the bug fixed, run 2's bare arms still passed, so F2 had no gap. The
+pre-registered lever for run 3 is a tighter session turn budget: `F2-canonical` with a 12-turn first
+session and 38 turns after it, the same 50 in total, for both arms (`shipharness ab --session-budget
+12,38`; DESIGN §10.4; VERIFICATION.md, overnight run 2026-10-17). Which task the class uses follows
+the pilot decision recorded in VERIFICATION.md.
+
+[[PENDING: pilot run 3 F2 rows (12-turn first session): continuity_failure per arm out of k=3, components, redone_lines_pct, and the class task decision | source: M6 pilot | how: scripts/pilot.py --budgets F2=12/38 (pilot run 3); VERIFICATION.md]]
 
 [[PENDING: S2 primary measure, continuity_failure runs out of k=10 per arm, with components (a), (b), (c) and redone_lines_pct per run, and run ids | source: M8 batch 1 | how: make experiments BATCH=1 && make report]]
 
@@ -350,4 +460,6 @@ Results from the batch-1 experiments and tonight's run go here:
 ## Further reading
 
 The [post-class reading](post-class-reading/README.md) has the sources side by side, the exec-plan and
-handoff templates against A7 and A3, and the continuity check line by line.
+handoff templates against A7 and A3, and the continuity check line by line, including the pilot's
+measurement bug. The [session notes](session-notes.md) summarise the class and the questions it
+raised.

@@ -1,6 +1,6 @@
 # Exec plans and structured handoffs: the templates against their sources
 
-Reading time: about 7 minutes.
+Reading time: about 8 minutes.
 
 The state layer writes two documents that the agent is asked to keep current: an execution plan and
 a session handoff. This piece shows the two templates as they ship in `shipharness` and lines each
@@ -108,10 +108,19 @@ The file has two owners, by design:
 
 - **Machine summary** is written by `lifecycle.session_stop` at every stop: start and end commits,
   files changed in the session, visible-test status with up to five failure lines, the last five
-  commits, open `TODO`/`FIXME`/`XXX` markers in changed files, and migration heads read from the
-  migration files as text (`handoff.py`). It is rewritten each time.
+  commits, open `TODO`/`FIXME`/`XXX` markers in changed files, migration heads read from the
+  migration files as text, and the harness documents the agent has read so far (`handoff.py`). It
+  is rewritten each time.
 - **Notes from the agent** are kept exactly as the agent wrote them (`handoff.merge`). The wrap-up
-  message asks for them three turns before the stop.
+  message asks for them three turns before the stop, including "the house rules and file locations
+  from the documents you read that matter for this ticket, so the next session does not need to
+  read them again" (`lifecycle.wrapup_text`).
+
+The last two items came from the pilot. In pilot run 2 every harness session "re-read 3 to 7
+instruction documents and about 15 product files" (VERIFICATION.md, M6 pilot run 2), so the
+handoff now carries what was learned from them, and the Getting up to speed routine reads the agent's
+notes before any other document (change 9). A handoff is only worth its turns if the next session
+reads it instead of repeating the work it records.
 
 Having a machine part at all is course design (DESIGN §6.3): an agent that runs out of turns
 mid-edit may write no notes, and the next session should still start from something. A4's agents
@@ -119,7 +128,9 @@ point at a further section worth adding in your own repository: a list of approa
 ("a running doc of failed approaches and remaining tasks", A4, F-a-73). The `harness-setup` skill's
 checklist (`skills/harness-setup/references/session-lifecycle.md`) includes that item.
 
-## Questions to answer before you write your own
+## Why it matters for your own repo
+
+Before you write your own plan and handoff templates, answer these:
 
 1. What does a fresh session need to know in its first five tool calls? Put that in the handoff's
    first lines; the harness resume text passes only the first 3,000 characters of the machine summary
@@ -129,3 +140,5 @@ checklist (`skills/harness-setup/references/session-lifecycle.md`) includes that
 3. Which file is the record for which question? In `shipharness`: the plan says what and why, the
    progress log says which session did what, the handoff says where the last session stopped, and git
    holds the changes.
+4. When does the agent update these files? Asking for updates throughout the session cost the pilot's
+   harness arm turns it needed for the feature; `shipharness` now asks only in the wrap-up turns.

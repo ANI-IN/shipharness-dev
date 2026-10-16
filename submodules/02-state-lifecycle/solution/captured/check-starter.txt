@@ -1,4 +1,7 @@
-$ uv run python submodules/02-state-lifecycle/assignment/check.py
+# Captured on 2026-10-17 at commit e7287f4 (offline: test stand-in agent, no model calls, no run id).
+# Your output will differ: commit hashes change on every run.
+$ make check-assignment-2
+uv run python submodules/02-state-lifecycle/assignment/check.py 
 A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/assignment/starter
 Agent: the test stand-in agent (a2_scenario/literal_agent.py), deterministic, not a model.
 Each scenario: four sessions, three forced stops by the session turn budget.
@@ -23,7 +26,7 @@ Scenario V1-boundary-stops: each stop lands just after a step is committed (budg
   PASS progress_sections: sections in order
   FAIL session_log: entries [], sessions [1, 2, 3, 4]
        hint: one `- Session <n> ...` entry per session under `## Session log`; keep the entries when the agent rewrites the file (TODO 4).
-  FAIL history_consistent: session 1: None != ('0a949d0', '645a529', 'turn_budget'); session 2: None != ('645a529', 'bea863a', 'turn_budget'); session 3: None != ('bea863a', 'd5f630d', 'turn_budget'); session 4: None != ('d5f630d', 'd5f630d', 'turn_budget')
+  FAIL history_consistent: session 1: None != ('c345ad4', 'bff33a9', 'turn_budget'); session 2: None != ('bff33a9', 'b88c7d2', 'turn_budget'); session 3: None != ('b88c7d2', '022ef02', 'turn_budget'); session 4: None != ('022ef02', '022ef02', 'turn_budget')
        hint: use the SessionResult's start_sha, end_sha, and ended_by; the format is `shipharness.harness.state.progress.session_entry` (TODO 4).
   FAIL plan_completed: completed=False, active=True, outcome=no
        hint: move it when the last claim is done and git shows every step committed; replace 'Not finished yet.' in Outcomes & Retrospective (TODO 7).
@@ -56,7 +59,7 @@ Scenario V2-mid-step-stops: each stop lands after a step's files are written but
   PASS progress_sections: sections in order
   FAIL session_log: entries [], sessions [1, 2, 3, 4]
        hint: one `- Session <n> ...` entry per session under `## Session log`; keep the entries when the agent rewrites the file (TODO 4).
-  FAIL history_consistent: session 1: None != ('349cc9e', '349cc9e', 'turn_budget'); session 2: None != ('349cc9e', 'bb38bfd', 'turn_budget'); session 3: None != ('bb38bfd', '9708655', 'turn_budget'); session 4: None != ('9708655', 'af7b5ea', 'turn_budget')
+  FAIL history_consistent: session 1: None != ('f238cb2', 'f238cb2', 'turn_budget'); session 2: None != ('f238cb2', 'c225904', 'turn_budget'); session 3: None != ('c225904', '9e73fed', 'turn_budget'); session 4: None != ('9e73fed', 'ca49586', 'turn_budget')
        hint: use the SessionResult's start_sha, end_sha, and ended_by; the format is `shipharness.harness.state.progress.session_entry` (TODO 4).
   FAIL plan_completed: completed=False, active=True, outcome=no
        hint: move it when the last claim is done and git shows every step committed; replace 'Not finished yet.' in Outcomes & Retrospective (TODO 7).
@@ -73,4 +76,5 @@ Self-check: 2 of 28 checks pass.
 Live evidence (graded, 10 points): not found in submodules/02-state-lifecycle/assignment/starter/live.
   Run the required live step once your layer is final (README).
 Fix the FAIL and HALF lines (the hints name the TODOs in a2_state), then run again.
-[exit code 1]
+make: *** [Makefile:130: check-assignment-2] Error 1
+[exit code 2]
