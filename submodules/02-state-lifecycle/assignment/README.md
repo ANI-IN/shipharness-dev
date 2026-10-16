@@ -2,32 +2,34 @@
 
 Build a state layer that lets a three-step feature finish across three forced session stops, with
 no duplicated migration, no redone work, and a progress log and exec plan that agree with the git
-history. Everything runs offline: a deterministic stand-in for the model (the literal agent) drives
-the real `shipharness` runner loop on a small repository, so the self-check and the grader need no
-API key, network, or Docker.
+history. The graded scenarios run offline: a test stand-in agent (a deterministic program, not a
+model) drives the real `shipharness` runner loop on a small repository, so the self-check and the
+grader need no API key, network, or Docker, and the scores repeat. Then you run your layer once,
+live, with the course model (gpt-6-luna) through three forced stops, and submit that run's records.
 
-Planned effort: 3 to 6 hours for a strong engineer (brief §5.1).
+Planned effort: 3 to 6 hours for a strong engineer (brief §5.1), plus one live run.
 
 ## Objective
 
 Write `ResumableStateLayer`, a harness layer (CONTRACTS §5) that writes, at every session stop,
 the state the next session needs, derived from evidence in the repository rather than from what
-the agent says it did. Then show that it works: `make check-assignment-2` passes and
-`make grade-assignment-2` reports 100/100 on the visible and hidden scenarios.
+the agent says it did. Then show that it works: `make check-assignment-2` passes on the visible
+scenarios, and one live run with gpt-6-luna (the required live step) goes through four sessions
+with your layer as the state layer. The instructor's grader adds hidden scenarios and checks the
+live run's records; the score is out of 100.
 
 ## Problem statement
 
 In class (S2) the harness arm got a progress file, an exec plan, and a structured handoff, and the
 feature finished across one forced stop. Here the ticket has three steps and the session turn
-budget stops the run three times before the agent can finish. The literal agent starts every
+budget stops the run three times before the agent can finish. The test stand-in agent starts every
 session with an empty context and believes only what it reads. When the state it reads is missing
 or wrong, it does what a resumed agent does: it starts the work again. You will see it create a
 second migration for a table that already exists, rewrite files it already wrote, and run out of
 turns before the last step.
 
 The class's S2 layer (`shipharness.harness.state.layer.StateLayer`) is not enough. It never tells
-the next session which steps are done, so step 1 is redone in every session; its grader output is
-in `solution/captured/grade-class-s2-layer.txt`.
+the next session which steps are done, so step 1 is redone in every session.
 
 ## Background
 
@@ -52,16 +54,18 @@ in `solution/captured/grade-class-s2-layer.txt`.
   added are removed in session 2 (`REDONE_THRESHOLD_PCT` in `src/shipharness/checks/continuity.py`).
 
 Course design (not from a source): the step ledger, the rule that it is rebuilt from git at every
-stop, and the literal agent itself.
+stop, the test stand-in agent itself, and the four-session live task.
 
 The S2 code to read first, by walkthrough anchor (`uv run python scripts/anchors.py list`):
 `S2:init` (init.sh), `S2:stop_resume` (session stop and resume), `S2:write` (session-log entry).
 
-## The literal agent
+## The test stand-in agent
 
-`a2_scenario/literal_agent.py` plays the model. It is not a recording: each call decides the next
-tool call from the current session's transcript only, so it reacts to whatever your layer wrote.
-Its rules are the contract between your layer and the next session.
+`a2_scenario/literal_agent.py` is a test stand-in agent: a deterministic program that follows
+fixed rules, not a model. It exists for grading only, so that every learner's layer meets the same
+agent and the scenario scores repeat. It is not a recording: each call decides the next tool call
+from the current session's transcript only, so it reacts to whatever your layer wrote. Its rules
+are the contract between your layer and the next session.
 
 1. Every session starts with three reads, one turn each: `progress.md`, `session-handoff.md`, and
    `docs/exec-plans/active/<feature>.md`.
@@ -83,6 +87,9 @@ Its rules are the contract between your layer and the next session.
 5. Work it does not know about is done again as a fresh attempt: a new migration file with a new
    revision id, and files rewritten with a different `# draft <n>` marker on every line.
 
+A real model does not follow these rules; the required live step shows what your layer does with
+one.
+
 ## What to build
 
 `starter/a2_state/` holds a layer that runs but writes nothing at a session stop. Complete it:
@@ -90,6 +97,8 @@ Its rules are the contract between your layer and the next session.
 - `ledger.py`: the steps of the ticket and their status from git evidence (TODO 1a-1c).
 - `layer.py`: `on_session_end` (TODO 1-5), `on_session_start` (TODO 6), `on_phase_end` (TODO 7).
 - `progress_log.py`: progress.md rebuilt with every section and every session-log entry (TODO 4).
+
+Then run the required live step once and keep its records in your folder (`live/`).
 
 ## Concepts tested
 
@@ -106,12 +115,14 @@ Its rules are the contract between your layer and the next session.
 - Section S2 in class (`make demo-2`) and the anchors above.
 - Python 3.12, uv, and git; `make setup` (or `uv sync --frozen`) done once.
 - Read all of `src/shipharness/harness/state/`, and CONTRACTS §5 and §15.
+- For the live step only: both API keys in `.env`, Docker, and the checkpoints (`make doctor`
+  passes).
 
 ## Expected input and output
 
 Input: a scenario (a feature, four session turn budgets, optional agent behaviours), run by the
-real runner loop with your layer as the only harness layer, the literal agent as the model, and
-LocalSandbox on a fresh mini repository (`a2_scenario/fixture.py`).
+real runner loop with your layer as the only harness layer, the test stand-in agent in the model's
+place, and LocalSandbox on a fresh mini repository (`a2_scenario/fixture.py`).
 
 Output, in the mini repository after the run:
 
@@ -150,15 +161,19 @@ Output, in the mini repository after the run:
 8. Completion (TODO 7): once, when the last claim is done and the ledger shows every step done,
    rebuild Progress, replace "Not finished yet." under `## Outcomes & Retrospective`, move the plan
    to `docs/exec-plans/completed/`, and commit `docs/exec-plans`.
+9. Live step: one run of your final layer with gpt-6-luna through three forced stops, with its
+   records in `<your folder>/live/` (section "Required live step").
 
 ## Constraints
 
 - Edit only `starter/a2_state/` (or a copy of it, passed with `A2_IMPL` / `--impl`). Do not edit
-  `a2_scenario/`, `check.py`, or anything under `src/`.
+  `a2_scenario/`, `check.py`, `live/`, or anything under `src/`.
 - Keep `context_prefix` byte-stable across sessions (it is part of the cached prompt prefix).
 - Run git in the sandbox; write workspace files with `shipharness.harness.state.files`.
-- No model calls and no network. The layer must work for any feature whose steps have ids `S1`,
-  `S2`, ...; nothing may depend on the visible feature's file names or step count.
+- No model calls and no network in the layer. The layer must work for any feature whose steps have
+  ids `S1`, `S2`, ...; nothing may depend on the visible feature's file names or step count.
+- The live step runs once per submission, with the course model, sandbox, and caps (section
+  "Required live step"). Do not edit the files it writes.
 
 ## Step-by-step tasks
 
@@ -168,10 +183,13 @@ Output, in the mini repository after the run:
 4. TODO 6: the resume text. Run the self-check: V1 now gets past step 1.
 5. TODO 2: the exec plan's Progress section with the session lines.
 6. TODO 3: the handoff. TODO 4: `normalise_progress` and the session log.
-7. TODO 7: completion. Run the self-check until all 28 checks pass.
-8. Run `make grade-assignment-2`. The hidden scenarios use other stop points, a four-step feature
-   with two chained migrations, an agent that writes a handoff note and later rewrites
-   progress.md, and an agent that ticks a step in the exec plan before doing it.
+7. TODO 7: completion. Run the self-check until all 28 checks pass. The grader's hidden scenarios
+   use other stop points, a four-step feature with two chained migrations, an agent that writes a
+   handoff note and later rewrites progress.md, and an agent that ticks a step in the exec plan
+   before doing it, so test those cases yourself.
+8. With the layer final, run the required live step once. Run the self-check again: its last lines
+   report whether `live/` holds valid evidence.
+9. Submit your folder (section "Submission").
 
 ## Expected project structure
 
@@ -182,23 +200,37 @@ assignment/
   a2_scenario/             provided, do not edit
     feature.py             steps, file slots, ticket text
     fixture.py             the mini repository (one Alembic migration, one visible test)
-    literal_agent.py       the deterministic model client
+    literal_agent.py       the test stand-in agent (deterministic, not a model)
     runner.py              one scenario through shipharness.runner.loop.run_agent
-    measures.py            the grading criteria
+    measures.py            the grading criteria of the scenarios
+    live_evidence.py       the live task, the evidence files, and their checks
     report.py              loading your layer, printing results
     scenarios.py           the visible feature (comments, three steps) and scenarios V1, V2
   starter/a2_state/        your work
     layer.py               ResumableStateLayer (TODO 1-7)
     ledger.py              TODO 1a-1c
     progress_log.py        TODO 4
-  tests/                   tests of the provided code
-  live/run_live.py         optional live variant (report template: last section below)
+  tests/                   tests of the provided code (the live evidence tests use a synthetic fixture)
+  live/run_live.py         the live wrapper: required live step and optional live variant
+```
+
+Your submission folder (a copy of `starter/`, here `my-a2/`):
+
+```
+my-a2/
+  a2_state/                your layer
+  live/                    written by the required live step; do not edit
+    task.jsonl             the four-session F2 task the run used
+    command.txt            the wrapper command as run, and the shipharness command it ran
+    output.txt             everything the A/B printed, with its `Cost: $...` line
+    summary.json           run summary: A/B id, run ids, model, sessions and forced stops per arm, layer
+    scores/<run_id>.json   the ScoreRecord of each arm, copied from exports/scores/
 ```
 
 ## Setup
 
 ```
-make setup                      # once: uv sync (and the images, used only by the live variant)
+make setup                      # once: uv sync and the images (the images are for the live step)
 make check-assignment-2         # see the starter fail
 ```
 
@@ -208,13 +240,12 @@ To keep the starter untouched, copy it and point the commands at the copy:
 ## How to run
 
 ```
-make check-assignment-2 [A2_IMPL=<folder>]   # visible scenarios
-make grade-assignment-2 [A2_IMPL=<folder>]   # visible and hidden scenarios, score out of 100
+make check-assignment-2 [A2_IMPL=<folder>]   # visible scenarios and the live evidence status
 ```
 
 Without make: `uv run python submodules/02-state-lifecycle/assignment/check.py --impl <folder>`.
 `--keep` keeps the scenario repositories and prints their paths, so you can read the files your
-layer wrote. The grader takes `--details` (session lines for every scenario) and `--json <file>`.
+layer wrote. The required live step has its own command (section "Required live step").
 
 ## How to test
 
@@ -242,8 +273,8 @@ The visible feature's ticket (`Feature.ticket()` in `a2_scenario/feature.py`), i
 - S3 Index and tests: one migration that adds an index on comments.issue_id, and tests/visible/test_comments.py
 ```
 
-Self-check on the starter, scenario V1 (lines from the captured run in
-`solution/captured/check-starter.txt`, shortened with `...`):
+Self-check on the starter, scenario V1 (lines from a run of `make check-assignment-2` on the
+starter, shortened with `...`):
 
 ```
   session 2 (6 turns, ended by turn_budget): 3 reads, write S1 migrations/versions/c1a2_comments.py [REDO: S1 was committed in session 1], ...
@@ -251,7 +282,7 @@ Self-check on the starter, scenario V1 (lines from the captured run in
   FAIL no_duplicate_table: comments created by c1a1_comments.py, c1a2_comments.py, c1a3_comments.py, c1a4_comments.py
 ```
 
-Ledger lines that work with the literal agent:
+Ledger lines that work with the test stand-in agent:
 
 ```
 - [x] S1 Comments table: done in commit 615f2d2
@@ -261,26 +292,45 @@ Ledger lines that work with the literal agent:
 
 ## Grading criteria (100 points)
 
-Each criterion is checked in every scenario (2 visible, 4 hidden). Its points are multiplied by the
+The instructor grades your submission folder. Each scenario criterion is checked in every
+scenario (2 visible, 4 hidden), run with the test stand-in agent. Its points are multiplied by the
 share of scenarios that pass it; `no_redone_lines` earns half in a scenario where the worst session
-redid less than 30% of earlier lines.
+redid less than 30% of earlier lines. `live_run` is all or nothing.
 
 | Key | Points | Criterion |
 |---|---:|---|
-| `finished` | 15 | Three forced stops, the last session ends with `finish(done)`, visible tests pass, every step's files exist |
-| `one_head` | 10 | Exactly one Alembic head |
-| `fresh_upgrade` | 10 | `alembic upgrade head` works on an empty database |
+| `finished` | 13 | Three forced stops, the last session ends with `finish(done)`, visible tests pass, every step's files exist |
+| `one_head` | 9 | Exactly one Alembic head |
+| `fresh_upgrade` | 9 | `alembic upgrade head` works on an empty database |
 | `no_duplicate_table` | 5 | No table is created by two migrations |
-| `no_redone_lines` | 15 | No session removes lines an earlier session added (0%: full points; under 30%: half) |
+| `no_redone_lines` | 13 | No session removes lines an earlier session added (0%: full points; under 30%: half) |
 | `steps_once` | 5 | Each step is committed exactly once |
 | `progress_sections` | 3 | progress.md keeps its CONTRACTS §15.2 sections in order |
-| `session_log` | 10 | One session-log entry per session, in order |
-| `history_consistent` | 5 | Each entry's start and end commits and end reason match the run |
+| `session_log` | 8 | One session-log entry per session, in order |
+| `history_consistent` | 4 | Each entry's start and end commits and end reason match the run |
 | `plan_completed` | 5 | Exec plan moved to `completed/`, with an outcome |
 | `plan_ledger` | 5 | Progress ticks every step with a commit whose subject starts with its id |
 | `plan_sessions` | 5 | Progress has a `Session <n> ... ended by <reason>` line per session |
-| `handoff` | 5 | Last session's machine summary, `Migration heads: 1 (`, agent notes kept |
+| `handoff` | 4 | Last session's machine summary, `Migration heads: 1 (`, agent notes kept |
 | `clean_tree` | 2 | Clean working tree at the end |
+| `live_run` | 10 | `live/` holds valid evidence of the required live step (checks below) |
+
+The `live_run` checks read the files only; the grader never runs a model and needs no keys. It
+scores nothing from what the model did beyond these facts:
+
+- the files exist, each `scores/*.json` is a valid ScoreRecord (`src/shipharness/ab/score.py`,
+  `checkpoint_sha` set), one per arm, named by its run id;
+- the run ids and the A/B id agree across `summary.json`, the score records, and `output.txt`, and
+  `command.txt` names the live task (`--example F2-a2-four-sessions --layers instructions,state`);
+- both arms ran gpt-6-luna with session budget [10, 10, 10, 20]; the harness arm had four build
+  sessions, the first three ended by the turn budget, and three `session_stop` events;
+- `recorded` is false and `sandboxed` is true in both records;
+- each arm's `cost_usd` is at most the run cap ($0.20, `max_run_cost_usd`), and the command's
+  `Cost: $...` line is at most $2.50 (`max_batch_cost_usd`), both in
+  `src/shipharness/config/settings.py`;
+- the harness record lists the `state` layer, and the layer that ran is your submitted
+  `a2_state/`: `summary.json` holds a sha256 of its `.py` files, which must match the folder you
+  submit.
 
 ## Common mistakes
 
@@ -296,67 +346,113 @@ redid less than 30% of earlier lines.
   workspace at every stop, so an uncommitted migration counts.
 - Hard-coding `S1`-`S3` or the comments file names: the hidden feature has four steps.
 - Running git on the host instead of through `ctx.sandbox.exec`.
+- Changing `a2_state/` after the live step: the layer hash no longer matches and `live_run` fails.
+  Run the live step last.
+
+## Required live step
+
+Course design: one A/B, run once, with your layer as the harness arm's state layer and the course
+model as the agent. It uses the real `shipharness` runner, sandbox, referee, and caps of class.
+
+The task is F2-canonical from `teamtrack-features-v1` with one change: four build sessions instead
+of two. The dataset's F2 tickets have one forced stop each (session budget [20, 30]); the live
+task splits the same 50 build turns into [10, 10, 10, 20] (`LIVE_BUDGETS` in
+`a2_scenario/live_evidence.py`), and its ticket says "This task runs over four sessions." instead
+of two. Hidden tests, mutants, and the primary measure are unchanged. The runner starts the next
+session only when a session ends by its turn budget (`_run_phases` in
+`src/shipharness/runner/loop.py`), so a run that reaches session 4 has had three forced stops,
+each followed by a `session_stop` event.
+
+From the repository root, with keys, Docker, and the checkpoints (`make doctor` passes):
+
+```
+uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 --forced-stops
+```
+
+The wrapper writes `my-a2/live/task.jsonl`, registers your `ResumableStateLayer` as "state", and
+runs `shipharness ab --dataset my-a2/live/task.jsonl --example F2-a2-four-sessions --layers
+instructions,state --no-reviewer` (both arms; the referee judges both). It prints the A/B output as
+it runs, then writes `command.txt`, `output.txt`, `summary.json` (from
+`.shipharness/runs/<ab_id>/ab.json` and `events.jsonl`), and copies the two score records from
+`exports/scores/`. It ends with `+ live evidence written ...` or a list of what is not valid, and
+it never overwrites an existing `live/summary.json`.
+
+The run does not count when the model ends a session before its turn budget (a `finish` call in
+sessions 1-3) or the run stops at a cap before session 4: the check reports the build sessions it
+found. Move `live/` away and run again; each attempt costs up to $0.40 at the caps.
+
+Score records and runs stay in `exports/` and `.shipharness/runs/` as for any A/B, so
+`uv run shipharness replay <ab_id>` and the console work on them. The run's continuity result
+(`continuity_failure`, `redone_lines_pct` in the records) is for your report, not for points.
+
+## Submission
+
+Submit your folder (`my-a2/` with `a2_state/` and `live/`), as a folder or as a git repository.
+The instructor runs `make grade-assignment-2 SUBMISSION=<folder or git URL>`. In a repository,
+the grader uses the folder that holds `a2_state/layer.py` and `live/summary.json`; keep exactly
+one such folder.
 
 ## Cost and trace budget
 
-The assignment makes no model calls: $0 and 0 LangSmith traces. The literal agent reports fixed
-token counts to the cost tracker, and nothing is sent anywhere.
+The scenarios and the self-check make no model calls: $0 and 0 LangSmith traces. The test stand-in
+agent reports fixed token counts to the cost tracker, and nothing is sent anywhere.
+
+The required live step is one A/B: two arms, each capped at $0.20 (`max_run_cost_usd` in
+`src/shipharness/config/settings.py`), so at most $0.40, and 4 traces (2 per run: agent root and
+referee evaluator, DESIGN §12). The optional variant below adds at most $0.80 and 8 traces, so A2
+stays inside its planned $1.50 and 60 traces (DESIGN §11.5).
 
 ## Optional live variant (costs money)
 
-Run your layer as the harness arm's state layer on three F2 tasks of the `section-2` subset of
-`teamtrack-features-v1` (each has one forced stop: session budget [20, 30]). This needs keys,
-Docker, and the checkpoints (`make setup`, `make doctor`). `live/run_live.py` registers your layer
-under the name "state" and passes the rest of the command line to the `shipharness` CLI:
+Two more F2 tasks of the `section-2` subset, each with one forced stop (session budget [20, 30]),
+to see your progress file, plan, and handoff on other tickets. `live/run_live.py` passes
+everything after `--` to the `shipharness` CLI:
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl <folder> -- ab --example F2-canonical --layers instructions,state --no-reviewer
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl <folder> -- ab --example F2-reworded-pm --layers instructions,state --no-reviewer
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl <folder> -- ab --example F2-alt-a --layers instructions,state --no-reviewer
+uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-reworded-pm --layers instructions,state --no-reviewer
+uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-alt-a --layers instructions,state --no-reviewer
 ```
 
-Budget at the caps: each A/B runs two arms, each capped at $0.20 (`max_run_cost_usd` in
-`src/shipharness/config/settings.py`), so at most $0.40 per command and $1.20 for the three, inside
-A2's planned $1.50 and 60 traces (DESIGN §11.5). Each run writes 2 traces (DESIGN §12), so the three
-A/Bs write 12. A LangSmith experiment on the whole `section-2` split (`shipharness experiments
---split section-2 --k 1`) runs 8 tasks in two arms, up to $3.20 at the caps, above the $2.50 limit
-per command (brief §5.1), so the live variant uses `ab`.
+At the caps each command costs at most $0.40. A LangSmith experiment on the whole `section-2`
+split (`shipharness experiments --split section-2 --k 1`) runs 8 tasks in two arms, up to $3.20 at
+the caps, above the $2.50 limit per command (brief §5.1), so the variant uses `ab`.
 
-The live tickets have no step ids, so your ledger is empty there and the runs show only whether your
-progress file, plan, and handoff hold up with a real model. Report with the template below.
+The live tickets have no step ids, so your ledger is empty there (also in the required live step):
+the runs show whether your progress file, plan, and handoff hold up with a real model.
 
-[[PENDING: measured cost per A/B and continuity result per arm for the reference solution layer on F2-canonical, F2-reworded-pm, F2-alt-a | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution -- ab --example <id> --layers instructions,state --no-reviewer]]
+### Live report template
 
-### Live variant report template
-
-Copy this block into your own file and fill in every field from your runs. Keep the run ids, so the
-numbers can be checked against `runs/<run id>/events.jsonl` and the LangSmith traces.
+Copy this block into your own file and fill in every field from the required live step (and the
+variant, if you ran it). Keep the run ids, so the numbers can be checked against
+`.shipharness/runs/<ab id>/events.jsonl` and the LangSmith traces.
 
 ```
-# A2 live variant report
+# A2 live report
 
 Layer folder (--impl):            Commit of the layer:
 Date and model (OPENAI_MODEL):
 Commands run (exactly as typed):
 
-| Example        | Arm     | Run id | Status | Continuity | Redone lines % | Heads | Forced stops | Cost (USD) |
-|----------------|---------|--------|--------|------------|----------------|-------|--------------|------------|
-| F2-canonical   | bare    |        |        |            |                |       |              |            |
-| F2-canonical   | harness |        |        |            |                |       |              |            |
-| F2-reworded-pm | bare    |        |        |            |                |       |              |            |
-| F2-reworded-pm | harness |        |        |            |                |       |              |            |
-| F2-alt-a       | bare    |        |        |            |                |       |              |            |
-| F2-alt-a       | harness |        |        |            |                |       |              |            |
+| Example             | Arm     | Run id | Status | Continuity | Redone lines % | Heads | Forced stops | Cost (USD) |
+|---------------------|---------|--------|--------|------------|----------------|-------|--------------|------------|
+| F2-a2-four-sessions | bare    |        |        |            |                |       |              |            |
+| F2-a2-four-sessions | harness |        |        |            |                |       |              |            |
+| F2-reworded-pm      | bare    |        |        |            |                |       |              |            |
+| F2-reworded-pm      | harness |        |        |            |                |       |              |            |
+| F2-alt-a            | bare    |        |        |            |                |       |              |            |
+| F2-alt-a            | harness |        |        |            |                |       |              |            |
 
 Total cost (sum of the cost lines the commands printed):
 
-What the layer wrote: for one harness run, the session-handoff.md machine summary at the forced
-stop and the exec plan's Progress section at the end. Did the resumed session use them (its first
-tool calls in the run log)?
+What the layer wrote: for the harness run of F2-a2-four-sessions, the session-handoff.md machine
+summary at each forced stop and the exec plan's Progress section at the end. Did each resumed
+session use them (its first tool calls in the run log)?
 
-Findings: where the real model differed from the literal agent's rules; what you would change for
-tickets without step ids.
+Findings: where the real model differed from the test stand-in agent's rules; what you would
+change for tickets without step ids.
 ```
 
 "Continuity" is the S2 primary measure (DESIGN §8.2): the score record's `continuity_failure` and
-`redone_lines_pct` fields (`src/shipharness/ab/score.py`).
+`redone_lines_pct` fields (`src/shipharness/ab/score.py`). It compares sessions 1 and 2 only
+(`src/shipharness/checks/continuity.py`); for sessions 3 and 4, read the session patches in
+`.shipharness/runs/<ab id>/harness/sessions/`.

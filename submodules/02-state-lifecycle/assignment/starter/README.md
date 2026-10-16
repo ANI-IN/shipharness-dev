@@ -15,6 +15,10 @@ routine. Nothing is written at a session stop, so the self-check fails until you
 Work here, or copy the folder and pass the copy with `A2_IMPL=<folder>`:
 
 ```
-make check-assignment-2                 # visible scenarios, PASS/FAIL per criterion
-make grade-assignment-2                 # visible and hidden scenarios, score out of 100
+make check-assignment-2                 # visible scenarios (test stand-in agent), PASS/FAIL per criterion
 ```
+
+The scenarios run the test stand-in agent (`../a2_scenario/literal_agent.py`), a deterministic
+program, not a model. When your layer is final, run the required live step once (brief, "Required
+live step"); it writes `live/` next to `a2_state/`. Submit the folder with both. The instructor's
+grader adds hidden scenarios and checks `live/`; the score is out of 100.

@@ -10,12 +10,18 @@ The full outputs are in `captured/`, produced by the commands on their first lin
 
 | Layer | Self-check (visible) | Grade (visible and hidden) | File |
 |---|---|---|---|
-| Reference solution (`--impl submodules/02-state-lifecycle/solution`) | 28 of 28 checks | 100.0/100 | `check-solution.txt`, `grade-solution.txt` |
-| Starter (default `--impl`) | 2 of 28 checks, exit 1 | 4.4/100 | `check-starter.txt`, `grade-starter.txt` |
-| Class S2 layer (`--impl submodules/02-state-lifecycle/solution/class_s2_layer`) | not run | 32.2/100 | `grade-class-s2-layer.txt` |
+| Reference solution (`--impl submodules/02-state-lifecycle/solution`) | 28 of 28 checks | 90.0/100 (scenarios 90 of 90; `live_run` 0 until its live run is recorded) | `check-solution.txt`, `grade-solution.txt` |
+| Starter (default `--impl`) | 2 of 28 checks, exit 1 | 4.3/100 | `check-starter.txt`, `grade-starter.txt` |
+| Class S2 layer (`--impl submodules/02-state-lifecycle/solution/class_s2_layer`) | not run | 27.6/100 | `grade-class-s2-layer.txt` |
 
-The scenarios are deterministic (the literal agent and the scripted token counts never vary), so
-the scores repeat; only commit hashes and timestamps differ between runs.
+The scenarios are deterministic (the test stand-in agent and the scripted token counts never
+vary), so the scores repeat; only commit hashes and timestamps differ between runs. The test
+stand-in agent is a program that follows fixed rules, not a model; it is used for grading only.
+
+The `live_run` criterion (10 points) needs the captured live run of the reference solution in
+`live/` (see `live/README.md` for the command and the PENDING marker). The grader's tests give the
+reference layer 100/100 with a synthetic, labelled evidence fixture
+(`assignment/tests/a2_live_fixture.py`), never presented as a real run.
 
 ## Approach
 
@@ -86,14 +92,15 @@ machine summary, migration heads read as text, and sandboxed commits.
   status (`harness/scope/status.py`) is the course's answer to that problem.
 - Every stop runs the visible tests once, for the machine summary. That costs harness time at each
   stop but tells the next session whether it starts from a working state (A2, F-a-62).
-- The ledger needs step ids. Tickets without `S<n>` ids (the real F2 tickets in the live variant)
+- The ledger needs step ids. Tickets without `S<n>` ids (the real F2 tickets in the required live step and the live variant)
   get an empty ledger; the layer then still writes the session log, the plan's session lines, the
   handoff, and the heads.
 
 ## Known limits
 
-- The literal agent is a model of a disciplined but forgetful agent. A real model may read other
-  files, infer progress from the git log, or ignore the plan; the live variant measures that.
+- The test stand-in agent imitates a disciplined but forgetful agent; it is not a model. A real
+  model may read other files, infer progress from the git log, or ignore the plan; the required
+  live step (one four-session A/B with gpt-6-luna) shows that for each learner's layer.
 - The layer keeps its session-log list in memory, so it assumes one process per run (true for
   `run_agent`).
 - Only Alembic migrations under `migrations/versions/` are counted for heads (as in the S2 layer).
@@ -101,12 +108,34 @@ machine summary, migration heads read as text, and sandboxed commits.
 
 ## How the grader decides
 
-Per scenario, `assignment/a2_scenario/measures.py` evaluates 14 criteria (100 points in total). The
+Per scenario, `assignment/a2_scenario/measures.py` evaluates 14 criteria (90 points in total). The
 redone-lines measure reuses `redone_pct` from the S2 continuity check, applied to every session:
 session j's change runs from the stop of session j-1 to its own stop, so anything a layer changes in
 product files between sessions also counts. The working tree is captured at each session start and
 at each stop (before the layer writes) with a temporary git index, so uncommitted work is included.
 A criterion's points are multiplied by the share of the six scenarios that pass it.
+
+The live criterion (`live_run`, 10 points, `assignment/a2_scenario/live_evidence.py`) is all or
+nothing. It reads `<submission>/live/` and checks structure only: one valid ScoreRecord per arm
+with `checkpoint_sha`, `recorded` false and `sandboxed` true; run ids and the A/B id consistent
+across the records, `summary.json`, and `output.txt`; `command.txt` naming the live task; model
+gpt-6-luna and session budget [10, 10, 10, 20] for both arms; four build sessions for the harness
+arm with the first three ended by the turn budget and three `session_stop` events; each arm within
+the $0.20 run cap and the command's cost line within $2.50; the `state` layer in the harness
+record; and the sha256 of the submitted `a2_state/*.py` equal to the one recorded at run time. It
+never runs a model and scores nothing else from the model's output.
+
+Why [10, 10, 10, 20]: the dataset's F2 lines all give the build phase 50 turns in two sessions
+([20, 30], [13, 37], [25, 25], [38, 12]); the live task keeps 50 and splits it into four sessions.
+The runner starts session n+1 only when session n ends by its turn budget, and emits a
+`session_stop` event after each such session except the last (`_run_phases` in
+`src/shipharness/runner/loop.py`), so reaching session 4 means three forced stops. A model that
+calls `finish` in sessions 1-3, or a cap that stops the run before session 4, makes the evidence
+invalid; the learner moves `live/` away and runs again.
+
+[[PENDING: share of real gpt-6-luna runs of F2-a2-four-sessions that reach session 4 (three forced stops) and their cost per A/B | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops]]
+
+[[PENDING: measured cost per A/B and continuity result per arm for the reference solution layer on the optional variant (F2-reworded-pm, F2-alt-a) | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution -- ab --example <id> --layers instructions,state --no-reviewer]]
 
 ## Review notes for the Thursday session
 

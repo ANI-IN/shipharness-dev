@@ -1,5 +1,6 @@
 $ uv run python submodules/02-state-lifecycle/assignment/check.py --impl submodules/02-state-lifecycle/solution
 A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/solution
+Agent: the test stand-in agent (a2_scenario/literal_agent.py), deterministic, not a model.
 Each scenario: four sessions, three forced stops by the session turn budget.
 
 Scenario V1-boundary-stops: each stop lands just after a step is committed (budgets [6, 6, 6, 5])
@@ -43,5 +44,7 @@ Scenario V2-mid-step-stops: each stop lands after a step's files are written but
   PASS clean_tree: clean
 
 Self-check: 28 of 28 checks pass.
-All visible scenarios pass. Next: make grade-assignment-2 (adds hidden scenarios).
+Live evidence (graded, 10 points): 1 problem(s):
+  - live/: missing task.jsonl, command.txt, output.txt, summary.json, scores/
+All visible scenarios pass. The grader adds hidden scenarios of the same kinds.
 [exit code 0]
