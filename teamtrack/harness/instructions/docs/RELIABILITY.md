@@ -11,7 +11,8 @@ including new ones.
 - The same key with a different body returns 409 idempotency_conflict.
 - Keys are scoped per org and per endpoint.
 - Use `services.idempotency.run_once`; see `POST /projects` for the pattern.
-- Issue creation does not support keys yet; that is on the roadmap (`docs/PLANS.md`).
+- Issue creation accepts keys once F3 is in place (`docs/features/f3.md`); check `app/api/issues.py`
+  before relying on it.
 
 How the pattern in `app/api/projects.py` fits together: the router reads the `Idempotency-Key`
 header, defines a `create()` function that calls the service with `commit=False` and returns the

@@ -13,7 +13,7 @@ Grades: **meets rules** (no gap recorded), **gap** (a known shortfall that is on
 | Projects | meets rules | `POST /projects` is the pattern for idempotent creates (R4). Projects are archived, not deleted. |
 | Users | meets rules | Creating and updating users is admin-only (R2). |
 | Project members | meets rules | Adding and removing members is admin-only (R2). |
-| Issues | gap | Issue creation does not support keys yet (R4); that is on the roadmap (`docs/PLANS.md`). |
+| Issues | check | Issue creation accepts keys once F3 is in place (R4, `docs/features/f3.md`); check `app/api/issues.py`. |
 | Audit log | meets rules | Append-only; reading it is admin-only. |
 | Legacy /v1 API | do not copy | See "Legacy /v1 API" below. |
 

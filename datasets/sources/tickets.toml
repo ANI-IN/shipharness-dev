@@ -206,9 +206,9 @@ style = "terse"
 text = '''Optimistic concurrency for issues, plus history.
 - GET /issues/{issue_id} returns ETag: "<version>".
 - PATCH /issues/{issue_id}, POST /issues/{issue_id}/assign, POST /issues/{issue_id}/transition
-  require If-Match: "<version>": missing -> 428 precondition_required, stale -> 412
-  precondition_failed; success increments version and returns the new ETag.
-- Check order: 401, 403 (role), 404 (org, deleted), 428/412, 422. Document these statuses in OpenAPI.
+  accept an optional If-Match: "<version>": absent -> the write works as before; stale or
+  malformed -> 412 precondition_failed; every success increments version and returns the new ETag.
+- Check order: 401, 403 (role), 404 (org, deleted), 412, 422. Document 412 in OpenAPI.
 - GET /issues/{issue_id}/history: the issue's audit entries, oldest first, any role.
 - Board: the edit form sends the version in a hidden "version" field; a stale save returns 409 with
   a message page.
@@ -222,11 +222,11 @@ and the first person's change is silently lost. We want edits to be safe.
 
 Reading an issue (GET /issues/{issue_id}) should tell the client which version it got, as an ETag
 header with the issue's version. Every change to an issue (PATCH /issues/{issue_id}, the assign and
-transition actions) must then say which version it is based on with If-Match. If the header is
-missing, refuse with 428 precondition_required; if the issue has changed since, refuse with 412
-precondition_failed; if it matches, apply the change, bump the version, and return the new ETag.
+transition actions) may then say which version it is based on with If-Match. If the issue has
+changed since, or the header is malformed, refuse with 412 precondition_failed. If it matches, or
+the client sends no If-Match at all, apply the change, bump the version, and return the new ETag.
 Permission and existence errors still come first (401, then 403, then 404), and validation errors
-last (422). The API docs (OpenAPI) should list these responses.
+last (422). The API docs (OpenAPI) should list the 412 response.
 
 People also want to see what happened to an issue: GET /issues/{issue_id}/history lists its audit
 entries, oldest first, for any role. On the board, the edit form carries the version in a hidden
@@ -246,11 +246,12 @@ API refuses a stale change too.
 Actual: tab B's save wins and tab A's title change is lost.
 
 Notes: GET /issues/{issue_id} should return ETag: "<version>". PATCH /issues/{issue_id}, POST
-/issues/{issue_id}/assign, and POST /issues/{issue_id}/transition should require If-Match:
-"<version>" (missing: 428 precondition_required; stale: 412 precondition_failed; success bumps the
-version and returns the new ETag), checking 401, 403, 404, then 428/412, then 422, with these
-statuses in the OpenAPI schema. The board form sends a hidden version field. Also add GET
-/issues/{issue_id}/history (audit entries, oldest first, any role). Spec: docs/features/f4.md.'''
+/issues/{issue_id}/assign, and POST /issues/{issue_id}/transition should accept an optional
+If-Match: "<version>" (absent: the write works as before; stale or malformed: 412
+precondition_failed; every success bumps the version and returns the new ETag), checking 401, 403,
+404, then 412, then 422, with 412 in the OpenAPI schema. The board form sends a hidden version
+field. Also add GET /issues/{issue_id}/history (audit entries, oldest first, any role). Spec:
+docs/features/f4.md.'''
 
 [[trap]]
 feature = "F4"
@@ -260,12 +261,13 @@ text = '''Issue edits need optimistic concurrency. The If-Match rule is the same
 write endpoints, and app/api/middleware.py already sees every request.
 
 GET /issues/{issue_id} returns ETag: "<version>". PATCH /issues/{issue_id}, POST
-/issues/{issue_id}/assign, and POST /issues/{issue_id}/transition require If-Match: "<version>":
-missing gives 428 precondition_required, stale gives 412 precondition_failed; success increments
-version and returns the new ETag. Check order: 401, 403 (role), 404 (org, deleted), 428/412, 422.
-These statuses are in the OpenAPI schema. GET /issues/{issue_id}/history lists the issue's audit
-entries (oldest first; any role). Board: the edit form sends the version in a hidden version field;
-a stale save returns HTTP 409 with a message page.
+/issues/{issue_id}/assign, and POST /issues/{issue_id}/transition accept an optional If-Match:
+"<version>": without it the write works as before; a stale or malformed one gives 412
+precondition_failed; every success increments version and returns the new ETag. Check order: 401,
+403 (role), 404 (org, deleted), 412, 422. The 412 status is in the OpenAPI schema.
+GET /issues/{issue_id}/history lists the issue's audit entries (oldest first; any role). Board: the
+edit form sends the version in a hidden version field; a stale save returns HTTP 409 with a message
+page.
 
 Spec: docs/features/f4.md.'''
 

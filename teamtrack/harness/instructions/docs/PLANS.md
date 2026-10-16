@@ -8,7 +8,7 @@ start.
 
 | Item | Status | Where it shows up |
 |---|---|---|
-| Idempotency keys for issue creation | planned | Issue creation does not support keys yet (R4, `docs/RELIABILITY.md`). |
+| Idempotency keys for issue creation | F3 | Specified in `docs/features/f3.md` (R4); check `app/api/issues.py` to see whether it is in place. |
 | Remove the legacy /v1 API | planned | `GET /v1/issues`, `repositories.issues.list_all_legacy`, and `services.legacy` are scheduled for removal (`docs/QUALITY_SCORE.md`). |
 
 Neither item is part of a feature ticket unless the ticket says so.
