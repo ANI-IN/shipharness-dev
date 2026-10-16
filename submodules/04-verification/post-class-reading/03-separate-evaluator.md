@@ -5,8 +5,8 @@ Reading time: about 7 minutes.
 Source: A3, "Harness design for long-running application development" (Prithvi Rajasekaran,
 Anthropic, 2026-03-24),
 https://www.anthropic.com/engineering/harness-design-long-running-apps. Supporting: A2, "Effective
-harnesses for long-running agents". Quotes are copied from RESEARCH.md and `research/notes/R-a.md`,
-with finding IDs.
+harnesses for long-running agents". Quotes are verbatim, with finding IDs that resolve in
+[REFERENCES.md](../../../REFERENCES.md).
 
 ## The problem A3 starts from
 
@@ -17,7 +17,7 @@ reliably skew positive when grading their own work." (F-a-15).
 A2's single coding agent checks itself: "Self-verify all features. Only mark features as “passing”
 after careful testing." (F-a-108). A2 names the next step as future work: "specialized agents like a
 testing agent, a quality assurance agent, or a code cleanup agent, could do an even better job"
-(F-a-109). The separate evaluator as a working design comes from A3 (RESEARCH correction 3).
+(F-a-109). The separate evaluator as a working design comes from A3, not A2.
 
 ## What A3 built
 
@@ -53,7 +53,7 @@ Three details make the evaluator useful rather than polite:
   model does reliably solo." (F-a-123). A3's own comparison was a solo run of 20 minutes and $9
   against a full harness of 6 hours and $200 (F-a-152).
 
-A3's choices are dated and model-dependent, not standing rules (RESEARCH correction 4): "every
+A3's choices are dated and model-dependent, not standing rules: "every
 component in a harness encodes an assumption about what the model can't do on its own, and those
 assumptions are worth stress testing" (F-a-124).
 
@@ -70,22 +70,22 @@ counts come from the referee, and the reviewer's verdict is a secondary measure.
 
 | A3 idea | Course choice | Where |
 |---|---|---|
-| Separate evaluator (F-a-110) | A different model from the agent: `OPENAI_EVAL_MODEL` = `gpt-5.6-luna`, a different generation from `gpt-6-luna` | DESIGN D-10 |
+| Separate evaluator (F-a-110) | A different model from the agent: `OPENAI_EVAL_MODEL` = `gpt-5.6-luna`, a different generation from `gpt-6-luna` | `src/shipharness/config/settings.py` |
 | Grading criteria (F-a-114) | Built from `docs/SECURITY.md` and `ARCHITECTURE.md` of the harness instructions; the house rules when those are missing; the same bytes for every review | `reviewer/criteria.py` |
 | Hard threshold (F-a-119) | The prompt asks for findings first, then the verdict: reject on any blocker or if the ticket is not implemented | `reviewer/review.py` |
 | Few-shot calibration (F-a-115) | Not used; a candidate extension | — |
-| Clicking through the app (F-a-118) | Done by the referee's Playwright board checks, not by the reviewer | DESIGN §8.1 step 7 |
+| Clicking through the app (F-a-118) | Done by the referee's Playwright board check, not by the reviewer | `src/shipharness/checks/board.py` |
 
 The course adds two things A3 did not need, because the course compares two arms:
 
 - **Blinding** (A/B design, not a source term). `blind()` drops harness artifacts, commit metadata,
   host workspace paths, and run ids from the diff, so two arms that shipped the same code produce
-  the same text; the arm label is never an input (anchor `S4:blind`, DESIGN §8.3 rule 3).
+  the same text; the arm label is never an input (anchor `S4:blind`; course design).
 - **Placement.** The reviewer runs on both arms' final diffs as referee output, not inside the gate,
-  so the harness arm never receives reviewer feedback the bare arm cannot get (DESIGN D-9). Its
+  so the harness arm never receives reviewer feedback the bare arm cannot get (course design). Its
   agreement with the referee is recorded per run (`reviewer_agrees` in the score record).
 
-Each review is capped at `MAX_REVIEW_COST_USD` ($0.04, DESIGN §11.1). An incomplete or refused
+Each review is capped at `MAX_REVIEW_COST_USD` ($0.04, `src/shipharness/config/settings.py`). An incomplete or refused
 response gives no verdict rather than a guessed one (`reviewer/review.py` docstring).
 
 ## Why it matters for your own repo
@@ -95,9 +95,9 @@ response gives no verdict rather than a guessed one (`reviewer/review.py` docstr
   documents, the same text every time (F-a-114, F-a-119).
 - Keep its verdict secondary to checks that run code. A3 says the separate evaluator "is still an
   LLM that is inclined to be generous towards LLM-generated outputs." (F-a-112).
-- A real case from this course: in pilot run 2 the blinded reviewer rejected all six F4 arms and
-  agreed with the referee each time (`reviewer_verdict` and `reviewer_agrees` in the six score
-  records). One of its findings on run 1 named the weakness behind the mutant that survived:
+- A real case from this course: in the course pilot's run 2 the blinded reviewer rejected all six
+  F4 arms and agreed with the referee each time (`reviewer_verdict` and `reviewer_agrees` in the six
+  score records). One of its findings on A/B 1 named the weakness behind the mutant that survived:
   "Writes without If-Match do not increment issue.version." (captured on 2026-10-16, run
   ab-20261016-182828-c81fc0, `reviewer_output`; your output will differ). Every arm failed there,
   so this shows agreement on failures, not that the reviewer finds what the referee misses.

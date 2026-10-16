@@ -190,7 +190,7 @@ def test_filter_6_rows_come_after_the_testgen_rows(root: Path) -> None:
         ("--purpose assignment", "--purpose pilot", "--purpose assignment"),
     ],
 )
-def test_ab_command_must_be_the_one_in_the_brief(
+def test_ab_command_must_be_the_one_in_the_readme(
     root: Path, old: str, new: str, needle: str
 ) -> None:
     _edit_text(

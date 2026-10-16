@@ -40,7 +40,7 @@ legacy `/v1/issues` handler already shows the failure: it lists deleted issues t
 
 - The live A/B on F4, bare against the demo-4 layers (`langsmith.md`):
 
-[[PENDING: per-arm hidden tests passed and mutants killed from the two score records of the F4 A/B | source: M6 pilot | how: uv run shipharness ab --section demo-4 --feature F4 --no-preview]]
+[[PENDING: per-arm hidden tests passed and mutants killed from the two score records of the F4 A/B | source: M6 pilot | how: uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview]]
 
 ## What I learned
 

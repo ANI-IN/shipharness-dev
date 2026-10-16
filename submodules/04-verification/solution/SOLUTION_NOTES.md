@@ -94,14 +94,21 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 - Body probes look for a top-level `issue_id` key; a nested or differently named reference
   (`parent_issue_id`) is not probed.
 - Filter 6 renames names inside nested functions in a test body along with the test's own locals.
-- The reference solution's live evidence is not captured yet, and the grader hides that. When
-  `--impl` is this folder, the four live-evidence tests pass on the `[[PENDING]]` marker in
-  `live/README.md` (`pending_only` in `assignment/visible_tests/a4_live.py`), and the portfolio
-  tests accept the portfolio markers the same way. So `captured/grade-solution.txt` shows 100/100,
-  but 10 of those points (live-evidence) rest on a marker, not on a real run. This special case
-  applies to the reference folder only; for any other folder a missing file fails. The grader code
-  stays as it is until the integrator captures the real live run; the integrator then removes the
-  special case and recaptures the grade.
+- The reference solution's live evidence is not captured yet, and the grader hides that. Its
+  100/100 rests on `[[PENDING]]` markers for every point the live step carries, 20 of 100 by the
+  `CRITERIA` table in `grader/grade.py`:
+  - live-evidence, 10 points (4 tests): with `--impl` set to this folder, the four tests skip their
+    checks because `live/` holds only the marker in `live/README.md` (`pending_only` in
+    `assignment/visible_tests/a4_live.py`, `_pending` in `test_live_visible.py`);
+  - portfolio-evidence (5), portfolio-langsmith (2), portfolio-case-study (3): in reference mode
+    (`reference_mode` in `assignment/visible_tests/a4_support.py`) a marker line stands in for the
+    results table and the LangSmith link, the "replace the markers" problem is not raised, and the
+    trace-link check against the score records is skipped.
+
+  So `captured/grade-solution.txt` shows 100/100, but only 80 points are earned on real work. This
+  special case applies to the reference folder only; for any other folder a missing file or a left
+  marker fails. The grader code stays as it is until the integrator captures the real live run; the
+  integrator then removes the special case and recaptures the grade.
 
 ## Hidden tests (reveal in the Thursday review)
 
@@ -123,11 +130,13 @@ local renames, fixture names, global helpers, attributes, parametrize data, earl
 candidates, an existing test compared with itself, class methods, async tests, loop, `with`, and
 `except` names, and a file that does not parse.
 
-Before the hidden tests were final, each was checked against a deliberately weakened copy of the
-reference solution (scratch script, not committed): `issue_param` without the `{id}` rule fails
-the `{id}` test; dropping body probes fails the body test; GET-only path probes fail the
-transition test, a hidden baseline test, and two visible tests; id-based list evidence fails 14 tests; no local renaming
-fails 3 filter tests; renaming every name fails the global-helper test.
+Before the hidden tests were final, the author checked them against deliberately weakened copies
+of the reference solution with a scratch script that is not committed, and the outcomes were not
+recorded, so this check cannot be rerun or verified from the repository. The weakenings tried were:
+`issue_param` without the `{id}` rule, no body probes, GET-only path probes, id-based list
+evidence, no local renaming in filter 6, and renaming every name. Each hidden test is meant to
+catch one of them (for example `test_shared_numeric_ids_are_not_evidence` for id-based evidence);
+a committed mutation check of the grader is an open item.
 
 ## Review notes (Thursday)
 
@@ -161,8 +170,8 @@ passes the absolute folder.
 ## Live step and model-run parts (pending)
 
 The live step of the brief applies to this folder too. `live/README.md` lists the exact commands
-and holds the one marker where the captured files go; the integrator records the run (M6 pilot,
-2026-10-17). Until then the live-evidence tests accept the marker for this folder only
+and holds the one marker where the captured files go; the integrator records the run after the
+pilot (no date set yet). Until then the live-evidence tests accept the marker for this folder only
 (`pending_only` in `assignment/visible_tests/a4_live.py`, the same rule as the portfolio markers).
 Once the files are there, they are validated like any submission's.
 
@@ -185,12 +194,22 @@ Model-run output is still pending in `portfolio/evidence-report.md`, `portfolio/
 above (marker in `live/README.md`).
 
 What pilot run 2 says about the F4 A/B in the live step (VERIFICATION.md, M6 pilot run 2): both
-arms failed the primary measure in all three F4 runs. The bare arm killed 3, 4, 3 of 4 referee
-mutants and passed 69, 66, 69 of 69 hidden tests; the harness arm shipped 0, 0, 3 tests in the
-12-turn test phase and so killed 0, 0, 2 mutants. Change 9 (a test-phase session starts with the
-feature's tests) is the harness-arm fix; changes 10 and 11 (judge each arm when it finishes; one
-batched unmutated-pass step, shown equivalent on 181 tests) change referee speed, not outcomes. The
-live step is graded on its files, not on these results.
+arms failed the primary measure in all three F4 A/Bs. The bare arm killed 3, 4, 3 of 4 referee
+mutants and passed 69, 66, 69 of 69 hidden tests; the harness arm shipped 0, 0, 3 tests and so
+killed 0, 0, 2 mutants. None of its shipped tests came from the 12-turn test phase: in the first
+two A/Bs the test phase proposed no test, and in `ab-20261016-191626-6100f6` the 3 shipped tests
+were written in build session 1 while the test phase's one new test was discarded by the filters
+("kept 0, discarded 1"). Change 9 (a test-phase session starts with the feature's tests) is the
+harness-arm fix; changes 10 and 11 (judge each arm when it finishes; one batched unmutated-pass
+step, shown equivalent on 181 tests) change referee speed, not outcomes. The live step is graded on
+its files, not on these results.
+
+The live A/B command carries `--purpose assignment`. Without it `shipharness ab` uses the class
+purpose, which refuses to start unless `SHIPHARNESS_CLASS_DATE` is set and otherwise traces into
+the class project (`_trace_target` in `src/shipharness/ab/commands.py`). `ab_run_problems` in
+`a4_live.py` requires it, and parses the cost line in the form `cost_line` prints today (with the
+`; build $X of $15.00 ($Y left)` part, which the first version of the check rejected); both are
+covered in `grader/tests/test_live.py`.
 
 ## Make targets
 

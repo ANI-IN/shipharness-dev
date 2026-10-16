@@ -3,8 +3,8 @@
 Reading time: about 8 minutes.
 
 Source: B12, "Mutation-Guided LLM-based Test Generation at Meta" (Foster et al., Meta, submitted to
-FSE 2025 Industry Track), https://arxiv.org/abs/2501.12862. Quotes are copied from RESEARCH.md and
-`research/notes/R-b.md`, with finding IDs.
+FSE 2025 Industry Track), https://arxiv.org/abs/2501.12862. Quotes are verbatim, with finding IDs
+that resolve in [REFERENCES.md](../../../REFERENCES.md).
 
 ## The idea: start from the fault you fear
 
@@ -31,7 +31,7 @@ the course's filters:
 
 - "Valid Regression Tests: The tests pass and do so consistently, so they are non-flaky [26]
   regression tests" (F-b-31). ACH does not restate a run count; the five-run check is TestGen-LLM's
-  (RESEARCH correction 6).
+  (B11, F-b-19).
 - "Hardening: The new tests catch faults that no existing test can catch" (F-b-32).
 
 ## Scale and results
@@ -54,11 +54,14 @@ cannot detect existing faults residing in the code base." (F-b-41). The current 
 The course keeps ACH's concept (issue-specific faults on risky lines) and changes the machinery.
 
 **Hand-written mutants instead of generated ones.** Each mutant is one record: a file, the exact
-original text, a replacement, and a rationale (CONTRACTS §14). A small targeted runner applies one
-mutant at a time; mutmut is not used because it cannot target chosen lines (RESEARCH §4.7). Because
-every mutant is written and checked by hand, there is no equivalence detector: M5 validation checks
-that every referee mutant applies at each checkpoint it is used with and is killed by the reference
-implementation's visible tests (VERIFICATION.md, M5).
+original text, a replacement, and a rationale (`Mutant` in `src/shipharness/filters/mutants.py`). A
+small targeted runner applies one mutant at a time; mutmut is not used because it cannot target
+chosen lines (course design). Because every mutant is written and checked by hand, there is no
+equivalence detector: dataset validation (`uv run shipharness datasets validate
+datasets/teamtrack-features-v1.jsonl --kind features`) checks that every task's referee set is
+non-empty and that each mutant's original text matches exactly one line at the task's checkpoint,
+and the course checked that each referee mutant is killed by the reference implementation's
+visible tests.
 
 **The concern is TeamTrack's house rules and the feature's risk.** One record from
 `teamtrack/mutants/features/f4.jsonl`:
@@ -75,28 +78,31 @@ agent works) and a referee set (held out; used only by the referee). If the same
 both, "a test written to kill the filter mutant also kills the referee mutant, and the referee no
 longer measures held-out behaviour" (module docstring of `src/shipharness/filters/mutant_sets.py`).
 `overlaps` fails on any shared mutation, and the docstring records the behaviourally equivalent
-pairs found by review and how each was resolved (DESIGN D-4, §8.3 rule 7).
+pairs found by review and how each was resolved (course design).
 
 **Only real kills count.** The referee runs referee-set mutants against shipped tests that pass on
-the arm's unmutated build (CONTRACTS §21), so a broken test does not count as a kill.
+the arm's unmutated build (`_passing_unmutated` in `src/shipharness/ab/referee.py`), so a broken
+test does not count as a kill.
 
-Counts in the repository (VERIFICATION.md, M5): TeamTrack module files 41 filter / 40 referee;
-feature files 14 filter / 25 referee; boltons 22 / 27; WTForms 21 / 24.
+Counts of records in the repository (`teamtrack/mutants/*.jsonl`, `teamtrack/mutants/features/`,
+`datasets/mutants/`):
+TeamTrack module files 41 filter / 40 referee; feature files 14 filter / 25 referee; boltons 22 / 27;
+WTForms 21 / 24.
 
 ## Why it matters for your own repo
 
 - Coverage tells you a line ran, not that a test would notice it going wrong in the way you fear.
   Almost half of ACH's mutant-killing tests added no line coverage (F-b-40), so a coverage target
   alone would have rejected them.
-- A real case from this course: in pilot run 2 the bare arm of run 1 shipped 30 tests (score record
-  `r-20261016-182828-1daced`), and the lost-update mutant `app.services.issues-m401` still survived
+- A real case from this course: in A/B 1 of the course pilot's run 2 the bare arm shipped 30 tests
+  (score record `r-20261016-182828-1daced`), and the lost-update mutant `app.services.issues-m401` still survived
   (captured on 2026-10-16, run ab-20261016-182828-c81fc0, `mutant_result` event; your output will
   differ). Thirty tests, and none of them noticed writes that no longer move the version.
 - Start with one record: pick the line whose failure would hurt a customer most, write the mutant
   as `original` and `replacement`, apply it by hand, and run your suite. If nothing fails, you have
   found a test to write.
 - If you use mutants to steer an agent, keep a second set it never sees. Otherwise the agent's
-  tests are judged by the same mutants they were written against (DESIGN D-4).
+  tests are judged by the same mutants they were written against.
 
 ## Questions to take away
 

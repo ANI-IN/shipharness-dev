@@ -328,7 +328,8 @@ def ab_cost_models(note: str) -> dict[str, float]:
 
 
 def ab_run_problems(root: Path) -> list[str]:
-    """`live/ab.txt`: the command of the brief, one A/B, and a cost line within the caps."""
+    """`live/ab.txt`: the command of the assignment README, one A/B, and a cost line within the
+    caps."""
     t = _ab_transcript(root)
     if not t.ok:
         return t.problems

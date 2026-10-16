@@ -3,8 +3,8 @@
 Reading time: about 8 minutes.
 
 Source: B11, "Automated Unit Test Improvement using Large Language Models at Meta" (Alshahwan et al.,
-Meta, FSE '24), https://arxiv.org/abs/2402.09171. Quotes are copied from RESEARCH.md and
-`research/notes/R-b.md`, with finding IDs.
+Meta, FSE '24), https://arxiv.org/abs/2402.09171. Quotes are verbatim, with finding IDs that
+resolve in [REFERENCES.md](../../../REFERENCES.md).
 
 ## What TestGen-LLM does
 
@@ -31,7 +31,7 @@ cases." (F-b-26). And per-test guarantees came only after reviewers asked: "In t
 had only implemented class-level improvement guarantees." (F-b-27).
 
 The paper counts three filters plus the later dedup filter. "5 runs" is TestGen-LLM's number, not
-ACH's (RESEARCH correction 6).
+ACH's.
 
 ## The funnel is steep
 
@@ -50,13 +50,13 @@ into the code base." (F-b-28).
 
 ## Side by side with the course's five filters
 
-| # | Course filter (DESIGN §7) | TestGen-LLM | Status |
+| # | Course filter | TestGen-LLM | Status |
 |---|---|---|---|
 | 1 | Imports and runs: pytest collects it with no errors | Filter 1, "fully buildable" (F-b-17) | Direct |
 | 2 | Passes 5 consecutive runs | Filter 2, first execution plus five executions (F-b-18, F-b-19) | Direct |
 | 3 | Adds line coverage over the existing suite, **or** kills a filter-set mutant that no existing test kills | Filter 3, line coverage (F-b-20); the mutant branch comes from ACH (B12, F-b-29, F-b-32) | Direct, two sources |
-| 4 | Real assertions, no mocking of the unit under test | Not in B11 or B12 | Course filter (RESEARCH G-7) |
-| 5 | No source file changed during the test phase | B11 keeps existing tests "by construction" (F-b-22); A2: "It is unacceptable to remove or edit tests" (F-a-80) | Course filter, composite (G-7) |
+| 4 | Real assertions, no mocking of the unit under test | Not in B11 or B12 | Course filter |
+| 5 | No source file changed during the test phase | B11 keeps existing tests "by construction" (F-b-22); A2: "It is unacceptable to remove or edit tests" (F-a-80) | Course filter, composite |
 | – | Dedup of previously seen tests | Later TestGen-LLM filter (F-b-26) | Not in the course pipeline |
 
 Why the course adds filters 4 and 5. TestGen-LLM works at diff time on code that humans own, so a
@@ -94,13 +94,16 @@ there filter 3 decides by coverage and filter 4 checks assertions only.
   so expect the same of an agent's tests until a filter shows otherwise.
 - Order the checks by cost, as B11 does (F-b-16): run a new test file five times (F-b-19) before
   you measure what it adds, and measure coverage only for tests that already pass.
-- A real case from this course: in pilot run 2 the only F4 test a harness arm proposed failed
-  filter 2 on its first run, reason `failed on run 1 of 5: assert None is not None` (captured on
-  2026-10-16, run ab-20261016-191626-6100f6; your output will differ). Without filter 2 it would
-  have shipped as a red test.
+- A real case from this course: in the course pilot, run 2, the only F4 test a harness arm
+  proposed in its test phase failed filter 2 on its first run, reason `failed on run 1 of 5: assert
+  None is not None` (captured on 2026-10-16, run ab-20261016-191626-6100f6; your output will
+  differ). Without filter 2 it would have shipped as a red test. The same arm still shipped 3
+  tests: it wrote them in build session 1, and in shipharness the filters judge only tests
+  proposed in the test phase. A filter guards only the path it sits on; tests that reach your
+  repository another way need their own check.
 - Filters 4 and 5 answer a risk that B11 did not have: an agent can edit the code under test. If
-  your agent may touch both source and tests in one task, add a check like filter 5 (course
-  filter, RESEARCH G-7).
+  your agent may touch both source and tests in one task, add a check like filter 5 (a course
+  filter, not a source idea).
 
 ## Questions to take away
 
