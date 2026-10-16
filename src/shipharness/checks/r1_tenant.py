@@ -82,7 +82,8 @@ def judge(probe: Probe, response: Any, t: Target, home: str, other: str) -> Find
         severity="leak" if leaked else "violation",
         endpoint=probe.endpoint.label,
         detail_key=probe.kind,
-        detail=f"{probe.kind}: {probe.endpoint.method} {probe.path} -> {status} {excerpt(response)}",
+        detail=f"{probe.kind}: {probe.endpoint.method} {probe.path} -> {status} "
+        f"{excerpt(response)}",
     )
 
 
