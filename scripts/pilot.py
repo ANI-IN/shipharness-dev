@@ -27,6 +27,7 @@ REPO = Path(__file__).resolve().parents[1]
 SECTIONS = {"F1": "demo-1", "F2": "demo-2", "F3": "demo-3", "F4": "demo-4"}
 # Fields that differ between two judgements of the same build by design (ids, links, timings, cost).
 VOLATILE = {
+    "captured_at",
     "run_id",
     "ab_id",
     "trace_url",
