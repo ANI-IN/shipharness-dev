@@ -86,7 +86,8 @@ What each page says:
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
+  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
@@ -128,7 +129,8 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/assured-tests
 uv run shipharness skills validate ~/my-repo/.agents/skills/assured-tests
 ```
 
-Captured on 2026-10-17 for the source folder; your output will differ if you change the skill:
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/assured-tests` at commit 5e8fb08;
+your output will differ:
 
 ```text
 + assured-tests: valid (SKILL.md 96 lines)
@@ -140,8 +142,8 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/assured-tests` (output on 2026-10-17:
-`Valid skill: skills/assured-tests`).
+`uv run agentskills validate skills/assured-tests` (captured on 2026-10-17 from that command at commit
+5e8fb08: `Valid skill: skills/assured-tests`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -150,9 +152,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/assured-tests` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/assured-tests` (B7) |
-| Codex (CLI or IDE extension) | Type `$assured-tests`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8) |
-| Cursor | Type `/` in Agent chat and search for `assured-tests` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9) |
+| Claude Code | `/assured-tests` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/assured-tests` (B7, read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$assured-tests`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `assured-tests` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/assured-tests` in Claude Code or
 `$assured-tests` in Codex to call it by name):
@@ -166,13 +168,13 @@ and review the kept tests as code.
 
 The agent runs the script from the installed folder, for example
 `python .claude/skills/assured-tests/scripts/run_testgen.py --repo . --module <path> --max-tests 8 --dry-run`.
-Captured on 2026-10-17 against the course's TeamTrack app
-(`uv run python skills/assured-tests/scripts/run_testgen.py --repo teamtrack --module app/services/members.py --max-tests 8 --dry-run`
-from the checkout root); the path in the first line is the author's machine, and your output will
-differ:
+Captured on 2026-10-17 against the course's TeamTrack app from
+`python3 skills/assured-tests/scripts/run_testgen.py --repo teamtrack --module app/services/members.py --max-tests 8 --dry-run`
+(run from the checkout root, with no `shipharness` on the PATH, so the script falls back to
+`uv run shipharness`) at commit 5e8fb08; your output will differ:
 
 ```text
-command: /home/ani/wt/skills/.venv/bin/shipharness testgen --repo teamtrack --module app/services/members.py --layers verify --max-tests 8
+command: uv run shipharness testgen --repo teamtrack --module app/services/members.py --layers verify --max-tests 8
 note: UNSANDBOXED. Generated tests will run on this machine with your permissions. Use --sandbox docker --image <image> to run them in a container.
 note: this calls a model and costs money; the command prints a Cost: line at the end.
 ```
@@ -227,5 +229,6 @@ violation.
 - B5: skills-ref, the reference validator. https://github.com/agentskills/agentskills
 - B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
 - B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/context/skills
+- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
+  https://cursor.com/docs/context/skills on 2026-10-17)
 - B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4

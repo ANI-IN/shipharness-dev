@@ -56,8 +56,9 @@ only the run log and `exports/`.
   containing `KEY`, `TOKEN`, or `SECRET` are refused (`sandbox/README.md`). `make doctor` never
   prints any part of a key.
 - **Identical sandbox for both arms.** The sandbox is never the A/B variable. The policy printed at
-  the start of every run (captured on 2026-10-17 on the class host; your output will differ only if
-  you changed the settings):
+  the start of every run (captured on 2026-10-17 from `render_policy(default_policy(Settings()))`,
+  the first command of stage 2 in [instructor-guide.md](instructor-guide.md#stage-2-t-30-minutes),
+  at commit 5e8fb08; your output will differ):
 
   ```
   Sandbox policy (identical for both arms)

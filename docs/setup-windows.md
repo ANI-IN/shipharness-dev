@@ -46,7 +46,8 @@ Check from PowerShell that Ubuntu runs as WSL version 2:
 wsl -l -v
 ```
 
-Captured on 2026-10-17 on the class host; your output will differ:
+Captured on 2026-10-17 from `wsl -l -v` on the class host (a Windows command, so no repository
+commit applies); your output will differ:
 
 ```
   NAME      STATE           VERSION

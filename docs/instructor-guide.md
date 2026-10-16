@@ -141,7 +141,7 @@ pilot decision taken after pilot run 3; the pre-registered options were the lega
 of F1, the tempting-middleware variant of F3, and F2 with a 12-turn first session
 (`--session-budget 12,38`).
 
-[[PENDING: the task and command used for each class demo after pilot run 3 (canonical, variant, or session budget override) | source: M6 pilot | how: pilot run 3 results and the owner's per-section decision; the Make targets or the exact shipharness ab commands]]
+[[PENDING: the task and command used for each class demo after pilot run 3 (canonical, variant, or session budget override) | source: M6 pilot | how: course pilot (build repository)]]
 
 ## Stage 1: T-1 day
 
@@ -153,7 +153,7 @@ of F1, the tempting-middleware variant of F3, and F2 with a 12-turn first sessio
 | **Expected time and cost** | `make doctor`: seconds, $0 (lists models, no tokens). Recordings: at the caps, 4 demos × $0.48 + 3 final features × $0.58; per-A/B wall time in pilot run 2 (two A/Bs in parallel, before the referee speed-ups) was 485 to 923 s, median 641 s. Replay without the reviewer and swap: $0 |
 | **If it fails** | A key line `x invalid`: replace the key and rerun `make doctor`. `docker not found`: `sudo systemctl start docker`. A recording ends in `ERROR` for an infrastructure reason: keep it, list it, and record the next complete A/B as well |
 
-[[PENDING: measured cost and wall time of each recording command on the class host | source: M6 pilot | how: cost line and time of make demo-N PURPOSE=pilot and make final FEATURES=F5|F6|F7 PURPOSE=pilot on the class host]]
+[[PENDING: measured cost and wall time of each recording command on the class host | source: live class | how: the cost line and `time` of each T-1 recording command below (make demo-1 PURPOSE=pilot to make demo-4 PURPOSE=pilot, make final FEATURES=F5 PURPOSE=pilot, and the same for F6 and F7)]]
 
 **Recording the fallbacks.** A recording is a normal A/B directory under `.shipharness/runs/` plus
 its score records in `exports/scores/`. Record on T-1, not on the class day, and with
@@ -189,7 +189,7 @@ mkdir -p ~/shipharness-fallbacks && cp -a .shipharness/runs/<ab id> ~/shipharnes
 Also copy both arms' score records (`exports/scores/<run id>.json`; the run ids are in `ab.json`
 under `arms.<arm>.spec.run_id`) into the same backup folder.
 
-[[PENDING: recorded A/B ids and per-arm status for demo-1 to demo-4 and final F5, F6, F7 | source: M6 pilot | how: the recording commands above on the class host]]
+[[PENDING: recorded A/B ids and per-arm status for demo-1 to demo-4 and final F5, F6, F7 | source: live class | how: the T-1 recording commands above on the class host]]
 
 ## Stage 2: T-30 minutes
 
@@ -209,7 +209,8 @@ uv run python -c 'from shipharness.config import Settings; from shipharness.sand
 uv run python skills/harness-setup/scripts/assess.py teamtrack --out .shipharness/harness-assessment.html
 ```
 
-Captured on 2026-10-17 on the class host; your output will differ if settings changed:
+The policy printout, captured on 2026-10-17 from the first command above (`uv run python -c '...
+print(render_policy(default_policy(Settings())))'`) at commit 5e8fb08; your output will differ:
 
 ```
 Sandbox policy (identical for both arms)
@@ -225,7 +226,9 @@ Sandbox policy (identical for both arms)
   refused commands: 6 rules (network access)
 ```
 
-The assessment of the bare TeamTrack begins (captured on 2026-10-17 on the class host):
+The assessment of the bare TeamTrack begins (captured on 2026-10-17 from the second command
+above, `uv run python skills/harness-setup/scripts/assess.py teamtrack --out ...`, at commit
+5e8fb08; your output will differ):
 
 ```
 Instructions       pass 0  partial 1  fail 5
@@ -251,7 +254,7 @@ in `docs/HANDBOOK.md` of the bare arm's repository.
 
 To show an anchor's code: `uv run python scripts/anchors.py extract Opening:two_arms`.
 
-[[PENDING: board screenshot of a bare-arm F1 run with other-org marks, and its run id | source: M6 pilot | how: make demo-1 on the class host; PNG from .shipharness/runs/<ab id>/screenshots/bare/]]
+[[PENDING: board screenshot of a bare-arm F1 run with other-org marks, and its run id | source: live class | how: make demo-1 PURPOSE=pilot during the T-1 recordings (board previews on); PNG from .shipharness/runs/<ab id>/screenshots/bare/]]
 
 ## Stage 4: S1 Instructions (0:10-1:00)
 
@@ -266,16 +269,16 @@ run. Harness arm layers: instructions only. Control task: C1.
 | **Commands** | 0:13 `make demo-1`; 0:30-0:40 anchors `S1:agents_md`, `S1:progressive`, `S1:prefix`; 0:48 `make swap-1` |
 | **What to check** | At launch: the harness arm's first harness decision lists the placed instruction files; the bare arm shows "None: bare arm has no layers.". At 0:35: the `Cost:` line in terminal B. Demo block: screen `3` "Files read" by category (did the bare arm open `docs/HANDBOOK.md`; did the harness arm open the documents the map points to); the R1 line in the referee list; screen `2` other-org marks; screen `1` "Agent said" vs "Referee" |
 | **Pass criteria** | The A/B prints two arm lines and a `Cost:` line before 0:40; `make swap-1` prints `Swap test on <ab id>: judged measures identical` |
-| **Expected time and cost** | The course's live console check (one F1 demo alone, board previews on, `PURPOSE=pilot`) took 9 min 10 s and cost $0.027821; pilot run 2 (two A/Bs in parallel, no previews) stayed within 485 to 923 s for every section. At most $0.48 at the caps; swap $0 |
+| **Expected time and cost** | The course's live console check on 2026-10-16 (A/B `ab-20261016-210339-909651`, one F1 demo alone, board previews on, `PURPOSE=pilot`) took 9 min 10 s and cost $0.027821; pilot run 2 (two A/Bs in parallel, no previews) stayed within 485 to 923 s for every section. At most $0.48 at the caps; swap $0 |
 | **If it fails** | Still running at 0:35: finish the walkthrough, open the demo block on screens `1` and `2` of the running A/B, show the experiment dots, and run `make swap-1 AB=<recorded ab id>`; add tonight's dot when it arrives. An arm `ERROR` from Docker, the network, or OpenAI: [Replay procedure](#replay-procedure). An unwelcome result is a result: show it |
 
 Say: "The referee probes every endpoint as Acme with Globex ids and expects 404. It does not care
 which arm wrote the code." Discussion: "The bare arm could read the same rules. Why did it (or did it
 not) apply them?" (A1, F-a-05).
 
-[[PENDING: S1 experiment dots, runs failing out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1 (uv run shipharness experiments), then uv run shipharness report]]
+[[PENDING: S1 experiment dots, runs failing out of 10 per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-1 --k 10 --reviewer --batch batch-1 (options: uv run shipharness experiments --help), then uv run shipharness report]]
 
-[[PENDING: wall time of make demo-1 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3)]]
+[[PENDING: wall time of make demo-1 on the class host, one A/B at a time | source: live class | how: time make demo-1 PURPOSE=pilot during the T-1 recordings]]
 
 ## Stage 5: S2 State and session lifecycle (1:00-1:50)
 
@@ -303,7 +306,7 @@ at 1:47 so it prints its `Cost:` line before the S3 launch, and only if the sess
 for the rest of the class (each switch is a full A/B, at most $0.48). The free alternative is the
 ablation bars on screen `4` (A3, F-a-125).
 
-[[PENDING: S2 experiment dots, continuity failures out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1, then uv run shipharness report]]
+[[PENDING: S2 experiment dots, continuity failures out of 10 per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 
 ## Stage 6: S3 Scope and sandbox (2:00-2:50)
 
@@ -330,7 +333,7 @@ sandbox is the same for both arms. It is taught here, but it is never the variab
 
 [[PENDING: sandbox_denied events from the experiment runs (command, reason code, arm) | source: M8 batch 1 | how: grep -h '"type":"sandbox_denied"' .shipharness/runs/*/events.jsonl]]
 
-[[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden-test and existing-test results as secondary | source: M8 batch 1 | how: make experiments batch 1, then uv run shipharness report]]
+[[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden-test and existing-test results as secondary | source: M8 batch 1 | how: uv run shipharness experiments --split section-3 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 
 ## Stage 7: S4 Verification, with the final launched (2:50-3:40)
 
@@ -362,9 +365,9 @@ Say at the filter table: "Filters 1 to 3 are TestGen-LLM's (B11, F-b-17 to F-b-2
 course filters. The referee-set mutants were never visible to the filters." Discussion: "Your
 agent's tests pass. What evidence would you accept before merging?" (A4, F-a-17).
 
-[[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: make experiments batch 1, then uv run shipharness report]]
+[[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 
-[[PENDING: wall time of make demo-4 with make final running in parallel, and of one final feature, on the class host | source: M6 pilot | how: time make demo-4 and make final FEATURES=F5 started one minute later (pilot run 3)]]
+[[PENDING: wall time of make demo-4 with make final running in parallel, and of one final feature, on the class host | source: live class | how: time make demo-4 PURPOSE=pilot and, one minute later in a second terminal, time make final FEATURES=F5 PURPOSE=pilot, during the T-1 recordings]]
 
 ## Stage 8: Final block and wrap-up (3:40-4:00)
 
@@ -461,4 +464,4 @@ recording directly at `http://127.0.0.1:8765/run/<recorded ab id>`. These are th
 there is **no** RECORDING badge: put up the "recorded before class" slide and say it before switching
 screens. Never switch to `SANDBOX_MODE=none` for class results.
 
-[[PENDING: wall time of make replay for each recording (referee only) | source: M6 pilot | how: time make replay RUN=<id>]]
+[[PENDING: wall time of make replay for each recording (referee only) | source: live class | how: time make replay RUN=<recorded ab id> after the T-1 recordings]]
