@@ -1,7 +1,7 @@
 # VERIFICATION
 
 Record of what was run, what it cost, and what it showed. Every number in course material that is not
-cited to a source points to an entry here. Status: in progress (milestones M3 and M4). The full
+cited to a source points to an entry here. Status: in progress (milestones M3 to M5). The full
 verification (M9) adds per-command costs, demo times, pilot and experiment results.
 
 ## Running totals
@@ -103,6 +103,59 @@ Seven important findings were fixed the same way (loop exception safety, redacti
 masking in tool output and run logs, board validation, discovery of unauthenticated endpoints, tool-log
 file names from model-chosen ids, class-date default). Thirteen minor findings are deferred and listed in
 the M3 hand-off.
+
+
+## M5 features, datasets, checkpoints (2026-10-16)
+
+Machine: the class host. Windows 11 Pro with WSL2 Ubuntu 26.04.1 (systemd), Docker Engine 29.9.1 inside
+Ubuntu (DESIGN D-22), repository at `~/shipharness`, Python 3.12.15 (pinned by `.python-version`), uv
+0.13.1.
+
+| Check | Command | Result |
+|---|---|---|
+| Full suite (Linux) | `make test-all` (`pytest -n auto -m "not live and not docker"`) | 1625 passed, 0 skipped, 0 failed, 15 min |
+| Real-container tests | `pytest -m docker` (images rebuilt from the final source) | 11 passed |
+| Datasets | `shipharness datasets validate` (schema plus checkpoints, hidden ids, mutant sets applied at each line's checkpoint, primary measures, counts, splits) | features 60 valid, testgen 40 valid |
+| Upload | `make datasets` | teamtrack-features-v1: 60 examples; testgen-targets-v1: 40 examples; a second upload is refused |
+| Checkpoint tags | `scripts/build_checkpoints.py` | 8 tags on commits whose parent is the final main commit; dry run reports no recorded results |
+| Mutant sets | `shipharness.filters.mutant_sets.overlaps` | no mutation in both sets: TeamTrack module and feature files, boltons, WTForms |
+| Lint | ruff check, ruff format --check, prose lint, anchors (19) | clean |
+
+Real-container results: network denial (`--network none`: no name resolution, only `lo`), read-only root,
+non-root user (uid 1000), command timeout, writable arm workspace, read-only board preview mount (writes to
+`/work` fail, `/tmp` works, host files unchanged), harness commands longer than the 1 s tool cap, read-only
+hidden-test mount inside `/work`, image dependencies importable from container commands, board preview
+reload after the arm changes `app/` plus a real board screenshot (PNG), and the referee check runner
+judging TeamTrack in the referee image (R6, R7, existing tests: all pass, 21 s).
+
+Three bugs were found only by real containers and a Linux browser, each fixed with a failing test first:
+container commands ran in a login shell (`bash -lc`) whose `/etc/profile` dropped the image's venv, so
+pytest, FastAPI, and the check runner were missing in every arm, gate, and referee container; the board
+preview never started (`nohup HOME=/tmp ...` ran `HOME=/tmp` as the command); a long LangSmith link
+overflowed its console panel with Linux fonts.
+
+Counts: hidden tests 441 (F1 54, F2 56, F3 49, F4 69, F5 46, F6 54, F7 64; C1-C8 49). Every
+(task, checkpoint) pair: 91-96% of hidden tests fail before the reference (the rest are guards), all pass
+with it (independent audit, 23 pairs). Mutants: TeamTrack module files 20 (41 filter, 40 referee), feature
+files 7 (14 filter, 25 referee), boltons 10 modules (22 filter, 27 referee), WTForms 10 modules (21 filter,
+24 referee). Every referee mutant applies by exact text at every checkpoint it is used with and is killed by
+the reference's visible tests (features, controls) or the base suite (modules); every library mutant is
+killed by its recorded upstream test.
+
+### M5 reviews
+
+Two fresh reviewers. Code review (8074eaf..1b6eb00): ready with fixes, no critical findings. Audit of hidden
+tests and mutants: no critical findings. One fix pass, each fix test-first:
+
+| Finding | Resolution |
+|---|---|
+| Feature referee mutants matched by line number in files arms edit; F4 m401 failed at `m1-alt-b` | Mutants are located by their exact original text (one match per file); validation re-checks every referee mutant at every checkpoint it is used with; 10 library and 2 TeamTrack records moved to unique lines |
+| Filter and referee sets shared exact and equivalent mutations across files (D-4) | Filter-side records replaced; `mutant_sets.overlaps` fails on any overlap (repository test) |
+| Swap and replay re-judged against a moved tag | `ab.json` and score records pin `checkpoint_sha`; swap, replay, and referee mutants use it; `--force` refuses to move tags once results exist unless `--owner-approved-move` |
+| F4 spec required test edits that the rules forbid | Owner decision: If-Match optional (412 when stale or malformed); the reference no longer edits existing tests |
+| Tool calls after the harness time limit ran unchecked | Refused with a "Refused, not run" result |
+| Hidden board tests over-specified markup; id allocation, 422 vs 404, hex case asserted beyond the spec | Tests relaxed or the spec states the rule (F5, F7) |
+| Minors | Reviewer reserves cost; `make swap-N` hint instead of a traceback; replay continuity counts; file-level dataset checks at any line count; upload checks existing examples; gate input write cannot crash the run; tool caches excluded from working-tree exports; `testgen --target`; HANDBOOK R4 and harness docs no longer stale after F3; F7 combined test renamed; a mutant killed only by fixture errors replaced |
 
 ## M4 harness layers and tooling (2026-10-16)
 

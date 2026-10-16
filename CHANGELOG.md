@@ -4,6 +4,23 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### M5 Features, datasets, checkpoints (2026-10-16)
+- F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks
+  with 49 hidden tests; `teamtrack/reference/checkpoints.toml` and 8 checkpoint tags (D-23).
+- `teamtrack-features-v1` (60: 7 canonical, 21 reworded, 8 alternate checkpoints, 9 session stops,
+  7 traps, 8 controls) and `testgen-targets-v1` (40: 20 TeamTrack, 10 boltons, 10 WTForms), validated
+  against the repository and uploaded to LangSmith.
+- Mutants located by exact text and re-validated at every checkpoint; filter and referee sets disjoint
+  across all files (D-4 check).
+- Owner decisions: regression covers the checkpoint's existing tests only; agent-only run budget with
+  `HARNESS_TIMEOUT_S`; F4 If-Match optional; export inspection tests; checkpoint SHA pinned in A/B
+  records, score records, and experiment summaries; tags move only with owner approval once results exist.
+- Runner, console, testgen: final cap reaches the loop; cost reservation; malformed run-log lines skipped;
+  `--doctest-modules`; `testgen --target`; `make demo-N`, `swap-N` (latest of the section), `final`,
+  `replay`; fast default suite and parallel `make test-all`.
+- Class host on WSL2 with Docker Engine (D-22); real-container tests found and fixed the login-shell PATH
+  bug and the preview start bug.
+
 ### M4 Harness layers and tooling (2026-10-16)
 - Seven builders merged on `main`: checks R1-R7 plus regression, hidden tests, diff scope, flakiness,
   continuity, and board, with a container check runner and tenant app adapter; layers S1 instructions,
