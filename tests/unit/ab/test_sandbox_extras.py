@@ -32,6 +32,19 @@ def test_extra_mounts_are_added_with_their_mode(settings: Settings, tmp_path: Pa
     assert args.index(f"{hidden.resolve()}:/hidden:ro") < args.index("img:1")
 
 
+def test_read_only_mount_inside_the_workspace_is_allowed(
+    settings: Settings, tmp_path: Path
+) -> None:
+    args = docker_run_args(
+        default_policy(settings),
+        "img:1",
+        tmp_path,
+        "n",
+        extra_mounts=[(tmp_path, "/work/tests/hidden", "ro")],
+    )
+    assert f"{tmp_path.resolve()}:/work/tests/hidden:ro" in args
+
+
 def test_no_extra_mounts_by_default(settings: Settings, tmp_path: Path) -> None:
     args = docker_run_args(default_policy(settings), "img:1", tmp_path, "n")
     assert [a for a in args if a.endswith(":ro")] == []
@@ -41,6 +54,8 @@ def test_no_extra_mounts_by_default(settings: Settings, tmp_path: Path) -> None:
     "mount",
     [
         ("{tmp}", "/work", "ro"),  # would shadow the workspace mount
+        ("{tmp}", "/", "ro"),  # above the workspace
+        ("{tmp}", "/work/tests/hidden", "rw"),  # inside the workspace: read-only only
         ("{tmp}", "relative/path", "ro"),
         ("{tmp}", "/hidden", "rwx"),
         ("{tmp}", "/hidden:rw", "ro"),

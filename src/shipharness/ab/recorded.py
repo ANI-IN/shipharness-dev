@@ -71,6 +71,7 @@ class LoadedArm:
     result: AgentRunResult
     diff: bytes
     test_phase_files: list[str]
+    session_patches: list[Path] = field(default_factory=list)
 
 
 @dataclass
@@ -92,6 +93,7 @@ def load_ab(run_dir: Path) -> LoadedAB:
             result=AgentRunResult.model_validate({**entry["result"], "diff_path": None}),
             diff=diff_file.read_bytes() if diff_file.is_file() else b"",
             test_phase_files=list(entry.get("test_phase_files", [])),
+            session_patches=[run_dir / p for p in entry.get("session_patches", [])],
         )
     return LoadedAB(run_dir.name, run_dir, ABTask(**data["task"]), int(data["seed"]), arms)
 
@@ -157,6 +159,7 @@ def swap_test(run_dir: Path, deps: RecordedDeps) -> SwapReport:
                 diff=loaded.diff,
                 bus=bus,
                 test_phase_files=loaded.test_phase_files,
+                session_patches=loaded.session_patches,
                 export=False,
             )
             swapped[arm] = verdict.record
@@ -206,6 +209,7 @@ def replay_ab(run_dir: Path, deps: RecordedDeps, *, ab_id: str | None = None) ->
                 bus=bus,
                 run_log=run_dir / "events.jsonl",
                 test_phase_files=loaded.test_phase_files,
+                session_patches=loaded.session_patches,
                 recorded=True,
             )
             records[arm] = verdict.record

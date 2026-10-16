@@ -130,9 +130,11 @@ def _mount_args(policy: SandboxPolicy, mounts: list[Mount] | None) -> list[str]:
             raise ValueError(f"mount mode must be 'ro' or 'rw', got {mode!r}")
         if not _CONTAINER_PATH.match(container) or ".." in container.split("/"):
             raise ValueError(f"container mount path must be absolute and plain: {container!r}")
-        work = policy.workspace_mount.rstrip("/")
-        if container.rstrip("/") == work or container.startswith(work + "/"):
+        work, target = policy.workspace_mount.rstrip("/"), container.rstrip("/")
+        if target == work or work.startswith(target + "/"):
             raise ValueError(f"extra mount {container!r} would shadow the workspace mount")
+        if target.startswith(work + "/") and mode != "ro":
+            raise ValueError(f"a mount inside the workspace must be read-only: {container!r}")
         args += ["-v", f"{Path(host).resolve()}:{container}:{mode}"]
     return args
 

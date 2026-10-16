@@ -162,7 +162,7 @@ def test_hidden_tests_are_mounted_read_only_and_never_in_the_build(
     verdict, _ = judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
     build, mounts, _arm = factory.calls[-1]
     assert not (build / "tests" / "hidden").exists()
-    [(host, container, mode)] = [m for m in mounts if m[1] == "/hidden"]
+    [(host, container, mode)] = [m for m in mounts if m[1] == "/work/tests/hidden"]
     assert mode == "ro" and (host / "f1" / "test_secret.py").exists()
     assert not str(host.resolve()).startswith(str(build.resolve()))
 
@@ -178,12 +178,56 @@ def test_runner_gets_the_fixed_seed_and_params(course_repo: Path, tmp_path: Path
     assert "--baseline" in argv
     [params_cmd] = [c for c in box.commands if c.startswith("printf") and "params" in c]
     params = json.loads(base64.b64decode(params_cmd.split()[2]))
-    assert params["hidden_dir"] == "/hidden"
+    assert params["hidden_dir"] == "tests/hidden"
+    assert "progress.md" in params["harness_artifacts"]
     assert params["hidden_test_ids"] == ["teamtrack/tests/hidden/f1/test_secret.py::test_secret"]
     assert params["shipped_test_ids"] == [
         "tests/visible/test_issues_new.py::test_filtered",
         "tests/visible/test_issues_new.py::test_second",
     ]
+
+
+def test_run_log_and_session_patches_are_mounted_read_only(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    run_log = tmp_path / "events.jsonl"
+    sessions = []
+    for i in (1, 2):
+        sessions.append(tmp_path / f"s{i}.patch")
+        sessions[-1].write_bytes(b"")
+    factory = Factory(all_green())
+    judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)),
+        tmp_path,
+        PRODUCT,
+        run_log=run_log,
+        session_patches=sessions,
+    )
+    _build, mounts, _arm = factory.calls[-1]
+    by_target = {container: (host, mode) for host, container, mode in mounts}
+    assert by_target["/referee-in/session-2.patch"] == (sessions[1], "ro")
+    assert by_target["/referee-in/events.jsonl"][1] == "ro"
+    [params_cmd] = [
+        c for c in factory.sandboxes[-1].commands if c.startswith("printf") and "params" in c
+    ]
+    params = json.loads(base64.b64decode(params_cmd.split()[2]))
+    assert params["session_patches"] == [
+        "/referee-in/session-1.patch",
+        "/referee-in/session-2.patch",
+    ]
+    assert params["run_log"] == "/referee-in/events.jsonl"
+
+
+def test_unsandboxed_fallback_copies_hidden_tests_into_the_referee_build(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    d = deps(course_repo, tmp_path, factory, container_paths=False, sandboxed=False)
+    verdict, _ = judge(Referee(task(), d), tmp_path, PRODUCT)
+    _build, mounts, _arm = factory.calls[-1]
+    assert mounts == []
+    assert (verdict.referee_dir / "build" / "tests" / "hidden" / "f1" / "test_secret.py").exists()
+    assert verdict.record.sandboxed is False
 
 
 def test_baseline_is_computed_once_for_both_arms(course_repo: Path, tmp_path: Path) -> None:

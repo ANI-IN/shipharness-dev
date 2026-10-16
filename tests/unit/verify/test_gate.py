@@ -93,6 +93,7 @@ def test_gate_passes_params_and_baseline_as_files() -> None:
             written[parts[-1]] = base64.b64decode(parts[2]).decode()
     params = json.loads(written["/tmp/shipharness-gate-g2/params.json"])
     assert params["exemptions"] == {"R4": ["POST /x"]}
+    assert params["artifacts_dir"].startswith("/tmp/shipharness-gate-g2/")
     assert written["/tmp/shipharness-gate-g2/baseline.json"] == '{"results": []}'
 
 

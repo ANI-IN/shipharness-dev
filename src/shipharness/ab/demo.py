@@ -344,6 +344,13 @@ def write_ab_record(run_dir: Path, task: ABTask, seed: int, arms: Mapping[Arm, A
                 "result": run.result.model_dump(mode="json", exclude={"diff_path"}),
                 "diff": f"{arm}/diff.patch",
                 "test_phase_files": phase_changed_files(run.spec, run.result),
+                "session_patches": [
+                    p.relative_to(run_dir).as_posix()
+                    for p in sorted(
+                        (run_dir / arm / "sessions").glob("session-*.patch"),
+                        key=lambda p: int(p.stem.rsplit("-", 1)[-1]),
+                    )
+                ],
             }
             for arm, run in arms.items()
         },
@@ -373,5 +380,21 @@ def _judge(
         bus=bus,
         run_log=run_dir / "events.jsonl",
         test_phase_files=phase_changed_files(spec, result),
+        session_patches=session_patches(spec, result, run_dir / spec.arm / "sessions"),
     )
     return verdict.record
+
+
+def session_patches(spec: AgentRunSpec, result: AgentRunResult, out_dir: Path) -> list[Path]:
+    """One patch per session (for the continuity check): committed changes between the session's
+    start and end commits; the last session also includes uncommitted work."""
+    patches: list[Path] = []
+    for position, session in enumerate(result.sessions):
+        out = out_dir / f"session-{session.index}.patch"
+        if position == len(result.sessions) - 1:
+            written = git.write_diff(spec.workspace, session.start_sha, out)
+        else:
+            written = git.write_range_diff(spec.workspace, session.start_sha, session.end_sha, out)
+        if written is not None:
+            patches.append(written)
+    return patches

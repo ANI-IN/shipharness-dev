@@ -166,6 +166,28 @@ def changed_files(workspace: Path, base_sha: str) -> list[str]:
     return [n.decode("utf-8", errors="replace") for n in names.stdout.split(b"\0") if n]
 
 
+def write_range_diff(workspace: Path, from_sha: str, to_sha: str, out_path: Path) -> Path | None:
+    """Binary-safe diff between two commits of the workspace (per-session patches)."""
+    if not (_SHA.match(from_sha or "") and _SHA.match(to_sha or "")):
+        return None
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return None
+        prefix, env, _tmp = isolated
+        diff = subprocess.run(
+            [*prefix, "diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-color"]
+            + [from_sha, to_sha, "--", ".", *_GENERATED_EXCLUDES],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if diff.returncode != 0:
+        return None
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_bytes(diff.stdout)
+    return out_path
+
+
 def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
     """Binary-safe diff of the working tree (including untracked files) against `base_sha`."""
     if not base_sha or not _SHA.match(base_sha):

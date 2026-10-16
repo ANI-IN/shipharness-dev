@@ -71,7 +71,8 @@ def _visible_tests(sandbox: Sandbox, build: str, timeout_s: int) -> tuple[GateIt
 def _check_items(
     sandbox: Sandbox, cfg: GateConfig, root: str, on_progress: Callable[[dict], None] | None
 ) -> tuple[list[GateItem], list[str]]:
-    write_container_file(sandbox, f"{root}/params.json", json.dumps(cfg.params, sort_keys=True))
+    params = {**cfg.params, "artifacts_dir": f"{root}/artifacts"}  # never in the arm workspace
+    write_container_file(sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True))
     baseline = None
     if cfg.baseline_json:
         write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json)

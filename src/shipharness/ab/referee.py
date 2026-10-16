@@ -13,6 +13,7 @@ import ast
 import hashlib
 import json
 import os
+import shutil
 import subprocess
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -20,12 +21,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from shipharness.ab.artifacts import diff_paths, glob_match, is_harness_artifact
+from shipharness.ab.artifacts import (
+    HARNESS_ARTIFACT_PATTERNS,
+    diff_paths,
+    glob_match,
+    is_harness_artifact,
+)
 from shipharness.ab.artifacts import strip_harness_artifacts as strip
 from shipharness.ab.score import ScoreRecord, evaluate_primary
 from shipharness.ab.workspace import export_checkpoint, export_hidden_tests, init_repo
 from shipharness.checks.base import CheckResult
-from shipharness.events import Arm, EventBus
+from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
 from shipharness.harness.verify.checkrun import (
     RunnerOutputError,
     last_progress,
@@ -54,8 +60,9 @@ REFEREE_CHECKS: tuple[str, ...] = (
     "continuity",
     "board",
 )
-HIDDEN_MOUNT = "/hidden"
-RUNLOG_MOUNT = "/runlog"
+WORK = "/work"  # the referee container mounts the build here (sandbox policy workspace_mount)
+HIDDEN_DIR = "tests/hidden"  # inside the build, read-only, referee container only
+INPUTS_MOUNT = "/referee-in"  # run log and per-session patches, read-only
 FLAKY_RUNS = 10
 
 SandboxFactory = Callable[[Path, list[Mount], Arm], Sandbox]
@@ -159,6 +166,22 @@ def shipped_tests(build: Path, paths: list[str]) -> list[str]:
     return ids
 
 
+def _event_fields(result: CheckResult) -> dict[str, Any]:
+    """check_result event data: only the fields the event model declares (it forbids extras
+    such as artifacts or metrics)."""
+    allowed = EVENT_DATA_MODELS["check_result"].model_fields
+    return {k: v for k, v in result.model_dump(mode="json").items() if k in allowed}
+
+
+def _score_fields(results: list[CheckResult]) -> dict[str, Any]:
+    """Score fields from the checks package's own mapping, when it provides one."""
+    try:
+        from shipharness.checks.scores import score_fields  # type: ignore[import-not-found]
+    except ImportError:
+        return {}
+    return dict(score_fields(results))
+
+
 def default_mutant_runner(mutant: Any, tests: list[str], build: Path, sandbox: Sandbox) -> str:
     from shipharness.filters import Mutant, run_mutant  # type: ignore[attr-defined]
 
@@ -176,13 +199,34 @@ class Referee:
 
     # -- container -----------------------------------------------------------------------------
 
-    def _paths(self, hidden: Path, runlog: Path | None) -> tuple[str, str | None, list[Mount]]:
-        mounts: list[Mount] = [(hidden, HIDDEN_MOUNT, "ro")]
+    def _paths(
+        self, build: Path, hidden: Path, runlog: Path | None, sessions: list[Path]
+    ) -> tuple[dict[str, Any], list[Mount]]:
+        """Container-side locations of the referee-only inputs, and the read-only mounts.
+        Hidden tests sit inside the build tree (ids are build-relative), mounted read-only, in
+        the referee container only; the run log and per-session patches are mounted beside."""
+        if (
+            not self.deps.container_paths
+        ):  # UNSANDBOXED fallback: no mounts, copy and use host paths
+            if hidden.is_dir():
+                shutil.copytree(hidden, build / HIDDEN_DIR, dirs_exist_ok=True)
+            return {
+                "hidden_dir": HIDDEN_DIR,
+                "run_log": str(runlog) if runlog else None,
+                "session_patches": [str(p) for p in sessions],
+            }, []
+        mounts: list[Mount] = [(hidden, f"{WORK}/{HIDDEN_DIR}", "ro")]
         if runlog is not None:
-            mounts.append((runlog.parent, RUNLOG_MOUNT, "ro"))
-        if not self.deps.container_paths:
-            return str(hidden), str(runlog) if runlog else None, []
-        return HIDDEN_MOUNT, f"{RUNLOG_MOUNT}/{runlog.name}" if runlog else None, mounts
+            mounts.append((runlog, f"{INPUTS_MOUNT}/{runlog.name}", "ro"))
+        for index, patch in enumerate(sessions, start=1):
+            mounts.append((patch, f"{INPUTS_MOUNT}/session-{index}.patch", "ro"))
+        return {
+            "hidden_dir": HIDDEN_DIR,
+            "run_log": f"{INPUTS_MOUNT}/{runlog.name}" if runlog else None,
+            "session_patches": [
+                f"{INPUTS_MOUNT}/session-{i}.patch" for i in range(1, len(sessions) + 1)
+            ],
+        }, mounts
 
     def _run_checks(
         self,
@@ -225,12 +269,12 @@ class Referee:
         hidden = export_hidden_tests(
             self.deps.course_repo, self.deps.checkpoint_ref, root / "hidden"
         )
-        hidden_dir, _log, mounts = self._paths(hidden, None)
+        inputs, mounts = self._paths(build, hidden, None, [])
         sandbox = self.deps.sandbox_factory(build, mounts, arm)
         sandbox.start()
         try:
             checks = tuple(c for c in REFEREE_CHECKS if c not in ("continuity", "flakiness"))
-            params = self._params(hidden_dir, None, [], [], [])
+            params = self._params(inputs, [], [], [])
             results, _p, error = self._run_checks(sandbox, params, None, checks)
         finally:
             sandbox.stop()
@@ -241,20 +285,19 @@ class Referee:
 
     def _params(
         self,
-        hidden_dir: str,
-        run_log: str | None,
+        inputs: dict[str, Any],
         shipped_files: list[str],
         shipped_ids: list[str],
         test_phase_files: list[str],
     ) -> dict[str, Any]:
         return {
+            **inputs,
             "hidden_test_ids": list(self.task.hidden_test_ids),
-            "hidden_dir": hidden_dir,
             "shipped_test_files": shipped_files,
             "shipped_test_ids": shipped_ids,
             "allowed_paths": self.task.allowed_paths,
             "test_phase_files": test_phase_files,
-            "run_log": run_log,
+            "harness_artifacts": list(HARNESS_ARTIFACT_PATTERNS),
             "exemptions": self.task.exemptions,
             "flaky_runs": FLAKY_RUNS,
         }
@@ -273,6 +316,7 @@ class Referee:
         bus: EventBus | None,
         run_log: Path | None = None,
         test_phase_files: list[str] | None = None,
+        session_patches: list[Path] | None = None,
         recorded: bool = False,
         export: bool = True,  # False for the swap test: its records are not runs
     ) -> ArmVerdict:
@@ -312,13 +356,11 @@ class Referee:
             if referee_url:
                 emit("trace_link", {"url": referee_url, "kind": "referee"})
             if apply_error is None:
-                hidden_dir, log_path, mounts = self._paths(hidden, run_log)
+                inputs, mounts = self._paths(build, hidden, run_log, list(session_patches or []))
                 sandbox = self.deps.sandbox_factory(build, mounts, arm)
                 sandbox.start()
                 try:
-                    params = self._params(
-                        hidden_dir, log_path, shipped_files, shipped_ids, phase_edits
-                    )
+                    params = self._params(inputs, shipped_files, shipped_ids, phase_edits)
                     results, progress, error = self._run_checks(
                         sandbox, params, baseline, REFEREE_CHECKS
                     )
@@ -332,7 +374,7 @@ class Referee:
                             total_probes=r.total_probes,
                         ):
                             pass
-                        emit("check_result", r.model_dump(mode="json", exclude={"artifacts"}))
+                        emit("check_result", _event_fields(r))
                     mutant_outcomes = self._mutants(sandbox, build, shipped_ids, emit)
                 finally:
                     sandbox.stop()
@@ -477,6 +519,10 @@ class Referee:
             "redone_lines_pct": None,
             "board_ok": ok("board"),
         }
+        own = {"mutants_killed", "mutants_total"}  # mutants are run here, not by the runner
+        fields.update(
+            {k: v for k, v in _score_fields(results).items() if k in fields and k not in own}
+        )
         primary, passed = evaluate_primary(self.task.primary_measure, fields)
         passed = passed and not failed
         referee_accepts = (

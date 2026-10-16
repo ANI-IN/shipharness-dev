@@ -85,3 +85,7 @@ def test_changed_files_lists_committed_and_uncommitted_changes(tmp_path: Path) -
     (ws / "app" / "__pycache__").mkdir()
     (ws / "app" / "__pycache__" / "x.pyc").write_bytes(b"\x00")
     assert run_git.changed_files(ws, base) == ["app/main.py", "tests/test_new.py"]
+    out = run_git.write_range_diff(ws, base, run_git.head_sha(ws), tmp_path / "s1.patch")
+    assert out is not None
+    text = out.read_text(encoding="utf-8")
+    assert "+x = 2" in text and "test_new.py" not in text  # committed range only
