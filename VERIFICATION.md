@@ -261,6 +261,25 @@ referee 227 s from an arm's end to its verdict (run 2: 331 s), gate 0 s (no done
 - The F2 harness early finish is a harness-arm design issue (the wrap-up message leads the agent to call
   `finish`, which ends the phase); not changed tonight (outside the pre-registration); options note.
 
+### Referee determinism check (2026-10-16 22:14-22:22, WSL clock)
+
+`scripts/pilot.py --determinism 10 --ab ab-20261016-212252-aa1644` (pilot run 3, F4; the bare arm shipped
+23 tests, so flakiness, the batched unmutated-pass step, and the referee mutants all ran): the recorded
+A/B judged 10 times by the merged referee (main cd2fa43), no reviewer, no model calls. For each arm, all
+10 score records are identical in every scored field (hidden tests, mutants, flakiness, regression,
+continuity, scope, R1-R7, board, primary measure). The only differing field was `captured_at`, the write
+time, which the comparison did not yet treat as volatile (fixed test-first, fa26596; recomputed from the
+same 10 records: bare 10 of 10, harness 10 of 10). Result: the referee is deterministic for this build
+(gate condition 3 passes). Exports: `exports/determinism/`.
+
+First parallelism attempt (invalid): `pilot.py --parallel 3` and `--parallel 4` with `--budget 1.0`; the
+pilot's budget guard reserves each A/B's worst case ($0.48) before launching, so only two A/Bs ran at
+once in both attempts (A/Bs `ab-20261016-222356-*`, `-223055-*`, `-223814-*`, `-224528-*`,
+`-225058-*`). Repeated with `--budget 2.5`. Cost of the invalid attempt: in the ledger, counted against the
+experiment budget as approved. WSL's `/tmp` was cleared at 23:02 (no reboot); the run 3 and determinism
+console logs there were lost; the results are kept in `.shipharness/runs`, `exports/`, and the pilot
+summaries in `.shipharness/pilot/`.
+
 ### Overnight run 2026-10-17: Phase 0 and decisions
 
 Owner instructions: `instructor/engineering-notes/overnight-2026-10-17.md` (verbatim).
