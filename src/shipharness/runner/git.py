@@ -144,6 +144,23 @@ def initial_sha(workspace: Path) -> str:
     return lines[-1] if out.returncode == 0 and lines else ""
 
 
+def root_tree(workspace: Path) -> str:
+    """Tree id of the root commit: the checkpoint's content (same for every arm that starts from
+    it, whatever the commit id). Empty string without one."""
+    root = initial_sha(workspace)
+    if not root:
+        return ""
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return ""
+        prefix, env, _tmp = isolated
+        out = subprocess.run(
+            [*prefix, "rev-parse", f"{root}^{{tree}}"], capture_output=True, env=env, check=False
+        )
+    sha = out.stdout.decode("ascii", errors="replace").strip()
+    return sha if out.returncode == 0 and _SHA.match(sha) else ""
+
+
 def changed_files(workspace: Path, base_sha: str) -> list[str]:
     """Paths whose content differs between `base_sha` and the working tree (untracked files
     included, generated files excluded). Same isolation as write_diff."""

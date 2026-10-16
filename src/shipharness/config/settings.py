@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     max_session_cost_usd: float = 2.50
     max_batch_cost_usd: float = 2.50
     max_experiment_total_usd: float = 25.00
+    # Every model call in this ledger, from its first entry (owner, 2026-10-17).
+    max_build_total_usd: float = 15.00
 
     # Run limits
     max_turns_per_session: int = 30

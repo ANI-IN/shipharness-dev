@@ -5,12 +5,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+from pathlib import Path
 from typing import Any, ClassVar
 
 from shipharness.checks import params as P
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision, LayerName
-from shipharness.harness.verify import testphase
+from shipharness.harness.verify import checkrun, testphase
 from shipharness.harness.verify.checkrun import (
     RunnerOutputError,
     new_nonce,
@@ -51,6 +52,7 @@ class VerifyLayer(BaseLayer):
         compute_baseline: bool = True,
         pipeline: testphase.Pipeline | None = None,
         gate_timeout_s: int = 600,
+        gate_baseline_cache_dir: Path | str | None = None,
         **_ignored: Any,
     ) -> None:
         self.checks = tuple(checks)
@@ -61,6 +63,10 @@ class VerifyLayer(BaseLayer):
         self.compute_baseline = compute_baseline
         self.pipeline = pipeline or testphase.filters_pipeline
         self.gate_timeout_s = gate_timeout_s
+        # Baselines reused across runs that start from the same checkpoint commit (M6 pilot).
+        self.gate_baseline_cache_dir = (
+            Path(gate_baseline_cache_dir) if gate_baseline_cache_dir is not None else None
+        )
         self.existing_tests: list[str] = []
         self.gate_count = 0
         self._phase_start: dict[str, tuple[dict[str, str], dict[str, str]]] = {}
@@ -113,9 +119,45 @@ class VerifyLayer(BaseLayer):
         )
         if self.baseline_json is not None or not self.compute_baseline:
             return []
+        cached = self._baseline_cache_path(ctx)
+        if cached is not None and cached.is_file():
+            self.baseline_json = cached.read_text(encoding="utf-8")
+            note = "gate baseline reused (same checkpoint commit)"
+            return [HarnessDecision(kind="note", layer="verify", message=note)]
         self.baseline_json = self._baseline(ctx)
+        if self.baseline_json and cached is not None:
+            cached.parent.mkdir(parents=True, exist_ok=True)
+            partial = cached.with_suffix(".part")
+            partial.write_text(self.baseline_json, encoding="utf-8")
+            partial.replace(cached)
         note = "gate baseline recorded" if self.baseline_json else "gate baseline unavailable"
         return [HarnessDecision(kind="note", layer="verify", message=note)]
+
+    def _baseline_cache_path(self, ctx: LayerContext) -> Path | None:
+        """Keyed by the checkpoint commit's tree, the task, the seed, the checks, the gate
+        parameters, and the check code; None without a cache directory or a checkpoint commit."""
+        if self.gate_baseline_cache_dir is None:
+            return None
+        tree = git.root_tree(ctx.workspace)
+        if not tree:
+            return None
+        import shipharness.checks as checks_package
+
+        code = hashlib.sha256()
+        for path in sorted(Path(checks_package.__file__).parent.glob("*.py")):
+            code.update(path.name.encode() + b"\0" + path.read_bytes())
+        code.update(Path(checkrun.__file__).read_bytes())
+        key = {
+            "checkpoint_tree": tree,
+            "checkpoint": ctx.spec.checkpoint,
+            "feature": ctx.spec.feature_id,
+            "seed": self._seed(ctx),
+            "checks": list(self.checks),
+            "params": self._params(ctx),
+            "code": code.hexdigest(),
+        }
+        digest = hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()[:32]
+        return self.gate_baseline_cache_dir / f"{digest}.json"
 
     def _baseline(self, ctx: LayerContext) -> str | None:
         """Runner output on the untouched workspace, so the gate counts only new violations."""

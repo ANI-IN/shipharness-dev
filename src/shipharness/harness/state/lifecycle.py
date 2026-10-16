@@ -30,9 +30,11 @@ def getting_up_to_speed(spec: AgentRunSpec) -> str:
     if "scope" in spec.layers:
         steps.append("Read feature_list.json and work on the feature listed there, and only it.")
     steps += [
-        "Run `bash init.sh` to set up the database and run a basic test.",
-        "Run the visible tests with run_visible_tests. If something is already broken, fix it "
-        "before you start new work.",
+        "Run `bash init.sh` to set up the database and run a basic end-to-end test.",
+        'Read the "Visible tests" line in session-handoff.md: the harness ran the full visible '
+        "suite when the last session ended. If it lists failures, fix them before you start new "
+        "work. In the first session there is no such line yet: run the visible tests once with "
+        "run_visible_tests.",
     ]
     numbered = "\n".join(f"{n}. {step}" for n, step in enumerate(steps, start=1))
     return (

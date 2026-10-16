@@ -78,7 +78,7 @@ Open the three S2 anchors (`uv run python scripts/anchors.py extract <id>`):
 
 | Anchor | File | Show |
 |---|---|---|
-| `S2:init` | `src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, the visible suite with `-x`; the A2 sentence in the header comment |
+| `S2:init` | `src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, one end-to-end test file (`tests/visible/test_issues.py`) with `-x`; the A2 sentence in the header comment |
 | `S2:stop_resume` | `src/shipharness/harness/state/lifecycle.py` (lines 80-117) | `session_stop`: machine summary, handoff merge, progress entry, commit, `session_stop` decision; `resume_text` |
 | `S2:write` | `src/shipharness/harness/state/progress.py` (lines 11-37) | `session_entry` (index, commits, `ended_by`, turns, files, tests) and `append_session_entry` (restores the heading) |
 
