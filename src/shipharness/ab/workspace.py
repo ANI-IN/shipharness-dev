@@ -33,6 +33,13 @@ WORKSPACE_EXCLUDES: tuple[str, ...] = (
     "reference/**",
     "*.db",
     "__pycache__/**",
+    # Git-ignored tool caches: a working-tree export (checkpoints.materialize) must match the
+    # tag tree, which never contains them.
+    ".import_linter_cache/**",
+    ".pytest_cache/**",
+    ".ruff_cache/**",
+    ".mypy_cache/**",
+    ".hypothesis/**",
 )
 # A fixed identity and date: both arms' checkpoint commits get the same SHA.
 _COMMIT_ENV = {
