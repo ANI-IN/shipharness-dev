@@ -6,8 +6,8 @@ results are valid only for that state. The tag pins four things:
 - treatment, measurement, tasks, and environment files (`FROZEN_PATHS`): any change, or new file,
   under them after the tag is drift;
 - the checkpoint tags and their commits (recorded in the tag message);
-- the run settings that shape a run (`RUN_SETTINGS`), both the code defaults and the effective values
-  (with `.env`); secrets are never recorded.
+- the run settings that shape a run (`RUN_SETTINGS`), both the code defaults and the effective
+  values (with `.env`); secrets are never recorded.
 
 Console, report, replay tooling, docs, slides, and course content stay editable.
 """
