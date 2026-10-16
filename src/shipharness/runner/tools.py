@@ -21,6 +21,13 @@ from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
 from shipharness.sandbox.base import Sandbox
 
 TOOL_OUTPUT_MAX_CHARS = 8000
+MAX_FILE_BYTES = 1_000_000  # read_file refuses, search skips, larger files (review M6)
+MAX_LINE_CHARS = 2000  # read_file shows, search scans, at most this many chars of a line
+SEARCH_TIME_BUDGET_S = 10.0  # search stops and says so after this long
+TRUNCATION_ADVICE = (
+    "the full output is kept in the run log outside the workspace, where you cannot read it; "
+    "narrow the command instead, for example pipe it through grep or tail"
+)
 SKIP_DIRS = {".git", ".venv", "node_modules", "__pycache__", ".pytest_cache", ".ruff_cache"}
 PATCH_FILE = ".git/shipharness-patch.diff"
 _SAFE_ID = re.compile(r"[^A-Za-z0-9_-]")
@@ -180,6 +187,12 @@ _SUMMARY_COUNT = re.compile(r"(\d+) (passed|failed|errors?)\b")
 _FAILURE_LINE = re.compile(r"^(FAILED|ERROR) (\S+)(?: - (.*))?$")
 
 
+def _cap_line(line: str) -> str:
+    if len(line) <= MAX_LINE_CHARS:
+        return line
+    return f"{line[:MAX_LINE_CHARS]} [line cut: {len(line) - MAX_LINE_CHARS} more chars]"
+
+
 def truncate(text: str, limit: int = TOOL_OUTPUT_MAX_CHARS) -> tuple[str, bool]:
     if len(text) <= limit:
         return text, False
@@ -219,6 +232,7 @@ class ToolBox:
         guard: Callable[[ToolCall], HarnessDecision] | None = None,
         tool_log_dir: Path | None = None,
         tool_timeout_s: int = 120,
+        search_time_budget_s: float = SEARCH_TIME_BUDGET_S,
     ) -> None:
         self.workspace = Path(workspace)
         self.sandbox = sandbox
@@ -229,7 +243,12 @@ class ToolBox:
         self.tool_log_dir = (
             Path(tool_log_dir) if tool_log_dir else self.workspace.parent / "tool-logs"
         )
+        root = self.workspace.resolve()
+        log_dir = self.tool_log_dir.resolve()
+        if log_dir == root or root in log_dir.parents:
+            raise ValueError("tool_log_dir must be outside the workspace (the agent can edit it)")
         self.tool_timeout_s = tool_timeout_s
+        self.search_time_budget_s = search_time_budget_s
 
     # -- public ------------------------------------------------------------------------------
 
@@ -292,13 +311,22 @@ class ToolBox:
         path = resolve_in_workspace(self.workspace, a.path)
         if not path.is_file():
             return False, f"file not found: {a.path}", None, []
+        size = path.stat().st_size
+        if size > MAX_FILE_BYTES:
+            return (
+                False,
+                f"file too large to read: {a.path} is {size} bytes (limit {MAX_FILE_BYTES}); "
+                "use run with grep, head, or tail to see the part you need",
+                None,
+                [],
+            )
         lines = path.read_bytes().decode("utf-8", errors="replace").splitlines()
         start = max(1, a.start_line or 1)
         count = max(1, min(a.max_lines or 400, 2000))
         chosen = lines[start - 1 : start - 1 + count]
         end = start + len(chosen) - 1
         header = f"[lines {start}-{max(end, start)} of {len(lines)}] {a.path}"
-        body = "\n".join(f"{n:>4}  {text}" for n, text in enumerate(chosen, start=start))
+        body = "\n".join(f"{n:>4}  {_cap_line(text)}" for n, text in enumerate(chosen, start=start))
         return True, header + ("\n" + body if body else ""), None, []
 
     def _tool_search(self, _call: ToolCall, a: SearchArgs) -> tuple[bool, str, None, list[str]]:
@@ -310,18 +338,33 @@ class ToolBox:
         limit = max(1, min(a.max_results or 50, 200))
         base = self.workspace.resolve()
         rows: list[str] = []
+        skipped = 0
+        stopped = False
+        started = time.monotonic()
         for file in iter_workspace_files(root):
-            if file.stat().st_size > 1_000_000:
+            if time.monotonic() - started >= self.search_time_budget_s:
+                stopped = True
+                break
+            if file.stat().st_size > MAX_FILE_BYTES:
+                skipped += 1
                 continue
             text = file.read_bytes().decode("utf-8", errors="ignore")
             for number, line in enumerate(text.splitlines(), start=1):
-                if regex.search(line):
+                if regex.search(line[:MAX_LINE_CHARS]):
                     rows.append(
                         f"{file.relative_to(base).as_posix()}:{number}: {line.strip()[:200]}"
                     )
                     if len(rows) >= limit:
                         return True, "\n".join(rows), None, []
-        return True, "\n".join(rows) or "(no matches)", None, []
+        notes = []
+        if skipped:
+            notes.append(f"[skipped {skipped} file over {MAX_FILE_BYTES} bytes]")
+        if stopped:
+            notes.append(
+                f"[search stopped: time budget of {self.search_time_budget_s:g} s reached; "
+                "narrow the path or the pattern]"
+            )
+        return True, "\n".join([*rows, *notes]) or "(no matches)", None, []
 
     def _tool_apply_patch(
         self, call: ToolCall, a: ApplyPatchArgs
@@ -442,9 +485,7 @@ class ToolBox:
             full = self.tool_log_dir / f"{safe_id}.txt"
             full.write_text(output, encoding="utf-8")
             full_path = str(full)
-            text += (
-                f"\n[truncated: {len(output) - len(text)} more chars; full output in {full.name}]"
-            )
+            text += f"\n[truncated: {len(output) - len(text)} more chars; {TRUNCATION_ADVICE}]"
         return ToolResult(
             call_id=call.call_id,
             ok=ok,
