@@ -29,7 +29,7 @@ diff --git a/app/api/issues.py b/app/api/issues.py
 +    )
 +
 +
- # Optimistic concurrency (F4): writes to an issue name the version they were based on.
+ # Optimistic concurrency (F4): a write may name the version it was based on.
  PRECONDITION_RESPONSES: dict[int | str, dict[str, Any]] = {
      412: {"description": "Precondition failed: If-Match does not name the current version"},
 diff --git a/app/api/schemas.py b/app/api/schemas.py
@@ -98,7 +98,7 @@ diff --git a/app/repositories/issues.py b/app/repositories/issues.py
 diff --git a/app/services/issues.py b/app/services/issues.py
 --- a/app/services/issues.py
 +++ b/app/services/issues.py
-@@ -211,3 +211,34 @@ def search(
+@@ -209,3 +209,34 @@ def search(
          after=after,
          limit=limit,
      )

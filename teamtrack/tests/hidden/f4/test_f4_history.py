@@ -111,12 +111,12 @@ def test_history_of_a_deleted_issue_is_404(client, acme) -> None:
 
 
 def test_refused_writes_do_not_appear_in_history(client, acme) -> None:
-    client.patch(f"/issues/{acme.issues[0]}", json={"title": "x"}, headers=auth(acme.member))
-    client.patch(
-        f"/issues/{acme.issues[0]}",
-        json={"title": "x"},
-        headers={**auth(acme.member), "If-Match": '"9"'},
-    )
+    for if_match in ("1", '"9"'):  # malformed, then stale: both 412
+        client.patch(
+            f"/issues/{acme.issues[0]}",
+            json={"title": "x"},
+            headers={**auth(acme.member), "If-Match": if_match},
+        )
     assert actions(client, acme.member, acme.issues[0]) == []
 
 
