@@ -111,7 +111,8 @@ def test_swap_target_runs_the_swap_test_on_ab(n: int) -> None:
 
 
 def test_final_runs_every_feature_in_features() -> None:
-    assert _variables()["FEATURES"] == "F5,F6,F7"  # DESIGN §8.2: the final uses F5-F7
+    # Two poll-chosen features by default (brief; owner 2026-10-17); the poll offers F5-F7.
+    assert _variables()["FEATURES"] == "F5,F6"
     recipe = " ".join(_rules()["final"])
     assert "$(FEATURES)" in recipe
     assert "rc=$$?" in recipe and recipe.endswith("exit $$rc")  # one failure does not stop the rest

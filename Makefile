@@ -122,9 +122,23 @@ replay:
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2
 
-check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
+# check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
+check-assignment-1:
+	$(UV) run python submodules/01-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
+
+check-assignment-2:
+	$(UV) run python submodules/02-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
+
+check-assignment-3:
+	$(UV) run python submodules/03-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
+
+check-assignment-4:
+	$(UV) run python submodules/04-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
+
+# grade-assignment-N SUBMISSION=<folder or git URL>: instructor only (graders are private).
 grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
-	@echo "! $@ is available after milestone M7"; exit 2
+	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
+	$(UV) run python scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
 
 slides:
 	@echo "! slides are built in milestone M10"; exit 2
