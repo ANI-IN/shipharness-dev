@@ -1,0 +1,48 @@
+$ uv run python submodules/04-verification/assignment/check.py --impl submodules/04-verification/solution
+A4 self-check for submodules/04-verification/solution
+
+[F6-interface]
+  PASS test_filter_has_number_6_and_a_name
+  PASS test_filter_runs_inside_the_shipharness_pipeline
+
+[F6-visible]
+  PASS test_renamed_and_reformatted_copy_is_discarded_with_the_original_named
+  PASS test_a_different_assertion_is_kept
+  PASS test_a_docstring_alone_does_not_make_a_test_new
+
+[R8-baseline]
+  PASS test_baseline_counts_only_new_findings
+
+[R8-interface]
+  PASS test_check_is_registered_through_the_shipharness_registry
+  PASS test_result_has_probes_and_r8_findings_with_detail_keys
+  PASS test_cli_wrapper_exit_codes_with_and_without_baseline
+
+[R8-no-false-positives]
+  PASS test_clean_build_reports_only_the_legacy_list
+  PASS test_lookup_violation_is_reported_only_on_issue_endpoints
+
+[R8-visible]
+  PASS test_finds_a_deleted_issue_that_resolves_by_id
+  PASS test_finds_a_deleted_issue_in_the_project_issue_list
+
+[own-tests]
+  PASS test_at_least_eight_own_tests
+  PASS test_own_tests_pass
+
+[portfolio-case-study]
+  PASS test_case_study_structure
+
+[portfolio-evidence]
+  PASS test_evidence_report_structure
+
+[portfolio-langsmith]
+  PASS test_langsmith_page_structure
+
+[skill]
+  PASS test_own_skill_is_valid_and_not_the_template
+
+self-check: PASSED (19/19 visible tests pass)
+Next: make grade-assignment-4 A4_IMPL=<this folder> runs the hidden tests too.
+Cost: $0.000000 (no model calls)
+[exit code 0]

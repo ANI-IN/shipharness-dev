@@ -19,14 +19,14 @@ instructor's run fills them; everything under "R8 on TeamTrack" is real output (
 
 ```
 uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 \
-    --out runs/a4-testgen
-uv run python -m a4_verification.apply_filter --repo teamtrack --kept runs/a4-testgen \
+    --out .shipharness/a4/testgen
+export PYTHONPATH=submodules/04-verification/solution
+uv run python -m a4_verification.apply_filter --repo teamtrack --kept .shipharness/a4/testgen \
     --existing tests/visible/test_tenant_isolation.py --existing tests/visible/test_issues.py \
     --existing tests/visible/test_legacy_and_schema.py
 python submodules/04-verification/solution/skill/testgen-evidence/scripts/summarize_report.py \
-    runs/a4-testgen/testgen-report.json
-PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 \
-    --build teamtrack --checkpoint m1-base --feature A4
+    .shipharness/a4/testgen/testgen-report.json
+uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4
 ```
 
 The testgen command runs without `--image`, so generated tests run on the host and the command
@@ -34,13 +34,13 @@ prints an UNSANDBOXED warning. The other three commands make no model calls.
 
 ## Results
 
-[[PENDING: summary table of the testgen run (proposed, kept, discarded per filter) and its discard reasons | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out runs/a4-testgen; then summarize_report.py runs/a4-testgen/testgen-report.json]]
+[[PENDING: summary table of the testgen run (proposed, kept, discarded per filter) and its discard reasons | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; then summarize_report.py .shipharness/a4/testgen/testgen-report.json]]
 
 [[PENDING: cost line printed by the testgen command | source: M6 pilot | how: last line of the testgen command above]]
 
 ## Filter 6 on the kept tests
 
-[[PENDING: output of filter 6 over the kept tests (kept N of M, each duplicate with the test it copies) | source: M6 pilot | how: uv run python -m a4_verification.apply_filter --repo teamtrack --kept runs/a4-testgen --existing <the three files above>]]
+[[PENDING: output of filter 6 over the kept tests (kept N of M, each duplicate with the test it copies) | source: M6 pilot | how: uv run python -m a4_verification.apply_filter --repo teamtrack --kept .shipharness/a4/testgen --existing <the three files above>]]
 
 ## R8 on TeamTrack
 

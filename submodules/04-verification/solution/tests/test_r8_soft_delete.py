@@ -1,4 +1,4 @@
-"""Reference solution tests for R8 (written before the code they check)."""
+"""Reference solution tests for R8."""
 
 from __future__ import annotations
 

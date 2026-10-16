@@ -52,7 +52,10 @@ def test_own_tests_pass(impl_path: Path) -> None:
         env=env,
         timeout=1200,
     )
-    assert run.returncode == 0, run.stdout[-3000:]
+    lines = [line for line in run.stdout.splitlines() if line.strip()]
+    summary = lines[-1] if lines else f"pytest exit {run.returncode}"
+    failed = [line for line in lines if line.startswith(("FAILED", "ERROR"))]
+    assert run.returncode == 0, f"tests/: {summary}; {'; '.join(failed[:3])}"
 
 
 @pytest.mark.criterion("skill")

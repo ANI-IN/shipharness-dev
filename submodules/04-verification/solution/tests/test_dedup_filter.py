@@ -1,4 +1,4 @@
-"""Reference solution tests for filter 6 (written before the code they check)."""
+"""Reference solution tests for filter 6."""
 
 from __future__ import annotations
 
