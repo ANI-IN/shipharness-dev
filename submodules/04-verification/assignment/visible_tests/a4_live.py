@@ -7,7 +7,8 @@ The submission keeps the evidence of two live runs in `live/` (paths relative to
     live/testgen-report.json    <dir>/testgen-report.json after
                                 `python -m a4_verification.apply_filter ... --update-report`
     live/ab.txt                 a `$ <command>` line, then everything `shipharness ab --section
-                                demo-4 --feature F4 --no-preview` printed (`Cost:` line included)
+                                demo-4 --feature F4 --purpose assignment --no-preview` printed
+                                (`Cost:` line included)
     live/scores/<run_id>.json   the two ScoreRecords that A/B wrote to `exports/scores/`
 
 Nothing here calls a model, needs a key, or re-runs anything: the files are parsed, validated
@@ -54,7 +55,13 @@ COMMAND_CAP = _default("max_batch_cost_usd")  # the per-command cap
 EPS = 1e-6
 
 AB_SECTION, AB_FEATURE, AB_VARIANT, AB_CHECKPOINT = "demo-4", "F4", "canonical", "m1-s4-start"
-AB_COMMAND = f"shipharness ab --section {AB_SECTION} --feature {AB_FEATURE} --no-preview"
+# `--purpose assignment` traces to the assignments project; the default, class, needs
+# SHIPHARNESS_CLASS_DATE and traces into the class project (`_trace_target` in ab/commands.py).
+AB_PURPOSE = "assignment"
+AB_COMMAND = (
+    f"shipharness ab --section {AB_SECTION} --feature {AB_FEATURE} --purpose {AB_PURPOSE} "
+    "--no-preview"
+)
 HARNESS_LAYERS = sorted(SECTION_STACKS[AB_SECTION])
 
 RUN_ID = re.compile(r"^r-\d{8}-\d{6}-[0-9a-f]{6}$")
@@ -65,7 +72,12 @@ TESTGEN_SUMMARY = re.compile(r"^testgen (\S+): (\S+); kept (\d+) of (\d+) propos
 TESTGEN_NOTE = re.compile(r"^testgen, model (\S+)$")
 AB_LINE = re.compile(r"^A/B (\S+) \((\S+), layers=(\[.*\])\)\s*$")
 AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+)\s+claim=")
-AB_NOTE = re.compile(r"^this command: (.*); (?:session|experiment) \$\d+\.\d+ of \$\d+\.\d+$")
+# The note of `cost_line` in src/shipharness/ab/runtime.py; the build part came later, so both
+# forms are accepted.
+AB_NOTE = re.compile(
+    r"^this command: (.*?); (?:session|experiment) \$\d+\.\d+ of \$\d+\.\d+"
+    r"(?:; build \$\d+\.\d+ of \$\d+\.\d+ \(\$-?\d+\.\d+ left\))?$"
+)
 MODEL_COST = re.compile(r"^(\S+) \$(\d+\.\d+)$")
 REQUIRED_REPORT_KEYS = (
     "run_id",
@@ -303,6 +315,18 @@ def ab_id_printed(t: Transcript) -> str | None:
     return found[0].group(1) if len(found) == 1 else None
 
 
+def ab_cost_models(note: str) -> dict[str, float]:
+    """Model -> cost from the note of an A/B `Cost:` line ({} when it lists no model)."""
+    note_match = AB_NOTE.match(note)
+    models: dict[str, float] = {}
+    if note_match and note_match.group(1) != "no calls":
+        for part in note_match.group(1).split(", "):
+            m = MODEL_COST.match(part.strip())
+            if m:
+                models[m.group(1)] = float(m.group(2))
+    return models
+
+
 def ab_run_problems(root: Path) -> list[str]:
     """`live/ab.txt`: the command of the brief, one A/B, and a cost line within the caps."""
     t = _ab_transcript(root)
@@ -318,7 +342,7 @@ def ab_run_problems(root: Path) -> list[str]:
     while i < len(args):
         token = args[i]
         name, eq, value = token.partition("=")
-        if name in ("--section", "--feature", "--k"):
+        if name in ("--section", "--feature", "--k", "--purpose"):
             if not eq:
                 i += 1
                 value = args[i] if i < len(args) else ""
@@ -332,6 +356,11 @@ def ab_run_problems(root: Path) -> list[str]:
         problems.append(f"{t.rel}: the command needs --section {AB_SECTION}")
     if values.get("--feature") != AB_FEATURE:
         problems.append(f"{t.rel}: the command needs --feature {AB_FEATURE}")
+    if values.get("--purpose") != AB_PURPOSE:
+        problems.append(
+            f"{t.rel}: the command needs --purpose {AB_PURPOSE} (the default, class, needs "
+            "SHIPHARNESS_CLASS_DATE and traces into the class project)"
+        )
     if "--no-preview" not in flags:
         problems.append(f"{t.rel}: the command needs --no-preview")
     if values.get("--k", "1") != "1":
@@ -359,13 +388,7 @@ def ab_run_problems(root: Path) -> list[str]:
             problems.append(
                 f"{t.rel}: command cost ${spent:.6f} is over the per-command cap ${COMMAND_CAP:.2f}"
             )
-        note_match = AB_NOTE.match(note)
-        models: dict[str, float] = {}
-        if note_match and note_match.group(1) != "no calls":
-            for part in note_match.group(1).split(", "):
-                m = MODEL_COST.match(part.strip())
-                if m:
-                    models[m.group(1)] = float(m.group(2))
+        models = ab_cost_models(note)
         if not models:
             problems.append(f"{t.rel}: the cost line lists no model costs: not a live run")
         elif models.get(MODEL, 0.0) <= 0:

@@ -185,6 +185,9 @@ def test_filter_6_rows_come_after_the_testgen_rows(root: Path) -> None:
         ("--no-preview", "--no-preview --from-working-tree", "--from-working-tree"),
         ("--no-preview", "--no-preview --k 2", "--k"),
         ("uv run shipharness ab", "uv run shipharness replay", "shipharness ab"),
+        (" --purpose assignment", "", "--purpose assignment"),
+        ("--purpose assignment", "--purpose class", "--purpose assignment"),
+        ("--purpose assignment", "--purpose pilot", "--purpose assignment"),
     ],
 )
 def test_ab_command_must_be_the_one_in_the_brief(
@@ -196,9 +199,50 @@ def test_ab_command_must_be_the_one_in_the_brief(
     assert _has(a4_live.ab_run_problems(root), needle)
 
 
-def test_ab_k_1_is_allowed(root: Path) -> None:
-    _edit_text(root / "live" / "ab.txt", "--no-preview", "--no-preview --k 1")
+def test_ab_command_of_the_brief_is_accepted(root: Path) -> None:
+    text = (root / "live" / "ab.txt").read_text(encoding="utf-8")
+    assert "$ uv run shipharness ab --section demo-4 --feature F4 --purpose assignment " in text
     assert a4_live.ab_run_problems(root) == []
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ("--no-preview", "--no-preview --k 1"),
+        ("--purpose assignment", "--purpose=assignment"),
+    ],
+)
+def test_ab_allowed_spellings(root: Path, old: str, new: str) -> None:
+    _edit_text(root / "live" / "ab.txt", old, new)
+    assert a4_live.ab_run_problems(root) == []
+
+
+def test_ab_cost_line_as_shipharness_prints_it_lists_the_models(tmp_path: Path) -> None:
+    from shipharness.ab.runtime import cost_line
+    from shipharness.config import Prices, Settings
+    from shipharness.cost.tracker import Caps, CostScope, CostTracker, Usage
+
+    def default(name: str) -> Any:
+        return Settings.model_fields[name].default
+
+    caps = Caps(
+        run=default("max_run_cost_usd"),
+        review=default("max_review_cost_usd"),
+        session=default("max_session_cost_usd"),
+        batch=default("max_batch_cost_usd"),
+        experiment=default("max_experiment_total_usd"),
+    )
+    tracker = CostTracker(
+        Prices.load(default("prices_file")), caps, tmp_path / "ledger.jsonl", "assignment"
+    )
+    tracker.record(
+        CostScope("run", "r-20000101-000000-00000c", caps.run),
+        a4_live.MODEL,
+        Usage(input_tokens=10_000, output_tokens=1_000),
+    )
+    match = a4_live.COST.match(cost_line(tracker))
+    assert match, cost_line(tracker)
+    assert list(a4_live.ab_cost_models(match.group(2))) == [a4_live.MODEL]
 
 
 def test_ab_must_print_exactly_one_ab(root: Path) -> None:
@@ -315,7 +359,7 @@ def test_pending_marker_alone_counts_as_pending(tmp_path: Path) -> None:
 
 def test_reference_solution_holds_the_pending_marker() -> None:
     text = (SOLUTION / "live" / "README.md").read_text(encoding="utf-8")
-    assert "source: M8 batch 1" in text
+    assert "source: M6 pilot" in text
     assert a4_live.pending_only(SOLUTION)
 
 
