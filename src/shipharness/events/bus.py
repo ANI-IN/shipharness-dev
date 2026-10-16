@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 import threading
 import time
 from collections.abc import Callable, Iterator
@@ -21,6 +22,76 @@ class RunLogLocked(RuntimeError):
     """Raised when another EventBus already writes to the same run log."""
 
 
+# A lock file with no pid yet is a writer between create and write; after this long it is a writer
+# that died in between.
+EMPTY_LOCK_GRACE_S = 30.0
+
+
+def pid_alive(pid: int) -> bool:
+    """True if a process with `pid` exists. Never signals the process (on Windows `os.kill(pid, 0)`
+    would terminate it). A recycled pid reads as alive, which keeps the lock: the safe side."""
+    if pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+
+        kernel32 = ctypes.windll.kernel32  # type: ignore[attr-defined]
+        process_query_limited_information, still_active, error_access_denied = 0x1000, 259, 5
+        handle = kernel32.OpenProcess(process_query_limited_information, False, pid)
+        if not handle:
+            return kernel32.GetLastError() == error_access_denied
+        try:
+            code = ctypes.c_ulong()
+            if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+                return True
+            return code.value == still_active
+        finally:
+            kernel32.CloseHandle(handle)
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    return True
+
+
+def _lock_is_stale(lock_path: Path) -> tuple[bool, str]:
+    """(stale, content). Stale = the recorded pid is not alive, or no pid was ever written and the
+    file is older than EMPTY_LOCK_GRACE_S."""
+    try:
+        content = lock_path.read_text(encoding="utf-8").strip()
+        age = time.time() - lock_path.stat().st_mtime
+    except FileNotFoundError:
+        return True, ""
+    if content.isdigit():
+        return not pid_alive(int(content)), content
+    return age > EMPTY_LOCK_GRACE_S, content
+
+
+def _reclaim_stale_lock(lock_path: Path) -> bool:
+    """Move a stale lock aside. The lock is renamed (atomic) and its content re-checked, so a
+    writer that took the lock in the meantime is put back instead of being dropped."""
+    stale, content = _lock_is_stale(lock_path)
+    if not stale:
+        return False
+    aside = lock_path.with_name(f"{lock_path.name}.stale-{os.getpid()}-{time.monotonic_ns()}")
+    try:
+        os.rename(lock_path, aside)
+    except FileNotFoundError:
+        return True  # already gone
+    except OSError:
+        return False
+    if aside.read_text(encoding="utf-8").strip() != content:
+        try:
+            os.rename(aside, lock_path)  # someone else's fresh lock: restore it
+        except OSError:
+            aside.unlink(missing_ok=True)
+        return False
+    aside.unlink(missing_ok=True)
+    return True
+
+
 def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
@@ -33,16 +104,25 @@ class EventBus:
         self.ab_id = ab_id
         self.log_path.parent.mkdir(parents=True, exist_ok=True)
         self._lock_path = self.log_path.with_name(self.log_path.name + ".lock")
-        try:
-            fd = os.open(self._lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        except FileExistsError:
-            raise RunLogLocked(f"run log already open: {self.log_path}") from None
-        os.write(fd, str(os.getpid()).encode())
-        os.close(fd)
+        self._acquire_lock()
         self._mutex = threading.Lock()
         self._listeners: list[Callable[[Event], None]] = []
         self._seq = max((event.seq for event in read_events(self.log_path)), default=0)
         self._closed = False
+
+    def _acquire_lock(self) -> None:
+        """Create the lock file holding our pid. A lock left by a writer that is no longer alive
+        (hard kill, crash) is reclaimed once; a live writer's lock raises RunLogLocked."""
+        for attempt in range(2):
+            try:
+                fd = os.open(self._lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            except FileExistsError:
+                if attempt == 0 and _reclaim_stale_lock(self._lock_path):
+                    continue
+                raise RunLogLocked(f"run log already open: {self.log_path}") from None
+            os.write(fd, str(os.getpid()).encode())
+            os.close(fd)
+            return
 
     def __enter__(self) -> EventBus:
         return self
