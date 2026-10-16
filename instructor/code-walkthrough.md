@@ -32,30 +32,29 @@ code is the fairness of the comparison, not the details.
 
 ### Opening:two_arms
 
-File: `src/shipharness/ab/demo.py:352-374` (pulled with `uv run python scripts/anchors.py extract Opening:two_arms`)
+File: `src/shipharness/ab/demo.py:360-379` (pulled with `uv run python scripts/anchors.py extract Opening:two_arms`)
 
 ```python
         # Same task, same model, effort, budgets, cost cap, tools, and sandbox for both arms.
         # The only difference is the harness. Both arms run at the same time.
+        # Both arms are judged by the same referee on what they shipped (aborted runs too),
+        # each as soon as it finishes: no idle wait for the other arm.
+        def run_and_judge(arm: Arm) -> tuple[AgentRunResult, ScoreRecord]:
+            result = run_arm(task, specs[arm], deps, bus, run_dir)
+            baseline.join()
+            referee.baseline()  # computed by the thread (or now, if the thread failed)
+            return result, _judge(referee, specs[arm], result, bus, run_dir)
+
         try:
             with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
-                futures = {
-                    arm: pool.submit(run_arm, task, specs[arm], deps, bus, run_dir) for arm in ARMS
-                }
-                results = {arm: future.result() for arm, future in futures.items()}
+                futures = {arm: pool.submit(run_and_judge, arm) for arm in ARMS}
+                done = {arm: future.result() for arm, future in futures.items()}
         finally:
             stop.set()  # previews stop (and their containers with them) on every path
             for thread in previews:
                 thread.join(timeout=10)
-
-        # Both arms are judged by the same referee on what they shipped (aborted runs too).
-        referee.baseline()
-        with ThreadPoolExecutor(max_workers=2, thread_name_prefix="referee") as pool:
-            verdicts = {
-                arm: pool.submit(_judge, referee, specs[arm], results[arm], bus, run_dir)
-                for arm in ARMS
-            }
-            records = {arm: future.result() for arm, future in verdicts.items()}
+        results = {arm: done[arm][0] for arm in ARMS}
+        records = {arm: done[arm][1] for arm in ARMS}
 ```
 
 Talking points:
@@ -65,8 +64,9 @@ Talking points:
 - `ThreadPoolExecutor(max_workers=2)`: the two arms run at the same time, so neither gets a quieter
   API or a warmer cache by going second.
 - The `finally` block stops the board previews on every path, including a crash.
-- `referee.baseline()` then `_judge` for each arm: the same referee judges both arms on what they
-  shipped, and aborted runs are judged too (DESIGN §8.3 rules 1 and 9).
+- `run_and_judge`: each arm is judged by the same referee as soon as it finishes, on what it
+  shipped; aborted runs are judged too (DESIGN §8.3 rules 1 and 9). The faster arm does not wait for
+  the slower one (owner decision after pilot run 2; VERIFICATION.md, M6).
 - Ask the room: "What would make this comparison unfair?" Then show the forbidden list in DESIGN
   §8.3 (different model per arm, re-running until the bare arm fails, dropping runs).
 
@@ -304,7 +304,7 @@ File: `src/shipharness/harness/state/assets/init.sh:2-29` (pulled with `uv run p
 # A2: "an init.sh script that can run the development server", then
 # "run through a basic end-to-end test before implementing a new feature".
 #
-#   bash init.sh          scratch database at head, then a basic test run
+#   bash init.sh          scratch database at head, then a basic end-to-end test
 #   bash init.sh serve    the same, then the development server in the background
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -317,8 +317,8 @@ echo "== migrations (house rule R7: exactly one head)"
 python -m alembic heads
 python -m alembic upgrade head
 
-echo "== basic test: visible suite, stop at the first failure"
-python -m pytest tests/visible -x -q --no-header -p no:cacheprovider
+echo "== basic end-to-end test: issues, stop at the first failure (full suite: run_visible_tests)"
+python -m pytest tests/visible/test_issues.py -x -q --no-header -p no:cacheprovider
 
 if [ "${1:-}" = "serve" ]; then
   echo "== development server on http://127.0.0.1:8000 (log in /tmp/teamtrack-dev.log)"

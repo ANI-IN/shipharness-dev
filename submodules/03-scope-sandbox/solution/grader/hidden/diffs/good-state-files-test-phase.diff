@@ -1,0 +1,24 @@
+diff --git a/progress.md b/progress.md
+index 43638ac..dff9009 100644
+--- a/progress.md
++++ b/progress.md
+@@ -3,3 +3,7 @@
+ ## Current feature
+ 
+ F3
++
++## Next
++
++- review
+diff --git a/session-handoff.md b/session-handoff.md
+index caa7b59..6f8c29d 100644
+--- a/session-handoff.md
++++ b/session-handoff.md
+@@ -1,3 +1,7 @@
+ # Session handoff
+ 
+ ## Machine summary
++
++## Notes from the agent
++
++Tests done.

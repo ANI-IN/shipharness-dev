@@ -4,8 +4,10 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.4` (2026-10-16, M5: §22 records features, datasets, checkpoints, and the
-pre-M6 fixes; where §22 and an earlier section differ, §22 wins). Version 1.3 (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
+Contract version: `1.5` (2026-10-16, M6 pilot: §23 records the fixes the pilot found; where §23
+and an earlier section differ, §23 wins). Version 1.4 (2026-10-16, M5: §22 records features,
+datasets, checkpoints, and the pre-M6 fixes; where §22 and an earlier section differ, §22 wins).
+Version 1.3 (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
 where §21 and an earlier section differ, §21 wins). Version 1.2 (M3): ledger file name, runner fields, sandbox and tracer
 signatures as built; see CHANGELOG). Version 1.1: approved at the M2 checkpoint with changes: `finish` tool;
 `feature_list.json` read-only to the agent; Flex tier rule; secrets rules in §20).
@@ -260,7 +262,7 @@ with a trailer `[truncated: N more chars; the full output is kept in the run log
 | `list_dir` | `path: str`, `depth: int \| null` (default 1, max 3) | Tree listing, directories with trailing `/` |
 | `read_file` | `path: str`, `start_line: int \| null`, `max_lines: int \| null` (default 400) | Numbered lines; `[lines a-b of N]` header |
 | `search` | `pattern: str` (regex), `path: str \| null`, `max_results: int \| null` (default 50) | `path:line: text` rows |
-| `apply_patch` | `patch: str` (unified diff, one or more files; new files via `/dev/null`) | `applied: <files>` or a precise rejection reason (hunk mismatch, path outside workspace, path blocked by scope) |
+| `apply_patch` | `patch: str` (one or more files: the `*** Begin Patch` format or a unified diff; see §23) | `applied: <files>` or a precise rejection reason (hunk mismatch, path outside workspace, path blocked by scope) |
 | `run` | `command: str`, `timeout_s: int \| null` (≤ `TOOL_TIMEOUT_S`) | `exit=<code>` header + combined stdout/stderr; executed in the arm container under `/work` |
 | `run_visible_tests` | `selector: str \| null` (pytest node selector within `tests/visible`) | Summary first (`passed=x failed=y errors=z`), then one `FAILED <node>: <reason>` line per failure, grep-friendly (A4, F-a-132) |
 | `finish` | `claim: "done" \| "not_done"` (enum), `summary: str` (≤ 2,000 chars) | `accepted` (phase ends), or gate feedback when the verify layer is on and the gate fails (phase continues) |
@@ -303,7 +305,8 @@ class ToolResult(BaseModel):
 
 `finish` runs on the host (runner and harness only). `list_dir`, `read_file`, `search` run on the host
 against the workspace (read-only, path-checked);
-`apply_patch` is validated on the host and applied with `git apply` in the container; `run` and
+`apply_patch` is validated on the host (anchored and range-less hunks are located against the
+current file there, §23) and applied with `git apply` in the container; `run` and
 `run_visible_tests` execute in the container.
 
 ---
@@ -1016,3 +1019,55 @@ are folded in here) and the owner's pre-M6 decisions.
 - `make test` (default `pytest`) deselects `slow`; `make test-all` runs everything except live and
   Docker, in parallel (`-n auto`); `make demo-N`, `swap-N`, `final`, `replay` call the real commands.
 - `.python-version` pins Python 3.12 for uv.
+
+---
+
+## 23. M6 pilot fixes (binding)
+
+Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed first.
+
+- `apply_patch` accepts the context-anchored format (`*** Begin Patch`, `*** Add File:`,
+  `*** Update File:`, `*** Delete File:`, `*** Move to:`, `*** End of File`, `@@` hunks located by
+  their context lines, optionally after an `@@ <line>` anchor) and unified diffs whose hunks have no
+  line numbers or wrong counts. `shipharness.runner.patch_format.to_unified` reads the current file on
+  the host (links and paths outside the workspace refused, UTF-8 only, at most `MAX_FILE_BYTES`),
+  locates each hunk (exact match, then ignoring trailing, then surrounding whitespace; blank context
+  lines at either end of a hunk are optional), and writes an exact unified diff that `git apply`
+  applies in the container. A well-formed unified diff is applied as before; if it does not apply,
+  it is retried with `--recount`, then located by context. A hunk that matches nothing is refused
+  with the path, the hunk number, and the lines not found; nothing is written. `patch_paths`,
+  `patch_targets` (scope layer), and the event target read the anchored headers. Tool description and
+  the core prompt name both formats (same text for both arms).
+- Generated files: `.import_linter_cache` joins `GENERATED_PATTERNS` (diffs, changed files, snapshot
+  trees), `SKIP_DIRS` (tool and scope snapshots), and the clean-state check; a test keeps every
+  skipped cache directory in all three lists.
+- Session patches come from working-tree snapshot trees (`git.snapshot_tree`, store
+  `<run>/<arm>/snapshots/store.git`, `SessionResult.start_tree` and `end_tree`), so an arm that never
+  commits is measured like one that does.
+- `phase_changed_files(spec, result, *, store=None)`: with the snapshot store, the test-phase files
+  are the change from the first test session's start tree to the last test session's end tree
+  (`git.tree_changed_files`); build-phase work an arm never committed is no longer counted as a
+  test-phase source edit (S3 measure). Without a store: the earlier commit-based comparison.
+- Harness overhead (harness arm only): `init.sh` runs migrations and one end-to-end visible test file
+  (`tests/visible/test_issues.py`), not the full suite; the getting-up-to-speed block tells the agent
+  to read the "Visible tests" line of the handoff's machine summary instead of re-running the suite
+  (first session: run it once). `VerifyLayer(gate_baseline_cache_dir=)` reuses the gate baseline for
+  runs that start from the same checkpoint commit, keyed by `git.root_tree(workspace)`, feature,
+  checkpoint, seed, checks, gate parameters, and a hash of the check code; `Runtime.ab_deps` passes
+  `<RUNS_DIR>/../cache/gate-baseline`.
+- Shared ledger: every `CostTracker` reads the entries other commands appended to the ledger before
+  each check, each summary, and each write (writes hold an exclusive file lock), so the session,
+  experiment, and build caps hold across concurrent commands (`make demo-4` with `make final`, and
+  parallel pilot A/Bs); a line another command is still writing is read once complete.
+- `shipharness run|review|ab` take `--purpose class|pilot|assignment` (default class): LangSmith
+  project `shipharness-class-<SHIPHARNESS_CLASS_DATE>`, `shipharness-pilot`, or `shipharness-assignments`,
+  and the cost session id (the class date, `pilot`, `assignment`). A class command exits 2 with one
+  line when `SHIPHARNESS_CLASS_DATE` is empty; the setting no longer defaults to today. `build_runtime(...,
+  session_id=)`. Experiments use `shipharness-experiments` and session `experiments`. `pilot.py` passes
+  `--purpose pilot`; the Makefile's `PURPOSE ?= class` reaches demo-N, swap-N, and final.
+- `shipharness ab --session-budget 12,38` overrides the task's session turn budget for both arms
+  (pre-registered levers; recorded in `ab.json`); `pilot.py --budgets F2=12/38`. Live A/B runs refuse
+  a missing or rejected `OPENAI_API_KEY` and any stand-in model client before an arm starts (exit 2).
+- The referee baseline runs while the arms work and is cached per task under
+  `<RUNS_DIR>/../cache/referee-baseline`, keyed by checkpoint SHA, seed, hidden test ids, allowed
+  paths, exemptions, checks, and a hash of the referee code (`RefereeDeps.baseline_cache_dir`).

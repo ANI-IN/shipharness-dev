@@ -213,7 +213,8 @@ def test_run_log_and_session_patches_are_mounted_read_only(
     )
     _build, mounts, _arm = factory.calls[-1]
     by_target = {container: (host, mode) for host, container, mode in mounts}
-    assert by_target["/referee-in/session-2.patch"] == (sessions[1], "ro")
+    host, mode = by_target["/referee-in/session-2.patch"]
+    assert mode == "ro" and host.read_bytes() == sessions[1].read_bytes()  # stripped copy
     assert by_target["/referee-in/events.jsonl"][1] == "ro"
     [params_cmd] = [
         c for c in factory.sandboxes[-1].commands if c.startswith("printf") and "params" in c
@@ -593,3 +594,112 @@ def test_working_tree_judging_records_no_checkpoint_commit(
     d = deps(course_repo, tmp_path, factory, checkpoint_ref=None)
     verdict, _ = judge(Referee(task(), d), tmp_path, PRODUCT)
     assert verdict.record.checkpoint_sha is None
+
+
+def _baseline_calls(factory: Factory) -> int:
+    return sum(1 for build, _m, _a in factory.calls if build.parent.name == "baseline")
+
+
+def test_referee_baseline_is_cached_per_checkpoint_commit_and_task(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    cache = tmp_path / "cache"
+    one = Referee(task(), deps(course_repo, tmp_path / "a", factory, baseline_cache_dir=cache))
+    two = Referee(task(), deps(course_repo, tmp_path / "b", factory, baseline_cache_dir=cache))
+    assert one.baseline() is not None
+    assert two.baseline() == one.baseline()
+    assert _baseline_calls(factory) == 1  # the second A/B of the same task reuses the baseline
+    other = Referee(
+        task(hidden_test_ids=["tests/hidden/f1/test_secret.py::test_other"]),
+        deps(course_repo, tmp_path / "c", factory, baseline_cache_dir=cache),
+    )
+    other.baseline()
+    assert _baseline_calls(factory) == 2  # different task inputs, different key
+
+
+def test_no_baseline_cache_for_working_tree_judging(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    cache = tmp_path / "cache"
+    for name in ("a", "b"):
+        d = deps(
+            course_repo, tmp_path / name, factory, baseline_cache_dir=cache, checkpoint_ref=None
+        )
+        Referee(task(), d).baseline()
+    assert _baseline_calls(factory) == 2
+
+
+def test_session_patches_reach_continuity_without_harness_files(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    # M6 pilot run 2: the harness rewrites progress.md and session-handoff.md every session, and
+    # the continuity check counted that as session 2 removing session 1's work.
+    first = tmp_path / "s1.patch"
+    first.write_text(STATE + PRODUCT, encoding="utf-8")
+    second = tmp_path / "s2.patch"
+    second.write_text(STATE, encoding="utf-8")
+    factory = Factory(all_green())
+    judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)),
+        tmp_path,
+        PRODUCT,
+        run_log=tmp_path / "events.jsonl",
+        session_patches=[first, second],
+    )
+    _build, mounts, _arm = factory.calls[-1]
+    by_target = {container: host for host, container, _mode in mounts}
+    one = by_target["/referee-in/session-1.patch"].read_text(encoding="utf-8")
+    two = by_target["/referee-in/session-2.patch"].read_text(encoding="utf-8")
+    assert "progress.md" not in one and "app/api/issues.py" in one
+    assert two == ""
+    assert "progress.md" in first.read_text(encoding="utf-8")  # the arm's record is unchanged
+
+
+# --- batched unmutated-pass step (owner-approved after pilot run 2) ---------------------------
+
+
+def _batched_box(lines: dict[str, str], *, summary_only: bool = False) -> FakeSandbox:
+    """A sandbox whose `-rA` pytest run reports `lines` (node id -> PASSED/FAILED); single-test
+    runs pass unless the id is FAILED in `lines`."""
+
+    def exec_(cmd: str) -> ExecResult:
+        if "-rA" in cmd:
+            if summary_only:
+                return ExecResult(
+                    exit_code=2, output="ERROR collecting\n1 error in 0.1s\n", duration_ms=1
+                )
+            body = "".join(f"{outcome} {node}\n" for node, outcome in lines.items())
+            failed = sum(o != "PASSED" for o in lines.values())
+            passed = len(lines) - failed
+            return ExecResult(
+                exit_code=1 if failed else 0,
+                output=f"{body}{passed} passed, {failed} failed in 0.1s\n",
+                duration_ms=1,
+            )
+        target = cmd.rsplit('"', 2)[-2]
+        if lines.get(target) == "FAILED":
+            return ExecResult(exit_code=1, output="1 failed in 0.1s\n", duration_ms=1)
+        return ExecResult(exit_code=0, output="1 passed in 0.1s\n", duration_ms=1)
+
+    return FakeSandbox(exec_)
+
+
+def test_unmutated_pass_step_runs_all_shipped_tests_in_one_process() -> None:
+    a, b = "tests/visible/test_x.py::test_a", "tests/visible/test_x.py::test_b"
+    box = _batched_box({a: "PASSED", b: "FAILED"})
+    assert Referee._passing_unmutated(box, [a, b]) == [a]
+    assert sum("-m pytest" in c for c in box.commands) == 1
+
+
+def test_a_shipped_file_passes_only_if_every_test_in_it_passes() -> None:
+    file = "tests/visible/test_x.py"
+    good, bad = "tests/visible/test_y.py", "tests/visible/test_x.py::test_b"
+    box = _batched_box({f"{file}::test_a": "PASSED", bad: "FAILED", f"{good}::test_c": "PASSED"})
+    assert Referee._passing_unmutated(box, [file, good]) == [good]
+
+
+def test_ids_without_a_batched_outcome_fall_back_to_isolated_runs() -> None:
+    a, b = "tests/visible/test_x.py::test_a", "tests/visible/test_x.py::test_b"
+    box = _batched_box({a: "PASSED", b: "FAILED"}, summary_only=True)
+    assert Referee._passing_unmutated(box, [a, b]) == [a]
+    assert sum("-m pytest" in c for c in box.commands) == 3  # one batch, then one per test

@@ -305,8 +305,11 @@ never adds facts the bare arm cannot read.
   files are fixed by the ticket; the course says so and cites A2's footnote that the two agents differ
   only in their initial prompt (F-a-52).
 - Getting up to speed (A2, F-a-58 to F-a-62): the session prompt tells the agent to run `pwd`, read
-  `progress.md` and `git log`, read the feature list, run `init.sh`, and run the visible tests before
-  changing code.
+  `progress.md` and `git log`, read the feature list, run `init.sh` (migrations and a basic
+  end-to-end test: one visible test file, A2's "basic end-to-end test"), and read the visible-test
+  status the harness wrote into `session-handoff.md` when the last session ended, fixing failures
+  before changing code; the first session runs the visible tests once. Until the M6 pilot the
+  prompt ran the full visible suite twice per session start (VERIFICATION, M6).
 - Forced session stop: the session turn budget is smaller than the feature (allowed technique, §1.8 of the
   brief). At the stop both arms receive the same number of wrap-up turns. The harness arm's wrap-up
   message asks for a progress update, exec-plan update, handoff, and commit; the bare arm's says only that
@@ -519,6 +522,66 @@ M6 recomputes the budget from measured per-run cost. Batch runs use `shipharness
 (board previews are for the live class only) and run several A/Bs at once (VERIFICATION records the
 number used).
 
+Pilot rules (owner, 2026-10-16). Every pilot-driven change is logged in VERIFICATION.md before the
+next run, with its reason, the run that revealed it, and its commit, labelled "bug fix, applies to
+both arms", "task/effort change", "harness change, harness arm only" (the treatment, never the
+measurement), "measurement change, both arms, secondary only", or "measurement change, both arms,
+no outcome change". Primary measures never change. A section without a gap gets its next step written
+here before it runs, using these levers in order: (a) the section's trap variant as its demo task
+(the legacy `/v1` pattern for F1); (b) effort `low` for both arms; (c) for F2, a tighter session
+budget; only the sections that need it run. Budgets stay identical for both arms: harness overhead
+is cut first, and `RUN_TIMEOUT_S` rises for both arms only if the harness arm still times out; a
+live demo of up to 8 minutes wall time is acceptable. The referee determinism check (the same code
+judged 10 times, the same result) runs before the gate is declared.
+
+Pilot run 3, pre-registered 2026-10-17 before it runs (owner decisions after run 2):
+
+| Section | Task (dataset line in `teamtrack-features-v1`) | Lever | Primary measure (unchanged) |
+|---|---|---|---|
+| F1 (S1) | `F1-trap-legacy-pattern`: the same ticket with the legacy `GET /v1/issues` handler as the nearest example | (a) trap variant | `r1_new_violations` |
+| F2 (S2) | `F2-canonical` with session budget [12, 38] (`shipharness ab --session-budget 12,38`; total 50 as before; owner, 2026-10-17: first session at 12 turns; the uploaded dataset is unchanged) | (c) tighter session budget | `continuity_failure` |
+| F3 (S3) | `F3-trap-tempting-middleware`: duplicate protection framed as a cross-cutting concern next to the off-limits `app/api/middleware.py` | (a) trap variant | `out_of_scope_files`, `test_phase_source_edits` |
+| F4 (S4) | `F4-canonical` | none (the harness turn-cost change applies) | `hidden_passed`, `mutants_killed` |
+
+Both arms: gpt-6-luna, effort medium, k=3, two A/Bs in parallel, reviewer on, the same caps and time
+limits as run 2. Changes since run 2 are listed in VERIFICATION.md (M6, pilot-driven changes). Pilot
+caps: up to 96 arm runs in total (owner, 2026-10-17), and the $10 pilot money cap.
+
+Fallback, pre-registered now: any section that still shows no gap after run 3 runs one more round
+with effort `low` for both arms, and only those sections run.
+
+Outcome rule, pre-registered now: if a section still shows no gap after that round, it is reported as
+"no measurable difference on this task with this model", and the class shows it that way (the live
+A/B, the experiment dots, and a discussion of why) instead of further tuning. Sections that show a
+gap become the headline demos. The owner decides the class plan per section after run 3.
+
+Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
+`harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
+treatment (`src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
+`teamtrack/harness/`); measurement (`checks/` with the check runner, the referee and A/B code in
+`ab/`, `reviewer/` with its prompt and grading criteria); tasks (`datasets/`, hidden tests, mutant
+files, `teamtrack/reference/`, and the checkpoint tags with their commits, recorded in the tag
+message); environment (sandbox policy and Dockerfile, cost caps, prices, the lock file, and the run
+settings by value: model, reasoning effort, turn limits, `RUN_TIMEOUT_S`, `HARNESS_TIMEOUT_S`, caps,
+concurrency, images, as code defaults and as effective values with `.env`). No change to any of it
+after the tag: a change would invalidate the M8 results and require re-running them.
+`tests/unit/test_harness_freeze.py` fails on any such change once the tag exists, and M8 commands run
+only while it passes (not skipped). Console, report, replay tooling, docs, slides, and course content
+stay editable. VERIFICATION.md records the tag and its commit.
+
+Freeze rule 1 (no silent changes). After the tag, a change to a frozen path either re-runs the
+affected M8 experiments or comes with a recorded check in VERIFICATION.md showing it cannot change any
+score. Each accepted change has an entry in the private `FREEZE-EXCEPTIONS.toml`: the path, its exact
+new content hash, the kind (`rerun` with the experiments re-run, or `no-score-effect`), and the
+VERIFICATION reference. Without a valid entry the freeze test fails.
+
+Freeze rule 2 (release compatibility). The public repository's history is new, so commit ids
+differ. The tag message records a SHA-256 content hash per frozen path and the tree of every
+checkpoint tag; the freeze check compares content hashes and trees, never commits, so it works in
+both repositories. `make_release.py` verifies that the public tree's frozen content matches the
+frozen build exactly (the tag's record with accepted exceptions applied) and reports it in its dry
+run; the release carries the same record in its own `harness-frozen` tag.
+
 Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
 the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch
 always use the same tier. Live class runs always use `auto`, because Flex latency is unpredictable. The M6
@@ -537,6 +600,7 @@ result and the tier used per batch are recorded in VERIFICATION.md.
 | `MAX_SESSION_COST_USD` | 2.50 (one class session, persisted across commands in `.shipharness/session.json`) |
 | `MAX_BATCH_COST_USD` | 2.50 (any single command) |
 | `MAX_EXPERIMENT_TOTAL_USD` | 25.00 (persisted across experiment batches) |
+| `MAX_BUILD_TOTAL_USD` | 15.00: every model call in the build ledger from its first entry, plus the pre-ledger M3-M4 spend as an opening entry (owner, 2026-10-17); it binds before the experiment total; every command's cost line shows build spent and remaining |
 | Also | max turns per session, max output tokens per call, `TOOL_TIMEOUT_S` per tool command, `RUN_TIMEOUT_S` 300 s of agent time per arm per run (harness work excluded), `HARNESS_TIMEOUT_S` 120 s of harness work per arm per run |
 
 One run cap covers both phases: the build phase and the test phase share the $0.20 (final $0.25). M6
@@ -594,7 +658,7 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Item | Design |
 |---|---|
-| Projects | `shipharness-class-<date>` (ad hoc class commands), `shipharness-experiments` (non-experiment traces from batches), `shipharness-assignments`. Experiments get their own LangSmith project per experiment, named `<prefix>-<section|batch>-<arm>-<date>` |
+| Projects | `shipharness-class-<date>` (class commands only; the date is set explicitly in `SHIPHARNESS_CLASS_DATE`, and class commands refuse without it), `shipharness-pilot` (M6 pilot runs, the console check, live tests; `--purpose pilot`), `shipharness-experiments` (M8: non-experiment traces from batches), `shipharness-assignments` (`--purpose assignment`). The M6 pilot runs 1 and 2 (2026-10-16) were traced into `shipharness-class-2026-10-16` before this rule existed; they stay there (VERIFICATION.md, M6). Experiments get their own LangSmith project per experiment, named `<prefix>-<section|batch>-<arm>-<date>` |
 | Tracing | `wrap_openai` on the client; `@traceable` root run per agent run with build and test phases as child runs; tool calls and sandbox exec as child tool runs. Referee evaluation is one trace with the reviewer call as a child |
 | Datasets | `teamtrack-features-v1` and `testgen-targets-v1` uploaded by `make datasets` from JSONL (examples built in Python; splits for subsets) |
 | Experiments | `evaluate()` per arm on the same dataset split with `num_repetitions=k`; the two arms run concurrently; one combined referee evaluator returns all scores as a list; bare vs harness compared in the comparison view (`comparison_url` stored in exports). Class demos use the same code path with a one-example dataset and k=1 |
@@ -606,7 +670,7 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Use | Runs | Traces | Budget |
 |---|---|---|---|
-| M6 pilot (medium effort × 4 features × 2 arms × k=3; other efforts only for sections without a gap; hard $10 total) | 24 (≤ 72) | 48 (≤ 144) | — |
+| M6 pilot (medium effort × 4 features × 2 arms × k=3 per round; levers and other efforts only for sections without a gap; hard $10 total) | 24 per round (≤ 96 arm runs, owner 2026-10-17) | 48 per round (≤ 192) | — |
 | Experiment batches 1 and 2 (reduced plan) | 112 | 224 | — |
 | **Instructor experiments total** | | **≤ 368** | ≤ 1,500 |
 | Class run (demos + final + ad hoc) | ~12 | ~40 | — |
@@ -643,15 +707,18 @@ run the referee live.
 | Block | Min | Content |
 |---|---|---|
 | Opening | 10 | Problem with a real failure on the board (3) → why it happens (2) → the harness, four parts + sandbox (2) → shipharness, TeamTrack, console tour, `harness-setup` assessment (3) |
-| S1 Instructions | 50 | Concepts 15 · walkthrough 10 · live A/B 15 · results 10 |
+| S1 Instructions | 50 | Poll 3 · launch `make demo-1` 2 · concepts 15 · walkthrough 10 (the A/B runs meanwhile; Terminal B checked at minute 25) · demo block 15 · discussion 5 |
 | S2 State and session lifecycle | 50 | Same |
 | Break | 10 | |
 | S3 Scope and sandbox | 50 | Same |
-| S4 Verification | 50 | Same |
-| Final + wrap-up | 20 | Poll → `make final FEATURES=…` → all screens → report + LangSmith comparison → skills to take home → assignments |
+| S4 Verification | 50 | S4 poll 3 · final feature poll 1 · launch `make demo-4` and, right after it, `make final FEATURES=…` in a second terminal 2 (`make final` runs its features one after another, so at most two A/Bs run at a time, as in pilot run 2) · concepts 14 · walkthrough 10 · demo block 15 · discussion 5 |
+| Final + wrap-up | 20 | Results walkthrough of the final A/B launched in S4, no new run: all screens → screen 4, report + LangSmith comparison → assignments → skills to take home → references |
 
-Live A/B within each section: glance at an easy control task, poll, `make demo-N`, screens 1→2→3. Results:
-screen 4, swap test or layer switch, discussion. S3 sandbox moment: tonight's `sandbox_denied` events, or
+Each section opens with its poll and launches `make demo-N` right away; concepts and the code
+walkthrough (25 minutes) run while the A/B proceeds, and the 15-minute demo block walks through the
+console screens and results (owner decision, 2026-10-17; pilot run 2: every A/B finished within 15.4
+minutes, VERIFICATION.md, M6). If the A/B is not finished at minute 25, the replay fallback in
+`instructor/run-sheet.md` applies. Results: screen 4, swap test or layer switch, discussion. S3 sandbox moment: tonight's `sandbox_denied` events, or
 the policy printout and the experiment denial log if none occurred.
 
 ### 14.2 Walkthrough anchors (`# [walkthrough:S<N>:<name>]` start/end, 30-40 lines each)

@@ -592,3 +592,25 @@ def test_after_tool_revert_reasons_reach_the_agent(tmp_path: Path) -> None:
     assert outputs[0]["output"].endswith(
         "REVERTED: app/api/middleware.py is outside the build phase's allowed paths"
     )
+
+
+def test_sessions_record_working_tree_snapshots_without_commits(tmp_path: Path) -> None:
+    """The bare arm may never commit; session boundaries are still captured as trees."""
+    ws = _git_repo(tmp_path)
+    sandbox = _RepoSandbox(ws)
+    steps = [tool_step("run", command="make-change", timeout_s=None), finish()]
+    tracker = CostTracker(PRICES, Caps(0.2, 0.04, 2.5, 2.5, 25.0), tmp_path / "l.jsonl", "t")
+    with EventBus(tmp_path / "events.jsonl", ab_id=None) as bus:
+        result = run_agent(
+            spec(tmp_path, workspace=ws),
+            Harness([]),
+            sandbox,
+            bus,
+            tracker,
+            NullTracer(),
+            ScriptedModelClient(steps),
+            RunOptions(sleep=lambda _s: None, snapshot_dir=tmp_path / "snapshots"),
+        )
+    (session,) = result.sessions
+    assert session.start_sha == session.end_sha  # nothing was committed
+    assert session.start_tree and session.end_tree and session.start_tree != session.end_tree

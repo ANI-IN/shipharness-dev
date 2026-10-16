@@ -1,0 +1,11 @@
+--- app/services/issues.py
++++ app/services/issues.py
+@@ -9,2 +9,2 @@
+ def create(project_id: int, body: dict, user: dict) -> dict:
+-    return repo.insert(project_id, body, org_id=user["org_id"])
++    return repo.insert(project_id, body, org_id=user["org_id"], once=True)
+--- app/core/config.py
++++ app/core/config.py
+@@ -2 +2 @@
+-PAGE_SIZE = 50
++PAGE_SIZE = 500

@@ -26,13 +26,19 @@ def getting_up_to_speed(spec: AgentRunSpec) -> str:
         "worked on.",
         f"Read session-handoff.md (the structured handoff from the last session) and the exec "
         f"plan {exec_plan_path(spec.feature_id)}.",
+        'Read the "Notes from the agent" in session-handoff.md before any other document: '
+        "earlier sessions wrote down the house rules and files that matter for this ticket. Open a "
+        "document from the AGENTS.md map only for a detail the notes do not cover (in the first "
+        "session, only the documents for the parts you will change).",
     ]
     if "scope" in spec.layers:
         steps.append("Read feature_list.json and work on the feature listed there, and only it.")
     steps += [
-        "Run `bash init.sh` to set up the database and run a basic test.",
-        "Run the visible tests with run_visible_tests. If something is already broken, fix it "
-        "before you start new work.",
+        "Run `bash init.sh` to set up the database and run a basic end-to-end test.",
+        'Read the "Visible tests" line in session-handoff.md: the harness ran the full visible '
+        "suite when the last session ended. If it lists failures, fix them before you start new "
+        "work. In the first session there is no such line yet: run the visible tests once with "
+        "run_visible_tests.",
     ]
     numbered = "\n".join(f"{n}. {step}" for n, step in enumerate(steps, start=1))
     return (
@@ -41,8 +47,9 @@ def getting_up_to_speed(spec: AgentRunSpec) -> str:
         "context. What earlier sessions did is in the repository and its git history. At the "
         "start of every session, before you change code:\n"
         f"{numbered}\n"
-        "Work on one step at a time and commit with a descriptive message when a step works. End "
-        "each session with a git commit and a progress update."
+        "Work on one step at a time and commit with a descriptive message when a step works. "
+        "Spend the session on the ticket: update progress.md, the exec plan, and the handoff only "
+        "when the harness asks you to wrap up."
     )
 
 
@@ -54,8 +61,9 @@ def wrapup_text(spec: AgentRunSpec) -> str:
         f"2. Update the exec plan {exec_plan_path(spec.feature_id)}: Progress (with timestamps) "
         "and Decision Log.\n"
         f'3. Write your notes under "{handoff.NOTES}" in session-handoff.md: what you were '
-        "doing, what is left, and what to watch out for. The harness writes the machine summary "
-        "itself.\n"
+        "doing, what is left, what to watch out for, and the house rules and file locations from "
+        "the documents you read that matter for this ticket, so the next session does not need to "
+        "read them again. The harness writes the machine summary itself.\n"
         "4. Commit your work to git with a descriptive message (git add, then git commit)."
     )
 
@@ -73,8 +81,15 @@ def machine_summary(
         commits=handoff.last_commits(ctx.sandbox),
         todos=handoff.todo_markers(ctx.workspace, files_changed),
         heads=handoff.migration_heads(ctx.workspace),
+        docs_read=list(ctx.state.get("instructions.files_read", [])),
     )
     return summary.render(), tests
+
+
+TEST_PHASE_FIRST = (
+    "This session is in the test phase: write the tests for the feature first, as new files under "
+    "tests/visible/, and run them; open other documents only if a test needs them."
+)
 
 
 # [walkthrough:S2:stop_resume] start
@@ -105,12 +120,14 @@ def session_stop(
     return [stop], summary
 
 
-def resume_text(summary: str) -> str:
+def resume_text(summary: str, phase: str = "build") -> str:
     """Extra resume text for the harness arm (the neutral resume sentence comes first)."""
     text = (
         "Start with the Getting up to speed steps before you change code. The structured "
         "handoff from the last session is in session-handoff.md."
     )
+    if phase == "test":
+        text = f"{text} {TEST_PHASE_FIRST}"
     return f"{text} Its machine summary:\n\n{summary[:3000]}" if summary else text
 
 

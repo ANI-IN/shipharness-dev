@@ -1,0 +1,3 @@
+$ uv run python submodules/01-instructions/solution/work/checker/check_docs.py --original submodules/01-instructions/assignment/starter/original/AGENTS.md --tree submodules/01-instructions/solution/work/instructions --product teamtrack
+OK: 13 files, 147 links, 66 rules covered
+(exit 0)

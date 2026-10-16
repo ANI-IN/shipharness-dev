@@ -11,7 +11,8 @@ working directory. You work only through the tools provided.
 
 Tools:
 - list_dir, read_file, search: explore the repository.
-- apply_patch: change files with a unified diff (use '--- /dev/null' to create a file).
+- apply_patch: change files with a patch ('*** Begin Patch' with *** Add File, \
+*** Update File and *** Delete File sections, or a unified diff).
 - run: run a shell command in the repository. There is no network access; all dependencies are \
 already installed.
 - run_visible_tests: run the repository's visible test suite in tests/visible.

@@ -107,10 +107,39 @@ def _settings() -> Any:
     return get_settings()
 
 
-def _one_ab(feature: str, effort: str, runs_dir: Path, exports_dir: Path) -> list[dict[str, Any]]:
-    env = {**os.environ, "OPENAI_REASONING_EFFORT": effort}
+def ab_command(feature: str, variant: str | None, budget: str | None = None) -> list[str]:
+    """`shipharness ab` for one section; `variant` picks a pre-registered dataset variant and
+    `budget` a pre-registered session budget override (e.g. "12,38")."""
     cmd = ["uv", "run", "shipharness", "ab", "--section", SECTIONS[feature], "--feature", feature]
-    cmd.append("--no-preview")
+    if variant:
+        cmd += ["--variant", variant]
+    if budget:
+        cmd += ["--session-budget", budget]
+    return [*cmd, "--purpose", "pilot", "--no-preview"]
+
+
+def parse_budgets(value: str) -> dict[str, str]:
+    """`F2=12/38` -> {"F2": "12,38"} (slashes inside, commas between features)."""
+    pairs = [item.split("=", 1) for item in value.split(",") if item.strip()]
+    return {feature.strip(): budget.strip().replace("/", ",") for feature, budget in pairs}
+
+
+def parse_variants(value: str) -> dict[str, str]:
+    """`F1=trap-legacy-pattern,F2=stop-1` -> {feature: dataset variant}."""
+    pairs = [item.split("=", 1) for item in value.split(",") if item.strip()]
+    return {feature.strip(): variant.strip() for feature, variant in pairs}
+
+
+def _one_ab(
+    feature: str,
+    effort: str,
+    runs_dir: Path,
+    exports_dir: Path,
+    variant: str | None = None,
+    budget: str | None = None,
+) -> list[dict[str, Any]]:
+    env = {**os.environ, "OPENAI_REASONING_EFFORT": effort}
+    cmd = ab_command(feature, variant, budget)
     started = time.monotonic()
     done = subprocess.run(cmd, cwd=REPO, env=env, capture_output=True, text=True, check=False)
     wall = round(time.monotonic() - started, 1)
@@ -129,6 +158,7 @@ def _one_ab(feature: str, effort: str, runs_dir: Path, exports_dir: Path) -> lis
         rows.append(
             {
                 "feature": feature,
+                "variant": variant or "canonical",
                 "arm": arm,
                 "ab_id": ab_id,
                 "run_id": result["run_id"],
@@ -182,7 +212,14 @@ def run_pilot(args: argparse.Namespace) -> int:
             print(f"start {feature} rep {rep + 1}/{args.k} (spent ${spent:.4f})", flush=True)
 
             def job(feature: str = feature) -> None:
-                rows = _one_ab(feature, args.effort, runs_dir, exports_dir)
+                rows = _one_ab(
+                    feature,
+                    args.effort,
+                    runs_dir,
+                    exports_dir,
+                    args.variants.get(feature),
+                    args.budgets.get(feature),
+                )
                 with lock:
                     results.extend(rows)
                 for row in rows:
@@ -192,6 +229,7 @@ def run_pilot(args: argparse.Namespace) -> int:
                                 k: row.get(k)
                                 for k in (
                                     "feature",
+                                    "variant",
                                     "arm",
                                     "ab_id",
                                     "status",
@@ -283,6 +321,8 @@ def main() -> int:
     p.add_argument(
         "--features", type=lambda s: [x.strip() for x in s.split(",")], default=list(SECTIONS)
     )
+    p.add_argument("--variants", type=parse_variants, default={}, help="F1=trap-legacy-pattern,...")
+    p.add_argument("--budgets", type=parse_budgets, default={}, help="F2=12/38,...")
     p.add_argument("--k", type=int, default=3)
     p.add_argument("--effort", default="medium")
     p.add_argument("--parallel", type=int, default=2)

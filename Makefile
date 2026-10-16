@@ -10,9 +10,12 @@ CONSOLE_PORT ?= 8765
 LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
-FEATURES ?= F5,F6,F7
+FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
+# demo-N, swap-N, final: LangSmith project (DESIGN §12). class needs SHIPHARNESS_CLASS_DATE (the
+# class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
+PURPOSE ?= class
 RUN ?=
 
 .PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
@@ -81,35 +84,35 @@ test-docker:
 
 # Section demos: section N's canonical task is feature FN, canonical variant (DESIGN §10.1).
 demo-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 demo-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT)
+	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) --purpose $(PURPOSE)
 
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
 # picks another one.
 swap-1:
-	$(UV) run shipharness ab --swap $(AB) --section demo-1
+	$(UV) run shipharness ab --swap $(AB) --section demo-1 --purpose $(PURPOSE)
 
 swap-2:
-	$(UV) run shipharness ab --swap $(AB) --section demo-2
+	$(UV) run shipharness ab --swap $(AB) --section demo-2 --purpose $(PURPOSE)
 
 swap-3:
-	$(UV) run shipharness ab --swap $(AB) --section demo-3
+	$(UV) run shipharness ab --swap $(AB) --section demo-3 --purpose $(PURPOSE)
 
 swap-4:
-	$(UV) run shipharness ab --swap $(AB) --section demo-4
+	$(UV) run shipharness ab --swap $(AB) --section demo-4 --purpose $(PURPOSE)
 
 # One A/B per feature; every feature runs, and the exit code is the last non-zero one.
 final:
 	rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
-	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) || rc=$$?; \
+	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) --purpose $(PURPOSE) || rc=$$?; \
 	done; exit $$rc
 
 replay:
@@ -119,9 +122,23 @@ replay:
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2
 
-check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
+# check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
+check-assignment-1:
+	$(UV) run python submodules/01-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
+
+check-assignment-2:
+	$(UV) run python submodules/02-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
+
+check-assignment-3:
+	$(UV) run python submodules/03-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
+
+check-assignment-4:
+	$(UV) run python submodules/04-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
+
+# grade-assignment-N SUBMISSION=<folder or git URL>: instructor only (graders are private).
 grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
-	@echo "! $@ is available after milestone M7"; exit 2
+	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
+	$(UV) run python scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
 
 slides:
 	@echo "! slides are built in milestone M10"; exit 2

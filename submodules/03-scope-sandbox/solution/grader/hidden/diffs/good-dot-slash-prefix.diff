@@ -1,0 +1,5 @@
+--- ./app/api/issues.py
++++ ./app/api/issues.py
+@@ -10 +10 @@
+-    return service.list_for(project_id, user)
++    return list(service.list_for(project_id, user))

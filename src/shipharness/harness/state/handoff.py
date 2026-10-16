@@ -41,6 +41,7 @@ class MachineSummary:
     commits: list[str] = field(default_factory=list)
     todos: list[str] = field(default_factory=list)
     heads: str = ""
+    docs_read: list[str] = field(default_factory=list)  # harness documents opened so far
 
     def render(self) -> str:
         r = self.result
@@ -60,6 +61,7 @@ class MachineSummary:
             "- Open TODO markers in changed files:" if self.todos else "- Open TODO markers: none",
             *(f"  - {line}" for line in self.todos),
             f"- Migration heads: {self.heads}",
+            "- Harness documents read so far: " + (", ".join(self.docs_read) or "none"),
         ]
         return "\n".join(lines)
 

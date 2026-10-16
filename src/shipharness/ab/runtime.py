@@ -84,18 +84,33 @@ class Runtime:
             container_paths=self.sandboxed,
             policy_summary=self.policy_summary,
             preview_factory=kw.pop("preview_factory", self.preview_factory),
+            baseline_cache_dir=kw.pop(
+                "baseline_cache_dir",
+                Path(self.settings.runs_dir).parent / "cache" / "referee-baseline",
+            ),
+            harness_kwargs={
+                "gate_baseline_cache_dir": Path(self.settings.runs_dir).parent
+                / "cache"
+                / "gate-baseline",
+                **kw.pop("harness_kwargs", {}),
+            },
             **kw,
         )
 
 
 def build_runtime(
-    settings: Settings, *, project: str, experiment: bool = False, final: bool = False
+    settings: Settings,
+    *,
+    project: str,
+    experiment: bool = False,
+    final: bool = False,
+    session_id: str | None = None,
 ) -> Runtime:
     cost = CostTracker(
         Prices.load(settings.prices_file),
         Caps.from_settings(settings, final=final),
         LEDGER,
-        session_id=settings.shipharness_class_date,
+        session_id=session_id if session_id is not None else settings.shipharness_class_date,
         experiment=experiment,
     )
     tracer = make_tracer(settings, project)
@@ -191,7 +206,10 @@ def cost_line(cost: CostTracker) -> str:
     total = summary.experiment_total_usd if summary.experiment else summary.session_total_usd
     cap = summary.caps.experiment if summary.experiment else summary.caps.session
     models = ", ".join(f"{m} ${v:.6f}" for m, v in sorted(summary.by_model.items())) or "no calls"
+    build_left = summary.caps.build - summary.build_total_usd
     return (
         f"Cost: ${summary.batch_total_usd:.6f} (this command: {models}; "
-        f"{scope} ${total:.6f} of ${cap:.2f})"
+        f"{scope} ${total:.6f} of ${cap:.2f}; "
+        f"build ${summary.build_total_usd:.6f} of ${summary.caps.build:.2f} "
+        f"(${build_left:.6f} left))"
     )

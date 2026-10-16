@@ -4,6 +4,28 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### M6 pilot fixes (2026-10-16)
+- Trace projects by purpose: class runs only in `shipharness-class-<date>` with an explicit class
+  date; pilot runs in `shipharness-pilot`; assignments in `shipharness-assignments`.
+- Cost caps hold across concurrent commands: trackers read each other's ledger entries.
+- Total build budget: `MAX_BUILD_TOTAL_USD` $15 over every ledger entry, enforced before each call;
+  the cost line shows build spent and remaining.
+- `apply_patch` accepts the context-anchored `*** Begin Patch` format and unified diffs without line
+  numbers or with wrong counts (most pilot patches failed under strict `git apply`); CONTRACTS §23.
+- `.import_linter_cache` is a generated directory everywhere (diff, scope snapshots, clean state).
+- S2 session patches and S3 test-phase files come from working-tree snapshots, so arms that never
+  commit are measured correctly.
+- Referee baseline runs in parallel with the arms and is cached per task.
+- Harness overhead cuts (harness arm only): `init.sh` runs one end-to-end test file, the session
+  start reuses the handoff's visible-test status, and the gate baseline is cached per checkpoint
+  commit. Pilot rules and the `harness-frozen` rule recorded in DESIGN §10.4.
+- `shipharness.freeze` and `scripts/freeze_harness.py`: the `harness-frozen` tag pins treatment,
+  measurement, tasks (with checkpoint tag commits), and environment (with run settings by value);
+  `tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
+- Freeze rules 1 and 2: content hash per frozen path and checkpoint trees in the tag record
+  (history-independent, for the public release); accepted changes need a `FREEZE-EXCEPTIONS.toml`
+  entry with a re-run or a VERIFICATION no-score-effect check.
+
 ### M5 Features, datasets, checkpoints (2026-10-16)
 - F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks
   with 49 hidden tests; `teamtrack/reference/checkpoints.toml` and 8 checkpoint tags (D-23).

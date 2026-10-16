@@ -205,3 +205,24 @@ def test_call_id_cannot_escape_the_tool_log_dir(repo: Path) -> None:
     written = Path(result.full_output_path).resolve()
     assert box.tool_log_dir.resolve() in written.parents
     assert not (repo.parent.parent / "escaped.txt").exists()
+
+
+def test_snapshot_tree_captures_uncommitted_work_without_agent_git_config(
+    repo: Path, tmp_path: Path
+) -> None:
+    """Session snapshots (S2 measure) see the working tree whether or not the arm commits, and
+    never run commands from the agent's .git/config."""
+    marker = tmp_path / "pwned"
+    plant_hostile_git_config(repo, marker)
+    store = tmp_path / "snapshots" / "store.git"
+    first = run_git.snapshot_tree(repo, store)
+    (repo / "app.py").write_text("x = 2\n", encoding="utf-8")
+    (repo / "new.py").write_text("y = 1\n", encoding="utf-8")  # untracked, never committed
+    second = run_git.snapshot_tree(repo, store)
+    assert first and second and first != second
+    out = run_git.write_tree_diff(store, first, second, tmp_path / "s.patch")
+    assert out is not None
+    text = out.read_text(encoding="utf-8")
+    assert "+x = 2" in text and "+y = 1" in text
+    assert not marker.exists()
+    assert run_git.snapshot_tree(repo, store) == second  # same content, same tree

@@ -1,0 +1,12 @@
+diff --git a/app/api/issues.py b/app/api/issues.py
+old mode 100644
+new mode 100755
+index 6b505cb..5a522a2
+--- a/app/api/issues.py
++++ b/app/api/issues.py
+@@ -9,3 +9,5 @@ def create_issue(project_id: int, body: dict, user: dict) -> dict:
+ 
+ def list_issues(project_id: int, user: dict) -> list[dict]:
+     return service.list_for(project_id, user)
++
++# R4: Idempotency-Key

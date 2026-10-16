@@ -3,6 +3,7 @@ Every command prints a cost line at exit."""
 
 from __future__ import annotations
 
+import dataclasses
 import json
 from pathlib import Path
 from typing import Any
@@ -25,8 +26,83 @@ def _runtime(settings: Settings, project: str, **kw: Any) -> Any:
     return build_runtime(settings, project=project, **kw)
 
 
-def _class_project(settings: Settings) -> str:
-    return f"shipharness-class-{settings.shipharness_class_date}"
+# LangSmith project and cost session per purpose (DESIGN §12). Class projects hold class runs only.
+PURPOSE_HELP = "class (needs SHIPHARNESS_CLASS_DATE), pilot, or assignment: the LangSmith project."
+OTHER_PURPOSES = {
+    "pilot": ("shipharness-pilot", "pilot"),
+    "assignment": ("shipharness-assignments", "assignment"),
+}
+
+
+def _trace_target(settings: Settings, purpose: str) -> tuple[str, str]:
+    """(LangSmith project, cost session id) for a command's purpose."""
+    if purpose in OTHER_PURPOSES:
+        return OTHER_PURPOSES[purpose]
+    if purpose != "class":
+        typer.echo(f"x unknown purpose {purpose!r}: class, pilot, or assignment")
+        raise typer.Exit(2)
+    day = settings.shipharness_class_date
+    if not day:
+        typer.echo(
+            "x SHIPHARNESS_CLASS_DATE is not set: set it in .env to the class day (YYYY-MM-DD) "
+            "for class commands, or pass --purpose pilot for a pilot run"
+        )
+        raise typer.Exit(2)
+    return f"shipharness-class-{day}", day
+
+
+def _key_problem(settings: Settings) -> str | None:
+    """None when OpenAI accepts the key for the agent model (a model metadata request: no tokens,
+    no cost); otherwise the error type, never the key or the message text."""
+    import openai
+
+    from shipharness.ab import clients
+
+    try:
+        clients.make_openai_client(settings, timeout_s=30).models.retrieve(settings.openai_model)
+    except openai.AuthenticationError:
+        return "invalid key (AuthenticationError)"
+    except openai.PermissionDeniedError:
+        return "no access (PermissionDeniedError)"
+    except openai.NotFoundError:
+        return f"no access to {settings.openai_model} (NotFoundError)"
+    except openai.APIConnectionError:
+        return "OpenAI unreachable (APIConnectionError)"
+    except openai.APIError as exc:
+        return type(exc).__name__
+    return None
+
+
+def _live_guard(settings: Settings, deps: Any) -> None:
+    """Every live A/B (demo-N, final, pilot) calls OpenAI: refuse before any arm starts when the key
+    is missing or rejected, or the runtime would use a stand-in model client. Never falls back to a
+    scripted or recorded run; replay (RECORDING) is the explicit fallback (owner, 2026-10-17)."""
+    from shipharness.runner.model import OpenAIModelClient
+
+    key = settings.openai_api_key.get_secret_value().strip() if settings.openai_api_key else ""
+    if not key:
+        typer.echo(
+            "x OPENAI_API_KEY is missing: live A/B runs call OpenAI and never fall back to a "
+            "stand-in; add the key to .env (or use make replay, which shows RECORDING)"
+        )
+        raise typer.Exit(2)
+    problem = _key_problem(settings)
+    if problem:
+        typer.echo(f"x OpenAI refused the key: {problem}; no arm was started")
+        raise typer.Exit(2)
+    try:
+        client = deps.client_factory("bare")
+    except Exception as exc:  # noqa: BLE001 - reported as one line
+        typer.echo(f"x the live OpenAI client could not be created: {type(exc).__name__}")
+        raise typer.Exit(2) from None
+    if not isinstance(client, OpenAIModelClient):
+        typer.echo("x live A/B runs need the OpenAI client; a stand-in model client is refused")
+        raise typer.Exit(2)
+
+
+def _purpose_runtime(settings: Settings, purpose: str, **kw: Any) -> Any:
+    project, session = _trace_target(settings, purpose)
+    return _runtime(settings, project, session_id=session, **kw)
 
 
 def _load_task(dataset: Path, feature: str | None, example: str | None, variant: str) -> Any:
@@ -73,6 +149,7 @@ def register(app: typer.Typer) -> None:
         layers: str = typer.Option("all", help="none, all, a list, or -<layer> removals."),
         workspace: Path | None = typer.Option(None, help="Existing arm workspace (git repo)."),
         from_working_tree: bool = typer.Option(False, help="Export the working tree, not a tag."),
+        purpose: str = typer.Option("class", help=PURPOSE_HELP),
     ) -> None:
         """Run one agent (harness arm, or bare with --layers none) on a ticket."""
         from shipharness.ab.demo import ABTask, arm_specs, run_arm
@@ -84,7 +161,7 @@ def register(app: typer.Typer) -> None:
         settings = _settings()
         names = parse_layers(layers)
         arm = "harness" if names else "bare"
-        rt = _runtime(settings, _class_project(settings))
+        rt = _purpose_runtime(settings, purpose)
         task = ABTask(feature, checkpoint, ticket_file.read_text(encoding="utf-8"))
         run_id = new_run_id()
         ws = workspace or create_arm_workspace(
@@ -114,13 +191,14 @@ def register(app: typer.Typer) -> None:
         diff: Path = typer.Option(..., exists=True, dir_okay=False, help="Unified diff file."),
         task: str = typer.Option(..., help="Ticket text, or @file to read it from a file."),
         criteria: Path | None = typer.Option(None, help="Directory with SECURITY.md etc."),
+        purpose: str = typer.Option("class", help=PURPOSE_HELP),
     ) -> None:
         """Blinded review of a diff by OPENAI_EVAL_MODEL (structured output)."""
         from shipharness.ab.runtime import cost_line
         from shipharness.reviewer import ReviewInput, blind, grading_criteria
 
         settings = _settings()
-        rt = _runtime(settings, _class_project(settings))
+        rt = _purpose_runtime(settings, purpose)
         ticket = Path(task[1:]).read_text(encoding="utf-8") if task.startswith("@") else task
         text = grading_criteria(criteria) if criteria else grading_criteria()
         inp = ReviewInput(task=ticket, diff=blind(diff.read_bytes()), grading_criteria=text)
@@ -151,6 +229,11 @@ def register(app: typer.Typer) -> None:
         preview: bool = typer.Option(
             True, "--preview/--no-preview", help="Board preview containers (off for batch runs)."
         ),
+        purpose: str = typer.Option("class", help=PURPOSE_HELP),
+        session_budget: str | None = typer.Option(
+            None,
+            help="Override the task's session turn budget, e.g. 12,38 (pre-registered levers).",
+        ),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
         from shipharness.ab.demo import run_ab, section_layers
@@ -158,19 +241,31 @@ def register(app: typer.Typer) -> None:
         from shipharness.harness.base import parse_layers
 
         if replay or swap:
-            _recorded(replay=replay, swap=swap, reviewer=reviewer, section=section)
+            _recorded(replay=replay, swap=swap, reviewer=reviewer, section=section, purpose=purpose)
             return
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
+        if session_budget:
+            try:
+                turns = [int(part) for part in session_budget.split(",")]
+            except ValueError:
+                turns = []
+            if not turns or min(turns) < 1:
+                typer.echo(
+                    f"x --session-budget takes positive integers, e.g. 12,38: {session_budget!r}"
+                )
+                raise typer.Exit(2)
+            task = dataclasses.replace(task, session_budget=turns)
         if section:
             modifier = layers if layers and layers.startswith("-") else None
             names = section_layers(section, modifier)
         else:
             names = parse_layers(layers or "all")
-        rt = _runtime(settings, _class_project(settings), final=section == "final")
+        rt = _purpose_runtime(settings, purpose, final=section == "final")
         extra: dict[str, Any] = {} if preview else {"preview_factory": None}
         ref = None if from_working_tree else task.checkpoint
         deps = rt.ab_deps(ref, reviewer=reviewer, **extra)
+        _live_guard(settings, deps)
         statuses: list[str] = []
         for _ in range(k):
             result = run_ab(task, names, deps, section=section)
@@ -182,7 +277,12 @@ def register(app: typer.Typer) -> None:
         raise typer.Exit(_exit_code(statuses))
 
     def _recorded(
-        *, replay: str | None, swap: str | None, reviewer: bool, section: str | None = None
+        *,
+        replay: str | None,
+        swap: str | None,
+        reviewer: bool,
+        section: str | None = None,
+        purpose: str = "class",
     ) -> None:
         from shipharness.ab.recorded import (
             RecordedDeps,
@@ -211,7 +311,7 @@ def register(app: typer.Typer) -> None:
         except UnpinnedRecord as exc:
             typer.echo(f"x {exc}")
             raise typer.Exit(2) from None
-        rt = _runtime(settings, _class_project(settings))
+        rt = _purpose_runtime(settings, purpose)
         deps = RecordedDeps(
             course_repo=rt.course_repo,
             referee_sandbox_factory=rt.referee_sandbox_factory,
@@ -282,7 +382,9 @@ def register(app: typer.Typer) -> None:
         from shipharness.harness.base import parse_layers
 
         settings = _settings()
-        rt = _runtime(settings, "shipharness-experiments", experiment=True)
+        rt = _runtime(
+            settings, "shipharness-experiments", experiment=True, session_id="experiments"
+        )
         names = parse_layers(layers)
         plan = ExperimentPlan(
             dataset=dataset,

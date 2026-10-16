@@ -5,8 +5,11 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+import httpx
+import openai
 import pytest
 import typer
+from pydantic import SecretStr
 from typer.testing import CliRunner
 
 from shipharness.ab import commands
@@ -14,6 +17,7 @@ from shipharness.config import Settings
 from shipharness.reviewer import Review, ReviewOutcome
 from shipharness.tracing import NullTracer
 
+from ..fakes import fake_openai_key
 from .test_demo import LINE, Clients, make_deps
 from .test_referee import Factory, all_green
 from .test_report import fixture_exports
@@ -35,7 +39,10 @@ def make_app() -> typer.Typer:
 @pytest.fixture
 def env(course_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):  # type: ignore[no-untyped-def]
     settings = Settings(
-        _env_file=None, runs_dir=tmp_path / "runs", exports_dir=tmp_path / "exports"
+        _env_file=None,
+        runs_dir=tmp_path / "runs",
+        exports_dir=tmp_path / "exports",
+        shipharness_class_date="2026-10-20",
     )
     deps = make_deps(course_repo, tmp_path, Clients())
     deps.client_factory = lambda arm: Clients()(arm)
@@ -56,6 +63,9 @@ def env(course_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):  # 
         ab_deps=lambda ref, reviewer=True, **kw: deps,
     )
     monkeypatch.setattr(commands, "_settings", lambda: settings)
+    # These tests drive the A/B logic offline with scripted clients; the live-client guard is
+    # tested on its own in test_class_live_guard.py.
+    monkeypatch.setattr(commands, "_live_guard", lambda *a, **k: None, raising=False)
     monkeypatch.setattr(commands, "_runtime", lambda *a, **kw: runtime)
     dataset = tmp_path / "features.jsonl"
     dataset.write_text(json.dumps(LINE) + "\n", encoding="utf-8")
@@ -205,3 +215,153 @@ def test_ab_previews_can_be_turned_off_for_batch_runs(env, flag, previews) -> No
     result = CliRunner().invoke(make_app(), args)
     assert result.exit_code == 0, result.output
     assert ("preview_factory" in seen[0] and seen[0]["preview_factory"] is None) is (not previews)
+
+
+# --- trace projects (owner, 2026-10-17; DESIGN 12) ---------------------------------------------
+
+
+def _record_targets(monkeypatch: pytest.MonkeyPatch, runtime_factory: Any) -> list[tuple]:  # type: ignore[type-arg]
+    seen: list[tuple] = []  # type: ignore[type-arg]
+
+    def runtime(settings, project, **kw):  # type: ignore[no-untyped-def]
+        seen.append((project, kw.get("session_id")))
+        return runtime_factory(settings, project, **kw)
+
+    monkeypatch.setattr(commands, "_runtime", runtime)
+    return seen
+
+
+@pytest.mark.parametrize(
+    ("purpose", "project", "session"),
+    [
+        ("pilot", "shipharness-pilot", "pilot"),
+        ("assignment", "shipharness-assignments", "assignment"),
+        ("class", "shipharness-class-2026-10-20", "2026-10-20"),
+    ],
+)
+def test_ab_traces_to_the_project_for_its_purpose(
+    env, monkeypatch, purpose, project, session
+) -> None:  # type: ignore[no-untyped-def]
+    seen = _record_targets(monkeypatch, commands._runtime)
+    result = CliRunner().invoke(
+        make_app(),
+        [
+            "ab",
+            "--feature",
+            "F1",
+            "--purpose",
+            purpose,
+            "--no-preview",
+            "--dataset",
+            str(env.dataset),
+        ],
+    )
+    assert result.exit_code in (0, 1), result.output
+    assert seen and seen[0] == (project, session)
+
+
+def test_class_commands_refuse_without_an_explicit_class_date(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(commands, "_settings", lambda: Settings(_env_file=None))
+    result = CliRunner().invoke(
+        make_app(), ["ab", "--feature", "F1", "--dataset", str(env.dataset)]
+    )
+    assert result.exit_code == 2
+    assert "SHIPHARNESS_CLASS_DATE" in result.output and "--purpose pilot" in result.output
+
+
+# --- no static class (owner, 2026-10-17) -----------------------------------------------------
+# Every live A/B (make demo-N, make final, pilot runs) calls OpenAI. `shipharness ab` refuses before
+# any arm starts when the key is missing or rejected, or when the runtime would use a stand-in model
+# client; it never falls back. Replay stays the fallback and is always marked RECORDING.
+
+REAL_GUARD = commands._live_guard  # the env fixture turns it off for offline A/B logic tests
+
+
+def run_ab(env, *args: str):  # type: ignore[no-untyped-def]
+    return CliRunner().invoke(make_app(), ["ab", "--dataset", str(env.dataset), *args])
+
+
+def with_key(env) -> Settings:  # type: ignore[no-untyped-def]
+    return env.settings.model_copy(update={"openai_api_key": SecretStr(fake_openai_key())})
+
+
+@pytest.mark.parametrize("section", ["demo-1", "final"])
+def test_live_ab_refuses_without_an_openai_key(env, monkeypatch, section) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
+    monkeypatch.setattr(commands, "_settings", lambda: env.settings)  # no key in the fixture
+    result = run_ab(env, "--feature", "F1", "--section", section, "--no-preview")
+    assert result.exit_code == 2, result.output
+    assert "OPENAI_API_KEY" in result.output and "never" in result.output
+    assert not list(Path(env.settings.runs_dir).glob("ab-*"))  # no arm started
+
+
+@pytest.mark.parametrize("section", ["demo-1", "final"])
+def test_live_ab_refuses_a_stand_in_model_client(env, monkeypatch, section) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
+    monkeypatch.setattr(commands, "_settings", lambda: with_key(env))
+    monkeypatch.setattr(commands, "_key_problem", lambda settings: None)
+    result = run_ab(env, "--feature", "F1", "--section", section, "--no-preview")  # scripted deps
+    assert result.exit_code == 2, result.output
+    assert "stand-in" in result.output
+    assert not list(Path(env.settings.runs_dir).glob("ab-*"))
+
+
+def test_live_ab_refuses_a_key_openai_rejects(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
+    monkeypatch.setattr(commands, "_settings", lambda: with_key(env))
+    monkeypatch.setattr(commands, "_key_problem", lambda s: "invalid key (AuthenticationError)")
+    result = run_ab(env, "--feature", "F1", "--section", "demo-1", "--no-preview")
+    assert result.exit_code == 2
+    assert "AuthenticationError" in result.output
+
+
+def test_key_problem_names_the_openai_error(monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    response = httpx.Response(401, request=httpx.Request("GET", "https://api.openai.com/v1/models"))
+
+    class Models:
+        def retrieve(self, model: str) -> None:
+            raise openai.AuthenticationError("rejected", response=response, body=None)
+
+    class Client:
+        models = Models()
+
+    monkeypatch.setattr("shipharness.ab.clients.make_openai_client", lambda *a, **k: Client())
+    settings = Settings(_env_file=None, openai_api_key=fake_openai_key())
+    assert commands._key_problem(settings) == "invalid key (AuthenticationError)"
+
+
+def test_the_runtime_builds_the_live_openai_client(tmp_path: Path) -> None:
+    from shipharness.ab.runtime import build_runtime
+    from shipharness.runner.model import OpenAIModelClient
+
+    settings = Settings(
+        _env_file=None,
+        openai_api_key=fake_openai_key(),
+        langsmith_tracing=False,
+        runs_dir=tmp_path / "runs",
+        sandbox_mode="none",
+    )
+    runtime = build_runtime(settings, project="shipharness-pilot", session_id="pilot")
+    assert isinstance(runtime.client_factory("bare"), OpenAIModelClient)  # no network on build
+
+
+def test_session_budget_override_reaches_both_arms_and_the_record(env) -> None:  # type: ignore[no-untyped-def]
+    # Pre-registered F2 lever (owner, 2026-10-17): first session 12 turns, total unchanged.
+    result = CliRunner().invoke(
+        make_app(),
+        ["ab", "--feature", "F1", "--session-budget", "2,3", "--no-preview",
+         "--dataset", str(env.dataset)],
+    )  # fmt: skip
+    assert result.exit_code in (0, 1), result.output
+    ab_id = next(line.split()[1] for line in result.output.splitlines() if line.startswith("A/B "))
+    record = json.loads((Path(env.settings.runs_dir) / ab_id / "ab.json").read_text())
+    assert record["task"]["session_budget"] == [2, 3]
+    assert {a["spec"]["session_budget"] == [2, 3] for a in record["arms"].values()} == {True}
+
+
+def test_session_budget_override_rejects_bad_values(env) -> None:  # type: ignore[no-untyped-def]
+    result = CliRunner().invoke(
+        make_app(),
+        ["ab", "--feature", "F1", "--session-budget", "12,x", "--dataset", str(env.dataset)],
+    )
+    assert result.exit_code == 2

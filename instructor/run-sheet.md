@@ -63,9 +63,11 @@ every command run that day (DESIGN §11.1).
 |---|---|
 | Terminal A | `make console` (server log; leave it alone) |
 | Terminal B | The commands below, large font |
+| Terminal C | `make final` only: launched at the S4 launch (2:55), read in the final block (3:40) |
 | Browser tab 1 | Slides |
 | Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current A/B at `/run/<ab id>` |
 | Browser tab 3 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
+| Browser tab 4 | Console: the final A/B at `/run/<ab id>`, opened at the S4 launch and shown in the final block |
 
 ### Console keys (DESIGN §13; `src/shipharness/console/static/stream.js`)
 
@@ -80,14 +82,20 @@ every command run that day (DESIGN §11.1).
 
 Finding the current A/B: `make demo-N` prints the A/B id only when it finishes. While it runs, reload
 the runs list (`http://127.0.0.1:8765/`) and open the newest `ab-...` entry (ids start with a time
-stamp). The runs list does not refresh by itself.
+stamp). The runs list does not refresh by itself. In S4 two A/Bs start a minute apart: open each
+one right after its own launch ([S4](#s4-verification-250-340)).
 
 ---
 
 ## Minute-by-minute
 
 Times are elapsed from the start of class. Slide numbers refer to
-[../slides/outline.md](../slides/outline.md).
+[../slides/outline.md](../slides/outline.md). Each section S1 to S4 opens with its poll, launches
+`make demo-N` right after it, teaches the concepts and the walkthrough while the A/B runs, and ends
+with the demo block on the finished A/B ([Section pattern](#section-pattern-s1-to-s4)). S4 opens
+with two polls, the S4 poll and the final feature poll, and launches `make final` in terminal C
+right after `make demo-4`; the final block at 3:40 walks through the finished final A/B and starts
+no run.
 
 | Time | Block | What happens | Command or screen | Slides |
 |---|---|---|---|---|
@@ -95,51 +103,93 @@ Times are elapsed from the start of class. Slide numbers refer to
 | 0:03-0:05 | Opening: why | Four causes, cited | | 3 |
 | 0:05-0:07 | Opening: solution | The harness: four parts plus the sandbox | Architecture diagram | 4 |
 | 0:07-0:10 | Opening: tour | shipharness, TeamTrack, console tour (keys 1-5); `Opening:two_arms` and `Opening:publish` briefly; how we prove it; `make doctor`; `harness-setup` assessment | Terminal B, console tab | 5-7 |
-| 0:10-0:25 | S1 concepts | Problem, cause, harness piece | | 8-13 |
-| 0:25-0:35 | S1 walkthrough | `S1:agents_md`, `S1:progressive`, `S1:prefix` | Editor | 14-16 |
-| 0:35-0:37 | S1 live | Feature F1, rule R1 at risk; glance at control C1 | | 17 |
-| 0:37-0:39 | S1 live | Poll S1 | | 18 |
-| 0:39-0:50 | S1 live | `make demo-1`; screens 1, 2, 3 | Console | 19 |
-| 0:50-0:57 | S1 results | Screen 4; `make swap-1` | Console, terminal B | 20 |
-| 0:57-1:00 | S1 results | Discussion; transition | | 21 |
-| 1:00-1:15 | S2 concepts | | | 22-26 |
-| 1:15-1:25 | S2 walkthrough | `S2:init`, `S2:stop_resume`, `S2:write` | Editor | 27-29 |
-| 1:25-1:27 | S2 live | Feature F2, R7 and continuity at risk; glance at control C2 | | 30 |
-| 1:27-1:29 | S2 live | Poll S2 | | 31 |
-| 1:29-1:40 | S2 live | `make demo-2`; screens 1, 2, 3 (and 5) | Console | 32 |
-| 1:40-1:47 | S2 results | Screen 4; `make swap-2` | Console, terminal B | 33 |
-| 1:47-1:50 | S2 results | Discussion; optional layer switch started (rules below) | | 34 |
+| 0:10-0:13 | S1 poll | Poll S1 (feature F1, rule R1 at risk); close it before the launch | | 8 |
+| 0:13-0:15 | S1 launch | `make demo-1` at 0:13; open the new A/B on screen 1; glance at control C1 | Terminal B, console | 9 |
+| 0:15-0:30 | S1 concepts (A/B running) | Problem, cause, harness piece | | 10-15 |
+| 0:30-0:40 | S1 walkthrough (A/B running) | `S1:agents_md`, `S1:progressive`, `S1:prefix`; at 0:35 check terminal B for the `Cost:` line | Editor | 16-18 |
+| 0:40-0:48 | S1 demo block | Live console of the finished A/B: screens 1, 2, 3 (and 5) | Console | 19 |
+| 0:48-0:55 | S1 demo block | A/B verdicts; screen 4 with the experiment dots; `make swap-1` | Console, terminal B | 20 |
+| 0:55-1:00 | S1 discussion | Discussion; transition | | 21 |
+| 1:00-1:03 | S2 poll | Poll S2 (feature F2, R7 and continuity at risk); close it before the launch | | 22 |
+| 1:03-1:05 | S2 launch | `make demo-2` at 1:03; open the new A/B on screen 1; glance at control C2 | Terminal B, console | 23 |
+| 1:05-1:20 | S2 concepts (A/B running) | | | 24-28 |
+| 1:20-1:30 | S2 walkthrough (A/B running) | `S2:init`, `S2:stop_resume`, `S2:write`; at 1:25 check terminal B for the `Cost:` line | Editor | 29-31 |
+| 1:30-1:38 | S2 demo block | Live console of the finished A/B: screens 1, 3, 2, 5 | Console | 32 |
+| 1:38-1:45 | S2 demo block | A/B verdicts; screen 4 with the experiment dots; `make swap-2` | Console, terminal B | 33 |
+| 1:45-1:50 | S2 discussion | Discussion; optional layer switch started (rules below) | | 34 |
 | 1:50-2:00 | Break | Return time on screen | | 35 |
-| 2:00-2:15 | S3 concepts | Includes two sandbox slides | | 36-41 |
-| 2:15-2:25 | S3 walkthrough | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile` | Editor | 42-43 |
-| 2:25-2:27 | S3 live | Feature F3, scope at risk; glance at control C3 | | 44 |
-| 2:27-2:29 | S3 live | Poll S3 | | 45 |
-| 2:29-2:40 | S3 live | `make demo-3`; screens 1, 2, 3 | Console | 46 |
-| 2:40-2:47 | S3 results | Sandbox moment; screen 4; `make swap-3` | Console, terminal B | 47 |
-| 2:47-2:50 | S3 results | Discussion; transition | | 48 |
-| 2:50-3:05 | S4 concepts | | | 49-54 |
-| 3:05-3:15 | S4 walkthrough | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate` | Editor | 55-57 |
-| 3:15-3:17 | S4 live | Feature F4, hidden tests and mutants; glance at control C4 | | 58 |
-| 3:17-3:19 | S4 live | Poll S4 | | 59 |
-| 3:19-3:30 | S4 live | `make demo-4`; screens 1, 2, 3 | Console | 60 |
-| 3:30-3:37 | S4 results | Screen 4; `make swap-4` | Console, terminal B | 61 |
-| 3:37-3:40 | S4 results | Discussion; transition | | 62 |
-| 3:40-3:41 | Final | Feature poll | | 63 |
-| 3:41-3:45 | Final | `make final FEATURES=<poll winner>` | Terminal B | 64 |
-| 3:45-3:48 | Final | All screens | Console | 65 |
-| 3:48-3:50 | Final | Both boards | Console screen 2 | 66 |
-| 3:50-3:53 | Final | Report and LangSmith comparison; `Final:dots` | `make report`, LangSmith tab | 67 |
+| 2:00-2:03 | S3 poll | Poll S3 (feature F3, scope at risk); close it before the launch | | 36 |
+| 2:03-2:05 | S3 launch | `make demo-3` at 2:03; open the new A/B on screen 1 (sandbox line per arm); glance at control C3 | Terminal B, console | 37 |
+| 2:05-2:20 | S3 concepts (A/B running) | Includes two sandbox slides | | 38-43 |
+| 2:20-2:30 | S3 walkthrough (A/B running) | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; at 2:25 check terminal B for the `Cost:` line | Editor | 44-45 |
+| 2:30-2:38 | S3 demo block | Live console of the finished A/B: screens 1, 2, 3 | Console | 46 |
+| 2:38-2:45 | S3 demo block | Sandbox moment; A/B verdicts; screen 4 with the experiment dots; `make swap-3` | Console, terminal B | 47 |
+| 2:45-2:50 | S3 discussion | Discussion; transition | | 48 |
+| 2:50-2:53 | S4 poll | Poll S4 (feature F4, hidden tests and mutants) | | 49 |
+| 2:53-2:54 | Final feature poll | Final feature poll (F5, F6, F7); close it before the launch; one or two features (cost note in S4) | | 50 |
+| 2:54-2:56 | S4 launch | `make demo-4` at 2:54 in terminal B, its A/B opened in browser tab 2; `make final FEATURES=<poll winner(s)>` at 2:55 in terminal C, its A/B opened in browser tab 4; back to demo-4 on screen 1; glance at control C4 | Terminals B and C, console | 51 |
+| 2:56-3:10 | S4 concepts (two A/Bs running) | | | 52-57 |
+| 3:10-3:20 | S4 walkthrough (two A/Bs running) | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; at 3:15 check terminal B for the demo-4 `Cost:` line and terminal C for the final | Editor | 58-60 |
+| 3:20-3:28 | S4 demo block | Live console of the finished demo-4 A/B: screens 1, 2, 3 | Console, tab 2 | 61 |
+| 3:28-3:35 | S4 demo block | A/B and reviewer verdicts; screen 4 with the experiment dots; `make swap-4` | Console, terminal B | 62 |
+| 3:35-3:40 | S4 discussion | Discussion; transition to the final results | | 63 |
+| 3:40-3:42 | Final results | The final A/B's arm lines and the session figure; all four layers | Terminal C | 64 |
+| 3:42-3:46 | Final results | Screens 1, 3, 5 of the finished final A/B, both arms | Console, tab 4 | 65 |
+| 3:46-3:48 | Final results | Both boards | Console screen 2 | 66 |
+| 3:48-3:53 | Final results | Screen 4; report and LangSmith comparison; `Final:dots` | Console, `make report`, LangSmith tab | 67 |
 | 3:53-3:56 | Wrap-up | Assignments | | 68-69 |
 | 3:56-3:58 | Wrap-up | Skills and templates to take home; `Final:skill_template` | | 70 |
 | 3:58-4:00 | Wrap-up | References | | 71-72 |
 
-The measured length of each demo decides how much of the 11-minute run slot is waiting:
+### How long the A/B runs
 
-[[PENDING: wall time of make demo-1 to demo-4 and of one make final feature on the class host | source: M6 pilot | how: time make demo-N; VERIFICATION.md demo times]]
+The A/B starts at section minute 3 (in S4 at minute 4, after the second poll) and must be finished
+by section minute 25 (0:35, 1:25, 2:25, 3:15), five minutes before the demo block. In pilot run 2 (12
+A/Bs, sections F1-F4, two A/Bs running in parallel on the class host, before the approved referee
+speed-ups) every A/B finished within 923 s (15.4 min); the median was 641 s (10.7 min) and the minimum
+485 s (8.1 min) (VERIFICATION.md, M6 pilot run 2). Started at section minute 3, every one of those
+A/Bs would have been complete by about section minute 19. S1 to S3 run one A/B at a time, so class
+times are expected to be at or below these. S4 runs two A/Bs at a time (demo-4 and one final
+feature), the same load as pilot run 2. The class-host time per section comes from pilot run 3 and
+from the class itself:
 
-If a run is still going at the end of its slot, move to the results slide, show the experiment dots,
-and add tonight's dot when the terminal prints it. If it fails, follow
-[Replay procedure](#replay-procedure).
+[[PENDING: wall time of make demo-1 to demo-3 on the class host, one A/B at a time, and of make demo-4 with make final running in parallel | source: M6 pilot | how: time make demo-N on the class host (pilot run 3), demo-4 with make final FEATURES=F5 started one minute later; VERIFICATION.md]]
+
+[[PENDING: tonight's wall time of make demo-1 to demo-4, from launch to the Cost line | source: live class | how: note the clock at launch and when terminal B prints the Cost line]]
+
+The final runs during S4, next to demo-4. Launched at 2:55, it must be finished by 3:40, when the
+final block starts ([Final results and wrap-up](#final-results-and-wrap-up-340-400)). `make final`
+runs its features one after another: with two features, the second starts when the first prints its
+`Cost:` line. At pilot run 2's longest time (923 s, two A/Bs in parallel), two features in a row
+launched at 2:55 would be complete by about 3:26. The class-host time:
+
+[[PENDING: wall time of one make final feature on the class host while S4 runs (make demo-4 in parallel) | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host, started one minute after make demo-4]]
+
+One A/B at a time in S1 to S3: launch `make demo-N` only after the previous A/B, including an
+optional layer switch, has printed its `Cost:` line. If it has not when the poll closes, wait for it
+before the launch. S4 is the one exception: `make final` starts a minute after `make demo-4`, and it
+runs its features one after another, so at most two A/Bs run at a time. `make demo-4` itself still
+waits for the previous `Cost:` line.
+
+### Check at section minute 25
+
+Halfway through the walkthrough, glance at terminal B.
+
+- **The `Cost:` line is there.** The A/B is finished. Finish the walkthrough; the demo block runs as
+  planned.
+- **The A/B is still running.** Finish the walkthrough, then open the demo block on screens `1` and
+  `2` of the running A/B and show the experiment dots. `make swap-N` needs a finished A/B, so run the
+  swap test on the section's recording: `make swap-N AB=<recorded ab id>` (ids in
+  [fallbacks.md](fallbacks.md)). Add tonight's dot when the terminal prints it, at the latest before
+  the next section's launch.
+- **The A/B failed for a reason outside the experiment** (an arm `ERROR` from Docker, the network, or
+  OpenAI; see the failure modes below). Follow the [Replay procedure](#replay-procedure):
+  `make replay RUN=<recorded ab id>`, then `make swap-N AB=<recorded ab id>`. An A/B that finished
+  with an unwelcome result is a result, not a failure: show it.
+- **S4 only: terminal C.** Look for the first final feature's `A/B <ab id> (<feature>, layers=[...])`
+  line and its `Cost:` line. Whether it is there or not, nothing changes now: the final has until
+  3:40. If an arm ended `ERROR` for a reason outside the experiment, note it and use the final's
+  recording in the final block ([Final results and wrap-up](#final-results-and-wrap-up-340-400)).
 
 ---
 
@@ -168,26 +218,45 @@ above; the four parts and the sandbox on the architecture diagram.
 
 ## Section pattern (S1 to S4)
 
-Every section runs the same way (DESIGN §14.1):
+Every section runs the same way (DESIGN §14.1): the A/B is launched right after the poll, so that
+its run time is hidden behind the concepts and the walkthrough. Minutes are counted from the start of the section.
 
-1. **Concepts (15 min).** Problem seen live, then cause, then harness piece.
-2. **Walkthrough (10 min).** Anchors in [code-walkthrough.md](code-walkthrough.md).
-3. **Live A/B (15 min).**
-   - Feature, rule at risk, command (slide). Glance at the section's easy control task: show its
-     ticket, say "both arms should pass this one", and point at its experiment results.
-   - Poll ([poll-questions.md](poll-questions.md)). Close the poll before you start the run.
-   - Terminal B: `make demo-N`. Reload the runs list, open the newest `ab-...`, then screens `1`, `2`,
-     `3` as below.
-4. **Results (10 min).** Screen `4`, the swap test (`make swap-N`), discussion. Screen 4 currently
-   groups dots by variant and arm across all features (see known failure modes); until that changes,
-   refresh `exports/report.html` with `make report` (or `uv run shipharness report` while the target
-   is still the placeholder) after the run and show the rows for the section's feature there.
+1. **Poll (minutes 0-3).** Feature and rule at risk in one sentence (the poll slide carries both),
+   then the poll ([poll-questions.md](poll-questions.md)). Close the poll before you launch the run,
+   so nobody votes after seeing the console.
+2. **Launch (minutes 3-5).** Terminal B: `make demo-N` at minute 3. Reload the runs list, open the
+   newest `ab-...`, and stay on screen `1` while both containers start and the first turns arrive.
+   Glance at the section's easy control task: show its ticket, say "both arms should pass this one",
+   and point at its experiment results. Say: "The A/B runs while we cover the concepts and the code.
+   We come back to it in the demo block." Then switch to the slides.
+3. **Concepts (minutes 5-20, A/B running).** Problem, then cause, then harness piece. Leave terminal
+   B and the console alone.
+4. **Walkthrough (minutes 20-30, A/B running).** Anchors in [code-walkthrough.md](code-walkthrough.md).
+   At minute 25, check terminal B ([Check at section minute 25](#check-at-section-minute-25)).
+5. **Demo block (minutes 30-45).** First the live console of the A/B: screens `1`, `2`, `3` (and `5`),
+   in the order of the section's table below. Then the results: the A/B verdicts (the terminal result
+   lines, and "Agent said" vs "Referee" on screen `1`), screen `4` with tonight's dots next to the
+   experiment dots, and the swap test (`make swap-N`). Screen 4 currently groups dots by variant and
+   arm across all features (see known failure modes); until that changes, refresh
+   `exports/report.html` with `make report` (or `uv run shipharness report` while the target is still
+   the placeholder) after the run and show the rows for the section's feature there.
+6. **Discussion and transition (minutes 45-50).**
+
+S4 differs in its first six minutes: two polls (minutes 0-4), then two launches, `make demo-4` and
+`make final` (minutes 4-6), so its concepts run from minute 6 to minute 20
+([S4](#s4-verification-250-340)).
+
+What the console keeps after a run: screen `1` lists the last 8 turn rows and the last 3 harness
+decisions per arm (`src/shipharness/console/templates/screens/live.html`), and screen `5` keeps the
+last 40 tail lines (`TAIL_SIZE` in `src/shipharness/console/state.py`). In the demo block, read the
+early turns of a finished A/B on screen `3` ("Files read", "Sessions") and in the LangSmith trace
+linked on screen `5`. The launch is the moment to show the first turns live.
 
 What the terminal prints at the end of `make demo-N` (format from `src/shipharness/ab/commands.py`):
 one line `A/B <ab id> (<feature>, layers=[...])`, then one line per arm with status, claim, primary
 measure, `passed=`, hidden tests passed of total, mutants killed of total, reviewer verdict, and
 cost, then the cost line `Cost: $... (this command: ...; session $... of $2.50)`. Read the session
-figure aloud after each run; it is the meter for the rest of the class.
+figure aloud in each demo block; it is the meter for the rest of the class.
 
 Every live result is shown next to the experiment dots, never alone (DESIGN AS-8). One run is one
 dot.
@@ -203,33 +272,47 @@ pattern; A1 reports that agents copy existing patterns (A1, F-a-20; DESIGN §4.3
 R1 violations ≥ 1 means the run fails (DESIGN §8.2). Harness arm layers: instructions only (DESIGN
 §6.6).
 
+**Poll (0:10-0:13).** Slide 8; the S1 question in [poll-questions.md](poll-questions.md).
+
+**Command (0:13).** `make demo-1`, right after the poll closes.
+
+**At launch (0:13-0:15).** Reload the runs list, open the newest `ab-...`, press `1`. The harness arm's
+first harness decision lists the instruction files it placed; the bare arm shows "None: bare arm has
+no layers." If the first `read_file` calls have arrived, point at them: "Same ticket, same tools, same
+handbook on disk. Watch which files each arm opens before it writes code." Then the control glance and
+slide 10.
+
 **Control glance.** C1, filter the user list by role (`teamtrack/docs/features/c1.md`).
 
 [[PENDING: C1 control results for both arms | source: M8 batch 4 | how: make experiments, full dataset; VERIFICATION.md]]
 
-**Command.** `make demo-1`
+**Check at 0:35** (during slide 17): `Cost:` line in terminal B, or the fallback in
+[Check at section minute 25](#check-at-section-minute-25).
 
-**Screens during the run and what to say.**
+**Demo block, live console (0:40-0:48): screens and what to say.**
 
 | Order | Screen | Watch | Say |
 |---|---|---|---|
-| 1 | `1` Live Console | Turn list: `read_file` calls on the documents the map points to, skill files, and state files are highlighted; compare the bare arm's first reads (does it open `docs/HANDBOOK.md`?) | "Same ticket, same tools, same handbook on disk. Watch which files each arm opens before it writes code." |
-| 1 | `1` | "Harness decisions": the bare arm says "None: bare arm has no layers." | "The bare arm is not handicapped: every rule is in `docs/HANDBOOK.md`. What differs is whether the agent is pointed at it." |
-| 2 | `2` Boards | Screenshots as Acme every 5 s; ⚠ "other org" marks on cards | "The marks come from `data-org` attributes on every card, checked by a trusted script, not by the arm's code (DESIGN §4.4)." |
-| 3 | `3` Evidence | "Files read" per arm by category (map, skill, harness doc, state, handbook, code, test); after the run, the referee list with R1 new violations | "The referee probes every endpoint as Acme with Globex ids and expects 404 (DESIGN §5). It does not care which arm wrote the code." |
-| 1 | `1` | "Agent said" vs "Referee" at the end | "Both arms may say done. The referee decides." |
+| 1 | `1` Live Console | "Harness decisions": the bare arm says "None: bare arm has no layers."; the last turns of each arm | "The bare arm is not handicapped: every rule is in `docs/HANDBOOK.md`. What differs is whether the agent is pointed at it." |
+| 2 | `2` Boards | The last screenshot per arm as Acme; ⚠ "other org" marks on cards | "The marks come from `data-org` attributes on every card, checked by a trusted script, not by the arm's code (DESIGN §4.4)." |
+| 3 | `3` Evidence | "Files read" per arm by category (map, skill, harness doc, state, handbook, code, test): did the bare arm open `docs/HANDBOOK.md`; did the harness arm open the documents the map points to and the skill files? | "Same ticket, same tools, same handbook on disk. Which files did each arm open before it wrote code?" |
+| 3 | `3` | The referee list with R1 new violations | "The referee probes every endpoint as Acme with Globex ids and expects 404 (DESIGN §5). It does not care which arm wrote the code." |
+| 4 | `1` | "Agent said" vs "Referee" | "Both arms may say done. The referee decides." |
 
-**Results (0:50-1:00).**
-1. Screen `4`. Tonight's two dots next to the experiment dots.
+**Demo block, results (0:48-0:55).**
+1. Terminal B: read the two arm lines and the session figure from the `Cost:` line.
+2. Screen `4`. Tonight's two dots next to the experiment dots.
 
 [[PENDING: S1 experiment dots, runs failing out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
-2. Terminal B: `make swap-1`. It re-judges each recorded diff under the other arm's label; expect
+3. Terminal B: `make swap-1`. It re-judges each recorded diff under the other arm's label; expect
    `Swap test on <ab id>: judged measures identical`. Cost $0 (no model calls). Say: "The referee
    judges code, not labels."
-3. Discussion: "The bare arm could read the same rules. Why did it (or did it not) apply them?" Tie
-   back to cause 1 (A1, F-a-05).
-4. Transition: link `submodules/01-instructions/demo/README.md`; next problem: what happens when a
+
+**Discussion (0:55-1:00).**
+1. "The bare arm could read the same rules. Why did it (or did it not) apply them?" Tie back to cause
+   1 (A1, F-a-05).
+2. Transition: link `submodules/01-instructions/demo/README.md`; next problem: what happens when a
    session ends halfway.
 
 ---
@@ -243,38 +326,51 @@ sentence (DESIGN §6.3). Primary measure: continuity failure, any of R7 failing,
 creating the same table, or ≥ 30% of session-1 lines removed in session 2 (DESIGN §8.2). Harness arm
 layers: instructions, state.
 
+**Poll (1:00-1:03).** Slide 22; the S2 question in [poll-questions.md](poll-questions.md).
+
+**Command (1:03).** `make demo-2`, right after the poll closes. If a layer switch is still running
+from S1, wait for its `Cost:` line first (one A/B at a time).
+
+**At launch (1:03-1:05).** Open the newest `ab-...`, press `1`. The harness arm's first harness
+decision is the initializer step note (`init.sh`, `progress.md`, `session-handoff.md`, the exec plan);
+its first turns follow the Getting up to speed routine. The bare arm has only the ticket and the
+repository. Then the control glance and slide 24.
+
 **Control glance.** C2, search projects by name (`teamtrack/docs/features/c2.md`).
 
 [[PENDING: C2 control results for both arms | source: M8 batch 4 | how: make experiments, full dataset; VERIFICATION.md]]
 
-**Command.** `make demo-2`
+**Check at 1:25** (during slide 30): `Cost:` line in terminal B, or the fallback in
+[Check at section minute 25](#check-at-section-minute-25).
 
-**Screens during the run and what to say.**
+**Demo block, live console (1:30-1:38): screens and what to say.**
 
 | Order | Screen | Watch | Say |
 |---|---|---|---|
-| 1 | `1` | "■ Session 1 stopped" and "▶ Session 2 resumed" markers in both arms | "This stop is the session turn budget, the same for both arms. A3 calls the pattern a context reset with a structured handoff (A3, F-a-65; RESEARCH G-5)." |
-| 1 | `1` | Harness arm's first turns after resume: `progress.md`, `git log`, `init.sh`, visible tests | "That is A2's Getting up to speed routine (A2, F-a-58 to F-a-62). The bare arm got the same resume sentence and nothing else." |
-| 2 | `2` | Comments panel on each board after resume | "Did the second session finish what the first started, or start again?" |
-| 3 | `3` | "Sessions" per arm, with ↺ redone files | "Redone work is the cost of forgetting." |
-| 4 | `5` Traces | "First wrong turn" per arm | "Look for the first turn that went wrong, not the last one. A3's advice to harness builders is to read the traces (A3, F-a-126)." |
+| 1 | `1` | The last turns per arm; "■ Session 1 stopped" and "▶ Session 2 resumed" markers if they are still among the last 8 rows | "This stop is the session turn budget, the same for both arms. A3 calls the pattern a context reset with a structured handoff (A3, F-a-65; RESEARCH G-5)." |
+| 2 | `3` Evidence | "Sessions" per arm (turns, `ended_by`, ↺ redone files); "Files read": state files (`progress.md`, `session-handoff.md`) in the harness arm | "The harness arm's session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62). The bare arm got the same resume sentence and nothing else. Redone work is the cost of forgetting." |
+| 3 | `2` | Each arm's board after the run | "Did the second session finish what the first started, or start again?" |
+| 4 | `5` Traces | "First wrong turn" per arm; the LangSmith link for the full turn list | "Look for the first turn that went wrong, not the last one. A3's advice to harness builders is to read the traces (A3, F-a-126)." |
 
-**Results (1:40-1:50).**
-1. Screen `4`.
+**Demo block, results (1:38-1:45).**
+1. Terminal B: the two arm lines and the session figure.
+2. Screen `4`.
 
 [[PENDING: S2 experiment dots, continuity failures out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
-2. `make swap-2`; expect `judged measures identical`.
-3. Discussion: "What would your team's handoff file need for a stranger to continue tomorrow?"
-4. Optional layer switch (see [Layer switch](#layer-switch-optional)).
-5. Transition: `submodules/02-state-lifecycle/demo/README.md`.
+3. `make swap-2`; expect `judged measures identical`.
+
+**Discussion (1:45-1:50).**
+1. "What would your team's handoff file need for a stranger to continue tomorrow?"
+2. Optional layer switch (see [Layer switch](#layer-switch-optional)).
+3. Transition: `submodules/02-state-lifecycle/demo/README.md`.
 
 ---
 
 ## Break (1:50-2:00)
 
-Slide 35 with the return time (filled in live). If a layer-switch run was started at 1:48, leave the
-console on its screen `1`.
+Slide 35 with the return time (filled in live). If a layer-switch run was started at 1:47, leave the
+console on its screen `1`; it must print its `Cost:` line before the S3 launch at 2:03.
 
 ---
 
@@ -288,26 +384,33 @@ easier to change (DESIGN §8.3, allowed techniques). Primary measure: ≥ 1 out-
 shipped diff, or ≥ 1 source file changed during the test phase (DESIGN §8.2). Harness arm layers:
 instructions, state, scope.
 
-Say before the run: "The scope layer enforces this measure, so a harness result of zero out-of-scope
-files is expected by construction. Watch the secondary measures: did the enforced arm still ship a
-working feature?" (DESIGN §8.2, S3 note)
+**Poll (2:00-2:03).** Slide 36; the S3 question in [poll-questions.md](poll-questions.md).
+
+**Command (2:03).** `make demo-3`, right after the poll closes.
+
+**At launch (2:03-2:05).** Open the newest `ab-...`, press `1`: the sandbox line per arm (container
+id, `network none`, CPU, memory, time left), the same in both arms. Say: "The scope layer enforces
+this measure, so a harness result of zero out-of-scope files is expected by construction. In the demo
+block, watch the secondary measures: did the enforced arm still ship a working feature?" (DESIGN
+§8.2, S3 note). Then the control glance and slide 38.
 
 **Control glance.** C3, filter a project's issues by priority (`teamtrack/docs/features/c3.md`).
 
 [[PENDING: C3 control results for both arms | source: M8 batch 4 | how: make experiments, full dataset; VERIFICATION.md]]
 
-**Command.** `make demo-3`
+**Check at 2:25** (at the switch from slide 44 to slide 45): `Cost:` line in terminal B, or the
+fallback in [Check at section minute 25](#check-at-section-minute-25).
 
-**Screens during the run and what to say.**
+**Demo block, live console (2:30-2:38): screens and what to say.**
 
 | Order | Screen | Watch | Say |
 |---|---|---|---|
-| 1 | `1` | Sandbox line per arm: container id, `network none`, CPU, memory, time left; harness decisions ⊘ block and ↺ revert with the reason | "The reason text is what the agent reads in its tool result. It names the phase and the allowed paths." |
+| 1 | `1` | Harness decisions (the last 3): ⊘ block and ↺ revert with the reason | "The reason text is what the agent reads in its tool result. It names the phase and the allowed paths." |
 | 1 | `1` | Gate: "No gate (verify layer off)." on the bare arm and "No gate." on the harness arm, because S3 has no verify layer | "Verification is the next section; S1 to S3 measure one layer at a time (DESIGN §6.6)." |
 | 2 | `2` | Boards (no specific S3 view in DESIGN §13) | Short: "Does each arm's app still serve the board?" |
 | 3 | `3` | "Diff map": ✎ changed, ⊘ blocked, ⚠ out of scope; "Sandbox denials" per arm | "The sandbox is the same for both arms. It is taught here, but it is never the variable (DESIGN §9)." |
 
-**Results (2:40-2:50).**
+**Demo block, results (2:38-2:45).**
 1. **Sandbox moment** (DESIGN §14.1). If screen `3` lists any denial tonight, show it: reason code
    (`network`, `write_outside_workspace`, `memory`, `pids`, `timeout`, `path_outside_workspace`) and
    the command. If none occurred, show the policy printout (command in "Before class", step 6) and
@@ -315,13 +418,15 @@ working feature?" (DESIGN §8.2, S3 note)
 
 [[PENDING: sandbox_denied events from the experiment runs (command, reason code, arm) | source: M8 batch 1 | how: grep -h '"type":"sandbox_denied"' .shipharness/runs/*/events.jsonl]]
 
-2. Screen `4`.
+2. Terminal B: the two arm lines and the session figure; then screen `4`.
 
 [[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden-test and existing-test results as secondary | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
 3. `make swap-3`; expect `judged measures identical`.
-4. Discussion: "Which files in your repository should no agent touch during a test phase?"
-5. Transition: `submodules/03-scope-sandbox/demo/README.md`.
+
+**Discussion (2:45-2:50).**
+1. "Which files in your repository should no agent touch during a test phase?"
+2. Transition: `submodules/03-scope-sandbox/demo/README.md`.
 
 ---
 
@@ -333,55 +438,115 @@ run: hidden tests passed of 69 (VERIFICATION.md, M5 counts) and referee-set muta
 shipped tests of 4 (`teamtrack/mutants/features/f4.jsonl`) (DESIGN §8.2). Harness arm layers: all
 four. The blinded reviewer runs on both arms' diffs.
 
+**Poll (2:50-2:53).** Slide 49; the S4 question in [poll-questions.md](poll-questions.md).
+
+**Final feature poll (2:53-2:54).** Slide 50; the final feature question in
+[poll-questions.md](poll-questions.md): F5 bulk close, F6 watchers, or F7 labels. Close it before the
+launch. The brief asks for two poll-chosen features: the winner and the runner-up, in that order.
+Run both (cost note below).
+
+**Commands (2:54 and 2:55).**
+1. **2:54, terminal B:** `make demo-4`, right after the final poll closes. Reload the runs list and
+   open the newest `ab-...` in browser tab 2: that is demo-4. Open it now, before the second launch,
+   because the runs list shows only ids, newest first.
+2. **2:55, terminal C:** `make final FEATURES=<winner>,<runner-up>` (for example
+   `make final FEATURES=F6,F5`), or `make final FEATURES=<winner>`. Always pass `FEATURES`. Reload the
+   runs list in browser tab 4 and open the newest `ab-...`: the final's first A/B. Leave terminal C
+   and tab 4 alone until the final block.
+
+Two A/Bs now run in parallel: demo-4 and the final's first feature. `make final` runs its features
+one after another (Makefile `final` target), so at most two A/Bs run at a time, the load pilot run 2
+tested (VERIFICATION.md, M6 pilot run 2).
+
+**At launch (2:55-2:56).** Back to browser tab 2, press `1`: both demo-4 arms start; the gate line
+reads "No gate (verify layer off)." on the bare arm. The harness arm's gate pills appear only after
+its first `finish`, which the room sees in the demo block. Say: "Two A/Bs are running: F4 for this
+section and the final feature you picked. We come back to F4 in the demo block and to the final at
+the end of class." Then the control glance and slide 52.
+
 **Control glance.** C4, store issue titles without surrounding whitespace
 (`teamtrack/docs/features/c4.md`).
 
 [[PENDING: C4 control results for both arms | source: M8 batch 4 | how: make experiments, full dataset; VERIFICATION.md]]
 
-**Command.** `make demo-4`
+**Cost with two A/Bs running.** Caps (DESIGN §11.1; `.env.example`): each arm of a final A/B stops at
+`MAX_FINAL_RUN_COST_USD` ($0.25), plus `MAX_REVIEW_COST_USD` ($0.04) for its blinded review; each demo
+arm at `MAX_RUN_COST_USD` ($0.20), plus the review cap; the whole class session at
+`MAX_SESSION_COST_USD` ($2.50, persisted across commands). Launching demo-4 and the final together
+keeps every cap: before every call the tracker reserves the call's worst case under one lock
+(DESIGN §11.1), and it first reads the calls the other command appended to the shared cost ledger,
+so the $2.50 session cap holds across both commands (CONTRACTS §23). At the caps, a demo A/B costs
+2 × $0.20 + 2 × $0.04 = $0.48 and a final feature 2 × $0.25 + 2 × $0.04 = $0.58; if the class ever
+reached $2.50, the tracker would refuse the next call (`ABORTED: cap`) and the referee would still
+judge the run. Measured: pilot run 2 spent $0.3966 on 12 A/Bs with reviews, about $0.03 each
+(VERIFICATION.md, M6).
 
-**Screens during the run and what to say.**
+[[PENDING: measured cost of one make demo-4 A/B and of one make final feature A/B (both arms plus reviews) on the class host | source: M6 pilot | how: cost lines of make demo-4 and make final FEATURES=F5 on the class host; VERIFICATION.md]]
+
+**Check at 3:15** (during slide 59), two terminals:
+- Terminal B: the demo-4 `Cost:` line, or the fallback in
+  [Check at section minute 25](#check-at-section-minute-25).
+- Terminal C: the first final feature's result lines and `Cost:` line, or nothing yet. Either is
+  fine: the final has until 3:40 (S4 bullet in
+  [Check at section minute 25](#check-at-section-minute-25)).
+
+**Demo block, live console (3:20-3:28), the demo-4 A/B in browser tab 2: screens and what to say.**
 
 | Order | Screen | Watch | Say |
 |---|---|---|---|
-| 1 | `1` | Gate pills on the harness arm: ⏳ pending, then ✓ or ✗ for visible tests, existing tests, R1-R7, board, clean state | "The agent called finish. The harness runs checks it does not control; a failure goes back to the agent with the first three reasons." |
+| 1 | `1` | Gate pills of the harness arm's last gate: ✓ or ✗ for visible tests, existing tests, R1-R7, board, clean state; a failed gate's feedback in the harness decisions | "The agent called finish. The harness runs checks it does not control; a failure goes back to the agent with the first three reasons." |
 | 2 | `2` | "Two-tab edit conflict" panel: ✗ lost update or ✓ conflict detected per arm | "Two people edit one issue. Does the second save win silently?" |
 | 3 | `3` | Filter table (tests × filters 1-5, kept or discarded with reason), coverage line, mutant table (filter set and referee set), referee counters such as "R1 probes n/m", reviewer verdict | "Filters 1 to 3 are TestGen-LLM's; 4 and 5 are course filters (B11; RESEARCH G-7). The referee-set mutants were never visible to the filters." |
 
-**Results (3:30-3:40).**
-1. Screen `4`. Two counts per run per arm, and reviewer agreement with the referee.
+**Demo block, results (3:28-3:35).**
+1. Terminal B: the two arm lines (with the reviewer verdicts) and the session figure.
+2. Screen `4`. Two counts per run per arm, and reviewer agreement with the referee.
 
 [[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: make experiments batch 1; make report; VERIFICATION.md]]
 
-2. `make swap-4`; expect `judged measures identical`.
-3. Discussion: "Your agent's tests pass. What evidence would you accept before merging?"
-4. Transition: `submodules/04-verification/demo/README.md`.
+3. `make swap-4`; expect `judged measures identical`. It picks the latest demo-4 A/B (each
+   `ab.json` records its section), so the final A/B still running in terminal C does not get in
+   the way.
+
+**Discussion (3:35-3:40).**
+1. "Your agent's tests pass. What evidence would you accept before merging?"
+2. Transition: `submodules/04-verification/demo/README.md`; next, the results of the final A/B
+   launched at 2:55 (terminal C, browser tab 4).
 
 ---
 
-## Final run-through and wrap-up (3:40-4:00)
+## Final results and wrap-up (3:40-4:00)
 
-1. **3:40 Poll** (final feature poll in [poll-questions.md](poll-questions.md)): F5 bulk close, F6
-   watchers, or F7 labels.
-2. **3:41 Run** the winner only: `make final FEATURES=F6` (replace with the winner). Always pass
-   `FEATURES`: the Makefile default is `F5,F6,F7`, three A/Bs in a row, which does not fit the time or
-   the session cap. A second feature runs only if the session line after the first shows room for
-   another final A/B (each arm capped at `MAX_FINAL_RUN_COST_USD` $0.25, plus the review cap).
-3. **3:45 All screens**, `1` to `5`, both arms. Harness arm layers: all four.
-4. **3:48 Boards**, screen `2`.
-5. **3:50 Report**: `make report`, then open `exports/report.html`; then the LangSmith comparison
-   link (screen `4` "LangSmith" list, or screen `5`). Show `Final:dots`.
+The final A/B was launched at 2:55, at the start of S4 ([S4](#s4-verification-250-340)). This block
+walks through its finished results and starts no run.
+
+1. **3:40 The final A/B** (slide 64). Terminal C: read the arm lines of each final feature and the
+   session figure from the last `Cost:` line. Harness arm layers: all four. The final has no
+   pre-registered primary measure, so `passed=True` on an arm line does not mean the feature works:
+   read `hidden <x>/<total>` and `mutants <y>/<total>` (DESIGN §8.2; `final-project/README.md` §5.1).
+   If two features ran, walk through the winner on the screens and give the second its arm lines.
+2. **3:42 Console** (slide 65), browser tab 4: screens `1`, `3`, `5`, both arms; `F` for one arm.
+3. **3:46 Boards** (slide 66), screen `2`.
+4. **3:48 Screen 4, report, LangSmith** (slide 67): screen `4` with tonight's final next to the
+   experiment results; `make report`, then open `exports/report.html` (its dot plots cover F1-F4,
+   including tonight's demos; it draws none for F5-F7, `final-project/README.md` §5.1); then the
+   LangSmith comparison link (screen `4` "LangSmith" list, or screen `5`). Show `Final:dots`.
 
 [[PENDING: report output and LangSmith comparison link for the experiments | source: M8 batch 1 | how: make report; comparison_url in exports/experiments/]]
 
-6. **3:53 Assignments** (slides 68-69): A1 to A4 in `submodules/0N-*/assignment/README.md`; learner
+5. **3:53 Assignments** (slides 68-69): A1 to A4 in `submodules/0N-*/assignment/README.md`; learner
    budget ≤ $6 OpenAI and ≤ 400 LangSmith traces in total (DESIGN §11.5).
-7. **3:56 Skills** to take home: `skills/harness-setup`, `skills/assured-tests`, `skills/house-rules`,
+6. **3:56 Skills** to take home: `skills/harness-setup`, `skills/assured-tests`, `skills/house-rules`,
    `skills/skill-template`; show `Final:skill_template`.
-8. **3:58 References** (slides 71-72), then close.
+7. **3:58 References** (slides 71-72), then close.
 
-If the final A/B is still running at 3:53, go to the wrap-up slides and return to its screen `4` at
-the end.
+**If a final A/B is not finished at 3:40.** Open its live screens in browser tab 4 (`1`, then `2`)
+and walk through them instead of steps 2 and 3, then show the report and the LangSmith comparison
+from the experiments. If it is still running at 3:53, go to the wrap-up slides and return to its
+screen `4` at the end. If an arm failed for a reason outside the experiment (an arm `ERROR` from
+Docker, the network, or OpenAI), follow the [Replay procedure](#replay-procedure) with the recording
+of that feature: `make replay RUN=<recorded final ab id>` (ids in [fallbacks.md](fallbacks.md), rows
+"Final F5" to "Final F7").
 
 ---
 
@@ -397,8 +562,8 @@ the final result", F-a-125).
 [[PENDING: ablation results, runs passing per leave-one-layer-out configuration | source: M8 ablation | how: make experiments batch 2; make report; VERIFICATION.md]]
 
 A live layer switch takes a full demo length and a full A/B of spend. Start it only at 1:47 (it runs
-through the break), and only if the cost line after `make swap-2` leaves room for the rest of the
-class:
+through the break and must print its `Cost:` line before the S3 launch at 2:03, because the class runs
+one A/B at a time), and only if the cost line of `make demo-2` leaves room for the rest of the class:
 
 - Caps (DESIGN §11.1): each arm $0.20 per run (final $0.25), each review $0.04, session $2.50.
 - `make demo-N` runs the blinded reviewer on both arms by default (`--reviewer` is the default of
@@ -411,7 +576,8 @@ class:
 
 When a model call would exceed a cap, the run ends as `ABORTED: cap`, is still judged, and is shown
 (DESIGN §8.3 rule 9). A cap hit during the final would cost the final run, so when in doubt, skip the
-live layer switch.
+live layer switch. A layer switch also raises the session figure that decides, at the S4 launch,
+how many final features run.
 
 ---
 
@@ -439,7 +605,7 @@ Messages are copied from the code (file in the last column).
 | `make replay` without `RUN`: `! replay needs RUN=<ab or run id>` | Missing argument | `make replay RUN=<id>` | `Makefile` |
 | `x no recorded A/B for '<id>' under .shipharness/runs; check the A/B or run id` | Wrong id | Copy the id from [fallbacks.md](fallbacks.md) | `src/shipharness/ab/commands.py` |
 | `make report` prints `! report is available after milestones M6 and M8` and exits 2 | The Makefile target is still the placeholder | Run `uv run shipharness report` (the same command the target will run) | `Makefile`, `src/shipharness/ab/commands.py` |
-| `make final` with no `FEATURES` runs F5, F6, and F7 | Makefile default `FEATURES ?= F5,F6,F7` | Press Ctrl+C before the second feature starts; always pass `FEATURES=` | `Makefile` |
+| `make final` with no `FEATURES` runs F5, then F6 | Makefile default `FEATURES ?= F5,F6` | Always pass `FEATURES=` with the poll result. If the default does not match it, press Ctrl+C in terminal C at once and launch again with `FEATURES=` | `Makefile` |
 | Console header shows `reconnecting` | The console server stopped or restarted | Check terminal A; restart `make console`; reload the page | `src/shipharness/console/static/stream.js` |
 | Screen 4 rows are labelled only by variant and arm (for example `CANONICAL bare`) and mix runs of different features | Screen 4 groups exports by variant and arm, not by feature (`src/shipharness/console/report.py`, `load_report`) | For per-feature results use `exports/report.html` from `make report`, which groups by feature and primary measure | `src/shipharness/console/report.py`, `src/shipharness/ab/report.py` |
 | Replay: screen 2 shows broken board images | Replay copies the diffs but not the `screenshots/` folder into the new run directory | See the workaround in [fallbacks.md](fallbacks.md) | `src/shipharness/ab/recorded.py` |

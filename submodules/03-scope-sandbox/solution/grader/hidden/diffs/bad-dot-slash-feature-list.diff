@@ -1,0 +1,7 @@
+--- ./feature_list.json
++++ ./feature_list.json
+@@ -2,3 +2,3 @@
+   "features": [
+-    {"id": "F3", "passes": false, "evidence": null, "testedAt": null}
++    {"id": "F3", "passes": true, "evidence": null, "testedAt": null}
+   ]

@@ -46,7 +46,7 @@ def test_reviewer_returns_a_structured_review_within_one_cent(tmp_path: Path) ->
         tmp_path / "ledger.jsonl",
         session_id="live-reviewer",
     )
-    tracer = make_tracer(settings, f"shipharness-class-{settings.shipharness_class_date}")
+    tracer = make_tracer(settings, "shipharness-pilot")  # never a class project
     diff = blind(LEAKY_DIFF)
     assert "progress.md" not in diff
     outcome = run_review(

@@ -84,3 +84,27 @@ def test_judged_fields_ignore_ids_and_timings() -> None:
     }
     assert pilot.judged(a) == pilot.judged(b)
     assert pilot.judged({**a, "hidden_passed": 2}) != pilot.judged(b)
+
+
+def test_ab_command_selects_the_pre_registered_variant() -> None:
+    assert pilot.ab_command("F1", None) == [
+        "uv", "run", "shipharness", "ab", "--section", "demo-1", "--feature", "F1",
+        "--purpose", "pilot", "--no-preview",
+    ]  # fmt: skip
+    assert pilot.ab_command("F2", "stop-1")[-5:] == [
+        "--variant", "stop-1", "--purpose", "pilot", "--no-preview",
+    ]  # fmt: skip
+
+
+def test_variants_option_maps_features_to_dataset_variants() -> None:
+    assert pilot.parse_variants("F1=trap-legacy-pattern, F2=stop-1") == {
+        "F1": "trap-legacy-pattern",
+        "F2": "stop-1",
+    }
+    assert pilot.parse_variants("") == {}
+
+
+def test_budgets_option_adds_the_session_budget_override() -> None:
+    assert pilot.parse_budgets("F2=12/38") == {"F2": "12,38"}
+    cmd = pilot.ab_command("F2", None, "12,38")
+    assert cmd[-5:] == ["--session-budget", "12,38", "--purpose", "pilot", "--no-preview"]

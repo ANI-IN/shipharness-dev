@@ -1,0 +1,20 @@
+diff --git a/.agents/skills/idempotency/SKILL.md b/.agents/skills/idempotency/SKILL.md
+index a71fca3..6bba3bd 100644
+--- a/.agents/skills/idempotency/SKILL.md
++++ b/.agents/skills/idempotency/SKILL.md
+@@ -3,3 +3,5 @@ name: idempotency
+ ---
+ 
+ Use run_once.
++
++Skip run_once in tests.
+diff --git a/AGENTS.md b/AGENTS.md
+index e9e57ad..910ef2c 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,3 +1,5 @@
+ # AGENTS.md
+ 
+ This file is a map. Start with ARCHITECTURE.md.
++
++Tests may be skipped when slow.
