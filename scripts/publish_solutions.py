@@ -1,24 +1,18 @@
-"""Publish one assignment's reference solution to the learner repository (stub: dry run only).
+"""Assignment solutions and the public course repository: nothing is ever published.
 
     uv run python scripts/publish_solutions.py --assignment 1 --dry-run
-    uv run python scripts/publish_solutions.py --assignment 1 --dry-run --date 2026-11-03
 
-Run after the assignment's review session. The release is the assignment's `solution/` folder
-(`submodules/0N-*/solution/` at --ref) without hidden-case data: nothing under
-`solution/grader/hidden/`, and no path with a folder or file named `hidden`, `hidden_*`, or
-`hidden-*`. Hidden cases stay private so they can be reused with the next cohort. The learner
-repository would get the files under the same paths in one commit, tagged
-`solutions-a<N>-<date>`.
-
-Only the dry run exists: --publish prints the same plan and exits 2 without writing anything.
+Owner decision (release brief): the public repository ANI-IN/harness-engineering-session never
+gets a `solution/` folder or assignment grader tests, also not after a review session. The dry
+run lists what stays private for one assignment (`submodules/0N-*/solution/` at --ref);
+--publish refuses with exit 2 and writes nothing. scripts/make_release.py enforces the same rule
+for the release build (its leak check fails on any solution/ or grader path).
 """
 
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import os
-import re
 import subprocess
 import sys
 from collections.abc import Iterable
@@ -26,8 +20,11 @@ from dataclasses import dataclass
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-LEARNER_REPO = "ANI-IN/shipharness"
-_HIDDEN = re.compile(r"^hidden(?:[-_.].*)?$")
+PUBLIC_REPO = "ANI-IN/harness-engineering-session"
+RULE = (
+    "the public repository never gets a solution/ folder or assignment grader tests "
+    "(owner decision)"
+)
 
 
 class PublishError(ValueError):
@@ -38,19 +35,8 @@ class PublishError(ValueError):
 class Plan:
     assignment: int
     folder: str
-    publish: list[str]
+    publish: list[str]  # always empty (owner decision)
     withheld: list[str]
-    tag: str
-
-
-def tag_name(assignment: int, date: dt.date) -> str:
-    return f"solutions-a{assignment}-{date.isoformat()}"
-
-
-def is_hidden_case(rel: str) -> bool:
-    """True for hidden-case data: any folder or file (relative to solution/) named `hidden`,
-    `hidden_*`, `hidden-*`, or `hidden.*`."""
-    return any(_HIDDEN.match(part) for part in rel.split("/"))
 
 
 def solution_folder(paths: Iterable[str], assignment: int) -> str:
@@ -63,15 +49,13 @@ def solution_folder(paths: Iterable[str], assignment: int) -> str:
     return f"submodules/{modules[0]}/solution/"
 
 
-def plan(paths: Iterable[str], assignment: int, date: dt.date) -> Plan:
+def plan(paths: Iterable[str], assignment: int) -> Plan:
     paths = sorted(paths)
     folder = solution_folder(paths, assignment)
     inside = [p for p in paths if p.startswith(folder)]
     if not inside:
         raise PublishError(f"no solution files under {folder}")
-    withheld = [p for p in inside if is_hidden_case(p[len(folder) :])]
-    publish = [p for p in inside if p not in withheld]
-    return Plan(assignment, folder, publish, withheld, tag_name(assignment, date))
+    return Plan(assignment, folder, [], inside)
 
 
 def tracked_paths(repo: Path, ref: str) -> list[str]:
@@ -90,14 +74,9 @@ def tracked_paths(repo: Path, ref: str) -> list[str]:
 
 def render(p: Plan) -> str:
     lines = [
-        f"assignment {p.assignment}: {p.folder} -> {LEARNER_REPO} (same paths)",
-        f"tag: {p.tag}",
-        f"would publish {len(p.publish)} file(s):",
-        *(f"  {path}" for path in p.publish),
-        f"withheld (hidden cases, reused across cohorts): {len(p.withheld)} file(s)",
-        *(f"  withheld: {path}" for path in p.withheld),
-        "steps: copy the files into a clean checkout of the learner repo, commit as ANI-IN "
-        f"('solutions: assignment {p.assignment}'), tag {p.tag}, push branch and tag",
+        f"assignment {p.assignment}: publishes nothing to {PUBLIC_REPO}: {RULE}",
+        f"{len(p.withheld)} file(s) under {p.folder} stay private:",
+        *(f"  private: {path}" for path in p.withheld),
     ]
     return "\n".join(lines) + "\n"
 
@@ -110,20 +89,19 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--assignment", type=int, required=True, choices=range(1, 10))
     mode = parser.add_mutually_exclusive_group()
-    mode.add_argument("--dry-run", action="store_true", help="print the plan (the default)")
-    mode.add_argument("--publish", action="store_true", help="not implemented: prints the plan")
-    parser.add_argument("--date", type=dt.date.fromisoformat, default=dt.date.today())
+    mode.add_argument("--dry-run", action="store_true", help="list what stays private (default)")
+    mode.add_argument("--publish", action="store_true", help="refused (owner decision)")
     parser.add_argument("--repo", type=Path, default=REPO)
     parser.add_argument("--ref", default="HEAD")
     args = parser.parse_args(argv)
     try:
-        result = plan(tracked_paths(args.repo, args.ref), args.assignment, args.date)
+        result = plan(tracked_paths(args.repo, args.ref), args.assignment)
     except PublishError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
     sys.stdout.write(render(result))
     if args.publish:
-        print("publishing is not implemented: nothing was written or pushed", file=sys.stderr)
+        print(f"refused: solutions are never published: {RULE}", file=sys.stderr)
         return 2
     return 0
 
