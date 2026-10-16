@@ -509,10 +509,8 @@ def _line_hits(
     for m in _SECTION.finditer(line):
         if _take(taken, m):
             found.append((m.start(), "section-cite", m.group(0), _pattern("section-cite", m[0])))
-    if run_ids and not _SOURCE_CITE.search(line):
-        for m in _RUN_ID.finditer(line):
-            if m.group(0) in run_ids and _take(taken, m):
-                found.append((m.start(), "run-id", m.group(0), _pattern("run-id", "")))
+    # Run ids are never hits: they label captured output and pilot numbers (owner rule,
+    # 2026-10-17); `run_ids` stays in the signature for callers.
     # A statement that a file is not included is a hit only when it links to or cites it.
     quiet = bool(_NOT_INCLUDED.search(line))
     for kind, regex in (("script", _SCRIPT), ("solution", _SOLUTION), ("mention", _MENTION)):

@@ -396,12 +396,12 @@ def test_a_not_included_statement_is_a_hit_only_when_it_links_or_cites() -> None
     assert [h.kind for h in cited] == ["section-cite"]
 
 
-def test_a_verification_run_id_counts_only_as_the_sole_source() -> None:
+def test_run_ids_are_labels_never_broken_references() -> None:
+    # Owner rule (2026-10-17): every number comes from a source or a real run id, and captured
+    # output is labelled "captured on <date>, run <id>"; a run id is evidence, not a private link.
     ids = frozenset({"ab-20261016-100000-abcdef"})
-    alone = _hits("Measured in ab-20261016-100000-abcdef.\n", run_ids=ids)
-    assert [h.kind for h in alone] == ["run-id"]
-    assert _hits("A2 says so (F-a-13); see ab-20261016-100000-abcdef.\n", run_ids=ids) == []
-    assert _hits("Fixture id ab-20261016-100000-ffffff.\n", run_ids=ids) == []
+    assert _hits("Measured in ab-20261016-100000-abcdef.\n", run_ids=ids) == []
+    assert _hits("captured on 2026-10-16, run ab-20261016-100000-abcdef\n", run_ids=ids) == []
 
 
 # -- REFERENCES.md ------------------------------------------------------------------------------
