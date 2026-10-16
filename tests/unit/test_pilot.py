@@ -84,3 +84,18 @@ def test_judged_fields_ignore_ids_and_timings() -> None:
     }
     assert pilot.judged(a) == pilot.judged(b)
     assert pilot.judged({**a, "hidden_passed": 2}) != pilot.judged(b)
+
+
+def test_ab_command_selects_the_pre_registered_variant() -> None:
+    assert pilot.ab_command("F1", None) == [
+        "uv", "run", "shipharness", "ab", "--section", "demo-1", "--feature", "F1", "--no-preview",
+    ]  # fmt: skip
+    assert pilot.ab_command("F2", "stop-1")[-3:] == ["--variant", "stop-1", "--no-preview"]
+
+
+def test_variants_option_maps_features_to_dataset_variants() -> None:
+    assert pilot.parse_variants("F1=trap-legacy-pattern, F2=stop-1") == {
+        "F1": "trap-legacy-pattern",
+        "F2": "stop-1",
+    }
+    assert pilot.parse_variants("") == {}
