@@ -1,7 +1,7 @@
 # S4 demo: `make demo-4` (F4, all layers)
 
 Runbook for the S4 live A/B. Class plan, in the approved class order (run sheet, "Section pattern";
-it differs from DESIGN §14.1): poll (3 min), then the final feature poll (1 min); `make demo-4`
+it follows DESIGN §14.1): poll (3 min), then the final feature poll (1 min); `make demo-4`
 launched right after them and `make final FEATURES=<poll winner(s)>` one minute later in terminal C,
 with a glance at an easy control task (2 min); concepts (14 min) and code walkthrough (10 min) while
 both A/Bs run in the background; demo block (15 min): screens 1, 2, 3, the A/B verdicts, screen 4, the swap test or the

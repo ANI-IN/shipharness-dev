@@ -3,7 +3,7 @@
 Runbook for the S2 live A/B (`make demo-2`). It follows the brief's demo checklist: purpose,
 commands, screen sequence and anchors, poll, what to watch, captured output, experiment results, time
 and cost, troubleshooting and replay. The 50-minute S2 block follows the approved class order (run
-sheet, "Section pattern"; it differs from DESIGN §14.1): poll (3 min), launch of `make demo-2` (2 min),
+sheet, "Section pattern"; it follows DESIGN §14.1): poll (3 min), launch of `make demo-2` (2 min),
 concepts (15 min) and code walkthrough (10 min) while the A/B runs in the background, then the demo
 block (15 min) on the finished A/B and discussion (5 min).
 
@@ -261,7 +261,7 @@ that is a target, not a measurement.
 | `make doctor` reports a key as `missing`, `invalid`, or `unreachable` | `shipharness doctor` checks each key separately (CONTRACTS §20) | Fix `.env` at the repo root as the message says; never paste keys on screen |
 | `! docker not found: images not built` during `make setup` | No container runtime | Install Docker Engine in WSL2 (DESIGN §9). `SANDBOX_MODE=none` runs the UNSANDBOXED fallback; every screen then shows "UNSANDBOXED — results not official", so do not use it for the class result |
 | An arm line shows `ABORTED: cap` or `ABORTED: timeout` and the command exits 2 | The run hit `MAX_RUN_COST_USD`, `RUN_TIMEOUT_S`, or `HARNESS_TIMEOUT_S` | The referee still judged the run; it is a dot and stays in the results (DESIGN §8.3 rule 9). Say so and go on |
-| The layer switch refuses to start | The session cap (`MAX_SESSION_COST_USD` 2.50, persisted in `.shipharness/session.json`) has no room | Show the ablation dots (§7) instead |
+| The layer switch refuses to start | The session cap (`MAX_SESSION_COST_USD` 2.50, counted from the shared cost ledger `.shipharness/ledger.jsonl`) has no room | Show the ablation dots (§7) instead |
 | An arm has no "Session 1 stopped" marker | It called `finish(claim="done")` before turn 20; the loop only stops a session that used its whole budget (`runner/loop.py`) | Point out that this arm never faced the reset; its migrations are still judged |
 | Screen 2 says "No board screenshot yet" | The preview container failed to start; this is logged and skipped (CONTRACTS §21) | Carry on with screens 1 and 3; the referee does not depend on the preview |
 | A verdict reads "referee could not judge the build" | The referee container did not start (CONTRACTS §21) | Check `docker ps` and disk space; rerun the referee with `make replay RUN=<ab_id>`, which judges the recorded diffs again |

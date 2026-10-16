@@ -5,7 +5,7 @@ M9. Each row gives the block, slide number, title, one line of content, the sour
 repository file, or document section), and the speaker-note timing in minutes. The timings add up to
 the 240-minute schedule and the block lengths in DESIGN §14.1 and match
 [../instructor/run-sheet.md](../instructor/run-sheet.md). Within each section S1 to S4 the slides follow
-the approved class order, which differs from DESIGN §14.1: the poll opens the section, the next slide
+the approved class order, which follows DESIGN §14.1: the poll opens the section, the next slide
 is the cue to launch the live A/B (`make demo-N`), the concept and code slides run while the A/B
 proceeds in the background, and the demo-block slides walk through the finished A/B. S4 opens with
 two polls (the S4 poll, then the final feature poll), and its launch slide cues both `make demo-4`

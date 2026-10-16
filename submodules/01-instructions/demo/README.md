@@ -1,7 +1,7 @@
 # Demo 1: org-wide issue search (F1), instructions layer
 
 Runbook for the S1 live A/B. The S1 block is 50 minutes, in the approved class order (run sheet,
-"Section pattern"; it differs from DESIGN §14.1): poll 3, launch of `make demo-1` 2, concepts 15 and
+"Section pattern"; it follows DESIGN §14.1): poll 3, launch of `make demo-1` 2, concepts 15 and
 walkthrough 10 while the A/B runs in the background, demo block 15 on the finished A/B, discussion 5.
 This file covers the poll and launch, the walkthrough, and the demo block. The concepts are in
 [../concepts.md](../concepts.md).

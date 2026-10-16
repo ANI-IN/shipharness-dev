@@ -1,7 +1,7 @@
 # Demo 3: scope and sandbox (F3, idempotency keys on issue creation)
 
 Runbook for the S3 live A/B. Class time, in the approved class order (run sheet, "Section pattern";
-it differs from DESIGN §14.1): poll 3 min, launch of `make demo-3` 2 min, concepts 15 min and code
+it follows DESIGN §14.1): poll 3 min, launch of `make demo-3` 2 min, concepts 15 min and code
 walkthrough 10 min while the A/B runs in the background, demo block 15 min on the finished A/B,
 discussion 5 min. Concepts are in [../concepts.md](../concepts.md).
 

@@ -218,9 +218,8 @@ above; the four parts and the sandbox on the architecture diagram.
 
 ## Section pattern (S1 to S4)
 
-Every section runs the same way. The order differs from DESIGN §14.1 (concepts, walkthrough, live
-A/B, results): the course owner approved launching the A/B right after the poll, so that its run time
-is hidden behind the concepts and the walkthrough. Minutes are counted from the start of the section.
+Every section runs the same way (DESIGN §14.1): the A/B is launched right after the poll, so that
+its run time is hidden behind the concepts and the walkthrough. Minutes are counted from the start of the section.
 
 1. **Poll (minutes 0-3).** Feature and rule at risk in one sentence (the poll slide carries both),
    then the poll ([poll-questions.md](poll-questions.md)). Close the poll before you launch the run,
@@ -444,8 +443,7 @@ four. The blinded reviewer runs on both arms' diffs.
 **Final feature poll (2:53-2:54).** Slide 50; the final feature question in
 [poll-questions.md](poll-questions.md): F5 bulk close, F6 watchers, or F7 labels. Close it before the
 launch. The brief asks for two poll-chosen features: the winner and the runner-up, in that order.
-Run both only if the session figure on demo-3's `Cost:` line is at most $0.86 (cost note below);
-otherwise run the winner only.
+Run both (cost note below).
 
 **Commands (2:54 and 2:55).**
 1. **2:54, terminal B:** `make demo-4`, right after the final poll closes. Reload the runs list and
@@ -475,19 +473,13 @@ the end of class." Then the control glance and slide 52.
 `MAX_FINAL_RUN_COST_USD` ($0.25), plus `MAX_REVIEW_COST_USD` ($0.04) for its blinded review; each demo
 arm at `MAX_RUN_COST_USD` ($0.20), plus the review cap; the whole class session at
 `MAX_SESSION_COST_USD` ($2.50, persisted across commands). Launching demo-4 and the final together
-keeps the run and review caps: each command enforces them on its own arms, and before every call the
-tracker reserves the call's worst case under one lock, so the two arms of one A/B cannot overshoot a
-shared cap (DESIGN §11.1). The session cap needs the launch rule: each command reads the session
-spend from the ledger when it starts and then adds only its own calls (`CostTracker.__post_init__`
-and `record` in `src/shipharness/cost/tracker.py`), so demo-4 and the final do not see each other's
-spend while both run. At the caps, a demo A/B costs 2 × $0.20 + 2 × $0.04 = $0.48 and a final
-feature 2 × $0.25 + 2 × $0.04 = $0.58. So:
-
-- Session figure on demo-3's `Cost:` line at most $0.86: demo-4 and two final features fit under
-  $2.50 even at the caps ($0.86 + $0.48 + 2 × $0.58 = $2.50).
-- At most $1.44 (S1 to S3 at the caps, no layer switch): demo-4 and one final feature fit.
-- Above $1.44 (only after a layer switch): launch `make final FEATURES=<winner>` only when demo-4 has
-  printed its `Cost:` line, so the final reads demo-4's spend before it starts.
+keeps every cap: before every call the tracker reserves the call's worst case under one lock
+(DESIGN §11.1), and it first reads the calls the other command appended to the shared cost ledger,
+so the $2.50 session cap holds across both commands (CONTRACTS §23). At the caps, a demo A/B costs
+2 × $0.20 + 2 × $0.04 = $0.48 and a final feature 2 × $0.25 + 2 × $0.04 = $0.58; if the class ever
+reached $2.50, the tracker would refuse the next call (`ABORTED: cap`) and the referee would still
+judge the run. Measured: pilot run 2 spent $0.3966 on 12 A/Bs with reviews, about $0.03 each
+(VERIFICATION.md, M6).
 
 [[PENDING: measured cost of one make demo-4 A/B and of one make final feature A/B (both arms plus reviews) on the class host | source: M6 pilot | how: cost lines of make demo-4 and make final FEATURES=F5 on the class host; VERIFICATION.md]]
 
