@@ -33,6 +33,9 @@ The code is layered. A layer may only call the layer below it:
   argument and filters on it.
 - `app/db/` — SQLAlchemy models and engine setup.
 
+The web board in `app/web/` (routes under `/board`) sits above `app/api/`: it may use the
+dependencies in `app/api/deps.py` and calls services. Like the api package, it never imports `app.db`.
+
 `app/main.py` wires everything together. `app/seed.py` creates the demo data.
 
 The layering is checked by import-linter (`lint-imports --config .importlinter`). If you need data in
@@ -99,7 +102,7 @@ The check: count audit rows before and after each write.
 
 ### R6 Layering
 
-`app/api` never imports `app/db`. See "Code layout".
+`app/api` never imports `app/db`, and neither does `app/web`. See "Code layout".
 
 The check: the import-linter contract.
 
