@@ -3,6 +3,9 @@
 Run (from the repository root):
     uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/solution/grader/tests
     (the last test is marked slow: add -m slow to run it)
+
+The live evidence these tests grade is the SYNTHETIC A/B in synthetic_live.py, collected with
+assignment/live.py; it is written by hand and never presented as a real run.
 """
 
 from __future__ import annotations
@@ -15,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+import synthetic_live as synth
 
 SUBMODULE = Path(__file__).resolve().parents[3]
 REPO = SUBMODULE.parents[1]
@@ -41,16 +45,20 @@ def grade(impl: Path, tmp_path: Path) -> tuple[subprocess.CompletedProcess[str],
     return done, json.loads(out.read_text(encoding="utf-8"))
 
 
-def copy_solution(tmp_path: Path) -> Path:
+def copy_solution(tmp_path: Path, *, live: bool = True) -> Path:
+    """The reference solution in a submission folder, with the synthetic live evidence."""
     impl = tmp_path / "impl"
     shutil.copytree(SOLUTION / "a3scope", impl / "a3scope")
     shutil.copytree(SOLUTION / "tests", impl / "tests")
+    if live:
+        synth.collect_into(impl, tmp_path / "synthetic-ab")
     return impl
 
 
 @pytest.fixture(scope="module")
 def solution_grade(tmp_path_factory: pytest.TempPathFactory):  # type: ignore[no-untyped-def]
-    return grade(SOLUTION, tmp_path_factory.mktemp("solution"))
+    tmp = tmp_path_factory.mktemp("solution")
+    return grade(copy_solution(tmp), tmp)
 
 
 def test_solution_scores_100_and_passes(solution_grade) -> None:  # type: ignore[no-untyped-def]
@@ -60,6 +68,40 @@ def test_solution_scores_100_and_passes(solution_grade) -> None:  # type: ignore
     assert result["passed"] is True
     assert result["zero_tolerance"] == {"all_bad_rejected": True, "zero_false_positives": True}
     assert "Result: PASS" in done.stdout
+
+
+def test_solution_grade_scores_the_live_evidence(solution_grade) -> None:  # type: ignore[no-untyped-def]
+    done, result = solution_grade
+    live = result["criteria"]["live"]
+    assert (live["points"], live["max"]) == (10.0, 10.0)
+    assert live["checks"] == {"evidence": True, "verdicts": True}
+    assert result["live"]["evidence_problems"] == []
+    assert "6 Live A/B evidence" in done.stdout
+
+
+def test_missing_live_evidence_fails_the_named_criterion(tmp_path: Path) -> None:
+    done, result = grade(copy_solution(tmp_path, live=False), tmp_path)
+    assert done.returncode == 1
+    assert result["criteria"]["live"]["points"] == 0.0
+    assert result["total"] == 90.0
+    assert result["passed"] is False
+    assert "no live/ folder" in done.stdout
+    assert "Result: FAIL" in done.stdout
+
+
+def test_a_verdict_your_policy_does_not_reproduce_loses_the_verdict_points(
+    tmp_path: Path,
+) -> None:
+    impl = copy_solution(tmp_path)
+    path = impl / "live" / "verdict-bare.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    data["scope"]["build"]["refusals"] = []
+    path.write_text(json.dumps(data), encoding="utf-8")
+    done, result = grade(impl, tmp_path)
+    assert result["criteria"]["live"]["checks"] == {"evidence": True, "verdicts": False}
+    assert result["total"] == 96.0
+    assert result["passed"] is True, done.stdout
+    assert "verdict-bare.json" in done.stdout
 
 
 def test_solution_grade_counts_hidden_cases(solution_grade) -> None:  # type: ignore[no-untyped-def]
@@ -125,7 +167,7 @@ def test_importing_the_real_guard_zeroes_parsing_and_scope(tmp_path: Path) -> No
     assert result["criteria"]["parse"]["points"] == 0.0
     assert result["criteria"]["scope"]["points"] == 0.0
     assert "shipharness.harness.scope.guard" in " ".join(result["forbidden_imports"])
-    assert result["criteria"]["status"]["points"] == 20.0
+    assert result["criteria"]["status"]["points"] == 15.0
 
 
 def test_check_fails_clearly_on_the_starter() -> None:
@@ -140,6 +182,22 @@ def test_check_passes_on_the_solution() -> None:
     done = run(CHECK, SOLUTION)
     assert done.returncode == 0, done.stdout + done.stderr
     assert "Self-check PASSED" in done.stdout
+
+
+def test_check_lists_missing_live_evidence_without_failing(tmp_path: Path) -> None:
+    done = run(CHECK, copy_solution(tmp_path, live=False))
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert "live A/B evidence (live/)" in done.stdout
+    assert "missing" in done.stdout
+
+
+def test_check_fails_on_invalid_live_evidence(tmp_path: Path) -> None:
+    impl = copy_solution(tmp_path)
+    (impl / "live" / "command.txt").write_text("make demo-2\n", encoding="utf-8")
+    done = run(CHECK, impl)
+    assert done.returncode == 1
+    assert "Self-check FAILED" in done.stdout
+    assert "command" in done.stdout
 
 
 @pytest.mark.slow

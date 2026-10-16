@@ -5,14 +5,17 @@ Usage (from the repository root):
 
 --impl names the folder that holds your `a3scope` package and `tests/` (default: the starter).
 The check runs the visible tests, your denial test (with your rule, then with the rule removed),
-and lists the TODO markers left. It needs no API keys and no container runtime. Exit code 0 means
-every visible check passed; the grader adds hidden diffs, commands, and status cases.
+checks the live A/B evidence in <impl>/live/ if it is there (live.py verify), and lists the TODO
+markers left. It needs no API keys and no container runtime. Exit code 0 means every visible check
+passed and the live evidence, if present, is valid; the grader adds hidden diffs, commands, and
+status cases, and requires the live evidence.
 """
 
 from __future__ import annotations
 
 import argparse
 import ast
+import json
 import os
 import re
 import subprocess
@@ -21,6 +24,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 ASSIGNMENT = Path(__file__).resolve().parent
 REPO = ASSIGNMENT.parents[2]
@@ -28,6 +32,7 @@ VISIBLE = ASSIGNMENT / "visible_tests"
 STARTER = ASSIGNMENT / "starter"
 LEARNER_TEST = Path("tests") / "test_a3_sandbox_rule.py"
 PLUGIN_DIR = ASSIGNMENT / "visible_tests" / "plugins"
+LIVE_TOOL = ASSIGNMENT / "live.py"
 
 # Test-name prefix -> group. Groups feed the grading criteria in README.md.
 GROUPS: dict[str, tuple[str, str]] = {
@@ -149,6 +154,42 @@ def denial_test_checks(impl: Path) -> tuple[dict[str, bool], list[Case]]:
     return checks, cases
 
 
+def live_verify(impl: Path, live: Path | None = None) -> dict[str, Any]:
+    """live.py verify on <impl>/live (or `live`), in a subprocess: your a3scope is imported."""
+    folder = live or impl / "live"
+    with tempfile.TemporaryDirectory() as tmp:
+        out = Path(tmp) / "live.json"
+        done = subprocess.run(
+            [
+                sys.executable,
+                str(LIVE_TOOL),
+                "verify",
+                "--impl",
+                str(impl),
+                "--live",
+                str(folder),
+                "--json",
+                str(out),
+            ],
+            cwd=REPO,
+            capture_output=True,
+            text=True,
+            timeout=600,
+            check=False,
+        )
+        if out.exists():
+            return json.loads(out.read_text(encoding="utf-8"))
+    tail = (done.stdout + done.stderr)[-600:]
+    return {
+        "live": str(folder),
+        "present": folder.is_dir(),
+        "evidence_ok": False,
+        "verdicts_ok": False,
+        "evidence_problems": [f"live.py verify did not finish: {tail}"],
+        "verdict_problems": [],
+    }
+
+
 def todo_markers(impl: Path) -> list[str]:
     found = []
     for path in sorted([*(impl / "a3scope").glob("*.py"), impl / LEARNER_TEST]):
@@ -206,6 +247,17 @@ def main(argv: list[str] | None = None) -> int:
         where = "" if checks[key] else LEARNER_TEST.as_posix()
         print(f"  {label:<50} {'':>13}  {status:<6}  {where}".rstrip())
 
+    live = live_verify(impl)
+    label = "live A/B evidence (live/)"
+    if not live["present"]:
+        print(f"  {label:<50} {'':>13}  missing (required for the grade: README 'Live step')")
+    else:
+        live_ok = live["evidence_ok"] and live["verdicts_ok"]
+        ok &= live_ok
+        print(f"  {label:<50} {'':>13}  {'ok' if live_ok else 'FAIL':<6}  live/".rstrip())
+        for problem in [*live["evidence_problems"], *live["verdict_problems"]][:8]:
+            print(f"    - {problem}")
+
     failed = [c for c in cases if not c.passed]
     if failed:
         print(f"\n  Failing visible tests ({len(failed)}; first 10):")
@@ -217,6 +269,10 @@ def main(argv: list[str] | None = None) -> int:
         for marker in markers:
             print(f"    - {marker}")
     print()
+    if ok and not live["present"]:
+        print("Self-check PASSED. Next: the live step (README 'Live step'), then make")
+        print("grade-assignment-3 (adds the hidden cases and requires live/).")
+        return 0
     if ok:
         print("Self-check PASSED. Next: make grade-assignment-3 (adds the hidden cases).")
         return 0
