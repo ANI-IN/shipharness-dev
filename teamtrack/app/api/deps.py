@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 from collections.abc import Iterator
+from typing import Annotated
 
-from fastapi import Depends, Request
+from fastapi import Depends, Path, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.services import auth
 from app.services.context import Actor
 from app.services.errors import Forbidden
+
+# Path ids must fit SQLite INTEGER; larger values are a 422 validation error, never a 500.
+MAX_ID = 2**63 - 1
+Id = Annotated[int, Path(ge=1, le=MAX_ID)]
 
 _bearer = HTTPBearer(auto_error=False, description="Demo token from POST /auth/login")
 

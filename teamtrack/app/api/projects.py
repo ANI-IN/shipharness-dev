@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Header, Response
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import current_actor, get_db, require_admin, require_writer
+from app.api.deps import Id, current_actor, get_db, require_admin, require_writer
 from app.api.pagination import Page, PageParams, decode_cursor, page_params, to_page
 from app.api.schemas import ProjectCreate, ProjectOut, ProjectPatch
 from app.services import idempotency, projects
@@ -42,14 +42,14 @@ def create_project(
 
 @router.get("/{project_id}", response_model=ProjectOut)
 def get_project(
-    project_id: int, actor: Actor = Depends(current_actor), db: Session = Depends(get_db)
+    project_id: Id, actor: Actor = Depends(current_actor), db: Session = Depends(get_db)
 ) -> ProjectOut:
     return ProjectOut.model_validate(projects.get(db, actor, project_id))
 
 
 @router.patch("/{project_id}", response_model=ProjectOut)
 def update_project(
-    project_id: int,
+    project_id: Id,
     body: ProjectPatch,
     actor: Actor = Depends(require_writer),
     db: Session = Depends(get_db),
@@ -59,7 +59,7 @@ def update_project(
 
 @router.delete("/{project_id}", status_code=204)
 def archive_project(
-    project_id: int, actor: Actor = Depends(require_admin), db: Session = Depends(get_db)
+    project_id: Id, actor: Actor = Depends(require_admin), db: Session = Depends(get_db)
 ) -> Response:
     projects.archive(db, actor, project_id)
     return Response(status_code=204)

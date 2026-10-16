@@ -47,6 +47,7 @@ def serve(db_path: Path, host: str = "127.0.0.1", port: int = 8000) -> None:
     _ensure_importable()
     prepare_database(db_path)
     os.environ["TEAMTRACK_DATABASE_URL"] = database_url(db_path)
+    os.environ.setdefault("TEAMTRACK_LOG_REQUESTS", "true")
     uvicorn.run(
         "app.main:create_app", factory=True, host=host, port=port, app_dir=str(TEAMTRACK_DIR)
     )

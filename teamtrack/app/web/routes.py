@@ -10,7 +10,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import Id, get_db
 from app.seed import ACME, GLOBEX
 from app.services import auth, issues, orgs, projects
 from app.services.context import Actor
@@ -96,7 +96,7 @@ def board_index(request: Request, db: Session = Depends(get_db)) -> Response:
 
 
 @router.get("/projects/{project_id}")
-def project_board(project_id: int, request: Request, db: Session = Depends(get_db)) -> Response:
+def project_board(project_id: Id, request: Request, db: Session = Depends(get_db)) -> Response:
     actor = _actor(request, db)
     if actor is None:
         return _to_login()
@@ -112,7 +112,7 @@ def project_board(project_id: int, request: Request, db: Session = Depends(get_d
 
 @router.post("/projects/{project_id}/issues")
 def create_issue(
-    project_id: int,
+    project_id: Id,
     request: Request,
     title: str = Form(...),
     priority: str = Form("medium"),
@@ -128,7 +128,7 @@ def create_issue(
 
 
 @router.get("/issues/{issue_id}")
-def issue_detail(issue_id: int, request: Request, db: Session = Depends(get_db)) -> Response:
+def issue_detail(issue_id: Id, request: Request, db: Session = Depends(get_db)) -> Response:
     actor = _actor(request, db)
     if actor is None:
         return _to_login()
@@ -138,7 +138,7 @@ def issue_detail(issue_id: int, request: Request, db: Session = Depends(get_db))
 
 @router.post("/issues/{issue_id}/transition")
 def transition(
-    issue_id: int, request: Request, status: str = Form(...), db: Session = Depends(get_db)
+    issue_id: Id, request: Request, status: str = Form(...), db: Session = Depends(get_db)
 ) -> Response:
     actor = _actor(request, db)
     if actor is None:
@@ -153,7 +153,7 @@ def transition(
 
 @router.post("/issues/{issue_id}/edit")
 def edit_issue(
-    issue_id: int,
+    issue_id: Id,
     request: Request,
     title: str = Form(...),
     priority: str = Form("medium"),

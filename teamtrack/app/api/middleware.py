@@ -22,7 +22,10 @@ class RequestIdMiddleware(BaseHTTPMiddleware):
         started = time.perf_counter()
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
-        log.debug(
+        settings = getattr(request.app.state, "settings", None)
+        if settings is None or not settings.log_requests:
+            return response
+        log.info(
             "request",
             method=request.method,
             path=request.url.path,

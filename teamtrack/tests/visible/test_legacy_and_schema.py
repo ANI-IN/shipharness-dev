@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -81,8 +82,10 @@ def test_api_never_imports_db() -> None:
             str(TEAMTRACK / ".importlinter"),
         ],
         cwd=TEAMTRACK,
+        env={**os.environ, "PYTHONUTF8": "1"},
+        encoding="utf-8",
+        errors="replace",
         capture_output=True,
-        text=True,
         check=False,
     )
     assert "Contracts: 2 kept, 0 broken." in result.stdout, result.stdout + result.stderr

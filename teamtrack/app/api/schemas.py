@@ -103,14 +103,14 @@ class ProjectPatch(_In):
 
 
 class MemberAdd(_In):
-    user_id: int
+    user_id: int = Field(ge=1, le=2**63 - 1)
 
 
 class IssueCreate(_In):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=10_000)
     priority: Priority = "medium"
-    assignee_id: int | None = None
+    assignee_id: int | None = Field(default=None, ge=1, le=2**63 - 1)
 
 
 class IssuePatch(_In):
@@ -120,7 +120,7 @@ class IssuePatch(_In):
 
 
 class AssignIn(_In):
-    assignee_id: int | None
+    assignee_id: int | None = Field(ge=1, le=2**63 - 1)
 
 
 class TransitionIn(_In):

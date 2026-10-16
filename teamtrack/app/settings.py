@@ -14,3 +14,4 @@ class TeamTrackSettings(BaseSettings):
     )
     seed: bool = False  # insert the Acme and Globex demo data if the database is empty
     log_json: bool = False
+    log_requests: bool = False  # one line per request; shipharness up turns it on

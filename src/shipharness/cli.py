@@ -19,6 +19,18 @@ datasets_app = typer.Typer(help="Validate and upload the LangSmith datasets.", n
 app.add_typer(datasets_app, name="datasets")
 
 
+def _register_commands() -> None:
+    """Commands contributed by subsystem packages (each exposes register(app))."""
+    from shipharness.checks.commands import register as register_checks
+    from shipharness.skills_cli.commands import register as register_skills
+
+    register_checks(app)
+    register_skills(app)
+
+
+_register_commands()
+
+
 def load_settings() -> Settings:
     return Settings()
 
@@ -78,7 +90,8 @@ def console(port: int = typer.Option(8765, help="Port for the live console.")) -
     settings = load_settings()
     settings.runs_dir.mkdir(parents=True, exist_ok=True)
     typer.echo(f"Console: http://127.0.0.1:{port}/")
-    uvicorn.run(create_console_app(settings.runs_dir), host="127.0.0.1", port=port)
+    console_app = create_console_app(settings.runs_dir, exports_dir=settings.exports_dir)
+    uvicorn.run(console_app, host="127.0.0.1", port=port)
 
 
 @datasets_app.command("validate")

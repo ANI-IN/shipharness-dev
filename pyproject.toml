@@ -82,5 +82,6 @@ pythonpath = ["teamtrack"]
 markers = [
     "live: needs OPENAI_API_KEY and LANGSMITH_API_KEY and calls external services",
     "docker: needs a working Docker or Podman runtime",
+    "browser: needs a Playwright Chromium browser (uv run playwright install chromium)",
 ]
 addopts = "-m 'not live and not docker'"

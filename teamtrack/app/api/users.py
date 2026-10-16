@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Header
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import current_actor, get_db, require_admin
+from app.api.deps import Id, current_actor, get_db, require_admin
 from app.api.pagination import Page, PageParams, decode_cursor, page_params, to_page
 from app.api.schemas import UserCreate, UserOut, UserPatch
 from app.services import idempotency, users
@@ -42,14 +42,14 @@ def create_user(
 
 @router.get("/{user_id}", response_model=UserOut)
 def get_user(
-    user_id: int, actor: Actor = Depends(current_actor), db: Session = Depends(get_db)
+    user_id: Id, actor: Actor = Depends(current_actor), db: Session = Depends(get_db)
 ) -> UserOut:
     return UserOut.model_validate(users.get(db, actor, user_id))
 
 
 @router.patch("/{user_id}", response_model=UserOut)
 def update_user(
-    user_id: int,
+    user_id: Id,
     body: UserPatch,
     actor: Actor = Depends(require_admin),
     db: Session = Depends(get_db),

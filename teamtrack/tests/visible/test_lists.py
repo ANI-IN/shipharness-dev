@@ -91,3 +91,26 @@ def test_unexpected_server_error_uses_error_envelope(tmp_path) -> None:
     assert response.status_code == 500
     assert error_code(response) == "internal_error"
     assert "boom" not in response.text
+
+
+def test_out_of_range_ids_are_validation_errors_not_500(client, acme) -> None:
+    from conftest import auth as auth_headers
+
+    too_big = 2**63
+    for path in (
+        f"/issues/{too_big}",
+        f"/projects/{too_big}",
+        f"/users/{too_big}",
+        f"/projects/{too_big}/issues",
+    ):
+        response = client.get(path, headers=auth_headers(acme.admin))
+        assert response.status_code == 422, (path, response.status_code)
+        assert error_code(response) == "validation_error"
+
+
+def test_request_logging_is_off_by_default(client, acme, capsys) -> None:
+    from conftest import auth as auth_headers
+
+    client.get("/me", headers=auth_headers(acme.admin))
+    captured = capsys.readouterr()
+    assert "request_id" not in captured.out + captured.err
