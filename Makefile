@@ -10,7 +10,7 @@ CONSOLE_PORT ?= 8765
 LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
-FEATURES ?= F5,F6,F7
+FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
 # demo-N, swap-N, final: LangSmith project (DESIGN §12). class needs SHIPHARNESS_CLASS_DATE (the

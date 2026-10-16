@@ -1,9 +1,10 @@
 # S4 demo: `make demo-4` (F4, all layers)
 
 Runbook for the S4 live A/B. Class plan, in the approved class order (run sheet, "Section pattern";
-it differs from DESIGN §14.1): poll (3 min); `make demo-4` launched right after it, with a glance at an
-easy control task (2 min); concepts (15 min) and code walkthrough (10 min) while the A/B runs in the
-background; demo block (15 min): screens 1, 2, 3, the A/B verdicts, screen 4, the swap test or the
+it differs from DESIGN §14.1): poll (3 min), then the final feature poll (1 min); `make demo-4`
+launched right after them and `make final FEATURES=<poll winner(s)>` one minute later in terminal C,
+with a glance at an easy control task (2 min); concepts (14 min) and code walkthrough (10 min) while
+both A/Bs run in the background; demo block (15 min): screens 1, 2, 3, the A/B verdicts, screen 4, the swap test or the
 layer switch; discussion (5 min). Concepts: [../concepts.md](../concepts.md).
 
 Every captured output and screenshot in this file is labelled "captured on <date>, run <id>; your
@@ -40,6 +41,7 @@ In class:
 
 ```sh
 make demo-4                     # A/B on F4: bare vs all layers, then the referee and reviewer
+make final FEATURES=<ids>       # terminal C, one minute after make demo-4 (run sheet, S4)
 make swap-4                     # swap test on the latest demo-4 A/B (no model calls)
 make demo-4 LAYERS=-verify      # layer switch: harness arm without the verify layer
 make replay RUN=<ab or run id>  # fallback only: replays a recorded A/B, referee runs live
@@ -50,6 +52,7 @@ What each one runs (`Makefile`):
 | Target | Command |
 |---|---|
 | `make demo-4` | `uv run shipharness ab --section demo-4 --feature F4` |
+| `make final FEATURES=<ids>` | `uv run shipharness ab --section final --feature <id>` for each id, one after another |
 | `make swap-4` | `uv run shipharness ab --swap latest --section demo-4` (`AB=<id>` picks another A/B) |
 | `make demo-4 LAYERS=-verify` | `uv run shipharness ab --section demo-4 --feature F4 --layers=-verify` (harness arm: instructions, state, scope) |
 | `make replay RUN=<id>` | `uv run shipharness replay <id>` |
@@ -57,7 +60,9 @@ What each one runs (`Makefile`):
 `make demo-4` prints `A/B <ab_id> (F4, layers=[...])` when it finishes. At the launch the id is not
 printed yet, so pick the newest run on `http://localhost:8765/` (reload the list); after the run,
 `http://localhost:8765/run/<ab_id>` opens it directly. Keys `1` to `5` switch screens; `F` shows one arm
-full screen.
+full screen. In S4 two A/Bs start a minute apart: open demo-4's A/B right after `make demo-4`, before
+`make final` starts, because the runs list shows only ids, newest first; open the final's A/B in a
+second browser tab and leave it for the closing block.
 
 The layer switch runs both arms again and calls the model. Each arm is capped at `MAX_RUN_COST_USD`
 ($0.20) and each review at `MAX_REVIEW_COST_USD` ($0.04) (`.env.example`). DESIGN §11.3 allows one
@@ -71,18 +76,20 @@ optional layer-switch rerun only if the session meter shows room; the session ca
 
 | Section minutes | Block | Terminal B and console |
 |---|---|---|
-| 0-3 | Poll (section 4) | Close the poll before the launch |
-| 3-5 | Launch | `make demo-4` at minute 3; open the new A/B on screen `1`; control glance |
-| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
-| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
-| 30-45 | Demo block | The finished A/B: screens, verdicts, experiment dots, swap test |
-| 45-50 | Discussion and transition | |
+| 0-3 | Poll (section 4) | |
+| 3-4 | Final feature poll | Close it before the launch; the winner, plus the runner-up if the session figure allows (run sheet, S4) |
+| 4-6 | Launch | `make demo-4` at minute 4 (terminal B); `make final FEATURES=<poll winner(s)>` at minute 5 (terminal C); open each new A/B; screen `1` of demo-4; control glance |
+| 6-20 | Concepts ([../concepts.md](../concepts.md)) | Both A/Bs run in the background |
+| 20-30 | Code walkthrough | Both A/Bs run; at minute 25 check terminal B for the demo-4 `Cost:` line and terminal C for the final |
+| 30-45 | Demo block | The finished demo-4 A/B: screens, verdicts, experiment dots, swap test |
+| 45-50 | Discussion and transition | Next: the final A/B's results, in the closing block |
 
 The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
 running in parallel on the class host, before the approved referee speed-ups) every A/B finished
 within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
-run 2). The class runs one A/B at a time, so class times are expected to be at or below these; the
-class-host time for `make demo-4` is in section 8. If the A/B is still running at minute 25, open the
+run 2). In S4 two A/Bs run at a time (demo-4 and one final feature; `make final` runs its features
+one after another), the same load as pilot run 2; the class-host time for `make demo-4` is in
+section 8. If the A/B is still running at minute 25, open the
 demo block on the running A/B and run the swap test on the recorded fallback
 (`make swap-4 AB=<recorded ab id>`); if it failed on stage, use the replay (section 9). Both cases
 are in the run sheet, "Check at section minute 25" (`instructor/run-sheet.md`).
@@ -92,7 +99,7 @@ Screen `1` keeps only the last 8 turn rows and the last 3 harness decisions per 
 turns live; in the demo block, read earlier turns on screen `3` or in the LangSmith trace linked on
 screen `5`.
 
-Launch (section minutes 3-5) and demo block (section minutes 30-45):
+Launch (section minutes 4-6) and demo block (section minutes 30-45):
 
 | When | Key | Screen | Show |
 |---|---|---|---|
@@ -117,7 +124,7 @@ Code walkthrough (about 10 minutes, while the A/B runs; `uv run python scripts/a
 
 ## 4. Poll question and answer pattern
 
-Ask before `make demo-4`:
+Ask before `make demo-4`; the final feature poll follows it (`instructor/poll-questions.md`):
 
 > Both arms will probably say "done". F4's `If-Match` header is optional, so every existing test
 > passes even if no concurrency check was built. The referee holds four mutants the agents never
@@ -228,12 +235,14 @@ work per arm `HARNESS_TIMEOUT_S` 120 s, tool command `TOOL_TIMEOUT_S` 120 s (`.e
 session budget 40 turns (`teamtrack/reference/f4/task.toml`); cost caps $0.20 per arm and $0.04 per
 review (DESIGN §11.1). The class budget reserves $0.40 for the two demo-4 arms and $0.08 for the two
 S4 reviews (DESIGN §11.3). The design target for a demo is at most 6 minutes (DESIGN §16, AS-9).
+The final A/B running beside demo-4 has its own caps ($0.25 per arm, $0.04 per review); the run
+sheet's S4 cost note explains how the two commands share the session cap.
 
 [[PENDING: measured wall time of make demo-4 per arm, plus referee time, worst case seen | source: M6 pilot | how: make demo-4 (wall_s, agent_wall_s, harness_wall_s in exports/scores)]]
 
 [[PENDING: measured cost of make demo-4 per arm and per review, worst case seen | source: M6 pilot | how: make demo-4 (cost line and exports/scores)]]
 
-[[PENDING: wall time of make demo-4 on the class host, one A/B at a time, launch to Cost line | source: M6 pilot | how: time make demo-4 on the class host (pilot run 3); VERIFICATION.md]]
+[[PENDING: wall time of make demo-4 on the class host with make final running in parallel, launch to Cost line | source: M6 pilot | how: time make demo-4 on the class host (pilot run 3), make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 
 [[PENDING: tonight's time and cost of make demo-4 | source: live class | how: make demo-4]]
 

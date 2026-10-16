@@ -2,8 +2,10 @@
 
 One prediction poll per section, plus the final feature poll. Each section S1 to S4 opens with its
 poll (3 minutes; the poll slide states the feature and the rule at risk), and `make demo-N` is
-launched right after it, so the A/B runs while the concepts and the walkthrough are taught. Close each
-poll before the launch, so nobody votes after seeing the console. Slide numbers refer to
+launched right after it, so the A/B runs while the concepts and the walkthrough are taught. S4 opens
+with two polls back to back, the S4 poll and then the final feature poll, and `make demo-4` and
+`make final` are launched right after the second. Close each poll before the launch, so nobody
+votes after seeing the console. Slide numbers refer to
 [../slides/outline.md](../slides/outline.md); timing is in [run-sheet.md](run-sheet.md).
 
 Status: M11 draft. The answer patterns come from the experiments and are `[[PENDING]]` until M8 has
@@ -136,9 +138,13 @@ agreement; A3, F-a-112 on evaluator leniency)
 
 ---
 
-## Final feature poll (slide 63, 1 minute)
+## Final feature poll (slide 50, start of S4, 1 minute)
 
-**Question.** Which feature should both arms build for the final run, with all four layers on?
+Ask it right after the S4 poll (2:53, run sheet S4) and close it before the launch. The final A/B
+runs during S4; the room sees its results in the final block (3:40).
+
+**Question.** Which feature should both arms build for the final run, with all four layers on? The
+winner runs first; the runner-up runs after it when the session budget has room.
 
 | Option | Feature | Spec | Sessions | What it stresses |
 |---|---|---|---|---|
@@ -146,8 +152,11 @@ agreement; A3, F-a-112 on evaluator leniency)
 | B | F6 Watchers: follow issues and list the ones you watch | `teamtrack/docs/features/f6.md` | Two, budgets 20 and 30 | A session stop in the middle (S2), one new migration (R7), no-op writes add no audit row (R5) |
 | C | F7 Labels: tag issues and filter lists by label | `teamtrack/docs/features/f7.md` | Two, budgets 25 and 35 | A session stop (S2), idempotent label creation per org (R4) |
 
-**After the vote.** Run only the winner: `make final FEATURES=<F5|F6|F7>` (run sheet, final). The
-final has no pre-registered primary measure; every score is shown (DESIGN §8.2).
+**After the vote.** Terminal C, one minute after `make demo-4` (2:55):
+`make final FEATURES=<winner>,<runner-up>`, the two poll-chosen features the brief asks for, when
+the session figure on demo-3's `Cost:` line is at most $0.86; otherwise
+`make final FEATURES=<winner>` (run sheet, S4 cost note). `make final` runs the features one after
+another. The final has no pre-registered primary measure; every score is shown (DESIGN §8.2).
 
 **Answer pattern from the experiments.** F5-F7 run in the full-dataset batch, so there are experiment
 results to show next to tonight's run:
