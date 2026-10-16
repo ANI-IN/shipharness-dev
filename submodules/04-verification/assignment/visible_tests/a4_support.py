@@ -226,9 +226,9 @@ EVIDENCE = DocSpec(
 )
 LANGSMITH = DocSpec(
     "portfolio/langsmith.md",
-    ("Experiment link", "Command", "What the comparison shows"),
-    must_contain=("shipharness experiments",),
-    link_in="Experiment link",
+    ("Trace links", "Command", "What the comparison shows"),
+    must_contain=("shipharness ab",),
+    link_in="Trace links",
 )
 CASE_STUDY = DocSpec(
     "portfolio/case-study.md",

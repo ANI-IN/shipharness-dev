@@ -3,11 +3,12 @@
     uv run python submodules/04-verification/assignment/check.py [--impl <folder>]
     make check-assignment-4 [A4_IMPL=<folder>]
 
-`--impl` is the folder that holds `a4_verification/`, `tests/`, `skill/`, and `portfolio/`
-(default: the starter in this folder). Prints PASS or FAIL for every visible test with the reason,
-then the TODO markers still in your code and portfolio. The hidden grader
-(`make grade-assignment-4`) runs these tests plus hidden seeded violations and hidden candidate
-tests. No model calls, no Docker: R8 runs in process on TeamTrack copies.
+`--impl` is the folder that holds `a4_verification/`, `tests/`, `skill/`, `portfolio/`, and
+`live/` (default: the starter in this folder). Prints PASS or FAIL for every visible test with the
+reason, then the TODO markers still in your code and portfolio. The visible tests include the
+live-evidence checks, which validate the files in `live/` without re-running them. The hidden
+grader runs these tests plus hidden seeded violations and hidden candidate tests. No model calls,
+no Docker: R8 runs in process on TeamTrack copies.
 
 Exit codes: 0 every visible test passes, 1 otherwise (or the tests could not run).
 """
@@ -74,7 +75,7 @@ def main(argv: list[str] | None = None) -> int:
     verdict = "PASSED" if outcomes and passed == len(outcomes) else "FAILED"
     print(f"\nself-check: {verdict} ({passed}/{len(outcomes)} visible tests pass)")
     if verdict == "PASSED":
-        print("Next: make grade-assignment-4 A4_IMPL=<this folder> runs the hidden tests too.")
+        print("Next: submit this folder with its live/; the grader adds the hidden tests.")
     print("Cost: $0.000000 (no model calls)")
     return 0 if verdict == "PASSED" else 1
 

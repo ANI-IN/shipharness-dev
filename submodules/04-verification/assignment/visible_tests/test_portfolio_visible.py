@@ -1,4 +1,5 @@
-"""Visible tests for the learner's own tests, own skill, and portfolio files (structure only)."""
+"""Visible tests for the learner's own tests, own skill, and portfolio files (structure, and the
+LangSmith page's link to a trace of the live A/B)."""
 
 from __future__ import annotations
 
@@ -9,6 +10,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from a4_live import pending_only, trace_link_problems
 from a4_support import (
     CASE_STUDY,
     EVIDENCE,
@@ -73,6 +75,9 @@ def test_evidence_report_structure(impl_path: Path) -> None:
 @pytest.mark.criterion("portfolio-langsmith")
 def test_langsmith_page_structure(impl_path: Path) -> None:
     problems = doc_problems(impl_path, LANGSMITH, reference_mode())
+    page = impl_path / LANGSMITH.file
+    if page.is_file() and not (reference_mode() and pending_only(impl_path)):
+        problems += trace_link_problems(impl_path, page.read_text(encoding="utf-8"))
     assert not problems, "\n".join(problems)
 
 

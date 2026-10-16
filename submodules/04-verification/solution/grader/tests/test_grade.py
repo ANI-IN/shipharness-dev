@@ -52,6 +52,21 @@ def test_points_split_evenly_over_a_criterion_tests() -> None:
     assert all(s.earned == 0 and s.total == 0 for s in rest)
 
 
+def test_live_evidence_is_a_named_criterion_worth_10_points() -> None:
+    points = {c.id: c.points for c in grade.CRITERIA}
+    assert points["live-evidence"] == 10
+
+
+def test_submission_path_may_be_the_impl_folder_or_a_course_repo_root(tmp_path: Path) -> None:
+    impl = tmp_path / "submodules" / "04-verification" / "assignment" / "starter"
+    (impl / "a4_verification").mkdir(parents=True)
+    assert grade.resolve_impl(tmp_path) == impl.resolve()
+    assert grade.resolve_impl(impl) == impl.resolve()
+    other = tmp_path / "elsewhere"
+    other.mkdir()
+    assert grade.resolve_impl(other) == other.resolve()
+
+
 def test_unknown_criterion_is_reported_as_a_grader_error() -> None:
     with pytest.raises(ValueError, match="no-such"):
         grade.score([Outcome("t.py::test_x", "no-such", True)])
