@@ -1,0 +1,523 @@
+"""The referee (contract I-9, DESIGN §8.1): judges what an arm shipped, never how it got there.
+
+A fresh export of the checkpoint plus the arm's product diff (harness artifacts stripped), the
+check runner in a referee container (network none) with the hidden tests mounted read-only,
+referee-set mutants against the shipped tests, the blinded reviewer, then a ScoreRecord written
+to `exports/scores/` and a verdict event. Both arms go through exactly this code. Aborted runs are
+judged too.
+"""
+
+from __future__ import annotations
+
+import ast
+import json
+import os
+import subprocess
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import UTC, datetime
+from pathlib import Path
+from typing import Any
+
+from shipharness.ab.artifacts import diff_paths, glob_match, is_harness_artifact
+from shipharness.ab.artifacts import strip_harness_artifacts as strip
+from shipharness.ab.score import ScoreRecord, evaluate_primary
+from shipharness.ab.workspace import export_checkpoint, export_hidden_tests, init_repo
+from shipharness.checks.base import CheckResult
+from shipharness.events import Arm, EventBus
+from shipharness.harness.verify.checkrun import (
+    RunnerOutputError,
+    last_progress,
+    parse_runner_output,
+    runner_command,
+    write_container_file,
+)
+from shipharness.reviewer import ReviewInput, ReviewOutcome, blind
+from shipharness.runner.models import AgentRunResult
+from shipharness.sandbox.base import Sandbox
+from shipharness.sandbox.policy import Mount
+from shipharness.tracing import NullTracer, Tracer, write_export
+
+REFEREE_CHECKS: tuple[str, ...] = (
+    "r1_tenant",
+    "r2_roles",
+    "r3_conventions",
+    "r4_idempotency",
+    "r5_audit",
+    "r6_layering",
+    "r7_migrations",
+    "regression",
+    "hidden_tests",
+    "diff_scope",
+    "flakiness",
+    "continuity",
+    "board",
+)
+HIDDEN_MOUNT = "/hidden"
+RUNLOG_MOUNT = "/runlog"
+FLAKY_RUNS = 10
+
+SandboxFactory = Callable[[Path, list[Mount], Arm], Sandbox]
+MutantRunner = Callable[[Any, list[str], Path, Sandbox], str]
+Reviewer = Callable[[ReviewInput], ReviewOutcome]
+
+
+@dataclass
+class RefereeTask:
+    feature_id: str
+    checkpoint: str
+    ticket_text: str
+    variant: str = "canonical"
+    hidden_test_ids: list[str] = field(default_factory=list)
+    allowed_paths: dict[str, list[str]] = field(default_factory=dict)
+    primary_measure: str = ""
+    exemptions: dict[str, list[str]] = field(default_factory=dict)
+    mutant_set: str = ""
+
+
+@dataclass
+class RefereeDeps:
+    course_repo: Path
+    checkpoint_ref: str | None  # git ref exported for the checkpoint (None: working tree)
+    sandbox_factory: SandboxFactory
+    exports_dir: Path
+    base_dir: Path  # referee directories live here (outside the course checkout)
+    seed: int
+    tracer: Tracer = field(default_factory=NullTracer)
+    reviewer: Reviewer | None = None
+    grading_criteria: str = ""
+    mutants: list[Any] = field(default_factory=list)  # referee set only
+    mutant_runner: MutantRunner | None = None
+    container_paths: bool = True  # False for the UNSANDBOXED fallback (no mounts)
+    sandboxed: bool = True
+    timeout_s: int = 1200
+
+
+@dataclass
+class ArmVerdict:
+    record: ScoreRecord
+    results: list[CheckResult]
+    referee_dir: Path
+    apply_error: str | None = None
+
+
+def _now() -> str:
+    return datetime.now(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+
+
+def _apply(build: Path, patch: Path) -> str | None:
+    """Apply the product diff in the referee build (a repo this module created). None = ok."""
+    if patch.stat().st_size == 0:
+        return None
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    env.update({"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
+    done = subprocess.run(
+        ["git", "-c", "core.autocrlf=false", "apply", "--whitespace=nowarn", str(patch)],
+        cwd=build,
+        capture_output=True,
+        env=env,
+        check=False,
+    )
+    if done.returncode == 0:
+        return None
+    return done.stderr.decode("utf-8", errors="replace").strip()[:500] or "git apply failed"
+
+
+def _allowed(path: str, patterns: list[str]) -> bool:
+    return any(glob_match(path, p) for p in patterns)
+
+
+def shipped_tests(build: Path, paths: list[str]) -> list[str]:
+    """Test ids (`file::name`) in test files the arm added or changed."""
+    ids: list[str] = []
+    for rel in paths:
+        name = rel.rsplit("/", 1)[-1]
+        if not (
+            rel.startswith("tests/visible/") and name.startswith("test") and name.endswith(".py")
+        ):
+            continue
+        path = build / rel
+        if path.is_symlink() or not path.is_file():
+            continue
+        try:
+            tree = ast.parse(path.read_bytes().decode("utf-8", errors="replace"))
+        except SyntaxError:
+            continue
+        for node in tree.body:
+            if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef) and node.name.startswith(
+                "test"
+            ):
+                ids.append(f"{rel}::{node.name}")
+            elif isinstance(node, ast.ClassDef) and node.name.startswith("Test"):
+                ids += [
+                    f"{rel}::{node.name}::{item.name}"
+                    for item in node.body
+                    if isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef)
+                    and item.name.startswith("test")
+                ]
+    return ids
+
+
+def default_mutant_runner(mutant: Any, tests: list[str], build: Path, sandbox: Sandbox) -> str:
+    from shipharness.filters import Mutant, run_mutant  # type: ignore[attr-defined]
+
+    m = mutant if isinstance(mutant, Mutant) else Mutant(**mutant)
+    return str(run_mutant(m, tests, build, sandbox, 300))
+
+
+class Referee:
+    """Judges both arms of one task with the same checks, seed, and baseline."""
+
+    def __init__(self, task: RefereeTask, deps: RefereeDeps) -> None:
+        self.task, self.deps = task, deps
+        self._baseline: str | None = None
+        self._baseline_done = False
+
+    # -- container -----------------------------------------------------------------------------
+
+    def _paths(self, hidden: Path, runlog: Path | None) -> tuple[str, str | None, list[Mount]]:
+        mounts: list[Mount] = [(hidden, HIDDEN_MOUNT, "ro")]
+        if runlog is not None:
+            mounts.append((runlog.parent, RUNLOG_MOUNT, "ro"))
+        if not self.deps.container_paths:
+            return str(hidden), str(runlog) if runlog else None, []
+        return HIDDEN_MOUNT, f"{RUNLOG_MOUNT}/{runlog.name}" if runlog else None, mounts
+
+    def _run_checks(
+        self,
+        sandbox: Sandbox,
+        params: dict[str, Any],
+        baseline: str | None,
+        checks: tuple[str, ...],
+    ) -> tuple[list[CheckResult], list[dict[str, Any]], str | None]:
+        root = "/tmp/shipharness-referee"
+        sandbox.exec(f"mkdir -p {root}", 60)
+        try:
+            write_container_file(sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True))
+            if baseline:
+                write_container_file(sandbox, f"{root}/baseline.json", baseline)
+        except RuntimeError as exc:
+            return [], [], f"referee container not usable: {exc}"[:500]
+        command = runner_command(
+            build=".",
+            checks=list(checks),
+            checkpoint=self.task.checkpoint,
+            feature=self.task.feature_id,
+            seed=self.deps.seed,
+            params=f"{root}/params.json",
+            baseline=f"{root}/baseline.json" if baseline else None,
+        )
+        output = sandbox.exec(command, self.deps.timeout_s)
+        try:
+            results, progress = parse_runner_output(output.output)
+        except RunnerOutputError as exc:
+            return [], [], f"check runner failed (exit {output.exit_code}): {exc}"[:500]
+        return results, progress, None
+
+    def baseline(self, arm: Arm = "bare") -> str | None:
+        """Runner output on the clean checkpoint (computed once, shared by both arms)."""
+        if self._baseline_done:
+            return self._baseline
+        root = self.deps.base_dir / "baseline"
+        build = export_checkpoint(self.deps.course_repo, self.deps.checkpoint_ref, root / "build")
+        init_repo(build, f"checkpoint {self.task.checkpoint}")
+        hidden = export_hidden_tests(
+            self.deps.course_repo, self.deps.checkpoint_ref, root / "hidden"
+        )
+        hidden_dir, _log, mounts = self._paths(hidden, None)
+        sandbox = self.deps.sandbox_factory(build, mounts, arm)
+        sandbox.start()
+        try:
+            checks = tuple(c for c in REFEREE_CHECKS if c not in ("continuity", "flakiness"))
+            params = self._params(hidden_dir, None, [], [], [])
+            results, _p, error = self._run_checks(sandbox, params, None, checks)
+        finally:
+            sandbox.stop()
+        self._baseline_done = True
+        if error is None:
+            self._baseline = json.dumps({"results": [r.model_dump(mode="json") for r in results]})
+        return self._baseline
+
+    def _params(
+        self,
+        hidden_dir: str,
+        run_log: str | None,
+        shipped_files: list[str],
+        shipped_ids: list[str],
+        test_phase_files: list[str],
+    ) -> dict[str, Any]:
+        return {
+            "hidden_test_ids": list(self.task.hidden_test_ids),
+            "hidden_dir": hidden_dir,
+            "shipped_test_files": shipped_files,
+            "shipped_test_ids": shipped_ids,
+            "allowed_paths": self.task.allowed_paths,
+            "test_phase_files": test_phase_files,
+            "run_log": run_log,
+            "exemptions": self.task.exemptions,
+            "flaky_runs": FLAKY_RUNS,
+        }
+
+    # -- judging -------------------------------------------------------------------------------
+
+    def judge(
+        self,
+        *,
+        run_id: str,
+        ab_id: str | None,
+        arm: Arm,
+        layers: list[str],
+        result: AgentRunResult | None,
+        diff: bytes,
+        bus: EventBus | None,
+        run_log: Path | None = None,
+        test_phase_files: list[str] | None = None,
+        recorded: bool = False,
+    ) -> ArmVerdict:
+        def emit(type_: str, data: Any) -> None:
+            if bus is not None:
+                bus.publish(type_, data, run_id=run_id, arm=arm, recorded=recorded)  # type: ignore[arg-type]
+
+        baseline = self.baseline(arm)
+        rdir = self.deps.base_dir / (ab_id or run_id) / arm / f"referee-{run_id}"
+        build = export_checkpoint(self.deps.course_repo, self.deps.checkpoint_ref, rdir / "build")
+        init_repo(build, f"checkpoint {self.task.checkpoint}")
+        hidden = export_hidden_tests(
+            self.deps.course_repo, self.deps.checkpoint_ref, rdir / "hidden"
+        )
+        product = strip(diff)  # harness artifacts are state, not product changes
+        patch = rdir / "product.patch"
+        patch.write_bytes(product)
+        apply_error = _apply(build, patch)
+        paths = [p for p in diff_paths(product) if p != "/dev/null"]
+        allowed = self.task.allowed_paths
+        scope_globs = [*allowed.get("build", []), *allowed.get("test", [])]
+        out_of_scope = [p for p in paths if scope_globs and not _allowed(p, scope_globs)]
+        phase_edits = [
+            p
+            for p in (test_phase_files or [])
+            if not is_harness_artifact(p) and allowed and not _allowed(p, allowed.get("test", []))
+        ]
+        shipped_ids = shipped_tests(build, paths)
+        shipped_files = sorted({i.split("::", 1)[0] for i in shipped_ids})
+
+        results: list[CheckResult] = []
+        mutant_outcomes: dict[str, str] = {}
+        error = apply_error
+        meta = {"run_id": run_id, "ab_id": ab_id, "arm": arm, "seed": self.deps.seed}
+        with self.deps.tracer.agent_run("referee", meta, tags=[arm, "referee"]) as root:
+            referee_url = self.deps.tracer.url(root)
+            if referee_url:
+                emit("trace_link", {"url": referee_url, "kind": "referee"})
+            if apply_error is None:
+                hidden_dir, log_path, mounts = self._paths(hidden, run_log)
+                sandbox = self.deps.sandbox_factory(build, mounts, arm)
+                sandbox.start()
+                try:
+                    params = self._params(
+                        hidden_dir, log_path, shipped_files, shipped_ids, phase_edits
+                    )
+                    results, progress, error = self._run_checks(
+                        sandbox, params, baseline, REFEREE_CHECKS
+                    )
+                    for update in last_progress(progress):
+                        emit("check_progress", update)
+                    for r in results:
+                        with self.deps.tracer.child(
+                            f"check:{r.check}",
+                            "tool",
+                            new_violations=r.new_violations,
+                            total_probes=r.total_probes,
+                        ):
+                            pass
+                        emit("check_result", r.model_dump(mode="json", exclude={"artifacts"}))
+                    mutant_outcomes = self._mutants(sandbox, build, shipped_ids, emit)
+                finally:
+                    sandbox.stop()
+            review = self._review(diff, emit)
+            record = self._record(
+                run_id=run_id,
+                ab_id=ab_id,
+                arm=arm,
+                layers=layers,
+                result=result,
+                results=results,
+                mutants=mutant_outcomes,
+                shipped=len(shipped_ids),
+                out_of_scope=len(out_of_scope),
+                phase_edits=len(phase_edits),
+                review=review,
+                referee_url=referee_url,
+                recorded=recorded,
+                failed=error is not None,
+            )
+            root.set_outputs({"passed_primary": record.passed_primary})
+        write_export("scores", run_id, record, self.deps.exports_dir)
+        summary = self._summary(record, error)
+        emit(
+            "verdict",
+            {
+                "primary": record.primary,
+                "passed_primary": record.passed_primary,
+                "summary": summary,
+            },
+        )
+        report = {
+            "seed": self.deps.seed,
+            "apply_error": apply_error,
+            "error": error,
+            "files": paths,
+            "out_of_scope": out_of_scope,
+            "test_phase_source_edits": phase_edits,
+            "shipped_tests": shipped_ids,
+            "mutants": mutant_outcomes,
+            "results": [r.model_dump(mode="json") for r in results],
+        }
+        (rdir / "referee.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+        return ArmVerdict(record=record, results=results, referee_dir=rdir, apply_error=apply_error)
+
+    def _mutants(
+        self, sandbox: Sandbox, build: Path, tests: list[str], emit: Callable[[str, Any], None]
+    ) -> dict[str, str]:
+        outcomes: dict[str, str] = {}
+        if not self.deps.mutants:
+            return outcomes
+        runner = self.deps.mutant_runner or default_mutant_runner
+        for mutant in self.deps.mutants:
+            mutant_id = str(mutant["id"] if isinstance(mutant, dict) else mutant.id)
+            if not tests:
+                outcome = "survived"  # no shipped test can kill it
+            else:
+                try:
+                    outcome = runner(mutant, tests, build, sandbox)
+                except Exception as exc:  # noqa: BLE001 - one broken mutant never stops the referee
+                    outcome = f"error: {type(exc).__name__}"
+            outcome = outcome if outcome in ("killed", "survived", "timeout") else "error"
+            outcomes[mutant_id] = outcome
+            emit(
+                "mutant_result",
+                {"mutant_id": mutant_id, "set": "referee", "outcome": outcome, "killed_by": None},
+            )
+        return outcomes
+
+    def _review(self, diff: bytes, emit: Callable[[str, Any], None]) -> ReviewOutcome | None:
+        if self.deps.reviewer is None:
+            return None
+        inp = ReviewInput(
+            task=self.task.ticket_text,
+            diff=blind(diff),
+            grading_criteria=self.deps.grading_criteria,
+        )
+        outcome = self.deps.reviewer(inp)
+        if outcome.review is not None:
+            emit("reviewer_output", outcome.review.model_dump(mode="json"))
+        return outcome
+
+    def _record(
+        self,
+        *,
+        run_id: str,
+        ab_id: str | None,
+        arm: Arm,
+        layers: list[str],
+        result: AgentRunResult | None,
+        results: list[CheckResult],
+        mutants: dict[str, str],
+        shipped: int,
+        out_of_scope: int,
+        phase_edits: int,
+        review: ReviewOutcome | None,
+        referee_url: str | None,
+        recorded: bool,
+        failed: bool,
+    ) -> ScoreRecord:
+        by = {r.check: r for r in results}
+
+        def new(check: str, default: int = 0) -> int:
+            return by[check].new_violations if check in by else default
+
+        def ok(check: str) -> bool:
+            return bool(by[check].passed) if check in by else False
+
+        def counts(check: str, total_default: int) -> tuple[int, int]:
+            if check not in by:
+                return 0, total_default
+            r = by[check]
+            return max(r.total_probes - r.new_violations, 0), r.total_probes
+
+        r1 = by.get("r1_tenant")
+        regression = counts("regression", 0)
+        hidden = counts("hidden_tests", len(self.task.hidden_test_ids))
+        continuity = by.get("continuity")
+        fields: dict[str, Any] = {
+            "r1_new_violations": new("r1_tenant"),
+            "r1_leaks": sum(1 for f in r1.findings if f.severity == "leak" and not f.baseline)
+            if r1
+            else 0,
+            "r2_new_violations": new("r2_roles"),
+            "r3_new_failures": new("r3_conventions"),
+            "r4_duplicates": new("r4_idempotency"),
+            "r5_audit_missing": new("r5_audit"),
+            "r6_ok": ok("r6_layering"),
+            "r7_ok": ok("r7_migrations"),
+            "regression_passed": regression[0],
+            "regression_total": regression[1],
+            "hidden_passed": hidden[0],
+            "hidden_total": hidden[1],
+            "mutants_killed": sum(1 for o in mutants.values() if o == "killed"),
+            "mutants_total": len(self.deps.mutants),
+            "shipped_tests": shipped,
+            "flaky_tests": new("flakiness"),
+            "out_of_scope_files": out_of_scope,
+            "test_phase_source_edits": phase_edits,
+            "continuity_failure": (not continuity.passed) if continuity else None,
+            "redone_lines_pct": None,
+            "board_ok": ok("board"),
+        }
+        primary, passed = evaluate_primary(self.task.primary_measure, fields)
+        passed = passed and not failed
+        referee_accepts = (
+            passed
+            and all(fields[k] == 0 for k in ("r1_new_violations", "r2_new_violations"))
+            and fields["r6_ok"]
+            and fields["r7_ok"]
+            and fields["regression_passed"] == fields["regression_total"]
+        )
+        verdict = review.review.verdict if review and review.review else None
+        return ScoreRecord(
+            run_id=run_id,
+            ab_id=ab_id,
+            arm=arm,
+            feature_id=self.task.feature_id,
+            variant=self.task.variant,
+            checkpoint=self.task.checkpoint,
+            layers=sorted(layers),  # type: ignore[arg-type]
+            status=result.status if result else "ERROR",
+            claim=result.claim if result else "none",
+            **fields,
+            reviewer_verdict=verdict,
+            reviewer_agrees=None if verdict is None else (verdict == "accept") == referee_accepts,
+            primary=primary,
+            passed_primary=passed,
+            cost_usd=result.cost_usd if result else 0.0,
+            review_cost_usd=round(review.cost_usd, 6) if review else 0.0,
+            turns_total=result.turns_total if result else 0,
+            wall_s=result.wall_s if result else 0.0,
+            trace_url=result.trace_url if result else None,
+            referee_trace_url=referee_url,
+            sandboxed=self.deps.sandboxed,
+            recorded=recorded,
+            captured_at=_now(),
+        )
+
+    @staticmethod
+    def _summary(record: ScoreRecord, error: str | None) -> str:
+        said = f"agent said {record.claim}"
+        if error:
+            return f"{said}; referee could not judge the build: {error}"[:500]
+        outcome = "passes" if record.passed_primary else "fails"
+        return (
+            f"{said}; referee: {outcome} the primary measure; hidden tests "
+            f"{record.hidden_passed}/{record.hidden_total}, mutants killed "
+            f"{record.mutants_killed}/{record.mutants_total}, R1 new {record.r1_new_violations}"
+        )

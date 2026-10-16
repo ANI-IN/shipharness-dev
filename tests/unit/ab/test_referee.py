@@ -1,0 +1,340 @@
+from __future__ import annotations
+
+import base64
+import json
+import shlex
+from pathlib import Path
+from typing import Any
+
+from shipharness.ab.referee import REFEREE_CHECKS, Referee, RefereeDeps, RefereeTask
+from shipharness.events import EventBus, read_events
+from shipharness.reviewer import Review, ReviewOutcome
+from shipharness.runner.models import AgentRunResult
+from shipharness.sandbox import ExecResult, FakeSandbox
+from shipharness.tracing import read_exports
+
+from ..verify.fakes import check_result, runner_output
+
+PRODUCT = """diff --git a/app/api/issues.py b/app/api/issues.py
+--- a/app/api/issues.py
++++ b/app/api/issues.py
+@@ -1,2 +1,2 @@
+ def list_issues():
+-    return []
++    return ["filtered"]
+diff --git a/tests/visible/test_issues_new.py b/tests/visible/test_issues_new.py
+new file mode 100644
+--- /dev/null
++++ b/tests/visible/test_issues_new.py
+@@ -0,0 +1,6 @@
++def test_filtered():
++    assert True
++
++
++def test_second():
++    assert 1
+"""
+STATE = """diff --git a/progress.md b/progress.md
+--- a/progress.md
++++ b/progress.md
+@@ -1 +1,2 @@
+ # Progress
++- did F1
+"""
+OUT_OF_SCOPE = """diff --git a/app/main.py b/app/main.py
+--- a/app/main.py
++++ b/app/main.py
+@@ -1,2 +1,2 @@
+ def create_app():
+-    return 'app'
++    return 'patched'
+"""
+
+
+class Factory:
+    def __init__(self, results: list[dict[str, Any]]) -> None:
+        self.results = results
+        self.calls: list[tuple[Path, list[Any], str]] = []
+        self.sandboxes: list[FakeSandbox] = []
+
+    def __call__(self, build: Path, mounts: list[Any], arm: str) -> FakeSandbox:
+        self.calls.append((build, mounts, arm))
+        box = FakeSandbox(
+            lambda cmd: ExecResult(
+                exit_code=0,
+                output=runner_output(self.results) if "checks.runner" in cmd else "",
+                duration_ms=1,
+            )
+        )
+        self.sandboxes.append(box)
+        return box
+
+
+def all_green(**overrides: dict[str, Any]) -> list[dict[str, Any]]:
+    results = [check_result(c, seed=42) for c in REFEREE_CHECKS]
+    by = {r["check"]: r for r in results}
+    by["hidden_tests"]["total_probes"] = 4
+    by["regression"]["total_probes"] = 20
+    for name, value in overrides.items():
+        by[name].update(value)
+    return list(by.values())
+
+
+def task(**kw: Any) -> RefereeTask:
+    base: dict[str, Any] = dict(
+        feature_id="F1",
+        checkpoint="m1-s1-start",
+        ticket_text="Add cursor pagination to the issue list.",
+        hidden_test_ids=["teamtrack/tests/hidden/f1/test_secret.py::test_secret"],
+        allowed_paths={
+            "build": ["app/api/issues.py", "tests/visible/**"],
+            "test": ["tests/visible/**"],
+        },
+        primary_measure="r1_new_violations>=1",
+    )
+    base.update(kw)
+    return RefereeTask(**base)
+
+
+def deps(course_repo: Path, tmp_path: Path, factory: Factory, **kw: Any) -> RefereeDeps:
+    base: dict[str, Any] = dict(
+        course_repo=course_repo,
+        checkpoint_ref="m1-s1-start",
+        sandbox_factory=factory,
+        exports_dir=tmp_path / "exports",
+        base_dir=tmp_path / "referee",
+        seed=42,
+    )
+    base.update(kw)
+    return RefereeDeps(**base)
+
+
+def result(status: str = "completed", claim: str = "done") -> AgentRunResult:
+    return AgentRunResult(
+        run_id="r-1",
+        arm="harness",
+        status=status,  # type: ignore[arg-type]
+        claim=claim,  # type: ignore[arg-type]
+        claim_summary="",
+        sessions=[],
+        phase_shas={},
+        diff_path=None,
+        cost_usd=0.05,
+        turns_total=12,
+        wall_s=80.0,
+        trace_url="https://smith.example/t/1",
+    )
+
+
+def judge(referee: Referee, tmp_path: Path, diff: str, **kw: Any):  # type: ignore[no-untyped-def]
+    log = tmp_path / "events.jsonl"
+    with EventBus(log, ab_id="ab-1") as bus:
+        verdict = referee.judge(
+            run_id=kw.pop("run_id", "r-1"),
+            ab_id="ab-1",
+            arm=kw.pop("arm", "harness"),
+            layers=["instructions"],
+            result=kw.pop("result", result()),
+            diff=diff.encode(),
+            bus=bus,
+            **kw,
+        )
+    return verdict, list(read_events(log))
+
+
+def test_referee_applies_only_product_changes(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    verdict, _ = judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT + STATE
+    )
+    build = verdict.referee_dir / "build"
+    assert '"filtered"' in (build / "app" / "api" / "issues.py").read_text(encoding="utf-8")
+    assert (build / "tests" / "visible" / "test_issues_new.py").exists()
+    assert not (build / "progress.md").exists()
+    assert verdict.apply_error is None
+    assert verdict.record.out_of_scope_files == 0
+
+
+def test_hidden_tests_are_mounted_read_only_and_never_in_the_build(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    factory = Factory(all_green())
+    verdict, _ = judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    build, mounts, _arm = factory.calls[-1]
+    assert not (build / "tests" / "hidden").exists()
+    [(host, container, mode)] = [m for m in mounts if m[1] == "/hidden"]
+    assert mode == "ro" and (host / "f1" / "test_secret.py").exists()
+    assert not str(host.resolve()).startswith(str(build.resolve()))
+
+
+def test_runner_gets_the_fixed_seed_and_params(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    box = factory.sandboxes[-1]
+    [cmd] = [c for c in box.commands if "checks.runner" in c]
+    argv = shlex.split(cmd)
+    assert argv[argv.index("--seed") + 1] == "42"
+    assert set(argv[argv.index("--checks") + 1].split(",")) == set(REFEREE_CHECKS)
+    assert "--baseline" in argv
+    [params_cmd] = [c for c in box.commands if c.startswith("printf") and "params" in c]
+    params = json.loads(base64.b64decode(params_cmd.split()[2]))
+    assert params["hidden_dir"] == "/hidden"
+    assert params["hidden_test_ids"] == ["teamtrack/tests/hidden/f1/test_secret.py::test_secret"]
+    assert params["shipped_test_ids"] == [
+        "tests/visible/test_issues_new.py::test_filtered",
+        "tests/visible/test_issues_new.py::test_second",
+    ]
+
+
+def test_baseline_is_computed_once_for_both_arms(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    referee = Referee(task(), deps(course_repo, tmp_path, factory))
+    judge(referee, tmp_path, PRODUCT, run_id="r-b", arm="bare")
+    judge(referee, tmp_path, PRODUCT, run_id="r-h", arm="harness")
+    assert len(factory.calls) == 3  # one baseline container, one per arm
+
+
+def test_score_record_maps_check_results_and_is_exported(course_repo: Path, tmp_path: Path) -> None:
+    results = all_green(
+        r1_tenant={
+            "new_violations": 2,
+            "passed": False,
+            "findings": [
+                {
+                    "rule": "R1",
+                    "severity": "leak",
+                    "endpoint": "GET /a",
+                    "detail": "x",
+                    "baseline": False,
+                },
+                {
+                    "rule": "R1",
+                    "severity": "violation",
+                    "endpoint": "GET /b",
+                    "detail": "y",
+                    "baseline": False,
+                },
+            ],
+        },
+        hidden_tests={"new_violations": 1, "passed": False},
+        flakiness={"new_violations": 1, "passed": False},
+    )
+    factory = Factory(results)
+    verdict, events = judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT
+    )
+    rec = verdict.record
+    assert (rec.r1_new_violations, rec.r1_leaks) == (2, 1)
+    assert (rec.hidden_passed, rec.hidden_total) == (3, 4)
+    assert (rec.regression_passed, rec.regression_total) == (20, 20)
+    assert rec.flaky_tests == 1 and rec.shipped_tests == 2
+    assert rec.primary == {"r1_new_violations": 2} and rec.passed_primary is False
+    assert rec.cost_usd == 0.05 and rec.turns_total == 12
+    [exported] = read_exports("scores", tmp_path / "exports")
+    assert exported["run_id"] == "r-1" and exported["r1_new_violations"] == 2
+    types = [e.type for e in events]
+    assert types.count("check_result") == len(REFEREE_CHECKS)
+    assert "check_progress" in types and types[-1] == "verdict"
+    verdict_event = events[-1]
+    assert "agent said done" in verdict_event.data["summary"]
+
+
+def test_aborted_runs_are_judged_and_kept(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    verdict, _ = judge(
+        Referee(task(), deps(course_repo, tmp_path, factory)),
+        tmp_path,
+        "",
+        result=result(status="ABORTED: cap", claim="none"),
+    )
+    assert verdict.record.status == "ABORTED: cap"
+    assert verdict.record.passed_primary is True  # an empty diff leaks nothing; it is still a dot
+    assert read_exports("scores", tmp_path / "exports")
+
+
+def test_out_of_scope_and_test_phase_source_edits(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    t = task(primary_measure="out_of_scope_files>=1 or test_phase_source_edits>=1")
+    verdict, _ = judge(
+        Referee(t, deps(course_repo, tmp_path, factory)),
+        tmp_path,
+        PRODUCT + OUT_OF_SCOPE,
+        test_phase_files=["app/api/issues.py", "tests/visible/test_issues_new.py", "progress.md"],
+    )
+    assert verdict.record.out_of_scope_files == 1
+    assert verdict.record.test_phase_source_edits == 1
+    assert verdict.record.passed_primary is False
+
+
+def test_diff_that_does_not_apply_fails_closed(course_repo: Path, tmp_path: Path) -> None:
+    broken = PRODUCT.replace(" def list_issues():", " def list_things():")
+    assert broken != PRODUCT
+    factory = Factory(all_green())
+    verdict, events = judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, broken)
+    assert verdict.apply_error is not None
+    assert verdict.record.passed_primary is False
+    assert "could not judge" in events[-1].data["summary"]
+
+
+def test_reviewer_sees_a_blinded_diff_and_its_cost_is_recorded(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    seen = []
+    review = Review(findings=[], tenant_isolation_risk="none", verdict="accept", summary="ok")
+
+    def reviewer(inp):  # type: ignore[no-untyped-def]
+        seen.append(inp)
+        return ReviewOutcome(review=review, status="ok", cost_usd=0.004)
+
+    factory = Factory(all_green())
+    d = deps(course_repo, tmp_path, factory, reviewer=reviewer, grading_criteria="R1..R7")
+    verdict, events = judge(Referee(task(), d), tmp_path, PRODUCT + STATE)
+    [inp] = seen
+    assert "progress.md" not in inp.diff and "app/api/issues.py" in inp.diff
+    assert "harness" not in inp.model_dump_json()
+    assert verdict.record.reviewer_verdict == "accept"
+    assert verdict.record.reviewer_agrees is True
+    assert verdict.record.review_cost_usd == 0.004
+    assert any(e.type == "reviewer_output" for e in events)
+
+
+def test_referee_mutants_run_against_shipped_tests(course_repo: Path, tmp_path: Path) -> None:
+    calls = []
+
+    def runner(mutant, tests, build, sandbox):  # type: ignore[no-untyped-def]
+        calls.append((mutant["id"], tests))
+        return "killed" if mutant["id"] == "issues-m1" else "survived"
+
+    mutants = [{"id": "issues-m1"}, {"id": "issues-m2"}]
+    factory = Factory(all_green())
+    d = deps(course_repo, tmp_path, factory, mutants=mutants, mutant_runner=runner)
+    verdict, events = judge(Referee(task(), d), tmp_path, PRODUCT)
+    assert (verdict.record.mutants_killed, verdict.record.mutants_total) == (1, 2)
+    assert calls[0][1] == [
+        "tests/visible/test_issues_new.py::test_filtered",
+        "tests/visible/test_issues_new.py::test_second",
+    ]
+    outcomes = [e.data for e in events if e.type == "mutant_result"]
+    assert [o["set"] for o in outcomes] == ["referee", "referee"]
+
+
+def test_runner_failure_is_reported_not_passed(course_repo: Path, tmp_path: Path) -> None:
+    class Broken(Factory):
+        def __call__(self, build, mounts, arm):  # type: ignore[no-untyped-def]
+            self.calls.append((build, mounts, arm))
+            return FakeSandbox(default=ExecResult(exit_code=1, output="Traceback\n", duration_ms=1))
+
+    verdict, events = judge(
+        Referee(task(), deps(course_repo, tmp_path, Broken([]))), tmp_path, PRODUCT
+    )
+    assert verdict.record.passed_primary is False
+    assert "could not judge" in events[-1].data["summary"]
+
+
+def test_both_arms_go_through_the_same_checks(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    referee = Referee(task(), deps(course_repo, tmp_path, factory))
+    judge(referee, tmp_path, PRODUCT, run_id="r-b", arm="bare")
+    judge(referee, tmp_path, PRODUCT, run_id="r-h", arm="harness")
+    commands = [c for box in factory.sandboxes[1:] for c in box.commands]
+    assert len(set(commands)) == len(commands) // 2  # byte-identical commands for both arms

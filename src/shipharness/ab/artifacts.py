@@ -37,7 +37,7 @@ HARNESS_ARTIFACT_PATTERNS: tuple[str, ...] = (
 _HEADER = re.compile(rb"^diff --git (\"(?:[^\"\\]|\\.)*\"|\S+) (\"(?:[^\"\\]|\\.)*\"|\S+)\s*$")
 
 
-def _match(path: str, pattern: str) -> bool:
+def glob_match(path: str, pattern: str) -> bool:
     """Segment-wise glob: `*` stays within one path segment; a trailing `**` matches the rest."""
     parts, pats = path.split("/"), pattern.split("/")
     if pats[-1] == "**":
@@ -54,7 +54,7 @@ def is_harness_artifact(path: str) -> bool:
     clean = path.replace("\\", "/")
     while clean.startswith("./"):
         clean = clean[2:]
-    return any(_match(clean, pattern) for pattern in HARNESS_ARTIFACT_PATTERNS)
+    return any(glob_match(clean, pattern) for pattern in HARNESS_ARTIFACT_PATTERNS)
 
 
 def _unquote(token: bytes) -> str:
