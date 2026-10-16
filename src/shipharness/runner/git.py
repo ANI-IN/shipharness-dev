@@ -28,6 +28,7 @@ GENERATED_PATTERNS: tuple[str, ...] = (
     "**/.pytest_cache/**",
     "**/.ruff_cache/**",
     "**/.mypy_cache/**",
+    "**/.import_linter_cache/**",
     "**/.venv/**",
     "**/node_modules/**",
     "**/.coverage",
@@ -276,6 +277,23 @@ def snapshot_tree(workspace: Path, store: Path) -> str:
         tree = subprocess.run([*prefix, "write-tree"], capture_output=True, env=env, check=False)
     sha = tree.stdout.decode("ascii", errors="replace").strip()
     return sha if tree.returncode == 0 and _SHA.match(sha) else ""
+
+
+def tree_changed_files(store: Path, from_tree: str, to_tree: str) -> list[str]:
+    """Paths that differ between two snapshot trees of `store`."""
+    if not (_SHA.match(from_tree or "") and _SHA.match(to_tree or "")):
+        return []
+    with tempfile.TemporaryDirectory(prefix="shipharness-snap-") as tmp:
+        names = subprocess.run(
+            ["git", "--git-dir", str(store), "diff", "--name-only", "-z", "--no-renames"]
+            + [from_tree, to_tree],
+            capture_output=True,
+            env=_clean_env(Path(tmp)),
+            check=False,
+        )
+    if names.returncode != 0:
+        return []
+    return sorted(n.decode("utf-8", errors="replace") for n in names.stdout.split(b"\0") if n)
 
 
 def write_tree_diff(store: Path, from_tree: str, to_tree: str, out_path: Path) -> Path | None:

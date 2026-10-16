@@ -420,7 +420,9 @@ def write_ab_record(
                 "spec": run.spec.public_dict(),
                 "result": run.result.model_dump(mode="json", exclude={"diff_path"}),
                 "diff": f"{arm}/diff.patch",
-                "test_phase_files": phase_changed_files(run.spec, run.result),
+                "test_phase_files": phase_changed_files(
+                    run.spec, run.result, store=snapshot_store(run_dir, arm)
+                ),
                 "session_patches": [
                     p.relative_to(run_dir).as_posix()
                     for p in sorted(
@@ -437,8 +439,16 @@ def write_ab_record(
     return path
 
 
-def phase_changed_files(spec: AgentRunSpec, result: AgentRunResult) -> list[str]:
-    """Files the arm changed during the test phase (the S3 measure's second half)."""
+def phase_changed_files(
+    spec: AgentRunSpec, result: AgentRunResult, *, store: Path | None = None
+) -> list[str]:
+    """Files the arm changed during the test phase (the S3 measure's second half). With
+    working-tree snapshots (`store`): the change from the first test session's start tree to the
+    last test session's end tree, so build-phase work the arm never committed is not counted.
+    Without them: the working tree against the commit at the start of the test phase."""
+    tests = [s for s in result.sessions if s.phase == "test"]
+    if store is not None and tests and all(s.start_tree and s.end_tree for s in tests):
+        return git.tree_changed_files(store, tests[0].start_tree, tests[-1].end_tree)
     shas = result.phase_shas.get("test")
     return git.changed_files(spec.workspace, shas[0]) if shas else []
 
@@ -456,7 +466,7 @@ def _judge(
         diff=diff,
         bus=bus,
         run_log=run_dir / "events.jsonl",
-        test_phase_files=phase_changed_files(spec, result),
+        test_phase_files=phase_changed_files(spec, result, store=snapshot_store(run_dir, spec.arm)),
         session_patches=session_patches(
             spec, result, run_dir / spec.arm / "sessions", store=snapshot_store(run_dir, spec.arm)
         ),

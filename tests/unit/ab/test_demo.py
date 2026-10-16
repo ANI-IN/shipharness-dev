@@ -336,3 +336,39 @@ def test_referee_baseline_runs_while_the_arms_work(course_repo: Path, tmp_path: 
     )
     run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
     assert seen and all(seen)  # the arms saw the baseline already started
+
+
+def test_test_phase_files_ignore_uncommitted_build_work(tmp_path: Path) -> None:
+    # M6 pilot: the bare arm never commits, so comparing the working tree with HEAD at the start
+    # of the test phase counted all of its build-phase work as test-phase source edits (S3).
+    import subprocess
+
+    from shipharness.ab.demo import phase_changed_files
+    from shipharness.runner import git as run_git
+    from shipharness.runner.models import SessionResult
+
+    ws = tmp_path / "ws"
+    (ws / "app").mkdir(parents=True)
+    (ws / "app" / "a.py").write_text("a = 1\n", encoding="utf-8")
+    ident = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
+    subprocess.run(["git", *ident, "init", "-q"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "add", "-A"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "commit", "-qm", "base"], cwd=ws, check=True)
+    sha = run_git.head_sha(ws)
+    store = tmp_path / "run" / "bare" / "snapshots" / "store.git"
+    t0 = run_git.snapshot_tree(ws, store)
+    (ws / "app" / "a.py").write_text("a = 2\n", encoding="utf-8")  # build session, no commit
+    t1 = run_git.snapshot_tree(ws, store)
+    (ws / "tests" / "visible").mkdir(parents=True)
+    (ws / "tests" / "visible" / "test_a.py").write_text("def test_a():\n    pass\n", "utf-8")
+    t2 = run_git.snapshot_tree(ws, store)
+    sessions = [
+        SessionResult(index=1, phase="build", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t0, end_tree=t1),
+        SessionResult(index=2, phase="test", turns=3, ended_by="turn_budget",
+                      start_sha=sha, end_sha=sha, start_tree=t1, end_tree=t2),
+    ]  # fmt: skip
+    spec = SimpleNamespace(workspace=ws)
+    result = SimpleNamespace(sessions=sessions, phase_shas={"test": (sha, sha)})
+    assert phase_changed_files(spec, result) == ["app/a.py", "tests/visible/test_a.py"]  # type: ignore[arg-type]
+    assert phase_changed_files(spec, result, store=store) == ["tests/visible/test_a.py"]  # type: ignore[arg-type]

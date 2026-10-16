@@ -130,7 +130,7 @@ class ArmExperiment:
             spec,
             result,
             run_dir,
-            phase_changed_files(spec, result),
+            phase_changed_files(spec, result, store=snapshot_store(run_dir, self.arm)),
             write_session_patches(
                 spec,
                 result,

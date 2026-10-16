@@ -16,6 +16,8 @@ _GENERATED = (
     "*.pytest_cache*",
     "*.ruff_cache*",
     "*.mypy_cache*",
+    "*.import_linter_cache*",
+    "*node_modules*",
     "*.venv/*",
     "*.coverage",
     "*.db",

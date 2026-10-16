@@ -10,6 +10,7 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 
+from shipharness.runner.patch_format import header_path
 from shipharness.runner.tools import patch_paths
 
 FEATURE_LIST_REASON = "feature_list.json is written only by the harness"
@@ -97,7 +98,8 @@ def _phase_reason(rules: PathRules) -> str:
 
 
 def patch_targets(patch: str) -> list[str]:
-    """Every path a unified diff can touch: ---/+++ headers, `diff --git`, renames, and copies."""
+    """Every path a patch can touch: ---/+++ headers, `diff --git`, renames, copies, and the
+    anchored format's `*** Update File:` / `*** Add File:` / `*** Delete File:` / `*** Move to:`."""
     found: list[str] = []
 
     def add(name: str) -> None:
@@ -108,7 +110,10 @@ def patch_targets(patch: str) -> list[str]:
     header_paths, prefixed = patch_paths(patch)
     header_set = set(header_paths)
     for line in patch.splitlines():
-        if line.startswith("diff --git "):
+        anchored = header_path(line)
+        if anchored is not None:
+            add(anchored)
+        elif line.startswith("diff --git "):
             match = re.match(r'^diff --git "?a/(.+?)"? "?b/(.+?)"?$', line)
             if match:
                 add(match.group(1))

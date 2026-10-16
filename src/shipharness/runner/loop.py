@@ -33,7 +33,7 @@ from shipharness.runner.prompts import (
     TEST_PHASE,
     wrapup_message,
 )
-from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox
+from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox, patch_paths
 from shipharness.sandbox.base import Sandbox
 from shipharness.tracing import Tracer
 
@@ -90,11 +90,7 @@ def _target(call: ToolCall) -> str:
     args = call.arguments
     value = args.get("path") or args.get("command") or args.get("pattern") or args.get("selector")
     if call.name == "apply_patch":
-        value = ", ".join(
-            line[6:]
-            for line in str(args.get("patch", "")).splitlines()
-            if line.startswith("+++ b/")
-        )
+        value = ", ".join(patch_paths(str(args.get("patch", "")))[0])
     if call.name == "finish":
         value = args.get("claim")
     return str(value or "")[:200]
