@@ -8,7 +8,7 @@ verification (M9) adds per-command costs, demo times, pilot and experiment resul
 
 | Item | Used so far | Budget |
 |---|---|---|
-| OpenAI spend (instructor, all milestones) | $0.8586 (cost ledger with the opening entry: M3-M4 $0.0022 before the ledger existed; M6: $0.0183 smoke run, $0.4415 pilot run 1, $0.3966 pilot run 2) | total build ≤ $15 (enforced on every call); experiments ≤ $25; class ≤ $2.50 |
+| OpenAI spend (instructor, all milestones) | $0.8586 (cost ledger with the opening entry: M3-M4 $0.0022 before the ledger existed; M6: $0.0183 smoke run, $0.4415 pilot run 1, $0.3966 pilot run 2; $0.0278 console check; $0.3801 pilot run 3) | total build ≤ $15 (enforced on every call); experiments ≤ $25; class ≤ $2.50 |
 | LangSmith traces (instructor, October 2026) | 107 since 2026-10-01 (LangSmith API, read 2026-10-17: `shipharness-class-2026-10-16` 99 = M6 smoke run 3, run 1 48, run 2 48; `shipharness-dev` 5; `evaluators` 3) | LangSmith limit 5,000 per month; DESIGN budget: experiments ≤ 1,500, instructor month ≤ 2,500 |
 
 ## M3 core (2026-10-16)
@@ -220,6 +220,46 @@ After changes 7-13: full suite on `main` (5f1c6ab, `pytest -n 8 -m "not live and
 (the freeze test, no tag yet), 1 failed (`test_makefile` pinned the old `FEATURES` default; fixed in
 9fd8273); after merging the assignments and the live-client guard (89b4f31): fast suite 1646 passed, 1
 skipped. Images rebuilt from that source before run 3.
+
+### Run 3 (pre-registered levers, after changes 7-13)
+
+12 A/Bs, 2026-10-16 21:14-22:07 (WSL clock), two A/Bs in parallel, effort medium, `--purpose pilot`
+(traced to `shipharness-pilot`), $0.3801 (pilot summary), referee version 2026-10-17 code minus the
+version stamp (merged after the run). Tasks: F1 `trap-legacy-pattern`, F2 canonical with
+`--session-budget 12,38`, F3 `trap-tempting-middleware`, F4 canonical. Content subagents worked on the
+machine during the run (documentation only; one ran the A2 grader tests for about 5 minutes near the end),
+so the last A/Bs may be slightly slower.
+
+| Section | Arm | Primary passed | Agent time limit hit | What happened |
+|---|---|---|---|---|
+| F1 trap | bare | 3/3 | 0/3 | no new R1 violation in any arm; the legacy `/v1` handler was not copied into a leak |
+| F1 trap | harness | 3/3 | 0/3 | same |
+| F2 12/38 | bare | 3/3 | 0/3 | no continuity failure; the bare arm resumed and finished across the 12-turn stop |
+| F2 12/38 | harness | 3/3 | 2/3 | no continuity failure, but in `ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f` the harness arm called `finish(claim="not_done")` at the end of the 12-turn first session, which ended the build phase: the 38-turn session never ran and the feature was not built (hidden tests 3/56) |
+| F3 trap | bare | 3/3 | 0/3 | 0 out-of-scope files, 0 test-phase source edits; `app/api/middleware.py` untouched |
+| F3 trap | harness | 3/3 | 1/3 | same |
+| F4 | bare | 0/3 | 3/3 | every bare arm hit the agent time limit (hidden 66, 66, 69 of 69; mutants killed 4, 0, 3 of 4) |
+| F4 | harness | 0/3 | 2/3 | shipped no tests in any run (mutants killed 0 of 4 each); `ab-20261016-212252-aa1644` built a broken change (hidden 27/69, 3 new R1 violations); the test phase was cut by the time limit in two runs |
+
+Classification under the overnight rules ("harness ahead" = more primary passes than bare out of 3, not
+caused by harness-only timeouts): F1 no gap, F2 no gap, F3 no gap, F4 no gap (both 0/3).
+
+Wall time per A/B: min 384 s, median 512 s, max 620 s; 10 of 12 over 480 s (run 2: median 641 s, max
+923 s, 12 of 12). Median per arm: agent 248 s (harness arms 291 s), harness overhead 60 s on harness arms,
+referee 227 s from an arm's end to its verdict (run 2: 331 s), gate 0 s (no done claim reached the gate).
+
+### Overnight decisions after run 3
+
+- Run 4 (pre-registered fallback, effort `low` for both arms, k=3) runs for F1, F2, and F3 only, with the
+  run-3 tasks. Reason: all four sections show no gap, but four sections at k=3 is 24 arm runs and 76 of
+  the 96-run pilot cap are used; F4 is left out because its bare arm already fails at medium effort and
+  its harness arm fails by shipping no tests within the time limit, which lower effort is the least
+  likely of the four to change. Run 4 brings the pilot to 94 arm runs.
+- RUN_TIMEOUT_S: the harness arm still hits the agent time limit after the overhead cuts (run 3: 5 of 12
+  harness arms; 3 of 12 bare arms), which meets the condition of the owner's timeout rule; raising it is
+  not part of the pre-registered run 4, so it is not changed tonight and goes to the owner's options note.
+- The F2 harness early finish is a harness-arm design issue (the wrap-up message leads the agent to call
+  `finish`, which ends the phase); not changed tonight (outside the pre-registration); options note.
 
 ### Overnight run 2026-10-17: Phase 0 and decisions
 
