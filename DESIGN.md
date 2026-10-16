@@ -547,6 +547,19 @@ after the tag: a change would invalidate the M8 results and require re-running t
 only while it passes (not skipped). Console, report, replay tooling, docs, slides, and course content
 stay editable. VERIFICATION.md records the tag and its commit.
 
+Freeze rule 1 (no silent changes). After the tag, a change to a frozen path either re-runs the
+affected M8 experiments or comes with a recorded check in VERIFICATION.md showing it cannot change any
+score. Each accepted change has an entry in the private `FREEZE-EXCEPTIONS.toml`: the path, its exact
+new content hash, the kind (`rerun` with the experiments re-run, or `no-score-effect`), and the
+VERIFICATION reference. Without a valid entry the freeze test fails.
+
+Freeze rule 2 (release compatibility). The public repository's history is new, so commit ids
+differ. The tag message records a SHA-256 content hash per frozen path and the tree of every
+checkpoint tag; the freeze check compares content hashes and trees, never commits, so it works in
+both repositories. `make_release.py` verifies that the public tree's frozen content matches the
+frozen build exactly (the tag's record with accepted exceptions applied) and reports it in its dry
+run; the release carries the same record in its own `harness-frozen` tag.
+
 Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
 the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch
 always use the same tier. Live class runs always use `auto`, because Flex latency is unpredictable. The M6

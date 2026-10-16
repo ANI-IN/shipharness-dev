@@ -79,6 +79,9 @@ def test_tag_records_checkpoint_commits_and_run_settings(tmp_path: Path) -> None
     record = freeze.read_record(repo)
     assert record is not None
     assert record["checkpoint_tags"] == {"m1-s1-start": git(repo, "rev-parse", "m1-s1-start")}
+    assert record["checkpoint_trees"] == {
+        "m1-s1-start": git(repo, "rev-parse", "m1-s1-start^{tree}")
+    }
     assert record["defaults"]["run_timeout_s"] == 300
     assert record["effective"]["openai_model"] == "gpt-6-luna"
     assert "openai_api_key" not in json.dumps(record)
@@ -93,8 +96,7 @@ def test_change_to_a_frozen_path_is_a_problem_and_an_editable_path_is_not(tmp_pa
     (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 2\n", encoding="utf-8")
     (repo / "src" / "shipharness" / "runner" / "new.py").write_text("C = 1\n", encoding="utf-8")
     found = freeze.problems(repo, Settings(_env_file=None))
-    assert any("src/shipharness/runner/tools.py" in p for p in found)
-    assert any("src/shipharness/runner/new.py" in p for p in found)
+    assert found == ["content differs: src/shipharness/runner"]
 
 
 def test_moved_checkpoint_tag_is_a_problem(tmp_path: Path) -> None:

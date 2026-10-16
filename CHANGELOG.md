@@ -17,6 +17,9 @@ All notable changes to this project are recorded here.
 - `shipharness.freeze` and `scripts/freeze_harness.py`: the `harness-frozen` tag pins treatment,
   measurement, tasks (with checkpoint tag commits), and environment (with run settings by value);
   `tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
+- Freeze rules 1 and 2: content hash per frozen path and checkpoint trees in the tag record
+  (history-independent, for the public release); accepted changes need a `FREEZE-EXCEPTIONS.toml`
+  entry with a re-run or a VERIFICATION no-score-effect check.
 
 ### M5 Features, datasets, checkpoints (2026-10-16)
 - F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks
