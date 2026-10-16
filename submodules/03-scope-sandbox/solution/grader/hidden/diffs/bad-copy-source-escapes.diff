@@ -1,0 +1,4 @@
+diff --git a/../../home/agent/.netrc b/tests/visible/netrc.txt
+similarity index 100%
+copy from ../../home/agent/.netrc
+copy to tests/visible/netrc.txt

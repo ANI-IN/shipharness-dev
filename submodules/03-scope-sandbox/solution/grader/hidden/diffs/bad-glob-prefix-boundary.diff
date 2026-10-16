@@ -1,0 +1,8 @@
+diff --git a/tests/visible_extra/test_a.py b/tests/visible_extra/test_a.py
+new file mode 100644
+index 0000000..c8e9553
+--- /dev/null
++++ b/tests/visible_extra/test_a.py
+@@ -0,0 +1,2 @@
++def test_a():
++    assert True

@@ -1,0 +1,7 @@
+diff --git a/feature_list.schema.json b/feature_list.schema.json
+index 7edc429..53aa1bb 100644
+--- a/feature_list.schema.json
++++ b/feature_list.schema.json
+@@ -1 +1 @@
+-{"type": "object"}
++{"type": "object", "required": []}
