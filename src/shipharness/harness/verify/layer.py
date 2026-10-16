@@ -90,11 +90,17 @@ class VerifyLayer(BaseLayer):
             params=self._params(ctx),
             baseline_json=self.baseline_json,
             timeout_s=self.gate_timeout_s,
+            time_left=ctx.time_left,
         )
 
     def _publish(self, ctx: LayerContext, type_: str, data: Any) -> None:
         if ctx.bus is not None:
             ctx.bus.publish(type_, data, run_id=ctx.spec.run_id, arm=ctx.spec.arm)  # type: ignore[arg-type]
+
+    @staticmethod
+    def _limit(ctx: LayerContext, own_s: int) -> int:
+        left = ctx.time_left()
+        return own_s if left is None else max(1, min(own_s, int(left)))
 
     # -- hooks ---------------------------------------------------------------------------------
 
@@ -114,15 +120,21 @@ class VerifyLayer(BaseLayer):
     def _baseline(self, ctx: LayerContext) -> str | None:
         """Runner output on the untouched workspace, so the gate counts only new violations."""
         root = f"/tmp/shipharness-gate-baseline-{ctx.spec.run_id}"
-        ctx.sandbox.exec(f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", 300)
+        ctx.sandbox.exec(
+            f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/",
+            self._limit(ctx, 300),
+        )
         # Same params as every gate run, so exemptions and targets match the gate's baseline key.
         params = {**self._params(ctx), P.ARTIFACTS_DIR: f"{root}/artifacts"}
         try:
             write_container_file(
-                ctx.sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True)
+                ctx.sandbox,
+                f"{root}/params.json",
+                json.dumps(params, sort_keys=True),
+                self._limit(ctx, 30),
             )
         except RuntimeError:
-            ctx.sandbox.exec(f"rm -rf {root}", 60)
+            ctx.sandbox.exec(f"rm -rf {root}", self._limit(ctx, 60))
             return None
         command = _runner_command(
             build=f"{root}/build",
@@ -133,8 +145,8 @@ class VerifyLayer(BaseLayer):
             params=f"{root}/params.json",
             nonce=(nonce := new_nonce()),
         )
-        output = ctx.sandbox.exec(f"cd {root} && {command}", self.gate_timeout_s)
-        ctx.sandbox.exec(f"rm -rf {root}", 60)
+        output = ctx.sandbox.exec(f"cd {root} && {command}", self._limit(ctx, self.gate_timeout_s))
+        ctx.sandbox.exec(f"rm -rf {root}", self._limit(ctx, 60))
         try:
             results, _ = parse_runner_output(output.output, nonce=nonce)
         except RunnerOutputError:

@@ -181,3 +181,38 @@ def test_cost_cap_abort_carries_a_reason(tmp_path: Path) -> None:
     )
     assert result.status == "ABORTED: cap"
     assert result.abort_reason is not None and "cost cap" in result.abort_reason
+
+
+class TimeLeftProbe(BaseLayer):
+    """Records how much harness time the loop says is left while its own work runs."""
+
+    name = "verify"
+
+    def __init__(self, clock: FakeClock) -> None:
+        self.clock = clock
+        self.seen: list[float | None] = []
+
+    def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
+        self.clock.advance(30)
+        self.seen.append(ctx.time_left())
+        return []
+
+    def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None:
+        self.clock.advance(20)
+        self.seen.append(ctx.time_left())
+        return HarnessDecision(kind="gate_pass", layer="verify", message="gate passed")
+
+
+def test_layers_see_the_harness_time_left(tmp_path: Path) -> None:
+    clock = FakeClock()
+    probe = TimeLeftProbe(clock)
+    _run(tmp_path, [finish()], probe, clock, per_call=1, harness_timeout_s=120)
+    # 30 s of preparation leaves 90 s; the gate then spends 20 s more of the same budget.
+    assert probe.seen == [90, 70]
+
+
+def test_time_left_is_none_without_a_harness_limit(tmp_path: Path) -> None:
+    clock = FakeClock()
+    probe = TimeLeftProbe(clock)
+    _run(tmp_path, [finish()], probe, clock, per_call=1, harness_timeout_s=None)
+    assert probe.seen == [None, None]

@@ -52,6 +52,13 @@ class GateConfig:
     params: dict[str, Any] = field(default_factory=dict)
     baseline_json: str | None = None
     timeout_s: int = 600
+    # Seconds of harness work left (HARNESS_TIMEOUT_S); every gate command fits inside it.
+    time_left: Callable[[], float | None] = field(default=lambda: None)
+
+    def limit(self, own_s: int) -> int:
+        """A command's time limit: its own, capped by the harness time left (at least 1 s)."""
+        left = self.time_left()
+        return own_s if left is None else max(1, min(own_s, int(left)))
 
 
 def _visible_tests(sandbox: Sandbox, build: str, timeout_s: int) -> tuple[GateItem, list[str]]:
@@ -73,10 +80,12 @@ def _check_items(
     sandbox: Sandbox, cfg: GateConfig, root: str, on_progress: Callable[[dict], None] | None
 ) -> tuple[list[GateItem], list[str]]:
     params = {**cfg.params, "artifacts_dir": f"{root}/artifacts"}  # never in the arm workspace
-    write_container_file(sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True))
+    write_container_file(
+        sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True), cfg.limit(30)
+    )
     baseline = None
     if cfg.baseline_json:
-        write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json)
+        write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json, cfg.limit(30))
         baseline = f"{root}/baseline.json"
     nonce = new_nonce()
     command = runner_command(
@@ -89,7 +98,7 @@ def _check_items(
         baseline=baseline,
         nonce=nonce,
     )
-    output = sandbox.exec(f"cd {root} && {command}", cfg.timeout_s)
+    output = sandbox.exec(f"cd {root} && {command}", cfg.limit(cfg.timeout_s))
     labels = [CHECK_LABELS.get(c, c) for c in cfg.checks]
     try:
         results, progress = parse_runner_output(output.output, nonce=nonce)
@@ -132,18 +141,20 @@ def run_gate(
     if on_update:  # pending pills first, so the console shows the gate running
         pending = [GateItem(name=n, status="pending") for n in names]
         on_update(GateResult(gate_id=gate_id, items=pending, passed=False, feedback=""))
-    sandbox.exec(f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", 300)
-    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg.timeout_s)
+    sandbox.exec(
+        f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", cfg.limit(300)
+    )
+    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg.limit(cfg.timeout_s))
     items = [visible]
     if phase == "build":
         check_items, check_lines = _check_items(sandbox, cfg, root, on_progress)
         items += sorted(check_items, key=_order)
         lines += check_lines
-    clean = clean_state_check(sandbox, base_sha)
+    clean = clean_state_check(sandbox, base_sha, cfg.limit(120))
     items.append(clean)
     if clean.status == "fail":
         lines.append(f"FAIL clean state: {clean.detail}")
-    sandbox.exec(f"rm -rf {root}", 60)
+    sandbox.exec(f"rm -rf {root}", cfg.limit(60))
     passed = not any(i.status == "fail" for i in items)
     feedback = "" if passed else _feedback(gate_id, items, lines)
     result = GateResult(gate_id=gate_id, items=items, passed=passed, feedback=feedback)

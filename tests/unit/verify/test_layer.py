@@ -391,3 +391,21 @@ def test_baseline_that_cannot_write_its_params_is_reported_unavailable(tmp_path:
     ctx = ctx_for(tmp_path, FakeSandbox(script))
     decisions = VerifyLayer().prepare_workspace(ctx)
     assert [d.message for d in decisions] == ["gate baseline unavailable"]
+
+
+def test_verify_layer_fits_baseline_and_gate_in_the_harness_time_left(tmp_path: Path) -> None:
+    timeouts: list[int] = []
+    script = Script([GREEN])
+
+    class Box(FakeSandbox):
+        def exec(self, command: str, timeout_s: int) -> ExecResult:
+            timeouts.append(timeout_s)
+            return super().exec(command, timeout_s)
+
+    ctx = ctx_for(tmp_path, Box(script))
+    ctx.time_left = lambda: 25.0
+    layer = VerifyLayer(seed=5)
+    layer.prepare_workspace(ctx)
+    layer.on_claim_done(ctx)
+    assert script.runner_calls  # the baseline and the gate both ran
+    assert max(timeouts) <= 25

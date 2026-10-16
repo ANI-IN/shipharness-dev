@@ -124,6 +124,7 @@ class _Run:
             sandbox=sandbox,
             bus=bus,
         )
+        self.ctx.time_left = self.harness_time_left
         self.toolbox = ToolBox(
             spec.workspace,
             sandbox,
@@ -145,6 +146,7 @@ class _Run:
         self.abort_reason: str | None = None
         self.turns_total = 0
         self.harness_s = 0.0  # wall time spent in deterministic harness work
+        self._work_start: float | None = None  # start of the harness work running now
         self.harness_over = False
         self.diff_base: str | None = None  # set to the harness setup commit for harness arms
 
@@ -301,9 +303,11 @@ class _Run:
         if self.harness_over:
             return skipped
         start = self.options.clock()
+        self._work_start = start
         try:
             return work()
         finally:
+            self._work_start = None
             self.harness_s += self.options.clock() - start
             limit = self.options.harness_timeout_s
             if limit is not None and self.harness_s > limit:
@@ -313,6 +317,14 @@ class _Run:
                     f"harness time limit: HARNESS_TIMEOUT_S {limit:g} s exceeded during {what} "
                     f"({self.harness_s:.1f} s of harness work)",
                 )
+
+    def harness_time_left(self) -> float | None:
+        """Seconds of harness work left under HARNESS_TIMEOUT_S, counting the work running now."""
+        limit = self.options.harness_timeout_s
+        if limit is None:
+            return None
+        running = 0.0 if self._work_start is None else self.options.clock() - self._work_start
+        return max(0.0, limit - self.harness_s - running)
 
     def agent_s(self) -> float:
         """Agent working time so far: wall time minus harness work."""

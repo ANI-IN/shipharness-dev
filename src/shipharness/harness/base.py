@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, get_args
@@ -28,6 +28,9 @@ class LayerContext:
     sandbox: Sandbox
     bus: EventBus | None = None
     state: dict[str, Any] = field(default_factory=dict)  # per-run scratch space for layers
+    # Seconds of harness work left under HARNESS_TIMEOUT_S (None = no limit). The loop sets it;
+    # layers fit their own commands (gate, baseline) inside it.
+    time_left: Callable[[], float | None] = field(default=lambda: None)
 
 
 class BaseLayer:

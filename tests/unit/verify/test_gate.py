@@ -155,3 +155,33 @@ def test_updates_start_pending_and_progress_is_reported() -> None:
     assert updates[-1].passed
     assert {p["check"] for p in progress} == set(ALL_GATE_CHECKS)
     assert all(p["done"] == 2 for p in progress)
+
+
+def test_every_gate_command_fits_in_the_harness_time_left() -> None:
+    timeouts: list[int] = []
+    base = script()
+
+    def recording(command: str) -> ExecResult:
+        return base(command)
+
+    class Box(FakeSandbox):
+        def exec(self, command: str, timeout_s: int) -> ExecResult:
+            timeouts.append(timeout_s)
+            return super().exec(command, timeout_s)
+
+    cfg = config(baseline_json='{"results": []}')
+    cfg.time_left = lambda: 40.0
+    run_gate(Box(recording), cfg, gate_id="g9", base_sha="abc", phase="build")
+    assert timeouts and max(timeouts) <= 40
+
+
+def test_gate_commands_keep_their_own_limits_without_a_harness_limit() -> None:
+    timeouts: list[int] = []
+
+    class Box(FakeSandbox):
+        def exec(self, command: str, timeout_s: int) -> ExecResult:
+            timeouts.append(timeout_s)
+            return super().exec(command, timeout_s)
+
+    run_gate(Box(script()), config(), gate_id="g10", base_sha="abc", phase="build")
+    assert max(timeouts) == 600  # the gate's own limit
