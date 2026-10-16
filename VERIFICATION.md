@@ -8,8 +8,8 @@ verification (M9) adds per-command costs, demo times, pilot and experiment resul
 
 | Item | Used so far | Budget |
 |---|---|---|
-| OpenAI spend (instructor, all milestones) | about $0.4620 (M3: $0.000838 for 3 live loop smoke runs; M4: about $0.0014 for the blinded-reviewer live test, from the builder report; M6: $0.0183 smoke run, $0.4415 pilot run 1) | experiments ≤ $25; class ≤ $2.50 |
-| LangSmith traces (instructor, October 2026) | about 69 (M3: 5 probe, 3 loop smoke runs, 4 trace-link checks, 4 retention re-check; M4: about 2; M6: 3 smoke run, 48 pilot run 1) | experiments ≤ 1,500; month ≤ 2,500 |
+| OpenAI spend (instructor, all milestones) | $0.8586 (cost ledger with the opening entry: M3-M4 $0.0022 before the ledger existed; M6: $0.0183 smoke run, $0.4415 pilot run 1, $0.3966 pilot run 2) | total build ≤ $15 (enforced on every call); experiments ≤ $25; class ≤ $2.50 |
+| LangSmith traces (instructor, October 2026) | 107 since 2026-10-01 (LangSmith API, read 2026-10-17: `shipharness-class-2026-10-16` 99 = M6 smoke run 3, run 1 48, run 2 48; `shipharness-dev` 5; `evaluators` 3) | LangSmith limit 5,000 per month; DESIGN budget: experiments ≤ 1,500, instructor month ≤ 2,500 |
 
 ## M3 core (2026-10-16)
 
@@ -161,6 +161,120 @@ change". Primary measures unchanged.
 | 6 | Test-phase files come from the test sessions' snapshot trees | bug fix, applies to both arms | Comparing with HEAD at the start of the test phase counted an uncommitted build phase as test-phase source edits (S3 measure) | Run 1, F3 (bare: `app/api/issues.py` and `app/services/issues.py` counted as test-phase edits) | 7aaac10 |
 
 After the fixes: fast suite on `main` (a5cbc5a) 1575 passed; images rebuilt from that source before run 2.
+
+### Run 2 (after changes 1-6)
+
+12 A/Bs (F1-F4 canonical, k=3, effort medium), 24 arm runs, $0.3966 (pilot summary; cost ledger),
+48 traces, two A/Bs in parallel, 18:17-19:27. Patches: 9 of 202 failed (run 1: 217 of 237).
+
+| Section | Arm | Primary passed | Agent time limit hit | Agent time (s) | Harness time (s) | Why it failed |
+|---|---|---|---|---|---|---|
+| F1 | bare | 3/3 | 0/3 | 171-193 | 0 | (passed: no new R1 violation) |
+| F1 | harness | 3/3 | 0/3 | 127-177 | under 1 | (passed) |
+| F2 | bare | 3/3 | 0/3 | 215-242 | 0 | (passed: no continuity failure) |
+| F2 | harness | 0/3 | 1/3 | 265-303 | 54-64 | continuity failure measured on harness files only (change 7): session 1 added only progress.md, session-handoff.md, and the exec plan; session 2 rewrote them (50-84% of session 1's lines) |
+| F3 | bare | 3/3 | 0/3 | 168-243 | 0 | (passed: 0 out-of-scope files, 0 test-phase source edits) |
+| F3 | harness | 3/3 | 0/3 | 232-291 | 51-113 | (passed) |
+| F4 | bare | 0/3 | 1/3 | 225-310 | 0 | mutants killed 3, 4, 3 of 4 with hidden tests 69, 66, 69 of 69 (the measure needs all of both) |
+| F4 | harness | 0/3 | 2/3 | 269-314 | 101-132 | shipped 0, 0, 3 tests in the 12-turn test phase, so mutants killed 0, 0, 2 of 4 (hidden 69, 61, 69 of 69) |
+
+Gate: not met (F1, F3 without a gap; F2 reversed by a measurement bug; F4 failed in both arms).
+
+Wall time per A/B (first event to last verdict): min 485 s, median 641 s, max 923 s; 12 of 12 over
+the 480 s live-demo limit. Median split per arm: setup 1 s; agent turns 237 s (harness arms 267 s);
+harness overhead 0 s (harness arms 64 s); gate 0 s (no arm claimed done, so no gate ran); referee 331 s
+from the arm's end to its verdict, including the wait for the other arm (checks 148 s, of which
+flakiness 87 s; mutants 81 s, of which the one-process-per-test unmutated pass step is most; reviewer
+20 s). Estimates from these logs (median / max / over 480 s): judge each arm when it ends 541 s / 779 s
+/ 10 of 12; plus a batched unmutated pass step (batch assumed 30 s) 506 s / 609 s / 7 of 12. Class
+choreography check: the slowest A/B finished at 15.4 min, so every A/B would be complete by about
+minute 19 of a section that starts with a 3-minute poll.
+
+Harness arm turn use (run 2 logs): every session repeated the getting-up-to-speed steps, re-read 3 to 7
+instruction documents and about 15 product files, and updated progress.md and the exec plan mid-session.
+F2 harness arms made 0 to 1 product patches in 50 build turns.
+
+### Pilot-driven changes after run 2
+
+Logged before run 3. Primary measures unchanged.
+
+| # | Change | Label | Reason | Revealed by | Commit |
+|---|---|---|---|---|---|
+| 7 | The continuity check reads session patches with harness artifacts stripped | bug fix, applies to both arms | The state layer rewrites progress.md, session-handoff.md, and the exec plan every session; the check scored that as session 2 removing 50-84% of session 1's lines in every F2 harness arm | Run 2, F2 (`ab-20261016-181736-08a9c4`, `...-185628-636e90`, `...-190548-ae9abe`) | d39dbf0 |
+| 8 | Overhead cuts: init.sh runs one end-to-end visible test file; the session start reads the handoff's visible-test status; the gate baseline is cached per checkpoint commit | harness change, harness arm only | init.sh (about 44 s) and run_visible_tests (about 36 s) ran the full visible suite twice per session start, as agent time | Run 1 harness arms (881 s over 6 A/Bs) | 3b63ca6 |
+| 9 | Turn cost: the handoff's agent notes before any document; progress, exec plan, and handoff only in the wrap-up turns; the wrap-up records the rules that matter; the handoff lists documents read; a test-phase session starts with the feature's tests | harness change, harness arm only | Every session re-read 3-7 instruction documents and about 15 product files and updated state files mid-session; F2 harness arms made 0-1 product patches in 50 build turns; F4 harness arms shipped 0, 0, 3 tests | Run 2, F2 and F4 | 37d0503 |
+| 10 | Each arm is judged as soon as its run ends | measurement change, both arms, no outcome change | The faster arm waited for the slower one before judging (median 331 s from an arm's end to its verdict) | Run 2 wall times | 2539342 |
+| 11 | The unmutated-pass step before referee mutants runs all shipped tests in one pytest process (per-test outcomes from `-rA`; an id without an outcome runs on its own) | measurement change, both arms, no outcome change | One container command per shipped test (about 7.5 s each; up to 245 s on F4) | Run 2 mutant timings | 2539342 |
+| 12 | Cost caps hold across concurrent commands (trackers read each other's ledger entries; writes take a file lock) | bug fix, applies to both arms | Each command counted only its own spend against the shared session, experiment, and build caps; the pilot runs parallel A/Bs, and the class plan launches demo-4 and final together | Owner's class plan (2026-10-17), pilot parallel A/Bs | 660a656 |
+| 13 | Run 3 tasks: F1 `trap-legacy-pattern`, F3 `trap-tempting-middleware`, F2 `stop-1` (first session 13 turns, pending confirmation) | task/effort change | F1 and F3 showed no gap in run 2; F2 lever (c) | Run 2 per-section results; pre-registered in DESIGN §10.4 | 7dbafeb (pre-registration), b1da06e (`pilot.py --variants`) |
+
+Equivalence check for change 11 (owner condition): every run 2 arm that shipped tests was rebuilt
+as the referee judged it (checkpoint commit plus product diff, judge config restored) and each
+shipped test ran once on its own and once in the batch, in the referee image. 17 arms, 181 tests:
+the pass or fail outcome was identical for every test (7 tests fail in both modes); every test had a
+batched outcome, so the fallback did not run. Time: 1,172 s isolated against 131 s batched (largest
+arm: 254 s against 13 s). Script: scratchpad `equivalence.py`; result kept at
+`.shipharness/pilot/equivalence-run2.json` (private build repo).
+
+After changes 7-13: full suite on `main` (5f1c6ab, `pytest -n 8 -m "not live and not docker"`): 1705 passed, 1 skipped
+(the freeze test, no tag yet), 1 failed (`test_makefile` pinned the old `FEATURES` default; fixed in
+9fd8273); after merging the assignments and the live-client guard (89b4f31): fast suite 1646 passed, 1
+skipped. Images rebuilt from that source before run 3.
+
+### Overnight run 2026-10-17: Phase 0 and decisions
+
+Owner instructions: `instructor/engineering-notes/overnight-2026-10-17.md` (verbatim).
+
+- OpenAI key (new key, 2026-10-17): loaded from `~/shipharness/.env`; `make doctor` ready (OpenAI and
+  LangSmith keys accepted); one live gpt-6-luna call, 13 input and 5 output tokens, $0.000004 (in the
+  ledger, key `key-check-2026-10-17`). Rate limits from the response headers: 10,000 requests and
+  10,000,000 tokens per minute.
+- No static class. `make demo-1..4` and `make final` run `shipharness ab --section demo-N|final`, the
+  code path of the pilot runs: every agent turn is one live gpt-6-luna call in the ledger (run 2, for
+  example `r-20261016-181736-490aa2` 42 turns and 42 calls, `r-20261016-182828-7d66af` 48 and 48).
+  `make swap-N` re-judges a recorded A/B with no reviewer and no agent (`recorded.swap_test`,
+  `reviewer=None`); `make replay` re-emits recorded events with `recorded=True` (RECORDING on every
+  screen, `test_recording_badge_on_every_screen`) and re-runs the referee; `make console` has no OpenAI
+  code (`src/shipharness/console` never imports it). New guard (b6beab2): `shipharness ab` refuses a
+  missing or rejected `OPENAI_API_KEY` and any stand-in model client before an arm starts (exit 2, tests
+  in `tests/unit/ab/test_commands.py` for `demo-1` and `final`); no fallback. Replay stays the fallback.
+- Decision: the F2 lever is a 12-turn first session, as the overnight instructions specify, applied with
+  `shipharness ab --session-budget 12,38` (3e7c772) instead of the uploaded `stop-1` line (13 turns);
+  reason: matches the owner's figure exactly and leaves the uploaded dataset unchanged. DESIGN §10.4
+  updated before any run-3 A/B.
+- Assignments 1-4 merged (bf2210b) with `make check-assignment-N` and `make grade-assignment-N
+  SUBMISSION=<folder or git URL>`. Reference solutions graded: A1 83/100, A2 90/100, A3 90/100 (FAIL:
+  live evidence is a pass condition), A4 100/100; every lost point is the missing captured live run
+  (still a PENDING marker); A4's grader accepts its own markers for the reference folder only, to be
+  removed when the live run is captured. Grader and solution tests: A1 109, A2 16, A3 48, A4 56 + 27, all
+  passing.
+
+### Other changes since run 2 (owner decisions, not pilot-driven)
+
+| Change | Commit |
+|---|---|
+| Total build budget `MAX_BUILD_TOTAL_USD` $15 over every ledger entry; opening entry $0.0022 for the M3-M4 spend before the ledger existed | d109420 |
+| Harness freeze: `harness-frozen` pins treatment, measurement, tasks, and environment by content hash; no silent changes after the tag | 83ea22d, 81db528 |
+| LangSmith project by purpose: class runs only in `shipharness-class-<date>` with an explicit class date; pilot runs in `shipharness-pilot` | fb19f4e |
+| Class choreography (poll, launch, concepts and walkthrough while the A/B runs, demo block); final poll and launch in S4 | fbb6552, 7d761a2 |
+| Console screen 1 shows the full timeline once a run has finished | a7b1a54, 6a69735 |
+
+### LangSmith
+
+Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before
+the project rule existed; they stay there (DESIGN §12). From run 3 on, pilot runs trace to
+`shipharness-pilot`.
+
+Traces since 2026-10-01 (LangSmith API, root runs per project, read 2026-10-17): 107 of the 5,000
+monthly limit (`shipharness-class-2026-10-16` 99, `shipharness-dev` 5, `evaluators` 3). The 99 match
+the run logs (smoke run 3, run 1 48, run 2 48).
+
+Ledger against LangSmith for 2026-10-16 (smoke run and runs 1-2): calls and tokens identical
+(gpt-6-luna 2,281 calls, 28,225,526 input and 418,159 output tokens; gpt-5.6-luna 50 calls, 290,153
+input and 63,702 output tokens). Cost differs: ledger $0.8564, LangSmith $0.7964. LangSmith prices
+cache-write tokens at the input rate; `config/prices.toml` prices them at the cache-write rate
+($0.125 against $0.10 per 1M for gpt-6-luna). Recomputed that way, the ledger gives LangSmith's
+figures exactly ($0.6629 and $0.1335). The ledger is the enforced figure.
 
 ## M5 features, datasets, checkpoints (2026-10-16)
 
