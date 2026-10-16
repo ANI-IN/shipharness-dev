@@ -36,6 +36,12 @@ from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox
 from shipharness.sandbox.base import Sandbox
 from shipharness.tracing import Tracer
 
+# Runs inside the sandbox (never host git on the agent's repo); --no-verify skips repo hooks.
+SETUP_COMMIT = (
+    "git add -A && git -c user.name=shipharness -c user.email=harness@shipharness.invalid "
+    'commit -q --no-verify -m "harness setup"'
+)
+
 _ERROR_TEXT = {
     "abort_auth": "OpenAI rejected the request: check OPENAI_API_KEY (authentication failed).",
     "abort_billing": "OpenAI billing limit reached (quota or spend limit); add credit and retry.",
@@ -68,8 +74,10 @@ def _text_item(role: str, text: str) -> dict[str, Any]:
     return {"role": role, "content": [{"type": "input_text", "text": text}]}
 
 
-def _estimate_tokens(items: list[dict[str, Any]]) -> int:
-    return len(json.dumps(items, default=str)) // 3 + 200
+def estimate_input_tokens(items: list[dict[str, Any]], tools: list[dict[str, Any]]) -> int:
+    """Rough input size for the cost pre-check: the transcript plus the tool schemas, which are
+    sent (and billed) with every call."""
+    return (len(json.dumps(items, default=str)) + len(json.dumps(tools))) // 3 + 200
 
 
 def _target(call: ToolCall) -> str:
@@ -126,9 +134,11 @@ class _Run:
         self.sessions: list[SessionResult] = []
         self.status: RunStatus = "completed"
         self.claim: ClaimValue = "none"
+        self.claims: dict[Phase, ClaimValue] = {}
         self.claim_summary = ""
         self.error: str | None = None
         self.turns_total = 0
+        self.diff_base: str | None = None  # set to the harness setup commit for harness arms
 
     # -- events --------------------------------------------------------------------------------
 
@@ -139,7 +149,10 @@ class _Run:
 
     def call_model(self, items: list[dict[str, Any]]) -> ModelResponse:
         self.cost.check_before_call(
-            self.scope, self.spec.model, _estimate_tokens(items), self.spec.max_output_tokens
+            self.scope,
+            self.spec.model,
+            estimate_input_tokens(items, TOOL_SCHEMAS),
+            self.spec.max_output_tokens,
         )
         attempt = 0
         while True:
@@ -235,6 +248,9 @@ class _Run:
         claim = call.arguments["claim"]
         summary = str(call.arguments.get("summary", ""))
         self.claim, self.claim_summary = claim, summary
+        self.claims[phase] = claim
+        # I-5: layers read the claim (the scope layer's status, the verify gate) from state.
+        self.ctx.state["last_claim"] = {"phase": phase, "claim": claim, "summary": summary}
         gate_id: str | None = None
         end: str | None = "claim_not_done"
         output = "accepted"
@@ -300,6 +316,7 @@ class _Run:
                     text_only += 1
                     if text_only >= 2:
                         ended_by, self.claim = "no_tool_call", "none"
+                        self.claims[phase] = "none"
                         break
                     items.append(_text_item("user", REMINDER))
                     continue
@@ -338,7 +355,11 @@ class _Run:
             else:
                 with self.tracer.child(f"tool:{call.name}", "tool", target=_target(call)):
                     result = self.toolbox.execute(call)
-                self.harness.after_tool(self.ctx, call, result)
+                decisions = self.harness.after_tool(self.ctx, call, result)
+                notes = [d.message for d in decisions if d.kind in ("block", "revert")]
+                if notes:  # the agent must see why its change was undone
+                    reverted = "\n".join(f"REVERTED: {m}" for m in notes)
+                    result = result.model_copy(update={"output": f"{result.output}\n{reverted}"})
             self.emit(
                 "tool_result",
                 {
@@ -365,11 +386,13 @@ class _Run:
             if trace_url:
                 self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             self.harness.prepare_workspace(self.ctx)
+            self._commit_harness_setup()
             session_index = 0
             for phase in self.spec.phases:
                 if self.status != "completed":
                     break
                 self.ctx.phase = phase
+                self.claims[phase] = "none"
                 phase_start = git.head_sha(self.spec.workspace)
                 budgets = (
                     self.spec.session_budget if phase == "build" else [self.spec.test_phase_turns]
@@ -397,7 +420,7 @@ class _Run:
                                     "session_index": session_index,
                                     "ended_by": result.ended_by,
                                     "end_sha": result.end_sha,
-                                    "handoff_path": None,
+                                    "handoff_path": self._handoff_path(),
                                 },
                             )
                     self.harness.on_phase_end(self.ctx)
@@ -408,6 +431,24 @@ class _Run:
                     self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             root.set_outputs({"status": self.status, "claim": self.claim})
         return trace_url
+
+    def _commit_harness_setup(self) -> None:
+        """Commit the files the layers placed (AGENTS.md, progress.md, feature_list.json, ...) in
+        the sandbox, and diff the harness arm against that commit, so setup files never count as
+        the arm's work. The bare arm has no layers: no commit, diff against the checkpoint."""
+        if not self.harness.layers:
+            return
+        status = self.sandbox.exec("git status --porcelain", self.options.tool_timeout_s)
+        if status.exit_code == 0 and status.output.strip():  # layers may have committed already
+            self.sandbox.exec(SETUP_COMMIT, self.options.tool_timeout_s)
+        setup_sha = git.head_sha(self.spec.workspace)
+        if setup_sha:
+            self.diff_base = setup_sha
+            self.ctx.state["harness.setup_sha"] = setup_sha
+
+    def _handoff_path(self) -> str | None:
+        value = self.ctx.state.get("state.handoff_path")
+        return str(value) if value else None
 
     def run(self) -> AgentRunResult:
         self.emit(
@@ -426,7 +467,7 @@ class _Run:
         diff_out = self.options.diff_path or (self.spec.workspace.parent / "diff.patch")
         diff_path = None
         try:
-            diff_path = git.write_diff(self.spec.workspace, base_sha, diff_out)
+            diff_path = git.write_diff(self.spec.workspace, self.diff_base or base_sha, diff_out)
         except Exception as exc:  # noqa: BLE001
             self.error = self.error or f"diff failed: {type(exc).__name__}"
         wall_s = round(self.options.clock() - self.started, 3)
@@ -436,6 +477,7 @@ class _Run:
             status=self.status,
             claim=self.claim,
             claim_summary=self.claim_summary,
+            claims=self.claims,
             sessions=self.sessions,
             phase_shas=phase_shas,
             diff_path=diff_path,

@@ -19,6 +19,24 @@ from pathlib import Path
 
 _SHA = re.compile(r"^[0-9a-f]{40}([0-9a-f]{24})?$")
 
+# The diff is what the referee judges, so the agent's own ignore files (.gitignore) must not decide
+# what it contains: files are added with --force, and only this fixed list of generated files is
+# left out (decision for review finding M12).
+GENERATED_PATTERNS: tuple[str, ...] = (
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/.pytest_cache/**",
+    "**/.ruff_cache/**",
+    "**/.mypy_cache/**",
+    "**/.venv/**",
+    "**/node_modules/**",
+    "**/.coverage",
+    "**/*.db",
+    "**/*.sqlite",
+    "**/*.sqlite3",
+)
+_GENERATED_EXCLUDES = [f":(exclude,glob){pattern}" for pattern in GENERATED_PATTERNS]
+
 
 def _clean_env(home: Path) -> dict[str, str]:
     keep = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
@@ -125,6 +143,51 @@ def initial_sha(workspace: Path) -> str:
     return lines[-1] if out.returncode == 0 and lines else ""
 
 
+def changed_files(workspace: Path, base_sha: str) -> list[str]:
+    """Paths whose content differs between `base_sha` and the working tree (untracked files
+    included, generated files excluded). Same isolation as write_diff."""
+    if not base_sha or not _SHA.match(base_sha):
+        return []
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return []
+        prefix, env, _tmp = isolated
+        add = [*prefix, "add", "-A", "--force", "--", ".", *_GENERATED_EXCLUDES]
+        if subprocess.run(add, capture_output=True, env=env, check=False).returncode != 0:
+            return []
+        names = subprocess.run(
+            [*prefix, "diff", "--cached", "--name-only", "-z", "--no-renames", base_sha],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if names.returncode != 0:
+        return []
+    return [n.decode("utf-8", errors="replace") for n in names.stdout.split(b"\0") if n]
+
+
+def write_range_diff(workspace: Path, from_sha: str, to_sha: str, out_path: Path) -> Path | None:
+    """Binary-safe diff between two commits of the workspace (per-session patches)."""
+    if not (_SHA.match(from_sha or "") and _SHA.match(to_sha or "")):
+        return None
+    with _isolated(workspace) as isolated:
+        if isolated is None:
+            return None
+        prefix, env, _tmp = isolated
+        diff = subprocess.run(
+            [*prefix, "diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-color"]
+            + [from_sha, to_sha, "--", ".", *_GENERATED_EXCLUDES],
+            capture_output=True,
+            env=env,
+            check=False,
+        )
+    if diff.returncode != 0:
+        return None
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_bytes(diff.stdout)
+    return out_path
+
+
 def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
     """Binary-safe diff of the working tree (including untracked files) against `base_sha`."""
     if not base_sha or not _SHA.match(base_sha):
@@ -135,7 +198,10 @@ def write_diff(workspace: Path, base_sha: str, out_path: Path) -> Path | None:
         prefix, env, _tmp = isolated
         if (
             subprocess.run(
-                [*prefix, "add", "-A"], capture_output=True, env=env, check=False
+                [*prefix, "add", "-A", "--force", "--", ".", *_GENERATED_EXCLUDES],
+                capture_output=True,
+                env=env,
+                check=False,
             ).returncode
             != 0
         ):

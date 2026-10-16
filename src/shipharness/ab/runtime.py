@@ -1,0 +1,143 @@
+"""Production wiring for the commands: cost tracker, tracer, model clients, sandboxes, reviewer.
+Kept in one place so the commands stay thin and tests can swap the whole runtime for fakes."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from shipharness.ab.clients import make_openai_client
+from shipharness.ab.demo import ABDeps
+from shipharness.ab.referee import Reviewer
+from shipharness.config import Prices, Settings
+from shipharness.config.prices import REPO_ROOT
+from shipharness.cost import Caps, CostTracker
+from shipharness.events import Arm, EventBus
+from shipharness.reviewer import ReviewInput, ReviewOutcome, grading_criteria, run_review
+from shipharness.runner.model import ModelClient, OpenAIModelClient
+from shipharness.sandbox import DockerSandbox, LocalSandbox, default_policy, render_policy
+from shipharness.sandbox.base import Sandbox
+from shipharness.sandbox.policy import Mount
+from shipharness.tracing import Tracer, make_tracer
+
+LEDGER = Path(".shipharness") / "ledger.jsonl"
+
+
+@dataclass
+class Runtime:
+    settings: Settings
+    cost: CostTracker
+    tracer: Tracer
+    client_factory: Callable[[Arm], ModelClient]
+    sandbox_factory: Callable[[Arm, Path, EventBus, str], Sandbox]
+    referee_sandbox_factory: Callable[[Path, list[Mount], Arm], Sandbox]
+    reviewer: Reviewer | None
+    sandboxed: bool
+    policy_summary: str
+    course_repo: Path = REPO_ROOT
+
+    def ab_deps(self, checkpoint_ref: str | None, *, reviewer: bool = True, **kw: Any) -> ABDeps:
+        return ABDeps(
+            settings=self.settings,
+            course_repo=self.course_repo,
+            checkpoint_ref=checkpoint_ref,
+            client_factory=self.client_factory,
+            sandbox_factory=self.sandbox_factory,
+            referee_sandbox_factory=self.referee_sandbox_factory,
+            cost=self.cost,
+            tracer=self.tracer,
+            reviewer=self.reviewer if reviewer else None,
+            grading_criteria=grading_criteria(),
+            sandboxed=self.sandboxed,
+            container_paths=self.sandboxed,
+            policy_summary=self.policy_summary,
+            **kw,
+        )
+
+
+def build_runtime(
+    settings: Settings, *, project: str, experiment: bool = False, final: bool = False
+) -> Runtime:
+    cost = CostTracker(
+        Prices.load(settings.prices_file),
+        Caps.from_settings(settings, final=final),
+        LEDGER,
+        session_id=settings.shipharness_class_date,
+        experiment=experiment,
+    )
+    tracer = make_tracer(settings, project)
+    policy = default_policy(settings)
+    sandboxed = settings.sandbox_mode == "docker"
+    shared: dict[str, Any] = {}
+
+    def openai() -> Any:
+        if "client" not in shared:  # one client, wrapped once, shared by both arms
+            shared["client"] = tracer.wrap_openai(make_openai_client(settings))
+        return shared["client"]
+
+    def client_factory(_arm: Arm) -> ModelClient:
+        return OpenAIModelClient(openai())
+
+    def sandbox_factory(arm: Arm, ws: Path, bus: EventBus, run_id: str) -> Sandbox:
+        if sandboxed:
+            return DockerSandbox(
+                policy,
+                settings.sandbox_image_agent,
+                ws,
+                bus,
+                run_id,
+                arm,
+                runtime=settings.sandbox_runtime,
+            )
+        return LocalSandbox(policy, ws, bus, run_id, arm)
+
+    def referee_sandbox_factory(build: Path, mounts: list[Mount], arm: Arm) -> Sandbox:
+        if sandboxed:
+            return DockerSandbox(
+                policy,
+                settings.sandbox_image_referee,
+                build,
+                None,
+                f"referee-{arm}",
+                arm,
+                runtime=settings.sandbox_runtime,
+                extra_mounts=mounts,
+                name_prefix="referee",
+            )
+        return LocalSandbox(policy, build, None, f"referee-{arm}", arm)
+
+    def reviewer(inp: ReviewInput) -> ReviewOutcome:
+        return run_review(
+            inp,
+            cost,
+            tracer,
+            client=openai(),
+            model=settings.openai_eval_model,
+            effort=settings.openai_eval_reasoning_effort,
+        )
+
+    return Runtime(
+        settings=settings,
+        cost=cost,
+        tracer=tracer,
+        client_factory=client_factory,
+        sandbox_factory=sandbox_factory,
+        referee_sandbox_factory=referee_sandbox_factory,
+        reviewer=reviewer,
+        sandboxed=sandboxed,
+        policy_summary=render_policy(policy),
+    )
+
+
+def cost_line(cost: CostTracker) -> str:
+    summary = cost.summary()
+    scope = "experiment" if summary.experiment else "session"
+    total = summary.experiment_total_usd if summary.experiment else summary.session_total_usd
+    cap = summary.caps.experiment if summary.experiment else summary.caps.session
+    models = ", ".join(f"{m} ${v:.6f}" for m, v in sorted(summary.by_model.items())) or "no calls"
+    return (
+        f"Cost: ${summary.batch_total_usd:.6f} (this command: {models}; "
+        f"{scope} ${total:.6f} of ${cap:.2f})"
+    )

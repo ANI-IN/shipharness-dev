@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict
 
@@ -11,6 +12,9 @@ from shipharness.config import Settings
 from shipharness.sandbox.base import ReasonCode, SandboxDenial
 
 _SECRET_NAME = re.compile(r"KEY|TOKEN|SECRET", re.IGNORECASE)
+_CONTAINER_PATH = re.compile(r"^/[A-Za-z0-9._/-]+$")
+
+Mount = tuple[Path, str, Literal["ro", "rw"]]  # (host path, container path, mode)
 
 
 class DenyRule(BaseModel):
@@ -90,6 +94,7 @@ def docker_run_args(
     name: str,
     runtime: str = "docker",
     env: dict[str, str] | None = None,
+    extra_mounts: list[Mount] | None = None,
 ) -> list[str]:
     """Full argv that starts one arm container. Never passes the host environment or keys."""
     args = [runtime, "run", "-d", "--rm", "--name", name, "--init"]
@@ -109,11 +114,29 @@ def docker_run_args(
     for key, value in _container_env(env).items():
         args += ["-e", f"{key}={value}"]
     args += ["-v", f"{Path(workspace).resolve()}:{policy.workspace_mount}"]
+    args += _mount_args(policy, extra_mounts)
     args += ["-w", policy.workspace_mount, image, "sleep", "infinity"]
     return args
 
 
 # [walkthrough:S3:run_args] end
+
+
+def _mount_args(policy: SandboxPolicy, mounts: list[Mount] | None) -> list[str]:
+    """Extra bind mounts (the referee mounts hidden tests read-only). Never over the workspace."""
+    args: list[str] = []
+    for host, container, mode in mounts or []:
+        if mode not in ("ro", "rw"):
+            raise ValueError(f"mount mode must be 'ro' or 'rw', got {mode!r}")
+        if not _CONTAINER_PATH.match(container) or ".." in container.split("/"):
+            raise ValueError(f"container mount path must be absolute and plain: {container!r}")
+        work, target = policy.workspace_mount.rstrip("/"), container.rstrip("/")
+        if target == work or work.startswith(target + "/"):
+            raise ValueError(f"extra mount {container!r} would shadow the workspace mount")
+        if target.startswith(work + "/") and mode != "ro":
+            raise ValueError(f"a mount inside the workspace must be read-only: {container!r}")
+        args += ["-v", f"{Path(host).resolve()}:{container}:{mode}"]
+    return args
 
 
 def _container_env(extra: dict[str, str] | None) -> dict[str, str]:

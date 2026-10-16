@@ -66,8 +66,9 @@ class AgentRunResult(BaseModel):
     run_id: str
     arm: Arm
     status: RunStatus
-    claim: ClaimValue
+    claim: ClaimValue  # from the last finish() call; "none" if never called
     claim_summary: str
+    claims: dict[Phase, ClaimValue] = {}  # last claim per phase that started; "none" if no finish
     sessions: list[SessionResult]
     phase_shas: dict[Phase, tuple[str, str]]
     diff_path: Path | None

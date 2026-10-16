@@ -1,0 +1,157 @@
+from __future__ import annotations
+
+import base64
+import json
+import shlex
+from collections.abc import Callable
+
+from shipharness.harness.verify.gate import GATE_CHECKS, GateConfig, run_gate
+from shipharness.harness.verify.models import GateResult
+from shipharness.sandbox import ExecResult, FakeSandbox
+
+from .fakes import ALL_GATE_CHECKS, check_result, fail, ok, runner_output
+
+PYTEST_OK = "12 passed in 1.20s\n"
+PYTEST_FAIL = (
+    "FAILED tests/visible/test_a.py::test_one - AssertionError: 1 != 2\n"
+    "1 failed, 11 passed in 1.3s\n"
+)
+
+
+def script(
+    results: list[dict] | None = None,
+    pytest_out: ExecResult | None = None,
+    runner: ExecResult | None = None,
+) -> Callable[[str], ExecResult]:
+    results = results if results is not None else [check_result(c) for c in ALL_GATE_CHECKS]
+
+    def run(command: str) -> ExecResult:
+        if "-m shipharness.checks.runner" in command:
+            return runner or ok(runner_output(results))
+        if "-m pytest" in command:
+            return pytest_out or ok(PYTEST_OK)
+        if command.startswith("alembic heads"):
+            return ok("abc (head)\n")
+        return ok("")
+
+    return run
+
+
+def config(**overrides: object) -> GateConfig:
+    base: dict[str, object] = {"checkpoint": "m1-s1-start", "feature": "F1", "seed": 11}
+    base.update(overrides)
+    return GateConfig(**base)  # type: ignore[arg-type]
+
+
+def test_gate_checks_are_the_i8_set_and_never_referee_only() -> None:
+    assert list(GATE_CHECKS) == ALL_GATE_CHECKS
+    assert "hidden_tests" not in GATE_CHECKS and "flakiness" not in GATE_CHECKS
+
+
+def test_all_green_gate_passes_with_every_item() -> None:
+    sandbox = FakeSandbox(script())
+    result = run_gate(sandbox, config(), gate_id="g1", base_sha="", phase="build")
+    assert result.passed
+    names = [i.name for i in result.items]
+    assert names == [
+        "visible tests",
+        "existing tests",
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "R5",
+        "R6",
+        "R7",
+        "board",
+        "clean state",
+    ]
+    assert all(i.status == "pass" for i in result.items)
+    assert result.feedback == ""
+
+
+def test_gate_runs_checks_on_a_copy_in_tmp_not_the_workspace() -> None:
+    sandbox = FakeSandbox(script())
+    run_gate(sandbox, config(), gate_id="g1", base_sha="", phase="build")
+    [runner_cmd] = [c for c in sandbox.commands if "-m shipharness.checks.runner" in c]
+    argv = shlex.split(runner_cmd.split("&&")[-1])
+    build = argv[argv.index("--build") + 1]
+    assert build.startswith("/tmp/shipharness-gate-g1/")
+    assert argv[argv.index("--seed") + 1] == "11"
+    assert argv[argv.index("--checks") + 1] == ",".join(ALL_GATE_CHECKS)
+    assert any(c.startswith("rm -rf /tmp/shipharness-gate-g1") for c in sandbox.commands)
+
+
+def test_gate_passes_params_and_baseline_as_files() -> None:
+    sandbox = FakeSandbox(script())
+    cfg = config(params={"exemptions": {"R4": ["POST /x"]}}, baseline_json='{"results": []}')
+    run_gate(sandbox, cfg, gate_id="g2", base_sha="", phase="build")
+    written = {}
+    for c in sandbox.commands:
+        if c.startswith("printf %s"):
+            parts = c.split()
+            written[parts[-1]] = base64.b64decode(parts[2]).decode()
+    params = json.loads(written["/tmp/shipharness-gate-g2/params.json"])
+    assert params["exemptions"] == {"R4": ["POST /x"]}
+    assert params["artifacts_dir"].startswith("/tmp/shipharness-gate-g2/")
+    assert written["/tmp/shipharness-gate-g2/baseline.json"] == '{"results": []}'
+
+
+def test_failures_give_feedback_with_the_first_three_failures() -> None:
+    results = [check_result(c) for c in ALL_GATE_CHECKS]
+    results[0] = check_result("r1_tenant", new=2)
+    results[1] = check_result("r2_roles", new=2)
+    sandbox = FakeSandbox(script(results=results, pytest_out=fail(PYTEST_FAIL)))
+    result = run_gate(sandbox, config(), gate_id="g3", base_sha="", phase="build")
+    assert not result.passed
+    status = {i.name: i.status for i in result.items}
+    assert status["visible tests"] == "fail"
+    assert status["R1"] == "fail" and status["R2"] == "fail" and status["R3"] == "pass"
+    lines = [ln for ln in result.feedback.splitlines() if ln.startswith(("FAIL", "FAILED"))]
+    assert len(lines) == 3
+    assert lines[0].startswith("FAILED tests/visible/test_a.py::test_one")
+    assert lines[1] == "FAIL R1 GET /x/0: violation: r1_tenant problem 0"
+    assert "g3" in result.feedback
+
+
+def test_runner_crash_fails_every_check_item() -> None:
+    sandbox = FakeSandbox(script(runner=fail("ImportError: cannot import name 'x'\n")))
+    result = run_gate(sandbox, config(), gate_id="g4", base_sha="", phase="build")
+    assert not result.passed
+    r1 = next(i for i in result.items if i.name == "R1")
+    assert r1.status == "fail" and "check runner" in r1.detail
+
+
+def test_check_missing_from_runner_output_is_skipped_not_passed() -> None:
+    results = [check_result(c) for c in ALL_GATE_CHECKS if c != "board"]
+    result = run_gate(
+        FakeSandbox(script(results=results)), config(), gate_id="g5", base_sha="", phase="build"
+    )
+    board = next(i for i in result.items if i.name == "board")
+    assert board.status == "skipped"
+    assert result.passed
+
+
+def test_test_phase_gate_runs_only_visible_tests_and_clean_state() -> None:
+    sandbox = FakeSandbox(script())
+    result = run_gate(sandbox, config(), gate_id="g6", base_sha="", phase="test")
+    assert [i.name for i in result.items] == ["visible tests", "clean state"]
+    assert not any("checks.runner" in c for c in sandbox.commands)
+
+
+def test_updates_start_pending_and_progress_is_reported() -> None:
+    updates: list[GateResult] = []
+    progress: list[dict] = []
+    run_gate(
+        FakeSandbox(script()),
+        config(),
+        gate_id="g7",
+        base_sha="",
+        phase="build",
+        on_update=updates.append,
+        on_progress=progress.append,
+    )
+    assert all(i.status == "pending" for i in updates[0].items)
+    assert updates[-1].passed
+    assert {p["check"] for p in progress} == set(ALL_GATE_CHECKS)
+    assert all(p["done"] == 2 for p in progress)
