@@ -286,7 +286,16 @@ def _reference_warnings(folder: Path, text: str) -> list[str]:
         if resolved.is_file() and resolved.suffix == ".md" and not is_asset:
             if relative == "SKILL.md":
                 continue
-            nested = _references(resolved.read_text(encoding="utf-8", errors="replace"))
+            # A chain is a reference file that points to another file of this skill. Mentions
+            # of paths that are not files here (for example a target repository's folders) are
+            # not references.
+            nested = [
+                target
+                for target in _references(resolved.read_text(encoding="utf-8", errors="replace"))
+                if (inner := _inside(folder, target)) is not None
+                and inner.is_file()
+                and inner != resolved
+            ]
             if nested:
                 warnings.append(
                     f"'{relative}' references {', '.join(repr(n) for n in nested[:3])}: keep file "
