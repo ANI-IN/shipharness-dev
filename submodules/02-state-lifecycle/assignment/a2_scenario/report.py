@@ -19,7 +19,7 @@ _LOADED: list[str] = []
 
 def load_layer(impl: Path) -> LayerFactory:
     """`<impl>/a2_state/layer.py` must define `ResumableStateLayer`. A new load replaces the last
-    one, so one process can load the starter and the solution one after the other."""
+    one, so one process can load two layer folders one after the other."""
     root = Path(impl).resolve()
     if not (root / PACKAGE / "layer.py").is_file():
         raise FileNotFoundError(f"{root / PACKAGE / 'layer.py'} not found (use --impl <folder>)")
@@ -74,7 +74,7 @@ def _slot_key(run: ScenarioRun, step_id: str, path: str) -> str:
 
 
 def session_lines(run: ScenarioRun) -> list[str]:
-    """One line per session: what the literal agent did, with redone work marked."""
+    """One line per session: what the test stand-in agent did, with redone work marked."""
     committed_in: dict[str, int] = {}
     written_in: dict[tuple[str, str], int] = {}
     lines = []

@@ -1,7 +1,8 @@
 """A multi-step feature: its steps, the files each step writes, and the ticket text.
 
-Step ids are `S1`, `S2`, ... The literal agent commits each step with a subject that starts with the
-step id (`S1: Comments table`), so a state layer can read step completion from the git history.
+Step ids are `S1`, `S2`, ... The test stand-in agent commits each step with a subject that
+starts with the step id (`S1: Comments table`), so a state layer can read step completion from
+the git history.
 """
 
 from __future__ import annotations

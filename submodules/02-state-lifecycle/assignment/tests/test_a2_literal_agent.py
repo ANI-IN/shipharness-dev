@@ -1,4 +1,5 @@
-"""The literal agent: what it treats as known, and which tool call it makes next."""
+"""The test stand-in agent (literal_agent.py, not a model): what it treats as known, and which
+tool call it makes next."""
 
 from __future__ import annotations
 

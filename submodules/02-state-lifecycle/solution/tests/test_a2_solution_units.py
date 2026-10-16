@@ -54,7 +54,7 @@ def test_the_ledger_comes_from_step_commits_and_uncommitted_files() -> None:
     assert derive_ledger(STEPS, [], [])[0].state == "not_started"
 
 
-def test_ledger_lines_use_the_literal_agents_grammar() -> None:
+def test_ledger_lines_use_the_stand_in_agents_grammar() -> None:
     ledger = [
         StepStatus(STEPS[0], "done", commit="aaaaaaa"),
         StepStatus(STEPS[1], "in_progress", written=("app/a.py", "app/b.py")),

@@ -1,9 +1,11 @@
-"""The literal agent: a deterministic stand-in for the model, for offline A2 runs.
+"""The test stand-in agent (literal_agent.py): a deterministic program, not a model.
+
+It plays the agent in the offline A2 scenarios and is used for grading only, so scores repeat.
 
 It implements the runner's model-client protocol, so the real loop (`shipharness.runner.loop`) runs
 it with the real tools, sessions, wrap-up messages, and forced stops. Each call is decided from the
 current session's transcript only, so every session starts with an empty context, as a resumed
-model session does. Its rules (README, "The literal agent"):
+model session does. Its rules (README, "The test stand-in agent"):
 
 1. Every session starts with three reads: progress.md, session-handoff.md, and the exec plan
    `docs/exec-plans/active/<feature>.md` (one turn each).
@@ -288,8 +290,9 @@ def decide(
 
 
 class LiteralAgent:
-    """Model client for `run_agent`. The only state it keeps across sessions is the attempt number
-    (a fresh session words new code differently); it carries no knowledge between sessions."""
+    """Test stand-in agent for `run_agent` (it implements the model-client protocol; it is not a
+    model). The only state it keeps across sessions is the attempt number (a fresh session words
+    new code differently); it carries no knowledge between sessions."""
 
     def __init__(self, feature: Feature, behaviours: dict[int, str] | None = None) -> None:
         self.feature = feature

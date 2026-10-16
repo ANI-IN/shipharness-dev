@@ -1,8 +1,8 @@
 """The step ledger: which ticket steps git shows as done, which is in progress, and its files.
 
 Evidence comes from the repository, never from what the agent wrote about itself. The ticket's
-steps have ids (`S1`, `S2`, ...); the literal agent commits each step with a subject that starts
-with its id (`S2: Comment service`).
+steps have ids (`S1`, `S2`, ...); the test stand-in agent commits each step with a subject that
+starts with its id (`S2: Comment service`).
 """
 
 from __future__ import annotations
@@ -94,9 +94,9 @@ def derive_ledger(
 def render_ledger(ledger: list[StepStatus]) -> list[str]:
     """Markdown lines the next session reads. TODO 1c.
 
-    The literal agent's reading rules (README, "The literal agent") decide what works: a line with
-    `[x]` and the step id marks the step done; a line with the step id and the word "written" names
-    files already on disk. For example:
+    The test stand-in agent's reading rules (README, "The test stand-in agent") decide what works:
+    a line with `[x]` and the step id marks the step done; a line with the step id and the word
+    "written" names files already on disk. For example:
         - [x] S1 Comments table: done in commit 615f2d2
         - [ ] S2 Comment service: in progress; written but not committed: app/comments/service.py
         - [ ] S3 Index and tests: not started

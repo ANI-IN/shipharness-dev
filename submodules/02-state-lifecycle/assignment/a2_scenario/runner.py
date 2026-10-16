@@ -1,8 +1,8 @@
-"""Run one scenario: the real runner loop, a state layer, the literal agent, and LocalSandbox.
+"""Run one scenario: the real runner loop, a state layer, the test stand-in agent, and LocalSandbox.
 
 LocalSandbox is UNSANDBOXED (commands run on the host with timeouts); that is safe here because
-the only commands are the literal agent's fixed ones and the state layer's own. No model, network,
-Docker, or keys are used, and the cost tracker only sees the scripted token counts.
+the only commands are the test stand-in agent's fixed ones and the state layer's own. No model,
+network, Docker, or keys are used, and the cost tracker only sees the scripted token counts.
 """
 
 from __future__ import annotations
