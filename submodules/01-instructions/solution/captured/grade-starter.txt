@@ -1,4 +1,4 @@
-# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+# captured on 2026-10-17 from `make --no-print-directory grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter` at commit d52d8c6 (offline command, no model calls); your output will differ
 $ make --no-print-directory grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter
 uv run python scripts/grade_assignment.py 1 "submodules/01-instructions/assignment/starter"
 A1 grade: submodules/01-instructions/assignment/starter
@@ -22,7 +22,7 @@ C Skill                                    0.0/12
   skill-linked                 0.0/2  need exactly one skill in .agents/skills/ (found: none)
   skill-cites                  0.0/2  need exactly one skill in .agents/skills/ (found: none)
 D Docs checker                             1.2/26
-  checker-tests                0.0/2  pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.41s
+  checker-tests                0.0/2  pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.37s
   checker-clean                0.0/2  make the checker tests pass first: a checker that finds nothing proves nothing
   pristine-visible-tests       1.2/6  3 of 15 visible tests
   reference-tree               0.0/6  clean on the reference tree: True; injected faults found: 0 of 3

@@ -1,4 +1,4 @@
-# captured on 2026-10-17, worktree branch content-01 at e7287f4 (offline command, no model calls); your output will differ
+# captured on 2026-10-17 from `make --no-print-directory check-assignment-1 A1_WORK=submodules/01-instructions/solution/work` at commit d52d8c6 (offline command, no model calls); your output will differ
 $ make --no-print-directory check-assignment-1 A1_WORK=submodules/01-instructions/solution/work
 uv run python submodules/01-instructions/assignment/check.py --work submodules/01-instructions/solution/work
 A1 self-check: submodules/01-instructions/solution/work
