@@ -43,6 +43,8 @@ class CheckResult(BaseModel):
     duration_ms: int
     seed: int | None = None
     artifacts: list[str] = []
+    # Numbers a ScoreRecord needs that are not finding counts (e.g. "redone_lines_pct").
+    metrics: dict[str, float | int | bool | None] = {}
 
 
 def _no_progress(_done: int, _total: int, _label: str) -> None:
@@ -105,6 +107,7 @@ def make_result(
     started: float,
     seed: int | None = None,
     artifacts: list[str] | None = None,
+    metrics: dict[str, float | int | bool | None] | None = None,
 ) -> CheckResult:
     """Build a CheckResult with every counted finding treated as new (no baseline applied yet)."""
     counted = [f for f in findings if f.counted]
@@ -118,6 +121,7 @@ def make_result(
         duration_ms=int((time.monotonic() - started) * 1000),
         seed=seed,
         artifacts=artifacts or [],
+        metrics=metrics or {},
     )
 
 
