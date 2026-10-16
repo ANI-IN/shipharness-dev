@@ -68,7 +68,7 @@ def scan(files: list[Path], extra_paths: list[str] | None = None) -> dict[str, l
 def test_scanner_finds_what_it_looks_for(tmp_path: Path) -> None:
     for text in (
         FAKE_OPENAI,
-        "sk-proj-abcdefghijklmnopqrstuvwxyz",
+        "sk-" + "proj-abcdefghijklmnopqrstuvwxyz",
         json.dumps({"p": str(tmp_path)}),
         "C:/Users/someone/ws",
         "see /home/someone/ws",
