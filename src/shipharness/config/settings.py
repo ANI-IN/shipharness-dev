@@ -51,6 +51,7 @@ class Settings(BaseSettings):
     wrapup_turns: int = 3
     tool_timeout_s: int = 120
     run_timeout_s: int = 300
+    harness_timeout_s: int = 120  # harness work per arm per run; RUN_TIMEOUT_S excludes it
     max_concurrency: int = 4
 
     # Sandbox

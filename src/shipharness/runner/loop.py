@@ -6,10 +6,11 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from functools import partial
 from pathlib import Path
-from typing import Any
+from typing import Any, TypeVar
 
-from shipharness.cost import CapExceeded, CostScope, CostTracker
+from shipharness.cost import CapExceeded, CostScope, CostTracker, Reservation
 from shipharness.events import EventBus
 from shipharness.harness.base import Harness, LayerContext
 from shipharness.runner import git
@@ -50,11 +51,15 @@ _ERROR_TEXT = {
 }
 
 
+_T = TypeVar("_T")
+
+
 @dataclass
 class RunOptions:
     wrapup_turns: int = 3
     tool_timeout_s: int = 120
-    run_timeout_s: int = 300
+    run_timeout_s: int = 300  # agent working time only; harness work is excluded
+    harness_timeout_s: float | None = None  # harness work (HARNESS_TIMEOUT_S); None = no limit
     max_attempts: int = 3
     policy_summary: str = ""
     tool_log_dir: Path | None = None
@@ -137,7 +142,10 @@ class _Run:
         self.claims: dict[Phase, ClaimValue] = {}
         self.claim_summary = ""
         self.error: str | None = None
+        self.abort_reason: str | None = None
         self.turns_total = 0
+        self.harness_s = 0.0  # wall time spent in deterministic harness work
+        self.harness_over = False
         self.diff_base: str | None = None  # set to the harness setup commit for harness arms
 
     # -- events --------------------------------------------------------------------------------
@@ -147,13 +155,23 @@ class _Run:
 
     # -- model calls -------------------------------------------------------------------------------
 
-    def call_model(self, items: list[dict[str, Any]]) -> ModelResponse:
-        self.cost.check_before_call(
+    def call_model(self, items: list[dict[str, Any]]) -> tuple[ModelResponse, Reservation]:
+        """One model call. Its worst-case cost is reserved against every cap first (so a
+        concurrent arm cannot spend the same room); the caller settles the reservation with the
+        actual usage. A failed call releases it."""
+        reservation = self.cost.reserve(
             self.scope,
             self.spec.model,
             estimate_input_tokens(items, TOOL_SCHEMAS),
             self.spec.max_output_tokens,
         )
+        try:
+            return self._respond(items), reservation
+        except BaseException:
+            self.cost.release(reservation)
+            raise
+
+    def _respond(self, items: list[dict[str, Any]]) -> ModelResponse:
         attempt = 0
         while True:
             try:
@@ -179,11 +197,16 @@ class _Run:
                 self.options.sleep(float(2 ** (attempt - 1)))
 
     def record_usage(
-        self, response: ModelResponse, session_index: int, turn: int, turns_left: int
+        self,
+        response: ModelResponse,
+        reservation: Reservation,
+        session_index: int,
+        turn: int,
+        turns_left: int,
     ) -> None:
         usage = response.usage
         try:
-            call_usd = self.cost.record(self.scope, self.spec.model, usage)
+            call_usd = self.cost.settle(reservation, usage)
         finally:
             excerpt = response.text[:200]
             if not excerpt:
@@ -255,15 +278,50 @@ class _Run:
         end: str | None = "claim_not_done"
         output = "accepted"
         if claim == "done":
-            decision = self.harness.on_claim_done(self.ctx)
+            decision = self.harness_work("gate", lambda: self.harness.on_claim_done(self.ctx), None)
             gate_id = decision.data.get("gate_id") if decision else None
-            if decision is not None and decision.kind == "gate_fail":
+            if self.harness_over:
+                end = "timeout"
+                output = f"Not accepted. {self.abort_reason}; the run ends."
+            elif decision is not None and decision.kind == "gate_fail":
                 end = None
                 output = f"Not accepted. {decision.message}"
             else:
                 end = "claim_done"
         self.emit("claim", {"phase": phase, "claim": claim, "summary": summary, "gate_id": gate_id})
         return result.model_copy(update={"output": output}), end
+
+    # -- time budgets ----------------------------------------------------------------------------
+
+    def harness_work(self, what: str, work: Callable[[], _T], skipped: _T) -> _T:
+        """Run deterministic harness work (workspace preparation, setup commit, gate baseline,
+        gates, tool checks, session and phase hooks) on its own clock. Its time never counts
+        toward the agent's RUN_TIMEOUT_S, so both arms get equal agent time. Past
+        HARNESS_TIMEOUT_S the run ends with the reason, and no further harness work runs."""
+        if self.harness_over:
+            return skipped
+        start = self.options.clock()
+        try:
+            return work()
+        finally:
+            self.harness_s += self.options.clock() - start
+            limit = self.options.harness_timeout_s
+            if limit is not None and self.harness_s > limit:
+                self.harness_over = True
+                self.abort(
+                    "ABORTED: timeout",
+                    f"harness time limit: HARNESS_TIMEOUT_S {limit:g} s exceeded during {what} "
+                    f"({self.harness_s:.1f} s of harness work)",
+                )
+
+    def agent_s(self) -> float:
+        """Agent working time so far: wall time minus harness work."""
+        return self.options.clock() - self.started - self.harness_s
+
+    def abort(self, status: RunStatus, reason: str) -> None:
+        """Mark the run aborted; the first reason wins."""
+        if self.status == "completed":
+            self.status, self.abort_reason = status, reason
 
     # -- sessions ------------------------------------------------------------------------------
 
@@ -295,17 +353,25 @@ class _Run:
                         )
                     )
                     wrapup_sent = True
-                if self.options.clock() - self.started > self.options.run_timeout_s:
-                    ended_by, self.status = "timeout", "ABORTED: timeout"
+                if self.harness_over:
+                    ended_by = "timeout"
+                    break
+                if self.agent_s() > self.options.run_timeout_s:
+                    ended_by = "timeout"
+                    self.abort(
+                        "ABORTED: timeout",
+                        f"agent time limit: RUN_TIMEOUT_S {self.options.run_timeout_s} s",
+                    )
                     break
                 try:
-                    response = self.call_model(items)
+                    response, reservation = self.call_model(items)
                     turns += 1
                     self.turns_total += 1
                     self.ctx.turn = turns
-                    self.record_usage(response, index, turns, budget - turns)
-                except CapExceeded:
-                    ended_by, self.status = "cap", "ABORTED: cap"
+                    self.record_usage(response, reservation, index, turns, budget - turns)
+                except CapExceeded as exc:
+                    ended_by = "cap"
+                    self.abort("ABORTED: cap", str(exc))
                     break
                 except _ModelFailure as failure:
                     ended_by, self.status, self.error = "error", "ERROR", failure.message
@@ -333,7 +399,7 @@ class _Run:
             start_sha=start_sha,
             end_sha=git.head_sha(self.spec.workspace),
         )
-        self.harness.on_session_end(self.ctx, result)
+        self.harness_work("session end", lambda: self.harness.on_session_end(self.ctx, result), [])
         return result
 
     def process_calls(
@@ -355,7 +421,8 @@ class _Run:
             else:
                 with self.tracer.child(f"tool:{call.name}", "tool", target=_target(call)):
                     result = self.toolbox.execute(call)
-                decisions = self.harness.after_tool(self.ctx, call, result)
+                check = partial(self.harness.after_tool, self.ctx, call, result)
+                decisions = self.harness_work("tool check", check, [])
                 notes = [d.message for d in decisions if d.kind in ("block", "revert")]
                 if notes:  # the agent must see why its change was undone
                     reverted = "\n".join(f"REVERTED: {m}" for m in notes)
@@ -385,8 +452,7 @@ class _Run:
             trace_url = self.tracer.url(root)
             if trace_url:
                 self.emit("trace_link", {"url": trace_url, "kind": "agent"})
-            self.harness.prepare_workspace(self.ctx)
-            self._commit_harness_setup()
+            self.harness_work("workspace preparation", self._prepare, None)
             session_index = 0
             for phase in self.spec.phases:
                 if self.status != "completed":
@@ -423,7 +489,7 @@ class _Run:
                                     "handoff_path": self._handoff_path(),
                                 },
                             )
-                    self.harness.on_phase_end(self.ctx)
+                    self.harness_work("phase end", lambda: self.harness.on_phase_end(self.ctx), [])
                 phase_shas[phase] = (phase_start, git.head_sha(self.spec.workspace))
             if trace_url is None:  # the link lookup can fail transiently; try once more
                 trace_url = self.tracer.url(root)
@@ -431,6 +497,10 @@ class _Run:
                     self.emit("trace_link", {"url": trace_url, "kind": "agent"})
             root.set_outputs({"status": self.status, "claim": self.claim})
         return trace_url
+
+    def _prepare(self) -> None:
+        self.harness.prepare_workspace(self.ctx)  # includes the verify layer's gate baseline
+        self._commit_harness_setup()
 
     def _commit_harness_setup(self) -> None:
         """Commit the files the layers placed (AGENTS.md, progress.md, feature_list.json, ...) in
@@ -470,7 +540,8 @@ class _Run:
             diff_path = git.write_diff(self.spec.workspace, self.diff_base or base_sha, diff_out)
         except Exception as exc:  # noqa: BLE001
             self.error = self.error or f"diff failed: {type(exc).__name__}"
-        wall_s = round(self.options.clock() - self.started, 3)
+        total_s = self.options.clock() - self.started
+        wall_s = round(total_s, 3)
         result = AgentRunResult(
             run_id=self.spec.run_id,
             arm=self.spec.arm,
@@ -484,8 +555,11 @@ class _Run:
             cost_usd=round(self.scope.spent_usd, 6),
             turns_total=self.turns_total,
             wall_s=wall_s,
+            agent_wall_s=round(total_s - self.harness_s, 3),
+            harness_wall_s=round(self.harness_s, 3),
             trace_url=trace_url,
             error=self.error,
+            abort_reason=self.abort_reason,
         )
         self.emit(
             "run_end",
