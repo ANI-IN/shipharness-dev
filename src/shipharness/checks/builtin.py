@@ -15,6 +15,7 @@ BUILTIN_MODULES = (
     "pytest_checks",
     "diff_scope",
     "continuity",
+    "board",
 )
 # Short rule labels used in progress lines and by `shipharness check --rules R1,R2`.
 RULE_LABELS = {
