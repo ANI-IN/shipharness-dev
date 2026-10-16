@@ -30,11 +30,13 @@ TODO = re.compile(r"\bTODO\b")
 
 
 def todos(impl: Path) -> list[str]:
-    """`file:line: text` for every TODO left in the code and the portfolio."""
+    """`file:line: text` for every TODO left in the code, the tests, and the portfolio."""
     found: list[str] = []
-    files = sorted((impl / "a4_verification").glob("*.py")) + sorted(
-        (impl / "portfolio").glob("*.md")
-    )
+    files = [
+        *sorted((impl / "a4_verification").glob("*.py")),
+        *sorted((impl / "tests").glob("*.py")),
+        *sorted((impl / "portfolio").glob("*.md")),
+    ]
     for path in files:
         for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
             if TODO.search(line):

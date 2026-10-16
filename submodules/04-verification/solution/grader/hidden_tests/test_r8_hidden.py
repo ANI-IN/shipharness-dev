@@ -1,4 +1,4 @@
-"""Hidden tests for R8: seeded violations the visible tests do not show, false positives, baselines."""
+"""Hidden tests for R8: seeded violations the visible tests miss, false positives, baselines."""
 
 from __future__ import annotations
 
