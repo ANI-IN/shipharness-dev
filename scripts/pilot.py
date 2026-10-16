@@ -112,7 +112,7 @@ def ab_command(feature: str, variant: str | None) -> list[str]:
     cmd = ["uv", "run", "shipharness", "ab", "--section", SECTIONS[feature], "--feature", feature]
     if variant:
         cmd += ["--variant", variant]
-    return [*cmd, "--no-preview"]
+    return [*cmd, "--purpose", "pilot", "--no-preview"]
 
 
 def parse_variants(value: str) -> dict[str, str]:

@@ -35,7 +35,10 @@ def make_app() -> typer.Typer:
 @pytest.fixture
 def env(course_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch):  # type: ignore[no-untyped-def]
     settings = Settings(
-        _env_file=None, runs_dir=tmp_path / "runs", exports_dir=tmp_path / "exports"
+        _env_file=None,
+        runs_dir=tmp_path / "runs",
+        exports_dir=tmp_path / "exports",
+        shipharness_class_date="2026-10-20",
     )
     deps = make_deps(course_repo, tmp_path, Clients())
     deps.client_factory = lambda arm: Clients()(arm)
@@ -205,3 +208,55 @@ def test_ab_previews_can_be_turned_off_for_batch_runs(env, flag, previews) -> No
     result = CliRunner().invoke(make_app(), args)
     assert result.exit_code == 0, result.output
     assert ("preview_factory" in seen[0] and seen[0]["preview_factory"] is None) is (not previews)
+
+
+# --- trace projects (owner, 2026-10-17; DESIGN 12) ---------------------------------------------
+
+
+def _record_targets(monkeypatch: pytest.MonkeyPatch, runtime_factory: Any) -> list[tuple]:  # type: ignore[type-arg]
+    seen: list[tuple] = []  # type: ignore[type-arg]
+
+    def runtime(settings, project, **kw):  # type: ignore[no-untyped-def]
+        seen.append((project, kw.get("session_id")))
+        return runtime_factory(settings, project, **kw)
+
+    monkeypatch.setattr(commands, "_runtime", runtime)
+    return seen
+
+
+@pytest.mark.parametrize(
+    ("purpose", "project", "session"),
+    [
+        ("pilot", "shipharness-pilot", "pilot"),
+        ("assignment", "shipharness-assignments", "assignment"),
+        ("class", "shipharness-class-2026-10-20", "2026-10-20"),
+    ],
+)
+def test_ab_traces_to_the_project_for_its_purpose(
+    env, monkeypatch, purpose, project, session
+) -> None:  # type: ignore[no-untyped-def]
+    seen = _record_targets(monkeypatch, commands._runtime)
+    result = CliRunner().invoke(
+        make_app(),
+        [
+            "ab",
+            "--feature",
+            "F1",
+            "--purpose",
+            purpose,
+            "--no-preview",
+            "--dataset",
+            str(env.dataset),
+        ],
+    )
+    assert result.exit_code in (0, 1), result.output
+    assert seen and seen[0] == (project, session)
+
+
+def test_class_commands_refuse_without_an_explicit_class_date(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(commands, "_settings", lambda: Settings(_env_file=None))
+    result = CliRunner().invoke(
+        make_app(), ["ab", "--feature", "F1", "--dataset", str(env.dataset)]
+    )
+    assert result.exit_code == 2
+    assert "SHIPHARNESS_CLASS_DATE" in result.output and "--purpose pilot" in result.output

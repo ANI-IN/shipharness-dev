@@ -658,7 +658,7 @@ subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly determini
 
 | Item | Design |
 |---|---|
-| Projects | `shipharness-class-<date>` (ad hoc class commands), `shipharness-experiments` (non-experiment traces from batches), `shipharness-assignments`. Experiments get their own LangSmith project per experiment, named `<prefix>-<section|batch>-<arm>-<date>` |
+| Projects | `shipharness-class-<date>` (class commands only; the date is set explicitly in `SHIPHARNESS_CLASS_DATE`, and class commands refuse without it), `shipharness-pilot` (M6 pilot runs, the console check, live tests; `--purpose pilot`), `shipharness-experiments` (M8: non-experiment traces from batches), `shipharness-assignments` (`--purpose assignment`). The M6 pilot runs 1 and 2 (2026-10-16) were traced into `shipharness-class-2026-10-16` before this rule existed; they stay there (VERIFICATION.md, M6). Experiments get their own LangSmith project per experiment, named `<prefix>-<section|batch>-<arm>-<date>` |
 | Tracing | `wrap_openai` on the client; `@traceable` root run per agent run with build and test phases as child runs; tool calls and sandbox exec as child tool runs. Referee evaluation is one trace with the reviewer call as a child |
 | Datasets | `teamtrack-features-v1` and `testgen-targets-v1` uploaded by `make datasets` from JSONL (examples built in Python; splits for subsets) |
 | Experiments | `evaluate()` per arm on the same dataset split with `num_repetitions=k`; the two arms run concurrently; one combined referee evaluator returns all scores as a list; bare vs harness compared in the comparison view (`comparison_url` stored in exports). Class demos use the same code path with a one-example dataset and k=1 |
