@@ -247,6 +247,12 @@ def test_near_misses_are_not_reported() -> None:
     assert _hits(text) == []
 
 
+def test_a_sentence_end_does_not_hide_a_path_mention() -> None:
+    existing = frozenset({"research/notes/R-a.md"})
+    hits = _hits("Quotes come from research/notes/R-a.md.\n", existing=existing)
+    assert [h.text for h in hits] == ["research/notes/R-a.md"]
+
+
 def test_research_corrections_count_as_citations() -> None:
     hits = _hits("The separate evaluator comes from A3 (RESEARCH correction 3).\n")
     assert [(h.kind, h.pattern) for h in hits] == [("section-cite", "RESEARCH correction N")]

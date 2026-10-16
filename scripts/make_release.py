@@ -191,6 +191,11 @@ def _module_names(tree: ast.AST) -> list[str]:
     return [n for n in names if n]
 
 
+def _reason_key(reason: str) -> tuple[int, str]:
+    m = re.match(r"line (\d+):", reason)
+    return (int(m.group(1)) if m else 0), reason
+
+
 def find_excluded_tests(
     sources: Mapping[str, str], excluded: Iterable[str], included: Iterable[str]
 ) -> dict[str, list[str]]:
@@ -254,7 +259,7 @@ def find_excluded_tests(
             if name.startswith("scripts") and last in stems:
                 reasons.append(f"imports {stems[last]}")
         if reasons:
-            found[path] = sorted(set(reasons))
+            found[path] = sorted(set(reasons), key=_reason_key)
     changed = True
     while changed:  # tests that import a flagged helper module
         changed = False
@@ -295,13 +300,14 @@ _SECTION = re.compile(
 _SCRIPT_STEMS = "|".join(posixpath.splitext(posixpath.basename(p))[0] for p in EXCLUDED_SCRIPTS)
 _SCRIPT = re.compile(rf"(?:\bscripts/)?\b(?:{_SCRIPT_STEMS})\.py\b|\bscripts/(?:{_SCRIPT_STEMS})\b")
 _SOLUTION = re.compile(
-    r"(?<![\w.-])(?:solution|grader)/[\w./-]*|\bsubmodules/[\w.-]+/(?:[\w.-]+/)*hidden/[\w./-]*"
+    r"(?<![\w.-])(?:solution|grader)/(?:[\w./-]*[\w/])?"
+    r"|\bsubmodules/[\w.-]+/(?:[\w.-]+/)*hidden/(?:[\w./-]*[\w/])?"
 )
 _MENTION = re.compile(
     rf"\b(?:{_DOCS})\.md\b"
     rf"|\b(?:{_DOCS})\b"
     r"|\bCODEOWNERS\b"
-    r"|(?:(?<![\w./-])|(?<=\./))(?:research|instructor)/[\w./-]*"
+    r"|(?:(?<![\w./-])|(?<=\./))(?:research|instructor)/(?:[\w./-]*[\w/])?"  # no final "."
     r"|\bR-[a-e](?:\.md)?\b"
 )
 _RUN_ID = re.compile(r"\b(?:ab|r)-\d{8}-\d{6}-[0-9a-f]{6}\b")
@@ -350,7 +356,8 @@ def _pattern(kind: str, text: str, target: str = "") -> str:
         return "VERIFICATION run id"
     if text.startswith(("research/", "instructor/", "../", "./")):
         parts = [p for p in text.split("/") if p not in ("..", ".", "")]
-        return "/".join(parts[:2]) + "/" if len(parts) > 2 else parts[0] + "/"
+        deep = len(parts) > 2 or (len(parts) == 2 and text.endswith("/"))
+        return "/".join(parts[:2]) + "/" if deep else parts[0] + "/"
     if re.fullmatch(r"R-[a-e](?:\.md)?", text):
         return "R-x (research notes)"
     return text
@@ -874,9 +881,9 @@ def render(report: Report, list_file: str, references_file: str) -> str:
     w("")
     w(f"== Excluded tests (integrator decision b): {len(report.excluded_tests)}")
     for path, reasons in report.excluded_tests.items():
-        w(f"   {path}")
-        for reason in reasons:
-            w(f"      {reason}")
+        named = sorted({r.split("names ", 1)[-1] for r in reasons})
+        w(f"   {path}  ({len(reasons)} reference(s) to: {', '.join(named[:4])}")
+        w(f"      {'' if len(named) <= 4 else f'and {len(named) - 4} more; '}first: {reasons[0]})")
     w("")
     w("== Solution/hidden guard: " + ("PASS" if not report.guard else "FAIL"))
     for path in report.guard:
