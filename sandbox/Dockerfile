@@ -23,6 +23,9 @@ RUN useradd --uid 1000 --create-home agent \
     && git config --system user.name "agent" \
     && git config --system user.email "agent@sandbox.invalid" \
     && git config --system --add safe.directory /work
+# The check runner (python -m shipharness.checks.runner) comes from the image, never the workspace.
+COPY src/ /opt/shipharness/src/
+ENV PYTHONPATH=/opt/shipharness/src
 
 FROM base AS agent
 USER 1000:1000

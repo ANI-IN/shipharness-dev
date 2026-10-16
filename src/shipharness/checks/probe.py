@@ -50,11 +50,7 @@ class ProbeClient:
 
 
 def fill_path(path: str, values: dict[str, int]) -> str:
-    """Substitute `{name}` path parameters; unknown names get the first value given."""
-    filled = path
-    fallback = next(iter(values.values()), 0)
-    while "{" in filled:
-        start, end = filled.index("{"), filled.index("}")
-        name = filled[start + 1 : end]
-        filled = filled[:start] + str(values.get(name, fallback)) + filled[end + 1 :]
-    return filled
+    """Substitute `{name}` path parameters (see `shipharness.checks.payloads.fill_path`)."""
+    from shipharness.checks.payloads import fill_path as _fill
+
+    return _fill(path, values)
