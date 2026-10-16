@@ -241,6 +241,8 @@ without relying on the arm's code.
 | `m1-s4-start` | + F3 reference | S4 demo (F4) |
 | `m1-final-start` | + F4 reference | Final (F5-F7) |
 | `m1-complete` | Course complete | — |
+| `m1-alt-a` | Base + F5, F6 references | F1-F4 alternate-checkpoint tasks |
+| `m1-alt-b` | Base + F7 reference | F1-F4 alternate-checkpoint tasks |
 
 Reference implementations for F1-F7 live under `teamtrack/reference/` (instructor backup and checkpoint
 builder). They are never exported into an arm workspace (§8.3).
@@ -455,13 +457,13 @@ the referee to one arm's style; exposing hidden tests to either arm.
 | Containers per run | One arm container per arm (long-lived for the run, tool commands via `docker exec`), one preview container per arm, one referee container per arm at referee time |
 | Image | One Dockerfile, two targets: `agent` (python:3.12-slim, uv, TeamTrack and test dependencies from the lockfile) and `referee` (adds Playwright Chromium). Built by `make setup`; dependencies baked in |
 | Flags (both arms identical) | `--network none --memory 1g --memory-swap 1g --cpus 1 --pids-limit 256 --read-only --tmpfs /tmp:rw,nosuid,size=256m --user 1000:1000 --cap-drop ALL --security-opt no-new-privileges --init`, workspace bind-mounted read-write at `/work` (only writable path besides `/tmp`) |
-| Timeouts | Per tool command (`TOOL_TIMEOUT_S`) and per run wall clock (`RUN_TIMEOUT_S`) |
+| Timeouts | Per tool command (`TOOL_TIMEOUT_S`), per run agent time (`RUN_TIMEOUT_S`), and per run harness work (`HARNESS_TIMEOUT_S`) |
 | Policy | `sandbox/policy.py` holds limits, flags, and denial rules; printed at run start and emitted in `sandbox_start` |
 | Denials | Pre-exec: commands that need the network (package installs, `curl`, `wget`, `git clone` over http, `uv add`) are refused with reason. Post-exec: output patterns for name-resolution or unreachable-network errors, `Read-only file system`, fork failures, and `State.OOMKilled` or timeout produce `sandbox_denied` with the command and reason. `apply_patch` paths are resolved on the host and refused if outside the workspace |
 | Usage | `docker stats --no-stream` sampled every 2 s → `sandbox_usage` |
 | Board preview | Preview container (network none) runs the arm's TeamTrack and headless Chromium; a trusted script takes a screenshot of the board as Acme every 5 s and on demand, marks cards from another org or duplicate cards using `data-` attributes, and writes PNGs that the console shows via `screenshot` events. No container needs a published port |
 | No-Docker fallback | Temp directory + timeouts on the host; every screen and output shows "UNSANDBOXED — results not official" |
-| Platforms | Class host: Windows + Docker Desktop (WSL2 backend), repository inside the WSL2 filesystem. Learners: Linux (Docker Engine or Podman), macOS (Docker Desktop or Colima), Windows via WSL2. Native Windows shells are not supported for sandboxed commands |
+| Platforms | Class host: Windows with Docker Engine inside the Ubuntu WSL2 distribution (systemd), repository inside the WSL2 filesystem (`~/shipharness`). Learners: Linux (Docker Engine or Podman), macOS (Docker Desktop or Colima), Windows via WSL2. Native Windows shells are not supported for sandboxed commands |
 
 The sandbox is not an A/B variable. Detailed sandbox design is Module 2.
 
@@ -527,12 +529,20 @@ result and the tier used per batch are recorded in VERIFICATION.md.
 | `MAX_SESSION_COST_USD` | 2.50 (one class session, persisted across commands in `.shipharness/session.json`) |
 | `MAX_BATCH_COST_USD` | 2.50 (any single command) |
 | `MAX_EXPERIMENT_TOTAL_USD` | 25.00 (persisted across experiment batches) |
-| Also | max turns per session, max output tokens per call, tool and run wall-clock timeouts |
+| Also | max turns per session, max output tokens per call, `TOOL_TIMEOUT_S` per tool command, `RUN_TIMEOUT_S` 300 s of agent time per arm per run (harness work excluded), `HARNESS_TIMEOUT_S` 120 s of harness work per arm per run |
 
 One run cap covers both phases: the build phase and the test phase share the $0.20 (final $0.25). M6
 measures build-phase and test-phase cost separately. If build + test exceeds the cap in the pilot, the
 test phase gets a smaller turn budget (a dataset field per task) until the total fits; the build-phase
 budget and the cap are not changed.
+
+The A/B passes the cost tracker's run cap into both arm specs, so `--section final` arms run to $0.25.
+Before each model call the tracker reserves the call's worst case (estimated input at the uncached rate
+plus full max output) against every active cap under one lock, and settles it to the actual cost
+afterwards (released if the call fails), so concurrent arms cannot overshoot a shared cap. Harness work
+(workspace preparation, setup commit, gate baseline, gates) runs on its own clock under
+`HARNESS_TIMEOUT_S`, so both arms get equal agent time; every gate command fits inside the harness time
+left (owner decision, 2026-10-16).
 
 ### 11.2 Prices (`config/prices.toml`, per 1M tokens, verified 2026-10-16)
 
@@ -683,6 +693,8 @@ LangSmith link, case study, own skill.
 | D-19 | Console screens built in the browser from events | The server folds events per arm and streams rendered HTML over SSE; the browser swaps screens in; no HTMX | Agent text never becomes markup in the browser; strict content security policy |
 | D-20 | Referee scores from container checks | Out-of-scope files, test-phase source edits, shipped-test count, and mutant results are computed by the referee on the host from the applied diff; container checks receive the diff too, so the `diff_scope` result shown on screen agrees | One authoritative source for the S3 primary measure |
 | D-21 | Missing mutant set | Logged and scored 0/0; the run continues | A dataset typo must not abort a live class demo; M5 dataset validation checks every mutant set exists |
+| D-22 | Class host runs Docker Desktop | Docker Engine (free, open source) inside the Ubuntu WSL2 distribution, systemd enabled; nothing Docker-related on the Windows side | Owner decision 2026-10-16: minimal Windows changes; same Linux engine CI uses |
+| D-23 | Checkpoints as states of the main branch | Main keeps the base product; each checkpoint is a commit built from `teamtrack/reference/checkpoints.toml` (base + ordered reference patches, parent the current main commit) and tagged | Hidden tests and references can be fixed on main and the tags rebuilt; arms only ever see the tagged state |
 | D-16 | Sandbox policy file at `sandbox/policy.py` | Policy code in `src/shipharness/sandbox/policy.py`; repo-root `sandbox/` holds the Dockerfile and runtime notes | The policy is imported by the package; one source of truth |
 
 ---

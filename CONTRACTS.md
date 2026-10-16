@@ -4,7 +4,8 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.3` (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
+Contract version: `1.4` (2026-10-16, M5: §22 records features, datasets, checkpoints, and the
+pre-M6 fixes; where §22 and an earlier section differ, §22 wins). Version 1.3 (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
 where §21 and an earlier section differ, §21 wins). Version 1.2 (M3): ledger file name, runner fields, sandbox and tracer
 signatures as built; see CHANGELOG). Version 1.1: approved at the M2 checkpoint with changes: `finish` tool;
 `feature_list.json` read-only to the agent; Flex tier rule; secrets rules in §20).
@@ -55,7 +56,8 @@ brief; no prefix.
 | `MAX_OUTPUT_TOKENS` | int | 8000 | Per model call |
 | `WRAPUP_TURNS` | int | 3 | Turns granted to both arms at a session stop |
 | `TOOL_TIMEOUT_S` | int | 120 | Per tool command |
-| `RUN_TIMEOUT_S` | int | 300 | Per arm per run, wall clock (demo limit is 6 minutes including the referee; M6 tunes) |
+| `RUN_TIMEOUT_S` | int | 300 | Per arm per run, agent working time only (model calls and tools; harness work excluded; demo limit is 6 minutes including the referee; M6 tunes) |
+| `HARNESS_TIMEOUT_S` | int | 120 | Per arm per run, deterministic harness work (workspace preparation, setup commit, gate baseline, gates, session and phase hooks); every gate and baseline command fits inside what is left; past it the run ends `ABORTED: timeout` with `abort_reason` "harness time limit: ..." |
 | `MAX_CONCURRENCY` | int | 4 | Concurrent agent loops across arms |
 | `SANDBOX_MODE` | `docker` \| `none` | `docker` | `none` = UNSANDBOXED fallback |
 | `SANDBOX_RUNTIME` | str | `docker` | `docker` or `podman` |
@@ -719,9 +721,9 @@ becomes true.
     "session_budget": [30]
   },
   "outputs": {
-    "hidden_test_ids": ["teamtrack/tests/hidden/f1/test_list_filters.py::test_cursor_stable", "..."],
+    "hidden_test_ids": ["tests/hidden/f1/test_f1_search.py::test_filters_combine", "..."],
     "allowed_paths": {"build": ["app/api/issues.py", "app/services/issues.py", "app/repositories/issues.py", "tests/visible/**"], "test": ["tests/visible/**"]},
-    "mutant_set": "f1",
+    "mutant_set": "features/f1",
     "primary_measure": "r1_new_violations>=1"
   },
   "metadata": {"group": "canonical", "example_id": "F1-canonical", "control": false},
@@ -740,8 +742,23 @@ becomes true.
 }
 ```
 
-Validation: `make datasets` validates every line against these models before upload and fails on any
-error; counts per group are asserted (60 and 40).
+Validation: `shipharness datasets validate` and `make datasets` check every line against these models,
+then against the course repository (`shipharness.datasets.check_file`): the checkpoint is in
+`teamtrack/reference/checkpoints.toml`; every hidden test id exists and is not parametrized; the mutant set
+resolves to a non-empty referee set; the primary measure parses against `ScoreRecord` and matches the
+registered one; group counts (7 + 21 + 8 + 9 + 7 + 8 = 60; 20 + 10 + 10 = 40), split sizes, and unique ids.
+Upload refuses to add examples to a LangSmith dataset that already has them (a new version gets a new
+dataset name).
+
+Ids and names (M5): hidden test ids are relative to the TeamTrack root, as the referee mounts them
+(`tests/hidden/<task>/test_<task>_*.py::test_*`). `mutant_set` is a comma-separated list of names under
+`teamtrack/mutants/` (module files such as `app.services.issues`, or `features/<task>`). Library mutant
+files are `datasets/mutants/<library>/<module path below the package, dotted>.jsonl`; kills are recorded
+in `datasets/mutants/validation.json`. Splits: `smoke` (6), `section-1` to `section-4` (8 each),
+`extended` (the other 26), `testgen` (40). Feature metadata keys: `group`, `example_id`, `control`,
+`section`, `title`, `description`, `style`, `trap`, `trap_detail`, `stop`, `first_session_share`,
+`base_checkpoint`. Library targets need the pinned sources: `uv run python scripts/fetch_testgen_libs.py`
+(network; clones into `.shipharness/libs/`).
 
 ---
 
@@ -890,10 +907,15 @@ Built by the seven M4 builders against the builder contract
   `mutant_set` (`ab/mutants.py: referee_mutants`, used by the A/B, the swap test, replay, and
   experiments; names resolve to `teamtrack/mutants/<name>.jsonl`; DESIGN D-21). Only shipped tests that
   pass on the arm's unmutated build judge mutants.
-- Before judging, the referee restores the checkpoint's `conftest.py`, `tests/conftest.py`,
-  `pytest.ini`, `setup.cfg`, `tox.ini`, and `pyproject.toml`, removes anything the arm put under
-  `tests/hidden`, and sends `regression_expected` (the checkpoint's visible test ids; a missing one is a
-  regression). A referee container that fails to start gives a "could not judge" verdict, not an error.
+- Before judging, the referee restores the checkpoint's `conftest.py`, `tests/conftest.py`, `pytest.ini`,
+  `setup.cfg`, `tox.ini`, and `pyproject.toml`, and removes anything the arm put under `tests/hidden`.
+  Regression covers the checkpoint's existing tests only: the referee sends `regression_targets` and
+  `regression_expected` as the checkpoint's visible test ids (`file::name`, which runs every parameter).
+  Tests the arm added, in new files or as new functions in existing files, are judged by flakiness and
+  mutants, not regression. A missing existing id is a regression and counts in `regression_total`. The
+  referee sends `exemptions` only when the task sets them; otherwise the runner uses the adapter's
+  documented exemptions, as the gate does. A referee container that fails to start gives a "could not
+  judge" verdict, not an error.
 - `ABDeps.preview_factory(arm, bus, spec)` returns an object with `start_server()` and `run(stop)`;
   the runtime builds one preview container per arm on the referee image when sandboxed, and none when
   unsandboxed. A preview that fails to start is logged and skipped; previews stop on every path. The
@@ -911,3 +933,63 @@ Built by the seven M4 builders against the builder contract
 
 **CLI**: `doctor`, `up`, `console`, `datasets`, `check`, `testgen`, `run`, `review`, `ab`, `replay`,
 `report`, `experiments`, `skills validate`.
+
+---
+
+## 22. M5 additions (binding)
+
+Built against `instructor/engineering-notes/2026-10-16-m5-builder-contract.md` (its rulings R-1 to R-7
+are folded in here) and the owner's pre-M6 decisions.
+
+**Tasks and checkpoints**
+- Task manifest `teamtrack/reference/<task>/task.toml` (`f1`-`f7`, `c1`-`c8`): `id`, `title`, `section`,
+  `start_checkpoint`, `primary_measure`, `mutant_set`, `session_budget`, `canonical_ticket`,
+  `[allowed_paths]` (`build`, `test`), `[hidden]` (hidden test files per checkpoint where the task runs).
+  Reference code: `<task>.patch` against the start checkpoint, plus `<task>.<checkpoint>.patch` where the
+  default does not apply. Never exported into an arm workspace.
+- `teamtrack/reference/checkpoints.toml`: each checkpoint is the base product plus an ordered list of
+  reference tasks. Main's `teamtrack/app` stays the base product. `scripts/build_checkpoints.py` creates one
+  commit per checkpoint (parent: the current main commit, on no branch) and tags it: `m1-s1-start`,
+  `m1-s2-start` (+F1), `m1-s3-start` (+F1, F2), `m1-s4-start` (+F1-F3), `m1-final-start` (+F1-F4),
+  `m1-complete` (+F1-F7), `m1-alt-a` (+F5, F6), `m1-alt-b` (+F7). `shipharness.ab.checkpoints`:
+  `load_checkpoints`, `materialize`, `apply_reference`, `load_task`, `build_commits`.
+- Product specs: `teamtrack/docs/features/<task>.md` (both arms) and an identical copy in the harness map
+  (`docs/product-specs/<task>.md`); a parity test asserts byte equality.
+- Hidden tests use `teamtrack/tests/hidden/conftest.py` (`client`, `acme`, `globex`) and
+  `from hidden_support import auth, error_code`; never `conftest` or `tests/visible`. File names are unique
+  across tasks (`test_<task>_*.py`); no parametrized hidden tests. At least 90% of a task's hidden tests
+  fail on its start checkpoint (the rest live in `test_<task>_guards.py`); combined-feature tests
+  (`test_<task>_with_<other>.py`) are listed only where the other feature exists.
+- Primary measures: F1 `r1_new_violations>=1`; F2 `continuity_failure`; F3
+  `out_of_scope_files>=1 or test_phase_source_edits>=1`; F4 `hidden_passed,mutants_killed`; F5-F7 and
+  controls `""`. Feature mutant files `teamtrack/mutants/features/<task>.jsonl`: every referee mutant
+  applies at the start checkpoint and is killed by the reference's visible tests.
+
+**Runner, cost, and time**
+- `LayerContext.time_left()` reports the harness time left under `HARNESS_TIMEOUT_S` (None = no limit);
+  `GateConfig.time_left` and `GateConfig.limit(own_s)` cap every gate and baseline command by it.
+- `AgentRunResult` adds `agent_wall_s`, `harness_wall_s`, `abort_reason` (`wall_s` stays the total).
+- `arm_specs(..., run_cost_limit_usd=...)`; `run_ab` passes the tracker's run cap, so `--section final`
+  arms run to $0.25.
+- `CostTracker.reserve(scope, model, est_input_tokens, max_output_tokens)`, `settle(reservation, actual)`,
+  `release(reservation)`, `reserved_usd`: before each model call the worst case is reserved against every
+  active cap under one lock and settled afterwards (released on failure).
+
+**Referee and checks**
+- `continuity` counts only `params.run_id`'s `session_stop` events (the A/B log holds both arms).
+- Board preview containers mount the arm workspace read-only (`SandboxPolicy.workspace_read_only`).
+- Export inspection: an arm workspace holds only checkpoint product files and one checkpoint commit
+  (`tests/unit/ab/test_export_inspection.py`); files in `exports/` never carry keys or host paths
+  (`tests/unit/test_exports_no_secrets.py`).
+
+**A/B, console, testgen, Make**
+- `run_ab(..., section=...)`; `ab.json` records `section`. `shipharness ab --swap latest --section
+  demo-N` picks the section's most recent A/B; `make swap-N` uses it (`AB=<id>` overrides).
+- The run-log reader (`shipharness.events.reader`) skips a malformed line with one warning that names the
+  run, line, and reason, never the content; a partial last line is held and read again.
+- `shipharness testgen --doctest-modules/--no-doctest-modules` (default off; target metadata
+  `baseline_includes_doctests` wins): doctests count in the existing-suite baseline, coverage, and mutant
+  kills; generated tests run as plain ids.
+- `make test` (default `pytest`) deselects `slow`; `make test-all` runs everything except live and
+  Docker; `make demo-N`, `swap-N`, `final`, `replay` call the real commands.
+- `.python-version` pins Python 3.12 for uv.
