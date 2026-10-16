@@ -66,8 +66,9 @@ def check_file(path: Path, kind: DatasetKind, repo: Path = REPO_ROOT) -> list[st
         check_line, check_all = check_testgen_line, check_testgen_file
     for number, line in enumerate(lines, start=1):
         errors += [f"line {number}: {e}" for e in check_line(line, Path(repo))]
-    if len(lines) == STANDARD_DATASETS[kind][2]:
-        errors += check_all(lines)
+    # File-level checks (line total, group counts, splits, duplicate ids) run whatever the line
+    # count is; a wrong total is one of their errors, never a reason to skip the others.
+    errors += check_all(lines)
     return errors
 
 
@@ -105,10 +106,13 @@ def upload(
     """Create the dataset if needed and add the examples. Returns the number uploaded."""
     if client.has_dataset(dataset_name=dataset_name):
         dataset = client.read_dataset(dataset_name=dataset_name)
-        existing = getattr(dataset, "example_count", 0) or 0
-        if existing:
+        # The server may report example_count as None: list one example to decide.
+        first = next(iter(client.list_examples(dataset_id=dataset.id, limit=1)), None)
+        if first is not None:
             # Adding again would duplicate every example; a new version gets a new dataset name.
-            raise ValueError(f"{dataset_name} already has {existing} examples; not adding more")
+            count = getattr(dataset, "example_count", None)
+            existing = f"{count} examples" if count else "examples"
+            raise ValueError(f"{dataset_name} already has {existing}; not adding more")
     else:
         dataset = client.create_dataset(dataset_name, description=description)
     client.create_examples(dataset_id=dataset.id, examples=examples)

@@ -7,8 +7,12 @@ from pathlib import Path
 import typer
 
 from shipharness.config import Settings
+from shipharness.config.prices import REPO_ROOT
 from shipharness.runner.model import ModelClient, OpenAIModelClient
 from shipharness.sandbox import UNSANDBOXED_BANNER
+from shipharness.testgen.targets import TARGETS_FILE
+
+COURSE_ROOT = REPO_ROOT  # where teamtrack/, .shipharness/libs/, and mutant refs resolve
 
 
 class MissingKey(RuntimeError):
@@ -38,8 +42,16 @@ def _cost_line(spent_usd: float, note: str) -> None:
 def register(app: typer.Typer) -> None:
     @app.command()
     def testgen(
-        repo: Path = typer.Option(..., help="Repository with a pytest suite."),
-        module: str = typer.Option(..., help="Repo-relative path of the module to test."),
+        target: str | None = typer.Option(
+            None,
+            help="A testgen-targets-v1 target id (e.g. TG-boltons-listutils): fills the repo, "
+            "module, existing tests, mutants, and target metadata. Explicit options override.",
+        ),
+        targets_file: Path = typer.Option(
+            TARGETS_FILE, "--targets-file", help="Targets JSONL for --target."
+        ),
+        repo: Path | None = typer.Option(None, help="Repository with a pytest suite."),
+        module: str | None = typer.Option(None, help="Repo-relative path of the module to test."),
         layers: str = typer.Option("none", help="none or verify."),
         max_tests: int = typer.Option(10, "--max-tests", help="Test functions to evaluate."),
         sandbox: str = typer.Option(
@@ -51,7 +63,11 @@ def register(app: typer.Typer) -> None:
         tests: list[str] = typer.Option(  # noqa: B008
             [], "--tests", help="Existing test paths (default: the repo's configured suite)."
         ),
-        python: str = typer.Option("python", help="Python command inside the sandbox."),
+        python: str | None = typer.Option(
+            None,
+            help="Python command inside the sandbox (default: python, or the library's venv "
+            "python for a --target library).",
+        ),
         out: Path | None = typer.Option(None, help="Directory for kept tests and the report."),
         doctest_modules: bool = typer.Option(
             False,
@@ -62,6 +78,7 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """Generate tests for one module and keep only those that pass all five filters."""
         from shipharness.testgen.run import TestgenOptions, run_testgen
+        from shipharness.testgen.targets import TargetError, resolve_target
 
         kind = sandbox or ("docker" if image else "local")
         if kind not in ("local", "docker"):
@@ -70,6 +87,31 @@ def register(app: typer.Typer) -> None:
             raise typer.Exit(1)
         if kind == "docker" and not image:
             typer.echo("x --sandbox docker needs --image (a prepared image for this repo)")
+            _cost_line(0.0, "no model calls")
+            raise typer.Exit(1)
+        mutants: Path | None = None
+        mutant_set: str | None = None
+        metadata = None
+        if target:
+            try:
+                resolved = resolve_target(
+                    target,
+                    targets_file,
+                    COURSE_ROOT,
+                    need_python=kind == "local" and python is None,
+                )
+            except TargetError as exc:
+                typer.echo(f"x {exc}")
+                _cost_line(0.0, "no model calls")
+                raise typer.Exit(1) from None
+            repo = repo or resolved.repo
+            module = module or resolved.module
+            tests = list(tests) or resolved.existing_tests
+            python = python or resolved.python
+            mutants, mutant_set, metadata = resolved.mutants, resolved.mutant_set, resolved.metadata
+            typer.echo(f"target {target}: {module} in {repo}")
+        if repo is None or module is None:
+            typer.echo("x give --target <id>, or both --repo and --module")
             _cost_line(0.0, "no model calls")
             raise typer.Exit(1)
         if not repo.is_dir():
@@ -93,9 +135,12 @@ def register(app: typer.Typer) -> None:
             sandbox=kind,  # type: ignore[arg-type]
             image=image or None,
             existing_tests=list(tests),
-            python=python,
+            mutants=mutants,
+            mutant_set=mutant_set,
+            python=python or "python",
             out_dir=out,
             doctest_modules=doctest_modules,
+            target_metadata=metadata,  # its baseline_includes_doctests wins (CONTRACTS §22)
         )
         result = run_testgen(options, settings, client=client)
         if result.baseline_includes_doctests:

@@ -65,6 +65,23 @@ def test_working_tree_source_when_no_ref(course_repo: Path, tmp_path: Path) -> N
     assert not any(f.startswith(("harness/", "tests/hidden/", "reference/")) for f in files(dest))
 
 
+def test_working_tree_export_skips_tool_caches(course_repo: Path, tmp_path: Path) -> None:
+    tt = course_repo / "teamtrack"
+    for cache in (
+        ".import_linter_cache/abc.json",
+        ".pytest_cache/v/cache/lastfailed",
+        ".ruff_cache/0.9/123",
+        ".mypy_cache/3.12/app.json",
+        ".hypothesis/examples/1",
+        "app/.pytest_cache/v/x",  # nested caches too
+    ):
+        write(tt / cache, "cache\n")
+    tree, tag = tmp_path / "tree", tmp_path / "tag"
+    export_checkpoint(course_repo, None, tree)
+    export_checkpoint(course_repo, "m1-s1-start", tag)
+    assert files(tree) == files(tag)  # the materialized tree matches the tag tree
+
+
 def test_arm_workspace_is_a_fresh_repo_with_one_commit(course_repo: Path, tmp_path: Path) -> None:
     ws = create_arm_workspace("ab-1", "bare", course_repo, "m1-s1-start", base=tmp_path / "wsroot")
     assert ws == tmp_path / "wsroot" / "ab-1" / "bare" / "ws"

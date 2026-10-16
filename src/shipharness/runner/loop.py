@@ -335,6 +335,13 @@ class _Run:
         if self.status == "completed":
             self.status, self.abort_reason = status, reason
 
+    def fail(self, error: str) -> None:
+        """Mark the run ERROR, unless it already ended (an abort keeps its status and reason;
+        the error is still recorded)."""
+        if self.status == "completed":
+            self.status = "ERROR"
+        self.error = self.error or error
+
     # -- sessions ------------------------------------------------------------------------------
 
     def base_items(self, phase: Phase, resume: bool) -> list[dict[str, Any]]:
@@ -386,7 +393,8 @@ class _Run:
                     self.abort("ABORTED: cap", str(exc))
                     break
                 except _ModelFailure as failure:
-                    ended_by, self.status, self.error = "error", "ERROR", failure.message
+                    ended_by = "error"
+                    self.fail(failure.message)
                     break
                 items.extend(response.output_items)
                 calls = [i for i in response.output_items if i.get("type") == "function_call"]
@@ -426,7 +434,13 @@ class _Run:
                 "tool_call",
                 {"call_id": call_id, "name": name, "target": _target(call) if call else ""},
             )
-            if call is None:
+            refusal = self._ended_refusal(end)
+            if refusal is not None:
+                # The run or session ended earlier in this response (harness time limit, an
+                # accepted finish): nothing more runs unchecked, and every call still gets a
+                # result so the transcript stays well formed.
+                result = ToolResult(call_id=call_id, ok=False, output=refusal)
+            elif call is None:
                 result = ToolResult(call_id=call_id, ok=False, output=problem)
             elif call.name == "finish":
                 result, end = self.handle_finish(call, phase)
@@ -454,6 +468,17 @@ class _Run:
                 {"type": "function_call_output", "call_id": call_id, "output": result.output}
             )
         return end
+
+    def _ended_refusal(self, end: str | None) -> str | None:
+        """The tool result for a call that comes after the run or session ended in the same
+        model response; None while the call may run."""
+        if self.harness_over:
+            return f"Refused, not run: the run ended ({self.abort_reason})."
+        if self.status != "completed":
+            return f"Refused, not run: the run ended ({self.abort_reason or self.status})."
+        if end is not None:
+            return f"Refused, not run: the session ended earlier in this response ({end})."
+        return None
 
     # -- phases --------------------------------------------------------------------------------
 
@@ -544,8 +569,7 @@ class _Run:
             base_sha = git.initial_sha(self.spec.workspace)
             trace_url = self._run_phases(phase_shas)
         except Exception as exc:  # noqa: BLE001 - the run always ends with a result and run_end
-            self.status = "ERROR"
-            self.error = f"internal error: {type(exc).__name__}"
+            self.fail(f"internal error: {type(exc).__name__}")
         diff_out = self.options.diff_path or (self.spec.workspace.parent / "diff.patch")
         diff_path = None
         try:

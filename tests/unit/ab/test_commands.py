@@ -115,6 +115,50 @@ def test_ab_command_runs_both_arms_and_then_swap_and_replay(env) -> None:  # typ
     assert "RECORDING" in replay.output and "Cost: $" in replay.output
 
 
+def _one_line_error(result) -> str:  # type: ignore[no-untyped-def]
+    assert result.exit_code == 2, result.output
+    assert result.exception is None or isinstance(result.exception, SystemExit)
+    assert "Traceback" not in result.output
+    lines = result.output.strip().splitlines()
+    assert len(lines) == 1, result.output
+    return lines[0]
+
+
+@pytest.mark.parametrize("runs", ["empty", "no-section", "other-section"])
+def test_swap_latest_without_a_match_is_one_line_with_a_hint(env, runs: str) -> None:  # type: ignore[no-untyped-def]
+    root = Path(env.settings.runs_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    if runs != "empty":
+        record = root / "ab-20261016-090000-aaaaaa" / "ab.json"
+        record.parent.mkdir(parents=True)
+        section = None if runs == "no-section" else "demo-1"
+        record.write_text(json.dumps({"section": section, "arms": {}}), encoding="utf-8")
+    result = CliRunner().invoke(make_app(), ["ab", "--swap", "latest", "--section", "demo-4"])
+    line = _one_line_error(result)
+    assert "demo-4" in line and "make demo-4" in line and "AB=<id>" in line
+
+
+def test_swap_of_an_unknown_id_is_one_line(env) -> None:  # type: ignore[no-untyped-def]
+    result = CliRunner().invoke(make_app(), ["ab", "--swap", "ab-nothing"])
+    line = _one_line_error(result)
+    assert "ab-nothing" in line
+
+
+def test_swap_of_a_record_without_a_pinned_commit_is_refused(env) -> None:  # type: ignore[no-untyped-def]
+    app = make_app()
+    args = ["ab", "--feature", "F1", "--section", "demo-1", "--dataset", str(env.dataset)]
+    result = CliRunner().invoke(app, args)
+    assert result.exit_code == 0, result.output
+    ab_id = next(line.split()[1] for line in result.output.splitlines() if line.startswith("A/B "))
+    path = Path(env.settings.runs_dir) / ab_id / "ab.json"
+    data = json.loads(path.read_text(encoding="utf-8"))
+    del data["checkpoint_sha"]
+    path.write_text(json.dumps(data), encoding="utf-8")
+    for args in (["ab", "--swap", ab_id], ["replay", ab_id]):
+        line = _one_line_error(CliRunner().invoke(app, args))
+        assert "predates" in line
+
+
 def test_ab_command_unknown_feature_exits_1(env) -> None:  # type: ignore[no-untyped-def]
     result = CliRunner().invoke(
         make_app(), ["ab", "--feature", "F9", "--dataset", str(env.dataset)]

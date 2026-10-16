@@ -80,13 +80,20 @@ def _check_items(
     sandbox: Sandbox, cfg: GateConfig, root: str, on_progress: Callable[[dict], None] | None
 ) -> tuple[list[GateItem], list[str]]:
     params = {**cfg.params, "artifacts_dir": f"{root}/artifacts"}  # never in the arm workspace
-    write_container_file(
-        sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True), cfg.limit(30)
-    )
+    labels = [CHECK_LABELS.get(c, c) for c in cfg.checks]
     baseline = None
-    if cfg.baseline_json:
-        write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json, cfg.limit(30))
-        baseline = f"{root}/baseline.json"
+    try:
+        write_container_file(
+            sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True), cfg.limit(30)
+        )
+        if cfg.baseline_json:
+            write_container_file(sandbox, f"{root}/baseline.json", cfg.baseline_json, cfg.limit(30))
+            baseline = f"{root}/baseline.json"
+    except RuntimeError as exc:  # a slow write near the harness time limit: no checks ran
+        detail = f"could not write the check inputs in the container: {exc}"[:300]
+        return [GateItem(name=n, status="fail", detail=detail) for n in labels], [
+            f"FAIL checks: {detail}"
+        ]
     nonce = new_nonce()
     command = runner_command(
         build=f"{root}/build",
@@ -99,7 +106,6 @@ def _check_items(
         nonce=nonce,
     )
     output = sandbox.exec(f"cd {root} && {command}", cfg.limit(cfg.timeout_s))
-    labels = [CHECK_LABELS.get(c, c) for c in cfg.checks]
     try:
         results, progress = parse_runner_output(output.output, nonce=nonce)
     except RunnerOutputError as exc:

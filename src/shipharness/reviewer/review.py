@@ -98,7 +98,9 @@ def run_review(
     if budget < MIN_REVIEW_OUTPUT_TOKENS:
         return ReviewOutcome(None, "cap", 0.0, f"review cap ${scope.limit_usd} too small")
     try:
-        cost.check_before_call(scope, model, est_input, budget)
+        # The worst case is held against every cap under one lock until the call settles, so a
+        # concurrent review or arm cannot spend the same room (CostTracker.reserve).
+        reservation = cost.reserve(scope, model, est_input, budget)
     except CapExceeded as exc:
         return ReviewOutcome(None, "cap", 0.0, str(exc))
     with tracer.child("reviewer", "chain", blinded=True, model=model) as handle:
@@ -118,14 +120,18 @@ def run_review(
                 kind = classify_openai_error(exc)
                 attempt += 1
                 if kind != "retry" or attempt >= max_attempts:
+                    cost.release(reservation)
                     status = getattr(exc, "status_code", "n/a")
                     detail = _ERRORS[kind]
                     if kind == "abort_other":
                         detail = f"{detail}: {type(exc).__name__} (status {status})"
                     return ReviewOutcome(None, "error", scope.spent_usd, detail)
                 sleep(float(2 ** (attempt - 1)))
+            except BaseException:
+                cost.release(reservation)
+                raise
         try:
-            cost.record(scope, model, usage_from_openai(response.usage))
+            cost.settle(reservation, usage_from_openai(response.usage))
         except CapExceeded as exc:
             return ReviewOutcome(None, "cap", round(scope.spent_usd, 6), str(exc))
         spent = round(scope.spent_usd, 6)

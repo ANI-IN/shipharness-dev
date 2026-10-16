@@ -191,6 +191,25 @@ def _tag_exists(repo: Path, name: str) -> bool:
     return done.returncode == 0
 
 
+def tag_commits(repo: Path, names: list[str]) -> dict[str, str]:
+    """The commit each existing tag among `names` points at now (missing tags are left out)."""
+    return {
+        name: _git(Path(repo), "rev-parse", f"refs/tags/{name}^{{commit}}")
+        for name in names
+        if _tag_exists(Path(repo), name)
+    }
+
+
+def recorded_results(runs_dir: Path, exports_dir: Path) -> list[Path]:
+    """Recorded results that name checkpoints by tag: every `<runs>/*/ab.json` and every JSON
+    export under `<exports>` (scores, experiments). Tags must not move under them without the
+    owner's approval."""
+    found = sorted(Path(runs_dir).glob("*/ab.json")) if Path(runs_dir).is_dir() else []
+    if Path(exports_dir).is_dir():
+        found += sorted(p for p in Path(exports_dir).rglob("*.json") if p.is_file())
+    return found
+
+
 def build_commits(
     repo: Path = REPO_ROOT,
     names: list[str] | None = None,

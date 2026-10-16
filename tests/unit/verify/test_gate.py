@@ -175,6 +175,28 @@ def test_every_gate_command_fits_in_the_harness_time_left() -> None:
     assert timeouts and max(timeouts) <= 40
 
 
+def test_a_failed_input_write_fails_the_check_items_instead_of_crashing() -> None:
+    base = script()
+
+    def slow_write(command: str) -> ExecResult:
+        if command.startswith("printf %s"):  # the params write times out near the limit
+            return ExecResult(exit_code=124, output="timed out", duration_ms=1000, timed_out=True)
+        return base(command)
+
+    sandbox = FakeSandbox(slow_write)
+    cfg = config(baseline_json='{"results": []}')
+    cfg.time_left = lambda: 2.0
+    result = run_gate(sandbox, cfg, gate_id="g11", base_sha="abc", phase="build")
+    assert not result.passed
+    status = {i.name: i for i in result.items}
+    assert status["visible tests"].status == "pass" and status["clean state"].status == "pass"
+    for name in ("existing tests", "R1", "R7", "board"):
+        assert status[name].status == "fail"
+        assert "could not write the check inputs" in status[name].detail
+    assert not any("checks.runner" in c for c in sandbox.commands)
+    assert "could not write the check inputs" in result.feedback
+
+
 def test_gate_commands_keep_their_own_limits_without_a_harness_limit() -> None:
     timeouts: list[int] = []
 

@@ -23,7 +23,6 @@ def finished_ab(course_repo: Path, tmp_path: Path):  # type: ignore[no-untyped-d
 def recorded_deps(course_repo: Path, tmp_path: Path, factory: Factory) -> RecordedDeps:
     return RecordedDeps(
         course_repo=course_repo,
-        checkpoint_ref="m1-s1-start",
         referee_sandbox_factory=factory,
         runs_dir=tmp_path / "runs",
         exports_dir=tmp_path / "exports",

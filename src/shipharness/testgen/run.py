@@ -60,6 +60,7 @@ class TestgenOptions:
     image: str | None = None
     existing_tests: list[str] = field(default_factory=list)  # [] = the repo's configured suite
     mutants: Path | None = None  # default: <repo>/mutants/<dotted module>.jsonl if present
+    mutant_set: str | None = None  # "filter" or "referee": only that set of the file (None: all)
     python: str = "python"
     out_dir: Path | None = None
     test_phase_turns: int | None = None
@@ -246,6 +247,8 @@ def run_testgen(
     mutant_file = options.mutants or (repo / "mutants" / f"{dotted}.jsonl")
     try:
         mutants = load_mutants(mutant_file, repo) if Path(mutant_file).is_file() else []
+        if options.mutant_set:
+            mutants = [m for m in mutants if m.set == options.mutant_set]
     except MutantError as exc:
         result.error = f"invalid mutant file: {exc}"
         return result
