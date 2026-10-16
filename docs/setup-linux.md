@@ -19,9 +19,11 @@ install uses the same commands, but no native install was tested for the course.
 | 4 `make setup` | `make -n setup` checked on 2026-10-17 (it prints `uv sync --frozen`, the two image builds, and the `.env` copy); `uv sync --frozen` ran on 2026-10-17. The image builds ran on the class host for the course pilot |
 | 5 `.env` | Format from `.env.example` |
 | 6 `make doctor` | `uv run shipharness doctor --offline` ran on 2026-10-17 (output below); the online key check is the same command without `--offline` |
-| 7 `make up` | Not run while writing this page; the board login and demo users come from `teamtrack/docs/HANDBOOK.md` |
+| 7 `make up` | **Not run on the class host tonight (2026-10-17).** `make -n up` ran (it prints `uv run shipharness up --port 8000`); the board login and demo users come from `teamtrack/docs/HANDBOOK.md` |
 
-The clone URL in step 4 is the public learner repository; it was not cloned while writing this page.
+**The `git clone` command in step 4 was not run on the class host tonight (2026-10-17).** Its URL is
+the public learner repository, which can be cloned only after it is published. The class host's
+checkout at `~/shipharness` is the course's build repository.
 
 ## Accounts first
 
@@ -63,8 +65,8 @@ Source: uv installation page, https://docs.astral.sh/uv/getting-started/installa
 
 ## 3. Install Docker Engine
 
-These are Docker's commands for Ubuntu ("Install using the apt repository"). Docker lists Ubuntu
-26.04, 24.04, and 22.04 as supported.
+These are Docker's commands for Ubuntu ("Install using the apt repository"). On 2026-10-17 Docker
+listed Ubuntu 26.10, 26.04 (LTS), 24.04 (LTS), and 22.04 (LTS) as supported.
 
 ```bash
 # Add Docker's official GPG key:
@@ -121,7 +123,8 @@ course did not test it.
 
 ## 4. Clone and run `make setup`
 
-Keep the repository in your home folder, for example `~/shipharness`:
+Keep the repository in your home folder, for example `~/shipharness`. The `git clone` line below was
+not run on the class host tonight (2026-10-17); see the table at the top:
 
 ```bash
 git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
@@ -180,8 +183,8 @@ tracked by git. The OpenAI check lists models and uses no tokens. You are done w
 `result: + ready` and the `container runtime` line starts with `+ ok`. Each key line then says
 `accepted by OpenAI` or `accepted by LangSmith`.
 
-Captured on 2026-10-17 on the class host, in a checkout without a `.env` file, with `--offline` (no
-network calls); your output will differ:
+Captured on 2026-10-17 from `uv run shipharness doctor --offline` at commit 5e8fb08, in a checkout
+without a `.env` file (no network calls); your output will differ:
 
 ```
 $ uv run shipharness doctor --offline
@@ -206,7 +209,9 @@ Cost: $0.000000 (no model calls)
 make up
 ```
 
-Open http://127.0.0.1:8000/board, pick a demo user on the login page (for example
+This command was not run on the class host tonight (2026-10-17); what follows comes from
+`teamtrack/docs/HANDBOOK.md`, the board's login page (`teamtrack/app/web/templates/login.html`), and
+`make -n up`. Open http://127.0.0.1:8000/board, pick a demo user on the login page (for example
 `admin@acme.test`), and you see the Acme project board. The demo data has two orgs, Acme and Globex
 (`teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken:
 `make up PORT=8001`.

@@ -75,7 +75,8 @@ What each page says:
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
+  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
@@ -117,7 +118,8 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/harness-setup
 uv run shipharness skills validate ~/my-repo/.agents/skills/harness-setup
 ```
 
-Captured on 2026-10-17 for the source folder; your output will differ if you change the skill:
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/harness-setup` at commit 5e8fb08;
+your output will differ:
 
 ```text
 + harness-setup: valid (SKILL.md 103 lines)
@@ -129,8 +131,8 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/harness-setup` (output on 2026-10-17:
-`Valid skill: skills/harness-setup`).
+`uv run agentskills validate skills/harness-setup` (captured on 2026-10-17 from that command at commit
+5e8fb08: `Valid skill: skills/harness-setup`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -139,9 +141,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/harness-setup` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/harness-setup` (B7) |
-| Codex (CLI or IDE extension) | Type `$harness-setup`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8) |
-| Cursor | Type `/` in Agent chat and search for `harness-setup` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9) |
+| Claude Code | `/harness-setup` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/harness-setup` (B7, read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$harness-setup`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `harness-setup` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/harness-setup` in Claude Code or
 `$harness-setup` in Codex to call it by name):
@@ -157,8 +159,9 @@ The agent runs the script from the installed folder, for example
 `python .claude/skills/harness-setup/scripts/assess.py . --out harness-assessment.html` in Claude
 Code or `python .agents/skills/harness-setup/scripts/assess.py . --out harness-assessment.html` in
 Codex. You can run it yourself first. This is the summary it printed for the course's TeamTrack
-app (`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html`
-from the checkout root), cut to the first lines; captured on 2026-10-17, your output will differ:
+app, cut to the first lines; captured on 2026-10-17 from
+`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html` (run
+from the checkout root) at commit 5e8fb08; your output will differ:
 
 ```text
 Instructions       pass 0  partial 1  fail 5
@@ -212,5 +215,6 @@ agent's own work reading the report and writing the files. The shipharness valid
 - B5: skills-ref, the reference validator. https://github.com/agentskills/agentskills
 - B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
 - B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/context/skills
+- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
+  https://cursor.com/docs/context/skills on 2026-10-17)
 - B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4

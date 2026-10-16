@@ -40,8 +40,9 @@ Copy-Item -Recurse skills\skill-template skills\my-skill
 ```
 
 Then set `name: my-skill` in `skills/my-skill/SKILL.md`. Until you do, validation fails, because the
-name must equal the folder name. Captured on 2026-10-17 from a copy named `my-skill` with the name
-not yet changed; your output will differ:
+name must equal the folder name. Captured on 2026-10-17 from
+`uv run shipharness skills validate <copy>/my-skill` at commit 5e8fb08, on a copy named `my-skill` with
+the name not yet changed; your output will differ:
 
 ```text
 x my-skill: Directory name 'my-skill' must match skill name 'skill-template'
@@ -94,7 +95,8 @@ uv run shipharness skills validate skills/my-skill
 uv run agentskills validate skills/my-skill
 ```
 
-For the template folder itself, captured on 2026-10-17; your output will differ:
+For the template folder itself, captured on 2026-10-17 from
+`uv run shipharness skills validate skills/skill-template` at commit 5e8fb08; your output will differ:
 
 ```text
 + skill-template: valid (SKILL.md 46 lines)
@@ -103,7 +105,7 @@ Cost: $0.000000 (no model calls)
 ```
 
 `uv run agentskills validate skills/skill-template` printed `Valid skill: skills/skill-template`
-on the same date.
+(captured on 2026-10-17 from that command at commit 5e8fb08; your output will differ).
 
 - `shipharness skills validate` reports errors for everything the reference validator checks, and
   warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and referenced
@@ -147,7 +149,8 @@ What each page says:
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
+  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
@@ -184,9 +187,9 @@ validator on each installed copy after you change it, for example
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/<name>` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/<name>` (B7) |
-| Codex (CLI or IDE extension) | Type `$<name>`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8) |
-| Cursor | Type `/` in Agent chat and search for `<name>` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9) |
+| Claude Code | `/<name>` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/<name>` (B7, read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$<name>`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `<name>` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
 
 Example prompt with the template installed (prefix `/skill-template` in Claude Code or
 `$skill-template` in Codex to call it by name):
@@ -236,7 +239,8 @@ The other course skills are worked examples of this template:
   https://pypi.org/project/skills-ref/
 - B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
 - B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/context/skills
+- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
+  https://cursor.com/docs/context/skills on 2026-10-17)
 - B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4
 - A4: Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic,
   2026-02-05. https://www.anthropic.com/engineering/building-c-compiler

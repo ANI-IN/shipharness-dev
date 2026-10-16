@@ -74,7 +74,8 @@ What each page says:
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
+  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
@@ -116,7 +117,8 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/house-rules
 uv run shipharness skills validate ~/my-repo/.agents/skills/house-rules
 ```
 
-Captured on 2026-10-17 for the source folder; your output will differ if you change the skill:
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/house-rules` at commit 5e8fb08;
+your output will differ:
 
 ```text
 + house-rules: valid (SKILL.md 94 lines)
@@ -128,8 +130,8 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/house-rules` (output on 2026-10-17:
-`Valid skill: skills/house-rules`).
+`uv run agentskills validate skills/house-rules` (captured on 2026-10-17 from that command at commit
+5e8fb08: `Valid skill: skills/house-rules`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -138,9 +140,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/house-rules` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/house-rules` (B7) |
-| Codex (CLI or IDE extension) | Type `$house-rules`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8) |
-| Cursor | Type `/` in Agent chat and search for `house-rules` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9) |
+| Claude Code | `/house-rules` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/house-rules` (B7, read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$house-rules`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `house-rules` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/house-rules` in Claude Code or
 `$house-rules` in Codex to call it by name):
@@ -154,9 +156,9 @@ baseline, and add the rule to AGENTS.md and CI.
 
 The agent runs the script from the installed folder, for example
 `python .claude/skills/house-rules/scripts/new_rule.py --id R8 --title "..." --root .`. You can
-preview what it writes with `--dry-run`. Captured on 2026-10-17 against the course's TeamTrack app
-(`uv run python skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root teamtrack --dry-run`
-from the checkout root); your output will differ:
+preview what it writes with `--dry-run`. Captured on 2026-10-17 against the course's TeamTrack app from
+`uv run python skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root teamtrack --dry-run`
+(run from the checkout root) at commit 5e8fb08; your output will differ:
 
 ```text
 would write docs/rules/R8-soft-deleted-rows-never-appear.md
@@ -202,5 +204,6 @@ from; [skill-template](../skill-template/README.md) is the starting point for a 
 - B5: skills-ref, the reference validator. https://github.com/agentskills/agentskills
 - B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
 - B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/context/skills
+- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
+  https://cursor.com/docs/context/skills on 2026-10-17)
 - B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4

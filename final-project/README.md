@@ -51,7 +51,8 @@ budgets, and cost cap.
 | F7 Labels | [f7.md](../teamtrack/docs/features/f7.md) | 2 (25, then 35) | 64 | 3 |
 
 Sources: session budgets from `teamtrack/reference/f5/task.toml` (and `f6`, `f7`); hidden-test
-counts as counted in the course's audit of the hidden tests on 2026-10-16; referee-set mutants from
+counts are the test functions in `teamtrack/tests/hidden/f5/` (3 files, 46 tests), `f6/` (3 files,
+54) and `f7/` (4 files, 64), none of them parametrized; referee-set mutants from
 `teamtrack/mutants/features/f5.jsonl` (and `f6`, `f7`), which also hold two filter-set mutants each.
 
 F6 and F7 run over two sessions, so a session ends partway through the feature and the next session
@@ -246,7 +247,8 @@ one A/B:
 | `claim`, `reviewer_verdict`, `reviewer_agrees` | What the agent said, what the blinded reviewer said, and whether the reviewer matched the referee |
 | `status`, `cost_usd`, `review_cost_usd`, `turns_total`, `wall_s` | `completed`, `ABORTED: cap`, and so on; spend, review spend, turns, and agent time |
 
-An example from a section demo, not the final: the bare arm of an F4 A/B in the course pilot.
+An example from a section demo, not the final: the bare arm of an F4 A/B in the course pilot's run 2
+on 2026-10-16.
 Captured on 2026-10-16, run r-20261016-185422-ce2096 (A/B ab-20261016-185422-8a8c2a); excerpt, trace
 links cut; your output will differ:
 
@@ -309,7 +311,8 @@ uv run python scripts/anchors.py extract Final:dots
 ```
 
 which prints the start of `render_dot_plot` in `src/shipharness/ab/report.py` (captured on
-2026-10-17; first lines):
+2026-10-17 from `uv run python scripts/anchors.py extract Final:dots` at commit 5e8fb08; first lines;
+your output will differ):
 
 ```
 def render_dot_plot(group: dict[str, Any], width: int = 640) -> str:
@@ -327,7 +330,7 @@ Rules for reading it:
 Replays are left out unless you pass `--include-recorded`. Model output varies between runs, so a
 single live A/B is one dot: read it next to the experiment dots, never alone.
 
-[[PENDING: report.html dot plots for F1-F4 from the headline batch (k=10 per arm) | source: M8 batch 1 | how: uv run shipharness experiments (batch 1), then uv run shipharness report]]
+[[PENDING: report.html dot plots for F1-F4 from the headline batch (k=10 per arm) | source: M8 batch 1 | how: uv run shipharness experiments --split section-N --k 10 --reviewer --batch batch-1 for N = 1 to 4 (options: uv run shipharness experiments --help), then uv run shipharness report]]
 
 ## 6. Run shipharness on your own repository
 
@@ -351,8 +354,9 @@ evidence, the fix, and the source. Add `--json` to also print the checks as JSON
 instructions (I1-I6), state (S1-S4), scope (C1-C5), verification (V1-V5), and session lifecycle
 (L1-L5).
 
-Captured on 2026-10-17 on the bare TeamTrack (`assess.py teamtrack`), first lines; your output will
-differ:
+Captured on 2026-10-17 on the bare TeamTrack from
+`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html` at
+commit 5e8fb08, first lines; your output will differ:
 
 ```
 Instructions       pass 0  partial 1  fail 5
@@ -424,16 +428,16 @@ database, returns headers for a role in an org, names two orgs (probes run as th
 second's data), gives the ids to probe with, counts audit rows, detects another org's data in a
 response, and lists exemptions. The built-in TeamTrack adapter in the same file is a worked example.
 
-Try it on TeamTrack first (no adapter needed). Captured on 2026-10-17 on the class host; your output
-will differ:
+Try it on TeamTrack first (no adapter needed). Captured on 2026-10-17 from
+`uv run shipharness check --app teamtrack --rules R6,R7` at commit 5e8fb08; your output will differ:
 
 ```
 $ uv run shipharness check --app teamtrack --rules R6,R7
 UNSANDBOXED: the checks import and run this app's code on this machine.
   R6 import-linter
-PASS  r6_layering      new=0 baseline=0 probes=1 342 ms
-PASS  r7_migrations    new=0 baseline=0 probes=2 2927 ms
   R7 alembic upgrade head
+PASS  r6_layering      new=0 baseline=0 probes=1 285 ms
+PASS  r7_migrations    new=0 baseline=0 probes=2 3793 ms
 Cost: $0.000000 (no model calls)
 ```
 
@@ -484,9 +488,9 @@ top of both.
 
 [[PENDING: measured cost per final feature (both arms + reviews) for F5, F6, F7 | source: live class | how: make final FEATURES=F5,F6,F7, read the Cost lines and cost_usd + review_cost_usd in exports/scores]]
 
-[[PENDING: measured wall time per final feature, from start to referee verdict | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7); wall_s in exports/scores for the agent part]]
+[[PENDING: measured wall time per final feature, from start to referee verdict | source: live class | how: time make final FEATURES=F5 (and F6, F7); wall_s in exports/scores for the agent part]]
 
-[[PENDING: measured cost and wall time of one shipharness testgen run on a library target | source: M6 pilot | how: time uv run shipharness testgen --target TG-boltons-listutils --layers verify]]
+[[PENDING: measured cost and wall time of one shipharness testgen run on a library target | source: live class | how: time uv run shipharness testgen --target TG-boltons-listutils --layers verify]]
 
 ## 8. Portfolio: how this feeds assignment 4
 

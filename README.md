@@ -147,7 +147,7 @@ supported: on Windows everything runs inside Ubuntu on WSL2.
 
 | Account | Plan | Why |
 |---|---|---|
-| OpenAI API | **Build tier** or higher. OpenAI's rate-limits page lists Build as the tier reached with "$5 in total credit purchases" (https://developers.openai.com/api/docs/guides/rate-limits, read 2026-10-17) | The agent model is `gpt-6-luna`; its model page lists rate limits only for the Build, Launch, and Grow tiers, with no Free row (https://developers.openai.com/api/docs/models/gpt-6-luna, read 2026-10-17). The reviewer model is `gpt-5.6-luna` |
+| OpenAI API | **Build tier** or higher. OpenAI's rate-limits page lists Build as the tier reached with "$5 in total credit purchases" (https://developers.openai.com/api/docs/guides/rate-limits, read 2026-10-17) | The agent model is `gpt-6-luna`; its model page lists the Free tier as "Not supported" and gives rate limits for the Build, Launch, and Grow tiers (https://developers.openai.com/api/docs/models/gpt-6-luna, read 2026-10-17). The reviewer model is `gpt-5.6-luna` |
 | LangSmith | **Free Developer plan, no card on file**: "$0 / seat per month", "Up to 5k base traces / mo" (https://www.langchain.com/pricing, read 2026-10-17) | Traces and experiments. "Personal organizations are limited to 5,000 traces per month until a credit card is added." (https://docs.langchain.com/langsmith/billing, read 2026-10-17). Without a card, LangSmith has nothing to bill for extra traces |
 
 Do not add a card to LangSmith. The course plans at most 400 LangSmith traces for your four
@@ -188,7 +188,7 @@ command under one date shares the $2.50 session cap. Class commands refuse witho
 ## 9. Every make command
 
 Every target is a thin wrapper over `uv run ...`. On Windows, run make inside WSL2. Captured on
-2026-10-17 on the class host:
+2026-10-17 from `make help` at commit 5e8fb08; your output will differ:
 
 ```
 $ make help
@@ -269,7 +269,7 @@ course calls these "traps"; that is a course label.
 The demos above use each feature's canonical ticket. The class task follows the pilot decision taken
 after pilot run 3.
 
-[[PENDING: the task used for each class demo after pilot run 3 (canonical, a variant, or a session budget override) | source: M6 pilot | how: pilot run 3 results and the per-section decision; the exact make or shipharness ab command]]
+[[PENDING: the task used for each class demo after pilot run 3 (canonical, a variant, or a session budget override) | source: M6 pilot | how: course pilot (build repository)]]
 
 **Class timing (240 minutes).** Each section opens with its poll, then `make demo-N` launches right
 away. The concepts (15 minutes) and the code walkthrough (10 minutes) run while the A/B proceeds;
@@ -369,7 +369,9 @@ cache write, $0.50 output; gpt-5.6-luna (reviewer) $0.20, $0.02, $0.25, $1.20.
 | `shipharness testgen` | $0.20 | Not measured yet |
 | `make swap-N`, `make replay`, `make doctor`, `make console`, `make check-assignment-N`, `uv run shipharness report`, `shipharness check`, `assess.py` | $0 | $0 |
 
-[[PENDING: measured cost of one make final feature and of one shipharness testgen run | source: M6 pilot | how: cost lines of make final FEATURES=F5 and uv run shipharness testgen --target TG-boltons-listutils on the class host]]
+[[PENDING: measured cost of one make final feature | source: live class | how: the Cost line of make final FEATURES=<poll winner> in class]]
+
+[[PENDING: measured cost of one shipharness testgen run | source: live class | how: the Cost line of uv run shipharness testgen --target TG-boltons-listutils --layers verify on the class host]]
 
 LangSmith: an A/B writes about two traces per arm (the agent's run and the referee's evaluation).
 
