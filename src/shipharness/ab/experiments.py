@@ -42,6 +42,7 @@ class ExperimentPlan:
     metadata: dict[str, Any] = field(default_factory=dict)
     max_concurrency: int = 1
     disable_evaluator_tracing: bool = False
+    from_working_tree: bool = False  # development only: export the working tree, not the tag
 
     def experiment_prefix(self, arm: Arm) -> str:
         return f"{self.prefix}-{self.batch}-{arm}-{self.day}"
@@ -81,6 +82,10 @@ class ArmExperiment:
         self._referees: dict[str, Referee] = {}
         self._lock = threading.Lock()
 
+    def _ref(self, task: ABTask) -> str | None:
+        """Each example names its own checkpoint (a git tag in the course repository)."""
+        return None if self.plan.from_working_tree else task.checkpoint
+
     def target(self, inputs: dict[str, Any]) -> dict[str, Any]:
         """Runs the arm on one example. Outputs carry no host paths (they go to LangSmith)."""
         task = _example_task(self.examples[_key(inputs)])
@@ -89,7 +94,7 @@ class ArmExperiment:
             run_id,
             self.arm,
             self.deps.course_repo,
-            self.deps.checkpoint_ref,
+            self._ref(task),
             base=self.deps.workspace_base,
         )
         layers = self.plan.harness_layers if self.arm == "harness" else frozenset()
@@ -131,7 +136,7 @@ class ArmExperiment:
                     task.referee_task(),
                     RefereeDeps(
                         course_repo=self.deps.course_repo,
-                        checkpoint_ref=self.deps.checkpoint_ref,
+                        checkpoint_ref=self._ref(task),
                         sandbox_factory=self.deps.referee_sandbox_factory,
                         exports_dir=Path(self.deps.settings.exports_dir),
                         base_dir=base
