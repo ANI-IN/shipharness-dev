@@ -10,8 +10,10 @@ from shipharness.filters.mutants import (
     Mutant,
     MutantError,
     apply_mutant,
+    check_against_source,
     load_mutant_ref,
     load_mutants,
+    locate,
     run_mutant,
     run_mutant_detailed,
     run_mutant_set,
@@ -61,18 +63,34 @@ def test_load_mutants_validates_original_against_source(tmp_path: Path) -> None:
 
     bad = mutant(id="calc-m2", original="    return a * b").model_dump()
     path = write_jsonl(tmp_path / "bad.jsonl", [good, bad])
-    with pytest.raises(MutantError, match=r"bad.jsonl:2: calc-m2: original does not match"):
+    with pytest.raises(MutantError, match=r"bad.jsonl:2: calc-m2: original not found in calc.py"):
         load_mutants(path, repo)
 
 
-def test_load_mutants_rejects_line_past_end_and_duplicate_ids(tmp_path: Path) -> None:
+def test_load_mutants_treats_the_line_as_a_hint_and_rejects_duplicate_ids(tmp_path: Path) -> None:
     repo = make_repo(tmp_path / "repo")
     path = write_jsonl(tmp_path / "x.jsonl", [mutant(line=999).model_dump()])
-    with pytest.raises(MutantError, match="line 999"):
-        load_mutants(path, repo)
+    assert [m.line for m in load_mutants(path, repo)] == [999]  # found by its text
     path = write_jsonl(tmp_path / "y.jsonl", [mutant().model_dump(), mutant().model_dump()])
     with pytest.raises(MutantError, match="duplicate id"):
         load_mutants(path, repo)
+
+
+def test_load_mutants_rejects_an_original_that_matches_several_lines(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path / "repo")
+    source = (repo / "calc.py").read_text(encoding="utf-8")
+    (repo / "calc.py").write_text(source + "\n\ndef again(a, b):\n    return a + b\n", "utf-8")
+    path = write_jsonl(tmp_path / "x.jsonl", [mutant().model_dump()])
+    with pytest.raises(MutantError, match="original matches 2 lines"):
+        load_mutants(path, repo)
+
+
+def test_check_against_source_finds_a_moved_line(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path / "repo")
+    source = (repo / "calc.py").read_text(encoding="utf-8")
+    (repo / "calc.py").write_text("# header\n# another\n" + source, encoding="utf-8")
+    check_against_source(mutant(), repo)  # recorded at line 2, now at line 4
+    assert locate((repo / "calc.py").read_text(encoding="utf-8"), mutant()) == 4
 
 
 def test_load_mutants_reports_schema_errors_with_line(tmp_path: Path) -> None:
@@ -96,8 +114,31 @@ def test_load_mutant_ref_selects_one_set(tmp_path: Path) -> None:
 def test_apply_mutant_replaces_exactly_one_line() -> None:
     text = "def add(a, b):\r\n    return a + b\r\n"
     assert apply_mutant(text, mutant()) == "def add(a, b):\r\n    return a - b\r\n"
-    with pytest.raises(MutantError, match="original does not match"):
+    with pytest.raises(MutantError, match="original not found"):
         apply_mutant("def add(a, b):\n    return a+b\n", mutant())
+
+
+def test_apply_mutant_still_applies_after_lines_are_inserted_above() -> None:
+    text = "import os\n\n\ndef add(a, b):\n    return a + b\n"
+    assert apply_mutant(text, mutant()) == "import os\n\n\ndef add(a, b):\n    return a - b\n"
+
+
+def test_apply_mutant_refuses_an_ambiguous_original() -> None:
+    text = "def add(a, b):\n    return a + b\n\n\ndef plus(a, b):\n    return a + b\n"
+    with pytest.raises(MutantError, match=r"calc-m1: original matches 2 lines of calc.py \(2, 6\)"):
+        apply_mutant(text, mutant())
+
+
+def test_apply_mutant_refuses_a_missing_original() -> None:
+    with pytest.raises(MutantError, match="calc-m1: original not found in calc.py"):
+        apply_mutant("def add(a, b):\n    return b + a\n", mutant())
+
+
+def test_apply_mutant_compares_whole_lines_only() -> None:
+    # A line that merely contains the original (more indentation, a trailing comment) is no match.
+    text = "def add(a, b):\n        return a + b\n    return a + b  # sum\n"
+    with pytest.raises(MutantError, match="original not found"):
+        apply_mutant(text, mutant())
 
 
 def test_run_mutant_killed_and_survived(tmp_path: Path) -> None:

@@ -1,6 +1,8 @@
 """Hand-written mutants and the targeted mutant runner (CONTRACTS §14, DESIGN §7).
 
-A mutant replaces one line of one source file. It is applied to a temporary copy of the workspace,
+A mutant replaces one line of one source file. The line is found by its exact text (`original` must
+match exactly one line of the file); the recorded line number is a hint for messages, so a mutant
+keeps applying when lines are added above it. It is applied to a temporary copy of the workspace,
 never to the workspace itself, and the given tests run against that copy in the sandbox. Each
 module's mutants are split into a filter set (used by filter 3) and a referee set (held out for the
 referee); the two sets never overlap.
@@ -42,8 +44,8 @@ class Mutant(BaseModel):
     target: str  # module path, dotted (for example "app.services.issues")
     set: MutantSet
     file: str  # POSIX path relative to the repository root
-    line: int  # 1-based
-    original: str  # exact text of that line, without the line ending
+    line: int  # 1-based; a hint for messages (the line is found by `original`)
+    original: str  # exact text of the one line it changes, without the line ending
     replacement: str
     rationale: str  # the risky behaviour it simulates
 
@@ -95,32 +97,46 @@ def source_line(text: str, line: int) -> str | None:
     return _split_ending(lines[line - 1])[0]
 
 
+def _matches(lines: list[str], original: str) -> list[int]:
+    return [n for n, line in enumerate(lines, start=1) if _split_ending(line)[0] == original]
+
+
+def locate(text: str, m: Mutant) -> int:
+    """The 1-based line of `text` whose full content (without its line ending) is `m.original`.
+    The mutant is found by its text, so lines added or removed above it do not matter; the
+    recorded `line` is only a hint for messages. No match, or more than one, is a MutantError."""
+    found = _matches(text.splitlines(keepends=True), m.original)
+    if not found:
+        raise MutantError(f"{m.id}: original not found in {m.file} (recorded at line {m.line})")
+    if len(found) > 1:
+        where = ", ".join(str(n) for n in found)
+        raise MutantError(
+            f"{m.id}: original matches {len(found)} lines of {m.file} ({where}); "
+            "it must match exactly one"
+        )
+    return found[0]
+
+
 def apply_mutant(text: str, m: Mutant) -> str:
-    """Return `text` with line `m.line` replaced; the original must match exactly."""
+    """Return `text` with the one line equal to `m.original` replaced by `m.replacement`."""
     lines = text.splitlines(keepends=True)
-    if m.line > len(lines):
-        raise MutantError(f"{m.id}: line {m.line} is past the end of {m.file}")
-    content, ending = _split_ending(lines[m.line - 1])
-    if content != m.original:
-        raise MutantError(f"{m.id}: original does not match {m.file}:{m.line} (found {content!r})")
-    lines[m.line - 1] = m.replacement + ending
+    number = locate(text, m)
+    ending = _split_ending(lines[number - 1])[1]
+    lines[number - 1] = m.replacement + ending
     return "".join(lines)
 
 
 def check_against_source(m: Mutant, source_root: Path) -> None:
+    """Raise MutantError unless `m.original` matches exactly one line of its file."""
     path = Path(source_root) / m.file
     if not path.is_file():
         raise MutantError(f"{m.id}: {m.file} not found under {source_root}")
-    actual = source_line(path.read_bytes().decode("utf-8"), m.line)
-    if actual is None:
-        raise MutantError(f"{m.id}: line {m.line} is past the end of {m.file}")
-    if actual != m.original:
-        raise MutantError(f"{m.id}: original does not match {m.file}:{m.line} (found {actual!r})")
+    locate(path.read_bytes().decode("utf-8"), m)
 
 
 def load_mutants(path: Path, source_root: Path | None) -> list[Mutant]:
-    """Load one JSONL mutant file. With `source_root`, every `original` must match its line;
-    pass None only to check the records themselves."""
+    """Load one JSONL mutant file. With `source_root`, every `original` must match exactly one
+    line of its file; pass None only to check the records themselves."""
     path = Path(path)
     mutants: list[Mutant] = []
     seen: set[str] = set()
