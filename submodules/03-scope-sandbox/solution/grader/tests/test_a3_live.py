@@ -171,6 +171,16 @@ def test_verify_accepts_the_collected_evidence(impl: Path, tmp_path: Path) -> No
     assert result["evidence_ok"] is True and result["verdicts_ok"] is True
 
 
+def test_verify_accepts_the_assignment_purpose(impl: Path, tmp_path: Path) -> None:
+    """The README's live command traces to shipharness-assignments with --purpose assignment."""
+    command = synth.COMMAND + " --purpose assignment"
+    assert command.endswith("--feature F3 --no-preview --purpose assignment")
+    (impl / "live" / "command.txt").write_text(command + "\n", encoding="utf-8")
+    done, result = verify(impl, tmp_path)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert result["evidence_problems"] == [], result
+
+
 def test_verify_reports_missing_evidence(tmp_path: Path) -> None:
     bare_impl = copy_impl(SOLUTION, tmp_path / "impl")
     done, result = verify(bare_impl, tmp_path)

@@ -19,8 +19,8 @@ RefusalCode = Literal[
 ]
 
 HARNESS_ONLY: tuple[str, ...] = ("feature_list.json", "feature_list.schema.json")
-# Files the state layer asks the agent to keep current (CONTRACTS §15): allowed in every phase
-# when the state layer is on.
+# Files the state layer asks the agent to keep current (progress log, handoff, exec plans):
+# allowed in every phase when the state layer is on.
 STATE_FILES: tuple[str, ...] = ("progress.md", "session-handoff.md", "docs/exec-plans/**")
 
 

@@ -184,6 +184,15 @@ def test_check_passes_on_the_solution() -> None:
     assert "Self-check PASSED" in done.stdout
 
 
+def test_check_points_to_the_instructor_grader(tmp_path: Path) -> None:
+    """Grading is instructor-only (grade-assignment-3 SUBMISSION=<folder>): the hint says so."""
+    for name, live in (("no-live", False), ("live", True)):
+        done = run(CHECK, copy_solution(tmp_path / name, live=live))
+        assert done.returncode == 0, done.stdout + done.stderr
+        assert "make grade-assignment-3 SUBMISSION=" in done.stdout
+        assert "Next: make grade-assignment-3" not in done.stdout
+
+
 def test_check_lists_missing_live_evidence_without_failing(tmp_path: Path) -> None:
     done = run(CHECK, copy_solution(tmp_path, live=False))
     assert done.returncode == 0, done.stdout + done.stderr
