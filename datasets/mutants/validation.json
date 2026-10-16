@@ -1,5 +1,5 @@
 {
-  "description": "Each library mutant applied to the pinned source is killed by the upstream test in killed_by (which passes on the unmutated source). Produced on Windows 11, Python 3.12, pytest 9.1.1, one mutant at a time in a copy of the source.",
+  "description": "Each library mutant applied to the pinned source is killed by the upstream test in killed_by (which passes on the unmutated source). Produced on Windows 11, Python 3.12, pytest 9.1.1, one mutant at a time in a copy of the source. The ten mutants re-chosen on 2026-10-16 so that each original matches exactly one line were validated the same way on Ubuntu (WSL2), Python 3.12, pytest 9.1.1; failing_tests counts the module's existing tests that fail, known failures excluded.",
   "libraries": {
     "boltons": {
       "commit": "4332b35a278d694f30c99881faa61cde695c7a96",
@@ -52,8 +52,8 @@
     },
     "boltons.ioutils-m3": {
       "library": "boltons",
-      "killed_by": "tests/test_ioutils.py::TestSpooledStringIO::test_tell_codepoints",
-      "failing_tests": 1
+      "killed_by": "tests/test_ioutils.py::TestSpooledStringIO::test_seek_codepoints_SEEK_END",
+      "failing_tests": 2
     },
     "boltons.ioutils-m4": {
       "library": "boltons",
@@ -142,8 +142,8 @@
     },
     "boltons.namedutils-m1": {
       "library": "boltons",
-      "killed_by": "tests/test_namedutils.py::test_empty_field_name_raises_value_error[namedtuple]",
-      "failing_tests": 2
+      "killed_by": "tests/test_namedutils.py::test_namedtuple_pickle",
+      "failing_tests": 1
     },
     "boltons.namedutils-m2": {
       "library": "boltons",
@@ -152,12 +152,12 @@
     },
     "boltons.namedutils-m3": {
       "library": "boltons",
-      "killed_by": "tests/test_namedutils.py::test_empty_field_name_raises_value_error[namedlist]",
-      "failing_tests": 2
+      "killed_by": "tests/test_namedutils.py::test_namedlist",
+      "failing_tests": 1
     },
     "boltons.namedutils-m4": {
       "library": "boltons",
-      "killed_by": "tests/test_namedutils.py::test_namedtuple_pickle",
+      "killed_by": "tests/test_namedutils.py::test_namedlist",
       "failing_tests": 1
     },
     "boltons.queueutils-m1": {
@@ -322,8 +322,8 @@
     },
     "wtforms.fields.datetime-m1": {
       "library": "wtforms",
-      "killed_by": "tests/fields/test_datetime.py::test_basic",
-      "failing_tests": 2
+      "killed_by": "tests/fields/test_month.py::test_basic",
+      "failing_tests": 1
     },
     "wtforms.fields.datetime-m2": {
       "library": "wtforms",
@@ -332,7 +332,7 @@
     },
     "wtforms.fields.datetime-m3": {
       "library": "wtforms",
-      "killed_by": "tests/fields/test_datetime.py::test_multiple_formats",
+      "killed_by": "tests/fields/test_datetime.py::test_basic",
       "failing_tests": 2
     },
     "wtforms.fields.datetime-m4": {

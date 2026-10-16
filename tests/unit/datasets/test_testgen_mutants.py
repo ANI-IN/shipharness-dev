@@ -1,7 +1,8 @@
 """Library mutant files (datasets/mutants/<library>/*.jsonl) and their validation record.
 
 These checks need no network: the slow tests in test_testgen_libs.py re-apply every mutant to the
-pinned source and confirm the recorded kill.
+pinned source and confirm the recorded kill. The uniqueness check below reads the pinned source in
+.shipharness/libs and is skipped when it is absent.
 """
 
 from __future__ import annotations
@@ -16,7 +17,9 @@ import pytest
 from shipharness.filters.mutants import Mutant, load_mutants
 from shipharness.filters.pytest_cmd import SAFE_TEST_ID
 
-from .testgen_support import LIBRARIES, MUTANTS, VALIDATION
+from .testgen_support import LIBRARIES, MUTANTS, VALIDATION, load_script
+
+FETCH = load_script("fetch_testgen_libs")
 
 
 def files(library: str) -> list[Path]:
@@ -25,6 +28,30 @@ def files(library: str) -> list[Path]:
 
 def library_mutants() -> list[Mutant]:
     return [m for lib in LIBRARIES for path in files(lib) for m in load_mutants(path, None)]
+
+
+def pinned_source(library: str) -> Path:
+    try:
+        problems = FETCH.check(FETCH.LIBS[library])
+    except (OSError, RuntimeError) as exc:
+        problems = [str(exc)]
+    if problems:
+        pytest.skip(f"{library} is not fetched: uv run python scripts/fetch_testgen_libs.py")
+    return FETCH.source_dir(library)
+
+
+@pytest.mark.parametrize("library", LIBRARIES)
+def test_every_original_matches_exactly_one_line_of_the_pinned_source(library: str) -> None:
+    # The runner finds a mutant by its `original` text; a line that occurs twice is refused.
+    src = pinned_source(library)
+    wrong = []
+    for path in files(library):
+        for m in load_mutants(path, None):
+            lines = (src / m.file).read_bytes().decode("utf-8").splitlines()
+            found = [n for n, line in enumerate(lines, start=1) if line == m.original]
+            if found != [m.line]:
+                wrong.append(f"{m.id}: recorded line {m.line}, original found at {found}")
+    assert not wrong, "\n".join(wrong)
 
 
 @pytest.mark.parametrize("library", LIBRARIES)
