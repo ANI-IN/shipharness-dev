@@ -238,7 +238,7 @@ def check_no_new_facts(tree: Path, product: Path, original: Path) -> Result:
 
 def check_tree(tree: Path, product: Path = PRODUCT, original: Path = ORIGINAL) -> list[Result]:
     if not tree.is_dir():
-        missing = f"{tree} is not a folder"
+        missing = f"{shown(tree)} is not a folder"
         names = ["layout", "map-length", "map-reach", "no-overwrite", "no-new-facts"]
         return [_result(name, 0, missing) for name in names]
     layout = check_layout(tree)
@@ -273,7 +273,7 @@ def check_skill(tree: Path) -> list[Result]:
     valid = _result(
         "skill-valid",
         0.0 if problems else 1.0,
-        "; ".join(problems) + f" (run: uv run shipharness skills validate {folder})",
+        "; ".join(problems) + f" (run: uv run shipharness skills validate {shown(folder)})",
     )
     skill_md = folder / "SKILL.md"
     text = skill_md.read_text(encoding="utf-8") if skill_md.is_file() else ""
@@ -328,7 +328,7 @@ def check_checker(work: Path, original: Path = ORIGINAL, product: Path = PRODUCT
     checker_dir = work / "checker"
     checker = checker_dir / "check_docs.py"
     if not checker.is_file():
-        detail = f"{checker} is missing"
+        detail = f"{shown(checker)} is missing"
         return [_result("checker-tests", 0, detail), _result("checker-clean", 0, detail)]
     tests = subprocess.run(
         [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", str(checker_dir)],
@@ -338,12 +338,11 @@ def check_checker(work: Path, original: Path = ORIGINAL, product: Path = PRODUCT
         cwd=REPO,
     )
     summary = (tests.stdout.strip().splitlines() or ["no output"])[-1]
-    shown = checker_dir.relative_to(REPO) if checker_dir.is_relative_to(REPO) else checker_dir
     results = [
         _result(
             "checker-tests",
             1.0 if tests.returncode == 0 else 0.0,
-            f"pytest {shown}: {summary}",
+            f"pytest {shown(checker_dir)}: {summary}",
         )
     ]
     if tests.returncode != 0:
@@ -385,7 +384,7 @@ def check_report(path: Path, allow_pending: bool = False) -> list[Result]:
     names = ["report-sections", "report-command", "report-results", "report-links"]
     names += ["report-cost", "report-reading"]
     if not path.is_file():
-        return [_result(name, 0, f"{path} is missing") for name in names]
+        return [_result(name, 0, f"{shown(path)} is missing") for name in names]
     text = path.read_text(encoding="utf-8")
     sections = _sections(text)
 
@@ -518,13 +517,18 @@ def run_checks(
     return results
 
 
+def shown(path: Path) -> str:
+    """A path relative to the repository when it is inside it (keeps host paths out of logs)."""
+    return path.relative_to(REPO).as_posix() if path.is_relative_to(REPO) else str(path)
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="A1 self-check")
     parser.add_argument("--work", type=Path, default=STARTER)
     parser.add_argument("--allow-pending", action="store_true")
     args = parser.parse_args(argv)
     work = args.work.resolve()
-    print(f"A1 self-check: {work}")
+    print(f"A1 self-check: {shown(work)}")
     results = run_checks(work, allow_pending=args.allow_pending)
     for result in results:
         print(f"PASS {result.name}" if result.ok else f"FAIL {result.name}: {result.detail}")

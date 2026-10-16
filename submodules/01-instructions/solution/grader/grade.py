@@ -300,7 +300,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--min-score", type=float, default=0.0)
     args = parser.parse_args(argv)
     work = args.work.resolve()
-    print(f"A1 grade: {work}")
+    print(f"A1 grade: {check.shown(work)}")
     items = grade(work, allow_pending=args.allow_pending)
     for criterion, total in CRITERIA.items():
         mine = [i for i in items if i.criterion == criterion]

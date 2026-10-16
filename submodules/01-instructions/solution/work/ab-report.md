@@ -1,7 +1,7 @@
 # A1 A/B report: the instructions layer on section-1 (reference tree)
 
 This is the reference solution's report. The A/B has not been run yet, so every value that needs a
-run is a [[PENDING]] marker; the structure is what a learner's report must have.
+run is a pending marker; the structure is what a learner's report must have.
 
 ## Setup
 
