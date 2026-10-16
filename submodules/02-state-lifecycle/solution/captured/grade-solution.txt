@@ -1,4 +1,4 @@
-# Captured on 2026-10-17 at commit e7287f4 (offline: test stand-in agent, no model calls, no run id).
+# Captured on 2026-10-17 at commit 0aee4d2 (offline: test stand-in agent, no model calls, no run id).
 # Your output will differ: commit hashes change on every run.
 $ make grade-assignment-2 SUBMISSION=submodules/02-state-lifecycle/solution
 uv run python scripts/grade_assignment.py 2 "submodules/02-state-lifecycle/solution"
@@ -15,22 +15,22 @@ H4-early-tick: PASS
 Live run evidence: not valid
   - live/: missing task.jsonl, command.txt, output.txt, summary.json, scores/
 
-Criterion                                                                               Points  Earned
-finished: Feature finished across three forced stops                                        13    13.0
-one_head: Migrations: exactly one Alembic head                                               9     9.0
-fresh_upgrade: Migrations: `alembic upgrade head` works on an empty database                 9     9.0
-no_duplicate_table: Migrations: no table is created by two migrations                        5     5.0
-no_redone_lines: Redone work: no session removes lines an earlier one added                 13    13.0
-steps_once: Redone work: each step is committed exactly once                                 5     5.0
-progress_sections: progress.md keeps its sections in order (CONTRACTS 15.2)                  3     3.0
-session_log: progress.md logs every session exactly once, in order                           8     8.0
-history_consistent: Session log entries match the run (commits, how each session ended)      4     4.0
-plan_completed: Exec plan moved to docs/exec-plans/completed/, with an outcome               5     5.0
-plan_ledger: Exec plan Progress ticks every step with the commit that did it                 5     5.0
-plan_sessions: Exec plan records every session and how it ended                              5     5.0
-handoff: session-handoff.md: final summary, migration heads, agent notes kept                4     4.0
-clean_tree: Every harness write is committed (clean working tree at the end)                 2     2.0
-live_run: Live run: gpt-6-luna, four sessions, three forced stops, evidence valid           10     0.0
+Criterion                                                                                                                         Points  Earned
+finished: Feature finished across three forced stops                                                                                  13    13.0
+one_head: Migrations: exactly one Alembic head                                                                                         9     9.0
+fresh_upgrade: Migrations: `alembic upgrade head` works on an empty database                                                           9     9.0
+no_duplicate_table: Migrations: no table is created by two migrations                                                                  5     5.0
+no_redone_lines: Redone work: no session removes lines an earlier one added                                                           13    13.0
+steps_once: Redone work: each step is committed exactly once                                                                           5     5.0
+progress_sections: progress.md keeps its six sections in order: # Progress, Current feature, Done, In progress, Next, Session log      3     3.0
+session_log: progress.md logs every session exactly once, in order                                                                     8     8.0
+history_consistent: Session log entries match the run (commits, how each session ended)                                                4     4.0
+plan_completed: Exec plan moved to docs/exec-plans/completed/, with an outcome                                                         5     5.0
+plan_ledger: Exec plan Progress ticks every step with the commit that did it                                                           5     5.0
+plan_sessions: Exec plan records every session and how it ended                                                                        5     5.0
+handoff: session-handoff.md: final summary, migration heads, agent notes kept                                                          4     4.0
+clean_tree: Every harness write is committed (clean working tree at the end)                                                           2     2.0
+live_run: Live run: gpt-6-luna, four sessions, three forced stops, evidence valid                                                     10     0.0
 
 Score: 90.0/100
 grading assignment 2: submodules/02-state-lifecycle/solution

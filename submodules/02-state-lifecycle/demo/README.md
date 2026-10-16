@@ -192,7 +192,7 @@ demo block from the finished timeline on screen 1, screens 3 and 5, and the trac
 
 - **No BLOCKED lines and no gate pills in demo-2.** The harness arm runs instructions and state only.
   Only the scope layer rejects patches (`src/shipharness/harness/scope/layer.py`), and it starts in
-  demo-3; the verification gate starts in demo-4, so screen 1 shows "No gate." for both arms. The
+  demo-3; the verification gate starts in demo-4, so screen 1 shows "No gate" for both arms. The
   three F2 A/Bs of pilot run 2 had 0 `blocked` events (their `events.jsonl`).
 - **The initializer step** (screen 1, harness decisions): one `note` listing the four files, and the
   commit `harness: initializer step for F2`. Nothing like it in the bare arm.

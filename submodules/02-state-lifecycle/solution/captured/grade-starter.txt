@@ -1,4 +1,4 @@
-# Captured on 2026-10-17 at commit e7287f4 (offline: test stand-in agent, no model calls, no run id).
+# Captured on 2026-10-17 at commit 0aee4d2 (offline: test stand-in agent, no model calls, no run id).
 # Your output will differ: commit hashes change on every run.
 $ make grade-assignment-2 SUBMISSION=submodules/02-state-lifecycle/assignment/starter
 uv run python scripts/grade_assignment.py 2 "submodules/02-state-lifecycle/assignment/starter"
@@ -13,7 +13,7 @@ V1-boundary-stops: 13 criteria not met
   no_redone_lines: redone lines session 2: 37.5%, session 3: 23.7%, session 4: 17.3%
   steps_once: commits per step: S1 x3, S2 x0, S3 x0
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('3b6633b', 'b2ea3c4', 'turn_budget'); session 2: None != ('b2ea3c4', 'c2b06b0', 'turn_budget'); session 3: None != ('c2b06b0', '3063422', 'turn_budget'); session 4: None != ('3063422', '3063422', 'turn_budget')
+  history_consistent: session 1: None != ('1962c78', 'c679653', 'turn_budget'); session 2: None != ('c679653', '78cc04e', 'turn_budget'); session 3: None != ('78cc04e', 'a019f3a', 'turn_budget'); session 4: None != ('a019f3a', 'a019f3a', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -27,7 +27,7 @@ V2-mid-step-stops: 13 criteria not met
   no_redone_lines: redone lines session 2: 37.5%, session 3: 23.7%, session 4: 17.3%
   steps_once: commits per step: S1 x3, S2 x0, S3 x0
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('6c0e139', '6c0e139', 'turn_budget'); session 2: None != ('6c0e139', '00513a3', 'turn_budget'); session 3: None != ('00513a3', '1b82d8e', 'turn_budget'); session 4: None != ('1b82d8e', '15906e8', 'turn_budget')
+  history_consistent: session 1: None != ('51aae2f', '51aae2f', 'turn_budget'); session 2: None != ('51aae2f', '30adcbf', 'turn_budget'); session 3: None != ('30adcbf', '618e76e', 'turn_budget'); session 4: None != ('618e76e', '0e23ef0', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -41,7 +41,7 @@ H1-uneven-stops: 12 criteria not met
   no_redone_lines: redone lines session 2: 0.0%, session 3: 17.6%, session 4: 33.8%
   steps_once: commits per step: S1 x2, S3 x0
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('743c62a', '743c62a', 'turn_budget'); session 2: None != ('743c62a', 'f343576', 'turn_budget'); session 3: None != ('f343576', 'f343576', 'turn_budget'); session 4: None != ('f343576', 'dab3867', 'turn_budget')
+  history_consistent: session 1: None != ('7bde651', '7bde651', 'turn_budget'); session 2: None != ('7bde651', 'cf5c5ff', 'turn_budget'); session 3: None != ('cf5c5ff', 'cf5c5ff', 'turn_budget'); session 4: None != ('cf5c5ff', 'e2ccb22', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -54,7 +54,7 @@ H2-four-steps: 12 criteria not met
   no_redone_lines: redone lines session 2: 22.9%, session 3: 16.7%, session 4: 13.1%
   steps_once: commits per step: S1 x3, S2 x0, S3 x0, S4 x0
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('7a9a64c', '5b7a621', 'turn_budget'); session 2: None != ('5b7a621', '5b7a621', 'turn_budget'); session 3: None != ('5b7a621', '1838b63', 'turn_budget'); session 4: None != ('1838b63', 'c9c8072', 'turn_budget')
+  history_consistent: session 1: None != ('b719cd9', '09bbbf6', 'turn_budget'); session 2: None != ('09bbbf6', '09bbbf6', 'turn_budget'); session 3: None != ('09bbbf6', '75a5d00', 'turn_budget'); session 4: None != ('75a5d00', 'e476c61', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3', 'S4']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -68,7 +68,7 @@ H3-notes-and-rewrite: 14 criteria not met
   steps_once: commits per step: S1 x4, S2 x0, S3 x0, S4 x0
   progress_sections: missing or out of order: ['## Current feature', '## Done', '## In progress', '## Next', '## Session log']
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('5835a2f', '2f16ba9', 'turn_budget'); session 2: None != ('2f16ba9', 'c10c80e', 'turn_budget'); session 3: None != ('c10c80e', 'b65cddd', 'turn_budget'); session 4: None != ('b65cddd', '7aa0532', 'turn_budget')
+  history_consistent: session 1: None != ('edfd584', 'e5d5c14', 'turn_budget'); session 2: None != ('e5d5c14', 'd2453e5', 'turn_budget'); session 3: None != ('d2453e5', 'c30f3cc', 'turn_budget'); session 4: None != ('c30f3cc', 'c82ed88', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3', 'S4']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -82,7 +82,7 @@ H4-early-tick: 13 criteria not met
   no_redone_lines: redone lines session 2: 37.5%, session 3: 23.7%, session 4: 15.0%
   steps_once: commits per step: S1 x3, S2 x0, S3 x0
   session_log: entries [], sessions [1, 2, 3, 4]
-  history_consistent: session 1: None != ('bea1abd', 'd6a690c', 'turn_budget'); session 2: None != ('d6a690c', '6cf0c5a', 'turn_budget'); session 3: None != ('6cf0c5a', '1808d67', 'turn_budget'); session 4: None != ('1808d67', '1808d67', 'turn_budget')
+  history_consistent: session 1: None != ('6cbfcb2', 'b149feb', 'turn_budget'); session 2: None != ('b149feb', 'e59afb9', 'turn_budget'); session 3: None != ('e59afb9', '982390c', 'turn_budget'); session 4: None != ('982390c', '982390c', 'turn_budget')
   plan_completed: completed=False, active=True, outcome=no
   plan_ledger: no [x] line with a matching commit for ['S1', 'S2', 'S3']
   plan_sessions: missing: ['session 1', 'session 2', 'session 3', 'session 4']
@@ -92,22 +92,22 @@ H4-early-tick: 13 criteria not met
 Live run evidence: not valid
   - live/ not found in the submission: run the live step (live/run_live.py --impl <folder> --forced-stops)
 
-Criterion                                                                               Points  Earned
-finished: Feature finished across three forced stops                                        13     0.0
-one_head: Migrations: exactly one Alembic head                                               9     0.0
-fresh_upgrade: Migrations: `alembic upgrade head` works on an empty database                 9     0.0
-no_duplicate_table: Migrations: no table is created by two migrations                        5     0.0
-no_redone_lines: Redone work: no session removes lines an earlier one added                 13     1.1
-steps_once: Redone work: each step is committed exactly once                                 5     0.0
-progress_sections: progress.md keeps its sections in order (CONTRACTS 15.2)                  3     2.5
-session_log: progress.md logs every session exactly once, in order                           8     0.0
-history_consistent: Session log entries match the run (commits, how each session ended)      4     0.0
-plan_completed: Exec plan moved to docs/exec-plans/completed/, with an outcome               5     0.0
-plan_ledger: Exec plan Progress ticks every step with the commit that did it                 5     0.0
-plan_sessions: Exec plan records every session and how it ended                              5     0.0
-handoff: session-handoff.md: final summary, migration heads, agent notes kept                4     0.0
-clean_tree: Every harness write is committed (clean working tree at the end)                 2     0.7
-live_run: Live run: gpt-6-luna, four sessions, three forced stops, evidence valid           10     0.0
+Criterion                                                                                                                         Points  Earned
+finished: Feature finished across three forced stops                                                                                  13     0.0
+one_head: Migrations: exactly one Alembic head                                                                                         9     0.0
+fresh_upgrade: Migrations: `alembic upgrade head` works on an empty database                                                           9     0.0
+no_duplicate_table: Migrations: no table is created by two migrations                                                                  5     0.0
+no_redone_lines: Redone work: no session removes lines an earlier one added                                                           13     1.1
+steps_once: Redone work: each step is committed exactly once                                                                           5     0.0
+progress_sections: progress.md keeps its six sections in order: # Progress, Current feature, Done, In progress, Next, Session log      3     2.5
+session_log: progress.md logs every session exactly once, in order                                                                     8     0.0
+history_consistent: Session log entries match the run (commits, how each session ended)                                                4     0.0
+plan_completed: Exec plan moved to docs/exec-plans/completed/, with an outcome                                                         5     0.0
+plan_ledger: Exec plan Progress ticks every step with the commit that did it                                                           5     0.0
+plan_sessions: Exec plan records every session and how it ended                                                                        5     0.0
+handoff: session-handoff.md: final summary, migration heads, agent notes kept                                                          4     0.0
+clean_tree: Every harness write is committed (clean working tree at the end)                                                           2     0.7
+live_run: Live run: gpt-6-luna, four sessions, three forced stops, evidence valid                                                     10     0.0
 
 Score: 4.3/100
 grading assignment 2: submodules/02-state-lifecycle/assignment/starter
