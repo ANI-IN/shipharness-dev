@@ -140,14 +140,27 @@ def main() -> None:
             tier_fields(raw.json()) if raw.status_code == 200 else raw.status_code
         )
 
-    # 5. Clean up the probe dataset and projects.
-    client.delete_dataset(dataset_id=dataset.id)
-    for name in (project,):
+    # 5. Clean up the probe dataset, the traced project, and the experiment's project.
+    errors = cleanup(client, dataset.id, [project, results.experiment_name])
+    if errors:
+        summary["cleanup_errors"] = errors
+    print(json.dumps(summary, indent=2, default=str))
+
+
+def cleanup(client: Any, dataset_id: Any, projects: list[str]) -> list[str]:
+    """Delete the probe dataset and every project the probe created (including the experiment
+    project that evaluate() makes). Returns the names of errors, never raises."""
+    errors: list[str] = []
+    try:
+        client.delete_dataset(dataset_id=dataset_id)
+    except Exception as exc:  # noqa: BLE001
+        errors.append(f"dataset: {type(exc).__name__}")
+    for name in projects:
         try:
             client.delete_project(project_name=name)
         except Exception as exc:  # noqa: BLE001
-            summary.setdefault("cleanup_errors", []).append(type(exc).__name__)
-    print(json.dumps(summary, indent=2, default=str))
+            errors.append(f"{name}: {type(exc).__name__}")
+    return errors
 
 
 if __name__ == "__main__":
