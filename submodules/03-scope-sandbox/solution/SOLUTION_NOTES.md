@@ -204,8 +204,35 @@ Real runs, from the repository root, in `captured/`:
 | `check-starter.txt` | `uv run python submodules/03-scope-sandbox/assignment/check.py` (exit 1) |
 | `check-solution.txt` | the same with `--impl submodules/03-scope-sandbox/solution` (exit 0) |
 | `grade-starter.txt` | `uv run python submodules/03-scope-sandbox/solution/grader/grade.py` (0.0 / 100, exit 1) |
-| `grade-solution.txt` | the same with `--impl submodules/03-scope-sandbox/solution` (100.0 / 100, exit 0) |
+| `grade-solution.txt` | the same with `--impl submodules/03-scope-sandbox/solution` (90.0 / 100, FAIL, exit 1: no `live/` yet) |
 | `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` |
+
+After the live run is recorded in `live/`, capture the grader again:
+
+[[PENDING: grade-solution.txt with the captured live run in solution/live/ (100.0 / 100 expected only if the evidence is valid) | source: M8 batch 1 | how: uv run python submodules/03-scope-sandbox/solution/grader/grade.py --impl submodules/03-scope-sandbox/solution]]
+
+## Live step: design choices
+
+- The evidence is what the run already writes: the ScoreRecords in `exports/scores/`, the arm diffs in
+  `<runs>/<ab_id>/<arm>/diff.patch`, and `ab.json`. `live.py collect` copies them and keeps only the
+  fields of `ab.json` the check needs (no ticket text, no claim summaries). ScoreRecord has no model
+  field, so the model is checked from the arm specs in `ab.json` and from the cost line.
+- The verdict reuses the learner's interfaces unchanged: `check_diff` on the whole diff for `build`,
+  on the sections touching `test_phase_files` for `test`, and `update_status` with a `SessionEnd` built
+  from the recorded build claim and build end commit. Rebuilding a test-phase diff from the section
+  list uses the learner's own `parse_diff`; a section it cannot read is kept (fail closed).
+- `demo-3` has no verify layer, so a gate that wants evidence runs the visible tests. A replay of the
+  agent's own `run_visible_tests` calls is not possible (the runner keeps only a summary), so `collect`
+  runs them once in the agent image on a copy of the arm's final workspace, under the learner's
+  `policy()`, and records each result. The grader replays the record: the verdict check stays offline,
+  and a recorded result the gate never asked for is reported. The final workspace includes the test
+  phase's changes; the commit in the evidence is the build phase's end commit.
+- Points: 6 for valid evidence, 4 for reproduced verdicts, rebalanced from criteria 2 (45 to 40) and 3
+  (20 to 15). Valid evidence is also a pass condition, so a submission without the live step fails
+  even at 90 points.
+- Known limits: the evidence files are not signed, so a learner could edit a ScoreRecord by hand; the
+  checks catch inconsistent edits (ids, costs, the cost line) but not a consistent forgery. The review
+  can open the A/B's LangSmith traces when `trace_url` is set.
 
 ## Review notes (about 25 minutes, brief §5.3)
 
@@ -229,7 +256,11 @@ Real runs, from the repository root, in `captured/`:
 
 ## Integration notes
 
-- Make targets: `check-assignment-3` and `grade-assignment-3` (rules in the M7 report).
+- Make targets: `check-assignment-3` and `grade-assignment-3` (rules in the M7 report). The grader
+  takes the submission folder through `--impl` (`make grade-assignment-3 SUBMISSION=<path>` passes
+  the folder, or the temp clone of a git URL, as `--impl`).
+- `--no-preview` exists on `main` (`src/shipharness/ab/commands.py`), not on this branch's base; the
+  live step's command needs it after the merge.
 - `solution/grader/tests/` is not under the repository's `testpaths`; add it there (it runs the
   grader on the starter, the solution, and three variants, so it is one of the longer suites) or run it
   in CI on its own. Its last test is marked `slow`.

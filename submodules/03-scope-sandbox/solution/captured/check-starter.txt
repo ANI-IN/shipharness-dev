@@ -11,6 +11,7 @@ A3 self-check: submodules/03-scope-sandbox/assignment/starter
   your denial test passes                                           FAIL    tests/test_a3_sandbox_rule.py
   your denial test fails with the rule removed                      FAIL    tests/test_a3_sandbox_rule.py
   your denial test uses check_command/PolicySandbox                 FAIL    tests/test_a3_sandbox_rule.py
+  live A/B evidence (live/)                                         missing (required for the grade: README 'Live step')
 
   Failing visible tests (57; first 10):
     - test_parse_changed_paths[bad-middleware-file]: NotImplementedError: TODO(A3 Part A1): parse_diff

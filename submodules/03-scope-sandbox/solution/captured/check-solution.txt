@@ -11,6 +11,8 @@ A3 self-check: submodules/03-scope-sandbox/solution
   your denial test passes                                           ok
   your denial test fails with the rule removed                      ok
   your denial test uses check_command/PolicySandbox                 ok
+  live A/B evidence (live/)                                         missing (required for the grade: README 'Live step')
 
-Self-check PASSED. Next: make grade-assignment-3 (adds the hidden cases).
+Self-check PASSED. Next: the live step (README 'Live step'), then make
+grade-assignment-3 (adds the hidden cases and requires live/).
 (exit code 0)

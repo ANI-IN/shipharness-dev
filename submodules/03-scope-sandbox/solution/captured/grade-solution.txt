@@ -3,10 +3,10 @@ A3 grade: submodules/03-scope-sandbox/solution
   criterion                                              tests         points
   1 Diff parsing and path matching                               15.0 / 15
       diff parsing and path matching                   75/75
-  2 Diff-scope policy                                            45.0 / 45
+  2 Diff-scope policy                                            40.0 / 40
       out-of-scope diffs rejected                      35/35
       legitimate diffs accepted                        24/24
-  3 Evidence-gated status                                        20.0 / 20
+  3 Evidence-gated status                                        15.0 / 15
       passes set with evidence                          9/9
       passes kept false without evidence               38/38
   4 Sandbox history rule                                         10.0 / 10
@@ -16,7 +16,11 @@ A3 grade: submodules/03-scope-sandbox/solution
       passes with the rule (4)                             yes
       fails with the rule removed (4)                      yes
       uses check_command or PolicySandbox (2)              yes
-  Total                                                         100.0 / 100
-  Every out-of-scope diff rejected: yes; zero false positives: yes
-Result: PASS (needs >= 80 points, every out-of-scope diff rejected, and zero false positives)
-(exit code 0)
+  6 Live A/B evidence (live/)                                     0.0 / 10
+      evidence valid (6)                                    no
+      verdicts reproduced by your policy (4)                no
+        - no live/ folder at submodules/03-scope-sandbox/solution/live
+  Total                                                          90.0 / 100
+  Every out-of-scope diff rejected: yes; zero false positives: yes; live evidence valid: no
+Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
+(exit code 1)

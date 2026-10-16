@@ -3,10 +3,10 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
   criterion                                              tests         points
   1 Diff parsing and path matching                                0.0 / 15
       diff parsing and path matching                    0/75
-  2 Diff-scope policy                                             0.0 / 45
+  2 Diff-scope policy                                             0.0 / 40
       out-of-scope diffs rejected                       0/35
       legitimate diffs accepted                         0/24
-  3 Evidence-gated status                                         0.0 / 20
+  3 Evidence-gated status                                         0.0 / 15
       passes set with evidence                          0/9
       passes kept false without evidence                0/38
   4 Sandbox history rule                                          0.0 / 10
@@ -16,8 +16,12 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
       passes with the rule (4)                              no
       fails with the rule removed (4)                       no
       uses check_command or PolicySandbox (2)               no
+  6 Live A/B evidence (live/)                                     0.0 / 10
+      evidence valid (6)                                    no
+      verdicts reproduced by your policy (4)                no
+        - no live/ folder at submodules/03-scope-sandbox/assignment/starter/live
   Total                                                           0.0 / 100
-  Every out-of-scope diff rejected: no; zero false positives: no
+  Every out-of-scope diff rejected: no; zero false positives: no; live evidence valid: no
   Failed tests (218; first 15):
     - test_parse_changed_paths[bad-middleware-file]: NotImplementedError: TODO(A3 Part A1): parse_diff
     - test_parse_changed_paths[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A1): parse_diff
@@ -34,5 +38,5 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
     - test_bad_diff_rejected[bad-middleware-file]: NotImplementedError: TODO(A3 Part A2): check_diff
     - test_bad_diff_rejected[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
     - test_bad_diff_rejected[bad-test-phase-source-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
-Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, and zero false positives)
+Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
 (exit code 1)

@@ -2,13 +2,16 @@
 
 Build the three S3 controls yourself, in a small package of your own (`a3scope`), and prove each one
 against scripted inputs: a per-phase diff-scope policy, an evidence-gated update of the `passes` field,
-and one new sandbox policy rule with a test that proves the denial.
+and one new sandbox policy rule with a test that proves the denial. Then run one live A/B on F3 and
+apply your own policy and status gate to what the two real arms changed.
 
 - Difficulty: 3 to 6 hours for a strong engineer (brief §5.1). The hidden cases go past what class
   shows: renames, paths with spaces, quoted names, `../` traversal, harness files, binary files, empty
   new files, hunks whose content looks like file headers, and source edits in the test phase.
-- Cost: no API keys, no agent runs, no container runtime (an optional container test exists).
-- Commands: `make check-assignment-3` (self-check) and `make grade-assignment-3` (grade out of 100).
+- Cost: Parts A to C need no API keys, no agent runs, and no container runtime. The required live
+  step runs one `demo-3` A/B (two agent runs under the class caps; see "Cost and trace budget").
+- Commands: `make check-assignment-3` (self-check), `assignment/live.py` (live step), and
+  `make grade-assignment-3` (grade out of 100).
 
 ## Objective
 
@@ -20,6 +23,8 @@ By the end you can:
 3. Set `passes` only from evidence (a verify gate result or a visible test run), never from the agent's
    claim alone.
 4. Add a sandbox deny rule and write a test that fails when the rule is missing.
+5. Apply your scope policy and status gate to the diffs of a real A/B and compare your verdicts with
+   the referee's `out_of_scope_files` and `test_phase_source_edits`.
 
 ## Problem statement
 
@@ -81,6 +86,7 @@ bodies are `TODO`s.
 | B | `a3scope/status.py` | `update_status(document, feature_id, end, sandbox, now) -> StatusDecision` |
 | C | `a3scope/policy.py` | `HISTORY_MESSAGE`, `HISTORY_RULES` (the new rule) |
 | task 6 | `tests/test_a3_sandbox_rule.py` | your denial test |
+| live step | `live/` (written by `assignment/live.py collect`) | evidence of one live `demo-3` A/B on F3 and your verdicts on it |
 
 Given, no TODO: `a3scope/sandbox.py` (`PolicySandbox`, which refuses a command the way
 `DockerSandbox.exec` does) and `tests/test_a3_docker_rule.py` (optional real-container check).
@@ -100,7 +106,8 @@ Given, no TODO: `a3scope/sandbox.py` (`PolicySandbox`, which refuses a command t
 - S3 class (the scope layer, `passes`, the sandbox policy) and the code at the four anchors above.
 - Python 3.12 and `uv`; the repository set up with `uv sync` (or `make setup`).
 - Comfort with regular expressions and `pytest`.
-- Optional: Docker or Podman with the `shipharness-agent:1` image (`make setup`) for the container test.
+- For the live step: `OPENAI_API_KEY` (and `LANGSMITH_API_KEY` for traces) in `.env`, `make doctor`
+  passing, and Docker or Podman with the sandbox images (`make setup`). Parts A to C do not need them.
 
 ## Expected input and output
 
@@ -245,7 +252,10 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
 - Do not import `shipharness.harness`, `shipharness.ab`, `shipharness.runner`, or `shipharness.checks`
   from `a3scope/`: that is the reference implementation. A module that does scores 0 on the criteria it
   serves. You may import `shipharness.sandbox` (required for Part B and C) and the standard library.
-- Do not edit `visible_tests/`, `fixtures/`, `check.py`, or anything under `solution/`.
+- Do not edit `visible_tests/`, `fixtures/`, `check.py`, or `live.py`.
+- The live step uses the class settings: `OPENAI_MODEL=gpt-6-luna`, `MAX_RUN_COST_USD=0.20` per arm,
+  `MAX_BATCH_COST_USD=2.50` per command (CONTRACTS §1, `.env.example`). The grader rejects evidence
+  from another model, a raised cap, a replay, a swap test, or an A/B from the working tree.
 - Keep the interfaces (names, fields, argument order) exactly as given; the tests call them.
 - No network, API keys, or agent runs are needed or allowed in tests.
 - `ruff check` and `ruff format --check` pass on your files (the repository's settings).
@@ -264,8 +274,96 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
    `HISTORY_RULES = ()` to see it fail.
 7. Optional: `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/assignment/starter/tests`
    runs the rule in a real container.
-8. Run `make check-assignment-3` until it passes, add your own tricky cases, then `make
-   grade-assignment-3`.
+8. Run `make check-assignment-3` until it passes and add your own tricky cases.
+9. Live step (next section): one `demo-3` A/B, then `live.py collect` and `live.py verify`.
+10. Run `make grade-assignment-3`.
+
+## Live step (required)
+
+Parts A to C prove your controls on scripted diffs. The live step applies them to what a real coding
+agent changed: one A/B on F3, the S3 feature, with both arms judged by the referee. Requiring one live
+run per assignment is course design; the grade stays reproducible because the grader only checks the
+files you submit and re-runs your policy on them, offline.
+
+1. Finish Parts A to C first: the verdicts come from your code, and the grader re-runs it on the
+   evidence. If you change your code later, run `collect --force` again (it needs the run folder and
+   the arm workspaces of the same A/B).
+2. Run the A/B and keep its terminal output:
+
+   ```bash
+   uv run shipharness ab --section demo-3 --feature F3 --no-preview 2>&1 | tee ab-output.txt
+   ```
+
+   This is `make demo-3` without the board preview containers. The command prints one line per arm and
+   a cost line (`Cost: $...`). Each arm stops at `MAX_RUN_COST_USD`, the command at
+   `MAX_BATCH_COST_USD`.
+3. Right after it, collect the evidence into your submission folder (the arm workspaces live in the
+   temp folder and are not kept forever):
+
+   ```bash
+   uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl <your folder> \
+       --ab-output ab-output.txt \
+       --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview"
+   uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl <your folder>
+   ```
+
+   `<your folder>` is the folder that holds `a3scope/` (`submodules/03-scope-sandbox/assignment/starter`
+   if you work in place). `collect` reads the run folder (`RUNS_DIR`, default `.shipharness/runs/<ab_id>/`)
+   and `exports/scores/`; `--runs`, `--exports`, and `--ab` override them.
+4. Commit `live/` with your code. `make check-assignment-3` shows a "live A/B evidence" row once it is
+   there.
+
+What `collect` writes to `<your folder>/live/`:
+
+| File | Content |
+|---|---|
+| `command.txt` | the exact command you ran (`--command`) |
+| `ab-output.txt` | the A/B's terminal output, with the `A/B <ab_id> (F3, ...)` line and the `Cost: $...` line |
+| `ab-summary.json` | the fields of the run's `ab.json` the check needs: section, `checkpoint_sha`, per arm the run id, model, layers, cost cap, allowed paths, claims, phase commits, cost, and `test_phase_files` |
+| `scores/<run_id>.json` | both arms' ScoreRecords, copied unchanged from `exports/scores/` (fields: `src/shipharness/ab/score.py`) |
+| `bare/diff.patch`, `harness/diff.patch` | each arm's recorded diff (`<runs>/<ab_id>/<arm>/diff.patch`) |
+| `<arm>/sandbox-log.json` | every command your status gate ran, with its output and exit code |
+| `verdict-bare.json`, `verdict-harness.json` | your verdict per arm (below) |
+
+A verdict holds:
+
+- `scope.build`: `check_diff(PhasePolicy(<the arm's allowed_paths>, state_layer=<state layer on>),
+  "build", diff.patch)` as `accepted` and `refusals` (`path`, `code`).
+- `scope.test`: the same for the `test` phase, on the sections of `diff.patch` that touch the files
+  the arm changed during the test phase (`test_phase_files` in `ab.json`).
+- `status`: your `update_status` on the arm's build-phase claim (`SessionEnd` with the recorded claim
+  and the build phase's end commit; no verify gate in `demo-3`). When your gate runs the visible tests,
+  `collect` runs them in the agent sandbox image (`shipharness-agent:1`) on a copy of the arm's final
+  workspace, under your `policy()`, and records the result; the grader replays that record.
+- `referee`: the referee's `status`, `claim`, `out_of_scope_files`, `test_phase_source_edits`, and
+  `passed_primary` from the arm's ScoreRecord, next to yours.
+- An `error` field instead of a result when your code raised; the grader compares it like any other
+  field.
+
+Read the two verdicts against the referee's counts before the review. They need not agree: the referee
+counts out-of-scope files on the diff with harness-owned files removed (`strip_harness_artifacts` in
+`src/shipharness/ab/artifacts.py`), while your guard reads the whole diff. In the harness arm, for
+example, `feature_list.json` changes when the harness itself sets `passes`, and your rule 2 refuses it.
+Be ready to say, for each difference, which side is right for an agent patch and which for a whole-run
+diff.
+
+What the grader checks (criterion 6, no model calls, no keys, no container):
+
+- the files above exist; `command.txt` is `make demo-3` or `shipharness ab --section demo-3 --feature
+  F3` (`--no-preview` allowed; no `--replay`, `--swap`, `--layers`, `--k`, `--example`, or
+  `--from-working-tree`);
+- both ScoreRecords validate against `ScoreRecord`, their `run_id`s match the file names and
+  `ab-summary.json`, `ab_id` matches the `A/B <ab_id>` line, `feature_id` is `F3`, `checkpoint_sha` is
+  present and matches, `recorded` is false, and `sandboxed` is true;
+- the section is `demo-3` with both arms (bare: no layers; harness: instructions, state, scope), the
+  model is `gpt-6-luna`, each arm's cost is within `MAX_RUN_COST_USD` ($0.20), each review within
+  `MAX_REVIEW_COST_USD` ($0.04), and the cost line within `MAX_BATCH_COST_USD` ($2.50);
+- your code, re-run on the included diffs with `sandbox-log.json` replayed, gives both verdict files
+  exactly, and the log holds no result your gate did not ask for.
+
+A verdict from the reference solution on a real A/B:
+
+[[PENDING: verdict-bare.json and verdict-harness.json of the reference solution on a live demo-3 A/B | source: M8 batch 1 | how: uv run shipharness ab --section demo-3 --feature F3 --no-preview, output saved as ab-output.txt; uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl <reference folder> --ab-output ab-output.txt --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview"]]
 
 ## Expected project structure
 
@@ -273,6 +371,7 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
 submodules/03-scope-sandbox/assignment/
 ├── README.md                 this file
 ├── check.py                  self-check (make check-assignment-3)
+├── live.py                   live step: collect the A/B evidence, verify it
 ├── fixtures/
 │   ├── make_fixtures.py      builds the visible diffs from real git output
 │   ├── cases.json            phase, allowed paths, expected result per case
@@ -285,9 +384,10 @@ submodules/03-scope-sandbox/assignment/
     │   ├── status.py         Part B (TODO)
     │   ├── policy.py         Part C (TODO)
     │   └── sandbox.py        PolicySandbox (given)
-    └── tests/
-        ├── test_a3_sandbox_rule.py   task 6 (TODO)
-        └── test_a3_docker_rule.py    optional container check (given)
+    ├── tests/
+    │   ├── test_a3_sandbox_rule.py   task 6 (TODO)
+    │   └── test_a3_docker_rule.py    optional container check (given)
+    └── live/                 written by live.py collect (live step; you commit it)
 ```
 
 ## Setup
@@ -303,10 +403,11 @@ and pass `IMPL=$HOME/a3` to the make targets (`--impl $HOME/a3` to the scripts).
 ## How to run
 
 ```bash
-make check-assignment-3                 # visible tests + your denial test + TODO list
-make grade-assignment-3                 # visible + hidden tests, score out of 100
+make check-assignment-3                 # visible tests + your denial test + live/ check + TODO list
+make grade-assignment-3                 # visible + hidden tests + live evidence, score out of 100
 make check-assignment-3 IMPL=$HOME/a3       # a copy elsewhere
 uv run python submodules/03-scope-sandbox/assignment/check.py --impl $HOME/a3   # without make
+uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl $HOME/a3  # live/ only
 ```
 
 ## How to test
@@ -328,8 +429,10 @@ Add your own cases: `fixtures/make_fixtures.py` shows how to turn file operation
 - On the starter, the self-check prints a FAIL row per part, the failing tests, and every
   `TODO(A3 ...)` marker, and exits 1. The only rows that pass are the "allows" rows, because an empty
   rule allows everything.
-- On a complete solution, every row is `ok`, the self-check exits 0, and the grader prints 100.0 / 100
-  and `Result: PASS`.
+- On a complete solution without `live/`, every row is `ok` and the live row says `missing`; the
+  self-check exits 0, and the grader prints 90.0 / 100 and `Result: FAIL` (the live evidence is
+  required). With valid live evidence it prints 100.0 / 100 and `Result: PASS`.
+- `live.py verify` prints `evidence ok` and `verdicts ok` on a complete live step.
 - With `HISTORY_RULES = ()`, your denial test fails.
 - The optional container test fails on the starter (the amend runs and rewrites the commit) and passes
   once the rule is in place.
@@ -373,7 +476,7 @@ decision.evidence  # {"gate_id": "visible-tests", "commit": "c0ffee...", "visibl
                    #  "existing": "not run (verify layer off)", "checks": []}
 ```
 
-The self-check on the starter (first rows, captured in `solution/captured/check-starter.txt`):
+The self-check on the starter (first rows):
 
 ```text
 A3 self-check: submodules/03-scope-sandbox/assignment/starter
@@ -385,20 +488,24 @@ A3 self-check: submodules/03-scope-sandbox/assignment/starter
 
 ## Grading criteria (100 points)
 
-`make grade-assignment-3` runs the visible tests, the hidden tests in `solution/grader/hidden/`, and
-your denial test, then prints this table. Test-name prefixes decide the group of each test.
+`make grade-assignment-3` runs the visible tests, the hidden tests (more scripted diffs, commands, and
+status cases than the visible ones), your denial test, and `live.py verify` on your `live/` folder,
+then prints this table. Test-name prefixes decide the group of each test.
 
 | # | Criterion | Points | How it is scored |
 |---|---|---|---|
 | 1 | Diff parsing and path matching (`test_parse_*`) | 15 | 15 × share passing |
-| 2 | Diff-scope policy: out-of-scope diffs rejected with the offending path and code (`test_bad_*`), legitimate diffs accepted (`test_good_*`) | 45 | 45 × share rejected × share accepted |
-| 3 | Evidence-gated status: `passes` set with the right evidence (`test_status_sets_*`), kept false otherwise (`test_status_keeps_*`) | 20 | 20 × share set × share kept |
+| 2 | Diff-scope policy: out-of-scope diffs rejected with the offending path and code (`test_bad_*`), legitimate diffs accepted (`test_good_*`) | 40 | 40 × share rejected × share accepted |
+| 3 | Evidence-gated status: `passes` set with the right evidence (`test_status_sets_*`), kept false otherwise (`test_status_keeps_*`) | 15 | 15 × share set × share kept |
 | 4 | Sandbox history rule: rewrites denied (`test_rule_denies_*`), ordinary and harness commands allowed (`test_rule_allows_*`) | 10 | 10 × share denied × share allowed |
 | 5 | Denial test proves the denial | 10 | passes with the rule (4); fails with the rule removed (4, only if it passes with it); uses `check_command` or `PolicySandbox` (2) |
+| 6 | Live A/B evidence (`live/`, see "Live step") | 10 | valid evidence of one live `demo-3` A/B on F3 (6); your policy re-run on the included diffs reproduces both verdict files (4, only with valid evidence) |
 
 Criteria 2 to 4 multiply both sides, so a policy that refuses everything (or allows everything) earns
-nothing there. **Pass:** at least 80 points, every out-of-scope diff rejected, and zero false positives
-on legitimate diffs. A module that imports the reference implementation scores 0 on its criteria.
+nothing there. **Pass:** at least 80 points, every out-of-scope diff rejected, zero false positives on
+legitimate diffs, and valid live evidence (criterion 6, first part). Missing or malformed live score
+records fail criterion 6 and the pass. A module that imports the reference implementation scores 0 on
+its criteria.
 
 ## Common mistakes
 
@@ -420,10 +527,23 @@ on legitimate diffs. A module that imports the reference implementation scores 0
   breaks the harness's own patch tool.
 - A denial test that builds its own `DenyRule` instead of calling `policy()`: it passes without your
   rule, and loses the mutation points.
+- Running `collect` days after the A/B: the arm workspaces in the temp folder may be gone, and a gate
+  that runs the visible tests then has nothing to run them on.
+- Editing your code after `collect` without collecting again: the verdict files no longer match what
+  your code gives, and criterion 6 loses its verdict points.
+- Raising `MAX_RUN_COST_USD` or changing `OPENAI_MODEL` for the live step: the grader rejects the
+  evidence.
 
 ## Cost and trace budget
 
-This assignment calls no model and writes no traces: $0 and 0 LangSmith traces, well inside the
-planned A3 share of the learner budget (≤ $0.25 and ≤ 30 traces, DESIGN §11.5). It logs no LangSmith
-experiment, because it does not use the agent (brief §5.1 asks for one only where an assignment uses
-the agent).
+Parts A to C call no model and write no traces. The live step is the only paid command: one
+`demo-3` A/B, two agent runs on `gpt-6-luna`. Its caps bound the cost: each arm stops at
+`MAX_RUN_COST_USD` ($0.20), each blinded review at `MAX_REVIEW_COST_USD` ($0.04), and the command at
+`MAX_BATCH_COST_USD` ($2.50) (CONTRACTS §1). It writes two traces per run, the agent root and the
+referee evaluator (DESIGN §12), so four traces. `collect` and `verify` call no model. DESIGN §11.5
+planned A3 at ≤ $0.25 and ≤ 30 traces before the live step was added; the measured cost of one A/B:
+
+[[PENDING: cost line (Cost: $...) of one demo-3 A/B with the reference solution's live step | source: M8 batch 1 | how: uv run shipharness ab --section demo-3 --feature F3 --no-preview]]
+
+The live step logs no separate LangSmith experiment: the A/B's traces go to the class project, as in
+the section demo.
