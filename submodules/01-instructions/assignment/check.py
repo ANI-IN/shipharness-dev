@@ -5,24 +5,28 @@ Usage (from the repository root):
     uv run python submodules/01-instructions/assignment/check.py [--work DIR] [--allow-pending]
 
 DIR is your work folder (default: assignment/starter): `instructions/` (your restructured tree),
-`checker/` (your check_docs.py and its tests), and `ab-report.md`. The original 900-line file is
-always read from assignment/starter/original/AGENTS.md.
+`checker/` (your check_docs.py and its tests), `ab-report.md`, and `live/` (the live evidence of
+your A/B, collected by live_evidence.py). The original 900-line file is always read from
+assignment/starter/original/AGENTS.md.
 
 Prints one PASS or FAIL line per check, each FAIL with what to fix, then a summary line. Exits 0
 when every check passes, 1 otherwise. `--allow-pending` accepts a well-formed [[PENDING: ...]]
-marker in place of A/B values; it exists for the reference solution, whose A/B has not been run.
-The grader (`make grade-assignment-1`) runs these checks plus hidden ones and prints the score.
+marker in place of A/B values and live evidence; it exists for the reference solution, whose A/B
+has not been captured yet. The instructor's grader runs these checks plus hidden ones and prints
+the score.
 """
 
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import posixpath
 import re
 import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from types import ModuleType
 from urllib.parse import unquote
 
 ASSIGNMENT = Path(__file__).resolve().parent
@@ -30,6 +34,20 @@ REPO = ASSIGNMENT.parents[2]
 STARTER = ASSIGNMENT / "starter"
 ORIGINAL = STARTER / "original" / "AGENTS.md"
 PRODUCT = REPO / "teamtrack"
+
+
+def _load_live() -> ModuleType:
+    """live_evidence.py, loaded by path (the submodule folder name is not a package name)."""
+    name = "a1_live"
+    if name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(name, ASSIGNMENT / "live_evidence.py")
+        assert spec is not None and spec.loader is not None
+        sys.modules[name] = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(sys.modules[name])
+    return sys.modules[name]
+
+
+live = _load_live()
 
 # A1's layout (F-a-30) as the instructions layer places it (DESIGN §6.2).
 REQUIRED = [
@@ -56,11 +74,7 @@ MAX_COST_USD = 2.50  # DESIGN §11.5: A1 at most $2.50
 MAX_TRACES = 150  # DESIGN §11.5: A1 at most 150 traces
 TIMEOUT_S = 300
 
-PENDING = re.compile(
-    r"^\[\[PENDING: [^|\]]+ \| source: (?:M6 pilot|M8 batch 1|M8 ablation|live class)"
-    r" \| how: [^\]]+\]\]$",
-    re.M,
-)
+PENDING = live.PENDING
 REFERENCE = re.compile(r"(?<![\w.])(R[1-9](?:\.\d+)?|CV-\d{2})(?!\w)")
 _FENCE = re.compile(r"^\s*(```|~~~)")
 _SPAN = re.compile(r"`([^`\n]+)`")
@@ -416,7 +430,7 @@ def check_report(path: Path, allow_pending: bool = False) -> list[Result]:
     results.append(
         _result(
             "report-command",
-            (2 / 3 if command_ok else 0.0) + (1 / 3 if values_ok else 0.0),
+            (0.5 if command_ok else 0.0) + (0.5 if values_ok else 0.0),
             "Setup needs the exact command (--split section-1 --k 3 --layers instructions "
             "--batch <name>), 'Instructions tree commit: <sha>', and 'Runs per arm: <n>'",
         )
@@ -514,6 +528,7 @@ def run_checks(
     results += check_skill(tree)
     results += check_checker(work, original, product)
     results += check_report(work / "ab-report.md", allow_pending)
+    results += [_result(*item) for item in live.check_live(work, allow_pending=allow_pending)]
     results.append(check_todos(work))
     return results
 
