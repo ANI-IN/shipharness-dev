@@ -16,9 +16,11 @@
     </p>
   </header>
 
-  <h3>Last turns</h3>
-  <ol class="turns">
-  {% for row in a.recent(8) %}
+  {# A finished run shows its whole timeline (scrollable); a live run shows the latest rows. #}
+  {% set done = a.run_end is not none %}
+  <h3>{% if done %}All turns{% else %}Last turns{% endif %}</h3>
+  <ol class="turns{% if done %} full{% endif %}">
+  {% for row in (a.timeline if done else a.recent(8)) %}
     {% if row.kind == "turn" %}
     <li class="turn{% if row.flags %} flagged{% endif %}">
       <span class="turn-no">{{ row.session_index }}.{{ row.turn }}</span>
@@ -40,8 +42,8 @@
   </ol>
 
   <h3>Harness decisions</h3>
-  <ul class="decisions">
-  {% for d in a.decisions[-3:] %}
+  <ul class="decisions{% if done %} full{% endif %}">
+  {% for d in (a.decisions if done else a.decisions[-3:]) %}
     <li>{{ status(d.kind) }} <span class="layer">{{ d.layer }}</span> {{ d.message|truncate(56, true, "…") }}</li>
   {% else %}
     <li class="muted">{% if arm == "bare" %}None: bare arm has no layers.{% else %}None yet.{% endif %}</li>
