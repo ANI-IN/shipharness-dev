@@ -47,3 +47,23 @@ def test_cost_line_names_the_scope_and_cap() -> None:
     line = cost_line(rt.cost)
     assert line.startswith("Cost: $0.000000 (this command: no calls; session $")
     assert "of $2.50" in line
+
+
+def test_ab_deps_give_the_verify_layer_a_gate_baseline_cache(tmp_path: Path) -> None:
+    from shipharness.ab.runtime import Runtime
+    from shipharness.config import Settings
+
+    settings = Settings(_env_file=None, runs_dir=tmp_path / "runs")
+    runtime = Runtime(
+        settings=settings,
+        cost=None,  # type: ignore[arg-type]
+        tracer=None,  # type: ignore[arg-type]
+        client_factory=None,  # type: ignore[arg-type]
+        sandbox_factory=None,  # type: ignore[arg-type]
+        referee_sandbox_factory=None,  # type: ignore[arg-type]
+        reviewer=None,
+        sandboxed=False,
+        policy_summary="",
+    )
+    deps = runtime.ab_deps("m1-s4-start", reviewer=False)
+    assert deps.harness_kwargs["gate_baseline_cache_dir"] == tmp_path / "cache" / "gate-baseline"

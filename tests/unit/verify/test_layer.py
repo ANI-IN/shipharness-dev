@@ -409,3 +409,64 @@ def test_verify_layer_fits_baseline_and_gate_in_the_harness_time_left(tmp_path: 
     layer.on_claim_done(ctx)
     assert script.runner_calls  # the baseline and the gate both ran
     assert max(timeouts) <= 25
+
+
+# --- gate baseline cache (M6 pilot: about 60 s of harness time per arm at S4 and later) ----------
+
+
+def _checkpoint_ws(tmp_path: Path, name: str, message: str, body: str = "x = 1\n") -> Path:
+    """A workspace whose root commit holds the checkpoint, like an arm's (commit ids differ per
+    run; the tree does not)."""
+    import subprocess
+
+    ws = tmp_path / name
+    (ws / "app").mkdir(parents=True)
+    (ws / "app" / "main.py").write_text(body, encoding="utf-8")
+    ident = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
+    subprocess.run(["git", *ident, "init", "-q"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "add", "-A"], cwd=ws, check=True)
+    subprocess.run(["git", *ident, "commit", "-qm", message], cwd=ws, check=True)
+    return ws
+
+
+def _prepare(ws: Path, cache: Path) -> tuple[VerifyLayer, Script, list[str]]:
+    script = Script([GREEN])
+    ctx = LayerContext(
+        spec=make_spec(ws, checkpoint="m1-s4-start", feature_id="F4"),
+        phase="build",
+        session_index=1,
+        turn=1,
+        workspace=ws,
+        sandbox=FakeSandbox(script),
+        bus=None,
+    )
+    layer = VerifyLayer(seed=5, gate_baseline_cache_dir=cache)
+    notes = [d.message for d in layer.prepare_workspace(ctx)]
+    return layer, script, notes
+
+
+def test_gate_baseline_is_reused_for_the_same_checkpoint_commit(tmp_path: Path) -> None:
+    cache = tmp_path / "cache"
+    first, first_script, first_notes = _prepare(_checkpoint_ws(tmp_path, "a", "one"), cache)
+    second, second_script, second_notes = _prepare(_checkpoint_ws(tmp_path, "b", "two"), cache)
+    assert len(first_script.runner_calls) == 1
+    assert second_script.runner_calls == []
+    assert first_notes == ["gate baseline recorded"]
+    assert second_notes == ["gate baseline reused (same checkpoint commit)"]
+    assert second.baseline_json == first.baseline_json
+
+
+def test_gate_baseline_is_recomputed_when_the_checkpoint_differs(tmp_path: Path) -> None:
+    cache = tmp_path / "cache"
+    _prepare(_checkpoint_ws(tmp_path, "a", "one"), cache)
+    _, script, _ = _prepare(_checkpoint_ws(tmp_path, "b", "two", body="x = 2\n"), cache)
+    assert len(script.runner_calls) == 1
+
+
+def test_gate_baseline_is_not_cached_without_a_checkpoint_commit(tmp_path: Path) -> None:
+    cache = tmp_path / "cache"
+    for name in ("a", "b"):
+        ws = tmp_path / name
+        ws.mkdir()
+        _, script, _ = _prepare(ws, cache)
+        assert len(script.runner_calls) == 1

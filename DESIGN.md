@@ -305,8 +305,11 @@ never adds facts the bare arm cannot read.
   files are fixed by the ticket; the course says so and cites A2's footnote that the two agents differ
   only in their initial prompt (F-a-52).
 - Getting up to speed (A2, F-a-58 to F-a-62): the session prompt tells the agent to run `pwd`, read
-  `progress.md` and `git log`, read the feature list, run `init.sh`, and run the visible tests before
-  changing code.
+  `progress.md` and `git log`, read the feature list, run `init.sh` (migrations and a basic
+  end-to-end test: one visible test file, A2's "basic end-to-end test"), and read the visible-test
+  status the harness wrote into `session-handoff.md` when the last session ended, fixing failures
+  before changing code; the first session runs the visible tests once. Until the M6 pilot the
+  prompt ran the full visible suite twice per session start (VERIFICATION, M6).
 - Forced session stop: the session turn budget is smaller than the feature (allowed technique, §1.8 of the
   brief). At the stop both arms receive the same number of wrap-up turns. The harness arm's wrap-up
   message asks for a progress update, exec-plan update, handoff, and commit; the bare arm's says only that
@@ -518,6 +521,23 @@ Each batch set is split into commands of at most $2.50 (`MAX_BATCH_COST_USD`). B
 M6 recomputes the budget from measured per-run cost. Batch runs use `shipharness ab --no-preview`
 (board previews are for the live class only) and run several A/Bs at once (VERIFICATION records the
 number used).
+
+Pilot rules (owner, 2026-10-16). Every pilot-driven change is logged in VERIFICATION.md before the
+next run, with its reason, the run that revealed it, and its commit, labelled "bug fix, applies to
+both arms", "task/effort change", or "harness change, harness arm only" (the treatment, never the
+measurement). Primary measures never change. A section without a gap gets its next step written
+here before it runs, using these levers in order: (a) the section's trap variant as its demo task
+(the legacy `/v1` pattern for F1); (b) effort `low` for both arms; (c) for F2, a tighter session
+budget; only the sections that need it run. Budgets stay identical for both arms: harness overhead
+is cut first, and `RUN_TIMEOUT_S` rises for both arms only if the harness arm still times out; a
+live demo of up to 8 minutes wall time is acceptable. The referee determinism check (the same code
+judged 10 times, the same result) runs before the gate is declared.
+
+Harness freeze. When the pilot gate passes, the tag `harness-frozen` marks the harness, runner,
+prompts, and tools (`src/shipharness/harness/`, `src/shipharness/runner/`, and the instruction files
+in `teamtrack/harness/`) before M8. No change to those paths after the tag: a change would
+invalidate the M8 results and require re-running them. `tests/unit/test_harness_freeze.py` fails on
+any such change once the tag exists. VERIFICATION.md records the tag and its commit.
 
 Service tier: experiments use `OPENAI_SERVICE_TIER=flex` (Batch-rate prices, 50% off; RESEARCH §4.2) if
 the M6 pilot confirms that multi-turn tool calling works on Flex; otherwise `auto`. Both arms of a batch

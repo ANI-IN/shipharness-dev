@@ -329,3 +329,23 @@ def test_exec_plan_stays_active_without_passes(tmp_path: Path) -> None:
     ctx, layer = prepared(tmp_path)
     assert layer.on_phase_end(ctx) == []
     assert (ctx.workspace / "docs/exec-plans/active/F3.md").is_file()
+
+
+# --- overhead cuts (M6 pilot: the full visible suite ran twice at every session start) -----------
+
+
+def test_init_sh_basic_test_is_one_end_to_end_file_not_the_full_suite() -> None:
+    from shipharness.harness.state.templates import ASSETS
+
+    text = (ASSETS / "init.sh").read_text(encoding="utf-8")
+    assert "python -m pytest tests/visible/test_issues.py -x" in text
+    assert "python -m pytest tests/visible -x" not in text
+    assert "basic end-to-end test" in text
+
+
+def test_getting_up_to_speed_reuses_the_handoff_test_status(tmp_path: Path) -> None:
+    ctx, layer = prepared(tmp_path)
+    block = "\n".join(layer.context_prefix(ctx))
+    assert "Run the visible tests with run_visible_tests. If something" not in block
+    assert '"Visible tests" line' in block and "session-handoff.md" in block
+    assert "first session" in block

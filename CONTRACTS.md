@@ -1048,6 +1048,13 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   are the change from the first test session's start tree to the last test session's end tree
   (`git.tree_changed_files`); build-phase work an arm never committed is no longer counted as a
   test-phase source edit (S3 measure). Without a store: the earlier commit-based comparison.
+- Harness overhead (harness arm only): `init.sh` runs migrations and one end-to-end visible test file
+  (`tests/visible/test_issues.py`), not the full suite; the getting-up-to-speed block tells the agent
+  to read the "Visible tests" line of the handoff's machine summary instead of re-running the suite
+  (first session: run it once). `VerifyLayer(gate_baseline_cache_dir=)` reuses the gate baseline for
+  runs that start from the same checkpoint commit, keyed by `git.root_tree(workspace)`, feature,
+  checkpoint, seed, checks, gate parameters, and a hash of the check code; `Runtime.ab_deps` passes
+  `<RUNS_DIR>/../cache/gate-baseline`.
 - The referee baseline runs while the arms work and is cached per task under
   `<RUNS_DIR>/../cache/referee-baseline`, keyed by checkpoint SHA, seed, hidden test ids, allowed
   paths, exemptions, checks, and a hash of the referee code (`RefereeDeps.baseline_cache_dir`).

@@ -88,6 +88,12 @@ class Runtime:
                 "baseline_cache_dir",
                 Path(self.settings.runs_dir).parent / "cache" / "referee-baseline",
             ),
+            harness_kwargs={
+                "gate_baseline_cache_dir": Path(self.settings.runs_dir).parent
+                / "cache"
+                / "gate-baseline",
+                **kw.pop("harness_kwargs", {}),
+            },
             **kw,
         )
 
