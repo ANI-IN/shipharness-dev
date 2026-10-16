@@ -8,10 +8,11 @@ id, layers, and workspace path. The arms run concurrently. Every run, aborted or
 
 from __future__ import annotations
 
+import json
 import threading
 from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, get_args
 
@@ -30,6 +31,7 @@ from shipharness.events import Arm, EventBus
 from shipharness.harness.base import LAYER_ORDER, Harness, parse_layers
 from shipharness.harness.decisions import LayerName
 from shipharness.harness.verify.layer import default_seed
+from shipharness.logging import redact
 from shipharness.runner import git
 from shipharness.runner.loop import RunOptions, run_agent
 from shipharness.runner.model import ModelClient
@@ -324,7 +326,31 @@ def run_ab(
             records = {arm: future.result() for arm, future in verdicts.items()}
         # [walkthrough:Opening:two_arms] end
     arms = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in ARMS}
+    write_ab_record(run_dir, task, seed, arms)
     return ABResult(ab_id=ab_id, arms=arms, run_dir=run_dir)
+
+
+AB_RECORD = "ab.json"
+
+
+def write_ab_record(run_dir: Path, task: ABTask, seed: int, arms: Mapping[Arm, ArmRun]) -> Path:
+    """Everything swap and replay need, without host paths or keys."""
+    data = {
+        "task": asdict(task),
+        "seed": seed,
+        "arms": {
+            arm: {
+                "spec": run.spec.public_dict(),
+                "result": run.result.model_dump(mode="json", exclude={"diff_path"}),
+                "diff": f"{arm}/diff.patch",
+                "test_phase_files": phase_changed_files(run.spec, run.result),
+            }
+            for arm, run in arms.items()
+        },
+    }
+    path = run_dir / AB_RECORD
+    path.write_text(json.dumps(redact(data), indent=2, sort_keys=True), encoding="utf-8")
+    return path
 
 
 def phase_changed_files(spec: AgentRunSpec, result: AgentRunResult) -> list[str]:

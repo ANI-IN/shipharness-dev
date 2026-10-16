@@ -45,6 +45,9 @@ _COMMIT_ENV = {
 }
 
 
+_GIT_OPTS = ("-c", "core.autocrlf=false", "-c", "core.longpaths=true")
+
+
 class CheckpointNotFound(LookupError):
     pass
 
@@ -75,7 +78,7 @@ def _env() -> dict[str, str]:
 
 
 def _git(cwd: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[bytes]:
-    cmd = ["git", "-c", "core.autocrlf=false", "-c", "core.hooksPath=" + os.devnull, *args]
+    cmd = ["git", *_GIT_OPTS, "-c", "core.hooksPath=" + os.devnull, *args]
     return subprocess.run(cmd, cwd=cwd, capture_output=True, env=_env(), check=check)
 
 
@@ -175,7 +178,7 @@ def init_repo(path: Path, message: str) -> str:
     _git(path, "add", "-A", "-f")
     env = {**_env(), **_COMMIT_ENV}
     subprocess.run(
-        ["git", "-c", "core.autocrlf=false", "commit", "-q", "--no-verify", "-m", message],
+        ["git", *_GIT_OPTS, "commit", "-q", "--no-verify", "-m", message],
         cwd=path,
         capture_output=True,
         env=env,

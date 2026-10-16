@@ -10,6 +10,7 @@ judged too.
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 import os
 import subprocess
@@ -273,13 +274,14 @@ class Referee:
         run_log: Path | None = None,
         test_phase_files: list[str] | None = None,
         recorded: bool = False,
+        export: bool = True,  # False for the swap test: its records are not runs
     ) -> ArmVerdict:
         def emit(type_: str, data: Any) -> None:
             if bus is not None:
                 bus.publish(type_, data, run_id=run_id, arm=arm, recorded=recorded)  # type: ignore[arg-type]
 
         baseline = self.baseline(arm)
-        rdir = self.deps.base_dir / (ab_id or run_id) / arm / f"referee-{run_id}"
+        rdir = self.deps.base_dir / f"{arm}-{hashlib.sha256(run_id.encode()).hexdigest()[:10]}"
         build = export_checkpoint(self.deps.course_repo, self.deps.checkpoint_ref, rdir / "build")
         init_repo(build, f"checkpoint {self.task.checkpoint}")
         hidden = export_hidden_tests(
@@ -352,7 +354,8 @@ class Referee:
                 failed=error is not None,
             )
             root.set_outputs({"passed_primary": record.passed_primary})
-        write_export("scores", run_id, record, self.deps.exports_dir)
+        if export:
+            write_export("scores", run_id, record, self.deps.exports_dir)
         summary = self._summary(record, error)
         emit(
             "verdict",
