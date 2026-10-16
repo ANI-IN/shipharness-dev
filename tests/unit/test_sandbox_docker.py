@@ -134,3 +134,101 @@ def test_read_only_extra_mount_inside_the_workspace(tmp_path: Path) -> None:
     finally:
         box.stop()
     assert "x" not in (hidden / "test_secret.py").read_text(encoding="utf-8").split()
+
+
+def test_preview_reloads_the_arms_code_and_captures_the_board(tmp_path: Path) -> None:
+    """The preview runs the arm's TeamTrack from the read-only workspace mount, reloads when the
+    arm changes app/, and the trusted capture script screenshots the board in the container."""
+    import time
+
+    from shipharness.ab.workspace import export_checkpoint
+    from shipharness.console.preview import BoardPreview
+
+    repo = Path(__file__).resolve().parents[2]
+    workspace = export_checkpoint(repo, None, tmp_path / "ws")
+    settings = Settings(_env_file=None)
+    policy = default_policy(settings).model_copy(update={"workspace_read_only": True})
+    log = tmp_path / "run" / "events.jsonl"
+    log.parent.mkdir()
+    with EventBus(log, ab_id=None) as bus:
+        box = DockerSandbox(
+            policy, settings.sandbox_image_referee, workspace, bus, "r-preview", "bare"
+        )
+        box.start()
+        try:
+            preview = BoardPreview(box, bus, log.parent, run_id="r-preview", arm="bare")
+            preview.start_server()
+            probe = (
+                'python -c "import urllib.request;'
+                "print(urllib.request.urlopen('http://127.0.0.1:8000/health').read().decode())\""
+            )
+            assert '"ok"' in box.exec(probe, timeout_s=30).output
+            health = workspace / "app" / "api" / "health.py"
+            health.write_text(
+                health.read_text(encoding="utf-8").replace('status="ok"', 'status="reloaded"'),
+                encoding="utf-8",
+            )
+            seen = ""
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline and '"reloaded"' not in seen:
+                time.sleep(1)
+                seen = box.exec(probe, timeout_s=30).output
+            assert '"reloaded"' in seen, seen[-300:]
+            event = preview.capture("board")
+            assert event is not None, preview.last_error
+            png = log.parent / event.data["path"]
+            assert png.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+        finally:
+            box.stop()
+
+
+def test_commands_see_the_image_dependencies(sandbox) -> None:  # type: ignore[no-untyped-def]
+    """Agent, gate, and referee commands run with the image's virtual environment: pytest, the
+    TeamTrack stack, and the image's check runner import (a login shell would reset PATH)."""
+    box, _log, _ = sandbox
+    result = box.exec(
+        "python -c 'import pytest, fastapi, sqlalchemy, alembic, uvicorn; print(\"deps ok\")'",
+        timeout_s=60,
+    )
+    assert result.exit_code == 0, result.output[-500:]
+    assert "deps ok" in result.output
+    runner = box.exec("python -P -m shipharness.checks.runner --help", timeout_s=60)
+    assert runner.exit_code == 0, runner.output[-500:]
+
+
+def test_check_runner_judges_teamtrack_inside_the_referee_container(tmp_path: Path) -> None:
+    """The referee path end to end in a real container: the image's runner (python -P), the
+    checkpoint export as working directory, migrations, layering, and the existing tests."""
+    from shipharness.ab.workspace import export_checkpoint
+    from shipharness.harness.verify.checkrun import (
+        new_nonce,
+        parse_runner_output,
+        runner_command,
+    )
+
+    repo = Path(__file__).resolve().parents[2]
+    build = export_checkpoint(repo, None, tmp_path / "build")
+    build.chmod(0o777)
+    settings = Settings(_env_file=None)
+    box = DockerSandbox(
+        default_policy(settings), settings.sandbox_image_referee, build, None, "r-ref", "bare"
+    )
+    box.start()
+    try:
+        nonce = new_nonce()
+        command = runner_command(
+            build=".",
+            checks=["r6_layering", "r7_migrations", "regression"],
+            checkpoint="m1-s1-start",
+            feature="F1",
+            seed=7,
+            nonce=nonce,
+        )
+        output = box.exec(command, timeout_s=900)
+        results, _progress = parse_runner_output(output.output, nonce=nonce)
+    finally:
+        box.stop()
+    by_check = {r.check: r for r in results}
+    assert set(by_check) == {"r6_layering", "r7_migrations", "regression"}
+    assert all(r.passed for r in results), [(r.check, r.findings[:2]) for r in results]
+    assert by_check["regression"].total_probes >= 100
