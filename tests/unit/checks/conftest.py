@@ -2,16 +2,13 @@
 
 from __future__ import annotations
 
-import shutil
 import sys
 from collections.abc import Callable, Iterator
 from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[3]
-TEAMTRACK = REPO / "teamtrack"
-_IGNORE = shutil.ignore_patterns("__pycache__", "*.db", ".referee", ".pytest_cache")
+from tests.unit.checks.seeds import copy_teamtrack
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -28,19 +25,6 @@ def _restore_app_modules() -> Iterator[None]:
         del sys.modules[name]
     sys.modules.update(saved)
     sys.path[:] = path
-
-
-def copy_teamtrack(dest: Path) -> Path:
-    shutil.copytree(TEAMTRACK, dest, ignore=_IGNORE)
-    return dest
-
-
-def edit(build: Path, relative: str, old: str, new: str) -> None:
-    """Replace one exact snippet in a build file; fails loudly if the snippet moved."""
-    path = build / relative
-    text = path.read_text(encoding="utf-8")
-    assert text.count(old) == 1, f"{old!r} not found exactly once in {relative}"
-    path.write_text(text.replace(old, new), encoding="utf-8")
 
 
 @pytest.fixture
