@@ -14,6 +14,7 @@ Each test carries `@pytest.mark.criterion("<id>")`; the grader maps criteria to 
 from __future__ import annotations
 
 import importlib
+import json
 import os
 import re
 import shutil
@@ -331,6 +332,48 @@ def skill_problems(root: Path) -> list[str]:
 
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "criterion(id): grading criterion this test counts toward")
+
+
+# Outcomes for check.py and grade.py: env A4_RESULTS names a JSON file written at session end.
+# Both conftests import these hooks, so each event may arrive twice; dicts keep that idempotent.
+_CRITERIA: dict[str, str] = {}
+_OUTCOMES: dict[str, dict[str, Any]] = {}
+
+
+def pytest_collection_modifyitems(items: list[pytest.Item]) -> None:
+    for item in items:
+        marker = item.get_closest_marker("criterion")
+        _CRITERIA[item.nodeid] = str(marker.args[0]) if marker and marker.args else ""
+
+
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    entry = _OUTCOMES.setdefault(report.nodeid, {"passed": False, "message": ""})
+    if report.when == "call" and report.passed:
+        entry["passed"] = True
+    if report.failed or report.skipped:
+        entry["passed"] = False
+        if not entry["message"]:
+            entry["message"] = _short(report)
+
+
+def _short(report: pytest.TestReport) -> str:
+    crash = getattr(report.longrepr, "reprcrash", None)
+    if crash is not None:
+        return str(crash.message)
+    if report.skipped and isinstance(report.longrepr, tuple):
+        return f"skipped: {report.longrepr[2]}"
+    return str(report.longrepr).strip().splitlines()[-1] if report.longrepr else report.outcome
+
+
+def pytest_sessionfinish(session: pytest.Session) -> None:
+    target = os.environ.get("A4_RESULTS")
+    if not target:
+        return
+    rows = [
+        {"nodeid": nodeid, "criterion": criterion, **_OUTCOMES.get(nodeid, {"passed": False})}
+        for nodeid, criterion in _CRITERIA.items()
+    ]
+    Path(target).write_text(json.dumps(rows, indent=1), encoding="utf-8")
 
 
 @pytest.fixture
