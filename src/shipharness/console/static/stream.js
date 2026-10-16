@@ -1,39 +1,64 @@
-// Minimal live stream of run events using the browser's EventSource API.
-// The full five-screen console is built on the same /events/<run> stream.
+// shipharness console client. Keys 1-5 switch screens, F cycles full screen for one arm
+// (both -> bare -> harness -> both). Screens arrive as server-rendered, escaped HTML over
+// server-sent events (browser EventSource API; DESIGN D-15). No build step, no CDN.
 (function () {
   "use strict";
-  let source = null;
+  var body = document.body;
+  var run = body.getAttribute("data-run");
+  if (!run) return;
+  var FULL = ["", "bare", "harness"];
 
-  function show(run) {
-    const list = document.getElementById("events");
-    const status = document.getElementById("status");
-    list.textContent = "";
-    if (source) source.close();
-    source = new EventSource("/events/" + encodeURIComponent(run));
-    status.textContent = "(connecting to " + run + ")";
-    source.onopen = function () { status.textContent = "(live: " + run + ")"; };
-    source.onerror = function () { status.textContent = "(reconnecting to " + run + ")"; };
-    source.onmessage = append;
-    [
-      "run_start", "sandbox_start", "sandbox_usage", "sandbox_denied", "turn", "tool_call",
-      "tool_result", "harness_decision", "blocked", "session_stop", "session_resume",
-      "test_proposed", "test_filter_result", "check_progress", "check_result", "mutant_result",
-      "reviewer_output", "gate_result", "claim", "verdict", "cost", "screenshot", "trace_link",
-      "run_end",
-    ].forEach(function (type) { source.addEventListener(type, append); });
+  function show(key) {
+    if (!/^[1-5]$/.test(key)) return;
+    body.setAttribute("data-screen", key);
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", "#" + key);
+    }
   }
 
-  function append(message) {
-    const event = JSON.parse(message.data);
-    const item = document.createElement("li");
-    const arm = event.arm ? "[" + event.arm + "] " : "";
-    const badge = event.recorded ? "RECORDING " : "";
-    item.textContent = badge + "#" + event.seq + " " + arm + event.type;
-    document.getElementById("events").prepend(item);
+  function cycleFull() {
+    var index = FULL.indexOf(body.getAttribute("data-full") || "");
+    var next = FULL[(index + 1) % FULL.length];
+    body.setAttribute("data-full", next);
+    var label = document.getElementById("full-label");
+    if (label) label.textContent = next || "both";
   }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target;
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if (e.key >= "1" && e.key <= "5") {
+      show(e.key);
+      e.preventDefault();
+    } else if (e.key === "f" || e.key === "F") {
+      cycleFull();
+      e.preventDefault();
+    }
+  });
 
   document.addEventListener("click", function (e) {
-    const run = e.target && e.target.getAttribute && e.target.getAttribute("data-run");
-    if (run) show(run);
+    var tab = e.target && e.target.closest ? e.target.closest(".tab") : null;
+    if (tab) show(tab.getAttribute("data-key"));
+  });
+
+  show((window.location.hash || "#1").slice(1));
+
+  var conn = document.getElementById("conn");
+  function status(text) { if (conn) conn.textContent = text; }
+
+  var source = new EventSource("/screens/" + encodeURIComponent(run));
+  source.onopen = function () { status("live"); };
+  source.onerror = function () { status("reconnecting"); };
+  source.addEventListener("screens", function (message) {
+    var update = JSON.parse(message.data);
+    Object.keys(update.screens).forEach(function (key) {
+      var section = document.getElementById("screen-" + key);
+      // Server-rendered with autoescape: agent text is already escaped.
+      if (section) section.innerHTML = update.screens[key];
+    });
+    body.setAttribute("data-recorded", update.recorded ? "true" : "false");
+    body.setAttribute("data-seq", String(update.seq));
+    status("live · event " + update.seq);
   });
 })();
