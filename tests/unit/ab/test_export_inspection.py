@@ -1,4 +1,4 @@
-"""Export inspection (1): an arm workspace holds the checkpoint and nothing else (DESIGN §8.3 rule 6).
+"""Export inspection (1): an arm workspace holds the checkpoint only (DESIGN §8.3 rule 6).
 
 A miniature course repository carries everything an arm must never reach: reference solutions,
 hidden tests, referee mutants, harness instruction sources, course files outside `teamtrack/`, a
@@ -154,9 +154,7 @@ def test_workspace_object_store_holds_only_checkpoint_objects(
     expected = {head, root_tree, *tree_objects}
     reachable = {line.split()[0] for line in lines(workspace, "rev-list", "--all", "--objects")}
     assert reachable == expected
-    stored = set(
-        lines(workspace, "cat-file", "--batch-all-objects", "--batch-check=%(objectname)")
-    )
+    stored = set(lines(workspace, "cat-file", "--batch-all-objects", "--batch-check=%(objectname)"))
     assert stored == expected  # nothing unreachable is stored either
     assert head != course["checkpoint_commit"]  # a fresh commit, not the course history
 
