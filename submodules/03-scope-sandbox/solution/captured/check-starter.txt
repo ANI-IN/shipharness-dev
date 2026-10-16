@@ -1,4 +1,6 @@
-$ uv run python submodules/03-scope-sandbox/assignment/check.py
+# captured on 2026-10-17 (IST) at commit e7287f4 (offline: no model calls, no containers); your output will differ
+$ make check-assignment-3
+uv run python submodules/03-scope-sandbox/assignment/check.py 
 A3 self-check: submodules/03-scope-sandbox/assignment/starter
   check                                              visible tests  status  where
   diff parsing and path matching                              0/28  FAIL    a3scope/diffparse.py, a3scope/scope.py (glob_matches)
@@ -42,4 +44,5 @@ A3 self-check: submodules/03-scope-sandbox/assignment/starter
     - tests/test_a3_sandbox_rule.py:23: TODO(A3 task 6)
 
 Self-check FAILED: fix the FAIL rows above (README 'Step-by-step tasks').
-(exit code 1)
+make: *** [Makefile:133: check-assignment-3] Error 1
+(exit code 2)

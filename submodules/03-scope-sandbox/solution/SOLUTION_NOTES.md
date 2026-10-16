@@ -197,19 +197,21 @@ and diff commands built from the real `commit_command`, `SETUP_COMMIT`, and `PAT
 
 ## Captured output
 
-Real runs, from the repository root, in `captured/`:
+Real runs, from the repository root, in `captured/`. Each file starts with a line giving the date and
+commit it was captured at. `make` exits 2 whenever the script it runs exits non-zero.
 
-| File | Command |
-|---|---|
-| `check-starter.txt` | `uv run python submodules/03-scope-sandbox/assignment/check.py` (exit 1) |
-| `check-solution.txt` | the same with `--impl submodules/03-scope-sandbox/solution` (exit 0) |
-| `grade-starter.txt` | `uv run python submodules/03-scope-sandbox/solution/grader/grade.py` (0.0 / 100, exit 1) |
-| `grade-solution.txt` | the same with `--impl submodules/03-scope-sandbox/solution` (90.0 / 100, FAIL, exit 1: no `live/` yet) |
-| `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` |
+| File | Command | Captured | Result |
+|---|---|---|---|
+| `check-starter.txt` | `make check-assignment-3` | 2026-10-17 (IST), e7287f4 | every part FAIL, script exit 1 |
+| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17 (IST), e7287f4 | every row ok, live row `missing`, exit 0 |
+| `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17 (IST), e7287f4 | 0.0 / 100, FAIL |
+| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17 (IST), e7287f4 | 90.0 / 100, FAIL |
+| `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
 
-After the live run is recorded in `live/`, capture the grader again:
-
-[[PENDING: grade-solution.txt with the captured live run in solution/live/ (100.0 / 100 expected only if the evidence is valid) | source: M8 batch 1 | how: uv run python submodules/03-scope-sandbox/solution/grader/grade.py --impl submodules/03-scope-sandbox/solution]]
+The 90.0 / 100 and `Result: FAIL` on the reference solution are expected until its live run is
+captured: criterion 6 (live A/B evidence, 10 points) scores 0 without `solution/live/`, and valid
+live evidence is a pass condition. The capture and the regrade are one step for the integrator,
+under the single PENDING marker in [README.md](README.md), "Captured live run of this solution".
 
 ## Live step: design choices
 
@@ -254,13 +256,33 @@ After the live run is recorded in `live/`, capture the grader again:
      what does that say about trusting any single field as evidence (A3, F-a-110)?
    - Should a phase without an allow list fail closed? What would break in the real layer if it did?
 
+## Live step: what the pilot showed
+
+The M6 pilot ran the live step's A/B (`shipharness ab --section demo-3 --feature F3 --no-preview`)
+three times per pilot run (VERIFICATION.md, M6 pilot). Two findings matter for the live verdicts:
+
+- Run 1 charged every F3 arm with 4 out-of-scope files that were the import linter's cache
+  (`.import_linter_cache/`), and counted uncommitted build work as test-phase source edits for arms
+  that never commit. Pilot changes 5 and 6 fixed both for both arms. A learner verdict built on a run
+  from before those changes would disagree with today's referee for that reason alone.
+- Run 2, with the measures fixed, had `out_of_scope_files` 0 and `test_phase_source_edits` 0 in all
+  six F3 arms. On the canonical task, a learner's `check_diff` should accept the bare arm's diff in
+  both phases; on the harness arm's whole-run diff, rule 2 refuses `feature_list.json` when the
+  harness set `passes` (two of the three run 2 harness arms), while the referee strips it. That
+  difference is the one the assignment README asks learners to explain.
+
+Run 3 uses the trap variant for F3 (`trap-tempting-middleware`, DESIGN §10.4); the live step stays on
+the canonical task (`--feature F3`), and the grader checks for that.
+
 ## Integration notes
 
-- Make targets: `check-assignment-3` and `grade-assignment-3` (rules in the M7 report). The grader
-  takes the submission folder through `--impl` (`make grade-assignment-3 SUBMISSION=<path>` passes
-  the folder, or the temp clone of a git URL, as `--impl`).
-- `--no-preview` exists on `main` (`src/shipharness/ab/commands.py`), not on this branch's base; the
-  live step's command needs it after the merge.
-- `solution/grader/tests/` is not under the repository's `testpaths`; add it there (it runs the
-  grader on the starter, the solution, and three variants, so it is one of the longer suites) or run it
-  in CI on its own. Its last test is marked `slow`.
+- Make targets: `check-assignment-3` (`A3_IMPL=<folder>`) and `grade-assignment-3`
+  (`SUBMISSION=<folder or git URL>`, passed to the grader as `--impl` by
+  `scripts/grade_assignment.py`).
+- The live-step command now carries `--purpose assignment` (traces to `shipharness-assignments`,
+  DESIGN §12). `assignment/live.py` accepts it (it bans only `--replay`, `--swap`, `--layers`, `--k`,
+  `--example`, and `--from-working-tree`); the usage text at the top of `live.py` still shows the
+  command without it.
+- `solution/grader/tests/` is not under the repository's `testpaths`
+  (`["tests/unit", "teamtrack/tests/visible"]` in `pyproject.toml`); run it on its own. Its last test
+  is marked `slow`.

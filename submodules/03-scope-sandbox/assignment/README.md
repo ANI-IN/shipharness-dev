@@ -10,8 +10,9 @@ apply your own policy and status gate to what the two real arms changed.
   new files, hunks whose content looks like file headers, and source edits in the test phase.
 - Cost: Parts A to C need no API keys, no agent runs, and no container runtime. The required live
   step runs one `demo-3` A/B (two agent runs under the class caps; see "Cost and trace budget").
-- Commands: `make check-assignment-3` (self-check), `assignment/live.py` (live step), and
-  `make grade-assignment-3` (grade out of 100).
+- Commands: `make check-assignment-3` (self-check) and `assignment/live.py` (live step). The grade
+  out of 100 comes from `make grade-assignment-3 SUBMISSION=<folder or git URL>`, which the
+  instructor runs: the grader and its hidden cases are not in the learner repository.
 
 ## Objective
 
@@ -43,6 +44,15 @@ close in a package that mirrors the real interfaces:
   command that rewrites git history can never be reverted, and the evidence written with `passes`
   names a commit SHA that such a rewrite would orphan. You add a sandbox rule that refuses history
   rewrites before they run.
+
+Path checks are easy to get wrong in both directions, and the course's own pilot shows it. In M6
+pilot run 1, every F3 arm was charged with 4 out-of-scope files that were the import linter's cache
+(`.import_linter_cache/`), written by the agent's lint step; the harness arm's scope layer reverted
+them after every lint run. The same run counted uncommitted build work as test-phase source edits
+for arms that never commit. Both were measurement bugs, fixed in pilot changes 5 and 6
+(VERIFICATION.md, M6 pilot). Your policy reads diffs, not working trees, so the cache does not reach
+it, but the lesson carries over: decide what counts as a changed file before deciding whether it is
+allowed.
 
 ## Background
 
@@ -276,7 +286,8 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
    runs the rule in a real container.
 8. Run `make check-assignment-3` until it passes and add your own tricky cases.
 9. Live step (next section): one `demo-3` A/B, then `live.py collect` and `live.py verify`.
-10. Run `make grade-assignment-3`.
+10. Commit your folder with `live/` and submit it (a folder or a git URL); the instructor grades it
+    with `make grade-assignment-3 SUBMISSION=<folder or git URL>`.
 
 ## Live step (required)
 
@@ -291,19 +302,22 @@ files you submit and re-runs your policy on them, offline.
 2. Run the A/B and keep its terminal output:
 
    ```bash
-   uv run shipharness ab --section demo-3 --feature F3 --no-preview 2>&1 | tee ab-output.txt
+   uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment 2>&1 | tee ab-output.txt
    ```
 
-   This is `make demo-3` without the board preview containers. The command prints one line per arm and
-   a cost line (`Cost: $...`). Each arm stops at `MAX_RUN_COST_USD`, the command at
-   `MAX_BATCH_COST_USD`.
+   This is `make demo-3` without the board preview containers, with its traces in the
+   `shipharness-assignments` LangSmith project (`--purpose assignment`, DESIGN §12) instead of a class
+   project (`make demo-3` uses `--purpose class`, which needs `SHIPHARNESS_CLASS_DATE`). The M6 pilot
+   ran the same A/B, without `--purpose`, three times per pilot run (VERIFICATION.md, M6 pilot). The
+   command prints one line per arm and a cost line (`Cost: $...`). Each arm stops at
+   `MAX_RUN_COST_USD`, the command at `MAX_BATCH_COST_USD`.
 3. Right after it, collect the evidence into your submission folder (the arm workspaces live in the
    temp folder and are not kept forever):
 
    ```bash
    uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl <your folder> \
        --ab-output ab-output.txt \
-       --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview"
+       --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
    uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl <your folder>
    ```
 
@@ -350,8 +364,8 @@ diff.
 What the grader checks (criterion 6, no model calls, no keys, no container):
 
 - the files above exist; `command.txt` is `make demo-3` or `shipharness ab --section demo-3 --feature
-  F3` (`--no-preview` allowed; no `--replay`, `--swap`, `--layers`, `--k`, `--example`, or
-  `--from-working-tree`);
+  F3` (`--no-preview` and `--purpose` allowed; no `--replay`, `--swap`, `--layers`, `--k`,
+  `--example`, or `--from-working-tree`);
 - both ScoreRecords validate against `ScoreRecord`, their `run_id`s match the file names and
   `ab-summary.json`, `ab_id` matches the `A/B <ab_id>` line, `feature_id` is `F3`, `checkpoint_sha` is
   present and matches, `recorded` is false, and `sandboxed` is true;
@@ -361,9 +375,13 @@ What the grader checks (criterion 6, no model calls, no keys, no container):
 - your code, re-run on the included diffs with `sandbox-log.json` replayed, gives both verdict files
   exactly, and the log holds no result your gate did not ask for.
 
-A verdict from the reference solution on a real A/B:
-
-[[PENDING: verdict-bare.json and verdict-harness.json of the reference solution on a live demo-3 A/B | source: M8 batch 1 | how: uv run shipharness ab --section demo-3 --feature F3 --no-preview, output saved as ab-output.txt; uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl <reference folder> --ab-output ab-output.txt --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview"]]
+What to expect from the referee's side, from the three F3 A/Bs of M6 pilot run 2 (VERIFICATION.md,
+M6 pilot run 2): every arm, bare and harness, had `out_of_scope_files` 0 and
+`test_phase_source_edits` 0. The bare arms' diffs held `app/api/issues.py`,
+`app/services/issues.py`, `docs/HANDBOOK.md`, and one test file under `tests/visible/`; the harness
+arms' diffs also held `progress.md`, `session-handoff.md`, the exec plan, and in two of three runs
+`feature_list.json` (the harness setting `passes`). Your rule 2 refuses that last file; the referee
+strips it as a harness artifact.
 
 ## Expected project structure
 
@@ -398,17 +416,20 @@ git switch -c a3-<your-name> # work on your own branch
 ```
 
 Work in place in `assignment/starter/`, or copy it (`cp -r submodules/03-scope-sandbox/assignment/starter $HOME/a3`)
-and pass `IMPL=$HOME/a3` to the make targets (`--impl $HOME/a3` to the scripts).
+and pass `A3_IMPL=$HOME/a3` to `make check-assignment-3` (`--impl $HOME/a3` to the scripts).
 
 ## How to run
 
 ```bash
-make check-assignment-3                 # visible tests + your denial test + live/ check + TODO list
-make grade-assignment-3                 # visible + hidden tests + live evidence, score out of 100
-make check-assignment-3 IMPL=$HOME/a3       # a copy elsewhere
+make check-assignment-3                     # visible tests + your denial test + live/ check + TODO list
+make check-assignment-3 A3_IMPL=$HOME/a3    # a copy elsewhere
 uv run python submodules/03-scope-sandbox/assignment/check.py --impl $HOME/a3   # without make
 uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl $HOME/a3  # live/ only
 ```
+
+`check.py` exits 1 when a row fails, so `make` reports `Error 1` and exits 2. Grading (instructor
+only) is `make grade-assignment-3 SUBMISSION=<folder or git URL>`: visible and hidden tests plus the
+live evidence, score out of 100.
 
 ## How to test
 
@@ -430,8 +451,8 @@ Add your own cases: `fixtures/make_fixtures.py` shows how to turn file operation
   `TODO(A3 ...)` marker, and exits 1. The only rows that pass are the "allows" rows, because an empty
   rule allows everything.
 - On a complete solution without `live/`, every row is `ok` and the live row says `missing`; the
-  self-check exits 0, and the grader prints 90.0 / 100 and `Result: FAIL` (the live evidence is
-  required). With valid live evidence it prints 100.0 / 100 and `Result: PASS`.
+  self-check exits 0, and the instructor's grader prints 90.0 / 100 and `Result: FAIL` (the live
+  evidence is required). With valid live evidence it prints 100.0 / 100 and `Result: PASS`.
 - `live.py verify` prints `evidence ok` and `verdicts ok` on a complete live step.
 - With `HISTORY_RULES = ()`, your denial test fails.
 - The optional container test fails on the starter (the amend runs and rewrites the commit) and passes
@@ -476,21 +497,38 @@ decision.evidence  # {"gate_id": "visible-tests", "commit": "c0ffee...", "visibl
                    #  "existing": "not run (verify layer off)", "checks": []}
 ```
 
-The self-check on the starter (first rows):
+The self-check on the starter, cut to the table and the last lines (captured on 2026-10-17 (IST) at
+commit e7287f4 with `make check-assignment-3`; offline, no model calls; your output will differ):
 
 ```text
+uv run python submodules/03-scope-sandbox/assignment/check.py 
 A3 self-check: submodules/03-scope-sandbox/assignment/starter
   check                                              visible tests  status  where
   diff parsing and path matching                              0/28  FAIL    a3scope/diffparse.py, a3scope/scope.py (glob_matches)
   out-of-scope diffs rejected                                  0/8  FAIL    a3scope/scope.py (check_diff)
   legitimate diffs accepted                                    0/6  FAIL    a3scope/scope.py (check_diff)
+  passes set with evidence                                     0/2  FAIL    a3scope/status.py
+  passes kept false without evidence                           0/5  FAIL    a3scope/status.py
+  history rule denies                                          0/8  FAIL    a3scope/policy.py
+  history rule allows (no false positives)                     6/6  ok
+  your denial test passes                                           FAIL    tests/test_a3_sandbox_rule.py
+  your denial test fails with the rule removed                      FAIL    tests/test_a3_sandbox_rule.py
+  your denial test uses check_command/PolicySandbox                 FAIL    tests/test_a3_sandbox_rule.py
+  live A/B evidence (live/)                                         missing (required for the grade: README 'Live step')
+
+  Failing visible tests (57; first 10):
+  ...
+  TODO markers left (14):
+  ...
+Self-check FAILED: fix the FAIL rows above (README 'Step-by-step tasks').
+make: *** [Makefile:133: check-assignment-3] Error 1
 ```
 
 ## Grading criteria (100 points)
 
-`make grade-assignment-3` runs the visible tests, the hidden tests (more scripted diffs, commands, and
-status cases than the visible ones), your denial test, and `live.py verify` on your `live/` folder,
-then prints this table. Test-name prefixes decide the group of each test.
+The instructor's `make grade-assignment-3 SUBMISSION=<folder or git URL>` runs the visible tests, the
+hidden tests (more scripted diffs, commands, and status cases than the visible ones), your denial
+test, and `live.py verify` on your `live/` folder, then prints this table. Test-name prefixes decide the group of each test.
 
 | # | Criterion | Points | How it is scored |
 |---|---|---|---|
@@ -541,9 +579,17 @@ Parts A to C call no model and write no traces. The live step is the only paid c
 `MAX_RUN_COST_USD` ($0.20), each blinded review at `MAX_REVIEW_COST_USD` ($0.04), and the command at
 `MAX_BATCH_COST_USD` ($2.50) (CONTRACTS §1). It writes two traces per run, the agent root and the
 referee evaluator (DESIGN §12), so four traces. `collect` and `verify` call no model. DESIGN §11.5
-planned A3 at ≤ $0.25 and ≤ 30 traces before the live step was added; the measured cost of one A/B:
+planned A3 at ≤ $0.25 and ≤ 30 traces before the live step was added. Measured on the same A/B in M6
+pilot run 2 (score records `exports/scores/<run id>.json`, fields `cost_usd` and `review_cost_usd`;
+captured on 2026-10-16, runs as listed; your output will differ):
 
-[[PENDING: cost line (Cost: $...) of one demo-3 A/B with the reference solution's live step | source: M8 batch 1 | how: uv run shipharness ab --section demo-3 --feature F3 --no-preview]]
+| A/B | Bare arm | Bare review | Harness arm | Harness review |
+|---|---|---|---|---|
+| ab-20261016-182624-6403f7 | $0.009425 | $0.003161 | $0.008679 | $0.002570 |
+| ab-20261016-184452-134b15 | $0.006800 | $0.003277 | $0.010103 | $0.001818 |
+| ab-20261016-190948-4054b5 | $0.008313 | $0.002655 | $0.010169 | $0.002020 |
+
+Each figure is far below its cap; your run uses your own key and will cost a different amount.
 
 The live step logs no separate LangSmith experiment: the A/B's traces go to the class project, as in
 the section demo.

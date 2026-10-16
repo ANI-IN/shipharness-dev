@@ -1,4 +1,6 @@
-$ uv run python submodules/03-scope-sandbox/solution/grader/grade.py
+# captured on 2026-10-17 (IST) at commit e7287f4 (offline: no model calls, no containers); your output will differ
+$ make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter
+uv run python scripts/grade_assignment.py 3 "submodules/03-scope-sandbox/assignment/starter"
 A3 grade: submodules/03-scope-sandbox/assignment/starter
   criterion                                              tests         points
   1 Diff parsing and path matching                                0.0 / 15
@@ -39,4 +41,6 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
     - test_bad_diff_rejected[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
     - test_bad_diff_rejected[bad-test-phase-source-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
 Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
-(exit code 1)
+grading assignment 3: submodules/03-scope-sandbox/assignment/starter
+make: *** [Makefile:141: grade-assignment-3] Error 1
+(exit code 2)
