@@ -61,31 +61,37 @@ def test_etag_in_globex(client, globex) -> None:
     assert get(client, globex.viewer, globex.issues[3]).headers["ETag"] == '"1"'
 
 
-# -- 428 ------------------------------------------------------------------------------------------
+# -- without If-Match -----------------------------------------------------------------------------
 
 
-def test_patch_without_if_match_is_428(client, acme) -> None:
-    response = patch(client, acme.member, acme.issues[0], None)
-    assert response.status_code == 428
-    assert error_code(response) == "precondition_required"
+def test_patch_without_if_match_succeeds_and_returns_the_new_etag(client, acme) -> None:
+    response = patch(client, acme.member, acme.issues[0], None, {"title": "No header"})
+    assert response.status_code == 200
+    assert (response.json()["title"], response.json()["version"]) == ("No header", 2)
+    assert response.headers["ETag"] == '"2"'
 
 
-def test_assign_without_if_match_is_428(client, acme) -> None:
-    response = assign(client, acme.member, acme.issues[0], None, acme.viewer)
-    assert response.status_code == 428
-    assert error_code(response) == "precondition_required"
+def test_assign_without_if_match_succeeds_and_returns_the_new_etag(client, acme) -> None:
+    response = assign(client, acme.member, acme.issues[1], None, acme.viewer)
+    assert response.status_code == 200
+    assert (response.json()["assignee_id"], response.json()["version"]) == (acme.viewer, 2)
+    assert response.headers["ETag"] == '"2"'
 
 
-def test_transition_without_if_match_is_428(client, acme) -> None:
-    response = transition(client, acme.member, acme.issues[0], None)
-    assert response.status_code == 428
-    assert error_code(response) == "precondition_required"
+def test_transition_without_if_match_succeeds_and_returns_the_new_etag(client, acme) -> None:
+    response = transition(client, acme.member, acme.issues[2], None)
+    assert response.status_code == 200
+    assert (response.json()["status"], response.json()["version"]) == ("in_progress", 2)
+    assert response.headers["ETag"] == '"2"'
 
 
-def test_428_changes_nothing(client, acme) -> None:
-    patch(client, acme.admin, acme.issues[0], None, {"title": "Should not stick"})
-    issue = get(client, acme.member, acme.issues[0]).json()
-    assert (issue["title"], issue["version"]) == ("Login page times out", 1)
+def test_write_without_if_match_makes_the_old_etag_stale(client, acme) -> None:
+    etag = get(client, acme.member, acme.issues[0]).headers["ETag"]
+    written = patch(client, acme.member, acme.issues[0], None, {"title": "Unconditional"})
+    assert written.status_code == 200
+    response = patch(client, acme.member, acme.issues[0], etag, {"title": "Based on old"})
+    assert response.status_code == 412
+    assert get(client, acme.member, acme.issues[0]).json()["title"] == "Unconditional"
 
 
 # -- 412 ------------------------------------------------------------------------------------------
@@ -129,6 +135,18 @@ def test_weak_etag_is_412(client, acme) -> None:
 
 def test_garbage_if_match_is_412(client, acme) -> None:
     assert transition(client, acme.member, acme.issues[0], '"abc"').status_code == 412
+
+
+def test_empty_if_match_is_412(client, acme) -> None:
+    response = assign(client, acme.member, acme.issues[0], "", acme.viewer)
+    assert response.status_code == 412
+    assert error_code(response) == "precondition_failed"
+
+
+def test_malformed_if_match_changes_nothing(client, acme) -> None:
+    assert patch(client, acme.member, acme.issues[0], "one", {"title": "Nope"}).status_code == 412
+    issue = get(client, acme.member, acme.issues[0]).json()
+    assert (issue["title"], issue["version"]) == ("Login page times out", 1)
 
 
 def test_412_changes_nothing(client, acme) -> None:
@@ -184,7 +202,7 @@ def test_a_chain_of_writes_using_each_new_etag(client, acme) -> None:
 
 def test_successful_write_adds_one_audit_row(client, acme) -> None:
     before = audit_count(client, acme)
-    assert patch(client, acme.member, acme.issues[0], None).status_code == 428
+    assert patch(client, acme.member, acme.issues[0], '"9"').status_code == 412
     assert patch(client, acme.member, acme.issues[0], '"1"').status_code == 200
     assert audit_count(client, acme) == before + 1
 
@@ -192,33 +210,37 @@ def test_successful_write_adds_one_audit_row(client, acme) -> None:
 # -- check order ----------------------------------------------------------------------------------
 
 
-def test_viewer_gets_403_before_428(client, acme) -> None:
-    assert patch(client, acme.viewer, acme.issues[0], None).status_code == 403
-    assert patch(client, acme.member, acme.issues[0], None).status_code == 428
+def test_viewer_gets_403_before_412(client, acme) -> None:
+    assert patch(client, acme.viewer, acme.issues[0], '"9"').status_code == 403
+    assert patch(client, acme.member, acme.issues[0], '"9"').status_code == 412
 
 
-def test_other_orgs_issue_gets_404_before_428(client, acme, globex) -> None:
-    response = patch(client, acme.member, globex.issues[0], None)
+def test_other_orgs_issue_gets_404_before_412(client, acme, globex) -> None:
+    response = patch(client, acme.member, globex.issues[0], '"9"')
     assert response.status_code == 404
     assert error_code(response) == "not_found"
-    assert patch(client, acme.member, acme.issues[0], None).status_code == 428
+    assert patch(client, acme.member, acme.issues[0], '"9"').status_code == 412
 
 
-def test_deleted_issue_gets_404_before_428(client, acme) -> None:
+def test_deleted_issue_gets_404_before_412(client, acme) -> None:
     client.delete(f"/issues/{acme.issues[3]}", headers=auth(acme.member))
-    assert transition(client, acme.member, acme.issues[3], None).status_code == 404
-    assert transition(client, acme.member, acme.issues[4], None).status_code == 428
+    assert transition(client, acme.member, acme.issues[3], '"9"').status_code == 404
+    assert transition(client, acme.member, acme.issues[4], '"9"').status_code == 412
 
 
-def test_no_token_gets_401(client, acme) -> None:
-    response = client.patch(f"/issues/{acme.issues[0]}", json={"title": "x"})
+def test_no_token_gets_401_before_412(client, acme) -> None:
+    response = client.patch(
+        f"/issues/{acme.issues[0]}", json={"title": "x"}, headers={"If-Match": '"9"'}
+    )
     assert response.status_code == 401
-    assert patch(client, acme.member, acme.issues[0], None).status_code == 428
+    assert patch(client, acme.member, acme.issues[0], '"9"').status_code == 412
 
 
-def test_invalid_body_without_if_match_is_428(client, acme) -> None:
+def test_invalid_body_without_if_match_is_422(client, acme) -> None:
     response = patch(client, acme.member, acme.issues[0], None, {"priority": "urgent"})
-    assert response.status_code == 428
+    assert response.status_code == 422
+    assert error_code(response) == "validation_error"
+    assert get(client, acme.member, acme.issues[0]).headers["ETag"] == '"1"'
 
 
 def test_invalid_body_with_a_stale_version_is_412(client, acme) -> None:
@@ -233,8 +255,11 @@ def test_invalid_body_with_the_current_version_is_422(client, acme) -> None:
     assert get(client, acme.member, acme.issues[0]).headers["ETag"] == '"1"'
 
 
-def test_disallowed_transition_without_if_match_is_428(client, acme) -> None:
-    assert transition(client, acme.member, acme.issues[0], None, "done").status_code == 428
+def test_disallowed_transition_without_if_match_is_422(client, acme) -> None:
+    response = transition(client, acme.member, acme.issues[0], None, "done")
+    assert response.status_code == 422
+    assert error_code(response) == "invalid_transition"
+    assert get(client, acme.member, acme.issues[0]).headers["ETag"] == '"1"'
 
 
 def test_disallowed_transition_with_the_current_version_is_422(client, acme) -> None:
@@ -244,8 +269,11 @@ def test_disallowed_transition_with_the_current_version_is_422(client, acme) -> 
     assert get(client, acme.member, acme.issues[0]).headers["ETag"] == '"1"'
 
 
-def test_foreign_assignee_without_if_match_is_428(client, acme, globex) -> None:
-    assert assign(client, acme.member, acme.issues[0], None, globex.member).status_code == 428
+def test_foreign_assignee_without_if_match_is_422(client, acme, globex) -> None:
+    response = assign(client, acme.member, acme.issues[0], None, globex.member)
+    assert response.status_code == 422
+    assert error_code(response) == "invalid_assignee"
+    assert get(client, acme.member, acme.issues[0]).headers["ETag"] == '"1"'
 
 
 def test_foreign_assignee_with_the_current_version_is_422(client, acme, globex) -> None:
@@ -258,9 +286,9 @@ def test_foreign_assignee_with_the_current_version_is_422(client, acme, globex) 
 # -- refused writes add no audit rows -------------------------------------------------------------
 
 
-def test_428_adds_no_audit_row(client, acme) -> None:
+def test_malformed_if_match_adds_no_audit_row(client, acme) -> None:
     before = audit_count(client, acme)
-    assert transition(client, acme.member, acme.issues[0], None).status_code == 428
+    assert transition(client, acme.member, acme.issues[0], 'W/"1"').status_code == 412
     assert audit_count(client, acme) == before
 
 
@@ -277,13 +305,13 @@ def _responses(client, path: str, method: str) -> set[str]:  # type: ignore[no-u
     return set(client.get("/openapi.json").json()["paths"][path][method]["responses"])
 
 
-def test_openapi_documents_412_and_428_on_patch(client) -> None:
-    assert {"412", "428"} <= _responses(client, "/issues/{issue_id}", "patch")
+def test_openapi_documents_412_on_patch(client) -> None:
+    assert "412" in _responses(client, "/issues/{issue_id}", "patch")
 
 
-def test_openapi_documents_412_and_428_on_assign(client) -> None:
-    assert {"412", "428"} <= _responses(client, "/issues/{issue_id}/assign", "post")
+def test_openapi_documents_412_on_assign(client) -> None:
+    assert "412" in _responses(client, "/issues/{issue_id}/assign", "post")
 
 
-def test_openapi_documents_412_and_428_on_transition(client) -> None:
-    assert {"412", "428"} <= _responses(client, "/issues/{issue_id}/transition", "post")
+def test_openapi_documents_412_on_transition(client) -> None:
+    assert "412" in _responses(client, "/issues/{issue_id}/transition", "post")

@@ -1,4 +1,4 @@
-"""F7 combined with F1 (org-wide search) and F4 (history): label_id on GET /issues."""
+"""F7 combined with F1 (org-wide search): label_id on GET /issues."""
 
 from __future__ import annotations
 
@@ -32,11 +32,3 @@ def test_org_search_label_combines_with_other_filters(client, acme) -> None:
 def test_org_search_label_of_another_org_is_404(client, acme) -> None:
     assert search(client, acme.member, f"?label_id={GLOBEX_BUG}").status_code == 404
     assert search(client, acme.member, f"?label_id={BUG}").status_code == 200
-
-
-def test_label_change_is_in_the_issue_history(client, acme) -> None:
-    client.post(
-        f"/issues/{acme.issues[0]}/labels", json={"label_id": DOCS}, headers=auth(acme.member)
-    )
-    items = client.get(f"/issues/{acme.issues[0]}/history", headers=auth(acme.member)).json()
-    assert [entry["action"] for entry in items["items"]] == ["issue.label_add"]

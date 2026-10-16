@@ -326,11 +326,13 @@ def test_replay_names_the_original_creator(client, acme) -> None:
     assert again.json()["created_by"] == acme.member
 
 
-def test_replay_does_not_use_up_an_id(client, acme) -> None:
+def test_replay_between_two_creates_adds_nothing(client, acme) -> None:
+    before = count(client, acme.member, acme.projects[0])
     first = create(client, acme.member, acme.projects[0], "x2").json()["id"]
-    create(client, acme.member, acme.projects[0], "x2")
+    replay = create(client, acme.member, acme.projects[0], "x2").json()["id"]
     plain = create(client, acme.member, acme.projects[0]).json()["id"]
-    assert plain == first + 1
+    assert replay == first != plain
+    assert count(client, acme.member, acme.projects[0]) == before + 2
 
 
 def test_conflict_after_several_replays(client, acme) -> None:

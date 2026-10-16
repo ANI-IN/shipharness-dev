@@ -27,7 +27,11 @@ V = "tests/visible/"
 RELEVANT: dict[str, list[str]] = {
     "app.services.audit": [V + "test_idempotency_and_audit.py"],
     "app.services.auth": [V + "test_board.py", V + "test_auth.py", V + "test_roles.py"],
-    "app.services.context": [V + "test_roles.py", V + "test_issues.py"],
+    "app.services.context": [
+        V + "test_roles.py",
+        V + "test_issues.py",
+        V + "test_idempotency_and_audit.py",
+    ],
     "app.services.errors": [V + "test_issues.py", V + "test_roles.py"],
     "app.services.idempotency": [V + "test_idempotency_and_audit.py"],
     "app.services.issues": [V + "test_issues.py", V + "test_tenant_isolation.py"],
