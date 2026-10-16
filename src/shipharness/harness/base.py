@@ -107,6 +107,10 @@ class Harness:
         registry: Mapping[str, type[BaseLayer]] | None = None,
         **kwargs: Any,
     ) -> Harness:
+        if registry is None:
+            # The layer modules register themselves on import; the live path (CLI, A/B, experiments)
+            # never imports them, so load them here before resolving names.
+            import shipharness.harness.layers  # noqa: F401
         available = _REGISTRY if registry is None else registry
         missing = [name for name in names if name not in available]
         if missing:
