@@ -291,6 +291,7 @@ def run_ab(
     deps: ABDeps,
     *,
     ab_id: str | None = None,
+    section: str | None = None,
 ) -> ABResult:
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
@@ -355,18 +356,27 @@ def run_ab(
             records = {arm: future.result() for arm, future in verdicts.items()}
         # [walkthrough:Opening:two_arms] end
     arms = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in ARMS}
-    write_ab_record(run_dir, task, seed, arms)
+    write_ab_record(run_dir, task, seed, arms, section=section)
     return ABResult(ab_id=ab_id, arms=arms, run_dir=run_dir)
 
 
 AB_RECORD = "ab.json"
 
 
-def write_ab_record(run_dir: Path, task: ABTask, seed: int, arms: Mapping[Arm, ArmRun]) -> Path:
-    """Everything swap and replay need, without host paths or keys."""
+def write_ab_record(
+    run_dir: Path,
+    task: ABTask,
+    seed: int,
+    arms: Mapping[Arm, ArmRun],
+    *,
+    section: str | None = None,
+) -> Path:
+    """Everything swap and replay need, without host paths or keys. `section` (demo-N or final)
+    lets `make swap-N` find the section's most recent A/B."""
     data = {
         "task": asdict(task),
         "seed": seed,
+        "section": section,
         "arms": {
             arm: {
                 "spec": run.spec.public_dict(),

@@ -87,3 +87,51 @@ def test_replay_marks_events_recorded_and_rejudges(
     scores = read_exports("scores", tmp_path / "exports")
     assert sum(1 for s in scores if s["recorded"]) == 2
     assert sum(1 for s in scores if not s["recorded"]) == 2  # originals untouched
+
+
+def test_ab_record_names_its_section(course_repo: Path, tmp_path: Path) -> None:
+    import json
+
+    deps = make_deps(course_repo, tmp_path, Clients())
+    result = run_ab(
+        ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps, section="demo-1"
+    )
+    data = json.loads((result.run_dir / "ab.json").read_text(encoding="utf-8"))
+    assert data["section"] == "demo-1"
+
+
+def _fake_ab(runs: Path, ab_id: str, section: str | None) -> Path:
+    import json
+
+    run_dir = runs / ab_id
+    run_dir.mkdir(parents=True)
+    (run_dir / "ab.json").write_text(json.dumps({"section": section, "arms": {}}), encoding="utf-8")
+    return run_dir
+
+
+def test_latest_ab_for_a_section_is_the_newest_one(tmp_path: Path) -> None:
+    from shipharness.ab.recorded import latest_ab_dir
+
+    runs = tmp_path / "runs"
+    _fake_ab(runs, "ab-20261016-090000-aaaaaa", "demo-2")
+    newest = _fake_ab(runs, "ab-20261016-110000-bbbbbb", "demo-2")
+    _fake_ab(runs, "ab-20261016-120000-cccccc", "demo-3")  # newer, other section
+    _fake_ab(runs, "ab-20261016-130000-dddddd", None)  # recorded before sections were kept
+    assert latest_ab_dir(runs, "demo-2") == newest
+    assert latest_ab_dir(runs, None).name == "ab-20261016-130000-dddddd"
+
+
+def test_latest_ab_without_a_match_is_a_clear_error(tmp_path: Path) -> None:
+    from shipharness.ab.recorded import latest_ab_dir
+
+    runs = tmp_path / "runs"
+    _fake_ab(runs, "ab-20261016-090000-aaaaaa", "demo-1")
+    with pytest.raises(FileNotFoundError, match="demo-4"):
+        latest_ab_dir(runs, "demo-4")
+
+
+def test_find_run_dir_resolves_latest(tmp_path: Path) -> None:
+    runs = tmp_path / "runs"
+    _fake_ab(runs, "ab-20261016-090000-aaaaaa", "demo-1")
+    newest = _fake_ab(runs, "ab-20261016-100000-bbbbbb", "demo-1")
+    assert find_run_dir(runs, "latest", section="demo-1") == newest

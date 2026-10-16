@@ -11,8 +11,8 @@ LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
 FEATURES ?= F5,F6,F7
-# swap-N: the A/B (or one of its run ids) to swap-test. replay: the A/B or run id to replay.
-AB ?=
+# swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
+AB ?= latest
 RUN ?=
 
 .PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
@@ -22,7 +22,7 @@ RUN ?=
 
 help:
 	@echo "setup doctor up console datasets lint format lint-prose test test-all test-live test-docker"
-	@echo "demo-N [LAYERS=-<layer>]  swap-N AB=<id>  final [FEATURES=F5,F6]  replay RUN=<id>"
+	@echo "demo-N [LAYERS=-<layer>]  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
 	@echo "experiments report pilot (later milestones)"
 
 setup:
@@ -92,10 +92,19 @@ demo-3:
 demo-4:
 	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT)
 
-# Swap test on a recorded A/B. `shipharness ab --swap` takes an id; it has no "latest" lookup.
-swap-1 swap-2 swap-3 swap-4:
-	@if [ -z "$(AB)" ]; then echo "! $@ needs AB=<ab or run id> (see the A/B line of demo-N)"; exit 2; fi
-	$(UV) run shipharness ab --swap $(AB)
+# Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
+# picks another one.
+swap-1:
+	$(UV) run shipharness ab --swap $(AB) --section demo-1
+
+swap-2:
+	$(UV) run shipharness ab --swap $(AB) --section demo-2
+
+swap-3:
+	$(UV) run shipharness ab --swap $(AB) --section demo-3
+
+swap-4:
+	$(UV) run shipharness ab --swap $(AB) --section demo-4
 
 # One A/B per feature; every feature runs, and the exit code is the last non-zero one.
 final:

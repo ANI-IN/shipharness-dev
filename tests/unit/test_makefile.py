@@ -106,7 +106,8 @@ def test_swap_target_runs_the_swap_test_on_ab(n: int) -> None:
     command, params = _parse(calls[0])
     assert command == "ab"
     assert params["swap"] == SAMPLES["$(AB)"]
-    assert any("AB" in line and "exit 2" in line for line in _rules()[f"swap-{n}"])
+    assert params["section"] == f"demo-{n}"
+    assert _variables()["AB"] == "latest"  # make swap-N needs no id; AB=<id> still overrides
 
 
 def test_final_runs_every_feature_in_features() -> None:

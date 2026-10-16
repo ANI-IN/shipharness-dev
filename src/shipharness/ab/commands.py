@@ -144,7 +144,9 @@ def register(app: typer.Typer) -> None:
         k: int = typer.Option(1, min=1, help="Repeat the A/B k times (every run is a dot)."),
         reviewer: bool = typer.Option(True, "--reviewer/--no-reviewer"),
         replay: str | None = typer.Option(None, help="Replay a recorded A/B or run id."),
-        swap: str | None = typer.Option(None, help="Swap test on a recorded A/B or run id."),
+        swap: str | None = typer.Option(
+            None, help="Swap test on a recorded A/B or run id, or `latest` (of --section)."
+        ),
         from_working_tree: bool = typer.Option(False, help="Export the working tree, not a tag."),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
@@ -153,7 +155,7 @@ def register(app: typer.Typer) -> None:
         from shipharness.harness.base import parse_layers
 
         if replay or swap:
-            _recorded(replay=replay, swap=swap, reviewer=reviewer)
+            _recorded(replay=replay, swap=swap, reviewer=reviewer, section=section)
             return
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
@@ -166,7 +168,7 @@ def register(app: typer.Typer) -> None:
         deps = rt.ab_deps(None if from_working_tree else task.checkpoint, reviewer=reviewer)
         statuses: list[str] = []
         for _ in range(k):
-            result = run_ab(task, names, deps)
+            result = run_ab(task, names, deps, section=section)
             typer.echo(f"A/B {result.ab_id} ({task.feature_id}, layers={sorted(names)})")
             for arm_run in result.arms.values():
                 _print_record(arm_run.record)
@@ -174,14 +176,16 @@ def register(app: typer.Typer) -> None:
         typer.echo(cost_line(rt.cost))
         raise typer.Exit(_exit_code(statuses))
 
-    def _recorded(*, replay: str | None, swap: str | None, reviewer: bool) -> None:
+    def _recorded(
+        *, replay: str | None, swap: str | None, reviewer: bool, section: str | None = None
+    ) -> None:
         from shipharness.ab.recorded import RecordedDeps, find_run_dir, load_ab, replay_ab
         from shipharness.ab.recorded import swap_test as run_swap
         from shipharness.ab.runtime import cost_line
 
         settings = _settings()
         rt = _runtime(settings, _class_project(settings))
-        run_dir = find_run_dir(Path(settings.runs_dir), (replay or swap) or "")
+        run_dir = find_run_dir(Path(settings.runs_dir), (replay or swap) or "", section=section)
         ab = load_ab(run_dir)
         deps = RecordedDeps(
             course_repo=rt.course_repo,

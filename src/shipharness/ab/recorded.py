@@ -99,8 +99,27 @@ def load_ab(run_dir: Path) -> LoadedAB:
     return LoadedAB(run_dir.name, run_dir, ABTask(**data["task"]), int(data["seed"]), arms)
 
 
-def find_run_dir(runs_dir: Path, run_or_ab_id: str) -> Path:
-    """The A/B directory for an ab id or for one of its run ids."""
+def latest_ab_dir(runs_dir: Path, section: str | None) -> Path:
+    """The most recent recorded A/B (ab ids start with a sortable time stamp), limited to one
+    section (demo-N or final) when `section` is given."""
+    for record in sorted(Path(runs_dir).glob(f"ab-*/{AB_RECORD}"), reverse=True):
+        if section is None:
+            return record.parent
+        try:
+            recorded = json.loads(record.read_text(encoding="utf-8")).get("section")
+        except (OSError, ValueError):
+            continue
+        if recorded == section:
+            return record.parent
+    where = f" for section {section}" if section else ""
+    raise FileNotFoundError(f"no recorded A/B{where} under {runs_dir}")
+
+
+def find_run_dir(runs_dir: Path, run_or_ab_id: str, *, section: str | None = None) -> Path:
+    """The A/B directory for an ab id, for one of its run ids, or for `latest` (the most recent
+    A/B, of `section` when given)."""
+    if run_or_ab_id == "latest":
+        return latest_ab_dir(runs_dir, section)
     direct = Path(runs_dir) / run_or_ab_id
     if (direct / AB_RECORD).is_file():
         return direct
