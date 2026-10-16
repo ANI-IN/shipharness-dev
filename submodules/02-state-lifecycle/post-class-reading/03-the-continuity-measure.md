@@ -5,13 +5,14 @@ Reading time: about 10 minutes.
 In class you see one dot per run for `continuity_failure`. Before you trust a dot, know how it is
 computed. This piece walks through the referee's continuity check and the host code that feeds it,
 shows a measurement bug the pilot found in it, and lists the cases the measure does not catch. The
-measure itself was registered before any run (DESIGN §8.2); nothing here changes it.
+measure itself was registered before any run (course design); nothing here changes it.
 
 ## The three parts
 
 `src/shipharness/checks/continuity.py` fails a run if any of:
 
-- (a) house rule R7 fails: migration heads are not exactly one, or a fresh `alembic upgrade head`
+- (a) house rule R7 fails ("house rules" is the course's label for what A1 calls "golden
+  principles", F-a-99): migration heads are not exactly one, or a fresh `alembic upgrade head`
   fails (it reuses `migration_findings` from the R7 check);
 - (b) two migration files contain `create_table("<same name>")`;
 - (c) 30% or more of the lines added in session 1 are removed in session 2.
@@ -68,9 +69,10 @@ def session_patches(
 ```
 
 The snapshot path is the normal one in an A/B. It exists because of pilot run 1: the bare arms never
-committed, so commit-based patches left session 1's work out of part (c) entirely (VERIFICATION.md,
-M6 pilot, change 2). `result.sessions` holds every session of the run, build and test phases
-together, in order. The check uses the first two patches.
+committed, so commit-based patches left session 1's work out of part (c) entirely (found in the
+course pilot, run 1, 2026-10-16, which ran before the measurement fixes). `result.sessions` holds
+every session of the run, build and test phases together, in order. The check uses the first two
+patches.
 
 Before the check, the referee hands it copies with harness artifacts removed
 (`src/shipharness/ab/referee.py`, lines 267-277):
@@ -94,16 +96,16 @@ def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
 
 ## A measurement bug the pilot found
 
-Until that function existed, the check read the raw patches. In pilot run 2 every F2 harness arm
-failed part (c): "session 1 added only progress.md, session-handoff.md, and the exec plan; session 2
-rewrote them (50-84% of session 1's lines)" (VERIFICATION.md, M6 pilot run 2). The score records show
-the three values: 84.0 (`r-20261016-181736-260803`), 76.5 (`r-20261016-184318-fdee0c`), and 50.0
-(`r-20261016-190548-9352c4`), captured on 2026-10-16 in `exports/scores/`. The bare arms in the same
-A/Bs scored 2.1, 0.0, and 0.0.
+Until that function existed, the check read the raw patches. In the course pilot's run 2 (2026-10-16)
+every F2 harness arm failed part (c): session 1 added only `progress.md`, `session-handoff.md`, and
+the exec plan, and session 2 rewrote them. The score records show the three `redone_lines_pct`
+values: 84.0 (`r-20261016-181736-260803`), 76.5 (`r-20261016-184318-fdee0c`), and 50.0
+(`r-20261016-190548-9352c4`) (captured on 2026-10-16 from `exports/scores/<run id>.json`, runs as
+listed; your output will differ). The bare arms in the same A/Bs scored 2.1, 0.0, and 0.0.
 
 The arithmetic was right and the harness did what it was built to do: the wrap-up asks the agent to
 rewrite its notes, and the state layer rewrites the machine summary at every stop. The check simply
-counted the treatment's own bookkeeping as product work. The fix (change 7) is labelled "bug fix,
+counted the treatment's own bookkeeping as product work. The fix is labelled "bug fix,
 applies to both arms": the bare arm has no such files, so its numbers cannot move, and the primary
 measure's definition is unchanged. The run 2 harness dots stay in the record as they were scored, with
 the bug named next to them.
@@ -117,17 +119,17 @@ session patches did not.
 
 | Case | What the measure does |
 |---|---|
-| Session 1 leaves its work uncommitted | Counted: the snapshot patches compare working trees, so uncommitted lines are in session 1's patch (change 2). Without snapshots, the commit-based fallback would leave them out |
+| Session 1 leaves its work uncommitted | Counted: the snapshot patches compare working trees, so uncommitted lines are in session 1's patch. Without snapshots, the commit-based fallback would leave them out |
 | Session 2 moves code to another file | Removal is matched per file and per line text, so lines moved to a new file count as removed only from the old file; lines rewritten with different text in the same place count as removed |
 | Session 2 reformats lines | Leading and trailing spaces are stripped before matching, so re-indenting alone does not count as redone if the text is unchanged; any other text change does |
 | The build phase ends in one session | No stop happens. Patch 2 is then the test phase's session, which also starts with an empty context (`runner/loop.py`), so (c) compares the build session with the test session. Pilot run 2 had one such arm (`r-20261016-184318-fdee0c`) |
-| The harness writes between sessions | The state layer's files are stripped before the check (change 7); a harness that wrote product files between sessions would still be counted |
+| The harness writes between sessions | The state layer's files are stripped before the check; a harness that wrote product files between sessions would still be counted |
 | Session 1 writes only harness files | After stripping, session 1 has no added lines, `redone_pct` returns 0.0, and (c) passes; (a) and (b) still judge the migrations |
 | The second migration has a different table name | (b) does not fire; (a) fires only if the history now has two heads or fails to upgrade |
 
 None of these favour one arm: both arms go through the same code. They do mean a single dot can be a
 near miss, which is one reason the course reports runs out of k and shows the components next to the
-primary measure (DESIGN §8.2).
+primary measure.
 
 ## The console's "redone" marker is not part (c)
 
@@ -163,7 +165,7 @@ the run.
 ## Other stop points
 
 The dataset has session-stop variants of F2 that move the stop
-(`datasets/teamtrack-features-v1.jsonl`, group "Session-stop variants", DESIGN §10.1):
+(`datasets/teamtrack-features-v1.jsonl`, `metadata.group` `session_stop`):
 
 | Example | `session_budget` | First-session share |
 |---|---|---|
@@ -173,14 +175,16 @@ The dataset has session-stop variants of F2 that move the stop
 | F2-stop-3 | [38, 12] | 0.75 |
 
 A stop after a quarter of the turns tests whether session 2 can start from very little; a stop at
-three quarters tests whether a nearly finished feature survives. These variants run in the
-full-dataset batch (DESIGN §10.4, batch 4, k=2). `make report` groups dots by feature and measure
+three quarters tests whether a nearly finished feature survives. These variants belong to the
+full-dataset batch set (60 tasks, two arms, k=2), which the course plan defers until after the first
+class. `uv run shipharness report` groups dots by feature and measure
 (`src/shipharness/ab/report.py`), so these runs appear among the F2 dots; each score export
 (`exports/scores/<run_id>.json`) carries its `variant`, which is how to separate them.
 
-Pilot run 3 uses a fifth split that is not a dataset line: F2 canonical with `--session-budget 12,38`,
-an override of the task's budget for one A/B (DESIGN §10.4). Its score records carry `variant`
-`canonical`, so keep the A/B ids of such runs if you compare them with the dataset's dots.
+Pilot run 3 uses a fifth split that is not a dataset line: F2 canonical with `--session-budget
+12,38`, an override of the task's budget for one A/B (registered before run 3). Its score records
+carry `variant` `canonical`, so keep the A/B ids of such runs if you compare them with the dataset's
+dots.
 
 ## Why it matters for your own repo
 

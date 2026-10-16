@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -119,3 +120,13 @@ def test_a_layer_error_is_recorded_with_its_traceback(tmp_path: Path) -> None:
     run = run_scenario(lambda **kw: Broken(**kw), V1, tmp_path)
     assert run.result.status == "ERROR"
     assert any("boom in on_session_end" in e for e in run.errors)
+
+
+def test_criteria_name_the_progress_sections_and_cite_no_private_file() -> None:
+    """Learners see the titles: the six progress.md sections are spelled out, nothing points at a
+    file outside the learner repository."""
+    titles = {c.key: c.title for c in CRITERIA}
+    for section in ("# Progress", "Current feature", "Done", "In progress", "Next", "Session log"):
+        assert section in titles["progress_sections"], section
+    for c in CRITERIA:  # no section-number citations such as "(<file> 15.2)" or "§5"
+        assert not re.search(r"\d+\.\d+|§", c.title + c.hint), c.key

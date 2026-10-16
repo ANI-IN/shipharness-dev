@@ -10,7 +10,7 @@ evidence the grader checks to `<folder>/live/`. Optional live variant: everythin
 passed to the `shipharness` CLI unchanged:
 
     uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl <folder> -- \
-        ab --example F2-reworded-pm --layers instructions,state --no-reviewer
+        ab --example F2-reworded-pm --layers instructions,state --no-reviewer --purpose assignment
 
 Your `ResumableStateLayer` is registered under the name "state", so every harness arm that uses
 the state layer uses yours. The scenarios of the self-check use the test stand-in agent instead;

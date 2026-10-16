@@ -98,9 +98,9 @@ machine summary, migration heads read as text, and sandboxed commits.
   status (`harness/scope/status.py`) is the course's answer to that problem.
 - Every stop runs the visible tests once, for the machine summary. That costs harness time at each
   stop but tells the next session whether it starts from a working state (A2, F-a-62).
-- The ledger needs step ids. Tickets without `S<n>` ids (the real F2 tickets in the required live step and the live variant)
-  get an empty ledger; the layer then still writes the session log, the plan's session lines, the
-  handoff, and the heads.
+- The ledger needs step ids. Tickets without `S<n>` ids (the real F2 tickets in the required live
+  step and the live variant) get an empty ledger; the layer then still writes the session log, the
+  plan's session lines, the handoff, and the heads.
 
 ## Known limits
 
@@ -141,7 +141,7 @@ invalid; the learner moves `live/` away and runs again.
 
 [[PENDING: share of real gpt-6-luna runs of F2-a2-four-sessions that reach session 4 (three forced stops) and their cost per A/B | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops]]
 
-[[PENDING: measured cost per A/B and continuity result per arm for the reference solution layer on the optional variant (F2-reworded-pm, F2-alt-a) | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution -- ab --example <id> --layers instructions,state --no-reviewer]]
+[[PENDING: measured cost per A/B and continuity result per arm for the reference solution layer on the optional variant (F2-reworded-pm, F2-alt-a) | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution -- ab --example <id> --layers instructions,state --no-reviewer --purpose assignment]]
 
 ## Review notes for the Thursday session
 

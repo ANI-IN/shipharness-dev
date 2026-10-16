@@ -11,11 +11,10 @@ not TeamTrack.
 
 A1 treats plans as repository files, not chat: "complex work is captured in execution plans with
 progress and decision logs that are checked into the repository." (A1, F-a-34). They live with the
-code, "allowing agents to operate without relying on external context." (A1, F-a-35, end of the
-sentence quoted in concepts.md).
+code, "allowing agents to operate without relying on external context." (A1, F-a-35).
 
 A7, the OpenAI Cookbook recipe that A1 links as "execution plans", is stricter. A7 is archived
-(RESEARCH G-3), so read it for its definitions:
+(accessed 2026-10-16), so read it for its definitions:
 
 - Self-contained: "Every ExecPlan must be fully self-contained. Self-contained means that in its
   current form it contains all knowledge and instructions needed for a novice to succeed." (F-a-46)
@@ -25,8 +24,8 @@ A7, the OpenAI Cookbook recipe that A1 links as "execution plans", is stricter. 
   Discoveries` section, a `Decision Log`, and an `Outcomes & Retrospective` section." (F-a-48)
 - Proven: "Validation is not optional. Include instructions to run tests, to start the system if
   applicable, and to observe it doing something useful." (F-a-145)
-- Discoverable: "We enable Codex to use these documents by first updating AGENTS.md to describe when to
-  use PLANS.md" (F-a-45)
+- Discoverable: "We enable Codex to use these documents by first updating AGENTS.md to describe when
+  to use PLANS.md" (F-a-45)
 
 The template the initializer step renders (`src/shipharness/harness/state/assets/exec-plan.md`, lines
 1-35; `{{...}}` fields are filled from the ticket):
@@ -116,13 +115,13 @@ The file has two owners, by design:
   from the documents you read that matter for this ticket, so the next session does not need to
   read them again" (`lifecycle.wrapup_text`).
 
-The last two items came from the pilot. In pilot run 2 every harness session "re-read 3 to 7
-instruction documents and about 15 product files" (VERIFICATION.md, M6 pilot run 2), so the
-handoff now carries what was learned from them, and the Getting up to speed routine reads the agent's
-notes before any other document (change 9). A handoff is only worth its turns if the next session
-reads it instead of repeating the work it records.
+The last two items came from the pilot. In the course pilot's run 2 (2026-10-16) every harness
+session re-read 3 to 7 instruction documents and about 15 product files, so the handoff now carries
+what was learned from them, and the Getting up to speed routine reads the agent's notes before any
+other document (a harness change after run 2, harness arm only). A handoff is only worth its turns
+if the next session reads it instead of repeating the work it records.
 
-Having a machine part at all is course design (DESIGN §6.3): an agent that runs out of turns
+Having a machine part at all is course design: an agent that runs out of turns
 mid-edit may write no notes, and the next session should still start from something. A4's agents
 point at a further section worth adding in your own repository: a list of approaches that failed
 ("a running doc of failed approaches and remaining tasks", A4, F-a-73). The `harness-setup` skill's

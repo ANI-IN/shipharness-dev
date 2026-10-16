@@ -4,8 +4,8 @@ Reading time: about 9 minutes.
 
 Class time covers A2's initializer agent and A3's context reset. This piece puts five sources next to
 each other, so you can see which parts they agree on and which parts are one team's choice. Quotes
-are copied from [research/notes/R-a.md](../../../research/notes/R-a.md); all sources were accessed on
-2026-10-16.
+are copied verbatim from the sources, cited by source id and finding id (see
+[REFERENCES.md](../../../REFERENCES.md)); all sources were accessed on 2026-10-16.
 
 ## A2: two prompts, one harness
 
@@ -37,12 +37,12 @@ compaction isn’t sufficient." (F-a-54).
 
 ## A5: the same pattern as runnable code
 
-A5 is the README of Anthropic's autonomous-coding quickstart, the reference implementation of A2. Only
-the README was read; its prompts and templates were not opened (RESEARCH, clean-room statement). In
-our own words: session 1 runs the initializer agent, later sessions run the coding agent, each session
-gets a fresh context window, and the README lists `init.sh` and `claude-progress.txt` in the generated
-project. Its one-line summary of state: "Progress is persisted via `feature_list.json` and git commits"
-(F-a-74).
+A5 is the README of Anthropic's autonomous-coding quickstart, the reference implementation of A2.
+Only the README was read; its prompts and templates were not opened (the course's clean-room rule).
+In our own words: session 1 runs the initializer agent, later sessions run the coding agent, each
+session gets a fresh context window, and the README lists `init.sh` and `claude-progress.txt` in the
+generated project. Its one-line summary of state: "Progress is persisted via `feature_list.json` and
+git commits" (F-a-74).
 
 ## A3: resets, compaction, and files as the channel
 
@@ -59,7 +59,7 @@ or with a new file" (F-a-70).
 A3 is also the source that dates the technique. Resets cost "orchestration complexity, token overhead,
 and latency" (F-a-68), and a later model made them unnecessary in that harness: "Opus 4.5 largely
 removed that behavior on its own, so I was able to drop context resets from this harness entirely."
-(F-a-69). Read this as a measured choice for one model, not a rule (RESEARCH §5, correction 4).
+(F-a-69). Read this as a measured choice for one model, not a rule.
 
 ## A4: notes for agents who arrive cold
 
@@ -73,31 +73,31 @@ tasks." (F-a-73).
 
 ## A6: the vendor guidance (supplementary)
 
-A6 is a living Claude docs page that A2 links. Its text has changed since A2 cited it, so treat it as
-supplementary (RESEARCH G-3). It gives the same split between a first window and later ones: "Use the
-first context window to set up a framework (write tests, create setup scripts), then use future context
-windows to iterate on a todo-list." (F-a-75). It also notes that "Claude's latest models are extremely
-effective at discovering state from the local filesystem." (F-a-76), and recommends structured formats
-for state: "When tracking structured information (like test results or task status), use JSON or
-other structured formats" (F-a-77).
+A6 is a living Claude docs page that A2 links. Its text has changed since A2 cited it, so treat it
+as supplementary and read it with its access date (2026-10-16). It gives the same split between a
+first window and later ones: "Use the first context window to set up a framework (write tests,
+create setup scripts), then use future context windows to iterate on a todo-list." (F-a-75). It also
+notes that "Claude's latest models are extremely effective at discovering state from the local
+filesystem." (F-a-76), and recommends structured formats for state: "When tracking structured
+information (like test results or task status), use JSON or other structured formats" (F-a-77).
 
 ## Side by side
 
 | Question | A2 | A3 | A4 | A5 (README) | A6 |
 |---|---|---|---|---|---|
-| How does a session learn what happened? | progress file + git log (F-a-53, F-a-59) | structured handoff (F-a-65) | READMEs, progress files (F-a-72) | feature list + git commits (F-a-74) | filesystem, JSON state, git (F-a-76, F-a-77) |
-| Who sets up the first files? | initializer agent (F-a-49) | a planner expands the prompt into a spec (F-a-153) | the author's harness and tests (F-a-136) | initializer agent (R-a, A5 summary) | first context window (F-a-75) |
-| Fresh context or compaction? | compaction "isn’t sufficient" (F-a-54) | resets for one model, dropped for a later one (F-a-69) | fresh container per agent (F-a-10) | fresh context per session (R-a, A5 summary) | a fresh window is an option to consider (F-a-76) |
+| How does a session learn what happened? | progress file + git log (F-a-53, F-a-59) | structured handoff (F-a-65) | READMEs, progress files (F-a-72) | feature list + git commits (F-a-74) | filesystem, JSON for structured state (F-a-76, F-a-77) |
+| Who sets up the first files? | initializer agent (F-a-49) | a planner expands the prompt into a spec (F-a-153) | the author's harness and tests (F-a-136) | initializer agent (A5 README, in our own words above) | first context window (F-a-75) |
+| Fresh context or compaction? | compaction "isn’t sufficient" (F-a-54) | resets for one model, dropped for a later one (F-a-69) | fresh container per agent (F-a-10) | fresh context per session (A5 README, F-a-74) | a fresh window is an option to consider (F-a-76) |
 
 ## What the course takes, and what it changes
 
 - File names: A2's `claude-progress.txt` is `progress.md` in the course, and the template says so.
 - The initializer is deterministic harness code, not a model session, because for one ticket the
-  files are fixed (course design, DESIGN §15 D-11, citing F-a-52).
+  files are fixed (course design, building on F-a-52).
 - The handoff has a part the harness writes itself (files changed, tests, commits, TODO markers,
-  migration heads), so it exists even if the agent writes nothing (course design, DESIGN §6.3).
+  migration heads), so it exists even if the agent writes nothing (course design).
 - The stop is produced by a session turn budget, the same for both arms. That mechanism is the
-  course's; the reset it produces is A3's (RESEARCH G-5).
+  course's, not a source term; the reset it produces is A3's (F-a-65).
 
 ## Why it matters for your own repo
 
@@ -108,8 +108,7 @@ The table above is a menu, not one design. Two points from it decide most of wha
   uncommitted migration with `git status` and carried on (run `r-20261016-181736-a05ddb`,
   [concepts.md](../concepts.md) §1), which is what A6 describes for Claude models (F-a-76). Measure
   your own agent across a stop before you add machinery.
-- **Git is part of the state.** A2, A5, and A6 all keep it next to their files (F-a-53, F-a-74,
-  F-a-77).
+- **Git is part of the state.** A2 and A5 both keep it next to their files (F-a-53, F-a-74).
   If your agent's sessions end before the work is done, make sure what it did reaches the working
   tree and, at the end of a session, a commit, so the next session and your measurements can see it.
 

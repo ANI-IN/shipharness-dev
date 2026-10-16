@@ -1,4 +1,9 @@
-"""progress.md kept whole: the CONTRACTS §15.2 sections in order and one log entry per session."""
+"""progress.md kept whole: its six sections in order and one log entry per session.
+
+The sections, in this order: `# Progress`, `## Current feature`, `## Done`, `## In progress`,
+`## Next`, `## Session log`. The agent edits the four middle sections; the harness owns the session
+log (one `- Session <n> ...` entry per session).
+"""
 
 from __future__ import annotations
 

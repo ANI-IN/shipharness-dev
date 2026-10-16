@@ -98,7 +98,8 @@ CRITERIA: tuple[Criterion, ...] = (
     Criterion(
         "progress_sections",
         3,
-        "progress.md keeps its sections in order (CONTRACTS 15.2)",
+        "progress.md keeps its six sections in order: # Progress, Current feature, Done, "
+        "In progress, Next, Session log",
         "restore missing sections, even when the agent rewrote the file (TODO 4).",
     ),
     Criterion(
