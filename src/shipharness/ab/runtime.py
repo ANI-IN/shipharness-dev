@@ -143,7 +143,7 @@ def build_runtime(
         """Board preview container for one arm: referee image (has Chromium), network none,
         the arm's workspace mounted, screenshots written to the run directory."""
         sandbox = DockerSandbox(
-            policy,
+            policy.model_copy(update={"workspace_read_only": True}),  # never changes the diff
             settings.sandbox_image_referee,
             spec.workspace,
             None,

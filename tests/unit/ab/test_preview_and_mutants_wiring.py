@@ -106,6 +106,7 @@ def test_runtime_previews_use_the_referee_image_and_the_arm_workspace(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     made: list[dict[str, Any]] = []
+    policies: list[Any] = []
 
     class FakeDocker:
         def __init__(
@@ -119,6 +120,7 @@ def test_runtime_previews_use_the_referee_image_and_the_arm_workspace(
             **kw: Any,
         ) -> None:
             made.append({"image": image, "workspace": workspace, "arm": arm})
+            policies.append(policy)
 
         def start(self) -> str:
             return "c1"
@@ -152,6 +154,8 @@ def test_runtime_previews_use_the_referee_image_and_the_arm_workspace(
     ]
     assert handle.preview.run_dir == tmp_path / "runs" / "ab-1"
     assert handle.capture_conflict is True  # F4 shows the two-tab edit conflict
+    # The preview only reads the arm workspace: it can never change what the arm ships.
+    assert [p.workspace_read_only for p in policies] == [True]
 
 
 def test_no_previews_when_unsandboxed(tmp_path: Path) -> None:

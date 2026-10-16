@@ -77,6 +77,7 @@ class SandboxPolicy(BaseModel):
     cap_drop: tuple[str, ...] = ("ALL",)
     no_new_privileges: bool = True
     workspace_mount: str = "/work"
+    workspace_read_only: bool = False  # True for board previews: they only read the arm
     tool_timeout_s: int = 120
     run_timeout_s: int = 300
     deny_command_patterns: tuple[DenyRule, ...] = DEFAULT_DENY_RULES
@@ -113,7 +114,8 @@ def docker_run_args(
         args += ["--security-opt", "no-new-privileges"]
     for key, value in _container_env(env).items():
         args += ["-e", f"{key}={value}"]
-    args += ["-v", f"{Path(workspace).resolve()}:{policy.workspace_mount}"]
+    mode = ":ro" if policy.workspace_read_only else ""
+    args += ["-v", f"{Path(workspace).resolve()}:{policy.workspace_mount}{mode}"]
     args += _mount_args(policy, extra_mounts)
     args += ["-w", policy.workspace_mount, image, "sleep", "infinity"]
     return args

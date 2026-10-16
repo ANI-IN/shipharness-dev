@@ -225,3 +225,13 @@ def test_docker_exec_honours_a_harness_timeout_above_the_tool_cap(
     sandbox.exec("python -m shipharness.checks.runner", timeout_s=1200)
     exec_argv = next(argv for argv in runner.calls if argv[1] == "exec")
     assert exec_argv[exec_argv.index("--kill-after=5") + 1] == "1200"
+
+
+def test_read_only_workspace_policy_mounts_work_read_only(
+    settings: Settings, tmp_path: Path
+) -> None:
+    policy = default_policy(settings).model_copy(update={"workspace_read_only": True})
+    args = docker_run_args(policy, "img:1", tmp_path, "c1")
+    assert f"{tmp_path.resolve()}:/work:ro" in args
+    default = docker_run_args(default_policy(settings), "img:1", tmp_path, "c1")
+    assert f"{tmp_path.resolve()}:/work" in default  # arm containers keep a writable workspace
