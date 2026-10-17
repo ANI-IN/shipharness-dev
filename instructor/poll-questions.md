@@ -177,7 +177,7 @@ sits beyond what the current model does reliably solo.")
 
 ## Final feature poll (slide 50, start of S4, 1 minute)
 
-Ask it right after the S4 poll (2:53, run sheet S4) and close it before the launch. The final A/B
+Ask it right after the S4 poll (2:58, run sheet S4) and close it before the launch. The final A/B
 runs during S4; the room sees its results in the final block (3:40).
 
 **Question.** Which feature should both arms build for the final run, with all four layers on? The
@@ -189,7 +189,7 @@ winner runs first; the runner-up runs after it.
 | B | F6 Watchers: follow issues and list the ones you watch | `platform/teamtrack/docs/features/f6.md` | Two, budgets 20 and 30 | A session stop in the middle (S2), one new migration (R7), no-op writes add no audit row (R5) |
 | C | F7 Labels: tag issues and filter lists by label | `platform/teamtrack/docs/features/f7.md` | Two, budgets 25 and 35 | A session stop (S2), idempotent label creation per org (R4) |
 
-**After the vote.** Terminal C, one minute after `make show-4` (2:55):
+**After the vote.** Terminal C, one minute after `make show-4` (3:00):
 `make final FEATURES=<winner>,<runner-up>` when the session figure on the S3 A/B's `Cost:` line is at most
 $1.10; otherwise `make final FEATURES=<winner>` (run sheet, S4 cost note). `make final` runs the
 features one after another. The final has no pre-registered primary measure; every score is shown

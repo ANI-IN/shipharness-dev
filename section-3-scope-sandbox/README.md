@@ -63,8 +63,8 @@ taught.
 
 | Part | What it gives you | In class |
 |---|---|---|
-| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-20 |
-| [demo/](demo/README.md) | The live A/B on the F4 ticket, and how to read it | Launch at minute 3; review at 30-45 |
+| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 6-20 |
+| [demo/](demo/README.md) | The live A/B on the F4 ticket, and how to read it | Launch at minute 4; review at 30-45 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The 34 lines of code behind the layer | Minutes 20-30 |
 | [assignment/](assignment/README.md) | Assignment 3: a diff-scope policy, a `passes` gate, a sandbox rule | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on feature lists and sandboxes | After class |

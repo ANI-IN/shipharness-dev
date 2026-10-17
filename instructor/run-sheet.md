@@ -173,7 +173,7 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 |---|---|
 | Terminal A | `make console` (server log; leave it alone) |
 | Terminal B | The section command (`make show-1`, `make show-2 ...`, `make demo-3 FEATURE=F4`, `make show-4`), large font |
-| Terminal C | `make final` only: launched at the S4 launch (2:55), read in the final block (3:40) |
+| Terminal C | `make final` only: launched at the S4 launch (3:00), read in the final block (3:40) |
 | Browser tab 1 | Slides |
 | Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
 | Browser tab 3 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
@@ -193,7 +193,7 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 Finding the current run: the command prints the run id only when it finishes. While it runs,
 reload the runs list and open the newest `ab-...` entry (ids start with a time stamp). The runs list
 does not refresh by itself. In S4 two runs start a minute apart: open each one right after its own
-launch ([S4](#s4-verification-250-340)).
+launch ([S4](#s4-verification-255-340)).
 
 ---
 
@@ -203,7 +203,8 @@ Times are elapsed from the start of class. Slide numbers refer to
 [../slides/outline.md](../slides/outline.md). Each section S1 to S4 opens with its poll, launches
 its live run right after it, teaches the concepts and the walkthrough while the run proceeds, and
 ends with the demo block: the live run on the console, then all results
-([Section pattern](#section-pattern-s1-to-s4)). S3's live run is an A/B with both arms. S4 opens
+([Section pattern](#section-pattern-s1-to-s4)). Two breaks: 10 minutes after S1, 5 minutes after S3;
+S4 has 45 minutes. S3's live run is an A/B with both arms. S4 opens
 with two polls, the S4 poll and the final feature poll, and launches `make final` in terminal C right
 after `make show-4`; the final block at 3:40 walks through the finished final A/B and starts no run.
 
@@ -221,32 +222,33 @@ after `make show-4`; the final block at 3:40 walks through the finished final A/
 | 0:50-0:53 | S1 demo: reading the result | show-1's verdict on screen 1; the first wrong turn and the trace links on screen 5 | Console | 20 |
 | 0:53-0:55 | S1 demo: all results | All-results slide, S1 row; screen 4 | Slides, console | 20 |
 | 0:55-1:00 | S1 discussion | Discussion; transition | | 21 |
-| 1:00-1:03 | S2 poll | Poll S2; close it before the launch | | 22 |
-| 1:03-1:05 | S2 launch | `make show-2 SESSION_BUDGET=12,38` at 1:03; open the new run on screen 1 | Terminal B, console | 23 |
-| 1:05-1:20 | S2 concepts (run going) | | | 24-28 |
-| 1:20-1:30 | S2 walkthrough (run going) | `S2:init`, `S2:stop_resume`, `S2:write`; at 1:25 check terminal B for the `Cost:` line | Editor, terminal B | 29-31 |
-| 1:30-1:40 | S2 demo: harness in action | Session stop and resume, the handoff: screens 1, 3, 2, and 5 | Console | 32 |
-| 1:40-1:43 | S2 demo: reading the result | show-2's verdict on screen 1; screen 3 "Sessions" | Console | 33 |
-| 1:43-1:45 | S2 demo: all results | All-results slide, S2 row; screen 4 | Slides, console | 33 |
-| 1:45-1:50 | S2 discussion | Discussion; transition | | 34 |
-| 1:50-2:00 | Break | Return time on screen | | 35 |
-| 2:00-2:03 | S3 poll | Poll S3; close it before the launch | | 36 |
-| 2:03-2:05 | S3 launch | `make demo-3 FEATURE=F4` at 2:03, the live A/B (it takes the place of `make show-3`); open the new run on screen 1: two sandbox lines, one per arm | Terminal B, console | 37 |
-| 2:05-2:20 | S3 concepts (A/B going) | Includes two sandbox slides | | 38-43 |
+| 1:00-1:10 | Break | Return time on screen | | |
+| 1:10-1:14 | S2 poll | Section opener; poll S2; close it before the launch | | 22 |
+| 1:14-1:16 | S2 launch | `make show-2 SESSION_BUDGET=12,38` at 1:14; open the new run on screen 1 | Terminal B, console | 23 |
+| 1:16-1:30 | S2 concepts (run going) | | | 24-28 |
+| 1:30-1:40 | S2 walkthrough (run going) | `S2:init`, `S2:stop_resume`, `S2:write`; at 1:35 check terminal B for the `Cost:` line | Editor, terminal B | 29-31 |
+| 1:40-1:50 | S2 demo: harness in action | Session stop and resume, the handoff: screens 1, 3, 2, and 5 | Console | 32 |
+| 1:50-1:53 | S2 demo: reading the result | show-2's verdict on screen 1; screen 3 "Sessions" | Console | 33 |
+| 1:53-1:55 | S2 demo: all results | All-results slide, S2 row; screen 4 | Slides, console | 33 |
+| 1:55-2:00 | S2 discussion | Discussion; transition | | 34 |
+| 2:00-2:04 | S3 poll | Section opener; poll S3; close it before the launch | | 36 |
+| 2:04-2:06 | S3 launch | `make demo-3 FEATURE=F4` at 2:04, the live A/B (it takes the place of `make show-3`); open the new run on screen 1: two sandbox lines, one per arm | Terminal B, console | 37 |
+| 2:06-2:20 | S3 concepts (A/B going) | Includes two sandbox slides | | 38-43 |
 | 2:20-2:30 | S3 walkthrough (A/B going) | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; at 2:25 check terminal B for the `Cost:` line | Editor, terminal B | 44-45 |
 | 2:30-2:40 | S3 demo: live A/B | Screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and `diff_scope`; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Console | 46 |
 | 2:40-2:43 | S3 demo: reading the result | Out-of-scope files per arm against F4's own verdict pill; what "by construction" means | Console | 47 |
 | 2:43-2:45 | S3 demo: all results | All-results slide, S3 rows; screen 4 | Slides, console | 47 |
 | 2:45-2:50 | S3 discussion | Discussion; transition | | 48 |
-| 2:50-2:53 | S4 poll | Poll S4 | | 49 |
-| 2:53-2:54 | Final feature poll | Final feature poll (F5, F6, F7); close it before the launch | | 50 |
-| 2:54-2:56 | S4 launch | `make show-4` at 2:54 in terminal B, opened in browser tab 2; `make final FEATURES=<poll winner(s)>` at 2:55 in terminal C, opened in browser tab 4; back to show-4 on screen 1 | Terminals B and C, console | 51 |
-| 2:56-3:10 | S4 concepts (two runs going) | | | 52-57 |
-| 3:10-3:20 | S4 walkthrough (two runs going) | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; at 3:15 check terminal B (show-4) and terminal C (final) for their `Cost:` lines | Editor, terminals | 58-60 |
-| 3:20-3:30 | S4 demo: harness in action | Test phase, filter table, gate pills, boards: screens 1, 3, 2, and 5 | Console, tab 2 | 61 |
-| 3:30-3:33 | S4 demo: reading the result | show-4's "Agent said" against the referee on screen 1; hidden tests and mutants on screen 3 | Console, tab 2 | 62 |
-| 3:33-3:35 | S4 demo: all results | All-results slide, S4 row; screen 4 | Slides, console | 62 |
-| 3:35-3:40 | S4 discussion | Discussion; transition to the final A/B | | 63 |
+| 2:50-2:55 | Break | Return time on screen | | |
+| 2:55-2:58 | S4 poll | Poll S4 | | 49 |
+| 2:58-2:59 | Final feature poll | Final feature poll (F5, F6, F7); close it before the launch | | 50 |
+| 2:59-3:01 | S4 launch | `make show-4` at 2:59 in terminal B, opened in browser tab 2; `make final FEATURES=<poll winner(s)>` at 3:00 in terminal C, opened in browser tab 4; back to show-4 on screen 1 | Terminals B and C, console | 51 |
+| 3:01-3:13 | S4 concepts (two runs going) | | | 52-57 |
+| 3:13-3:23 | S4 walkthrough (two runs going) | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; at 3:20 check terminal B (show-4) and terminal C (final) for their `Cost:` lines | Editor, terminals | 58-60 |
+| 3:23-3:33 | S4 demo: harness in action | Test phase, filter table, gate pills, boards: screens 1, 3, 2, and 5 | Console, tab 2 | 61 |
+| 3:33-3:36 | S4 demo: reading the result | show-4's "Agent said" against the referee on screen 1; hidden tests and mutants on screen 3 | Console, tab 2 | 62 |
+| 3:36-3:38 | S4 demo: all results | All-results slide, S4 row; screen 4 | Slides, console | 62 |
+| 3:38-3:40 | S4 discussion | One question, shortened; transition to the final A/B | | 63 |
 | 3:40-3:42 | Final A/B | Terminal C: arm lines and the session figure | Terminal C | 64 |
 | 3:42-3:46 | Final A/B | Screens 1, 3, 5 of the finished final A/B, both arms | Console, tab 4 | 65 |
 | 3:46-3:48 | Final A/B | Both boards | Console screen 2 | 66 |
@@ -277,14 +279,19 @@ The other two S3 confirmation A/Bs ran two at a time and were slower: the slowes
 aborted at a time limit, not that the command broke; in the S3 confirmation every harness arm ended
 on the harness's own 120 s limit after shipping its change.
 
-Launched at section minute 3 (S4: minute 4), every run above is finished before the check at minute
-25, even with 2 more minutes for the longer agent limit.
+Launched at section minute 3 (S1) or 4 (S2 to S4), every run above is finished before the check at
+minute 25, even with 2 more minutes for the longer agent limit. In S4, show-4 shares the machine with
+the final: launched at 2:59, it ends about 3:12, and about 3:17 if it slows as the S3 A/Bs did two at a
+time, still before the demo block at 3:23.
 
-The final runs during S4, next to show-4. Launched at 2:55, it must be finished by 3:40, when the
+The final runs during S4, next to show-4. Launched at 3:00, it must be finished by 3:40, when the
 final block starts ([Final results and wrap-up](#final-results-and-wrap-up-340-400)). `make final`
 runs its features one after another: with two features, the second starts when the first prints its
 `Cost:` line. Two features like the measured F5 run take about 26 minutes (2 × 12 min 47 s), plus up
-to 4 minutes for the longer agent limit, so they finish before 3:40.
+to 4 minutes for the longer agent limit, so they finish about 3:30. The margin is tight: if the first
+feature slows next to show-4 as the S3 A/Bs did two at a time (about 5 minutes more), both end about
+3:35. If terminal C has no `Cost:` line for the first feature at the 3:20 check, expect the second to
+run past 3:40 ([If a final A/B is not finished at 3:40](#final-results-and-wrap-up-340-400)).
 
 At most two runs at a time: in S4, show-4 and the final run together. The class profile limits each
 container to 2 CPUs (VERIFICATION.md, change 18) because a class runs at most two A/Bs at once.
@@ -354,16 +361,16 @@ Every section runs the same way (DESIGN §14.1): the run is launched right after
 its run time is hidden behind the concepts and the walkthrough. Minutes are counted from the start of
 the section.
 
-1. **Poll (minutes 0-3).** Feature and rule at risk in one sentence (the poll slide carries both),
+1. **Poll (minutes 0-4; S1: 0-3).** Feature and rule at risk in one sentence (the poll slide carries both),
    then the poll ([poll-questions.md](poll-questions.md)). The room predicts the result from before
    class. Close the poll before you launch.
-2. **Launch (minutes 3-5).** Terminal B: the section's command at minute 3. Reload the runs list,
+2. **Launch (minutes 4-6; S1: 3-5).** Terminal B: the section's command at minute 4 (S1: minute 3). Reload the runs list,
    open the newest `ab-...`, and stay on screen `1` while the containers start and the first turns
    arrive. For a show-N run say: "This is the harness arm alone, live. It is not an A/B: we watch the
    layer do its job. The A/B results come at the end of the section." For S3 say: "This is a live
    A/B: both arms, same ticket, same limits. Before class this ticket showed a gap. Let us see
    tonight's dot." Then switch to the slides.
-3. **Concepts (minutes 5-20, run going).** Problem, then cause, then harness piece, then the
+3. **Concepts (minutes 6-20, run going; S1: 5-20).** Problem, then cause, then harness piece, then the
    assumption the piece encodes. Leave terminal B and the console alone.
 4. **Walkthrough (minutes 20-30, run going).** Anchors in [code-walkthrough.md](code-walkthrough.md).
    At minute 25, check terminal B for the `Cost:` line
@@ -377,9 +384,10 @@ the section.
      screen `4`.
 6. **Discussion and transition (minutes 45-50).**
 
-S4 differs in its first six minutes: two polls (minutes 0-4), then two launches, `make show-4` and
-`make final` (minutes 4-6), so its concepts run from minute 6 to minute 20
-([S4](#s4-verification-250-340)).
+S4 has 45 minutes and differs in its first six: two polls (minutes 0-4), then two launches,
+`make show-4` and `make final` (minutes 4-6). Its concepts run from minute 6 to 18, the walkthrough
+from 18 to 28, the demo block from 28 to 43, and the discussion is cut to minutes 43-45
+([S4](#s4-verification-255-340)).
 
 What the terminal prints at the end (format from `platform/src/shipharness/ab/commands.py`): one line
 `A/B <id> (<feature>, layers=[...], profile=class)`, with `, harness in action` added for a show-N
@@ -447,7 +455,13 @@ arm.
 
 ---
 
-## S2 State and session lifecycle (1:00-1:50)
+## Break (1:00-1:10)
+
+The break slide with the return time (filled in live). Ten minutes. Nothing runs during the break.
+
+---
+
+## S2 State and session lifecycle (1:10-2:00)
 
 **Feature and rule.** `make show-2 SESSION_BUDGET=12,38` runs F2, comments on issues with a comments
 panel on the board, from `m1-s2-start`, two sessions with the pilot's budgets 12 and 38 (the task's
@@ -460,17 +474,17 @@ from the repository alone (A2 states the problem, F-a-08; the one-line form is t
 runner rule since change 14 (both arms): before the last build session, `finish(claim="not_done")`
 ends only that session.
 
-**Poll (1:00-1:03).** Slide 22; the S2 question in [poll-questions.md](poll-questions.md).
+**Poll (1:10-1:14).** Slide 22; the S2 question in [poll-questions.md](poll-questions.md).
 
-**Command (1:03).** `make show-2 SESSION_BUDGET=12,38`, right after the poll closes.
+**Command (1:14).** `make show-2 SESSION_BUDGET=12,38`, right after the poll closes.
 
-**At launch (1:03-1:05).** Open the newest `ab-...`, press `1`. The harness arm's first harness
+**At launch (1:14-1:16).** Open the newest `ab-...`, press `1`. The harness arm's first harness
 decision is the initializer step note (`init.sh`, `progress.md`, `session-handoff.md`, the exec
 plan); its first turns follow the Getting up to speed routine.
 
-**Check at 1:25** (during slide 30): the `Cost:` line in terminal B.
+**Check at 1:35** (during slide 30): the `Cost:` line in terminal B.
 
-**Demo block (1:30-1:45): screens and what to say.**
+**Demo block (1:40-1:55): screens and what to say.**
 
 | Part | Screen | Watch | Say |
 |---|---|---|---|
@@ -495,15 +509,9 @@ harness arms hit the agent time limit in 4 of 9, bare arms in 0 of 9; median arm
 against 232 s. The F2 harness primary 6 of 9 there includes run 2's 0 of 3, measured before change 7
 fixed the continuity check.
 
-**Discussion (1:45-1:50).**
+**Discussion (1:55-2:00).**
 1. "Which state file would you keep for this model, and how would you measure it?"
 2. Transition: `section-2-state-lifecycle/demo/README.md`.
-
----
-
-## Break (1:50-2:00)
-
-Slide 35 with the return time (filled in live). Nothing runs during the break.
 
 ---
 
@@ -525,12 +533,12 @@ and all 4 referee mutants), because the pill belongs to the feature. Every arm o
 confirmation failed that bar. Tonight's S3 answer is the `diff_scope` line on screen 3 and the diff
 map: say so before the pill appears.
 
-**Poll (2:00-2:03).** Slide 36; the S3 question in [poll-questions.md](poll-questions.md).
+**Poll (2:00-2:04).** Slide 36; the S3 question in [poll-questions.md](poll-questions.md).
 
-**Command (2:03).** `make demo-3 FEATURE=F4`, right after the poll closes. Always pass
+**Command (2:04).** `make demo-3 FEATURE=F4`, right after the poll closes. Always pass
 `FEATURE=F4`; without it the target runs F3.
 
-**At launch (2:03-2:05).** Open the newest `ab-...`, press `1`: two sandbox lines (container id,
+**At launch (2:04-2:06).** Open the newest `ab-...`, press `1`: two sandbox lines (container id,
 `network none`, CPU 2, memory, time left), one per arm. Say: "Same limits for both arms. The
 sandbox is never the variable." The harness arm's first decisions: 31 instruction files placed, the
 initializer step, and "feature_list.json written with F4 (passes: false)".
@@ -591,7 +599,13 @@ harness arms in 0 of 6; that post hoc count is why the S3 confirmation was regis
 
 ---
 
-## S4 Verification (2:50-3:40)
+## Break (2:50-2:55)
+
+The break slide with the return time (filled in live). Five minutes. Nothing runs during the break.
+
+---
+
+## S4 Verification (2:55-3:40)
 
 **Feature and rule.** `make show-4` runs F4, optimistic concurrency (ETag, If-Match) and issue
 history, from `m1-s4-start`, one session of 40 turns (`platform/teamtrack/reference/f4/task.toml`).
@@ -602,17 +616,17 @@ assumption the gate and filters encode: the agent's "done" and its own tests can
 F-a-15; A4, F-a-17; the one-line form is the course's). The room saw this ticket in S3: tonight it
 comes back with the verify layer on.
 
-**Poll (2:50-2:53).** Slide 49; the S4 question in [poll-questions.md](poll-questions.md).
+**Poll (2:55-2:58).** Slide 49; the S4 question in [poll-questions.md](poll-questions.md).
 
-**Final feature poll (2:53-2:54).** Slide 50; the final feature question in
+**Final feature poll (2:58-2:59).** Slide 50; the final feature question in
 [poll-questions.md](poll-questions.md): F5 bulk close, F6 watchers, or F7 labels. Close it before
 the launch. Run the winner and the runner-up, in that order (cost note below).
 
-**Commands (2:54 and 2:55).**
-1. **2:54, terminal B:** `make show-4`, right after the final poll closes. Reload the runs list and
+**Commands (2:59 and 3:00).**
+1. **2:59, terminal B:** `make show-4`, right after the final poll closes. Reload the runs list and
    open the newest `ab-...` in browser tab 2. Open it now, before the second launch, because the runs
    list shows only ids, newest first.
-2. **2:55, terminal C:** `make final FEATURES=<winner>,<runner-up>` (for example
+2. **3:00, terminal C:** `make final FEATURES=<winner>,<runner-up>` (for example
    `make final FEATURES=F6,F5`). Always pass `FEATURES`: the Makefile default is `F5,F6`. Reload the
    runs list in browser tab 4 and open the newest `ab-...`: the final's first A/B. Leave terminal C
    and tab 4 alone until the final block.
@@ -620,7 +634,7 @@ the launch. Run the winner and the runner-up, in that order (cost note below).
 Two runs now go in parallel: show-4 (one arm) and the final's first feature (two arms). `make final`
 runs its features one after another (Makefile `final` target).
 
-**At launch (2:55-2:56).** Back to browser tab 2, press `1`. Say: "Two runs are going: the harness
+**At launch (3:00-3:01).** Back to browser tab 2, press `1`. Say: "Two runs are going: the harness
 arm alone on F4 for this section, and the final A/B on the feature you picked, both arms. We come
 back to F4 in the demo block and to the final at the end of class."
 
@@ -638,13 +652,13 @@ calls the other command appended to the shared cost ledger (VERIFICATION.md, cha
 costs of the commands: show-1 $0.0197, show-2 $0.0295, S3 A/B $0.0487, show-4 $0.0265, one final
 feature (F5) $0.0456 ([How long the runs take](#how-long-the-runs-take)).
 
-**Check at 3:15** (during slide 59), two terminals:
+**Check at 3:20** (during slide 59), two terminals:
 - Terminal B: the show-4 `Cost:` line. If show-4 is still running, open the demo block on its live
   screens; screen 1 shows "primary verdict ready" as soon as it is known.
 - Terminal C: the first final feature's result lines and `Cost:` line, or nothing yet. Either is
   fine: the final has until 3:40.
 
-**Demo block (3:20-3:35), browser tab 2: screens and what to say.**
+**Demo block (3:23-3:38), browser tab 2: screens and what to say.**
 
 | Part | Screen | Watch | Say |
 |---|---|---|---|
@@ -673,16 +687,16 @@ harness arms shipped a median of 2.5 tests against 7.5. In runs 2 and 3 the F4 h
 claimed done (0 of 6), so its verify gate never ran; in run 3 the agent time limit cut its test phase
 in two A/Bs.
 
-**Discussion (3:35-3:40).**
+**Discussion (3:38-3:40), shortened to one question.**
 1. "What would a gate need to catch to earn its turns on this model?"
-2. Transition: `section-4-verification/demo/README.md`; next, the final A/B launched at 2:55 (terminal C,
+2. Transition: `section-4-verification/demo/README.md`; next, the final A/B launched at 3:00 (terminal C,
    browser tab 4).
 
 ---
 
 ## Final results and wrap-up (3:40-4:00)
 
-The final A/B was launched at 2:55, at the start of S4. This block walks through its finished results
+The final A/B was launched at 3:00, at the start of S4. This block walks through its finished results
 and starts no run. It is the class's measurement lesson: one A/B is one dot.
 
 1. **3:40 The final A/B.** Terminal C: read the arm lines of each final feature and the session

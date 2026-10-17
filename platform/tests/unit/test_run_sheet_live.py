@@ -92,6 +92,19 @@ def test_each_section_launches_its_live_run(run_sheet: str) -> None:
     assert "make final FEATURES=" in " ".join(s4), "the final A/B is not launched live in S4"
 
 
+def test_breaks_follow_the_class_plan(run_sheet: str) -> None:
+    # The template's breaks: 10 minutes after S1 and 5 minutes after S3 (S4 has 45 minutes).
+    breaks = [r[0] for r in minute_rows(run_sheet) if r[1] == "Break"]
+    assert breaks == ["1:00-1:10", "2:50-2:55"]
+
+
+def test_minute_rows_cover_the_class_without_gaps(run_sheet: str) -> None:
+    times = [r[0].split("-") for r in minute_rows(run_sheet)]
+    assert times[0][0] == "0:00" and times[-1][1] == "4:00"
+    for (_, end), (start, _) in zip(times, times[1:]):
+        assert end == start, f"gap or overlap between {end} and {start}"
+
+
 def test_fallbacks_have_their_own_marked_section(run_sheet: str) -> None:
     headings = [h for h, _ in sections(run_sheet)]
     fallback = [h for h in headings if is_fallback(h)]

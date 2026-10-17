@@ -27,14 +27,14 @@ Terminal B runs the section demos. Terminal C runs the final.
 | T-30 min | A | `make console` | `Console: http://127.0.0.1:8765/`; open it |
 | 0:08 | B | `make doctor` | Read the key lines aloud |
 | 0:13 | B | `make show-1` | Section 1, harness in action |
-| 1:03 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
-| 2:03 | B | `make demo-3 FEATURE=F4` | Section 3, live A/B |
-| 2:54 | B | `make show-4` | Section 4, harness in action |
-| 2:55 | C | `make final FEATURES=F6,F5` | The final A/B; put the poll's winner first |
+| 1:14 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
+| 2:04 | B | `make demo-3 FEATURE=F4` | Section 3, live A/B |
+| 2:59 | B | `make show-4` | Section 4, harness in action |
+| 3:00 | C | `make final FEATURES=F6,F5` | The final A/B; put the poll's winner first |
 | 3:40 | C | No command | Read the final's arm lines |
 
 After each launch, reload the console's run list and open the newest run. At section minute 25,
-look for the `Cost:` line in terminal B.
+look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
 Times and costs, measured on 2026-10-17, before class ([evidence](evidence.md#captures)):
 
@@ -223,11 +223,20 @@ Each section runs the same way. Minutes count from the start of the section.
 
 | Minutes | What happens |
 |---|---|
-| 0-3 | Poll: the room predicts the result from before class; close it before the launch |
-| 3-5 | Launch in terminal B. Open the newest run on screen 1 |
-| 5-30 | Concepts, then the walkthrough, while the run goes on; check terminal B at 25 |
+| 0-4 | Poll: the room predicts the result from before class; close it before the launch |
+| 4-6 | Launch in terminal B (Section 1: at minute 3). Open the newest run on screen 1 |
+| 6-30 | Concepts, then the walkthrough, while the run goes on; check terminal B at 25 |
 | 30-45 | Demo block: the finished run, then all results on one slide and screen 4 |
 | 45-50 | Discussion, and the link to the section's demo page |
+
+Section 4 has 45 minutes: concepts and walkthrough at 6-28, the demo block at 28-43, and a two-minute
+discussion at 43-45.
+
+Every section run ends before its demo block, even with 2 more minutes for the class agent time
+limit: show-1 by about 0:25, show-2 by about 1:26, demo-3 by about 2:16, show-4 by about 3:12 (demo
+blocks at 0:40, 1:40, 2:30, 3:23). The final is tight: two features launched at 3:00 end about 3:30,
+later if the first one slows next to show-4. If terminal C has no `Cost:` line for the first feature
+at 3:20, expect the second to run past 3:40.
 
 If the run is still going at minute 25, finish the walkthrough. Then open the demo block on the
 running screens: screen 1 shows `primary verdict ready` as soon as the first check is done. A run
@@ -265,7 +274,11 @@ layer helped." Before class, no arm leaked in any run: no measurable difference
 Discussion: "The bare arm read the same rules and applied them. What would have to be true for the
 map to earn its place?"
 
-### Section 2: State and session lifecycle (1:00-1:50)
+### Break (1:00-1:10)
+
+Put the return time on the break slide. Nothing runs during the break.
+
+### Section 2: State and session lifecycle (1:10-2:00)
 
 `make show-2 SESSION_BUDGET=12,38` stops session 1 after 12 turns. The harness writes the handoff,
 and session 2 starts with an empty context and 38 turns. The primary verdict asks: did session 2
@@ -280,10 +293,6 @@ session 1 leaves nothing to redo. In the medium- and low-effort rounds, 6 of 12 
 ([evidence](evidence.md#section-2)).
 
 Discussion: "Which state file would you keep for this model, and how would you measure it?"
-
-### Break (1:50-2:00)
-
-Put the return time on the break slide. Nothing runs during the break.
 
 ### Section 3: Scope and sandbox (2:00-2:50)
 
@@ -312,12 +321,16 @@ variable."
 Discussion: "The guard won by construction. What would you measure next to it, so that a guard that
 blocks everything cannot look good?"
 
-### Section 4: Verification (2:50-3:40)
+### Break (2:50-2:55)
+
+Five minutes. Put the return time on the break slide. Nothing runs during the break.
+
+### Section 4: Verification (2:55-3:40)
 
 Two polls open this section: the Section 4 poll, then the final feature poll (F5, F6, or F7).
 
-1. 2:54, terminal B: `make show-4`. Open its run in browser tab 2 right away.
-2. 2:55, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up,
+1. 2:59, terminal B: `make show-4`. Open its run in browser tab 2 right away.
+2. 3:00, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up,
    for example `make final FEATURES=F6,F5`. Always pass `FEATURES`: the default is `F5,F6`. Open the
    newest run in browser tab 3, then go back to tab 2.
 
@@ -331,11 +344,11 @@ Say at the result: "The gate checks what the agent can see. The hidden tests and
 mutants stay out of its reach." Before class, neither arm passed F4 once: no measurable difference
 ([evidence](evidence.md#section-4)).
 
-Discussion: "What would a gate need to catch to earn its turns on this model?"
+Discussion, two minutes: "What would a gate need to catch to earn its turns on this model?"
 
 ### Final results and wrap-up (3:40-4:00)
 
-The final A/B started at 2:55. This block starts no run.
+The final A/B started at 3:00. This block starts no run.
 
 1. Terminal C: read each arm line and the session figure. The final has no primary measure, so
    `passed=True` does not mean the feature works. Read `hidden` and `mutants` instead.

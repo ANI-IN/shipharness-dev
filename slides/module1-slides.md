@@ -1,8 +1,8 @@
 # Module 1: Harness Engineering for Coding Agents: slide content for review
 
-103 slides, about 240 minutes of slide time in a 240-minute class. On-slide text follows the
+113 slides, 240 minutes of slide time in a 240-minute class: Opening 0:00-0:10, Section 1 0:10-1:00, a 10-minute break, Section 2 1:10-2:00, Section 3 2:00-2:50, a 5-minute break, Section 4 2:55-3:40, final block 3:40-4:00. On-slide text follows the
 owner's template (`template.pptx`): density, "Lead: rest" titles, build-ups, numbered series with a cheat
-sheet, and the template's wording for breaks, demos, polls, and Q&A. Speaker notes are written so the
+sheet, and the template's wording for housekeeping, breaks, demos, polls, and Q&A. Speaker notes are written so the
 class can be taught from the notes alone. Numbers come only from `docs/evidence.md` and
 `docs/evidence/*.md`; diagrams are Excalidraw files under `docs/diagrams/` and `section-N-*/diagrams/`.
 
@@ -11,133 +11,143 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | Slide | Title | Block | Diagram |
 |---|---|---|---|
 | 1 | Module 1: Harness Engineering for Coding Agents | Housekeeping | none |
-| 2 | Introduction: Who is teaching tonight | Housekeeping | none |
+| 2 | Introduction: Who is teaching today | Housekeeping | none |
 | 3 | Welcome: Before we begin, pop into the chat | Housekeeping | none |
 | 4 | Structure of Class: Four hours, four layers | Housekeeping | none |
-| 5 | Recap: The Anatomy of an Agentic Loop (build 1/3) | Recap | docs/diagrams/agent-loop-step-1.png |
-| 6 | Recap: The Anatomy of an Agentic Loop (build 2/3) | Recap | docs/diagrams/agent-loop-step-2.png |
-| 7 | Recap: The Anatomy of an Agentic Loop (build 3/3) | Recap | docs/diagrams/agent-loop.png |
-| 8 | Today's Agenda | Agenda | none |
-| 9 | Problem statement: What are we building? | Problem | docs/diagrams/harness-around-loop.png |
-| 10 | Problem statement: The problem in the real world | Problem | none |
-| 11 | The challenge is: The rules exist, the agent still misses | Problem | none |
-| 12 | Why this matters for Engineering Teams | Problem | none |
-| 13 | Why We Need a Harness: The 4 Critical Gaps | Problem | docs/diagrams/stories-causes-layers.png |
-| 14 | TeamTrack: The data model | Problem | docs/diagrams/teamtrack-data-model.png |
-| 15 | Key Tech Stack: TeamTrack and shipharness | Problem | none |
-| 16 | Example Tickets: F1 to F7 in plain words | Problem | none |
-| 17 | How We'll Measure: Same ticket, two arms (build 1/2) | Problem | docs/diagrams/ab-referee-step-1.png |
-| 18 | How We'll Measure: One referee scores both (build 2/2) | Problem | docs/diagrams/ab-referee.png |
-| 19 | Let's Get It Started | Problem | none |
-| 20 | Section 1: What the agent knows | Section 1 | none |
-| 21 | Live Zoom Poll: Will the agent copy the legacy query? | Section 1 | none |
-| 22 | Failure story: The search that showed another org | Section 1 | none |
-| 23 | Instructions: Why not paste every rule? (build 1/3) | Section 1 | none |
-| 24 | Instructions: Why not paste every rule? (build 2/3) | Section 1 | none |
-| 25 | Instructions: Why not paste every rule? (build 3/3) | Section 1 | none |
-| 26 | 1) A map, not a manual | Section 1 | section-1-instructions/diagrams/manual-vs-map.png |
-| 27 | 2) Progressive disclosure: skills load in three tiers | Section 1 | section-1-instructions/diagrams/skills-three-tiers.png |
-| 28 | 3) The context prefix: small, fixed, out of reach | Section 1 | section-1-instructions/diagrams/context-prefix.png |
-| 29 | 4) Mechanical checks keep the map true | Section 1 | none |
-| 30 | Cheat Sheet: The instructions layer in four moves | Section 1 | none |
-| 31 | Section 1 - Implementation Notes: The map at work | Section 1 | screenshot: section-1-instructions/demo/expected/screen-1-final.png |
-| 32 | What just happened: The run, minute by minute | Section 1 | none |
-| 33 | Under the hood: How the prefix is built | Section 1 | none |
-| 34 | What we measured: No measurable difference on F1 | Section 1 | section-1-instructions/diagrams/results-s1.png |
-| 35 | Apply it Monday: Turn your instruction file into a map | Section 1 | none |
-| 36 | Q&A: Section 1, what the agent knows | Section 1 | none |
-| 37 | Time for a Break | Break | none |
-| 38 | Today's Agenda: Section 2, what the agent remembers | Section 2 | none |
-| 39 | Live Zoom Poll: Did session 2 redo session 1? | Section 2 | none |
-| 40 | Problem statement: The second session redoes the first | Section 2 | section-2-state-lifecycle/diagrams/alembic-heads.png |
-| 41 | Fresh session: Why redo work already on disk? (build 1/3) | Section 2 | none |
-| 42 | Fresh session: Why redo work already on disk? (build 2/3) | Section 2 | none |
-| 43 | Fresh session: Why redo work already on disk? (build 3/3) | Section 2 | none |
-| 44 | 1) Session lifecycle: a planned stop and reset | Section 2 | section-2-state-lifecycle/diagrams/session-lifecycle.png (+ steps) |
-| 45 | 2) The handoff: two owners, one file | Section 2 | section-2-state-lifecycle/diagrams/handoff-contents.png |
-| 46 | 3) The exec plan and the progress ledger | Section 2 | none |
-| 47 | 4) Getting up to speed: `init.sh` before code | Section 2 | section-2-state-lifecycle/diagrams/alembic-heads.png |
-| 48 | Cheat Sheet: Four state pieces across a stop | Section 2 | none |
-| 49 | Section 2 - Implementation Notes: Stop and resume | Section 2 | screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png |
-| 50 | What just happened: One run, two sessions | Section 2 | none |
-| 51 | Under the hood: What runs at every stop | Section 2 | none |
-| 52 | What we measured: No measurable difference on F2 | Section 2 | section-2-state-lifecycle/diagrams/results-s2.png |
-| 53 | Apply it Monday: State that survives a stop | Section 2 | none |
-| 54 | Q&A: State and session lifecycle | Section 2 | none |
-| 55 | Today's Agenda: Section 3, what the agent may change | Section 3 | none |
-| 56 | Live Zoom Poll: Will the bare arm leave scope? | Section 3 | none |
-| 57 | Problem statement: A tidy diff in a shared file | Section 3 | none |
-| 58 | Scope: Is the ticket's file list enough? (build 1/2) | Section 3 | none |
-| 59 | Scope: Is the ticket's file list enough? (build 2/2) | Section 3 | none |
-| 60 | 1) One feature at a time: `feature_list.json` | Section 3 | none |
-| 61 | 2) Allowed paths per phase, checked by code | Section 3 | section-3-scope-sandbox/diagrams/scope-check-flow.png |
-| 62 | 3) The sandbox boundary: where the keys live | Section 3 | section-3-scope-sandbox/diagrams/sandbox-boundary.png |
-| 63 | 4) Least privilege: two refusals, two questions | Section 3 | section-3-scope-sandbox/diagrams/least-privilege.png |
-| 64 | Cheat Sheet: Four boundaries for one feature | Section 3 | none |
-| 65 | Section 3 - Implementation Notes: Scope at work | Section 3 | screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png |
-| 66 | What just happened: Same pull, two arms | Section 3 | none |
-| 67 | Under the hood: One method decides every path | Section 3 | none |
-| 68 | What we measured: Scope held on F4, by construction | Section 3 | section-3-scope-sandbox/diagrams/results-s3.png |
-| 69 | Apply it Monday: Scope your next agent task | Section 3 | none |
-| 70 | Q&A: Scope and sandbox | Section 3 | none |
-| 71 | Time for a Break | Break | none |
-| 72 | Section 4: What proves the work is done | Section 4 | none |
-| 73 | Live Zoom Poll: F4 with all four layers | Section 4 | none |
-| 74 | Live Zoom Poll: Pick the final A/B feature | Final | none |
-| 75 | Launch: make show-4, the harness arm alone | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png |
-| 76 | Launch: make final, the poll winner first | Final | docs/diagrams/ab-referee.png |
-| 77 | The problem: Done, but two edits still collide | Section 4 | docs/diagrams/optimistic-concurrency.png |
-| 78 | Verification: The suite is green. Is F4 done? (build 1/2) | Section 4 | none |
-| 79 | Verification: The suite is green. Is F4 done? (build 2/2) | Section 4 | none |
-| 80 | 1) Self-grading and visible tests | Section 4 | section-4-verification/diagrams/verification-pipeline-step-1.png |
-| 81 | 2) Test-phase filters: keep tests that prove something | Section 4 | section-4-verification/diagrams/verification-pipeline-step-2.png |
-| 82 | 3) Mutation testing and hidden tests | Section 4 | section-4-verification/diagrams/mutation-testing.png |
-| 83 | 4) The gate on "done" and the separate referee | Section 4 | section-4-verification/diagrams/verification-pipeline-step-3.png |
-| 84 | Cheat Sheet: four checks the agent does not own | Section 4 | section-4-verification/diagrams/verification-pipeline.png |
-| 85 | Section 4 - Implementation Notes: The gate at work | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png |
-| 86 | What just happened: eleven minutes of show-4 | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-t01m.png (+ t03m, t04m, t09m) |
-| 87 | Under the hood: the gate's verdict in six lines | Section 4 | none |
-| 88 | What we measured: no measurable difference on F4 | Section 4 | section-4-verification/diagrams/results-s4.png |
-| 89 | Apply it Monday: check your agent's done | Section 4 | none |
-| 90 | Q&A: Section 4, Verification | Section 4 | none |
-| 91 | Final A/B: reading the arm lines | Final | none |
-| 92 | Final A/B: what to read on screens 1, 3, 5 | Final | screenshot: final-project/expected/screen-1-final.png |
-| 93 | Final A/B: the two boards | Final | screenshot: final-project/expected/screen-2-final.png |
-| 94 | All results: four sections, one picture | Final | docs/diagrams/results-final.png |
-| 95 | Which layer when: match the layer to the failure | Final | docs/diagrams/which-layer-when.png |
-| 96 | Use it in your repo: the kit and four skills | Close | docs/diagrams/harness-one-picture.png |
-| 97 | Assignments (1 of 2): instructions and state | Close | none |
-| 98 | Assignments (2 of 2): scope and verification | Close | none |
-| 99 | Final project: one live A/B, read as one dot | Close | screenshot: final-project/expected/screen-4-final.png |
-| 100 | References (1 of 2): harness engineering sources | Close | none |
-| 101 | References (2 of 2): skills, tests, held-out evaluation | Close | none |
-| 102 | Q&A: anything from today | Close | none |
-| 103 | Thank you: see you at the review session | Close | none |
+| 5 | Optimize Your Experience | Housekeeping | none |
+| 6 | Are you using all these IK support features? | Housekeeping | none |
+| 7 | Success Hacks | Housekeeping | none |
+| 8 | Check Your Email for API Key | Housekeeping | none |
+| 9 | Recap: The Anatomy of an Agentic Loop (build 1/3) | Recap | docs/diagrams/agent-loop-step-1.png |
+| 10 | Recap: The Anatomy of an Agentic Loop (build 2/3) | Recap | docs/diagrams/agent-loop-step-2.png |
+| 11 | Recap: The Anatomy of an Agentic Loop (build 3/3) | Recap | docs/diagrams/agent-loop.png |
+| 12 | Today's Agenda | Agenda | none |
+| 13 | Clone & Practice: Your Learning Repository | Housekeeping | none |
+| 14 | Problem statement: What are we building? | Problem | docs/diagrams/harness-around-loop.png |
+| 15 | Problem statement: The problem in the real world | Problem | none |
+| 16 | The challenge is: The rules exist, the agent still misses | Problem | none |
+| 17 | Why this matters for Engineering Teams | Problem | none |
+| 18 | Why We Need a Harness: The 4 Critical Gaps | Problem | docs/diagrams/stories-causes-layers.png |
+| 19 | TeamTrack: The data model | Problem | docs/diagrams/teamtrack-data-model.png |
+| 20 | House rules: R1 to R7 in plain words | Problem | docs/diagrams/house-rules.png |
+| 21 | Key Tech Stack: TeamTrack and shipharness | Problem | none |
+| 22 | Example Tickets: F1 to F7 in plain words | Problem | none |
+| 23 | Glossary: Eight terms used in every section | Problem | docs/diagrams/glossary-terms.png |
+| 24 | How We'll Measure: Same ticket, two arms (build 1/2) | Problem | docs/diagrams/ab-referee-step-1.png |
+| 25 | How We'll Measure: One referee scores both (build 2/2) | Problem | docs/diagrams/ab-referee.png |
+| 26 | Let's Get It Started | Problem | none |
+| 27 | Section 1: What the agent knows | Section 1 | none |
+| 28 | Live Zoom Poll: Will the agent copy the legacy query? | Section 1 | none |
+| 29 | Failure story: The search that showed another org | Section 1 | section-1-instructions/diagrams/failure-story-s1.png |
+| 30 | Instructions: Why not paste every rule? (build 1/3) | Section 1 | section-1-instructions/diagrams/socratic-s1-step-1.png |
+| 31 | Instructions: Why not paste every rule? (build 2/3) | Section 1 | section-1-instructions/diagrams/socratic-s1-step-2.png |
+| 32 | Instructions: Why not paste every rule? (build 3/3) | Section 1 | section-1-instructions/diagrams/socratic-s1-step-3.png |
+| 33 | 1) A map, not a manual | Section 1 | section-1-instructions/diagrams/manual-vs-map.png |
+| 34 | 2) Progressive disclosure: skills load in three tiers | Section 1 | section-1-instructions/diagrams/skills-three-tiers.png |
+| 35 | 3) The context prefix: small, fixed, out of reach | Section 1 | section-1-instructions/diagrams/context-prefix.png |
+| 36 | 4) Mechanical checks keep the map true | Section 1 | section-1-instructions/diagrams/checker-flow.png |
+| 37 | Cheat Sheet: The instructions layer in four moves | Section 1 | section-1-instructions/diagrams/cheat-sheet-s1.png |
+| 38 | Section 1 - Implementation Notes: The map at work | Section 1 | screenshot: section-1-instructions/demo/expected/screen-1-final.png |
+| 39 | What just happened: The run, minute by minute | Section 1 | section-1-instructions/diagrams/timeline-s1.png |
+| 40 | Under the hood: How the prefix is built | Section 1 | code: platform/src/shipharness/harness/instructions/router.py (lines 37-47) |
+| 41 | What we measured: No measurable difference on org-wide search (F1) | Section 1 | section-1-instructions/diagrams/results-s1.png |
+| 42 | Apply it Monday: Turn your instruction file into a map | Section 1 | none |
+| 43 | Q&A: Section 1, what the agent knows | Section 1 | none |
+| 44 | Time for a Break | Break | none |
+| 45 | Today's Agenda: Section 2, what the agent remembers | Section 2 | none |
+| 46 | Live Zoom Poll: Did session 2 redo session 1? | Section 2 | none |
+| 47 | Problem statement: The second session redoes the first | Section 2 | section-2-state-lifecycle/diagrams/failure-story-s2.png |
+| 48 | Fresh session: Why redo work already on disk? (build 1/3) | Section 2 | section-2-state-lifecycle/diagrams/socratic-s2-step-1.png |
+| 49 | Fresh session: Why redo work already on disk? (build 2/3) | Section 2 | section-2-state-lifecycle/diagrams/socratic-s2-step-2.png |
+| 50 | Fresh session: Why redo work already on disk? (build 3/3) | Section 2 | section-2-state-lifecycle/diagrams/socratic-s2-step-3.png |
+| 51 | 1) Session lifecycle: a planned stop and reset | Section 2 | section-2-state-lifecycle/diagrams/session-lifecycle.png (+ steps) |
+| 52 | 2) The handoff: two owners, one file | Section 2 | section-2-state-lifecycle/diagrams/handoff-contents.png |
+| 53 | 3) The exec plan and the progress ledger | Section 2 | section-2-state-lifecycle/diagrams/exec-plan-ledger.png |
+| 54 | 4) Getting up to speed: `init.sh` before code | Section 2 | section-2-state-lifecycle/diagrams/alembic-heads.png |
+| 55 | Cheat Sheet: Four state pieces across a stop | Section 2 | section-2-state-lifecycle/diagrams/cheat-sheet-s2.png |
+| 56 | Section 2 - Implementation Notes: Stop and resume | Section 2 | screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png |
+| 57 | What just happened: One run, two sessions | Section 2 | section-2-state-lifecycle/diagrams/timeline-s2.png |
+| 58 | Under the hood: What runs at every stop | Section 2 | code: platform/src/shipharness/harness/state/lifecycle.py (lines 100-111) |
+| 59 | What we measured: No measurable difference on comments (F2) | Section 2 | section-2-state-lifecycle/diagrams/results-s2.png |
+| 60 | Apply it Monday: State that survives a stop | Section 2 | none |
+| 61 | Q&A: State and session lifecycle | Section 2 | none |
+| 62 | Today's Agenda: Section 3, what the agent may change | Section 3 | none |
+| 63 | Live Zoom Poll: Will the bare arm leave scope? | Section 3 | none |
+| 64 | Problem statement: A tidy diff in a shared file | Section 3 | section-3-scope-sandbox/diagrams/failure-story-s3.png |
+| 65 | Scope: Is the ticket's file list enough? (build 1/2) | Section 3 | section-3-scope-sandbox/diagrams/socratic-s3-step-1.png |
+| 66 | Scope: Is the ticket's file list enough? (build 2/2) | Section 3 | section-3-scope-sandbox/diagrams/socratic-s3-step-2.png |
+| 67 | 1) One feature at a time: `feature_list.json` | Section 3 | section-3-scope-sandbox/diagrams/feature-list-lifecycle.png |
+| 68 | 2) Allowed paths per phase, checked by code | Section 3 | section-3-scope-sandbox/diagrams/scope-check-flow.png |
+| 69 | 3) The sandbox boundary: where the keys live | Section 3 | section-3-scope-sandbox/diagrams/sandbox-boundary.png |
+| 70 | 4) Least privilege: two refusals, two questions | Section 3 | section-3-scope-sandbox/diagrams/least-privilege.png |
+| 71 | Cheat Sheet: Four boundaries for one feature | Section 3 | section-3-scope-sandbox/diagrams/cheat-sheet-s3.png |
+| 72 | Section 3 - Implementation Notes: Scope at work | Section 3 | screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png |
+| 73 | What just happened: Same pull, two arms | Section 3 | section-3-scope-sandbox/diagrams/timeline-s3.png |
+| 74 | Under the hood: One method decides every path | Section 3 | code: platform/src/shipharness/harness/scope/guard.py (lines 68-78) |
+| 75 | What we measured: Scope held on version checks (F4) | Section 3 | section-3-scope-sandbox/diagrams/results-s3.png |
+| 76 | Apply it Monday: Scope your next agent task | Section 3 | none |
+| 77 | Q&A: Scope and sandbox | Section 3 | none |
+| 78 | Time for a Break | Break | none |
+| 79 | Section 4: What proves the work is done | Section 4 | none |
+| 80 | Live Zoom Poll: F4 with all four layers | Section 4 | none |
+| 81 | Live Zoom Poll: Pick the final A/B feature | Final | none |
+| 82 | Launch: make show-4, the harness arm alone | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png |
+| 83 | Launch: make final, the poll winner first | Final | docs/diagrams/ab-referee.png |
+| 84 | The problem: Done, but two edits still collide | Section 4 | section-4-verification/diagrams/failure-story-s4.png |
+| 85 | Verification: Suite green. Are version checks (F4) done? (build 1/2) | Section 4 | section-4-verification/diagrams/socratic-s4-step-1.png |
+| 86 | Verification: Suite green. Are version checks (F4) done? (build 2/2) | Section 4 | section-4-verification/diagrams/socratic-s4-step-2.png |
+| 87 | 1) Self-grading and visible tests | Section 4 | section-4-verification/diagrams/verification-pipeline-step-1.png |
+| 88 | 2) Test-phase filters: keep tests that prove something | Section 4 | section-4-verification/diagrams/verification-pipeline-step-2.png |
+| 89 | 3) Mutation testing and hidden tests | Section 4 | section-4-verification/diagrams/mutation-testing.png |
+| 90 | 4) The gate on "done" and the separate referee | Section 4 | section-4-verification/diagrams/verification-pipeline-step-3.png |
+| 91 | Cheat Sheet: four checks the agent does not own | Section 4 | section-4-verification/diagrams/cheat-sheet-s4.png |
+| 92 | Section 4 - Implementation Notes: The gate at work | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png |
+| 93 | What just happened: eleven minutes of show-4 | Section 4 | section-4-verification/diagrams/timeline-s4.png |
+| 94 | Under the hood: the gate's verdict in six lines | Section 4 | code: platform/src/shipharness/harness/verify/gate.py (lines 176-181) |
+| 95 | What we measured: no measurable difference on version checks (F4) | Section 4 | section-4-verification/diagrams/results-s4.png |
+| 96 | Apply it Monday: check your agent's done | Section 4 | none |
+| 97 | Q&A: Section 4, Verification | Section 4 | none |
+| 98 | Final A/B: reading the arm lines | Final | code: final-project/README.md (terminal C output of the bulk close (F5) run) |
+| 99 | Final A/B: what to read on screens 1, 3, 5 | Final | screenshot: final-project/expected/screen-1-final.png |
+| 100 | Final A/B: the two boards | Final | screenshot: final-project/expected/screen-2-final.png |
+| 101 | All results: four sections, one picture | Final | docs/diagrams/results-final.png |
+| 102 | Which layer when: match the layer to the failure | Final | docs/diagrams/which-layer-when.png |
+| 103 | Use it in your repo: the kit and four skills | Close | none |
+| 104 | Assignments (1 of 2): instructions and state | Close | none |
+| 105 | Assignments (2 of 2): scope and verification | Close | none |
+| 106 | Final project: one live A/B, read as one dot | Close | screenshot: final-project/expected/screen-4-final.png |
+| 107 | References (1 of 2): harness engineering sources | Close | none |
+| 108 | References (2 of 2): skills, tests, held-out evaluation | Close | none |
+| 109 | Q&A: anything from today | Close | none |
+| 110 | The harness in one picture | Close | docs/diagrams/harness-one-picture.png |
+| 111 | Module 1 Summary: Key takeaways | Close | docs/diagrams/module-summary.png |
+| 112 | Glimpse of Module 2: Loop Engineering for Coding Agents | Close | none |
+| 113 | Thank you: see you at the review session | Close | none |
 
 ---
 
 ## Slide 1: Module 1: Harness Engineering for Coding Agents
-**Block:** Housekeeping  **Time:** 0.25  **Diagram:** none
+**Block:** Housekeeping  **Time:** 0.25 min (0:00-0:00:15)  **Diagram:** none
 **On the slide:**
 Module 1: Harness Engineering for Coding Agents
 Instructions, state, scope, verification: build each layer, then measure it
 **Visual:** Title layout. "Module 1" in blue, the rest of the title in white, the subtitle smaller underneath. No picture.
 **Speaker notes:**
-- Welcome. Tonight we build four layers around a coding agent, and you watch each one at work, live, on a real feature of a small app.
+- Welcome. Today we build four layers around a coding agent, and you watch each one at work, live, on a real feature of a small app.
 - Plain version of the topic: a harness is the files and code around the agent that decide what it sees and what it may do. It is not a better prompt.
 - What is different about this class: we measured every layer before class. Same agent, same model, same ticket, with and without the layer, scored by the same program.
 - We also show results where the layer did not help. In three of the four sections the measure showed no measurable difference on this model. Section 3 showed one gap, on one ticket (F4), partly by construction.
-- Analogy: think of a CI check. You keep a check because it catches something real, not because it sounds responsible. Tonight we ask that question of each harness layer.
+- Analogy: think of a CI check. You keep a check because it catches something real, not because it sounds responsible. In this session we ask that question of each harness layer.
 - Point at the subtitle: "build each layer, then measure it" is the whole course.
-- Ask the room: "Who has already given a real ticket to a coding agent?" Expected: many hands. Ask one person what went wrong; you will hear one of tonight's four failures.
-- Misconception to name early: "a harness is a long system prompt". No: tonight's harness includes files on disk, session state, a scope guard, and a gate on "done".
+- Ask the room: "Who has already given a real ticket to a coding agent?" Expected: many hands. Ask one person what went wrong; you will hear one of today's four failures.
+- Misconception to name early: "a harness is a long system prompt". No: this session's harness includes files on disk, session state, a scope guard, and a gate on "done".
 - Likely question: "Which model did you measure?" Answer: gpt-6-luna as the agent and gpt-5.6-luna as the blinded reviewer, the same settings for both arms; the results hold for that model only.
-- Time: 15 seconds. Next: who is teaching tonight.
+- Time: 15 seconds. Next: who is teaching today.
 
-## Slide 2: Introduction: Who is teaching tonight
-**Block:** Housekeeping  **Time:** 0.5  **Diagram:** none
+## Slide 2: Introduction: Who is teaching today
+**Block:** Housekeeping  **Time:** 0.25 min (0:00:15-0:00:30)  **Diagram:** none
 **On the slide:**
-Introduction: Who is teaching tonight
+Introduction: Who is teaching today
 Your instructor, in 30 seconds:
 - Where they ship code with coding agents
 - One agent failure they had to debug
@@ -147,19 +157,19 @@ Your instructor, in 30 seconds:
 **Speaker notes:**
 - Say your name and role aloud; the slide deliberately carries no name.
 - Bullet 1, one sentence: your years in software and where you use coding agents today (team, kind of codebase, which agent: Claude Code, Codex, Cursor, Copilot).
-- Bullet 2, 15 seconds: one agent diff that passed review and still broke a rule your team cared about. If you have none of your own, tell slide 10's Monday story and say it is the course's illustrative scenario.
-- Map your failure to one of tonight's layers out loud: rule not in context (Section 1), lost session (2), edit outside the ticket (3), false "done" (4). It previews the night.
+- Bullet 2, 15 seconds: one agent diff that passed review and still broke a rule your team cared about. If you have none of your own, tell the Monday story from the real-world problem slide and say it is the course's illustrative scenario.
+- Map your failure to one of today's layers out loud: rule not in context (Section 1), lost session (2), edit outside the ticket (3), false "done" (4). It previews the session.
 - Bullet 3: name the layer you would add first, and promise to revisit that choice after the results; the measurements may change it.
 - Bullet 4: say the channel for questions after class (the course chat, the review session); do not type contact details on the slide.
 - Analogy: a conference speaker's one-line bio: enough for the room to judge where your examples come from, nothing more.
-- Point at bullet 2: it is the theme of the night, rules that exist but are not applied.
-- Ask: "Which coding agents are you using at work?" Expected: Claude Code, Codex, Cursor, Copilot. Say: everything tonight applies to all of them.
+- Point at bullet 2: it is the theme of the session, rules that exist but are not applied.
+- Ask: "Which coding agents are you using at work?" Expected: Claude Code, Codex, Cursor, Copilot. Say: everything in this session applies to all of them.
 - Likely question: "Do I need the repository running to follow along?" Answer: no. The demos run on the instructor's machine; the repository lets you repeat them later.
-- Misconception: "this is a product pitch for a harness". Correction: three of tonight's four sections show no measurable difference, and the slides say so.
-- Time: 30 seconds. Next: tell us who you are.
+- Misconception: "this is a product pitch for a harness". Correction: three of today's four sections show no measurable difference, and the slides say so.
+- Time: 15 seconds. Next: tell us who you are.
 
 ## Slide 3: Welcome: Before we begin, pop into the chat
-**Block:** Housekeeping  **Time:** 0.5  **Diagram:** none
+**Block:** Housekeeping  **Time:** 0.25 min (0:00:30-0:00:45)  **Diagram:** none
 **On the slide:**
 Welcome to today's class, before we begin, pop into the chat:
 - Name
@@ -169,20 +179,20 @@ Welcome to today's class, before we begin, pop into the chat:
 **Visual:** Template slide 3: four emoji chips (speech bubble, worker, house, robot) around a sample person card. The fourth chip replaces "Organization" with "The coding agent you use".
 **Speaker notes:**
 - Say: "Welcome everyone. Before we begin, tell us four things in the chat: your name, your role, where you are, and the coding agent you use."
-- Why the fourth chip changed: tonight's material applies to any agent that reads an AGENTS.md or skills folder, so knowing the room's tools helps you pick examples.
+- Why the fourth chip changed: today's material applies to any agent that reads an AGENTS.md or skills folder, so knowing the room's tools helps you pick examples.
 - Concrete example to read aloud from the chat: "Backend engineer, Berlin, Claude Code". Connect it later: Claude Code, Codex, and Cursor all read a skills folder (Section 1, reading 03 lists where).
 - Analogy: a standup round. Short, one line each, no speeches.
 - Point at the four chips; read three or four answers aloud.
-- Ask: "Anyone running an agent without a human reviewing the diff?" Expected: few or none. Say: tonight shows why review alone is not enough either.
+- Ask: "Anyone running an agent without a human reviewing the diff?" Expected: few or none. Say: this session shows why review alone is not enough either.
 - Likely question: "Will the slides be shared?" Answer: yes, with the repository; the slide source lives under `slides/`.
 - Misconception: "this is only for teams with their own agent framework". Correction: Sections 1 to 4 each end with a step you can apply on Monday with an off-the-shelf agent.
-- Time: 30 seconds while answers come in. Next: how the class is structured.
+- Time: 15 seconds; keep reading answers aloud from the chat during the next slides. Next: how the class is structured.
 
 ## Slide 4: Structure of Class: Four hours, four layers
-**Block:** Housekeeping  **Time:** 0.5  **Diagram:** none
+**Block:** Housekeeping  **Time:** 0.25 min (0:00:45-0:01)  **Diagram:** none
 **On the slide:**
 Structure of Class
-- Live class - 4 hr: four sections, two 5-min breaks, a final A/B
+- Live class - 4 hr: four sections, two breaks, a final A/B
 - Live demos - every demo is a real model run
 - Assignments - four, one per section
 - Review session - 2 hr, one slot per assignment
@@ -192,21 +202,96 @@ Structure of Class
 - Concrete: Section 1 launches `make show-1` at about minute 13 of the class and we read its result around minute 38.
 - Assignments: one per section, each with a reference solution and a walkthrough in the section's `assignment/solution/` folder.
 - Review session: two hours, about 25 minutes per assignment, then 20 minutes of open questions (instructor guide, "After class").
-- Analogy: a sprint with a live demo every 50 minutes; the review session is the retro.
+- Breaks: 10 minutes after Section 1 and 5 minutes after Section 3. Section 4 runs 45 minutes, so the final A/B gets 20 minutes at the end.
+- Analogy: a sprint with a live demo every section; the review session is the retro.
 - Point at "every demo is a real model run": the agent's wording, timings, and even the verdict can differ from what we captured before class.
-- Ask: "If tonight's run fails, is that a broken demo?" Expected answer: no, a result. We show it either way.
+- Ask: "If a run in class fails, is that a broken demo?" Expected answer: no, a result. We show it either way.
 - Likely question: "Is the class recorded?" Answer: yes; the captured runs are also in each section's `demo/expected/` folder.
 - Misconception: "live demos are rehearsed recordings". Correction: every launch makes real model calls under a $2.50 session cap; a replay is used only after a failure outside the experiment, and every replay screen shows a red RECORDING badge.
-- Time: 30 seconds. Next: a one-picture recap of the agent loop.
+- Time: 15 seconds. Next: how to get the most out of the program.
 
-## Slide 5: Recap: The Anatomy of an Agentic Loop (build 1/3)
-**Block:** Recap  **Time:** 0.25  **Diagram:** docs/diagrams/agent-loop-step-1.png
+## Slide 5: Optimize Your Experience
+**Block:** Housekeeping  **Time:** 0.25 min (0:01-0:01:15)  **Diagram:** none
+**On the slide:**
+Optimize Your Experience
+- Interact with your instructors in the live class
+- Don't be shy to speak up and get clarifications!
+- Solve the four assignments and get feedback (review session)
+- Use your resources! It's your experience: what you put in is what you'll get out.
+**Visual:** Template slide 5 layout: "Optimize Your Experience" as the heading, the four lines in two text boxes, the template's two pictures unchanged.
+**Speaker notes:**
+- Interact: questions in the chat during the live class are welcome; TAs collect them and the Q&A slide after each section takes the top ones.
+- Clarification: if a term on a slide is new, ask at once; the glossary slide later in the opening defines the eight words we use in every section.
+- Assignments: four, one per section, each with an offline self-check (`make check-assignment-N`) and feedback at the two-hour review session.
+- Use resources: each section folder has `concepts.md`, a demo page, `session-notes.md`, and post-class readings.
+- Time: 15 seconds. Next: the support features.
+
+## Slide 6: Are you using all these IK support features?
+**Block:** Housekeeping  **Time:** 0.25 min (0:01:15-0:01:30)  **Diagram:** none
+**On the slide:**
+Are you using all these IK support features?
+- Uplevel - contains all the learning resources: videos, assignments
+- Technical coaching sessions on Wednesday to clarify all your queries
+- Discord community for peer learning
+- TAs to help answer the queries in the live class
+- Support tickets - raise them any time on Uplevel for clarifications or tech concerns
+**Visual:** Template slide 7 layout: the heading, then one line per feature with the feature name in bold pink (Uplevel, Technical coaching sessions, Discord, TAs, Support tickets) and the rest in white.
+**Speaker notes:**
+- Uplevel: the recording of this class and the learning resources land there.
+- Wednesday technical coaching: bring setup problems and assignment questions; setup errors are faster to fix with the exact message from the terminal.
+- Discord: share results from your own repository, as counts per arm.
+- TAs: they watch the chat during the class and pick the questions for each Q&A slide.
+- Support tickets: raise one on Uplevel for anything technical, any time. Never paste your `.env` or a key into a ticket or the chat.
+- Time: 15 seconds. Next: success hacks.
+
+## Slide 7: Success Hacks
+**Block:** Housekeeping  **Time:** 0.25 min (0:01:30-0:01:45)  **Diagram:** none
+**On the slide:**
+Success Hacks
+- Be prepared for the class: finish the pre-class setup
+- Attend every class
+- Participate in class
+- Attempt all the assignments
+- Actively advocate for yourself
+- Keep your goal in mind
+- Consistency is the key
+Be patient with yourself !
+**Visual:** Template slide 8 layout: the heading, seven bullets, "Consistency is the key" in pink, the closing line "Be patient with yourself !" under the list.
+**Speaker notes:**
+- Be prepared: `setup/pre-class.md` is the checklist that must pass before class: `make doctor`, `make warm`, `make console`.
+- Participate: every section opens with a poll; vote before you see the result, then compare your guess with the measurement.
+- Attempt all the assignments: each starter fails its self-check on purpose, and each FAIL line names what to build.
+- Advocate for yourself: if a demo moves too fast, ask in the chat; the captured runs in each `demo/expected/` folder let you replay it later.
+- Time: 15 seconds. Next: the API keys.
+
+## Slide 8: Check Your Email for API Key
+**Block:** Housekeeping  **Time:** 0.25 min (0:01:45-0:02)  **Diagram:** none
+**On the slide:**
+Check Your Email for API Key
+Your OpenAI API key comes in the program's email, or create your own at platform.openai.com.
+If you do not see this email:
+- Please check your inbox
+- Also check your spam or junk folder
+If you still cannot find it, please reach out to the Operations Team operations@interviewkickstart.com
+LangSmith key: a free account at smith.langchain.com
+**Visual:** Template slide 9 layout: the heading and the text on the left; in place of the email picture, a small card with the two empty lines from `.env.example`: `OPENAI_API_KEY=` and `LANGSMITH_API_KEY=`.
+**Speaker notes:**
+- Two keys run every live command: `OPENAI_API_KEY` for the agent and reviewer models, `LANGSMITH_API_KEY` for the traces of every model call.
+- Either path works for OpenAI: the key from the program's email, or your own key from a paid account at platform.openai.com (Build tier, per `.env.example`).
+- LangSmith: a free Developer account at smith.langchain.com, no card on file. EU accounts set `LANGSMITH_ENDPOINT` to the EU address in `.env.example`.
+- Both keys go in `.env` at the repository root; `make setup` creates it from `.env.example`. `.env` is git-ignored.
+- `make doctor` checks both keys and never prints any part of a key; the last line must read `result: + ready`.
+- Never paste a key into the chat, a support ticket, or a screenshot.
+- Time: 15 seconds. Next: a one-picture recap of the agent loop.
+
+## Slide 9: Recap: The Anatomy of an Agentic Loop (build 1/3)
+**Block:** Recap  **Time:** 0.25 min (0:02-0:02:15)  **Diagram:** docs/diagrams/agent-loop-step-1.png
 **On the slide:**
 Recap: The Anatomy of an Agentic Loop
 **Visual:** Build frame 1 of `agent-loop`: the ticket (prompt) goes to the agent, and the agent calls the model. Nothing else on the slide.
 **Speaker notes:**
 - Plain explanation: an agent is a loop. It sends the conversation to the model and gets back either text or a tool call.
-- Concrete: in tonight's runs the model is gpt-6-luna and the prompt is a TeamTrack ticket such as "Add org-wide issue search: GET /issues".
+- Concrete: in this session's runs the model is gpt-6-luna and the prompt is a TeamTrack ticket such as "Add org-wide issue search: GET /issues".
 - Analogy: a junior engineer who can only see what is on their desk; the model is their head, the ticket is the note on the desk.
 - Point at the arrow from agent to model: everything the model knows on a turn travels along this arrow.
 - Ask: "Where does the agent learn the team's rules in this picture?" Expected: nowhere yet; only the ticket is in context. That is Section 1's problem.
@@ -214,8 +299,8 @@ Recap: The Anatomy of an Agentic Loop
 - Misconception: "the agent reads the whole repository at the start". Correction: it reads only what it chooses to open, one tool call at a time.
 - Time: 15 seconds. Next build: tools.
 
-## Slide 6: Recap: The Anatomy of an Agentic Loop (build 2/3)
-**Block:** Recap  **Time:** 0.25  **Diagram:** docs/diagrams/agent-loop-step-2.png
+## Slide 10: Recap: The Anatomy of an Agentic Loop (build 2/3)
+**Block:** Recap  **Time:** 0.25 min (0:02:15-0:02:30)  **Diagram:** docs/diagrams/agent-loop-step-2.png
 **On the slide:**
 Recap: The Anatomy of an Agentic Loop
 **Visual:** Build frame 2: the same picture plus the tools box (read a file, patch, run a command) and the "execute tool, return result" arrows back to the agent.
@@ -223,14 +308,14 @@ Recap: The Anatomy of an Agentic Loop
 - Plain explanation: when the model asks for a tool, the agent runs it and appends the result to the history; then it asks the model again.
 - Concrete: in Section 1's captured run the agent's early tool calls read `ARCHITECTURE.md` and the `add-endpoint` skill, then patched the issues service and route.
 - Analogy: the junior engineer can walk to the file cabinet, but only one drawer at a time, and only if they think to.
-- Point at the tools box: every harness layer tonight touches this box or the arrows around it.
+- Point at the tools box: every harness layer in this session touches this box or the arrows around it.
 - Ask: "If a rule lives in a file the agent never opens, does the rule exist for this run?" Expected: no.
 - Likely question: "Do tools run on my machine?" Answer: in this course every tool command runs in a container with no network (Section 3).
-- Misconception: "more tools always help". Correction: each tool call costs a turn and context; tonight's runs have turn and cost caps.
+- Misconception: "more tools always help". Correction: each tool call costs a turn and context; the class runs have turn and cost caps.
 - Time: 15 seconds. Next build: when the loop stops.
 
-## Slide 7: Recap: The Anatomy of an Agentic Loop (build 3/3)
-**Block:** Recap  **Time:** 0.25  **Diagram:** docs/diagrams/agent-loop.png
+## Slide 11: Recap: The Anatomy of an Agentic Loop (build 3/3)
+**Block:** Recap  **Time:** 0.25 min (0:02:30-0:02:45)  **Diagram:** docs/diagrams/agent-loop.png
 **On the slide:**
 Recap: The Anatomy of an Agentic Loop
 **Visual:** The full `agent-loop` diagram: prompt, agent, model, tools, and the exit arrow to "result" when the model stops calling tools.
@@ -238,14 +323,14 @@ Recap: The Anatomy of an Agentic Loop
 - Plain explanation: the loop ends when the model stops asking for tools, says it is done, or hits a limit (turns, cost, time).
 - Concrete: Section 1's captured run ended after 35 turns, 3 min 53 s after launch (evidence page, Section 1 captures).
 - Analogy: the junior engineer says "done" and walks away. Nobody has checked the work yet.
-- Point at the result box: tonight, "done" is a claim. A separate program, the referee, checks what actually shipped.
+- Point at the result box: in this session, "done" is a claim. A separate program, the referee, checks what actually shipped.
 - Ask: "Who decides the work is finished in this picture?" Expected: the model itself. That is Section 4's problem.
 - Likely question: "What stops a run that never ends?" Answer: the agent time limit (420 s per arm in the class profile) and a cost cap per arm.
-- Misconception: "the loop is the harness". Correction: the loop is the engine; the harness is everything around it, which we build tonight.
-- Time: 15 seconds. Next: tonight's agenda.
+- Misconception: "the loop is the harness". Correction: the loop is the engine; the harness is everything around it, which we build today.
+- Time: 15 seconds. Next: today's agenda.
 
-## Slide 8: Today's Agenda
-**Block:** Agenda  **Time:** 0.5  **Diagram:** none
+## Slide 12: Today's Agenda
+**Block:** Agenda  **Time:** 0.25 min (0:02:45-0:03)  **Diagram:** none
 **On the slide:**
 Today's Agenda
 1 Instructions: what the agent knows
@@ -255,20 +340,50 @@ Today's Agenda
 Final A/B and all results
 **Visual:** Template slide 13: native numbered boxes 1 to 4 joined by connectors, a "Break" marker after box 1 and after box 3, and a fifth box "Final A/B and all results". No box highlighted yet.
 **Speaker notes:**
-- Four sections, one layer each, 50 minutes each; a 5-minute break after Section 1 and another after Section 3; 20 minutes of final results at the end.
+- Four sections, one layer each: 50 minutes for Sections 1 to 3 and 45 for Section 4; a 10-minute break after Section 1 and a 5-minute break after Section 3; 20 minutes of final results at the end.
 - Each layer answers one question about the agent: what it knows, what it remembers, what it may change, what proves it is done.
-- Concrete: each section has its own TeamTrack ticket: F1 search (Section 1), F2 comments (Section 2), F3 and F4 (Section 3), F4 again (Section 4), F5 to F7 for the final.
+- Concrete: each section has its own TeamTrack ticket: org-wide search (F1) in Section 1, comments (F2) in Section 2, idempotency keys (F3) and version checks (F4) in Section 3, version checks again in Section 4, and bulk close (F5), watchers (F6), labels (F7) for the final.
 - Analogy: onboarding a new engineer. Docs (what they know), a handover note (what they remember), access rights (what they may change), code review and CI (what proves it is done).
 - Point at box 3: it is the one section where the measure showed a gap before class, on one ticket (F4), so it runs a live A/B.
 - Ask: "Which of the four would you build first in your team?" Expected: most say instructions. Note it; we revisit after the results.
 - Likely question: "Do the layers stack?" Answer: yes. Each section's harness arm has the layers so far; Section 3's arm has instructions, state, and scope.
 - Misconception: "the order of the four is arbitrary". Correction: it follows one session: what the agent sees at the start (1), what survives a stop (2), what it may touch while working (3), what happens when it claims done (4).
+- Time: 15 seconds. Next: the repository you will practise in.
+
+## Slide 13: Clone & Practice: Your Learning Repository
+**Block:** Housekeeping  **Time:** 0.5 min (0:03-0:03:30)  **Diagram:** none
+**On the slide:**
+Clone & Practice: Your Learning Repository
+harness-engineering-session · https://github.com/ANI-IN/harness-engineering-session
+What's Included:
+- Four section folders: concepts, demo, assignment
+- Final project: one live A/B of every layer
+- use-in-your-repo kit and four skills
+- Slides and docs
+Getting Started:
+git clone https://github.com/ANI-IN/harness-engineering-session.git
+1. Read setup/README.md
+2. make setup: creates .env from .env.example
+3. Fill in both keys, then make doctor
+**Visual:** Template slide 15 layout: the repository card with name and URL at the top, "What's Included" cards on the left, the "Getting Started" card on the right with the clone command in monospace and the three numbered steps.
+**Speaker notes:**
+- This is the public repository the class runs from. Everything on the slides, every demo, and every number is in it.
+- Section folders: `section-1-instructions`, `section-2-state-lifecycle`, `section-3-scope-sandbox`, `section-4-verification`. Each has `concepts.md`, a demo with captured runs in `demo/expected/`, `session-notes.md`, and an `assignment/` folder with a starter and a full solution.
+- `final-project/`: the whole harness on a feature neither arm has seen, then your own repository.
+- `use-in-your-repo/`: the starter kit (`uv run shipharness init --target ../your-repo`) and four Agent Skills.
+- `slides/` holds this deck's source; `docs/` holds the reference, troubleshooting, and the evidence pages behind every count.
+- Getting started: `setup/README.md` picks your system page (Windows with WSL2, macOS, Linux). `make setup` installs the packages, builds the two sandbox images, and copies `.env.example` to `.env`.
+- Then fill in `OPENAI_API_KEY` and `LANGSMITH_API_KEY`, set `SHIPHARNESS_CLASS_DATE`, and run `make doctor` until it ends with `result: + ready`.
+- Analogy: the repository is the lab notebook: the code, the runs, and the write-up live together, so you can check every claim.
+- Ask: "Who has already cloned it?" Expected: some hands. The rest can follow the demos on screen and clone after class.
+- Likely question: "Do I need Docker to follow along today?" Answer: no; the demos run on the instructor's machine. Docker is needed for your own live runs.
+- Misconception: "the repository is only slides". Correction: it is the full harness, the referee, the console, and TeamTrack itself.
 - Time: 30 seconds. Next: what we are building.
 
-## Slide 9: Problem statement: What are we building?
-**Block:** Problem  **Time:** 0.5  **Diagram:** docs/diagrams/harness-around-loop.png
+## Slide 14: Problem statement: What are we building?
+**Block:** Problem  **Time:** 0.5 min (0:03:30-0:04)  **Diagram:** docs/diagrams/harness-around-loop.png
 **On the slide:**
-Tonight we build the harness around a coding agent: the files and code that decide what it sees, remembers, may change, and must prove, on TeamTrack, a small multi-tenant issue tracker.
+Today we build the harness around a coding agent: the files and code that decide what it sees, remembers, may change, and must prove, on TeamTrack, a small multi-tenant issue tracker.
 **Visual:** The full `harness-around-loop` diagram: the agent loop in the middle, four layers around it (instructions, state, scope and sandbox, verification), the referee outside. "TeamTrack" in the accent colour in the framing line.
 **Speaker notes:**
 - Plain explanation: we do not change the model. We change its environment: what is in its context, what survives a session stop, which files it may touch, and what counts as done.
@@ -281,8 +396,8 @@ Tonight we build the harness around a coding agent: the files and code that deci
 - Misconception: "the harness makes the agent smarter". Correction: it changes what the agent sees and may do; whether that changes the outcome is what we measure.
 - Time: 30 seconds. Next: what goes wrong without it.
 
-## Slide 10: Problem statement: The problem in the real world
-**Block:** Problem  **Time:** 1  **Diagram:** none
+## Slide 15: Problem statement: The problem in the real world
+**Block:** Problem  **Time:** 0.75 min (0:04-0:04:45)  **Diagram:** none
 **On the slide:**
 Your team gives a week of tickets on a multi-tenant issue tracker to a coding agent.
 The problem we're solving (in the real world)
@@ -298,16 +413,16 @@ Each failure costs more than the ticket saved.
 - Tuesday is a lost session: two Alembic heads, so the deploy is blocked until someone merges them by hand.
 - Wednesday is scope creep: the ticket was one endpoint, the diff touched middleware every request runs through.
 - Thursday is a false "done": the review rests on trust in the agent's own report.
-- Concrete tie-in: each failure maps to one section tonight. Monday is Section 1, Tuesday Section 2, Wednesday Section 3, Thursday Section 4.
+- Concrete tie-in: each failure maps to one section today. Monday is Section 1, Tuesday Section 2, Wednesday Section 3, Thursday Section 4.
 - Analogy: this is the week of a capable contractor with no onboarding docs, no handover notes, admin access everywhere, and who marks their own tickets as done.
 - Point at "The tests pass" in Monday: the tests created one org, so a missing org filter was invisible to them.
 - Ask: "Which of the four have you seen in your own team?" Expected: Wednesday and Thursday most often. Take one story, 20 seconds.
-- Likely question: "Are these four failures from real incidents?" Answer: the week is illustrative; the mechanisms are not. TeamTrack really has an unfiltered legacy handler, and in Section 3 every bare arm on F4 really edited a shared module.
+- Likely question: "Are these four failures from real incidents?" Answer: the week is illustrative; the mechanisms are not. TeamTrack really has an unfiltered legacy handler, and in Section 3 every bare arm on version checks (F4) really edited a shared module.
 - Misconception: "better tests would catch all four". Correction: Monday's tests passed because they created one org; Thursday's suite stayed green because the new header is optional. Tests check what their author thought of.
-- Time: 1 minute. Next: why a capable agent still does this.
+- Time: 45 seconds. Next: why a capable agent still does this.
 
-## Slide 11: The challenge is: The rules exist, the agent still misses
-**Block:** Problem  **Time:** 0.5  **Diagram:** none
+## Slide 16: The challenge is: The rules exist, the agent still misses
+**Block:** Problem  **Time:** 0.5 min (0:04:45-0:05:15)  **Diagram:** none
 **On the slide:**
 The challenge is: the rules, tests, and code are all in the repository, but the agent still fails because:
 - A rule it never reads does not exist for it
@@ -328,8 +443,8 @@ The challenge is: the rules, tests, and code are all in the repository, but the 
 - Likely question: "Why quote vendor engineering blogs?" Answer: these teams ran long agent loops on real code and wrote down the failures; Section 4 adds the papers (TestGen-LLM, ACH, SpecBench). Each quote was checked against its source.
 - Time: 30 seconds. Next: why this matters to a team, not just to one ticket.
 
-## Slide 12: Why this matters for Engineering Teams
-**Block:** Problem  **Time:** 0.5  **Diagram:** none
+## Slide 17: Why this matters for Engineering Teams
+**Block:** Problem  **Time:** 0.25 min (0:05:15-0:05:30)  **Diagram:** none
 **On the slide:**
 Why this matters for Engineering Teams
 Each failure has a cost:
@@ -349,10 +464,10 @@ A harness costs too: turns, time, money
 - Ask: "How would you know a harness layer is not paying off?" Expected: run the same ticket with and without it and compare a measure chosen in advance.
 - Likely question: "Are those cost numbers per run or per class?" Answer: per arm run; the whole class plan needs at most $2.36 at the caps, under a $2.50 session cap.
 - Misconception: "a harness is free once written". Correction: it costs turns and wall time on every run; post hoc, harness arms hit the agent time limit in 9 of 34 runs, bare arms in 4 of 34.
-- Time: 30 seconds. Next: the four gaps, in one picture.
+- Time: 15 seconds. Next: the four gaps, in one picture.
 
-## Slide 13: Why We Need a Harness: The 4 Critical Gaps
-**Block:** Problem  **Time:** 0.5  **Diagram:** docs/diagrams/stories-causes-layers.png
+## Slide 18: Why We Need a Harness: The 4 Critical Gaps
+**Block:** Problem  **Time:** 0.25 min (0:05:30-0:05:45)  **Diagram:** docs/diagrams/stories-causes-layers.png
 **On the slide:**
 Why We Need a Harness: The 4 Critical Gaps
 **Visual:** The `stories-causes-layers` diagram, three columns read left to right: four stories (Monday to Thursday), four causes, four layers (instructions, state, scope and sandbox, verification). One row per gap.
@@ -364,13 +479,13 @@ Why We Need a Harness: The 4 Critical Gaps
 - Row 4: false "done", self-grading, verification layer (Section 4): test filters and a gate; the harness, not the agent, marks a feature as passing.
 - Analogy: onboarding docs, shift handover, least privilege, and CI gates. Each is a practice your team already trusts for humans.
 - Point at the arrows between columns: each layer targets one cause, not one story; the same cause can produce other stories.
-- Ask: "Which row do you expect to show the biggest difference in our measurements?" Expected: guesses vary. Answer at the end of the night: only row 3 did, on one ticket.
+- Ask: "Which row do you expect to show the biggest difference in our measurements?" Expected: guesses vary. Answer at the end of the session: only row 3 did, on one ticket.
 - Misconception: "one layer fixes several gaps". Correction: each layer here was built for one cause; Section 3 also shows a guard can win by construction, which is not the same as being correct.
 - Likely question: "Where is the sandbox in this picture?" Answer: in row 3, but it is the same container for both arms, so no measurement can credit it; only the scope guard differs between arms.
-- Time: 30 seconds. Next: the app the agent works on.
+- Time: 15 seconds. Next: the app the agent works on.
 
-## Slide 14: TeamTrack: The data model
-**Block:** Problem  **Time:** 0.5  **Diagram:** docs/diagrams/teamtrack-data-model.png
+## Slide 19: TeamTrack: The data model
+**Block:** Problem  **Time:** 0.5 min (0:05:45-0:06:15)  **Diagram:** docs/diagrams/teamtrack-data-model.png
 **On the slide:**
 TeamTrack: The data model
 Every tenant-owned row carries org_id
@@ -387,10 +502,38 @@ Two demo orgs: Acme and Globex
 - Ask: "Why is a missing org filter invisible to most unit tests?" Expected: the tests create one org, so every row belongs to the caller anyway.
 - Likely question: "Is there real auth?" Answer: a demo token from `POST /auth/login`, for local use only; the point is the tenant rule, not authentication.
 - Misconception: "tenant isolation is the database's job". Correction: SQLite has no row-level security; every repository function takes `org_id`, and the referee's R1 probes check the result from outside.
+- Time: 30 seconds. Next: the seven house rules.
+
+## Slide 20: House rules: R1 to R7 in plain words
+**Block:** Problem  **Time:** 0.5 min (0:06:15-0:06:45)  **Diagram:** docs/diagrams/house-rules.png
+**On the slide:**
+House rules: R1 to R7 in plain words
+- R1 Tenant isolation: another org's issue answers 404, never 403
+- R2 Roles: a viewer's POST, PATCH or DELETE gets 403
+- R3 API conventions: lists return items and next_cursor
+- R4 Idempotent creates: same Idempotency-Key, one new project
+- R5 Audit log: every write adds exactly one audit row
+- R6 Layering: app/api never imports app/db
+- R7 Migrations: one Alembic head, fresh upgrade works
+**Visual:** The `house-rules` diagram: R1 to R7 as a grid of seven cells, each with the rule name and its TeamTrack example; R1 and R7 marked as the rules Sections 1 and 2 measure.
+**Speaker notes:**
+- These seven rules are TeamTrack's, from `platform/teamtrack/docs/HANDBOOK.md`. Both arms get the full handbook; the harness arm also gets them as one line each in its map.
+- R1 tenant isolation: every query on customer data filters by the caller's `org_id`. Another org's resource answers 404 `not_found`, never 403, because 403 tells the caller it exists. An assignee id in a request body must also belong to the caller's org.
+- R2 roles: admin, member, viewer. Every POST, PUT, PATCH, and DELETE from a viewer returns 403 `forbidden`; use `require_writer` and `require_admin` from `app/api/deps.py`.
+- R3 API conventions: lists return `{"items": [...], "next_cursor": ...}` with keyset paging by ascending id; errors use the `{"error": {"code", "message"}}` envelope raised from `app/services/errors.py`; 201 for creates, 204 for deletes.
+- R4 idempotent creates: the same `Idempotency-Key` with the same body returns the first response and creates nothing new; `POST /projects` is the pattern. Issue creation does not support keys yet: that is the idempotency keys ticket (F3).
+- R5 audit log: one row per write, through `services.audit.record`; reads and idempotent replays add nothing.
+- R6 layering: `app/api` and `app/web` never import `app/db`; import-linter checks it. R7 migrations: run `alembic heads` before adding a migration, keep exactly one head, and never write a second migration for the same change.
+- Every rule has a check: the handbook ends each rule with "The check:", for example an Acme user with Globex ids must get 404 on every endpoint.
+- Analogy: your team's code-review checklist, each item turned into a test that runs on every endpoint, including new ones.
+- Point at R1 and R7: Section 1 measures new R1 tenant isolation violations; Section 2's continuity measure includes R7 migrations (two heads).
+- Ask: "Which rule can the code not show you?" Expected: R1's "404, never 403"; nothing in a working handler tells you that 403 leaks existence.
+- Likely question: "Does the harness arm get extra rules?" Answer: no. The harness may reorganise knowledge, never add facts; a unit test checks every rule is in the handbook both arms read.
+- Misconception: "house rules are style preferences". Correction: R1 is a data-exposure rule and R7 blocks deploys; the referee checks them from outside, after the agent stops.
 - Time: 30 seconds. Next: the stack.
 
-## Slide 15: Key Tech Stack: TeamTrack and shipharness
-**Block:** Problem  **Time:** 0.25  **Diagram:** none
+## Slide 21: Key Tech Stack: TeamTrack and shipharness
+**Block:** Problem  **Time:** 0.25 min (0:06:45-0:07)  **Diagram:** none
 **On the slide:**
 Key Tech Stack: TeamTrack and shipharness
 TeamTrack, the app the agent changes:
@@ -417,8 +560,8 @@ shipharness, the harness and referee:
 - Misconception: "SQLite makes these toy results". Correction: what is measured (files outside the ticket, Alembic heads, org filters, done claims) does not depend on the database engine.
 - Time: 15 seconds. Next: the tickets.
 
-## Slide 16: Example Tickets: F1 to F7 in plain words
-**Block:** Problem  **Time:** 0.25  **Diagram:** none
+## Slide 22: Example Tickets: F1 to F7 in plain words
+**Block:** Problem  **Time:** 0.25 min (0:07-0:07:15)  **Diagram:** none
 **On the slide:**
 Example Tickets
 - F1 Search every issue in my org
@@ -428,7 +571,7 @@ Example Tickets
 - F5 Close a sprint's issues at once
 - F6 Watch issues I care about
 - F7 Tag issues with labels
-**Visual:** Template slide 21 style: seven ticket cards in a grid, each with the feature id, the plain-words line, and a small tag for where it runs (S1, S2, S3, S3 and S4, Final). F5 to F7 carry a "poll" tag.
+**Visual:** Template slide 21 style: seven ticket cards in a grid, each with the feature id, the plain-words line, and a small tag for where it runs (Section 1, Section 2, Section 3, Sections 3 and 4, Final). F5 to F7 carry a "poll" tag.
 **Speaker notes:**
 - Each ticket is one example in the dataset `teamtrack-features-v1` (`platform/datasets/`), written like a work ticket, with hidden tests behind it.
 - F1 org-wide issue search, `GET /issues` with filters and cursor pagination: Section 1.
@@ -439,12 +582,42 @@ Example Tickets
 - Analogy: realistic tickets from a backlog, including the kind a well-meaning ticket writer makes worse by saying "the code already exists over there".
 - Ask: "Which ticket is riskiest for tenant isolation?" Expected: F1, because it reads across every project of an org.
 - Likely question: "Are traps fair to the bare arm?" Answer: yes; both arms get the same ticket text, and the trap is a task-design choice present in both.
-- Point at the "S3 and S4" tag on F4: the only ticket used twice, once for scope and once for verification.
+- Point at the "Sections 3 and 4" tag on version checks (F4): the only ticket used twice, once for scope and once for verification.
 - Misconception: "F5 to F7 were measured before class like F1 to F4". Correction: they were not part of the registered test runs; the final has no primary measure and is read as counts.
-- Time: 15 seconds. Next: how we score a run.
+- Time: 15 seconds. Next: eight terms we use in every section.
 
-## Slide 17: How We'll Measure: Same ticket, two arms (build 1/2)
-**Block:** Problem  **Time:** 0.5  **Diagram:** docs/diagrams/ab-referee-step-1.png
+## Slide 23: Glossary: Eight terms used in every section
+**Block:** Problem  **Time:** 0.5 min (0:07:15-0:07:45)  **Diagram:** docs/diagrams/glossary-terms.png
+**On the slide:**
+Glossary: Eight terms used in every section
+- Arm: one agent run; bare has no harness, harness has the layers
+- Referee: the program that scores a run after the agent stops
+- Primary measure: one question per section, chosen before any run
+- Hidden tests: tests the agent never sees, used only to score
+- Mutant: a copy of the code with one planted fault
+- Allowed paths: the files a phase may change, as globs
+- Gate: checks that run when the agent says done
+- Harness in action: the harness arm alone, live, not an A/B
+Codes: F1 to F7 are tickets, R1 to R7 house rules
+**Visual:** The `glossary-terms` diagram: eight term cards in a 4 by 2 grid, each with an icon and its one-line definition; a thin strip at the bottom for the two code families.
+**Speaker notes:**
+- Arm: bare arm gets the ticket and the repository; harness arm gets the same plus the layers built so far. Same agent, model, tools, budgets, and sandbox.
+- Referee: runs after the agent stops, in a fresh container with no network, on a fresh copy plus the arm's diff, so no arm can touch its own score.
+- Primary measure: Section 1 asks "did the change add a new R1 tenant isolation violation?"; it was registered before any run so nobody can pick a flattering number afterwards.
+- Hidden tests and mutants: the held-out checks. Section 4's version checks ticket (F4) has 69 hidden tests and 4 referee mutants; a run's own tests must fail on a mutant to catch it.
+- Allowed paths: the globs a ticket lists per phase; build writes the feature, test adds tests only. Section 3's scope layer checks them on every tool call.
+- Gate: in the harness arm, `finish(claim="done")` runs checks first; a failure returns "Not accepted." and the phase goes on (Section 4).
+- Harness in action: `make show-1`, `make show-2`, `make show-4`. Only Section 3 and the final run both arms live.
+- Ticket codes, always said with their names: org-wide search (F1), comments (F2), idempotency keys (F3), version checks (F4), bulk close (F5), watchers (F6), labels (F7). House rules: R1 tenant isolation to R7 migrations, from the previous slide.
+- Analogy: the glossary page in an incident runbook, so everyone on the call uses the same word for the same thing.
+- Point at "Primary measure": the one term that decides how each section's result is read.
+- Ask: "What is the difference between a hidden test and a mutant?" Expected: a hidden test checks the feature; a mutant checks whether the agent's own tests would notice a planted bug.
+- Likely question: "Is the blinded reviewer part of the referee?" Answer: it runs with the referee, but its accept or reject is a secondary measure, never the verdict.
+- Misconception: "harness in action is a weaker demo". Correction: the comparison was run before class; class shows the layer at work, and the slides say which is which.
+- Time: 30 seconds. Next: how we measure.
+
+## Slide 24: How We'll Measure: Same ticket, two arms (build 1/2)
+**Block:** Problem  **Time:** 0.25 min (0:07:45-0:08)  **Diagram:** docs/diagrams/ab-referee-step-1.png
 **On the slide:**
 How We'll Measure
 Same agent, model, ticket, tools, budgets, sandbox:
@@ -455,16 +628,16 @@ Same agent, model, ticket, tools, budgets, sandbox:
 - Plain explanation: an A/B is two runs of the same ticket, one without the harness (bare arm) and one with it (harness arm). Everything else is held equal.
 - Held equal: agent, model, effort, ticket, repository, tools, sandbox limits, turn limit, and cost cap.
 - Fairness rule from Section 1: the harness may reorganise knowledge, never add facts. The bare arm has every rule in `docs/HANDBOOK.md`, and a unit test checks that both forms carry each rule.
-- Concrete: tonight Sections 1, 2, and 4 run the harness arm alone, live (`make show-N`), because the A/Bs before class showed no gap. Section 3 and the final run both arms live.
+- Concrete: in class, Sections 1, 2, and 4 run the harness arm alone, live (`make show-N`), because the A/Bs before class showed no gap. Section 3 and the final run both arms live.
 - Analogy: a controlled experiment, or a feature flag with a holdout group; you change one thing and keep the rest fixed.
 - Point at the two sandbox boxes: identical limits; the sandbox is never the variable.
 - Ask: "What would make the comparison unfair?" Expected: different budgets, a different model, or the harness smuggling in a fact the bare arm cannot read.
 - Likely question: "Does a section's A/B test that one layer?" Answer: it tests the harness so far against bare. Only removing one piece at a time would isolate a layer; the course did not run that ablation.
 - Misconception: "the bare arm is a strawman with no rules". Correction: it gets the same ticket and repository, including the 150-line handbook with every house rule.
-- Time: 30 seconds. Next build: who scores.
+- Time: 15 seconds. Next build: who scores.
 
-## Slide 18: How We'll Measure: One referee scores both (build 2/2)
-**Block:** Problem  **Time:** 0.5  **Diagram:** docs/diagrams/ab-referee.png
+## Slide 25: How We'll Measure: One referee scores both (build 2/2)
+**Block:** Problem  **Time:** 0.5 min (0:08-0:08:30)  **Diagram:** docs/diagrams/ab-referee.png
 **On the slide:**
 How We'll Measure
 Same agent, model, ticket, tools, budgets, sandbox:
@@ -489,8 +662,8 @@ The referee scores what shipped:
 - Likely question: "Is the blinded reviewer part of the verdict?" Answer: no; its accept or reject is a secondary measure, shown next to the primary verdict, never instead of it.
 - Time: 30 seconds. Next: check the machine and open the console.
 
-## Slide 19: Let's Get It Started
-**Block:** Problem  **Time:** 2  **Diagram:** none
+## Slide 26: Let's Get It Started
+**Block:** Problem  **Time:** 1.5 min (0:08:30-0:10)  **Diagram:** none
 **On the slide:**
 Let's Get It Started
 - make doctor → result: + ready
@@ -498,7 +671,7 @@ Let's Get It Started
 - Keys 1 to 5: Live, Boards, Evidence, A/B Report, Traces
 **Visual:** Template slide 22 divider: the title as one large line, the three commands under it in a monospace card. Switch to terminal B and the console tab while this slide is up.
 **Speaker notes:**
-- Terminal B (class minute 0:08): run `make doctor`. Read the key lines aloud: both say `accepted by OpenAI` and `accepted by LangSmith`, and the last line is `result: + ready`. It never prints any part of a key.
+- Terminal B (about class minute 0:08): run `make doctor`. Read the key lines aloud: both say `accepted by OpenAI` and `accepted by LangSmith`, and the last line is `result: + ready`. It never prints any part of a key.
 - The console has been running in terminal A since T-30 (`make console`, `Console: http://127.0.0.1:8765/`). Switch to browser tab 2.
 - Console tour: press `1` Live (turns, cost, harness decisions, verdict), `2` Boards (each arm's board as an Acme user), `3` Evidence (files read, diff map, sandbox denials, referee checks), `4` A/B Report (one dot per run), `5` Traces (event tail, LangSmith links). `F` shows one arm full width.
 - Then the assessment printout prepared before class (`assess.py` on the bare TeamTrack). Say: "This is what the bare arm works with: no map, no progress file, no feature list. The rules themselves are in both arms."
@@ -507,10 +680,10 @@ Let's Get It Started
 - If Docker is not running: `sudo systemctl start docker`, then `make doctor` again.
 - Analogy: the pre-flight checklist. Nothing takes off until every line is green.
 - Ask: "Following along at home: who has `result: + ready`?" Expected: some; point the rest to `setup/README.md` and `docs/troubleshooting.md` after class.
-- Time: 2 minutes, ends at class minute 0:10. Next: Section 1.
+- Time: 1.5 minutes, ends at class minute 0:10; keep the console tour to one key press per screen. Next: Section 1.
 
-## Slide 20: Section 1: What the agent knows
-**Block:** Section 1  **Time:** 0.5  **Diagram:** none
+## Slide 27: Section 1: What the agent knows
+**Block:** Section 1  **Time:** 0.5 min (0:10-0:10:30)  **Diagram:** none
 **On the slide:**
 Today's Agenda
 1 Instructions: what the agent knows
@@ -532,8 +705,8 @@ Final A/B and all results
 - Misconception: "Section 1 is prompt engineering". Correction: the ticket text is identical in both arms; the layer changes which files exist and what is sent before the ticket.
 - Time: 30 seconds. Next: the poll, then the launch.
 
-## Slide 21: Live Zoom Poll: Will the agent copy the legacy query?
-**Block:** Section 1  **Time:** 4.5  **Diagram:** none
+## Slide 28: Live Zoom Poll: Will the agent copy the legacy query?
+**Block:** Section 1  **Time:** 4.5 min (0:10:30-0:15)  **Diagram:** none
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
@@ -542,17 +715,17 @@ Then, in terminal B: make show-1
 **Speaker notes:**
 - Poll question (in Zoom): "Before class, 7 bare-arm runs took this ticket, with the legacy handler in the repository. How many shipped a new tenant leak? A) 0-1, B) 2-3, C) 4-5, D) 6-7." Close the poll before the launch; do not reveal the answer (it is A, 0 of 7) until the results slide.
 - Exact launch, terminal B, at class minute 0:13: `make show-1`. It runs `shipharness ab --section demo-1 --feature F1 --arms harness --purpose class --profile class`.
-- This is "harness in action": the harness arm alone, live, not an A/B. The A/Bs before class showed no gap on F1, so class shows the layer at work.
+- This is "harness in action": the harness arm alone, live, not an A/B. The A/Bs before class showed no gap on org-wide search (F1), so class shows the layer at work.
 - Console: reload the run list, open the newest run, press `1`. Look for the badge "HARNESS IN ACTION" and the note "placed 31 instruction files".
 - What to say while it starts: "Watch which documents the agent opens before it writes code. The map is in its context; everything else it must choose to open."
 - Expected timings from the captured run before class (agent limit then 300 s, now 420 s): primary verdict about 4 min 11 s after launch, full verdict about 10 min, cost $0.0197 against a cap of $0.24.
 - If it fails: `x OpenAI refused the key` means fix `OPENAI_API_KEY` and rerun `make doctor`. Arm `ERROR` with `docker run failed`: `sudo systemctl start docker`, then `make warm`. `ABORTED: timeout` or `ABORTED: cap` is a result: keep it and read the verdict.
-- Fallback: only for a failure outside the experiment (Docker, network, OpenAI account), run `make replay RUN=<fallback id>`; every screen shows a red RECORDING badge. If Docker is down, walk the captured run in `section-1-instructions/demo/expected/` (screenshots plus `terminal.txt`).
+- Fallback: only for a failure outside the experiment (Docker, network, OpenAI account), run `make replay` with `RUN=` set to the fallback id recorded the day before; every screen shows a red RECORDING badge. If Docker is down, walk the captured run in `section-1-instructions/demo/expected/` (screenshots plus `terminal.txt`).
 - Analogy: kicking off a long CI job before the meeting so the result is ready when you need it.
 - Time: minutes 0-3 poll, 3-5 launch. Next: the story behind the ticket.
 
-## Slide 22: Failure story: The search that showed another org
-**Block:** Section 1  **Time:** 3  **Diagram:** none
+## Slide 29: Failure story: The search that showed another org
+**Block:** Section 1  **Time:** 3 min (0:15-0:18)  **Diagram:** section-1-instructions/diagrams/failure-story-s1.png
 **On the slide:**
 Failure story: The search that showed another org
 - Ticket: org-wide issue search, GET /issues
@@ -561,7 +734,7 @@ Failure story: The search that showed another org
 - Tests create one org, so they pass
 - Review approves: looks like the file
 - After release: Acme sees Globex issues
-**Visual:** A native six-step horizontal strip, one box per bullet, the last box in red with a lock icon broken open. Under step 2, a small code chip: `select(Issue).order_by(Issue.id)` with "no org_id" in red.
+**Visual:** The `failure-story-s1` diagram: a six-step strip, one box per bullet, the last box in red. Under step 2, a small code chip: `select(Issue).order_by(Issue.id)` with "no org_id" in red.
 **Speaker notes:**
 - Illustrative scenario from the section's concepts page: Priya's team asks a coding agent for `GET /issues`. The tenant rule lives in the team handbook, which the ticket does not mention.
 - The agent lists the repository, opens the issues code, and finds `list_all_legacy`, a query from an old endpoint that lists every issue of every org.
@@ -577,19 +750,19 @@ Failure story: The search that showed another org
 - Misconception: "the agent was careless". Correction: it picked the shortest working example next to the target file; without the rule in context that is a reasonable choice, so the fix is context, not scolding.
 - Time: 3 minutes. Next: the obvious fix, and why it is not one.
 
-## Slide 23: Instructions: Why not paste every rule? (build 1/3)
-**Block:** Section 1  **Time:** 1  **Diagram:** none
+## Slide 30: Instructions: Why not paste every rule? (build 1/3)
+**Block:** Section 1  **Time:** 1 min (0:18-0:19)  **Diagram:** section-1-instructions/diagrams/socratic-s1-step-1.png
 **On the slide:**
 What the agent knows
 - The tenant rule is in docs/HANDBOOK.md
 - Both arms can open it
 - Can we paste every rule into the prompt?
-**Visual:** Template slide 25 frame: the constant header "What the agent knows" top-left, two bullets in white, the question in a highlighted box at the bottom.
+**Visual:** Build frame 1 of `socratic-s1` in template slide 25's frame: the constant header "What the agent knows" top-left, two bullets in white, the question in a highlighted box at the bottom.
 **Speaker notes:**
 - Plain framing: the rule exists and nothing is hidden. The bare arm gets every house rule in a 150-line handbook.
 - So the question is not whether the rule exists; it is whether it is in front of the agent when it writes the query.
 - The obvious fix: put every rule in the prompt, always. Let the room try it before you answer.
-- Concrete: TeamTrack's handbook states R1 in full at line 53: every query on customer data filters by the caller's `org_id`; another org's resource is 404.
+- Concrete: TeamTrack's handbook states R1 tenant isolation in full at line 53: every query on customer data filters by the caller's `org_id`; another org's resource is 404.
 - Analogy: the "read all of this before you change anything" wiki page every team has, and nobody reads to the end.
 - Point at the question box; pause for five seconds.
 - Ask: "Can we just paste every rule into the prompt? Shout yes or no." Expected: a split room; most say yes for a small file.
@@ -597,14 +770,14 @@ What the agent knows
 - Misconception: "a bigger context window settles this". Correction: the next build shows that the cost is attention and maintenance, not only tokens.
 - Time: 1 minute. Next build: the verdict.
 
-## Slide 24: Instructions: Why not paste every rule? (build 2/3)
-**Block:** Section 1  **Time:** 1  **Diagram:** none
+## Slide 31: Instructions: Why not paste every rule? (build 2/3)
+**Block:** Section 1  **Time:** 1 min (0:19-0:20)  **Diagram:** section-1-instructions/diagrams/socratic-s1-step-2.png
 **On the slide:**
 What the agent knows
 - The tenant rule is in docs/HANDBOOK.md
 - Both arms can open it
 - Can we paste every rule into the prompt? - Why not
-**Visual:** The same frame; "- Why not" appears in red bold after the question, as on template slide 26.
+**Visual:** Build frame 2 of `socratic-s1`, the same frame; "- Why not" appears in red bold after the question, as on template slide 26.
 **Speaker notes:**
 - Verdict first, reasons next: no, not as the main mechanism.
 - OpenAI's harness team tried the giant file and moved away from it: "give Codex a map, not a 1,000-page instruction manual."
@@ -616,18 +789,18 @@ What the agent knows
 - Misconception: "the problem is only token cost". Correction: the bigger problems are rules competing for attention and the file rotting without anyone noticing.
 - Time: 1 minute. Next build: the reasons.
 
-## Slide 25: Instructions: Why not paste every rule? (build 3/3)
-**Block:** Section 1  **Time:** 2  **Diagram:** none
+## Slide 32: Instructions: Why not paste every rule? (build 3/3)
+**Block:** Section 1  **Time:** 2 min (0:20-0:22)  **Diagram:** section-1-instructions/diagrams/socratic-s1-step-3.png
 **On the slide:**
 Can we paste every rule into the prompt?
 - It crowds out the task and code
   - 899 lines paid on every task
 - Too much guidance becomes non-guidance
-  - R1 at line 204, legacy warning at 586
+  - R1 tenant isolation at line 204, legacy warning at 586
 - It goes stale; no script checks it
   - Four retired rules still inside
 What can we use instead?
-**Visual:** Template slide 27 layout: three reason bullets in white, each with one nested example in green; the closing question in the accent colour at the bottom.
+**Visual:** Build frame 3 of `socratic-s1` in template slide 27's layout: three reason bullets in white, each with one nested example in green; the closing question in the accent colour at the bottom.
 **Speaker notes:**
 - Reason 1, OpenAI: "Context is a scarce resource. A giant instruction file crowds out the task, the code, and the relevant docs."
 - Reason 2, OpenAI: "Too much guidance becomes non-guidance." In the 899-line file, the tenant rule starts at line 204 and the warning about the legacy endpoint at line 586.
@@ -636,12 +809,12 @@ What can we use instead?
 - Analogy: one 900-line config file with no schema versus small typed config files with a linter.
 - Point at the green examples: these are line numbers in a real file in the repository (`section-1-instructions/assignment/starter/original/AGENTS.md`).
 - Ask: "What can we use instead?" Expected: a short index pointing to topic files. That is idea 1.
-- Likely question: "Is OpenAI's experience general?" Answer: they say their results should "not be assumed to generalize without similar investment"; tonight we measure the idea on our model.
+- Likely question: "Is OpenAI's experience general?" Answer: they say their results should "not be assumed to generalize without similar investment"; today we measure the idea on our model.
 - Misconception: "just move rule 1 to the top of the big file". Correction: reordering lifts one rule and buries another; it fixes neither staleness nor the missing checks.
 - Time: 2 minutes. Next: idea 1, the map.
 
-## Slide 26: 1) A map, not a manual
-**Block:** Section 1  **Time:** 3.5  **Diagram:** section-1-instructions/diagrams/manual-vs-map.png
+## Slide 33: 1) A map, not a manual
+**Block:** Section 1  **Time:** 3.5 min (0:22-0:25:30)  **Diagram:** section-1-instructions/diagrams/manual-vs-map.png
 **On the slide:**
 1) A map, not a manual
 AGENTS.md is a table of contents: about 100 lines, always in context.
@@ -652,7 +825,7 @@ TeamTrack's map:
 - "Do not copy" names the legacy handler
 **Visual:** The `manual-vs-map` diagram: on the left one tall 899-line file with R1 buried in the middle; on the right a short map with arrows to `docs/SECURITY.md`, `ARCHITECTURE.md`, and the `add-endpoint` skill.
 **Speaker notes:**
-- Plain explanation: the map does not hold the rules; it says where each rule lives. The full R1 text lives once, in `docs/SECURITY.md`.
+- Plain explanation: the map does not hold the rules; it says where each rule lives. The full R1 tenant isolation text lives once, in `docs/SECURITY.md`.
 - OpenAI: "A short AGENTS.md (roughly 100 lines) is injected into context and serves primarily as a map, with pointers to deeper sources of truth elsewhere." And: "we treat it as the table of contents."
 - The details live in `docs/`, "treated as the system of record". TeamTrack copies OpenAI's layout: `AGENTS.md` and `ARCHITECTURE.md` at the root; `SECURITY.md`, `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/`, `references/` in `docs/`.
 - Concrete rows from `platform/teamtrack/harness/instructions/AGENTS.md`: "add or change an endpoint" → the add-endpoint skill; "decide who may see or change data" → `docs/SECURITY.md` (R1, R2).
@@ -665,8 +838,8 @@ TeamTrack's map:
 - Likely question: "Why 94 lines and not 20?" Answer: OpenAI's guide is roughly 100; TeamTrack needs one row per common action, R1 to R7, and the "Do not copy" list. Shorter is fine if every row still names one file.
 - Time: 3.5 minutes. Next: how the agent gets the details only when needed.
 
-## Slide 27: 2) Progressive disclosure: skills load in three tiers
-**Block:** Section 1  **Time:** 3.5  **Diagram:** section-1-instructions/diagrams/skills-three-tiers.png
+## Slide 34: 2) Progressive disclosure: skills load in three tiers
+**Block:** Section 1  **Time:** 3.5 min (0:25:30-0:29)  **Diagram:** section-1-instructions/diagrams/skills-three-tiers.png
 **On the slide:**
 2) Progressive disclosure: skills load in three tiers
 A small entry point first; the details only when the task needs them.
@@ -687,8 +860,8 @@ A small entry point first; the details only when the task needs them.
 - Misconception: "skills are plugins with code". Correction: a skill is a folder with a Markdown recipe; scripts are optional tier 3 files.
 - Time: 3.5 minutes. Next: how the map reaches the model.
 
-## Slide 28: 3) The context prefix: small, fixed, out of reach
-**Block:** Section 1  **Time:** 3.5  **Diagram:** section-1-instructions/diagrams/context-prefix.png
+## Slide 35: 3) The context prefix: small, fixed, out of reach
+**Block:** Section 1  **Time:** 3.5 min (0:29-0:32:30)  **Diagram:** section-1-instructions/diagrams/context-prefix.png
 **On the slide:**
 3) The context prefix: small, fixed, out of reach
 Sent first in every session:
@@ -713,8 +886,8 @@ Built once, from the course's copy:
 - Misconception: "the agent sees the docs because they are in the repository". Correction: only the map and the catalogue are sent; screen 3 later shows which docs it actually opened.
 - Time: 3.5 minutes. Next: how to keep the map true over time.
 
-## Slide 29: 4) Mechanical checks keep the map true
-**Block:** Section 1  **Time:** 3.5  **Diagram:** none
+## Slide 36: 4) Mechanical checks keep the map true
+**Block:** Section 1  **Time:** 3.5 min (0:32:30-0:36)  **Diagram:** section-1-instructions/diagrams/checker-flow.png
 **On the slide:**
 4) Mechanical checks keep the map true
 One big file can't be checked by a script. A map and focused docs can:
@@ -722,7 +895,7 @@ One big file can't be checked by a script. A map and focused docs can:
 - Every active rule lives in exactly one doc
 - Retired rules never come back
 - Skill frontmatter passes the validator
-**Visual:** A native three-box flow: "map + docs + skill" → "checker" → a terminal chip showing `OK: 13 files, 147 links, 66 rules covered` in green, with an alternative red chip `ERROR: broken link` below it.
+**Visual:** The `checker-flow` diagram, a three-box flow: "map + docs + skill" → "checker" → a terminal chip showing `OK: 13 files, 147 links, 66 rules covered` in green, with an alternative red chip `ERROR: broken link` below it.
 **Speaker notes:**
 - OpenAI: "Dedicated linters and CI jobs validate that the knowledge base is up to date, cross-linked, and structured correctly."
 - And on error messages: "we write the error messages to inject remediation instructions into agent context." A lint message that says how to fix the problem teaches the agent too.
@@ -737,8 +910,8 @@ One big file can't be checked by a script. A map and focused docs can:
 - Misconception: "a link checker is enough". Correction: every link can resolve while a rule silently disappears; the coverage check (each of the 66 active rules in exactly one doc) catches that.
 - Time: 3.5 minutes. Next: the four ideas on one page.
 
-## Slide 30: Cheat Sheet: The instructions layer in four moves
-**Block:** Section 1  **Time:** 1.5  **Diagram:** none
+## Slide 37: Cheat Sheet: The instructions layer in four moves
+**Block:** Section 1  **Time:** 1.5 min (0:36-0:37:30)  **Diagram:** section-1-instructions/diagrams/cheat-sheet-s1.png
 **On the slide:**
 Cheat Sheet: The instructions layer in four moves
 - Map: about 100 lines, points to docs
@@ -746,7 +919,7 @@ Cheat Sheet: The instructions layer in four moves
 - Prefix: fixed, built from a read-only copy
 - Checks: links, rule coverage, no new facts
 It informs. It never blocks.
-**Visual:** A native 2 by 2 grid of four cards (map, tiers, prefix, checks), each with an icon and its one line; the closing line in orange across the bottom. Diagram-led summary, no extra text.
+**Visual:** The `cheat-sheet-s1` diagram: a 2 by 2 grid of four cards (map, tiers, prefix, checks), each with an icon and its one line; the closing line in orange across the bottom. Diagram-led summary, no extra text.
 **Speaker notes:**
 - One sentence for the whole layer: give the agent a short map that is always in its context and points to focused documents and skills, which it opens only when the task needs them.
 - Map: keyed by action, one file per row, house rules at a glance, "Do not copy" for legacy code.
@@ -761,8 +934,8 @@ It informs. It never blocks.
 - Likely question: "Can I adopt the cards one at a time?" Answer: yes; the map alone is useful, and the checks start to matter once more than one person edits the docs.
 - Time: 1.5 minutes. Next: the live run.
 
-## Slide 31: Section 1 - Implementation Notes: The map at work
-**Block:** Section 1  **Time:** 8  **Diagram:** screenshot: section-1-instructions/demo/expected/screen-1-final.png
+## Slide 38: Section 1 - Implementation Notes: The map at work
+**Block:** Section 1  **Time:** 8 min (0:37:30-0:45:30)  **Diagram:** screenshot: section-1-instructions/demo/expected/screen-1-final.png
 **On the slide:**
 DEMO - 1
 Section 1 - Implementation Notes: The map at work
@@ -773,29 +946,29 @@ Section 1 - Implementation Notes: The map at work
 - Read the verdict aloud. Pass: "No new tenant leak. One run shows the layer ran, not that it helped." Fail: "A leak shipped with the map in place. That is a result."
 - Screen 3 (`3`): files read, grouped as skill, harness doc, handbook, code, test; the five changed files; the referee line `r1_tenant: 0 new`. The old `/v1/issues` leak is part of the starting code and does not count.
 - Point out on screen 3: in the captured run the agent opened the skill, `ARCHITECTURE.md`, and the handbook, but not `docs/SECURITY.md`. Only `read_file` calls appear; a `cat` in a shell does not.
-- Screen 2 (`2`): the board as `admin@acme.test`: "only own-org cards, no duplicates". F1 changes no board pixels, so there is one frame.
+- Screen 2 (`2`): the board as `admin@acme.test`: "only own-org cards, no duplicates". Org-wide search (F1) changes no board pixels, so there is one frame.
 - Screen 5 (`5`): the referee event tail and the LangSmith links; open one to show every model call.
-- What to say while the referee finishes: "The primary verdict comes first because R1 probes are quick; hidden tests, mutants, and the review take the remaining minutes."
-- If the live run failed for a reason outside the experiment: say so, run `make replay RUN=<fallback id>` (red RECORDING badge on every screen). If Docker itself is down, walk the captured run: the screenshots in `section-1-instructions/demo/expected/` in minute order, and `terminal.txt`.
+- What to say while the referee finishes: "The primary verdict comes first because R1 tenant isolation probes are quick; hidden tests, mutants, and the review take the remaining minutes."
+- If the live run failed for a reason outside the experiment: say so, run `make replay` with `RUN=` set to the fallback id recorded the day before (red RECORDING badge on every screen). If Docker itself is down, walk the captured run: the screenshots in `section-1-instructions/demo/expected/` in minute order, and `terminal.txt`.
 - If the arm ended `ABORTED: timeout` or `ABORTED: cap`: it is still judged. Say which limit it hit and read the verdict.
 - Time: 8 minutes. Next: the run as a timeline.
 
-## Slide 32: What just happened: The run, minute by minute
-**Block:** Section 1  **Time:** 3  **Diagram:** none
+## Slide 39: What just happened: The run, minute by minute
+**Block:** Section 1  **Time:** 3 min (0:45:30-0:48:30)  **Diagram:** section-1-instructions/diagrams/timeline-s1.png
 **On the slide:**
 What just happened: The run, minute by minute
 - Minute 1: 31 files placed; map and skill read
 - Minute 1: patches to service, route, tests
 - Minute 3: test phase runs its own test
 - 3:53: run ends after 35 turns
-- 4:11: primary verdict PASS, 0 new R1
+- 4:11: primary verdict PASS, 0 new R1 tenant isolation
 - 10:00: full verdict, hidden 52/52, mutants 2/4
-**Visual:** A native horizontal timeline from launch to 10:14, six ticks with the labels above, and three thumbnails under the line: `screen-1-minute-1.png`, `screen-1-minute-3.png`, `screen-1-minute-4.png`. Footnote: "Captured run before class, 2026-10-17; agent limit then 300 s".
+**Visual:** The `timeline-s1` diagram, a horizontal timeline from launch to 10:14, six ticks with the labels above, and three thumbnails under the line: `screen-1-minute-1.png`, `screen-1-minute-3.png`, `screen-1-minute-4.png`. Footnote: "Captured run before class, 2026-10-17; agent limit then 300 s".
 **Speaker notes:**
-- These times are from the captured run before class (evidence, Section 1 captures), not tonight's run. Read tonight's times from screen 1 next to them; yours will differ.
+- These times are from the captured run before class (evidence, Section 1 captures), not the run in class. Read today's times from screen 1 next to them; yours will differ.
 - Minute 1: the layer did its three jobs in order: placed the files, handed over the prefix, and logged the first two reads (`ARCHITECTURE.md`, then the skill body, tier 2).
 - Minute 3: the agent had said done and, in its test phase, wrote and ran `test_org_issue_search.py`.
-- 3:53: the run ended after 35 turns. 4:11: the R1 probes finished; PASS, 0 new violations.
+- 3:53: the run ended after 35 turns. 4:11: the R1 tenant isolation probes finished; PASS, 0 new violations.
 - 10:00: hidden tests 52 of 52, referee mutants killed 2 of 4, reviewer accepted, "claim supported". 10:14: the command printed its cost line, $0.019744 ($0.017882 agent, $0.001862 review).
 - Mutants 2 of 4 means the agent's own tests caught only half of the referee's planted bugs. Section 4 is about exactly that gap.
 - Analogy: a CI timeline: build, unit tests, then the slow integration stage. You read the fast signal first.
@@ -805,8 +978,8 @@ What just happened: The run, minute by minute
 - Misconception: "PASS at 4:11 means the feature is correct". Correction: PASS answers one question, no new tenant leak; the 52 of 52 hidden tests at 10:00 are a separate answer.
 - Time: 3 minutes. Next: the code behind those notes.
 
-## Slide 33: Under the hood: How the prefix is built
-**Block:** Section 1  **Time:** 5  **Diagram:** none
+## Slide 40: Under the hood: How the prefix is built
+**Block:** Section 1  **Time:** 5 min (0:48:30-0:53:30)  **Diagram:** code: platform/src/shipharness/harness/instructions/router.py (lines 37-47)
 **On the slide:**
 Under the hood: How the prefix is built
 platform/src/shipharness/harness/instructions/router.py, lines 37-47
@@ -839,11 +1012,11 @@ platform/src/shipharness/harness/instructions/router.py, lines 37-47
 - Misconception: "the agent can edit its prefix like any file". Correction: the prefix is a string built in the harness process on the host; the workspace `AGENTS.md` is only a copy.
 - Time: 5 minutes. Next: what the measurements say.
 
-## Slide 34: What we measured: No measurable difference on F1
-**Block:** Section 1  **Time:** 3.5  **Diagram:** section-1-instructions/diagrams/results-s1.png
+## Slide 41: What we measured: No measurable difference on org-wide search (F1)
+**Block:** Section 1  **Time:** 3.5 min (0:53:30-0:57)  **Diagram:** section-1-instructions/diagrams/results-s1.png
 **On the slide:**
-What we measured: No measurable difference on F1
-A run fails if it adds a new R1 violation:
+What we measured: No measurable difference on org-wide search (F1)
+A run fails if it adds a new R1 tenant isolation violation:
 - Bare arm: 0 of 7 runs failed
 - Harness arm: 0 of 7 runs failed
 It earns its place when:
@@ -866,8 +1039,8 @@ It earns its place when:
 - Likely question: "Was the trap too weak?" Answer: possibly; in one round no arm of either kind opened the legacy files. A stronger trap would need a new registered test, not a reinterpretation of this one.
 - Time: 3.5 minutes. Next: what to do on Monday.
 
-## Slide 35: Apply it Monday: Turn your instruction file into a map
-**Block:** Section 1  **Time:** 1.5  **Diagram:** none
+## Slide 42: Apply it Monday: Turn your instruction file into a map
+**Block:** Section 1  **Time:** 1.5 min (0:57-0:58:30)  **Diagram:** none
 **On the slide:**
 Apply it Monday: Turn your instruction file into a map
 In your own repository:
@@ -895,8 +1068,8 @@ Then keep it true:
 - Misconception: "delete the long file once the map exists". Correction: move every rule to a doc and check coverage first, as Assignment 1 does; a rule lost in the move is a silent regression.
 - Time: 1.5 minutes. Next: questions.
 
-## Slide 36: Q&A: Section 1, what the agent knows
-**Block:** Section 1  **Time:** 1.5  **Diagram:** none
+## Slide 43: Q&A: Section 1, what the agent knows
+**Block:** Section 1  **Time:** 1.5 min (0:58:30-1:00)  **Diagram:** none
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -915,28 +1088,28 @@ No Question Is Too Small Every Question Deserves an Answer!!
 - Likely: "Is the harness arm not just given more information?" Answer: no; it may reorganise knowledge, never add facts. Same ticket, model, tools, budgets, and sandbox, and `test_parity.py` checks the rules match.
 - Likely: "Why not paste the whole handbook into the prompt?" Answer: "Too much guidance becomes non-guidance"; it crowds out the task and goes stale.
 - Likely: "Does the files-read list on screen 3 prove the harness worked?" Answer: no; it explains a path. The score is what the referee finds in the shipped code.
-- Likely: "Would the map help a weaker model?" Answer: unknown; we measured one model. `make demo-1` runs both arms on F1 if you want to find out.
+- Likely: "Would the map help a weaker model?" Answer: unknown; we measured one model. `make demo-1` runs both arms on org-wide search (F1) if you want to find out.
 - Likely: "What does the agent see of a skill at the start?" Answer: one catalogue line: name, description, and the path to `SKILL.md`.
 - Misconception to correct if it comes up: "the map failed". Correction: the model did not need it on this ticket; that is a finding about the bet, measured.
 - Analogy for wrap-up: a "deprecated, use X" comment pays off only if someone would otherwise have called the old function.
 - After class: Assignment 1 (`make check-assignment-1`; it fails on the starter by design), the post-class readings, and `section-1-instructions/session-notes.md`.
 - Time: 1.5 minutes, section ends at class minute 1:00. Next: Section 2, what happens when a session stops halfway.
 
-## Slide 37: Time for a Break
-**Block:** Break  **Time:** 5  **Diagram:** none
+## Slide 44: Time for a Break
+**Block:** Break  **Time:** 10 min (1:00-1:10)  **Diagram:** none
 **On the slide:**
-A 5-minute break is starting now. Please return when the timer ends to continue the presentation
+A 10-minute break is starting now. Please return when the timer ends to continue the presentation
 **Visual:** The template's break layout and timer picture. Write the return time next to the timer.
 **Speaker notes:**
 - Write the return time on the slide before you step away.
 - Nothing runs during the break; do not launch any command, and leave the console (terminal A) open.
 - Check that terminal B is free: Section 2 launches `make show-2 SESSION_BUDGET=12,38` right after the poll.
 - If a learner's setup failed in Section 1, point them to `setup/` and `docs/troubleshooting.md` for the break.
-- Return time: class minute 1:05 in this deck.
+- Return time: class minute 1:10.
 - Transition: "Welcome back. The agent now knows the rules. Next: what happens when its session ends halfway through the work."
 
-## Slide 38: Today's Agenda: Section 2, what the agent remembers
-**Block:** Section 2  **Time:** 1  **Diagram:** none
+## Slide 45: Today's Agenda: Section 2, what the agent remembers
+**Block:** Section 2  **Time:** 1 min (1:10-1:11)  **Diagram:** none
 **On the slide:**
 1 Instructions
 2 State and session lifecycle (current)
@@ -954,8 +1127,8 @@ Final A/B
 - Misconception: "State means a database or a memory service." Correction: here state is a few plain files and the git history, checked into the repository.
 - Time and transition: 1 minute. "Before I explain anything, you predict the result. Poll first."
 
-## Slide 39: Live Zoom Poll: Did session 2 redo session 1?
-**Block:** Section 2  **Time:** 4  **Diagram:** none
+## Slide 46: Live Zoom Poll: Did session 2 redo session 1?
+**Block:** Section 2  **Time:** 4 min (1:11-1:15)  **Diagram:** none
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
@@ -966,18 +1139,18 @@ Then, live: `make show-2 SESSION_BUDGET=12,38`
 - Define before the vote: a continuity failure is two Alembic heads or a failed fresh upgrade (house rule R7), a table created by two migrations, or session 2 removing 30% or more of the lines session 1 added.
 - Close the poll, then terminal B: `make show-2 SESSION_BUDGET=12,38`. Leave out `SESSION_BUDGET` and session 1 runs the ticket's 20 turns instead of 12.
 - Browser tab 2: reload the run list, open the newest run, press `1` (Live). Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
-- Say: "This is the harness arm alone, not an A/B. The comparison was done before class; tonight shows the state layer doing its job."
+- Say: "This is the harness arm alone, not an A/B. The comparison was done before class; in class we show the state layer doing its job."
 - What to expect, from the timed run on 2026-10-17: session 1 stopped at 1 min 23 s, primary verdict at 6 min 46 s, full verdict at 9 min 52 s, cost $0.029525. That run had a 300 s agent limit; class now has 420 s, so it can take up to 2 minutes longer.
 - While it runs: teach the next slides; glance at screen 1 for "Session 1 stopped" around minute 1-2.
 - If `x OpenAI refused the key`: fix `OPENAI_API_KEY` in `.env`, run `make doctor`, relaunch.
 - If `x SHIPHARNESS_CLASS_DATE is not set`: `sed -i "s/^SHIPHARNESS_CLASS_DATE=.*/SHIPHARNESS_CLASS_DATE=$(date +%F)/" .env`, relaunch.
-- If the arm ends `ERROR` with `docker run failed`: `sudo systemctl start docker`, then `make warm`, then relaunch. If Docker stays down, `make replay RUN=<fallback id>`; if even that fails, walk the captured run in `section-2-state-lifecycle/demo/expected/` and say "recorded before class".
+- If the arm ends `ERROR` with `docker run failed`: `sudo systemctl start docker`, then `make warm`, then relaunch. If Docker stays down, `make replay` with `RUN=` set to the fallback id recorded the day before; if even that fails, walk the captured run in `section-2-state-lifecycle/demo/expected/` and say "recorded before class".
 - If `make console` says `address already in use`: `make console CONSOLE_PORT=8766`.
-- Clock: in this deck the poll starts at class 1:06 and the launch lands about 1:08 (the instructor guide's run sheet says 1:03, because it puts one 10-minute break after Section 2). Either way the run, about 10 min and up to 12 with the 420 s limit, finishes before the demo slide at about 1:32.
+- Clock: the poll starts at class 1:11 and the launch lands about 1:14. The run takes about 10 min, up to 12 with the 420 s limit, so it finishes by about 1:26, before the demo slide at 1:37.
 - Time and transition: 4 minutes including the launch. "While it runs, here is the failure we are guarding against."
 
-## Slide 40: Problem statement: The second session redoes the first
-**Block:** Section 2  **Time:** 3  **Diagram:** section-2-state-lifecycle/diagrams/alembic-heads.png
+## Slide 47: Problem statement: The second session redoes the first
+**Block:** Section 2  **Time:** 3 min (1:15-1:18)  **Diagram:** section-2-state-lifecycle/diagrams/failure-story-s2.png
 **On the slide:**
 **Marco asks a coding agent to add comments to TeamTrack issues: a `comments` table, three endpoints, a board panel. The work needs two sessions (illustrative).**
 The problem we're solving (in the real world)
@@ -991,26 +1164,26 @@ Session 2 starts with an empty context, so:
 - Two Alembic heads stop the deploy
 - A reviewer untangles two versions of one change
 - The team pays for the same work twice
-**Visual:** Template slide-16 layout: framing line bold, product name TeamTrack in the accent colour, the orange subheading, two bullet groups. Right third: `alembic-heads.png` small, showing two migrations branching from `0001_initial` into two heads, with the R7 marker.
+**Visual:** Template slide-16 layout: framing line bold, product name TeamTrack in the accent colour, the orange subheading, two bullet groups. Right third: the `failure-story-s2` strip, small: session 1 stops, session 2 starts empty, a second migration from `0001_initial`, two heads, a blocked deploy.
 **Speaker notes:**
 - Explain: this is an illustrative scenario from the section's concepts page, built from the failure Anthropic describes: a session that ends "with a feature half-implemented and undocumented", leaving the next one "to guess at what had happened".
 - Example: in TeamTrack, house rule R7 says exactly one Alembic head and a working fresh upgrade. Two migrations that both claim `0001_initial` as their parent make two heads; `alembic upgrade head` refuses to pick one.
 - Analogy: two engineers on different shifts each writing the same schema change because nobody wrote "I already did the migration" on the ticket.
-- Point at: the diagram's fork. That fork is what the referee's R7 check looks for in every run.
+- Point at: the two-heads box in the strip. That fork is what the referee's R7 migrations check looks for in every run.
 - Ask the room: "Session 2 has the whole repository, including the uncommitted migration. Why would it write a second one?" Expected answer: having the file is not the same as looking at it; if it never runs `git status` or lists `migrations/versions`, it works from the ticket alone.
 - Likely question: "Would CI catch two heads?" Answer: R7-style checks do, but only after the duplicate work is done and paid for; the goal is that session 2 never starts it.
 - Likely question: "Did this happen in your runs?" Answer: not on this model. Keep that for the measured slide; it matters.
 - Misconception: "Uncommitted work is lost work." Correction: the files are still on disk; the problem is that nothing tells the next session to look.
 - Time and transition: 3 minutes. "So why would a capable model redo work that is sitting right there? Let me ask it as a question."
 
-## Slide 41: Fresh session: Why redo work already on disk? (build 1/3)
-**Block:** Section 2  **Time:** 1  **Diagram:** none
+## Slide 48: Fresh session: Why redo work already on disk? (build 1/3)
+**Block:** Section 2  **Time:** 1 min (1:18-1:19)  **Diagram:** section-2-state-lifecycle/diagrams/socratic-s2-step-1.png
 **On the slide:**
 What the agent remembers
 - Session 2 has the whole repository
 - But it starts with an empty context
 - Can we carry the old context over?
-**Visual:** Native layout as in template slides 25-27: header fixed, three bullets, the last one in the accent colour as the question. Small two-box sketch on the right: "Session 1 (12 turns)" box ending at a red stop line, "Session 2 (38 turns)" box empty.
+**Visual:** Build frame 1 of `socratic-s2`, laid out as in template slides 25-27: header fixed, three bullets, the last one in the accent colour as the question. Small two-box sketch on the right: "Session 1 (12 turns)" box ending at a red stop line, "Session 2 (38 turns)" box empty.
 **Speaker notes:**
 - Explain: every session is a fresh model call with a fresh context. Anthropic's harness team: "each new session begins with no memory of what came before."
 - Example: in our runs, session 1 gets 12 turns and session 2 gets 38. The stop is the same for both arms.
@@ -1021,14 +1194,14 @@ What the agent remembers
 - Misconception: "The model remembers the repo between sessions." Correction: nothing carries over except what is on disk.
 - Time and transition: 1 minute. Click for the verdict.
 
-## Slide 42: Fresh session: Why redo work already on disk? (build 2/3)
-**Block:** Section 2  **Time:** 1  **Diagram:** none
+## Slide 49: Fresh session: Why redo work already on disk? (build 2/3)
+**Block:** Section 2  **Time:** 1 min (1:19-1:20)  **Diagram:** section-2-state-lifecycle/diagrams/socratic-s2-step-2.png
 **On the slide:**
 What the agent remembers
 - Session 2 has the whole repository
 - But it starts with an empty context
 - Can we carry the old context over? - Why not
-**Visual:** Same frame as build 1. "- Why not" added in red bold after the question, as in template slide 26.
+**Visual:** Build frame 2 of `socratic-s2`, same frame as build 1. "- Why not" added in red bold after the question, as in template slide 26.
 **Speaker notes:**
 - Explain: the answer is "not on its own". Anthropic's own words: "However, compaction isn't sufficient."
 - Example: a compacted transcript still says "I started the migration" without saying where the file is or whether it was committed.
@@ -1039,8 +1212,8 @@ What the agent remembers
 - Misconception: "A bigger summary is a better summary." Correction: the next session needs facts it can check against the repository, not a longer story.
 - Time and transition: 1 minute. Click for the reasons.
 
-## Slide 43: Fresh session: Why redo work already on disk? (build 3/3)
-**Block:** Section 2  **Time:** 1  **Diagram:** none
+## Slide 50: Fresh session: Why redo work already on disk? (build 3/3)
+**Block:** Section 2  **Time:** 1 min (1:20-1:21)  **Diagram:** section-2-state-lifecycle/diagrams/socratic-s2-step-3.png
 **On the slide:**
 Can we carry the old context over?
 - Compaction keeps a squeezed copy
@@ -1048,19 +1221,19 @@ Can we carry the old context over?
 - The repository holds it, but unread
   - Only `git status` would show the migration
 What can we use instead?
-**Visual:** Same header; body replaced by the two reasons with one nested example each, then the closing question in the accent colour, as in template slide 27.
+**Visual:** Build frame 3 of `socratic-s2`: same header; body replaced by the two reasons with one nested example each, then the closing question in the accent colour, as in template slide 27.
 **Speaker notes:**
 - Explain: two reasons. A compressed context is still the old context with gaps. The repository has the truth, but only if the session is told to read it first.
 - Example: in one test run before class, the bare arm's session 2 ran `git status` as its fourth tool call, saw `?? migrations/versions/0002_comments.py`, read it and carried on. Nothing told it to; this model sometimes does it by itself.
 - Analogy: a `git stash` nobody mentioned: the work exists, but only someone who runs `git stash list` finds it.
 - Point at: the closing question. The next four numbered slides answer it.
 - Ask the room: "What would you write down for the next session?" Expected answer: what I did, what is left, what to watch out for, and how to check the app still works.
-- Likely question: "Why not just tell the agent to run `git status`?" Answer: that is part of the answer, the getting-up-to-speed routine on slide 4.
+- Likely question: "Why not just tell the agent to run `git status`?" Answer: that is part of the answer, the getting-up-to-speed routine in idea 4.
 - Misconception: "If the work is in git, the agent will find it." Correction: `git status` is one of many possible first calls; the bare arm found the migration by itself once, and nothing made that happen every time.
 - Time and transition: 1 minute. "The answer is a reset plus a structured handoff. Four pieces, one per slide."
 
-## Slide 44: 1) Session lifecycle: a planned stop and reset
-**Block:** Section 2  **Time:** 3.5  **Diagram:** section-2-state-lifecycle/diagrams/session-lifecycle.png (+ steps)
+## Slide 51: 1) Session lifecycle: a planned stop and reset
+**Block:** Section 2  **Time:** 3.5 min (1:21-1:24:30)  **Diagram:** section-2-state-lifecycle/diagrams/session-lifecycle.png (+ steps)
 **On the slide:**
 A context reset clears the context and starts a fresh session, with a structured handoff.
 Every session runs the same loop:
@@ -1081,8 +1254,8 @@ Every session runs the same loop:
 - Misconception: "A reset throws work away." Correction: it throws away the context, not the repository; the work is on disk and in git.
 - Time and transition: 3.5 minutes. "The file that crosses the stop is the handoff, and it has two owners."
 
-## Slide 45: 2) The handoff: two owners, one file
-**Block:** Section 2  **Time:** 4  **Diagram:** section-2-state-lifecycle/diagrams/handoff-contents.png
+## Slide 52: 2) The handoff: two owners, one file
+**Block:** Section 2  **Time:** 4 min (1:24:30-1:28:30)  **Diagram:** section-2-state-lifecycle/diagrams/handoff-contents.png
 **On the slide:**
 `session-handoff.md` carries the last session's state and the next steps.
 Two owners, neither overwrites the other:
@@ -1103,8 +1276,8 @@ Two owners, neither overwrites the other:
 - Misconception: "A handoff written by the agent is enough." Correction: it is empty exactly when the agent ran out of turns.
 - Time and transition: 4 minutes. "The handoff covers one stop. For the whole task there is a plan and a ledger."
 
-## Slide 46: 3) The exec plan and the progress ledger
-**Block:** Section 2  **Time:** 3  **Diagram:** none
+## Slide 53: 3) The exec plan and the progress ledger
+**Block:** Section 2  **Time:** 3 min (1:28:30-1:31:30)  **Diagram:** section-2-state-lifecycle/diagrams/exec-plan-ledger.png
 **On the slide:**
 "it should always be possible to restart from _only_ the ExecPlan and no other work." (OpenAI, PLANS.md)
 Two files, two jobs:
@@ -1112,27 +1285,20 @@ Two files, two jobs:
 - Session log: one harness entry per stop
 - Exec plan: progress, surprises, decisions, outcomes
 - Both checked in, both read first
-**Visual:** The exec plan the harness writes, lines 1-5 quoted exactly from `section-2-state-lifecycle/demo/harness/docs/exec-plans/active/F2.md` (key line marked); a caption under it lists the sections that follow: Progress, Surprises & Discoveries, Decision Log, Outcomes & Retrospective, Validation.
-```markdown
-# F2: Comments on issues, with a comments panel on the board
-
-This execution plan is a living document checked into the repository (A7). Keep it self-contained:
-a new session must be able to restart from this plan, progress.md, and the git log alone. The   <-- key line
-harness moves it to docs/exec-plans/completed/ when the feature passes.
-```
+**Visual:** The `exec-plan-ledger` diagram: the exec plan (progress, surprises, decisions, outcomes) and `progress.md` (done, in progress, next, session log) side by side, "harness appends one entry per stop" on the session log, and "restart from these alone" under both.
 **Speaker notes:**
 - Explain: OpenAI's harness team keeps "execution plans with progress and decision logs that are checked into the repository". The PLANS.md recipe asks for four living sections: Progress, Surprises & Discoveries, Decision Log, Outcomes & Retrospective.
 - Explain: `progress.md` is the course's name for Anthropic's `claude-progress.txt`: what each session did and what is next. The agent edits every section except "Session log", where the harness appends one entry per stop.
 - Example: a decision such as "comments use keyset paging, ascending id, like projects" goes in the Decision Log, so session 2 does not reopen it.
 - Analogy: a design doc plus a changelog. The doc says what and why; the changelog says what happened when.
-- Point at: the key line; the restart bar is the test of a good plan.
+- Point at: the quote at the top; the restart bar is the test of a good plan. The harness's own plan for comments (F2) says a new session must be able to restart from the plan, `progress.md`, and the git log alone.
 - Ask the room: "Could someone restart your current task from only your notes?" Expected answer: usually no; the decisions live in chat or in someone's head.
 - Likely question: "Why Markdown here and JSON for the feature list later?" Answer: these are notes the agent writes freely; the feature list in Section 3 is graded state the agent must not edit.
 - Misconception: "The plan is written once at the start." Correction: it is a living document; progress lines get a UTC timestamp, and the harness moves it to `completed/` when the feature passes.
 - Time and transition: 3 minutes. "Files only help if the next session reads them first. That is the routine."
 
-## Slide 47: 4) Getting up to speed: `init.sh` before code
-**Block:** Section 2  **Time:** 3.5  **Diagram:** section-2-state-lifecycle/diagrams/alembic-heads.png
+## Slide 54: 4) Getting up to speed: `init.sh` before code
+**Block:** Section 2  **Time:** 3.5 min (1:31:30-1:35)  **Diagram:** section-2-state-lifecycle/diagrams/alembic-heads.png
 **On the slide:**
 "Read the git logs and progress files to get up to speed on what was recently worked on."
 Session 2's first call, in the captured run:
@@ -1144,7 +1310,7 @@ Session 2's first call, in the captured run:
 **Speaker notes:**
 - Explain: the routine is Anthropic's own heading, "Getting up to speed": read the git log and progress file, then run `init.sh` and a basic test before touching code, because starting new work on a broken app "would likely make the problem worse."
 - Example: TeamTrack's `init.sh` runs `alembic heads`, `alembic upgrade head` on a scratch SQLite database, then `pytest tests/visible/test_issues.py -x`. It leaves no files to commit.
-- Example: in the captured run, session 2's git log began with "harness: session 1 handoff for F2", and session 2 wrote exactly one migration, `0002_comments.py`, from the current head.
+- Example: in the captured run, session 2's git log began with "harness: session 1 handoff for comments (F2)", and session 2 wrote exactly one migration, `0002_comments.py`, from the current head.
 - Analogy: the first ten minutes of an on-call shift: read the handover, check the dashboards are green, then start.
 - Point at: the `alembic heads` line in the diagram. One command would have stopped the opening story.
 - Ask the room: "What is the cheapest check that would have prevented the two-head story?" Expected answer: list the heads before writing a migration.
@@ -1152,18 +1318,18 @@ Session 2's first call, in the captured run:
 - Misconception: "`init.sh` is for humans setting up a laptop." Correction: here it is the agent's smoke test, run at the start of every session.
 - Time and transition: 3.5 minutes. "Four pieces. One card to take away."
 
-## Slide 48: Cheat Sheet: Four state pieces across a stop
-**Block:** Section 2  **Time:** 2  **Diagram:** none
+## Slide 55: Cheat Sheet: Four state pieces across a stop
+**Block:** Section 2  **Time:** 2 min (1:35-1:37)  **Diagram:** section-2-state-lifecycle/diagrams/cheat-sheet-s2.png
 **On the slide:**
 - `init.sh`: setup and a basic test
 - `progress.md`: what each session did, what's next
 - Exec plan: plan, decisions, restart bar
 - `session-handoff.md`: harness facts plus agent notes
 Refer back to this slide when you add state files to your repo
-**Visual:** A native four-row card, one row per file, with a small "who writes it" tag on each: harness (init.sh), both (progress.md), agent (exec plan), two owners (handoff). The refer-back line at the bottom.
+**Visual:** The `cheat-sheet-s2` diagram: a four-row card, one row per file, with a small "who writes it" tag on each: harness (init.sh), both (progress.md), agent (exec plan), two owners (handoff). The refer-back line at the bottom.
 **Speaker notes:**
 - Explain: four files, each with one job, plus the git history that ties them together.
-- Example: the initializer step writes all four and commits them as "harness: initializer step for F2" before session 1.
+- Example: the initializer step writes all four and commits them as "harness: initializer step for comments (F2)" before session 1.
 - Analogy: README, CHANGELOG, design doc, and handover note in a well-run repository: each answers one question for whoever arrives next.
 - Point at: the "who writes it" tags; ownership is the design decision, more than the file names.
 - Ask the room: "Which of these does your repository already have under another name?" Expected answer: a README with setup steps, sometimes a TODO file; rarely a handoff.
@@ -1172,29 +1338,29 @@ Refer back to this slide when you add state files to your repo
 - Instructor cue: this slide sits at section minute 25. Glance at terminal B for the `Cost:` line of `make show-2`; if it is there, read the session figure aloud.
 - Time and transition: 2 minutes. "The run should be done. Let's look at it."
 
-## Slide 49: Section 2 - Implementation Notes: Stop and resume
-**Block:** Section 2  **Time:** 6  **Diagram:** screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png
+## Slide 56: Section 2 - Implementation Notes: Stop and resume
+**Block:** Section 2  **Time:** 6 min (1:37-1:43)  **Diagram:** screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png
 **On the slide:**
 DEMO - 2
 Section 2 - Implementation Notes: Stop and resume
 **Visual:** "DEMO - 2" badge top-left; screenshot of console screen 1 at minute 2. Callouts: (1) arrow to the pill "Session 1 stopped" with label "turn budget spent"; (2) arrow to "Session 2 resumed" with label "empty context"; (3) arrow to turn 2.1 `pwd; git log --oneline -20; cat progress.md` with label "reads state first".
 **Speaker notes:**
-- Switch to browser tab 2, tonight's run of `make show-2 SESSION_BUDGET=12,38` (terminal B, launched at the poll). If it is still going, stay on screen 1 (`1`); "primary verdict ready" appears as soon as the continuity check is done.
+- Switch to browser tab 2, the class run of `make show-2 SESSION_BUDGET=12,38` (terminal B, launched at the poll). If it is still going, stay on screen 1 (`1`); "primary verdict ready" appears as soon as the continuity check is done.
 - Screen 1 (`1`): scroll to "Session 1 stopped" and "session 1 handoff written", then "Session 2 resumed · prefix: core, instructions, state". Then turn 2.1: the getting-up-to-speed call.
 - Screen 1, later: session 2 writes the model, service, route, seed, and one migration `0002_comments.py`. Then "primary verdict ready".
 - Screen 3 (`3`): Sessions table (in the capture "Session 1 · 12 turns · claim_not_done", "Session 2 · 31 turns"); referee list `continuity: 0 new` and `r7_migrations: 0 new`. Also `diff_scope: 1 new`: an edit to `app/api/issues.py`, outside F2's allowed paths. Nothing stopped it: the scope layer starts in Section 3.
 - Screen 2 (`2`): the board as an Acme user, own-org cards only. The comments panel is on the issue page; hidden tests judge it.
 - Screen 5 (`5`): the first wrong turn, named by the scope check (turn 2.16 in the capture), and the LangSmith trace links; open session 2's first calls.
-- Screen 4 (`4`): the dots from before class. Say: "Tonight's run is not a dot in the comparison."
+- Screen 4 (`4`): the dots from before class. Say: "Today's run is not a dot in the comparison."
 - Say at a PASS: "Session 2 picked up the work. No continuity failure." At a FAIL: "The handoff did not carry the work. Screen 3 shows how."
 - If no "Session 1 stopped" marker: the agent called `finish(claim="done")` in session 1 or hit a cap; say this arm never faced the stop and walk the captured screens.
 - If the run is not finished: read screen 1 live, then come back to screens 3 and 4 after the under-the-hood look.
-- Fallback if the run broke for a reason outside the experiment (Docker, network, account): `make replay RUN=<fallback id>`, or walk `section-2-state-lifecycle/demo/expected/` (screen files `show-2-screen-1-t01m.png` to `show-2-screen-5-final.png`), saying "recorded before class".
+- Fallback if the run broke for a reason outside the experiment (Docker, network, account): `make replay` with `RUN=` set to the fallback id recorded the day before, or walk `section-2-state-lifecycle/demo/expected/` (screen files `show-2-screen-1-t01m.png` to `show-2-screen-5-final.png`), saying "recorded before class".
 - What to say while it finishes: "The continuity check comes first because it needs only git and Alembic; hidden tests, mutants, and the review take the remaining minutes."
 - Time and transition: 6 minutes. "Here is the same run on one line."
 
-## Slide 50: What just happened: One run, two sessions
-**Block:** Section 2  **Time:** 3  **Diagram:** none
+## Slide 57: What just happened: One run, two sessions
+**Block:** Section 2  **Time:** 3 min (1:43-1:46)  **Diagram:** section-2-state-lifecycle/diagrams/timeline-s2.png
 **On the slide:**
 - 0:00 initializer writes four files, commits
 - 1:23 session 1 stops at 12 turns
@@ -1202,9 +1368,9 @@ Section 2 - Implementation Notes: Stop and resume
 - 6:36 run ends at the time limit, 43 turns
 - 6:46 primary verdict: PASS
 - 9:52 full verdict: hidden 56/56, mutants 0/4
-**Visual:** A native horizontal timeline, minutes from launch, six ticks with the labels above. Session 1 segment short and blue, session 2 segment long. The two verdict ticks in green. Caption: "Captured run, 2026-10-17, 300 s agent limit".
+**Visual:** The `timeline-s2` diagram, minutes from launch, six ticks with the labels above. Session 1 segment short and blue, session 2 segment long. The two verdict ticks in green. Caption: "Captured run, 2026-10-17, 300 s agent limit".
 **Speaker notes:**
-- Explain: these are the times of the captured run on 2026-10-17, with the earlier 300 s agent limit. Tonight's times will differ; class now uses 420 s.
+- Explain: these are the times of the captured run on 2026-10-17, with the earlier 300 s agent limit. Today's times will differ; class now uses 420 s.
 - Example: the run ended `ABORTED: timeout` and the command exited 2. Exit 2 means an arm stopped at a time or cost limit; the referee still judged it. The command finished at 10 min 7 s.
 - Example: session 1 spent its 12 turns reading and wrapping up; session 2 did the building in its 31 turns.
 - Analogy: a database failover log: primary down, replica promoted, writes resumed; you read the gap between events, not the totals.
@@ -1214,8 +1380,8 @@ Section 2 - Implementation Notes: Stop and resume
 - Misconception: "PASS means the feature is done." Correction: PASS means session 2 did not break or redo session 1's work. Read the hidden-test count next to it.
 - Time and transition: 3 minutes. "What code ran at 1:23? Let's read it."
 
-## Slide 51: Under the hood: What runs at every stop
-**Block:** Section 2  **Time:** 5  **Diagram:** none
+## Slide 58: Under the hood: What runs at every stop
+**Block:** Section 2  **Time:** 5 min (1:46-1:51)  **Diagram:** code: platform/src/shipharness/harness/state/lifecycle.py (lines 100-111)
 **On the slide:**
 The facts come from the repository, not the agent
 **Visual:** Code excerpt, `platform/src/shipharness/harness/state/lifecycle.py` (lines 100-111), key line marked:
@@ -1246,8 +1412,8 @@ The facts come from the repository, not the agent
 - Misconception: "The harness summarises the conversation." Correction: it never reads the transcript; it reads the repository.
 - Time and transition: 5 minutes. "So did it help? Here is what we measured."
 
-## Slide 52: What we measured: No measurable difference on F2
-**Block:** Section 2  **Time:** 4  **Diagram:** section-2-state-lifecycle/diagrams/results-s2.png
+## Slide 59: What we measured: No measurable difference on comments (F2)
+**Block:** Section 2  **Time:** 4 min (1:51-1:55)  **Diagram:** section-2-state-lifecycle/diagrams/results-s2.png
 **On the slide:**
 Continuity failures before class:
 - Bare arm: 0 of 7 runs
@@ -1271,8 +1437,8 @@ It earns its place when:
 - Misconception: "No difference means it was a waste to measure." Correction: the measurement found a runner bug and showed the files cost turns; both are worth knowing before you roll it out.
 - Time and transition: 4 minutes. "What can you do with this on Monday?"
 
-## Slide 53: Apply it Monday: State that survives a stop
-**Block:** Section 2  **Time:** 2  **Diagram:** none
+## Slide 60: Apply it Monday: State that survives a stop
+**Block:** Section 2  **Time:** 2 min (1:55-1:57)  **Diagram:** none
 **On the slide:**
 In your repository this week:
 - Stop your agent mid-task, restart fresh
@@ -1294,8 +1460,8 @@ Then measure:
 - Misconception: "Ask the agent to write a summary at the end." Correction: write the facts from code; let the agent add notes.
 - Time and transition: 2 minutes. "Questions."
 
-## Slide 54: Q&A: State and session lifecycle
-**Block:** Section 2  **Time:** 3  **Diagram:** none
+## Slide 61: Q&A: State and session lifecycle
+**Block:** Section 2  **Time:** 3 min (1:57-2:00)  **Diagram:** none
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -1319,8 +1485,8 @@ No Question Is Too Small Every Question Deserves an Answer!!
 - Ask the room: "What is one line you would add to your own handoff file?" Expected answer: the current test status, or the migration head.
 - Time and transition: 3 minutes. "Next: what the agent may change. Section 3 is a live A/B."
 
-## Slide 55: Today's Agenda: Section 3, what the agent may change
-**Block:** Section 3  **Time:** 1  **Diagram:** none
+## Slide 62: Today's Agenda: Section 3, what the agent may change
+**Block:** Section 3  **Time:** 1 min (2:00-2:01)  **Diagram:** none
 **On the slide:**
 1 Instructions
 2 State and session lifecycle
@@ -1338,8 +1504,8 @@ Final A/B
 - Misconception: "Scope is about security." Correction: the scope layer is about keeping a change inside the ticket; the container is the security boundary.
 - Time and transition: 1 minute. "Predict first. Poll."
 
-## Slide 56: Live Zoom Poll: Will the bare arm leave scope?
-**Block:** Section 3  **Time:** 4  **Diagram:** none
+## Slide 63: Live Zoom Poll: Will the bare arm leave scope?
+**Block:** Section 3  **Time:** 4 min (2:01-2:05)  **Diagram:** none
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
@@ -1348,19 +1514,19 @@ Then, live A/B: `make demo-3 FEATURE=F4`
 **Speaker notes:**
 - Poll question (Zoom, not on the slide): "Before class we ran this A/B 3 times. In how many runs did the bare arm change a file outside the ticket's allowed paths? A) 0 B) 1 C) 2 D) 3." Answer D comes on the "What we measured" slide.
 - Say before the vote: "The harness arm is not in the question. Its scope layer refuses any edit outside the list, so its zero is built in."
-- Close the poll, then terminal B: `make demo-3 FEATURE=F4`. Without `FEATURE=F4` it runs F3, a ticket with no gap.
+- Close the poll, then terminal B: `make demo-3 FEATURE=F4`. Without `FEATURE=F4` it runs idempotency keys (F3), a ticket with no gap.
 - Browser tab 2: reload the run list, open the newest run, press `1`. `F` shows one arm full screen.
 - Both arms run at once, each in its own container with the same limits. The harness arm has the instructions, state and scope layers; the bare arm has none.
 - What to expect, from the timed run on 2026-10-17 (420 s agent limit, ran alone): bare verdicts at 5:15 and 8:06, harness at 8:50 and 11:18 on the console clock; command finished at 11 min 41 s; cost $0.048707. Expect exit 2: every harness arm before class ended `ABORTED: timeout`.
 - While it runs: teach the next slides; around minute 1, screen 1 may show a `block` row for `app/services/errors.py` in the harness arm.
 - If `x OpenAI refused the key`: fix `OPENAI_API_KEY`, `make doctor`, relaunch. If `x SHIPHARNESS_CLASS_DATE is not set`: run the date `sed` line from the instructor guide, relaunch.
-- If an arm ends `ERROR` with `docker run failed`: `sudo systemctl start docker`, `make warm`, relaunch. If that fails, `make replay RUN=<fallback id>`; if Docker is down, walk the captured A/B in `section-3-scope-sandbox/demo/expected/` and say "recorded before class".
+- If an arm ends `ERROR` with `docker run failed`: `sudo systemctl start docker`, `make warm`, relaunch. If that fails, `make replay` with `RUN=` set to the fallback id recorded the day before; if Docker is down, walk the captured A/B in `section-3-scope-sandbox/demo/expected/` and say "recorded before class".
 - If the run uses F3: `FEATURE=F4` was left out; Ctrl+C and relaunch with it.
-- Clock: in this deck the launch lands about class 1:58 (run sheet: 2:03, one break after Section 2). Before class the A/B took 11 min 41 s alone and 15-17 min when two ran at once; either way it finishes before the demo slide at about 2:22.
+- Clock: the launch lands about class 2:04. Before class the A/B took 11 min 41 s alone and 15-17 min when two ran at once, so it finishes by about 2:21 at the latest, before the demo slide at 2:27.
 - Time and transition: 4 minutes including the launch. "Here is the failure this section is about."
 
-## Slide 57: Problem statement: A tidy diff in a shared file
-**Block:** Section 3  **Time:** 3  **Diagram:** none
+## Slide 64: Problem statement: A tidy diff in a shared file
+**Block:** Section 3  **Time:** 3 min (2:05-2:08)  **Diagram:** section-3-scope-sandbox/diagrams/failure-story-s3.png
 **On the slide:**
 **Sam asks a coding agent for version checks on TeamTrack issues: an ETag, `If-Match`, a 412 on stale saves. The ticket lists the files to change (illustrative).**
 The problem we're solving (in the real world)
@@ -1374,10 +1540,10 @@ A month later the cost shows up:
 - Version checks answer the wrong status
 - Nobody links it to this ticket
 - Every agent diff now needs a full review
-**Visual:** Template slide-16 layout: bold framing line with TeamTrack in the accent colour, orange subheading, two bullet groups. No image.
+**Visual:** Template slide-16 layout: bold framing line with TeamTrack in the accent colour, orange subheading, two bullet groups. Right third: the `failure-story-s3` strip, small: ticket, handbook points to `errors.py`, shared module edited, small diff approved, a month later the wrong status.
 **Speaker notes:**
 - Explain: an illustrative scenario from the concepts page. The list of files was written down, but nothing checked it.
-- Example, real: before class, in the S3 confirmation, every bare arm on F4 changed `app/services/errors.py`, which is not in the build phase's allowed paths. In one run it added a `PreconditionFailed` error class with status 412 there.
+- Example, real: before class, in the Section 3 confirmation, every bare arm on version checks (F4) changed `app/services/errors.py`, which is not in the build phase's allowed paths. In one run it added a `PreconditionFailed` error class with status 412 there.
 - Example: the handbook points to the shared errors module for every new error, so the agent is following a pattern. OpenAI: "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones."
 - Analogy: a pull request that touches a shared library in a monorepo without review from the library's code owners.
 - Point at: "Edits a module every endpoint imports"; that is where a small edit reaches other features.
@@ -1386,14 +1552,14 @@ A month later the cost shows up:
 - Misconception: "A small diff is a safe diff." Correction: size says nothing about where the lines landed.
 - Time and transition: 3 minutes. "Both arms read the same list. Why isn't that enough?"
 
-## Slide 58: Scope: Is the ticket's file list enough? (build 1/2)
-**Block:** Section 3  **Time:** 1.5  **Diagram:** none
+## Slide 65: Scope: Is the ticket's file list enough? (build 1/2)
+**Block:** Section 3  **Time:** 1.5 min (2:08-2:09:30)  **Diagram:** section-3-scope-sandbox/diagrams/socratic-s3-step-1.png
 **On the slide:**
 What the agent may change
 - The ticket lists the files to change
 - Both arms read the same list
 - Is the list enough to keep the agent inside?
-**Visual:** Native frame as in template slides 25-27: three bullets, the last as the question in the accent colour. Right: a dashed box "allowed paths, build phase" with `app/services/issues.py`, `app/repositories/audit.py`, `app/web/**`; outside it `app/services/errors.py` with a "?".
+**Visual:** Build frame 1 of `socratic-s3`, framed as in template slides 25-27: three bullets, the last as the question in the accent colour. Right: a dashed box "allowed paths, build phase" with `app/services/issues.py`, `app/repositories/audit.py`, `app/web/**`; outside it `app/services/errors.py` with a "?".
 **Speaker notes:**
 - Explain: allowed paths are the globs a ticket lists for each phase: the files the agent may change then. A phase is one stage of a run: build writes the feature, test adds tests only.
 - Example: F4's build list is the issue and audit API, services and repositories, `app/web/**` and `tests/visible/**`. `app/services/errors.py` is not on it.
@@ -1404,8 +1570,8 @@ What the agent may change
 - Misconception: "If the model is told, it complies." Correction: wait for the next click.
 - Time and transition: 1.5 minutes. Click.
 
-## Slide 59: Scope: Is the ticket's file list enough? (build 2/2)
-**Block:** Section 3  **Time:** 1.5  **Diagram:** none
+## Slide 66: Scope: Is the ticket's file list enough? (build 2/2)
+**Block:** Section 3  **Time:** 1.5 min (2:09:30-2:11)  **Diagram:** section-3-scope-sandbox/diagrams/socratic-s3-step-2.png
 **On the slide:**
 Is the list enough to keep the agent inside? - Why not
 - Text is a request; nothing checks it
@@ -1413,11 +1579,11 @@ Is the list enough to keep the agent inside? - Why not
 - "Less likely" is not "never"
   - JSON chosen as "less likely" to be overwritten
 What can we use instead?
-**Visual:** Same frame; "- Why not" in red bold after the question, two reasons with one nested example each, the closing question in the accent colour.
+**Visual:** Build frame 2 of `socratic-s3`, same frame; "- Why not" in red bold after the question, two reasons with one nested example each, the closing question in the accent colour.
 **Speaker notes:**
 - Explain: a list in text makes a bad edit rarer; it does not make it impossible. Code has to check it.
 - Example: Anthropic's long-running harness told its agent "It is unacceptable to remove or edit tests" and kept the feature list in JSON because "the model is less likely to inappropriately change or overwrite JSON files compared to Markdown files." "Less likely" is the point.
-- Example: in our F4 runs, the same ticket text did not stop the bare arm in any of 3 runs.
+- Example: in our version checks (F4) runs, the same ticket text did not stop the bare arm in any of 3 runs.
 - Analogy: "please don't push to main" in the team wiki versus a protected branch.
 - Point at: the closing question.
 - Ask the room: "Where would you enforce it: in the prompt, in review, or in the tool call?" Expected answer: in the tool call, before the write lands.
@@ -1425,8 +1591,8 @@ What can we use instead?
 - Misconception: "Strong wording in the prompt works like a rule." Correction: OpenAI's harness team names the alternative: "enforce boundaries centrally, allow autonomy locally."
 - Time and transition: 1.5 minutes. "Four boundaries, one per slide."
 
-## Slide 60: 1) One feature at a time: `feature_list.json`
-**Block:** Section 3  **Time:** 3.5  **Diagram:** none
+## Slide 67: 1) One feature at a time: `feature_list.json`
+**Block:** Section 3  **Time:** 3.5 min (2:11-2:14:30)  **Diagram:** section-3-scope-sandbox/diagrams/feature-list-lifecycle.png
 **On the slide:**
 The harness writes one feature with `passes: false`. Only the harness sets it to true, from its own test run.
 Why a JSON file:
@@ -1434,7 +1600,7 @@ Why a JSON file:
 - Off limits to the agent, every phase
 - `evidence` and `testedAt` record the proof
 - JSON is "less likely" to be overwritten
-**Visual:** The feature entry, lines 4-14 quoted exactly from `section-3-scope-sandbox/demo/harness/feature_list.json` (key line marked):
+**Visual:** The `feature-list-lifecycle` diagram on the left (harness writes `passes: false`, agent reads it, the harness test run sets `passes: true` with `evidence` and `testedAt`); on the right the feature entry, lines 4-14 quoted exactly from `section-3-scope-sandbox/demo/harness/feature_list.json` (key line marked):
 ```json
     {
       "id": "F4",
@@ -1460,8 +1626,8 @@ Why a JSON file:
 - Misconception: "The feature list is a to-do list for the agent." Correction: it is graded state owned by the harness; the agent reads it and cannot write it.
 - Time and transition: 3.5 minutes. "One feature, so one list of files per phase."
 
-## Slide 61: 2) Allowed paths per phase, checked by code
-**Block:** Section 3  **Time:** 4  **Diagram:** section-3-scope-sandbox/diagrams/scope-check-flow.png
+## Slide 68: 2) Allowed paths per phase, checked by code
+**Block:** Section 3  **Time:** 4 min (2:14:30-2:18:30)  **Diagram:** section-3-scope-sandbox/diagrams/scope-check-flow.png
 **On the slide:**
 Allowed paths are the globs a ticket lists for each phase: the files the agent may change then.
 The scope check, every tool call:
@@ -1482,8 +1648,8 @@ The scope check, every tool call:
 - Misconception: "This micromanages the agent." Correction: the agent still chooses how to build the feature and where inside the list; the harness only decides which files.
 - Time and transition: 4 minutes. "That's the file boundary. The machine boundary is the container."
 
-## Slide 62: 3) The sandbox boundary: where the keys live
-**Block:** Section 3  **Time:** 3.5  **Diagram:** section-3-scope-sandbox/diagrams/sandbox-boundary.png
+## Slide 69: 3) The sandbox boundary: where the keys live
+**Block:** Section 3  **Time:** 3.5 min (2:18:30-2:22)  **Diagram:** section-3-scope-sandbox/diagrams/sandbox-boundary.png
 **On the slide:**
 Every tool command runs in one container per arm. The agent loop and the API keys stay on the host.
 Inside the container:
@@ -1503,8 +1669,8 @@ Inside the container:
 - Misconception: "A container is a sandbox by default." Correction: only with the flags: no network, read-only root, non-root user, dropped capabilities, limits.
 - Time and transition: 3.5 minutes. "Those flags are one principle: least privilege."
 
-## Slide 63: 4) Least privilege: two refusals, two questions
-**Block:** Section 3  **Time:** 3  **Diagram:** section-3-scope-sandbox/diagrams/least-privilege.png
+## Slide 70: 4) Least privilege: two refusals, two questions
+**Block:** Section 3  **Time:** 3 min (2:22-2:25)  **Diagram:** section-3-scope-sandbox/diagrams/least-privilege.png
 **On the slide:**
 "enforce boundaries centrally, allow autonomy locally." (OpenAI)
 Grant only what the task needs:
@@ -1524,15 +1690,15 @@ Grant only what the task needs:
 - Misconception: "Least privilege is free." Correction: harness arms ran longer overall (median 302 s against 190 s, post hoc, all layers together); the block itself cost the agent one refused patch before it moved its error class to an allowed file.
 - Time and transition: 3 minutes. "Four boundaries on one card."
 
-## Slide 64: Cheat Sheet: Four boundaries for one feature
-**Block:** Section 3  **Time:** 2  **Diagram:** none
+## Slide 71: Cheat Sheet: Four boundaries for one feature
+**Block:** Section 3  **Time:** 2 min (2:25-2:27)  **Diagram:** section-3-scope-sandbox/diagrams/cheat-sheet-s3.png
 **On the slide:**
 - `feature_list.json`: one feature, harness sets `passes`
 - Allowed paths: per phase; patch blocked, command reverted
 - Sandbox: no network, keys on the host
 - Least privilege: non-root, caps, two refusal types
 Refer back to this slide when you scope your next agent task
-**Visual:** A native four-row card, each row tagged "harness arm only" (rows 1-2) or "both arms" (rows 3-4). The refer-back line at the bottom.
+**Visual:** The `cheat-sheet-s3` diagram: a four-row card, each row tagged "harness arm only" (rows 1-2) or "both arms" (rows 3-4). The refer-back line at the bottom.
 **Speaker notes:**
 - Explain: rows 1 and 2 are the scope layer, the A/B variable. Rows 3 and 4 are the container, identical for both arms.
 - Example: the harness arm also sees the scope block in its context: "Files you may change in each phase", the build and test lists, and "A patch that touches any other file is rejected before it is applied."
@@ -1544,28 +1710,28 @@ Refer back to this slide when you scope your next agent task
 - Instructor cue: section minute 25. If `make demo-3` has printed its `Cost:` line, read the session figure aloud; it decides one or two final features later ($1.10 rule).
 - Time and transition: 2 minutes. "Both arms should be done or close. Let's look."
 
-## Slide 65: Section 3 - Implementation Notes: Scope at work
-**Block:** Section 3  **Time:** 6  **Diagram:** screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png
+## Slide 72: Section 3 - Implementation Notes: Scope at work
+**Block:** Section 3  **Time:** 6 min (2:27-2:33)  **Diagram:** screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png
 **On the slide:**
 DEMO - 3
 Section 3 - Implementation Notes: Scope at work
 **Visual:** "DEMO - 3" badge; console screen 3, bare panel left, harness panel right. Callouts: (1) bare diff map, arrow to `app/services/errors.py` "changed"; (2) harness diff map, arrow to the same file "blocked"; (3) referee rows, arrow to `diff_scope: 1 new` vs `0 new`.
 **Speaker notes:**
-- Switch to browser tab 2, tonight's A/B from `make demo-3 FEATURE=F4` (terminal B, launched at the poll). Screen 3 (`3`) first, the middle column "Scope and sandbox": look for `changed app/services/errors.py` under bare and `blocked app/services/errors.py` under harness.
+- Switch to browser tab 2, the class A/B from `make demo-3 FEATURE=F4` (terminal B, launched at the poll). Screen 3 (`3`) first, the middle column "Scope and sandbox": look for `changed app/services/errors.py` under bare and `blocked app/services/errors.py` under harness.
 - Screen 3, right column: `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness). Then "Sandbox denials: none" in both: the container refused nothing.
 - Screen 1 (`1`): the harness decision row `block` with the reason the agent read. Both pills likely say FAIL: that is F4's own bar (every hidden test and every referee mutant), which every arm failed before class. Say so; the scope result is on screen 3.
 - Screen 5 (`5`): "First wrong turn": in the capture, bare turn 1.14 edited `app/services/errors.py`; harness turn 1.12 was the blocked patch.
 - Screen 2 (`2`): both boards own-org only; the referee's two-tab capture where tab B's stale save gets a 409 page.
-- Screen 4 (`4`): F4 dots are hollow on F4's own measure. Say: "The scope count is on screen 3, not here."
-- Say at a pass: "No file outside the ticket's paths." At a fail: "This arm changed a file it was not asked to touch." If tonight's bare arm stays in scope, say so: it is one more dot.
+- Screen 4 (`4`): version checks (F4) dots are hollow on F4's own measure. Say: "The scope count is on screen 3, not here."
+- Say at a pass: "No file outside the ticket's paths." At a fail: "This arm changed a file it was not asked to touch." If today's bare arm stays in scope, say so: it is one more dot.
 - If screen 3 lists a sandbox denial, show its reason code and command. If not, show the policy printout and say: "The sandbox is the same for both arms. It is taught here, but it is never the variable."
 - If the harness arm is still running: it often ends late on the harness's own time limit; show the bare arm's screen 3 now and return.
-- Fallback if the A/B broke for a reason outside the experiment: `make replay RUN=<fallback id>`, or walk `section-3-scope-sandbox/demo/expected/` (`screen-3-final.png`, then `screen-3-run-1.png` and `screen-3-run-2.png` for the other two runs), saying "recorded before class".
+- Fallback if the A/B broke for a reason outside the experiment: `make replay` with `RUN=` set to the fallback id recorded the day before, or walk `section-3-scope-sandbox/demo/expected/` (`screen-3-final.png`, then `screen-3-run-1.png` and `screen-3-run-2.png` for the other two runs), saying "recorded before class".
 - What to say while the harness arm finishes: "It spends extra minutes on handoffs and the visible-test run that sets `passes`; the scope answer is already on screen 3."
 - Time and transition: 6 minutes. "The same A/B on one timeline."
 
-## Slide 66: What just happened: Same pull, two arms
-**Block:** Section 3  **Time:** 3  **Diagram:** none
+## Slide 73: What just happened: Same pull, two arms
+**Block:** Section 3  **Time:** 3 min (2:33-2:36)  **Diagram:** section-3-scope-sandbox/diagrams/timeline-s3.png
 **On the slide:**
 - 0:23 bare patches `app/services/errors.py`
 - 1:16 harness patch to the same file: blocked
@@ -1573,9 +1739,9 @@ Section 3 - Implementation Notes: Scope at work
 - 5:15 bare primary verdict
 - 7:22 harness arm ends `ABORTED: timeout`
 - 11:18 harness full verdict
-**Visual:** A native two-lane timeline, console clock: bare lane on top (grey) with the 0:23 edit marked red; harness lane below (blue) with the 1:16 block marked as a stop sign. Verdict ticks: bare 5:15 and 8:06, harness 8:50 and 11:18. Caption: "Captured run 3, 2026-10-17, 420 s agent limit".
+**Visual:** The `timeline-s3` diagram, two lanes on the console clock: bare lane on top (grey) with the 0:23 edit marked red; harness lane below (blue) with the 1:16 block marked as a stop sign. Verdict ticks: bare 5:15 and 8:06, harness 8:50 and 11:18. Caption: "Captured run 3, 2026-10-17, 420 s agent limit".
 **Speaker notes:**
-- Explain: the times of run 3 of the S3 confirmation, which ran alone. The console clock starts at the first run event, 18 s after launch; the command finished 11 min 41 s after launch and exited 2.
+- Explain: the times of run 3 of the Section 3 confirmation, which ran alone. The console clock starts at the first run event, 18 s after launch; the command finished 11 min 41 s after launch and exited 2.
 - Example: runs 1 and 2 ran at the same time and took 16 min 34 s and 15 min 22 s, so a busy machine stretches this a lot.
 - Example: both arms felt the same pull within the first 76 seconds. Only the harness arm was stopped. The bare arm ended at 3:42 after 43 turns; the harness arm at 7:22 after 39 turns.
 - Example: every harness arm ended on `HARNESS_TIMEOUT_S`, 120 s for the harness's own work (handoffs and the visible-test run that sets `passes`), not on the 420 s agent limit. Each still shipped a change, and the referee scored it.
@@ -1586,8 +1752,8 @@ Section 3 - Implementation Notes: Scope at work
 - Misconception: "ABORTED means the run is invalid." Correction: an aborted arm is judged on what it shipped; exit 2 is a result.
 - Time and transition: 3 minutes. "Here is the method that decided that block."
 
-## Slide 67: Under the hood: One method decides every path
-**Block:** Section 3  **Time:** 5  **Diagram:** none
+## Slide 74: Under the hood: One method decides every path
+**Block:** Section 3  **Time:** 5 min (2:36-2:41)  **Diagram:** code: platform/src/shipharness/harness/scope/guard.py (lines 68-78)
 **On the slide:**
 The refusal names the phase and the full list
 **Visual:** Code excerpt, `platform/src/shipharness/harness/scope/guard.py` (lines 68-78), key line marked:
@@ -1617,21 +1783,21 @@ The refusal names the phase and the full list
 - Misconception: "The referee trusts the guard's log." Correction: it recomputes from the shipped diff, and runs on the bare arm, which has no guard at all.
 - Time and transition: 5 minutes. "Now the honest numbers."
 
-## Slide 68: What we measured: Scope held on F4, by construction
-**Block:** Section 3  **Time:** 5  **Diagram:** section-3-scope-sandbox/diagrams/results-s3.png
+## Slide 75: What we measured: Scope held on version checks (F4)
+**Block:** Section 3  **Time:** 5 min (2:41-2:46)  **Diagram:** section-3-scope-sandbox/diagrams/results-s3.png
 **On the slide:**
 Runs with a file outside the allowed paths:
-- F4: bare 3 of 3, harness 0 of 3
-- F3: bare 0 of 10, harness 0 of 10
+- Version checks (F4): bare 3 of 3, harness 0 of 3
+- Idempotency keys (F3): bare 0 of 10, harness 0 of 10
 What it does and doesn't prove:
 - The guard blocks exactly what we count
 - The bare arm's count is the finding
 - Existing tests passed in every arm
 - No arm met F4's own bar
-**Visual:** `results-s3.png`: two dot panels. Left "F4, S3 confirmation": bare row 3 hollow dots (out of scope), harness row 3 filled. Right "F3, idempotency ticket": 10 filled dots in each row. Legend: filled = no out-of-scope file.
+**Visual:** `results-s3.png`: two dot panels. Left "F4, Section 3 confirmation": bare row 3 hollow dots (out of scope), harness row 3 filled. Right "F3, idempotency ticket": 10 filled dots in each row. Legend: filled = no out-of-scope file.
 **Speaker notes:**
-- Reveal the poll: answer D, all 3. The S3 confirmation was pre-registered before any of its runs: F4, the Section 3 stack, class profile, 3 A/Bs, and "harness ahead" only if the gap was not caused by harness-only timeouts. Result: harness ahead.
-- F3, the section's own ticket, plain and with a tempting shared middleware: no arm ever left scope in 10 runs per arm, and every arm passed 49 of 49 hidden tests. Say plainly: "On F3, no measurable difference."
+- Reveal the poll: answer D, all 3. The Section 3 confirmation was pre-registered before any of its runs: version checks (F4), the Section 3 stack, class profile, 3 A/Bs, and "harness ahead" only if the gap was not caused by harness-only timeouts. Result: harness ahead.
+- Idempotency keys (F3), the section's own ticket, plain and with a tempting shared middleware: no arm ever left scope in 10 runs per arm, and every arm passed 49 of 49 hidden tests. Say plainly: "On F3, no measurable difference."
 - Why the gap is partly by construction: the scope layer refuses exactly what `out_of_scope_files` counts, so the harness arm's zero is built in. What the runs show is that, on this ticket, the same agent with the same ticket and handbook edits a shared file every time nothing stops it.
 - What it does not prove: that the stray file broke anything (existing tests 190 of 190 in every arm); that the harness built a better feature (hidden tests: bare 68 of 69 in each run, harness 68, 62 and 65; no arm met F4's own bar).
 - Post hoc, descriptive only: in the earlier F4 pilot, bare arms left the allowed paths in 6 of 6 runs; median tests shipped were 15.5 for bare and 0 for harness. A guard that blocks everything would also score zero.
@@ -1643,8 +1809,8 @@ What it does and doesn't prove:
 - Misconception: "harness ahead on F4 means the harness built F4 better". Correction: it means no shipped file outside the list; on hidden tests the bare arms did as well or better (68 of 69 in every run).
 - Time and transition: 5 minutes. "What to do with it on Monday."
 
-## Slide 69: Apply it Monday: Scope your next agent task
-**Block:** Section 3  **Time:** 2  **Diagram:** none
+## Slide 76: Apply it Monday: Scope your next agent task
+**Block:** Section 3  **Time:** 2 min (2:46-2:48)  **Diagram:** none
 **On the slide:**
 For your next agent task:
 - Write the allowed paths as globs first
@@ -1657,7 +1823,7 @@ For the runtime:
 **Visual:** A native checklist card, two groups. A small terminal strip under the first group: `git diff --name-only` with one line in red outside the globs.
 **Speaker notes:**
 - Explain: start by counting, not blocking. Write the globs, run the agent, and count files outside them with `git diff --name-only`. That is the bare arm's number for your repo.
-- Example: if the count is zero across several tasks, like F3, a guard adds little. If a shared module shows up again and again, like `errors.py` on F4, enforce it.
+- Example: if the count is zero across several tasks, like idempotency keys (F3), a guard adds little. If a shared module shows up again and again, like `errors.py` on version checks (F4), enforce it.
 - Example: enforce in two places: before a patch applies, and after each command with a snapshot. A check on patches alone misses `sed -i` and generated files.
 - Example: make the files that grade the agent (feature list, test fixtures for the referee) off limits in every phase, before any allow list is read.
 - Analogy: turn on code-owner review as advisory before you make it required.
@@ -1667,8 +1833,8 @@ For the runtime:
 - Misconception: "Turn on the guard and you're done." Correction: say why in the refusal and name the allowed files, or the agent wastes turns guessing.
 - Time and transition: 2 minutes. "Questions, then a break."
 
-## Slide 70: Q&A: Scope and sandbox
-**Block:** Section 3  **Time:** 2  **Diagram:** none
+## Slide 77: Q&A: Scope and sandbox
+**Block:** Section 3  **Time:** 2 min (2:48-2:50)  **Diagram:** none
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -1684,7 +1850,7 @@ No Question Is Too Small Every Question Deserves an Answer!!
 **Visual:** The template's Q&A layout and picture, unchanged.
 **Speaker notes:**
 - Collect questions; park long ones for the review session (Assignment 3 slot, with the hidden-diff reveal).
-- Ready answer, "If the harness scores zero by construction, why run an A/B?": for the bare arm's count; on F4 it left the list every run.
+- Ready answer, "If the harness scores zero by construction, why run an A/B?": for the bare arm's count; on version checks (F4) it left the list every run.
 - Ready answer, "Why did both pills say FAIL?": they score F4's own bar, every hidden test and every mutant; the scope result is on screen 3.
 - Ready answer, "What if the agent edits with `sed`?": the snapshot comparison after the command restores the file and the tool result ends with `REVERTED`.
 - Ready answer, "Did the sandbox refuse anything?": no command in any test run; it is the same for both arms, so no run measures it.
@@ -1692,8 +1858,8 @@ No Question Is Too Small Every Question Deserves an Answer!!
 - Ask the room: "Who in your team owns the shared modules an agent might touch?" Expected answer: often nobody explicitly, which is the point.
 - Time and transition: 2 minutes. "Break. Nothing runs during the break."
 
-## Slide 71: Time for a Break
-**Block:** Break  **Time:** 5  **Diagram:** none
+## Slide 78: Time for a Break
+**Block:** Break  **Time:** 5 min (2:50-2:55)  **Diagram:** none
 **On the slide:**
 A 5-minute break is starting now. Please return when the timer ends to continue the presentation
 **Visual:** The template's break layout and timer picture. Write the return time next to the timer.
@@ -1701,12 +1867,12 @@ A 5-minute break is starting now. Please return when the timer ends to continue 
 - Write the return time on the slide before you step away.
 - Nothing runs during the break; do not launch any command.
 - Check that terminal A (console) and terminal B are still up, and have terminal C ready for the final A/B.
-- Section 4 opens with two polls: the Section 4 poll, then the final-feature poll (F5, F6 or F7); `make final FEATURES=` takes the winner first, then the runner-up.
-- Return time: class minute 2:50, the start of Section 4 on the run sheet.
+- Section 4 opens with two polls: the Section 4 poll, then the final-feature poll (bulk close F5, watchers F6, or labels F7); `make final FEATURES=` takes the winner first, then the runner-up.
+- Return time: class minute 2:55, the start of Section 4.
 - Transition: "Welcome back. We know what the agent knows, remembers and may change. Now: what proves it is done."
 
-## Slide 72: Section 4: What proves the work is done
-**Block:** Section 4  **Time:** 1 min (2:50-2:51)  **Diagram:** none
+## Slide 79: Section 4: What proves the work is done
+**Block:** Section 4  **Time:** 1 min (2:55-2:56)  **Diagram:** none
 **On the slide:**
 Today's Agenda
 1 Instructions
@@ -1726,14 +1892,14 @@ Final A/B
 - Misconception: "Verification means the agent runs the tests." Correction: the agent running tests is self-grading; this section moves the judgment out of the agent.
 - Time: 1 minute. Transition: "Before I explain anything, two polls."
 
-## Slide 73: Live Zoom Poll: F4 with all four layers
-**Block:** Section 4  **Time:** 2 min (2:51-2:53)  **Diagram:** none
+## Slide 80: Live Zoom Poll: F4 with all four layers
+**Block:** Section 4  **Time:** 2 min (2:56-2:58)  **Diagram:** none
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
 **Visual:** The template's poll slide: heading, the one instruction sentence, and the poll picture. The question is in Zoom, not on the slide.
 **Speaker notes:**
-- Poll question (paste into Zoom): "Before class, both arms ran F4 in 7 A/Bs. A run passes only with all 69 hidden tests passing and all 4 referee mutants caught by its own tests. Which arm passed more runs?"
+- Poll question (paste into Zoom): "Before class, both arms ran version checks (F4) in 7 A/Bs. A run passes only with all 69 hidden tests passing and all 4 referee mutants caught by its own tests. Which arm passed more runs?"
 - Options: A) Harness arm. B) Bare arm. C) Both, equally often. D) Neither arm passed once.
 - Answer (do not reveal now; it comes on "What we measured"): D. Both arms failed in all 7 A/Bs, 3 rounds: 3 of 3, 3 of 3, 1 of 1 failing per arm.
 - Explain the two counts while the poll runs: hidden tests are tests the agent never sees; referee mutants are planted faults the agent never sees, and the arm's shipped tests must fail on each.
@@ -1745,8 +1911,8 @@ We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
 - Point at the instruction sentence while you read the two pass conditions aloud: all 69 hidden tests and all 4 mutants.
 - Time: 2 minutes, close the poll before the launch. Transition: "Now the second poll: you pick the final A/B's feature."
 
-## Slide 74: Live Zoom Poll: Pick the final A/B feature
-**Block:** Final  **Time:** 1 min (2:53-2:54)  **Diagram:** none
+## Slide 81: Live Zoom Poll: Pick the final A/B feature
+**Block:** Final  **Time:** 1 min (2:58-2:59)  **Diagram:** none
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 1 minute to fill out the form.
@@ -1768,8 +1934,8 @@ Which feature runs as the final live A/B:
 - Point at the three cards: F6 and F7 carry a session stop, F5 does not.
 - Time: 1 minute. Note the winner and the runner-up. Transition: "Two launches now: show-4 first, then the final."
 
-## Slide 75: Launch: make show-4, the harness arm alone
-**Block:** Section 4  **Time:** 1 min (2:54-2:55)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png
+## Slide 82: Launch: make show-4, the harness arm alone
+**Block:** Section 4  **Time:** 1 min (2:59-3:00)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png
 **On the slide:**
 Terminal B: `make show-4`
 Harness in action: one arm, not an A/B
@@ -1784,16 +1950,16 @@ Watch on screen 1:
 - Then: reload the console run list at http://127.0.0.1:8765, open the newest run, press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 - Which screen when (captured run before class, 300 s agent limit; the class limit is now 420 s, so allow up to 2 minutes more): minute 1 screen 1, the scope layer blocks `app/services/errors.py`; minute 2-3, `finish done` and the gate pills; minute 3-4, every pill passes and the test phase starts; minutes 5-8, screen 3, the filters; minute 9, primary verdict; minute 11, full verdict.
 - Timed before class: primary verdict 9:19, full verdict 10:55, cost $0.0265, cap $0.24.
-- What to say while waiting: "This is not an A/B. The comparison on F4 was run before class; we read it later. Tonight we watch what the gate and the filters do."
+- What to say while waiting: "This is not an A/B. The comparison on version checks (F4) was run before class; we read it later. In class we watch what the gate and the filters do."
 - If it fails: `x OpenAI refused the key` means fix `OPENAI_API_KEY` and rerun `make doctor`; `x SHIPHARNESS_CLASS_DATE is not set` means set it in `.env` or add `PURPOSE=pilot`; `docker run failed` means `sudo systemctl start docker`, then `make warm`; port in use means `make console CONSOLE_PORT=8766`.
 - `ABORTED: timeout` is a result, not a failure: the arm is still judged. Exit 2 means an arm hit a time or cost limit.
-- Fallback: if a failure comes from outside the experiment (Docker, network, OpenAI account), say so and walk the captured run in `section-4-verification/demo/expected/` (screenshots plus `terminal.txt`); `make replay RUN=<fallback id>` only after an `ERROR`.
+- Fallback: if a failure comes from outside the experiment (Docker, network, OpenAI account), say so and walk the captured run in `section-4-verification/demo/expected/` (screenshots plus `terminal.txt`); `make replay` with `RUN=` set to the fallback id recorded the day before only after an `ERROR`.
 - Analogy: starting a long CI job and then teaching while it runs; we come back to the result.
-- Load: the final runs at the same time. Two S3 A/Bs run at once took 15-17 min against 11 min 41 s alone, so expect show-4's full verdict nearer 3:10 than 3:06; the demo slide is at 3:15.
-- Time: 1 minute, class 2:54-2:55. Transition: "One more launch, in terminal C: the final."
+- Load: the final runs at the same time. Two Section 3 A/Bs run at once took 15-17 min against 11 min 41 s alone. Launched at 2:59, show-4's full verdict comes about 3:10 alone and up to 3:12 with the 420 s limit; with the final running next to it, expect it nearer 3:15. The demo slide is at 3:20.
+- Time: 1 minute, class 2:59-3:00. Transition: "One more launch, in terminal C: the final."
 
-## Slide 76: Launch: make final, the poll winner first
-**Block:** Final  **Time:** 1 min (2:55-2:56)  **Diagram:** docs/diagrams/ab-referee.png
+## Slide 83: Launch: make final, the poll winner first
+**Block:** Final  **Time:** 1 min (3:00-3:01)  **Diagram:** docs/diagrams/ab-referee.png
 **On the slide:**
 Terminal C: `make final FEATURES=F6,F5`
 - Poll winner first, runner-up second
@@ -1802,22 +1968,22 @@ Terminal C: `make final FEATURES=F6,F5`
 - Read in the final block, at 3:40
 **Visual:** The A/B referee diagram, full frame: one checkpoint, two arms in their own containers, one referee scoring both. No callouts.
 **Speaker notes:**
-- Exact command, terminal C: `make final FEATURES=<winner>,<runner-up>`, for example `make final FEATURES=F6,F5`. Always pass `FEATURES`: the default is `F5,F6`.
+- Exact command, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up, for example `make final FEATURES=F6,F5`. Always pass `FEATURES`: the default is `F5,F6`.
 - Two features only if the Section 3 `Cost:` line showed a session figure of $1.10 or less; otherwise one feature. At the caps one feature costs at most $0.58.
 - Then open the newest run in browser tab 3 and go back to tab 2 (show-4). The features run one after another, so at most one A/B and one harness-in-action run are live at a time.
-- Timing: the timed F5 run before class took 12 min 47 s to the cost line; bare verdicts at 3:27 and 6:50, harness at 9:48 and 12:32. F6 was not timed as a final before class, so do not promise a finish time; it has two build sessions.
+- Timing: the timed bulk close (F5) run before class took 12 min 47 s to the cost line; bare verdicts at 3:27 and 6:50, harness at 9:48 and 12:32. Watchers (F6) was not timed as a final before class, so do not promise a finish time; it has two build sessions.
 - What to say while waiting: "Both arms get the same ticket, model, tools, sandbox, turn budgets, and cost cap. One referee scores both. We come back to it at 3:40."
 - Point at the diagram: two arms, one referee. The referee works on a fresh copy plus each arm's diff, so neither arm can touch the scoring.
 - Analogy: an A/B test in production; same traffic, same metric, one variable changed.
 - If it fails: wrong feature started means Ctrl+C in terminal C and launch again; `Error 2` after the results means an arm was aborted on time or cost, and the run is judged.
 - Fallback: walk the captured final in `final-project/expected/` (screens 1 to 5 and the terminal lines in `final-project/README.md`).
-- Two features run one after another: at the F5 pace (12 min 47 s) both finish around 3:21-3:30, before the final block at 3:40; F6 has two build sessions and may run longer, so read whatever has finished.
-- Time: 1 minute, class 2:55-2:56. Transition: "While both run: the story of F4."
+- Two features run one after another: launched at 3:00, at the F5 pace (12 min 47 s, up to 2 minutes more with the 420 s limit) the first finishes about 3:13-3:15 and the second about 3:26-3:30, before the final block at 3:40; F6 has two build sessions and may run longer, so read whatever has finished.
+- Time: 1 minute, class 3:00-3:01. Transition: "While both run: the story of version checks (F4)."
 
-## Slide 77: The problem: Done, but two edits still collide
-**Block:** Section 4  **Time:** 3 min (2:56-2:59)  **Diagram:** docs/diagrams/optimistic-concurrency.png
+## Slide 84: The problem: Done, but two edits still collide
+**Block:** Section 4  **Time:** 3 min (3:01-3:04)  **Diagram:** section-4-verification/diagrams/failure-story-s4.png
 **On the slide:**
-**Ticket F4: stop lost updates on issue edits, with an `ETag` and an `If-Match` check.**
+**Ticket for version checks (F4): stop lost updates on issue edits, with an `ETag` and an `If-Match` check.**
 What the agent did:
 - Added the header check to three endpoints
 - Wrote a happy-path test
@@ -1828,32 +1994,32 @@ Why every check approved it:
 - No existing test sends a stale header
 - Review saw green CI and a confident summary
 - After release, two editors still overwrite each other
-**Visual:** The optimistic-concurrency diagram: tab A and tab B both read `ETag: "3"`; A saves with `If-Match: "3"` and the version becomes 4; B saves with the stale `If-Match: "3"` and should get 412 and change nothing. Mark B's arrow red with "lost update if the check is wrong".
+**Visual:** The `failure-story-s4` strip: header check added, happy-path test, suite green, "Done" reported, review approves, two editors still overwrite each other (the last box in red).
 **Speaker notes:**
-- Plain explanation: F4 asks for optimistic concurrency. `GET /issues/{id}` returns `ETag: "<version>"`; a write with a stale `If-Match` must return 412 `precondition_failed` and change nothing; every successful change moves the version up by one.
+- Plain explanation: F4 asks for optimistic concurrency. `GET /issues/{id}` returns an `ETag` that holds the issue's version; a write with a stale `If-Match` must return 412 `precondition_failed` and change nothing; every successful change moves the version up by one.
 - The scenario on the slide is illustrative (the repo labels it so). The real version from before class is on the next slide: a bare arm claimed done on F4 with a failing hidden test.
 - Engineering detail: the header is optional on purpose, so existing clients keep working. That is exactly why the old suite stays green whether the check works or not.
 - Check order in the spec: 401, 403, 404, then 412, then 422. A stale `If-Match` with an invalid body must give 412, not 422. Remember this; it comes back in the demo.
-- Point at the diagram: walk tab A, then tab B. Ask where the lost update happens: at B's save, when the server does not compare versions.
+- Point at the strip, left to right, then say the race in words: tab A and tab B both read version 3; A saves and the version becomes 4; B saves with the stale `If-Match` and must get 412. Ask where the lost update happens: at B's save, when the server does not compare versions.
 - Analogy: a code review that approves "tests pass" when the tests never exercise the changed branch. Coverage of the happy path, not of the race.
 - Question for the room: "Which test would have caught this?" Expected answer: two writers, the second with the old version, expecting 412 and no change.
 - Likely learner question: "Isn't this just a bad test suite?" Answer: yes, and the agent wrote the suite it then graded. That is the cause we fix.
 - Misconception: "The agent lied." Correction: the concepts page puts it plainly: nobody lied; the agent checked what it could see, and what it could see was not the feature.
 - Time: 3 minutes. Transition: "Here is what really happened before class."
 
-## Slide 78: Verification: The suite is green. Is F4 done? (build 1/2)
-**Block:** Section 4  **Time:** 1 min (2:59-3:00)  **Diagram:** none
+## Slide 85: Verification: Suite green. Are version checks (F4) done? (build 1/2)
+**Block:** Section 4  **Time:** 1 min (3:04-3:05)  **Diagram:** section-4-verification/diagrams/socratic-s4-step-1.png
 **On the slide:**
-A bare arm on F4, before class:
+A bare arm on version checks (F4), before class:
 - Visible suite: 191 passing
 - Its claim: "Verified the complete visible suite"
 - `finish(claim="done")`
 Is F4 done?
-**Visual:** A fixed frame: on the left a green terminal box "191 passed"; on the right a speech bubble with the claim; under them a large "?" box. Step 2 keeps the frame and fills the box.
+**Visual:** Build frame 1 of `socratic-s4`, a fixed frame: on the left a green terminal box "191 passed"; on the right a speech bubble with the claim; under them a large "?" box. Step 2 keeps the frame and fills the box.
 **Speaker notes:**
 - This is real: in the class-profile round, the bare arm ended its build with the claim text "Verified the complete visible suite (191 passing)".
 - Plain explanation: the agent ran every test it could see, they passed, and it called `finish(claim="done")`. In the bare arm, that call ends the phase.
-- Ask the room before revealing: "Is F4 done? Hands up for yes." Expected answer: most say "probably" or "we can't tell"; that second answer is the right instinct.
+- Ask the room before revealing: "Are the version checks (F4) done? Hands up for yes." Expected answer: most say "probably" or "we can't tell"; that second answer is the right instinct.
 - Engineering example: the same pattern as a PR with a green check where the CI job only runs unit tests for unchanged modules.
 - Analogy: a smoke test that only hits `/health`: green, while the checkout page is broken.
 - Point at the "?" box: the question is who answers it, not only what the answer is.
@@ -1861,10 +2027,10 @@ Is F4 done?
 - Misconception: "Green suite equals done." Correction: Anthropic's compiler team: "it is easy to see tests pass and assume the job is done, when this is rarely the case."
 - Time: 1 minute. Transition: click to the answer.
 
-## Slide 79: Verification: The suite is green. Is F4 done? (build 2/2)
-**Block:** Section 4  **Time:** 2 min (3:00-3:02)  **Diagram:** none
+## Slide 86: Verification: Suite green. Are version checks (F4) done? (build 2/2)
+**Block:** Section 4  **Time:** 2 min (3:05-3:07)  **Diagram:** section-4-verification/diagrams/socratic-s4-step-2.png
 **On the slide:**
-A bare arm on F4, before class:
+A bare arm on version checks (F4), before class:
 - Visible suite: 191 passing
 - Its claim: "Verified the complete visible suite"
 - `finish(claim="done")`
@@ -1875,7 +2041,7 @@ Why not:
 - The agent graded its own work
   - nobody else checked the claim
 Who should decide "done"?
-**Visual:** Same frame as build 1/2. The "?" box becomes a red box "No: 68 of 69 hidden tests". The two reasons appear under it with their nested examples; the closing question at the bottom in blue.
+**Visual:** Build frame 2 of `socratic-s4`, same frame as build 1/2. The "?" box becomes a red box "No: 68 of 69 hidden tests". The two reasons appear under it with their nested examples; the closing question at the bottom in blue.
 **Speaker notes:**
 - The failing hidden test was `test_invalid_body_with_a_stale_version_is_412`. Both arms of that A/B failed the same test.
 - Plain explanation of reason 1: each piece works alone (the `ETag`, the header check, the validation). The bug appears only when they meet: validation ran before the version check.
@@ -1884,13 +2050,13 @@ Who should decide "done"?
 - Concrete engineering example: this was the one done claim in the whole pilot that came with a failing hidden test. It came in the class-settings round, after the 34-run post hoc count, which had none (0 of 19 bare claims, 0 of 10 harness).
 - Analogy: a developer approving their own pull request. Usually fine; when it is not, nobody notices.
 - Question for the room: "Who should decide done?" Expected answer: something the agent does not control: a gate, CI, a second reviewer, tests it never saw. Write their answers down; the next four slides map to them.
-- Likely learner question: "Would a second LLM fix this?" Answer: partly. A3 says separating doer and judge is "a strong lever", but "the evaluator is still an LLM that is inclined to be generous towards LLM-generated outputs."
+- Likely learner question: "Would a second LLM fix this?" Answer: partly. Anthropic's Harness design article says separating doer and judge is "a strong lever", but "the evaluator is still an LLM that is inclined to be generous towards LLM-generated outputs."
 - Misconception: "This is reward hacking, the agent gamed the tests." Correction: no sign of deliberate gaming; it is an untested combination.
 - Point at the red box: 68 of 69 means one hidden test, a case the agent's own 191 tests never exercised.
 - Time: 2 minutes. Transition: "Four ideas answer that question. First, why self-grading fails."
 
-## Slide 80: 1) Self-grading and visible tests
-**Block:** Section 4  **Time:** 3 min (3:02-3:05)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-1.png
+## Slide 87: 1) Self-grading and visible tests
+**Block:** Section 4  **Time:** 3 min (3:07-3:10)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-1.png
 **On the slide:**
 The agent writes the tests, runs them, and grades the result.
 Two gaps:
@@ -1912,8 +2078,8 @@ Two gaps:
 - Misconception: "A smarter model fixes self-grading." Correction: SpecBench found the gap in every frontier agent it tested; the fix is structural, not a better prompt.
 - Time: 3 minutes. Transition: "If the agent writes tests, which ones do we keep?"
 
-## Slide 81: 2) Test-phase filters: keep tests that prove something
-**Block:** Section 4  **Time:** 3 min (3:05-3:08)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-2.png
+## Slide 88: 2) Test-phase filters: keep tests that prove something
+**Block:** Section 4  **Time:** 3 min (3:10-3:13)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-2.png
 **On the slide:**
 After the build, a short test phase. Each proposed test must pass five filters, cheapest first:
 1. Collects with no errors
@@ -1934,8 +2100,8 @@ After the build, a short test phase. Each proposed test must pass five filters, 
 - Misconception: "Filtered tests prove the code is correct." Correction: filters treat the current code as correct; a failing test is discarded even when the test is right. Remember the 422.
 - Time: 3 minutes. Transition: "So how do we know the kept tests would catch anything?"
 
-## Slide 82: 3) Mutation testing and hidden tests
-**Block:** Section 4  **Time:** 3 min (3:08-3:11)  **Diagram:** section-4-verification/diagrams/mutation-testing.png
+## Slide 89: 3) Mutation testing and hidden tests
+**Block:** Section 4  **Time:** 3 min (3:13-3:16)  **Diagram:** section-4-verification/diagrams/mutation-testing.png
 **On the slide:**
 **Mutant:** a copy of the code with one small planted fault. A test that fails on it catches it.
 Two held-out checks, owned by the referee:
@@ -1947,7 +2113,7 @@ Two held-out checks, owned by the referee:
 **Speaker notes:**
 - Plain explanation: coverage says a line ran. A mutant asks whether a test would notice that line going wrong.
 - Source, Meta's ACH: about half of tests that catch a new mutant add no line coverage; the paper's figure is 49%. That is why filter 3 has a mutant branch.
-- Engineering example for F4: a mutant that stops a write from moving the version brings lost updates back. A test catches it only if it checks that the `ETag` moves, or that a stale save gets 412.
+- Engineering example for version checks (F4): a mutant that stops a write from moving the version brings lost updates back. A test catches it only if it checks that the `ETag` moves, or that a stale save gets 412.
 - Course design: hand-written mutants, not a mutation tool, so they target chosen lines. A filter set feeds filter 3; a separate referee set scores the run; they share no mutation.
 - Hidden tests: 69 for F4, never shown to the agent. SpecBench uses held-out tests "never shown to the agent" and "used solely for evaluation"; the course does the same.
 - Analogy: a fire drill. You do not test the alarm by reading its manual; you light a small, controlled fire.
@@ -1957,8 +2123,8 @@ Two held-out checks, owned by the referee:
 - Misconception: "Mutation testing finds existing bugs." Correction: ACH: it "cannot detect existing faults residing in the code base"; it protects against regressions.
 - Time: 3 minutes. Transition: "Last piece: who decides the claim."
 
-## Slide 83: 4) The gate on "done" and the separate referee
-**Block:** Section 4  **Time:** 3 min (3:11-3:14)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-3.png
+## Slide 90: 4) The gate on "done" and the separate referee
+**Block:** Section 4  **Time:** 3 min (3:16-3:19)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-3.png
 **On the slide:**
 `finish(claim="done")` starts a check, not the end of the phase.
 The verify gate runs:
@@ -1971,7 +2137,7 @@ The referee scores later, in its own container.
 **Speaker notes:**
 - Plain explanation: in the harness arm, `finish(claim="done")` runs the gate. If any item fails, the result of `finish` is "Not accepted." plus up to three failure lines and "Fix these, commit your work, and call finish again." The phase goes on.
 - Only a passed gate lets the scope layer set `passes` to true in `feature_list.json`. The agent cannot mark its own feature done.
-- Sources: A3, "Separating the agent doing the work from the agent judging it proves to be a strong lever"; A4, "it’s important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem"; A2's clean state, code "appropriate for merging to a main branch". The composition into one gate is course design.
+- Sources: (Anthropic, Harness design), "Separating the agent doing the work from the agent judging it proves to be a strong lever"; (Anthropic, C compiler), "it’s important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem"; the clean state of (Anthropic, Effective harnesses), code "appropriate for merging to a main branch". The composition into one gate is course design.
 - The separate referee: a different program, its own container, after the agent stops. A blinded model reviewer also reads both final diffs; its verdict is secondary.
 - Engineering example: in the captured demo run the gate passed every item on the first claim, with 190 visible tests, and the referee still failed the run.
 - Analogy: CI as a required status check plus a separate QA sign-off. The developer cannot merge past CI, and CI is not QA.
@@ -1981,8 +2147,8 @@ The referee scores later, in its own container.
 - Misconception: "The gate makes the agent correct." Correction: it makes the claim checked. A gate on wrong checks makes the agent solve the wrong problem faster.
 - Time: 3 minutes. Transition: "All four on one sheet."
 
-## Slide 84: Cheat Sheet: four checks the agent does not own
-**Block:** Section 4  **Time:** 1 min (3:14-3:15)  **Diagram:** section-4-verification/diagrams/verification-pipeline.png
+## Slide 91: Cheat Sheet: four checks the agent does not own
+**Block:** Section 4  **Time:** 1 min (3:19-3:20)  **Diagram:** section-4-verification/diagrams/cheat-sheet-s4.png
 **On the slide:**
 | Check | When | Asks |
 |---|---|---|
@@ -1990,7 +2156,7 @@ The referee scores later, in its own container.
 | Test filters | After the test phase | Runs, stable, adds something? |
 | Hidden tests | After the agent stops | Works in combination? |
 | Referee mutants | After the agent stops | Would the tests notice? |
-**Visual:** The complete verification-pipeline diagram above a four-row native table. Each table row has the colour of its box in the diagram.
+**Visual:** The `cheat-sheet-s4` diagram above the four-row native table: the four checks in the colours of the verification pipeline, two marked "feedback", two "held out".
 **Speaker notes:**
 - Plain explanation: four checks, each owned by someone other than the agent. Two give feedback to the agent (gate, filters); two never do (hidden tests, mutants).
 - The split matters: feedback checks shape behaviour; held-out checks measure it. You need both, and you must not mix them.
@@ -2000,29 +2166,29 @@ The referee scores later, in its own container.
 - Question for the room: "Which of these four could your agent currently see or edit?" Expected answer: the CI config, often; a held-out suite usually does not exist, so nothing is out of reach.
 - Likely learner question: "Which one is cheapest to add?" Answer: the gate, because it reuses checks you already run; mutants by hand cost minutes per risky line.
 - Misconception: "Held-out checks are only for research." Correction: a contract suite the agent's repo cannot see is a held-out check; many teams already have one.
-- Section minute 25: check terminal B for the show-4 `Cost:` line and terminal C for the final.
+- About section minute 25: check terminal B for the show-4 `Cost:` line and terminal C for the final.
 - Time: 1 minute. Transition: "Let's see the finished run."
 
-## Slide 85: Section 4 - Implementation Notes: The gate at work
-**Block:** Section 4  **Time:** 6 min (3:15-3:21)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png
+## Slide 92: Section 4 - Implementation Notes: The gate at work
+**Block:** Section 4  **Time:** 6 min (3:20-3:26)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png
 **On the slide:**
 DEMO - 4
 Section 4 - Implementation Notes: The gate at work
 **Visual:** The template's DEMO layout: "DEMO - 4" badge, title, and the screen-1 screenshot after the full verdict. Callouts: (1) arrow to the row of green gate pills, "gate: every item passed"; (2) arrow to "Agent said done", "the claim"; (3) arrow to "primary verdict ready: FAIL, hidden tests passed 68, mutants killed 0", "the referee disagrees".
 **Speaker notes:**
-- Switch to browser tab 2, the run of `make show-4` launched in terminal B at 2:54. Press `1` for the live screen. If the run is still going, screen 1 shows "primary verdict ready" as soon as the first check is done; work from what is there.
+- Switch to browser tab 2, the run of `make show-4` launched in terminal B at 2:59. Press `1` for the live screen. If the run is still going, screen 1 shows "primary verdict ready" as soon as the first check is done; work from what is there.
 - Screen 1, in order: harness notes from all four layers; turn 1.15 blocked by the scope layer; `finish done`; the 11 gate pills of the build phase (visible tests, existing tests, R1 to R7, board, clean state: `names` in `run_gate`, `gate.py`); then the referee lines.
-- Say at the verdict: "The agent said done. The hidden tests and mutants say no." If tonight's run passes: "Every hidden test and every mutant. The work is done."
+- Say at the verdict: "The agent said done. The hidden tests and mutants say no." If today's run passes: "Every hidden test and every mutant. The work is done."
 - Then press `3`, Evidence: the Verification panel has the filter table, one row per proposed test, a mark per filter, the reason per discard. Read the filter 2 reason aloud: "assert 422 == 412".
 - Then press `2`, Boards: the two-tab conflict panel. Tab A saves, tab B saves from a stale form, tab B gets HTTP 409 and a "changed by someone else" page. The board stops the lost update; one hidden test still fails.
-- Then press `4`, A/B Report: one dot per run before class. Say: "Tonight's run is not a dot in the comparison."
+- Then press `4`, A/B Report: one dot per run before class. Say: "Today's run is not a dot in the comparison."
 - What to say while switching: "The gate checks what the agent can see. The hidden tests and the referee's mutants stay out of its reach."
 - If no gate pills appear: the agent never claimed done; show the filter table and the referee counts instead. If every pill fails with `check runner failed`: the harness time limit ran out during the gate; keep the run and say so.
 - Fallback: if the live run broke for a reason outside the experiment, open the screenshots in `section-4-verification/demo/expected/` (screen-1 final, screen-3 final, screen-2 final, screen-4 final) and the arm line in `terminal.txt`.
 - Time: 6 minutes. Transition: "Let's put the eleven minutes on a timeline."
 
-## Slide 86: What just happened: eleven minutes of show-4
-**Block:** Section 4  **Time:** 4 min (3:21-3:25)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-t01m.png (+ t03m, t04m, t09m)
+## Slide 93: What just happened: eleven minutes of show-4
+**Block:** Section 4  **Time:** 3 min (3:26-3:29)  **Diagram:** section-4-verification/diagrams/timeline-s4.png
 **On the slide:**
 - 0:55 scope layer blocks `app/services/errors.py`
 - 2:18 `finish done`, gate pills pending
@@ -2031,10 +2197,10 @@ Section 4 - Implementation Notes: The gate at work
 - 8:34 run ends, `ABORTED: timeout`, 43 turns
 - 9:19 primary verdict: FAIL
 - 10:55 full verdict: hidden 68/69, mutants 0/4
-**Visual:** A horizontal native timeline with the seven marks; four screenshot thumbnails above it at 0:55, 2:18, 3:24 and 9:19. The 3:24 mark green, the 9:19 mark red, so the green gate and the red verdict stand out. Caption: "captured before class, 300 s agent limit".
+**Visual:** The `timeline-s4` diagram with the seven marks; four screenshot thumbnails above it (`show-4-screen-1-t01m.png`, `-t03m`, `-t04m`, `-t09m`) at 0:55, 2:18, 3:24 and 9:19. The 3:24 mark green, the 9:19 mark red, so the green gate and the red verdict stand out. Caption: "captured before class, 300 s agent limit".
 **Speaker notes:**
-- These times are the captured run before class (300 s agent limit then; 420 s tonight). Compare with tonight's run aloud: earlier or later, same order of events.
-- 0:55: the agent tried to patch `app/services/errors.py`, outside the build list. The scope layer from Section 3 refused it. The bare arms changed that same file in every F4 confirmation run.
+- These times are the captured run before class (300 s agent limit then; 420 s in class). Compare with today's run aloud: earlier or later, same order of events.
+- 0:55: the agent tried to patch `app/services/errors.py`, outside the build list. The scope layer from Section 3 refused it. The bare arms changed that same file in every confirmation run on version checks (F4).
 - 2:18 to 3:24: the claim, then the gate. All items passed on the first try. Only then was `passes` set and the test phase started.
 - 5:51 to 8:34: the test phase proposed 4 tests. The kept one was `test_stale_or_malformed_if_match_refuses_without_mutation`.
 - The discarded one that matters: `test_precondition_order_history_order_and_isolation` asserted that a stale `If-Match` with an invalid body gives 412, and got 422. The test was right; the code was wrong; filter 2 discarded it because it failed.
@@ -2045,10 +2211,10 @@ Section 4 - Implementation Notes: The gate at work
 - Likely learner question: "Then why keep filter 2?" Answer: it removes flaky and wrong tests far more often than it removes right ones; the fix is to read every discard reason, not to drop the filter.
 - Misconception: "The gate failed." Correction: the gate did its job; its job does not include the held-out checks.
 - Point at the green 3:24 mark next to the red 9:19 mark: same run, the gate said yes, the referee said no.
-- Time: 4 minutes. Transition: "Here is the code that made the gate's decision."
+- Time: 3 minutes. Transition: "Here is the code that made the gate's decision."
 
-## Slide 87: Under the hood: the gate's verdict in six lines
-**Block:** Section 4  **Time:** 5 min (3:25-3:30)  **Diagram:** none
+## Slide 94: Under the hood: the gate's verdict in six lines
+**Block:** Section 4  **Time:** 4 min (3:29-3:33)  **Diagram:** code: platform/src/shipharness/harness/verify/gate.py (lines 176-181)
 **On the slide:**
 - One failed item fails the gate
 - Feedback: summary, first three failures, next step
@@ -2066,8 +2232,8 @@ Section 4 - Implementation Notes: The gate at work
 ```
 **Speaker notes:**
 - Plain explanation: `items` holds one result per gate item. One `fail` and the whole gate fails. No weighting, no "mostly passed".
-- Why that strict: A4, "it’s important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem."
-- `_feedback` (lines 191-200) writes "Gate <id>: <n> of <m> items failed (<names>).", the first three failure lines, and "Fix these, commit your work, and call finish again." A4 again: the harness "should not print thousands of useless bytes", and errors carry the reason on the same line.
+- Why that strict (Anthropic, C compiler): "it’s important that the task verifier is nearly perfect, otherwise Claude will solve the wrong problem."
+- `_feedback` (lines 191-200) writes one summary line (the gate id, how many items failed, and their names), the first three failure lines, and "Fix these, commit your work, and call finish again." The same article: the harness "should not print thousands of useless bytes", and errors carry the reason on the same line.
 - The runner turns a failed gate into the `finish` result "Not accepted." plus that text (`runner/loop.py`, lines 291-300). A passed gate is stored in the run state; the scope layer reads it and only then sets `passes`.
 - Earlier in `run_gate` (lines 155-162): pending pills go out first, so the console shows the gate running; then the workspace is copied to `/tmp`, so the checks cannot change the agent's files. `cfg.limit` caps each command by the harness time left.
 - What is left out is the point: `GATE_CHECKS` (lines 33-43) lists R1 to R7, `regression`, `board`. No hidden tests, no referee mutants, so they stay held out.
@@ -2077,10 +2243,10 @@ Section 4 - Implementation Notes: The gate at work
 - Likely learner question: "Why only three failures?" Answer: context budget; the agent fixes three, calls finish again, and sees the next ones.
 - Misconception: "This needs shipharness." Correction: any script that runs your checks on a copy and returns a short failure summary as the answer to "done" is the same gate.
 - Point at the highlighted `passed =` line: it tests for "fail" only, so an item marked "skipped" does not fail the gate.
-- Time: 5 minutes; the walkthrough reads all 38 lines. Transition: "Did it help? Here is what we measured."
+- Time: 4 minutes; point learners to the walkthrough for all 38 lines. Transition: "Did it help? Here is what we measured."
 
-## Slide 88: What we measured: no measurable difference on F4
-**Block:** Section 4  **Time:** 4 min (3:30-3:34)  **Diagram:** section-4-verification/diagrams/results-s4.png
+## Slide 95: What we measured: no measurable difference on version checks (F4)
+**Block:** Section 4  **Time:** 4 min (3:33-3:37)  **Diagram:** section-4-verification/diagrams/results-s4.png
 **On the slide:**
 Primary measure: all 69 hidden tests and all 4 referee mutants.
 Runs failing, bare / harness:
@@ -2094,20 +2260,20 @@ Earns its place when:
 **Speaker notes:**
 - Reveal the poll: answer D. Neither arm passed once, in 7 A/Bs: no measurable difference on this task with this model.
 - Say it plainly: the harness did not win here. The registered gate for larger batches needed the harness ahead in 3 of 4 sections; it was ahead in none, so the batches of 10 runs per arm and the leave-one-out ablation were not run.
-- Why the gate barely mattered: no F4 harness arm claimed done in those 7 A/Bs. Six used all their build turns, one stopped `not_done`. A gate on the claim never ran.
+- Why the gate barely mattered: no harness arm on version checks (F4) claimed done in those 7 A/Bs. Six used all their build turns, one stopped `not_done`. A gate on the claim never ran.
 - Two bare arms claimed done, and the referee failed both (one with 69 of 69 hidden tests and a surviving mutant, one with 68 of 69). The reviewer rejected all 14 arms and agreed with the referee each time.
 - Post hoc, chosen after the results, descriptive only: harness arms shipped fewer tests (median 0 against 15.5 on F4), and both arms hit the agent time limit in 4 of 6 F4 runs. Across all sections harness arms claimed done in 10 of 34 runs, bare in 19 of 34.
 - When it earns its place (concepts page): the agent can claim done before the work is done; your checks are cheap and exact; some checks stay out of the agent's reach; the agent writes tests you will keep.
 - When it does not: the agent never claims done; the bug is in the code and the test is right (filter 2 discards it); few tests are proposed; the checks themselves are wrong.
 - Analogy: a smoke detector in a room nobody entered. It did not fail; it was never tested.
 - Question for the room (the run sheet's discussion): "What would a gate need to catch to earn its turns on this model?" Expected answer: the bare arm's false done claims; a held-out-style check such as a two-writer test; fewer turns spent before the claim.
-- Misconception: "No difference means verification is useless." Correction: A3, a separate judge "is worth the cost when the task sits beyond what the current model does reliably solo"; this result is about F4 with this model, measured a few times per arm.
+- Misconception: "No difference means verification is useless." Correction: per (Anthropic, Harness design), a separate judge "is worth the cost when the task sits beyond what the current model does reliably solo"; this result is about F4 with this model, measured a few times per arm.
 - Point at the two rows: every dot hollow, in both arms, in all three rounds.
 - Likely question: "Why not rerun with more turns so the harness reaches its gate?" Answer: that would be a new registered experiment; changing settings after seeing the result is how a harness gets made to look good.
 - Time: 4 minutes. Transition: "What to do with this on Monday."
 
-## Slide 89: Apply it Monday: check your agent's done
-**Block:** Section 4  **Time:** 2 min (3:34-3:36)  **Diagram:** none
+## Slide 96: Apply it Monday: check your agent's done
+**Block:** Section 4  **Time:** 1.5 min (3:37-3:38:30)  **Diagram:** none
 **On the slide:**
 In your repo this week:
 - Run your checks when the agent says done
@@ -2129,10 +2295,10 @@ In your repo this week:
 - Misconception: "Held-out tests are dishonest towards the agent." Correction: they measure the work; the agent still gets full feedback from the gate.
 - Point at the last line, the planted fault: the one step that needs no tooling at all.
 - Likely question: "Where do I hook this with an off-the-shelf agent?" Answer: wherever the agent signals done: a stop hook, a wrapper script around the agent CLI, or the CI job it must trigger.
-- Time: 2 minutes. Transition: "Questions on Section 4."
+- Time: 1.5 minutes. Transition: "Questions on Section 4."
 
-## Slide 90: Q&A: Section 4, Verification
-**Block:** Section 4  **Time:** 4 min (3:36-3:40)  **Diagram:** none
+## Slide 97: Q&A: Section 4, Verification
+**Block:** Section 4  **Time:** 1.5 min (3:38:30-3:40)  **Diagram:** none
 **On the slide:**
 Ask about anything:
 - Concepts from today's modules
@@ -2147,35 +2313,35 @@ Remember: If you're wondering about it, others probably are too.
 No Question Is Too Small Every Question Deserves an Answer!!
 **Visual:** The template's Q&A slide unchanged: boilerplate text, banner, and picture.
 **Speaker notes:**
-- Likely question: "The harness did not win. Was verification useless?" Answer: on F4 the runs barely tested it: the gate never ran in an A/B and the filters saw few tests. A result about this task and this model.
+- Likely question: "The harness did not win. Was verification useless?" Answer: on version checks (F4) the runs barely tested it: the gate never ran in an A/B and the filters saw few tests. A result about this task and this model.
 - Likely question: "The bare arm caught more mutants. Do the filters hurt?" Answer: the bare arm shipped more tests (median 15.5 against 0 on F4). A test nobody writes cannot catch a mutant.
 - Likely question: "Why does the gate not run the hidden tests?" Answer: they would stop being held out; a check the agent gets feedback from becomes a target.
 - Likely question: "Why are filters 4 and 5 not from a paper?" Answer: no source states them; they guard against a test that mocks the code it tests and a test phase that edits code until its test passes.
-- Likely question: "Is the model reviewer worth it?" Answer: as a secondary measure; A3 warns it is "inclined to be generous towards LLM-generated outputs". On F4 it rejected all 14 arms and agreed with the referee.
+- Likely question: "Is the model reviewer worth it?" Answer: as a secondary measure; Anthropic's Harness design article warns it is "inclined to be generous towards LLM-generated outputs". On F4 it rejected all 14 arms and agreed with the referee.
 - Likely question: "How do I read the gate in the repo?" Answer: `uv run python platform/scripts/anchors.py extract S4:gate`, then `S4:filters`.
 - Keep an eye on terminal C: if the final has finished its first feature, say so; we read it next.
 - Point learners to `section-4-verification/session-notes.md` and the four post-class readings for what we skipped.
-- Time: 4 minutes; stop at 3:40 even if questions remain, and collect the rest in chat for the end.
-- Transition: "The final A/B has been running since 2:55. Let's read it."
+- Time: 1.5 minutes, shortened so Section 4 fits its 45 minutes; take two questions, stop at 3:40, and collect the rest in chat for the review session.
+- Transition: "The final A/B has been running since 3:00. Let's read it."
 
-## Slide 91: Final A/B: reading the arm lines
-**Block:** Final  **Time:** 3 min (3:40-3:43)  **Diagram:** none
+## Slide 98: Final A/B: reading the arm lines
+**Block:** Final  **Time:** 2.5 min (3:40-3:42:30)  **Diagram:** code: final-project/README.md (terminal C output of the bulk close (F5) run)
 **On the slide:**
-No primary measure for F5 to F7. Read per arm:
+No primary measure for the final tickets F5 to F7. Read per arm:
 - `hidden`: does the feature work?
 - `mutants`: would its tests notice a bug?
 - `claim`: did the agent say done?
 - `passed=True` here means nothing
-**Visual:** Terminal C's real output from the course's F5 run, quoted exactly from `final-project/README.md`, with callouts on `claim=done` / `claim=none`, on `hidden 46/46`, and on `mutants 2/3`:
+**Visual:** Terminal C's real output from the course's F5 run, quoted from `final-project/README.md` with the run id left out, with callouts on `claim=done` / `claim=none`, on `hidden 46/46`, and on `mutants 2/3`:
 ```text
-A/B <A/B id> (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+A/B (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
   bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
   harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
 ```
 **Speaker notes:**
-- Switch to terminal C and read tonight's lines aloud, one feature at a time, then the session figure on the `Cost:` line.
+- Switch to terminal C and read today's lines aloud, one feature at a time, then the session figure on the `Cost:` line.
 - Plain explanation: F5 to F7 set `primary_measure = ""`, so the referee marks every run passed; "primary verdict ready: PASS" says nothing about the feature. Compare the counts instead.
-- The course's F5 run before class: both arms 46 of 46 hidden tests and 2 of 3 mutants; bare completed with `claim=done` in 37 turns, harness `ABORTED: timeout` with no claim in 42 turns. Reading: no measurable difference.
+- The course's bulk close (F5) run before class: both arms 46 of 46 hidden tests and 2 of 3 mutants; bare completed with `claim=done` in 37 turns, harness `ABORTED: timeout` with no claim in 42 turns. Reading: no measurable difference.
 - An earlier F5 run, on a loaded machine, split differently: mutants 1 of 3 (bare) and 3 of 3 (harness), hidden 46 of 46 in both. Same feature, same harness, a different split.
 - The command exits 2 when an arm was aborted on time or cost. The arm is still judged; it is a result.
 - Analogy: reading a canary deployment: you compare error rates, not the deploy tool's "success" message.
@@ -2184,10 +2350,10 @@ A/B <A/B id> (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=c
 - Misconception: "The arm with `passed=True` won." Correction: both lines say `passed=True` because there is no primary measure.
 - If the final has not finished: walk its live screens 1 and 2 now, and come back to the lines at the end. Fallback: the captured lines above and `final-project/expected/`.
 - Point at `claim=done` against `claim=none`, then at the identical `hidden 46/46 mutants 2/3` on both lines.
-- Time: 3 minutes. Transition: "Now the same run on the console."
+- Time: 2.5 minutes. Transition: "Now the same run on the console."
 
-## Slide 92: Final A/B: what to read on screens 1, 3, 5
-**Block:** Final  **Time:** 3 min (3:43-3:46)  **Diagram:** screenshot: final-project/expected/screen-1-final.png
+## Slide 99: Final A/B: what to read on screens 1, 3, 5
+**Block:** Final  **Time:** 2.5 min (3:42:30-3:45)  **Diagram:** screenshot: final-project/expected/screen-1-final.png
 **On the slide:**
 - Screen 1: both arms, claims, verdict counts
 - Screen 3: diff maps, referee checks, filters
@@ -2195,20 +2361,20 @@ A/B <A/B id> (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=c
 **Visual:** Screen 1 of the course's F5 run after the full verdict. Callouts: (1) bare "Agent said done" and "claim supported"; (2) harness "Agent said no claim"; (3) both referee lines "hidden tests 46/46, mutants killed 2/3".
 **Speaker notes:**
 - Browser tab 3, the final's run. Press `1`: both arms side by side. Read for each arm: run status and turns, harness decisions (map placed, handoff written), the gate, "Agent said", and the referee line.
-- In the captured F5 run: bare completed, primary verdict at 3:27, full at 6:50; harness hit its time limit in the test phase, primary at 9:48, full at 12:32. Its test phase started by reading the handoff from the build session.
+- In the captured bulk close (F5) run: bare completed, primary verdict at 3:27, full at 6:50; harness hit its time limit in the test phase, primary at 9:48, full at 12:32. Its test phase started by reading the handoff from the build session.
 - Press `3`, Evidence: files read, diff maps (any `⊘ blocked` or out-of-scope file?), referee checks per rule, the filter table, the mutant table. In the F5 run both arms changed only allowed files and one mutant survived in each.
 - Press `5`, Traces: the first wrong turn per arm, the live tail of referee events, and LangSmith links. Open one link to show every model call.
-- For F6 or F7 tonight: look on screen 1 for "session stop" and the handoff, and on screen 3 for whether session 2 redid session 1's work.
+- For watchers (F6) or labels (F7) in class: look on screen 1 for "session stop" and the handoff, and on screen 3 for whether session 2 redid session 1's work.
 - Engineering example: the first wrong turn on screen 5 is where you start a debug session, exactly like the first failing span in a distributed trace.
 - Analogy: reading a flame graph: overview first, then the hot frame, then the source line.
 - Question for the room: "Where would you look first if the harness arm had shipped a file outside its paths?" Expected answer: screen 3's diff map, then screen 5's first wrong turn.
 - Likely learner question: "Why did the harness arm run out of time?" Answer: its extra phases (handoff, test phase, gate) cost turns and wall time; post hoc, harness arm wall time had a median of 302 s against 190 s for bare.
 - Misconception: "The slower arm is the worse arm." Correction: time is a cost to weigh, not a quality measure; read the counts.
 - Point at callout 2, "Agent said no claim": the harness arm never claimed done, so its gate never ran.
-- Time: 3 minutes. Transition: "Screen 2, the boards."
+- Time: 2.5 minutes. Transition: "Screen 2, the boards."
 
-## Slide 93: Final A/B: the two boards
-**Block:** Final  **Time:** 2 min (3:46-3:48)  **Diagram:** screenshot: final-project/expected/screen-2-final.png
+## Slide 100: Final A/B: the two boards
+**Block:** Final  **Time:** 1.5 min (3:45-3:46:30)  **Diagram:** screenshot: final-project/expected/screen-2-final.png
 **On the slide:**
 Screen 2: each arm's running board, as an Acme user.
 Look for:
@@ -2220,46 +2386,46 @@ Look for:
 - Press `2`. Each arm's TeamTrack runs with its own changes; the console logs in as an Acme user and screenshots the board.
 - The marks come from trusted data attributes, not from anything the agent wrote, so an arm cannot fake a clean badge.
 - In the F5 run both boards stayed clean and unchanged: bulk close adds an API endpoint and changes no board pixels. Say so if F5 ran.
-- If F6 or F7 ran: look for what the feature adds to the issue pages, and for a Globex card on an Acme board (a tenant leak, Section 1's failure).
+- If watchers (F6) or labels (F7) ran: look for what the feature adds to the issue pages, and for a Globex card on an Acme board (a tenant leak, Section 1's failure).
 - Engineering example: the same idea as a synthetic monitor that logs in as a test tenant and checks it sees only its own data.
 - Analogy: a visual regression check after deploy, run by the pipeline, not by the developer.
 - Question for the room: "Why check the board at all when the API tests pass?" Expected answer: the board is a second path to the same data; leaks and duplicates show up there that an API test may not cover.
 - Likely learner question: "What would a leak look like?" Answer: a card with the ⚠ other-org mark. No run before class leaked another org's cards, so there is no leak screenshot to show.
 - Misconception: "A clean board means the feature works." Correction: it means no leak and no duplicates on that page; the hidden tests decide whether the feature works.
 - Point at the two boards side by side: same seed data, same Acme user, so any difference comes from the arm's change.
-- Time: 2 minutes. Transition: "Now tonight's run next to everything we ran before class."
+- Time: 1.5 minutes. Transition: "Now today's run next to everything we ran before class."
 
-## Slide 94: All results: four sections, one picture
-**Block:** Final  **Time:** 3 min (3:48-3:51)  **Diagram:** docs/diagrams/results-final.png
+## Slide 101: All results: four sections, one picture
+**Block:** Final  **Time:** 2.5 min (3:46:30-3:49)  **Diagram:** docs/diagrams/results-final.png
 **On the slide:**
 (title only)
-**Visual:** The results-final diagram: one row per section and ticket (S1 F1, S2 F2, S3 F3, S3 confirmation on F4, S4 F4), one dot per run, bare grey and harness blue, filled = passed, hollow = failed. The S3 confirmation row is the only row where the arms differ. Diagram only.
+**Visual:** The results-final diagram: one row per section and ticket (Section 1 on F1, Section 2 on F2, Section 3 on F3, the Section 3 confirmation on F4, Section 4 on F4), one dot per run, bare grey and harness blue, filled = passed, hollow = failed. The Section 3 confirmation row is the only row where the arms differ. Diagram only.
 **Speaker notes:**
-- Press `4` on the console first: screen 4 shows one dot per recorded run; tonight's final adds one dot per arm. Say: "One A/B is one dot. Read it next to the runs from before class, never alone."
-- S1, no new tenant leak: bare 7 of 7, harness 7 of 7 passing. S2, no continuity failure: 7 of 7 each. S3 on its own ticket F3: 7 of 7 each. No measurable difference.
-- S3 confirmation on F4, registered before its runs: bare 0 of 3, harness 3 of 3. Every bare arm changed `app/services/errors.py`; the scope layer blocked the same file in every harness arm. Harness ahead, the one gap.
-- S4, all hidden tests and mutants on F4: bare 0 of 4, harness 0 of 4 in run 3 and the class round (and 0 of 3 each in the earlier medium round). No measurable difference: both fail.
+- Press `4` on the console first: screen 4 shows one dot per recorded run; today's final adds one dot per arm. Say: "One A/B is one dot. Read it next to the runs from before class, never alone."
+- Section 1, no new tenant leak: bare 7 of 7, harness 7 of 7 passing. Section 2, no continuity failure: 7 of 7 each. Section 3 on its own ticket, idempotency keys (F3): 7 of 7 each. No measurable difference.
+- Section 3 confirmation on version checks (F4), registered before its runs: bare 0 of 3, harness 3 of 3. Every bare arm changed `app/services/errors.py`; the scope layer blocked the same file in every harness arm. Harness ahead, the one gap.
+- Section 4, all hidden tests and mutants on F4: bare 0 of 4, harness 0 of 4 in run 3 and the class round (and 0 of 3 each in the earlier medium round). No measurable difference: both fail.
 - The registered gate for the larger batches needed the harness ahead in 3 of 4 sections; it was ahead in 0, so the batches of 10 runs per arm and the ablation were not run.
 - Post hoc over 34 runs per arm, descriptive only: files outside the allowed paths in 9 bare runs and 0 harness runs; done claimed in 19 against 10, none of them with failing hidden tests; median cost per arm $0.0103 bare, $0.0123 harness.
-- Analogy: a release dashboard with error bars: one good night does not move a decision.
+- Analogy: a release dashboard with error bars: one good run does not move a decision.
 - Question for the room: "Why did the one gap show up on scope?" Expected answer: the scope layer blocks the edit by construction; the other layers only change what the agent reads or how it ends.
 - Likely learner question: "So should I skip the other layers?" Answer: measure them on your own failures. OpenAI says its results "should not be assumed to generalize without similar investment—at least, not yet." The same holds here: one model, one ticket per section, a few runs per arm.
 - Misconception: "No measurable difference means no difference." Correction: it means these few runs cannot show one; a smaller effect needs more runs.
-- Point at the S3 confirmation row, the only row where the colours differ, and say "partly by construction" as you point.
-- Time: 3 minutes. Transition: "So which layer when?"
+- Point at the Section 3 confirmation row, the only row where the colours differ, and say "partly by construction" as you point.
+- Time: 2.5 minutes. Transition: "So which layer when?"
 
-## Slide 95: Which layer when: match the layer to the failure
-**Block:** Final  **Time:** 2 min (3:51-3:53)  **Diagram:** docs/diagrams/which-layer-when.png
+## Slide 102: Which layer when: match the layer to the failure
+**Block:** Final  **Time:** 2 min (3:49-3:51)  **Diagram:** docs/diagrams/which-layer-when.png
 **On the slide:**
 (title only)
 **Visual:** The which-layer-when diagram: four rows (instructions, state, scope, verification), each with the failure it prevents, the signal that says "add it", and what it costs. Scope carries a "measured gap" tag. Diagram only.
 **Speaker notes:**
-- Plain explanation: each layer is a bet on one thing the model cannot do on its own. A3: "every component in a harness encodes an assumption about what the model can't do on its own, and those assumptions are worth stress testing."
+- Plain explanation: each layer is a bet on one thing the model cannot do on its own. (Anthropic, Harness design): "every component in a harness encodes an assumption about what the model can't do on its own, and those assumptions are worth stress testing."
 - Instructions: add a map when the agent breaks rules that live in a wiki or copies legacy patterns. Cost: keeping the docs true.
 - State: add progress files and a handoff when work spans sessions. Cost: a few turns per stop.
-- Scope: add allowed paths and a sandbox when agents edit outside the ticket. The only layer with a measured gap here: bare 0 of 3 in scope, harness 3 of 3, on F4, partly by construction.
+- Scope: add allowed paths and a sandbox when agents edit outside the ticket. The only layer with a measured gap here: bare 0 of 3 in scope, harness 3 of 3, on version checks (F4), partly by construction.
 - Verification: add a gate when the agent can claim done early and your checks are cheap and exact; keep some checks held out.
-- How to decide in your repo: A3's method, "removing one component at a time and reviewing what impact it had on the final result". On TeamTrack, `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm.
+- How to decide in your repo: the method of (Anthropic, Harness design), "removing one component at a time and reviewing what impact it had on the final result". On TeamTrack, `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm.
 - Analogy: a security review that picks controls from the incidents you have had, not from a vendor's full catalogue.
 - Question for the room: "Which failure do you see most in your repo?" Expected answer: varied; map each answer to a row.
 - Misconception: "A harness is all four layers or nothing." Correction: the kit's worked example kept every layer but cut instructions down for a small library; decide per layer and write the decision down.
@@ -2267,8 +2433,8 @@ Look for:
 - Likely question: "Is there a layer you would never skip?" Answer: not on this evidence. The sandbox is the one to keep without a measurement: it limits damage on the run that goes wrong, which no A/B here measures.
 - Time: 2 minutes. Transition: "Here is how to take it home."
 
-## Slide 96: Use it in your repo: the kit and four skills
-**Block:** Close  **Time:** 2 min (3:53-3:55)  **Diagram:** docs/diagrams/harness-one-picture.png
+## Slide 103: Use it in your repo: the kit and four skills
+**Block:** Close  **Time:** 1.5 min (3:51-3:52:30)  **Diagram:** none
 **On the slide:**
 `uv run shipharness init --target ~/my-repo`
 `uv run shipharness init --check ~/my-repo`
@@ -2278,7 +2444,7 @@ Four Agent Skills:
 - `assured-tests`: keep tests passing five filters
 - `house-rules`: convention to rule, check, test
 - `skill-template`: start your own skill
-**Visual:** The harness-one-picture diagram (the four layers around the agent loop), with a small caption: "the same layers, copied into your repo".
+**Visual:** A terminal card with the two commands on top and four skill chips under it. No diagram here: the harness picture gets its own slide at the end.
 **Speaker notes:**
 - Plain explanation: `shipharness init` copies the kit into your repository with no model calls. Every template holds TeamTrack's real values with a REPLACE marker next to each; `--check` lists the markers still to fill.
 - It never overwrites your files: an existing `AGENTS.md` is skipped and reported; `--force` replaces it only if you ask.
@@ -2290,83 +2456,83 @@ Four Agent Skills:
 - Likely learner question: "Does testgen run my tests on my machine?" Answer: with `--sandbox local`, yes, and it prints UNSANDBOXED; for code you do not trust, use `--sandbox docker --image`.
 - Misconception: "Install the kit and you are done." Correction: step 7 of the guide is deciding which layers earn their place; measure before you keep a piece.
 - Point at the two commands: `init` copies the kit, `init --check` lists the REPLACE markers still to fill.
-- Time: 2 minutes. Transition: "Four assignments practise each layer."
+- Time: 1.5 minutes. Transition: "Four assignments practise each layer."
 
-## Slide 97: Assignments (1 of 2): instructions and state
-**Block:** Close  **Time:** 1 min (3:55-3:56)  **Diagram:** none
+## Slide 104: Assignments (1 of 2): instructions and state
+**Block:** Close  **Time:** 1 min (3:52:30-3:53:30)  **Diagram:** none
 **On the slide:**
-**A1: from one long instruction file to a map**
+**Assignment 1: from one long instruction file to a map**
 - Split a long `AGENTS.md` into map, docs, skill
 - Write a checker for lost rules and links
-- One live A/B; report R1 and R3 counts
-**A2: three forced stops, one history**
+- One live A/B; report R1 tenant isolation and R3 API conventions counts
+**Assignment 2: three forced stops, one history**
 - Complete a state layer with a step ledger
 - Facts from git, never the agent's word
 - Offline scenarios, then one live run
-**Visual:** Two cards side by side, A1 and A2, each with its folder path in small type: `section-1-instructions/assignment/`, `section-2-state-lifecycle/assignment/`.
+**Visual:** Two cards side by side, Assignment 1 and Assignment 2, each with its folder path in small type: `section-1-instructions/assignment/`, `section-2-state-lifecycle/assignment/`.
 **Speaker notes:**
 - Every assignment has the same shape: a starter folder, `make check-assignment-N` that runs offline with no keys, one live step, grading criteria out of 100 points, and a full solution with a step-by-step walkthrough in `solution/`. Tell learners to try first.
-- A1: the starter is a long single `AGENTS.md` with tagged rules. Build a short map, focused docs, one Agent Skill, and `checker/check_docs.py` that fails when a link breaks or a rule goes missing. Then one live A/B with your tree and `ab-report.md` with R1 and R3 as counts.
-- A2: complete `ResumableStateLayer`. At every stop it writes what the next session needs, derived from git and the files on disk. A deterministic stand-in agent drives the real runner across three forced stops, offline; then one live run with the course model.
-- Engineering example: A2's failure is the classic second migration for a table that already exists; the step ledger prevents it.
-- Analogy: A1 is writing onboarding docs that a linter keeps honest; A2 is an on-call handover template filled from the system, not from memory.
-- Question for the room: "Why must A2's facts come from git?" Expected answer: the agent's account of what it did is a claim, the same lesson as tonight's done claim.
+- Assignment 1: the starter is a long single `AGENTS.md` with tagged rules. Build a short map, focused docs, one Agent Skill, and `checker/check_docs.py` that fails when a link breaks or a rule goes missing. Then one live A/B with your tree and `ab-report.md` with R1 and R3 as counts.
+- Assignment 2: complete `ResumableStateLayer`. At every stop it writes what the next session needs, derived from git and the files on disk. A deterministic stand-in agent drives the real runner across three forced stops, offline; then one live run with the course model.
+- Engineering example: Assignment 2's failure is the classic second migration for a table that already exists; the step ledger prevents it.
+- Analogy: Assignment 1 is writing onboarding docs that a linter keeps honest; Assignment 2 is an on-call handover template filled from the system, not from memory.
+- Question for the room: "Why must Assignment 2's facts come from git?" Expected answer: the agent's account of what it did is a claim, the same lesson as today's done claim.
 - Likely learner question: "Do I need Docker for the self-check?" Answer: no; the self-checks run offline. Only the live step needs keys and Docker.
 - Misconception: "The live step must show the harness winning." Correction: report what you measured, as counts; a tie is a valid result.
 - Review session: two hours, about 25 minutes per assignment, then open questions.
 - Point at the two folder paths: each holds the starter, the solution, and a README with the grading criteria.
-- Time: 1 minute. Transition: "A3 and A4."
+- Time: 1 minute. Transition: "Assignments 3 and 4."
 
-## Slide 98: Assignments (2 of 2): scope and verification
-**Block:** Close  **Time:** 1 min (3:56-3:57)  **Diagram:** none
+## Slide 105: Assignments (2 of 2): scope and verification
+**Block:** Close  **Time:** 1 min (3:53:30-3:54:30)  **Diagram:** none
 **On the slide:**
-**A3: scope you can check**
+**Assignment 3: scope you can check**
 - Diff parser and per-phase scope policy
 - `passes` set only with evidence
 - A deny rule for history rewrites
-**A4: verification and portfolio**
+**Assignment 4: verification and portfolio**
 - R8: deleted issues answer 404, never listed
 - Filter 6: drop duplicate generated tests
-- testgen plus one live F4 A/B
+- testgen plus one live A/B on version checks (F4)
 - A portfolio a reader can check
-**Visual:** Two cards side by side, A3 and A4, with `section-3-scope-sandbox/assignment/` and `section-4-verification/assignment/` in small type.
+**Visual:** Two cards side by side, Assignment 3 and Assignment 4, with `section-3-scope-sandbox/assignment/` and `section-4-verification/assignment/` in small type.
 **Speaker notes:**
-- A3: build `a3scope`: a diff parser that finds every changed path (renames, quoted names, `../` paths, empty new files), a policy that refuses paths outside the phase's list, an evidence-gated update of `passes`, and a sandbox rule that refuses git history rewrites with a test that proves the denial. Live step: one `demo-3` A/B on F3.
-- A3 grading multiplies both sides, so a policy that refuses everything, or allows everything, earns nothing there.
-- A4: turn TeamTrack's soft-delete rule into house rule R8. On unchanged TeamTrack it finds one violation, at `GET /v1/issues`. Add filter 6, which discards a test that repeats another. Then a testgen run and one live F4 A/B, kept in `live/`, and a portfolio: evidence report, LangSmith link, one-page case study, your own skill.
-- A4's reference solution passes its self-check 23 of 23; the unchanged starter passes 2 of 23, by design. Each FAIL line names what to build.
-- Engineering example: A4's R8 error message should tell the agent how to fix the problem; A1's source, OpenAI: "we write the error messages to inject remediation instructions into agent context."
-- Analogy: A3 is least privilege enforced by code review bots; A4 is adding a missing lint rule after an incident.
+- Assignment 3: build `a3scope`: a diff parser that finds every changed path (renames, quoted names, `../` paths, empty new files), a policy that refuses paths outside the phase's list, an evidence-gated update of `passes`, and a sandbox rule that refuses git history rewrites with a test that proves the denial. Live step: one `demo-3` A/B on idempotency keys (F3).
+- Assignment 3 grading multiplies both sides, so a policy that refuses everything, or allows everything, earns nothing there.
+- Assignment 4: turn TeamTrack's soft-delete rule into house rule R8. On unchanged TeamTrack it finds one violation, at `GET /v1/issues`. Add filter 6, which discards a test that repeats another. Then a testgen run and one live version checks (F4) A/B, kept in `live/`, and a portfolio: evidence report, LangSmith link, one-page case study, your own skill.
+- Assignment 4's reference solution passes its self-check 23 of 23; the unchanged starter passes 2 of 23, by design. Each FAIL line names what to build.
+- Engineering example: Assignment 4's R8 error message should tell the agent how to fix the problem; Section 1's source (OpenAI, Harness engineering): "we write the error messages to inject remediation instructions into agent context."
+- Analogy: Assignment 3 is least privilege enforced by code review bots; Assignment 4 is adding a missing lint rule after an incident.
 - Question for the room: "Why does R8 probe every endpoint from the app's schema?" Expected answer: so endpoints an agent adds later are covered too.
-- Likely learner question: "Is the grader in the repo?" Answer: no; `make check-assignment-N` runs the visible checks, and the instructor's grader adds hidden cases, the same idea as tonight's hidden tests.
-- Misconception: "A4's live A/B must pass F4." Correction: in the reference run neither arm passed the primary measure; the grade is for valid evidence, honestly reported.
-- Point at "Filter 6": the one addition that extends tonight's five filters.
+- Likely learner question: "Is the grader in the repo?" Answer: no; `make check-assignment-N` runs the visible checks, and the instructor's grader adds hidden cases, the same idea as today's hidden tests.
+- Misconception: "Assignment 4's live A/B must pass F4." Correction: in the reference run neither arm passed the primary measure; the grade is for valid evidence, honestly reported.
+- Point at "Filter 6": the one addition that extends today's five filters.
 - Time: 1 minute. Transition: "And the final project ties them together."
 
-## Slide 99: Final project: one live A/B, read as one dot
-**Block:** Close  **Time:** 1 min (3:57-3:58)  **Diagram:** screenshot: final-project/expected/screen-4-final.png
+## Slide 106: Final project: one live A/B, read as one dot
+**Block:** Close  **Time:** 0.5 min (3:54:30-3:55)  **Diagram:** screenshot: final-project/expected/screen-4-final.png
 **On the slide:**
 - Run `make final FEATURES=F5` yourself
 - Remove one layer: `LAYERS=-scope`
 - Read counts, never one verdict
 - Draw your dots: `uv run shipharness report`
-- Feeds A4's portfolio
+- Feeds Assignment 4's portfolio
 **Visual:** Screen 4 of the course's final run: one dot per run per feature and arm. Callout: arrow to a single new dot, label "one A/B = one dot".
 **Speaker notes:**
-- Plain explanation: the final project repeats tonight's final on your machine: `make final FEATURES=F5`, with `PURPOSE=pilot` outside class. At the caps one feature costs at most $0.58.
-- Leave-one-out: `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm; this is A3's method, one feature at a time.
+- Plain explanation: the final project repeats today's final on your machine: `make final FEATURES=F5`, with `PURPOSE=pilot` outside class. At the caps one feature costs at most $0.58.
+- Leave-one-out: `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm; this is Anthropic's method from Harness design, one feature at a time.
 - `uv run shipharness report` makes no model calls and writes `exports/report.html`: one dot per run, filled for passed, hollow for failed.
-- The portfolio for A4: the A/B's score records and trace links, the kit's check and testgen output on a repository you choose, a one-page case study, and a skill of your own.
-- Concrete example: the course ran F5 twice before class and the two A/Bs split differently on mutants (2 of 3 each, then 1 of 3 against 3 of 3). That is the reason for "one dot".
+- The portfolio for Assignment 4: the A/B's score records and trace links, the kit's check and testgen output on a repository you choose, a one-page case study, and a skill of your own.
+- Concrete example: the course ran bulk close (F5) twice before class and the two A/Bs split differently on mutants (2 of 3 each, then 1 of 3 against 3 of 3). That is the reason for "one dot".
 - Analogy: a benchmark result you publish with its run count and variance, not a single best run.
 - Question for the room: "How many runs would you need before you believed a gap?" Expected answer: more than one per arm; the course planned 10 per arm for its larger batches.
 - Misconception: "My one A/B shows the harness works on my repo." Correction: it shows one dot; report it as counts and say what more runs would need to show.
 - Point at the single new dot on screen 4 among the dots from before class.
 - Likely question: "Can I run the final without Docker?" Answer: not for results; the instructor guide forbids `SANDBOX_MODE=none` for class results, because both arms must run in the same kind of container.
-- Time: 1 minute. Transition: "Where every quote tonight came from."
+- Time: 30 seconds. Transition: "Where every quote today came from."
 
-## Slide 100: References (1 of 2): harness engineering sources
-**Block:** Close  **Time:** 0.5 min (3:58-3:58:30)  **Diagram:** none
+## Slide 107: References (1 of 2): harness engineering sources
+**Block:** Close  **Time:** 0.5 min (3:55-3:55:30)  **Diagram:** none
 **On the slide:**
 - OpenAI, Harness engineering: leveraging Codex in an agent-first world · Ryan Lopopolo · 2026-02-11
 - Anthropic, Effective harnesses for long-running agents · Justin Young · 2025-11-26
@@ -2376,7 +2542,7 @@ Four Agent Skills:
 - OpenAI Cookbook, Using PLANS.md for multi-hour problem solving · Aaron Friel · 2025-10-07
 **Visual:** A plain list, source name in blue, author and date in white. No picture.
 **Speaker notes:**
-- These are the sources behind the four causes and the four layers; titles are exact, so the OpenAI title keeps its own wording.
+- These are the sources behind the four causes and the four layers; titles are exact except OpenAI's, shortened on the slide; its full title is in `REFERENCES.md`.
 - OpenAI, Harness engineering: the map instead of a giant instruction file, "golden principles" behind the house rules, and the warning that results should not be assumed to generalize.
 - Anthropic, Effective harnesses: sessions start with no memory; clean state; progress files and the feature list.
 - Anthropic, Harness design: self-grading skews positive; separating doer and judge; removing one component at a time.
@@ -2386,8 +2552,8 @@ Four Agent Skills:
 - Likely learner question: "Which one should I read first?" Answer: Anthropic's Harness design, then OpenAI's Harness engineering.
 - Time: 30 seconds. Transition: next slide.
 
-## Slide 101: References (2 of 2): skills, tests, held-out evaluation
-**Block:** Close  **Time:** 0.5 min (3:58:30-3:59)  **Diagram:** none
+## Slide 108: References (2 of 2): skills, tests, held-out evaluation
+**Block:** Close  **Time:** 0.5 min (3:55:30-3:56)  **Diagram:** none
 **On the slide:**
 - Agent Skills: Specification; What are skills?; Adding skills support · agentskills.io
 - Claude Code, Codex, and Cursor skills docs
@@ -2406,8 +2572,8 @@ Four Agent Skills:
 - Misconception: "Filters 4 and 5 are from TestGen-LLM." Correction: they are the course's own; the evidence page says so.
 - Time: 30 seconds. Transition: "Last questions."
 
-## Slide 102: Q&A: anything from today
-**Block:** Close  **Time:** 1 min (3:59-4:00)  **Diagram:** none
+## Slide 109: Q&A: anything from today
+**Block:** Close  **Time:** 0.5 min (3:56-3:56:30)  **Diagram:** none
 **On the slide:**
 Ask about anything:
 - Concepts from today's modules
@@ -2424,22 +2590,81 @@ No Question Is Too Small Every Question Deserves an Answer!!
 **Speaker notes:**
 - Take questions collected in chat during Section 4 first.
 - Likely question: "Which layer should I add first at work?" Answer: the one that matches a failure you have seen; scope is the only one with a measured gap here, on one ticket and partly by construction; start by counting out-of-scope files before you enforce anything.
-- Likely question: "Will these results hold for a stronger model?" Answer: unknown; each layer encodes an assumption about the model, and A3 dropped context resets for a newer model. Re-measure when the model changes.
-- Likely question: "How much did tonight cost?" Answer: read the session figure from the last `Cost:` line in terminal C; the session cap was $2.50.
+- Likely question: "Will these results hold for a stronger model?" Answer: unknown; each layer encodes an assumption about the model, and (Anthropic, Harness design) dropped context resets for a newer model. Re-measure when the model changes.
+- Likely question: "How much did this session cost?" Answer: read the session figure from the last `Cost:` line in terminal C; the session cap was $2.50.
 - Likely question: "Where do I start tomorrow?" Answer: `use-in-your-repo/apply-to-your-repo.md`, step 1, or Assignment 1.
 - Remind: the review session covers each assignment, about 25 minutes each, with common mistakes counted per criterion.
 - After class (instructor): `uv run shipharness report`, back up `.shipharness/runs/` and `exports/`, note each command's `Cost:` line.
-- Time: 1 minute; stop at 4:00.
-- Transition: "Thank you."
+- Time: 30 seconds; take one or two questions and collect the rest in chat for the review session.
+- Transition: "One picture of everything we built."
 
-## Slide 103: Thank you: see you at the review session
+## Slide 110: The harness in one picture
+**Block:** Close  **Time:** 1 min (3:56:30-3:57:30)  **Diagram:** docs/diagrams/harness-one-picture.png
+**On the slide:**
+The harness in one picture
+**Visual:** The `harness-one-picture` diagram, full frame: the agent loop in the centre, the four layers around it (instructions, state, scope, verification), the sandbox drawn around both arms, the referee outside. Diagram only.
+**Speaker notes:**
+- Plain explanation: one picture of everything built today. The model is unchanged; the four layers change what the agent sees, keeps, may touch, and must prove.
+- Instructions: a map of about 100 lines in context, details on disk, skills that load in tiers. It informs; it never blocks.
+- State: a progress file, an exec plan, and a two-owner handoff; the harness writes the facts from git at every stop.
+- Scope: one feature at a time, allowed paths per phase checked on every tool call, `passes` set only by the harness.
+- Verification: a gate on "done", five test filters, and held-out hidden tests and mutants the agent never sees.
+- The sandbox: one container per arm, no network, keys on the host. It is the same for both arms, so no A/B here measures it.
+- The referee sits outside the harness: it scores what shipped, the same way for both arms.
+- Analogy: onboarding docs, a shift handover, least privilege, and CI gates: four practices your team already trusts for humans, applied to an agent.
+- Point at the scope ring: the one layer with a measured gap, on version checks (F4), partly by construction.
+- Ask: "Which ring would you add first in your repository?" Expected: the one that matches a failure you have already seen; the next slide's takeaways say how to decide.
+- Likely question: "Do I need all four?" Answer: no; each layer is a bet on what the model cannot do on its own. Measure it on your failures before you keep it.
+- Misconception: "more rings means a safer agent". Correction: each ring costs turns and time; harness arms ran longer than bare arms in the runs before class.
+- Time: 1 minute. Next: the summary.
+
+## Slide 111: Module 1 Summary: Key takeaways
+**Block:** Close  **Time:** 1.5 min (3:57:30-3:59)  **Diagram:** docs/diagrams/module-summary.png
+**On the slide:**
+Module 1 Summary: Key takeaways
+**Visual:** The `module-summary` diagram: four section boxes (instructions, state, scope, verification), each with its mechanism and its measured result, leading to numbered key takeaways in "X = Y" form. Diagram only.
+**Speaker notes:**
+- Takeaway 1, instructions = a short map in context, details on disk, checked by a script. On org-wide search (F1): no measurable difference; the model already scoped its query.
+- Takeaway 2, state = facts from git at every stop, notes from the agent. On comments (F2): no measurable difference; the repository was enough state for this model.
+- Takeaway 3, scope = allowed paths checked by code, a sandbox for both arms. On version checks (F4): bare 0 of 3 runs in scope, harness 3 of 3, partly by construction; on idempotency keys (F3), no measurable difference.
+- Takeaway 4, verification = checks the agent does not own: a gate, filters, hidden tests, mutants. On version checks (F4): both arms failed every run; no measurable difference.
+- Takeaway 5, every layer = a bet on what the model cannot do on its own. Measure it with the same ticket, model, and referee, and read counts per arm, never one run.
+- Concrete next step: count your agent's out-of-scope files with `git diff --name-only` before you enforce anything; it is the cheapest measurement in the module.
+- Analogy: a post-incident review: keep the controls that would have caught a failure you actually had.
+- Point at takeaway 5: it is the line to remember from today.
+- Ask: "Which takeaway surprised you?" Expected: that three of four layers showed no measurable difference on this model.
+- Likely question: "Will these results hold for my model?" Answer: unknown; re-measure when the model changes.
+- Misconception: "no measurable difference means the layer is useless". Correction: these few runs on one ticket per section cannot show a smaller effect; it is one bet, measured.
+- Time: 1.5 minutes. Next: a glimpse of Module 2.
+
+## Slide 112: Glimpse of Module 2: Loop Engineering for Coding Agents
+**Block:** Close  **Time:** 1 min (3:59-4:00)  **Diagram:** none
+**On the slide:**
+Glimpse of Module 2: Loop Engineering for Coding Agents
+- Background and event-driven runs: agents that start on events
+- Hill climbing: change one thing, keep it if the score rises
+- Defenses against agents that actively game checks
+- pass^k reliability: does it pass every one of k tries?
+- Detailed sandbox design
+**Visual:** Template slide 62 divider style: the title as one large line, then five short lines, one per topic, each with a small icon. No picture.
+**Speaker notes:**
+- Module 1 built the harness around one run. Module 2 is about the loop around many runs.
+- Background and event-driven runs: the agent starts from an event (a new ticket, a failing check) instead of a person at a terminal.
+- Hill climbing: change one piece of the harness, re-measure, keep it only if the measure improves; it reuses today's referee and A/B.
+- Gaming defenses: today no run showed deliberate gaming; Module 2 covers agents that actively work around checks, building on today's held-out tests and mutants.
+- pass^k: one passing run is one dot; pass^k asks whether all k tries pass, a stricter reading of reliability.
+- Sandbox design in detail: today's container flags were the same for both arms; Module 2 designs the boundary itself.
+- Ask: "Which of these would you want for your own agent first?" Expected: varied; event-driven runs are common in CI.
+- Time: 1 minute. Next: thank you.
+
+## Slide 113: Thank you: see you at the review session
 **Block:** Close  **Time:** 0 min (4:00)  **Diagram:** none
 **On the slide:**
 Thank you
 **Visual:** The template's closing picture slide: full image, one line of text.
 **Speaker notes:**
 - Thank the room for the polls and the questions.
-- Repeat the one line of the night: each harness piece is a bet on what the model cannot do; measure it before you keep it.
+- Repeat the one line of the session: each harness piece is a bet on what the model cannot do; measure it before you keep it.
 - Point to the repository: section folders, `use-in-your-repo/`, and `final-project/`.
 - Point to the four assignments and their offline self-checks.
 - Remind them the class run records stay on the instructor's machine; captured runs are in each `demo/expected/` folder.
