@@ -75,7 +75,7 @@ ROOT_FILES = (
 ALLOW_DIRS = (
     ".github/workflows/",
     "setup/",  # the setup index, pre-class steps, and the three platform guides
-    "final-project/",
+    "final-project/",  # every file: README, run.sh, tasks/, harness/, walkthrough, expected/, ...
     "use-in-your-repo/",  # the starter kit, the four skills, and the guide
     "platform/src/",
     "platform/teamtrack/",  # including reference/, the referee's hidden tests, and the mutants
@@ -146,6 +146,21 @@ EXPECTED_DIRS = (
     "platform/sandbox/",
     "platform/config/",
     "platform/tests/",
+)
+# The final project's own parts. The 2026-10-17 release candidate shipped final-project/ with only
+# its README and screenshots: the allow-list took the whole folder, but the folder held nothing
+# else, and the missing-files report only asked for "final-project/". Each part is listed now.
+FINAL_EXPECTED = (
+    "final-project/README.md",
+    "final-project/run.sh",
+    "final-project/tasks/",
+    "final-project/harness/",
+    "final-project/walkthrough.md",
+    "final-project/expected/terminal.txt",
+    "final-project/expected/README.md",
+    "final-project/your-repo/README.md",
+    "final-project/your-repo/example/",
+    "final-project/CHECKLIST.md",
 )
 SCRIPTS_DIR = "platform/scripts/"
 # Learner scripts: the ones a public Makefile target, CI job, or public document runs.
@@ -280,6 +295,7 @@ def missing_expected(included: Iterable[str]) -> list[str]:
 
     missing = [p for p in (*ROOT_FILES, *DOCS_FILES, *SETUP_FILES) if not has(p)]
     missing += [d for d in EXPECTED_DIRS if not has(d)]
+    missing += [p for p in FINAL_EXPECTED if not has(p)]
     for number in SECTIONS:
         folders = sorted({p.split("/")[0] for p in present if p.startswith(f"{number}-")})
         for item in SECTION_EXPECTED:

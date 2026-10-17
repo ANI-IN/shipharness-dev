@@ -13,7 +13,43 @@ checked against the source text.
 
 ### Final project
 
-**The captured `make final` run.** `make final FEATURES=F5 PURPOSE=pilot`, class profile, on a quiet
+**The captured `make final` run.** `PURPOSE=pilot ./final-project/run.sh`, which runs
+`make final FEATURES=F5 PURPOSE=pilot`, class profile, 420 s agent time limit, in a worktree of this
+repository on branch `final-project` (from `fb72537`), after `make warm` there. Captured 2026-10-17
+from 20:17:20 UTC (2026-10-18, 01:47 IST), while one other live batch ran on the same machine. A/B
+`ab-20261017-201723-8f54f7`; runs `r-20261017-201723-59e116` (bare) and
+`r-20261017-201723-1ecec4` (harness).
+
+| Measure | Bare arm | Harness arm |
+|---|---|---|
+| Status | completed, 42 turns (sessions of 30 and 12) | ABORTED: timeout, 20 turns, no test phase |
+| Agent's claim | done | done |
+| Hidden tests passed | 46 of 46 | 46 of 46 |
+| Referee-set mutants killed | 3 of 3 | 1 of 3 |
+| Files outside the allowed paths | 0 | 0 |
+| Blinded reviewer | accept | reject (audit row) |
+| Launch to primary verdict | 04:27 | 05:46 |
+| Launch to full verdict | 11:39 | 11:41 |
+| Arm cost | $0.0196 | $0.0139 |
+
+Command total: $0.038253 (agents on gpt-6-luna $0.033578, reviews on gpt-5.6-luna $0.004675). From
+`run.sh` to the cost line: 12 min 9 s (`real 12m8.754s`); the A/B launched 24 s after `run.sh`
+started. Exit code 2. The harness arm's gate baseline came from the cache ("gate baseline
+reused"). It said done after 20 turns; its gate's check runner and `alembic heads` then hit their
+time limits in the arm's container (two sandbox denials, reason timeout), the gate failed on them,
+and the harness's own time limit (`HARNESS_TIMEOUT_S`, 120 s) ended the arm before a test phase.
+Reading: bare ahead on mutants killed, one dot, with a cause in machine time rather than in the
+layers.
+
+**A run without the warm cache.** The same command in the same worktree before `make warm`,
+2026-10-17 from 19:56:42 UTC. A/B `ab-20261017-195648-f9cbee`. The harness arm's gate baseline
+was not cached, so the verify layer computed it in the arm's container before turn 1; that command
+hit its time limit and the 120 s harness limit ended the arm with 0 turns ("gate baseline
+unavailable", `ABORTED: timeout`, hidden tests 3 of 46, mutants 0 of 3). The bare arm completed in
+37 turns: hidden tests 46 of 46, mutants 3 of 3. Cost $0.021861; `real 8m18.911s`; exit code 2.
+This run is why the final project's page lists "0 turns" under "If it fails".
+
+**The earlier captured `make final` run.** `make final FEATURES=F5 PURPOSE=pilot`, class profile, on a quiet
 machine, one command at a time, after `make warm`, on 2026-10-17 from 12:03:21 UTC. A/B
 `ab-20261017-120323-c97138`. The class profile then used a 300 s agent time limit; it now uses 420 s
 for both arms (`platform/src/shipharness/config/profiles.py`).
@@ -74,6 +110,16 @@ A/B `make demo-3 FEATURE=F4` after the S3 confirmation; the final runs `make fin
 
 ### Use in your repository
 
+**The final project's worked example.** Every command in `final-project/your-repo/README.md` ran on
+2026-10-17 from 20:07 UTC, in the same worktree, with the worked example at `/tmp/fp-example`
+(boltons 26.2.0, commit `4332b35a278d694f30c99881faa61cde695c7a96`). Step 4's testgen run
+`r-20261017-200812-6d069b` kept 3 of 3 proposed tests, `Cost: $0.001522 (testgen, model
+gpt-6-luna)`; filter 3 reasons: 5, 4, and 7 added covered lines. An earlier pass of the same capture
+script, stopped at its first commit because the capture machine had no git identity, ran the same
+testgen command for $0.002015; its output was overwritten by the rerun. The capture set the git
+identity through `GIT_AUTHOR_*` and `GIT_COMMITTER_*` environment variables, which the page does not
+show.
+
 **The worked example's testgen run.** Run `r-20261017-121823-aa1c4b`, 2026-10-17, on an identical
 copy of the worked example at `/tmp/boltons-queueutils`, with the command shown in step 5 of
 `use-in-your-repo/apply-to-your-repo.md` and a $0.10 cap: kept 3 of 3 proposed tests,
@@ -97,23 +143,25 @@ harness arms with the scope layer in 0 of 6 (exploratory analysis of the pilot's
 
 ### Final project captures
 
-All screenshots in `final-project/expected/` come from A/B `ab-20261017-120323-c97138` (above),
-taken from the live console every minute and of all five screens at the end, on 2026-10-17.
+All screenshots in `final-project/expected/` come from A/B `ab-20261017-201723-8f54f7` (above),
+taken from the live console at 1920x1080 every minute and of all five screens at the end, on
+2026-10-17, then cropped to the panels (the empty bottom rows cut).
 
 | File | Taken |
 |---|---|
-| `screen-1-minute-4.png` | 12:07 UTC, minute 4 |
-| `screen-1-minute-10.png` | 12:13 UTC, minute 10 |
-| `screen-1-final.png` | 12:17 UTC, after the full verdict |
-| `screen-2-final.png`, `screen-3-final.png` | 12:17 UTC |
-| `screen-4-final.png`, `screen-5-final.png` | 12:17 UTC |
+| `screen-1-minute-1.png` | 20:18 UTC, minute 1 |
+| `screen-1-minute-5.png` | 20:22 UTC, minute 5 |
+| `screen-1-minute-7.png` | 20:24 UTC, minute 7 |
+| `screen-1-final.png` | 20:29 UTC, after both full verdicts |
+| `screen-2-final.png` to `screen-5-final.png` | 20:29 UTC |
 
-The terminal output on the page is the same run's `make final` output, with the A/B id replaced by
-`<A/B id>`. Screen 4 pools every score record of the current referee version in `exports/`, so its
-rows were mostly the pilot's runs at capture time.
+`final-project/expected/terminal.txt` is the same run's terminal output, with the A/B id cut to
+`...`; the README quotes its last lines. Screen 4 pools every score record in the worktree's
+`exports/`: this run and the run without the warm cache. The run ids in
+`final-project/your-repo/example/testgen-report.json` are the worked example's testgen run above.
 
-The re-timing of `make final` with the 420 s agent time limit had not finished when this page was
-written; the timings above are from the 300 s run.
+The screenshots of the earlier captured run (A/B `ab-20261017-120323-c97138`, 12:07 to 12:17 UTC)
+were replaced by these.
 
 ### Use in your repository captures
 

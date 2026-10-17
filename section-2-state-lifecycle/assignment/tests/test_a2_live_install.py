@@ -101,3 +101,11 @@ def test_the_live_step_gives_the_harness_enough_time_for_four_sessions() -> None
     assert env["HARNESS_TIMEOUT_S"] == "600"
     assert env["PYTHONUNBUFFERED"] == "1"
     assert run_live.child_env({"HARNESS_TIMEOUT_S": "900"})["HARNESS_TIMEOUT_S"] == "900"
+
+
+def test_the_live_step_gives_each_session_enough_agent_time() -> None:
+    # Attempt 3 (2026-10-18): each session's start-up calls took about 225 s of the standard
+    # 300 s agent limit, so session 3 ended by timeout instead of its turn budget. A caller's
+    # value is kept.
+    assert run_live.child_env({})["RUN_TIMEOUT_S"] == "900"
+    assert run_live.child_env({"RUN_TIMEOUT_S": "420"})["RUN_TIMEOUT_S"] == "420"

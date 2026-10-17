@@ -59,12 +59,16 @@ def _path_arg(path: Path) -> str:
 # Four sessions end in a handoff each, and every handoff runs the visible suite: that needs more
 # than the default 120 s of harness time. A caller's own HARNESS_TIMEOUT_S is kept.
 LIVE_HARNESS_TIMEOUT_S = "600"
+# Each session starts with the status command and the visible suite (about 225 s on the
+# course machine), so the 300 s agent limit could end a session before its turn budget.
+LIVE_RUN_TIMEOUT_S = "900"
 
 
 def child_env(base: Mapping[str, str]) -> dict[str, str]:
     """The environment of the child process that runs the live A/B."""
     env = {**base, "PYTHONUNBUFFERED": "1"}
     env.setdefault("HARNESS_TIMEOUT_S", LIVE_HARNESS_TIMEOUT_S)
+    env.setdefault("RUN_TIMEOUT_S", LIVE_RUN_TIMEOUT_S)
     return env
 
 

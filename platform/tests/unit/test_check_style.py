@@ -534,8 +534,13 @@ def test_agent_files() -> None:
         "use-in-your-repo/kit/templates/AGENTS.md",
         "use-in-your-repo/kit/examples/boltons-queueutils/filled/progress.md",
         "use-in-your-repo/skills/house-rules/SKILL.md",
+        "final-project/harness/AGENTS.md",
+        "final-project/harness/docs/exec-plans/active/F5.md",
     ]
     course = [
+        "final-project/harness/README.md",
+        "final-project/README.md",
+        "final-project/your-repo/README.md",
         "section-1-instructions/assignment/starter/README.md",
         "section-1-instructions/assignment/solution/README.md",
         "section-1-instructions/assignment/solution/SOLUTION.md",
@@ -645,6 +650,15 @@ def test_word_count() -> None:
         "<!-- hidden words here -->\n\n![Alt text words](img.png)\n\n| Five | six |\n"
     )
     assert cs.count_words(cs.parse_page(text)) == 8
+
+
+def test_concepts_length_counts_table_cells(tmp_path: Path) -> None:
+    rel = "section-1-instructions/concepts.md"
+    prose = "word " * 1750 + "\n"
+    table = "\n| Step | Result |\n|---|---|\n" + "| one two three | four five six |\n" * 20
+    assert not [p for p in problems(tmp_path, rel, prose) if p.check == "SC11"]
+    found = [p for p in problems(tmp_path, rel, prose + table) if p.check == "SC11"]
+    assert [(p.line, p.message) for p in found] == [(1, "1872 prose words, limit about 1800")]
 
 
 def test_allow_marker(tmp_path: Path) -> None:

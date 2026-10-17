@@ -191,6 +191,7 @@ _PUBLIC = re.compile(
 _NOT_PUBLIC = {"docs/CHANGELOG.md", "docs/REFERENCES.md"}
 _AGENT = re.compile(
     rf"^(?:{_SECTION}/demo/harness/.+"
+    r"|final-project/harness/(?!README\.md$).+"
     rf"|{_SECTION}/assignment/starter/(?!README\.md$).+"
     rf"|{_SECTION}/assignment/solution/(?!(?:README|SOLUTION|SOLUTION_NOTES)\.md$).+"
     r"|use-in-your-repo/(?:templates|skills|kit/templates)/.+"
@@ -539,7 +540,8 @@ def _images(ln: Line) -> list[tuple[str, str | None, str]]:
 
 
 def count_words(page: Page) -> int:
-    """Prose words: fences, comments, and image lines are left out; link targets are removed."""
+    """Words in prose, headings, lists, quotes, and table cells: fences, comments, and image lines
+    are left out; link targets are removed."""
     total = 0
     for ln in page.lines:
         if ln.kind != "prose" or _is_alone(ln):

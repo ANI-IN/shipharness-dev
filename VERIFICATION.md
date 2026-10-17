@@ -744,6 +744,22 @@ Checks on the integrated main: ruff and format clean; prose lint 236 files, 0 pr
 clean; style check strict clean; `make test` 2393 passed, 1 skipped; Docker tests
 (`pytest -m docker platform/tests`, after `make images`) 16 passed.
 
+A2 reference live step, third attempt (2026-10-18 01:17 IST, 19:47 UTC on 2026-10-17): the untracked
+`task.jsonl` of the interrupted attempt and its output were moved to `.shipharness/pilot/a2-attempt-2/`,
+then `run_live.py --impl 02-state-lifecycle/assignment/solution --forced-stops` ran in parallel with
+the A1 reference A/B (load 5 to 7). A/B `ab-20261017-194743-ca51cc`, `Cost: $0.024449`, exit 2. Not
+valid: the harness arm hit the standard profile's 300 s agent time limit on turn 8 of session 3
+(sessions: turn_budget, turn_budget, timeout; session_stop events for sessions 1 and 2 only). The
+start-up calls of each session (a status command or `bash init.sh`, then `run_visible_tests`) took
+about 225 s of its 300 s of agent time; the bare arm ran all four sessions in 159 s. The 600 s the
+wrapper gives is HARNESS_TIMEOUT_S, not RUN_TIMEOUT_S, so it does not cover this. The evidence stays
+in `solution/live/` (copy in `.shipharness/pilot/a2-attempt-3/`); grade 90/100 with live_run 0,
+recaptured with the current command (`captured/grade-solution.txt`); `live/README.md`, `SOLUTION.md`,
+and `docs/evidence/s2.md` say the run is not valid and why. Not retried: a quiet machine would
+shorten the tool calls, but the four sessions' start-up calls alone come close to 300 s; a valid
+run likely needs the live step to raise RUN_TIMEOUT_S as it raises HARNESS_TIMEOUT_S (open, for a
+decision).
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before
