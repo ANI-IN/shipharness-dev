@@ -11,8 +11,9 @@ from __future__ import annotations
 import json
 import threading
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any, get_args
@@ -148,7 +149,7 @@ class ABDeps:
     policy_summary: str = ""
     tags: list[str] = field(default_factory=list)
     # Board preview per arm (console screen 2): called with (arm, bus, arm spec); the object
-    # needs start_server() and run(stop_event).
+    # needs start_server(), run(stop_event), and close() (stops its container at once).
     preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
     mutant_runner: Any = None  # referee mutant runner; None = the filters package runner
     mutant_source_repo: Path | None = None  # where teamtrack/mutants lives (default course_repo)
@@ -319,13 +320,36 @@ def make_referee(task: ABTask, deps: ABDeps, checkpoint_sha: str | None, base_di
     )
 
 
+# Seconds run_ab waits for each preview loop to end before it stops the preview container itself.
+PREVIEW_JOIN_S = 10.0
+
+
+@dataclass
+class _RunningPreview:
+    thread: threading.Thread
+    preview: Any
+
+    def join_or_stop(self, timeout_s: float) -> None:
+        """Wait for the preview loop to end. A capture still running after `timeout_s` (the F4
+        conflict capture can take longer) has its container stopped now: the loop runs on a
+        daemon thread, and a process that exits first never runs the loop's own stop."""
+        self.thread.join(timeout=timeout_s)
+        if self.thread.is_alive():
+            try:
+                self.preview.close()
+            except Exception as exc:  # noqa: BLE001 - display only; the run's result stands
+                structlog.get_logger(__name__).warning(
+                    "board preview container not stopped", reason=f"{type(exc).__name__}: {exc}"
+                )
+
+
 def _start_previews(
     deps: ABDeps, bus: EventBus, specs: Mapping[Arm, AgentRunSpec]
-) -> tuple[threading.Event, list[threading.Thread]]:
+) -> tuple[threading.Event, list[_RunningPreview]]:
     stop = threading.Event()
-    threads: list[threading.Thread] = []
+    running: list[_RunningPreview] = []
     if deps.preview_factory is None:
-        return stop, threads
+        return stop, running
     for arm, spec in specs.items():
         try:
             preview = deps.preview_factory(arm, bus, spec)
@@ -337,8 +361,17 @@ def _start_previews(
             continue
         thread = threading.Thread(target=preview.run, args=(stop,), daemon=True)
         thread.start()
-        threads.append(thread)
-    return stop, threads
+        running.append(_RunningPreview(thread, preview))
+    return stop, running
+
+
+@contextmanager
+def _joined(thread: threading.Thread) -> Iterator[None]:
+    """Join `thread` when the block exits, also when it raises."""
+    try:
+        yield
+    finally:
+        thread.join()
 
 
 def run_ab(
@@ -397,7 +430,8 @@ def run_ab(
     # The baseline depends only on the checkpoint, so it runs while the arms work.
     baseline = threading.Thread(target=referee.baseline, name="referee-baseline", daemon=True)
     baseline.start()
-    with EventBus(run_dir / "events.jsonl", ab_id=ab_id) as bus:
+    # The baseline's referee container is stopped before run_ab returns or raises.
+    with EventBus(run_dir / "events.jsonl", ab_id=ab_id) as bus, _joined(baseline):
         stop, previews = _start_previews(deps, bus, specs)
 
         # [walkthrough:Opening:two_arms] start
@@ -417,8 +451,8 @@ def run_ab(
                 done = {arm: future.result() for arm, future in futures.items()}
         finally:
             stop.set()  # previews stop (and their containers with them) on every path
-            for thread in previews:
-                thread.join(timeout=10)
+            for preview in previews:
+                preview.join_or_stop(PREVIEW_JOIN_S)
         results = {arm: done[arm][0] for arm in arms}
         records = {arm: done[arm][1] for arm in arms}
         # [walkthrough:Opening:two_arms] end

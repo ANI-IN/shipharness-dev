@@ -54,6 +54,11 @@ class PreviewHandle:
         finally:
             self.sandbox.stop()
 
+    def close(self) -> None:
+        """Stop the container now, also while `run()` is still capturing (the capture then fails
+        and `run()` returns). Safe to call more than once."""
+        self.sandbox.stop()
+
 
 @dataclass
 class Runtime:
