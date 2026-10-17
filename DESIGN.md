@@ -571,6 +571,15 @@ hit the agent time limit counts toward the difference only if it shipped a chang
 ahead -> the S3 class demo becomes a live A/B on this task (`make demo-3 FEATURE=F4`); otherwise S3 keeps
 `make show-3`. No re-runs, no tuning, and no other analysis decides it.
 
+Class profile agent time limit, decided 2026-10-17 before the runs that use it (owner, message 9.2):
+`RUN_TIMEOUT_S` = 420 s for both arms in the class profile (the standard profile keeps 300 s; pilot and
+experiment runs are unchanged). Reason from the recorded runs: in the class-profile round and the class
+commands re-timed, harness arms were cut at 300 s (F4 harness 311 s; show-2, show-4, and the final's
+harness arm), the harness's own work took up to 433 s (F4 handoffs and test filters), and the referee about
+3 minutes after an arm ends. 420 s of agent time plus about 433 s of harness work plus about 180 s of
+referee time is about 17.5 minutes for the slowest arm, inside the class plan's 25-minute window. The
+change applies to both arms identically ("class profile only"); no primary measure changes.
+
 Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
 `harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
 treatment (`src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
