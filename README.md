@@ -49,17 +49,9 @@ A harness is the environment around the agent, not a better prompt. OpenAI descr
 "design environments, specify intent, and build feedback loops". This module builds it in four
 layers, one per section.
 
-```mermaid
-flowchart LR
-  T["Ticket"] --> A
-  subgraph H["Harness"]
-    I["Instructions<br/>what the agent knows"] --> A["Coding agent"]
-    S["State<br/>what it remembers"] --> A
-    A --> SC["Scope and sandbox<br/>what it may change"]
-    SC --> V["Verification<br/>what proves it is done"]
-  end
-  V --> R["Referee<br/>scores what shipped"]
-```
+![The loop in the centre, with instructions, state, scope, verification, and the sandbox around it](docs/diagrams/harness-around-loop.svg)
+
+*Each layer acts at one point of the loop; the sandbox is the same for both arms.*
 
 - **Instructions** ([Section 1 of Module 1](section-1-instructions/README.md)). A short AGENTS.md acts as a map that
   points to one document per topic. The agent reads only what the ticket needs.

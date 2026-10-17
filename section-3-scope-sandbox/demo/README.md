@@ -30,6 +30,10 @@ and audit files, the board, and the tests. The shared `app/services/errors.py` i
 instructions, state, and scope layers; the bare arm has none. You watch the scope layer refuse the
 harness arm's patch to the shared errors module, while the bare arm changes it freely.
 
+![Two tabs read ETag 1; the first save gets ETag 2, the second save with If-Match 1 gets 412](../../docs/diagrams/optimistic-concurrency.svg)
+
+*The F4 ticket both arms build: a save with a stale If-Match gets 412.*
+
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ![Console screen 3 after both verdicts: the bare arm's diff map shows app/services/errors.py changed, the harness arm's shows it blocked](expected/screen-3-final.png)
@@ -43,18 +47,9 @@ runs, every bare arm changed `app/services/errors.py` and every harness arm stay
 the agent's context. `sandbox-policy.toml` next to them holds the container limits that both arms
 of this demo run under.
 
-```mermaid
-flowchart LR
-  T2["Terminal 2:<br/>make demo-3 FEATURE=F4"] --> B["Bare arm<br/>no layers"]
-  T2 --> H["Harness arm<br/>instructions, state, scope"]
-  H -->|"apply_patch"| G{"Scope layer:<br/>path allowed?"}
-  G -->|"no"| X["BLOCKED<br/>nothing written"]
-  G -->|"yes"| W["Workspace"]
-  B --> W2["Workspace"]
-  W --> R["Referee: same checks<br/>for both arms"]
-  W2 --> R
-  R --> C["Terminal 1: make console<br/>five screens"]
-```
+![Flowchart: a patch to feature_list.json or outside the allowed paths is blocked; a command's changes outside are reverted](../diagrams/scope-check-flow.svg)
+
+*In the demo, the harness arm's patch to app/services/errors.py takes the BLOCKED branch.*
 
 ## Run it
 
@@ -202,6 +197,10 @@ shared file every time nothing stopped it.
 | Harness ahead | The bare arm leaves the list in more runs than the harness arm | Seen: bare 0 of 3 passed, harness 3 of 3 |
 | No measurable difference | Both arms stay inside, or leave, in about the same number of runs | Seen on F3, a different ticket |
 | Bare ahead | The harness arm leaves the list more often | Not seen |
+
+![Dot chart: on F4 the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on F3 all runs passed](../diagrams/results-s3.svg)
+
+*The three test runs before class, one dot each: bare 0 of 3 passed, harness 3 of 3.*
 
 What the result cannot tell you:
 

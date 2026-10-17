@@ -62,25 +62,13 @@ Skills follow the same pattern, in three tiers
 | 2 | The full `SKILL.md` | When the agent decides to use the skill |
 | 3 | Files in `references/`, `scripts/`, `assets/` | Only when a step needs them |
 
-```mermaid
-flowchart TB
-  subgraph Always["Always in context (small)"]
-    M["AGENTS.md map<br/>about 100 lines"]
-    C["Skills catalogue<br/>one line per skill"]
-  end
-  subgraph OnDisk["On disk, opened when needed"]
-    S["docs/SECURITY.md<br/>R1, R2"]
-    A["ARCHITECTURE.md<br/>layers"]
-    K["SKILL.md body<br/>(tier 2)"]
-    R["references/tests.md<br/>(tier 3)"]
-  end
-  T["Ticket: add GET /issues"] --> AG["Agent"]
-  Always --> AG
-  AG -->|"map row: decide who may see data"| S
-  AG -->|"map row: touch a repository"| A
-  AG -->|"catalogue: add or change an endpoint"| K
-  K -->|"a step points to it"| R
-```
+![Three tiers of a skill: the catalogue line, the SKILL.md body, and a reference file](diagrams/skills-three-tiers.svg)
+
+*Only the catalogue line is always in the context; the body and its files load when a task needs them.*
+
+![A short map in the context points to five documents; the 899-line manual holds the same rules deep inside](diagrams/manual-vs-map.svg)
+
+*The map is drawn to scale: 94 lines in the context, each row naming the document that holds the rule.*
 
 ### Before and after
 
@@ -144,6 +132,10 @@ bodies stay on disk. And `source` is the course's copy, never the arm's workspac
 edits its own `AGENTS.md` cannot change what it is told. The [walkthrough](demo/walkthrough.md) reads
 the rest of the layer.
 
+![Five blocks of the developer message in order, then the user message with the ticket](diagrams/context-prefix.svg)
+
+*The bare arm gets only block 1; the harness adds one block per layer, always in this order.*
+
 One fairness rule applies: the harness may reorganise knowledge, never add facts. Every rule in the
 harness docs is also in the handbook that both arms have, and a unit test checks that.
 
@@ -163,6 +155,10 @@ No measurable difference on this task with this model
 ([evidence](../docs/evidence/s1.md#section-1)). Neither arm copied the legacy query, so the map had
 nothing to fix here. In the run with class settings, the bare arm did not open the handbook in its
 first nine tool calls and still wrote an org-scoped query.
+
+![Dot chart for the legacy-pattern ticket: every run of both arms passed](diagrams/results-s1.svg)
+
+*One dot per run: all 7 runs of each arm passed, so there is no measurable difference.*
 
 ## When it helps, and when it does not
 

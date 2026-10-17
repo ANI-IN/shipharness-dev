@@ -177,6 +177,10 @@ One run cannot compare arms. The comparison needs both arms, many times:
 | No measurable difference | Both arms pass, or fail, in about the same number of runs | Seen: no failing run in either arm |
 | Bare ahead | The bare arm passes R1 in more runs than the harness arm | Not seen |
 
+![Dot chart for the legacy-pattern ticket: every run of both arms passed](../diagrams/results-s1.svg)
+
+*The test runs behind "No measurable difference": every run of both arms passed.*
+
 A PASS cannot tell you that the map caused it. In the test runs the bare arm passed too. What the
 demo does show is how the map changes the agent's path: which files it opens, and when.
 

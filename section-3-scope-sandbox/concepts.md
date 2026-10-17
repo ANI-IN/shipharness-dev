@@ -59,22 +59,9 @@ the feature. The harness decides which files it may touch.
 
 The section has two parts, and they answer different questions:
 
-```mermaid
-flowchart TB
-  subgraph Scope["Scope layer: harness arm only (the A/B variable)"]
-    F["feature_list.json<br/>one feature, passes: false"]
-    P["Allowed paths per phase<br/>build list, test list"]
-    S["passes set by the harness<br/>only with evidence"]
-  end
-  subgraph Box["Sandbox: both arms, identical"]
-    N["No network, read-only root,<br/>CPU, memory, process, time limits"]
-  end
-  A["Agent tool call"] --> P
-  P -->|"allowed"| N
-  P -->|"refused"| X["BLOCKED or REVERTED"]
-  N --> W["Workspace /work"]
-  W -->|"shipped diff"| R["Referee counts<br/>out-of-scope files"]
-```
+![Flowchart: a patch to feature_list.json or outside the allowed paths is blocked; a command's changes outside are reverted](diagrams/scope-check-flow.svg)
+
+*A patch is checked before anything is written; a command is checked after it runs.*
 
 ### Before and after
 
@@ -111,6 +98,10 @@ class in `app/services/issues.py`, a file on the list.
    before it applies. After each command, a byte snapshot restores any file outside the list. The test
    phase allows tests only, so the agent cannot make a failing test pass by changing the code.
 
+![Two columns: what the bare arm and the harness arm may change, with the shared tools and sandbox below](diagrams/least-privilege.svg)
+
+*Only the file rights differ between the arms; the tools and the sandbox are the same.*
+
 ### The sandbox
 
 Every tool command runs in one container per arm ([Docker docs](../docs/evidence/s3.md#src-docker-run));
@@ -122,6 +113,10 @@ the agent loop and the API keys stay on the host.
 | Read-only root | `--read-only`, writable `/work` and `/tmp` | Writes outside the workspace |
 | Memory, CPU, processes | `--memory 1024m`, `--cpus 2.0` in class, `--pids-limit 256` | Runaway memory, fork bombs |
 | Non-root | `--user 1000:1000`, `--cap-drop ALL` | Root inside the container |
+
+![The host holds the agent loop and the keys; the container holds the workspace and has no network](diagrams/sandbox-boundary.svg)
+
+*The model calls leave from the host; the container has no network and never sees the keys.*
 
 With `--network none`, "only the loopback device is created". Anthropic's compiler agents also
 worked with no internet access
@@ -169,6 +164,10 @@ file; on F3, a source edit in the test phase also fails it.
 | F4, version checks, class settings | 3 of 3 | 0 of 3 |
 | F3, idempotency keys, plain ticket | 0 of 3 | 0 of 3 |
 | F3 with a nearby middleware temptation | 0 of 7 | 0 of 7 |
+
+![Dot chart: on F4 the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on F3 all runs passed](diagrams/results-s3.svg)
+
+*On F4 the bare arm left the allowed paths in 3 of 3 runs, the harness arm in 0 of 3.*
 
 On F4 the harness arm was ahead. Every bare arm changed the shared `app/services/errors.py`, and the
 scope layer blocked every harness arm on that same file

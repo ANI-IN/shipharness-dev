@@ -199,8 +199,10 @@ Link official pages instead of pasting screenshots of other products.
 
 ### 12. Code blocks
 
-- Commands go in `bash` blocks. Captured output goes in `text` blocks. Diagrams go in `mermaid`
-  blocks (small and labelled).
+- Commands go in `bash` blocks. Captured output goes in `text` blocks. A diagram is either a
+  `mermaid` block (small and labelled) or an Excalidraw SVG from a `diagrams/` folder, with its
+  `.excalidraw` source next to it. An SVG is an image, so rule 11 applies: alt text, a blank line,
+  an italic caption.
 - Code excerpts come from real files. The first line is a comment with the path and line numbers.
   At most 40 lines per excerpt.
 - Never leave a block empty, and never leave a block whose only content is a comment. If the
@@ -286,8 +288,8 @@ rule against copying that code exists, near the end of a long handbook the agent
 
 ### Concepts (`section-N-*/concepts.md`)
 
-Limit: fits 15 minutes live, so at most about 1,800 words, plus diagrams. Code blocks and Mermaid
-blocks do not count toward the words.
+Limit: fits 15 minutes live, so at most about 1,800 words, plus diagrams. Code blocks, Mermaid
+blocks, and image lines do not count toward the words; captions do.
 
 ```markdown skeleton:concepts
 # Section <N> concepts: <topic>

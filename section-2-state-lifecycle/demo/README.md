@@ -43,14 +43,9 @@ This is not an A/B. The course already compared both arms on this ticket and fou
 difference ([evidence](../../docs/evidence/s2.md#section-2)). So class shows the state layer doing its
 job, and screen 4 shows the comparison.
 
-```mermaid
-flowchart LR
-  T2["Terminal 2:<br/>make show-2"] --> S1["Session 1<br/>12 turns"]
-  S1 -->|"stop: handoff written, committed"| S2["Session 2<br/>38 turns, empty context"]
-  S2 --> TP["Test phase"]
-  TP -->|"shipped code, session patches"| R["Referee<br/>continuity first"]
-  R --> C["Terminal 1: make console"]
-```
+![Session 1 stops at its turn budget, the harness writes the handoff, session 2 reads it first](../diagrams/session-lifecycle.svg)
+
+*At minute 2 you see this stop: the handoff is written, and session 2 reads it first.*
 
 ## Run it
 
@@ -146,6 +141,10 @@ What session 2 read first is in [expected/](expected/README.md): its git log sta
 "harness: session 1 handoff for F2", and the agent's own notes list the house rules and files that
 matter.
 
+![session-handoff.md with a machine summary from the harness and notes from the agent](../diagrams/handoff-contents.svg)
+
+*What session 2 reads: the harness's machine summary, then the agent's own notes.*
+
 Then switch screens.
 
 **Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done" and "Session 2 · 31 turns".
@@ -184,6 +183,10 @@ The primary verdict answers one question: did session 2 break or redo session 1'
 on two Alembic heads or a failed fresh upgrade (R7), on a table created by two migrations, or when
 session 2 removes 30% or more of the lines session 1 added. PASS means none of the three happened.
 
+![A migration chain with one head, next to a fork where two migrations share one parent](../diagrams/alembic-heads.svg)
+
+*One of the three failures the verdict checks: two migration heads.*
+
 PASS does not mean the feature was built. Read the hidden-test count next to it. The measure also
 cannot fail when session 1 leaves no product code to redo, and a 12-turn session 1 often spends its
 turns reading and wrapping up, as this one did.
@@ -195,6 +198,10 @@ One run cannot compare arms. The comparison needs both arms, many times:
 | Harness ahead | Fewer continuity failures in the harness arm | Not seen |
 | No measurable difference | About the same number in both arms | Seen: no failing run in either arm |
 | Bare ahead | Fewer continuity failures in the bare arm | Not seen |
+
+![Dot chart for the comments ticket: every run of both arms passed](../diagrams/results-s2.svg)
+
+*The test runs behind "No measurable difference": every run of both arms passed.*
 
 In one of those runs the bare arm, with no state files, found session 1's uncommitted work with
 `git status` and carried on ([evidence](../../docs/evidence/s2.md#s2-bare-found-state)). What the demo does show is the state layer's path: what it writes at the stop, and what

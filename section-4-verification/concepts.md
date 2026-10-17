@@ -61,16 +61,9 @@ The verification layer answers with four checks, each owned by someone other tha
 | Hidden tests | After the agent stops | Does the feature work as the spec says, in combination? |
 | Referee mutants | After the agent stops | Would the shipped tests catch the faults we fear? |
 
-```mermaid
-flowchart LR
-  A["Agent<br/>build phase"] -->|"finish done"| G["Verify gate<br/>in the arm's container"]
-  G -->|"refused: first 3 failures"| A
-  G -->|"passed"| T["Agent<br/>test phase"]
-  T -->|"proposed tests"| F["Five test filters"]
-  F -->|"kept tests"| D["Shipped diff"]
-  D --> R["Referee, own container<br/>hidden tests + referee mutants"]
-  R --> V["Primary verdict"]
-```
+![The done claim goes to the verify gate, then the test phase, the five filters, the referee, and the verdict](diagrams/verification-pipeline.svg)
+
+*The agent's claim starts the checks; it never ends them.*
 
 The filters come from Meta's TestGen-LLM, which keeps a generated test only after "a series of
 progressively demanding semantic filters" ([Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm)).
@@ -88,6 +81,10 @@ Filter 3 has a mutant branch because Meta's ACH found that "49%" of tests that c
 "do not also add line coverage" ([Meta, ACH](../docs/evidence/s4.md#src-ach)). Filters 4 and 5 have no
 source; they stop a test that asserts nothing, and a test phase that edits the code until its test
 passes.
+
+![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](diagrams/mutation-testing.svg)
+
+*Test B passes on the broken code, so it would not catch a lost update; test A would.*
 
 ### Before and after
 
@@ -139,6 +136,10 @@ hidden tests passed and all 4 referee mutants caught.
 | Medium effort, first round | 3 of 3 | 3 of 3 |
 | Medium effort, second round | 3 of 3 | 3 of 3 |
 | Low effort, fast tier (class settings) | 1 of 1 | 1 of 1 |
+
+![Dot chart for the version checks ticket: every run of both arms failed](diagrams/results-s4.svg)
+
+*One dot per run: both arms failed all 7 runs, so there is no measurable difference.*
 
 No measurable difference on this task with this model; both arms failed every run
 ([evidence](../docs/evidence.md#section-4)). The gate never ran in these runs: no harness arm claimed

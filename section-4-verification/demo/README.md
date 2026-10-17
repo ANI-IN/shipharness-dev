@@ -45,15 +45,9 @@ This is not an A/B. The course already compared both arms on F4: both failed the
 every test run ([evidence](../../docs/evidence/s4.md#section-4)). So class shows the verification layer
 at work, and screen 4 shows the comparison.
 
-```mermaid
-flowchart LR
-  T2["Terminal 2:<br/>make show-4"] --> H["Harness arm<br/>in a container"]
-  H -->|"finish done"| G["Verify gate<br/>in the same container"]
-  G -->|"refused: fix and retry"| H
-  H -->|"test phase"| F["Five test filters"]
-  F -->|"kept tests"| R["Referee<br/>hidden tests, mutants"]
-  R --> C["Terminal 1: make console<br/>five screens in the browser"]
-```
+![The done claim goes to the verify gate, then the test phase, the five filters, the referee, and the verdict](../diagrams/verification-pipeline.svg)
+
+*The order you watch on screen 1: gate, test phase, filters, then the referee.*
 
 ## Run it
 
@@ -198,6 +192,10 @@ The captured run shows why both are needed:
   faults residing in the code base" ([Meta, ACH](../../docs/evidence/s4.md#src-ach)).
 - The one kept test caught none of the 4 referee mutants.
 
+![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](../diagrams/mutation-testing.svg)
+
+*A referee mutant survives when no shipped test fails on it, as test B shows here.*
+
 One run cannot compare arms. The comparison needs both arms, many times:
 
 | Reading | What it looks like here | What the test runs found |
@@ -211,6 +209,10 @@ claimed done on work the referee failed. What the demo shows is how the gate and
 what a "done" means, and where each one stops.
 
 The [walkthrough](walkthrough.md) shows the gate's code.
+
+![Dot chart for the version checks ticket: every run of both arms failed](../diagrams/results-s4.svg)
+
+*The test runs before class, one dot each: both arms failed all 7.*
 
 ## If it fails
 

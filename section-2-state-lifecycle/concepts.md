@@ -17,6 +17,10 @@ Now the repository has two migration heads, and the deploy stops. A reviewer unt
 versions of one change, and Marco pays for the same work twice. The second session did not know
 what the first one had done.
 
+![A migration chain with one head, next to a fork where two migrations share one parent](diagrams/alembic-heads.svg)
+
+*Two migrations with the same down_revision make two heads, and house rule R7 needs exactly one.*
+
 > **Terms on this page**
 >
 > - **Harness**: The files and code around the agent that decide what it sees and may do.
@@ -67,19 +71,9 @@ Two routines wrap the files. At the start, "Getting up to speed": read the git l
 files, then run `init.sh` and a basic test, because a new feature on a broken app "would likely make
 the problem worse." At the end: "End the session by writing a git commit and progress update."
 
-```mermaid
-flowchart LR
-  subgraph S1["Session 1"]
-    A1["Getting up to speed"] --> B1["Work, commit"]
-    B1 --> W1["Wrap-up: notes, progress, commit"]
-  end
-  W1 --> STOP["Stop: harness writes the facts<br/>commits, files, tests, migration heads"]
-  STOP --> REPO[("Repository<br/>progress.md, handoff,<br/>exec plan, git log")]
-  REPO --> A2
-  subgraph S2["Session 2: empty context"]
-    A2["Getting up to speed:<br/>read the files, run init.sh"] --> B2["Continue the work"]
-  end
-```
+![Session 1 stops at its turn budget, the harness writes the handoff, session 2 reads it first](diagrams/session-lifecycle.svg)
+
+*Session 2 starts with an empty context; what it knows comes from the handoff, progress.md, and git.*
 
 The course needs the stop at a known point in every run, so it uses a **session turn budget**: the
 same fixed number of turns per session in both arms. This is the course's own mechanism, not a
@@ -96,6 +90,10 @@ its "Machine summary" at the stop: commits, files changed, visible tests, open T
 migration heads, with "house rule R7 needs exactly one" when there are two. The agent writes "Notes
 from the agent" in its wrap-up turns. These are real notes from a class-settings run, cut where
 marked `...`:
+
+![session-handoff.md with a machine summary from the harness and notes from the agent](diagrams/handoff-contents.svg)
+
+*The harness writes the facts from the repository; the agent's notes stay as written.*
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
@@ -151,6 +149,10 @@ primary measure: a run fails if it has a continuity failure.
 | Medium effort | 0 of 3 | 0 of 3 |
 | Low effort | 0 of 3 | 0 of 3 |
 | Low effort, fast tier (class settings) | 0 of 1 | 0 of 1 |
+
+![Dot chart for the comments ticket: every run of both arms passed](diagrams/results-s2.svg)
+
+*One dot per run: all 7 runs of each arm passed, so there is no measurable difference.*
 
 No measurable difference on this task with this model
 ([evidence](../docs/evidence.md#section-2)). Two limits come with that result. First, a pass does

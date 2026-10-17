@@ -119,10 +119,9 @@ make: *** [Makefile:173: final] Error 2
 ```
 
 The harness arm said done after 20 turns. Its gate then ran the house-rule checks in the arm's
-container, and on a busy machine two gate commands hit their time limits. The gate failed on
-those timeouts, the harness's own time ran out, and the arm ended `ABORTED: timeout` before a test
-phase. An aborted arm is still judged and shown, so the command exits 2: a result, not a failure
-of the command.
+container, and on a busy machine two gate commands hit their time limits. The gate failed on those
+timeouts, the harness's own time ran out, and the arm ended `ABORTED: timeout` before a test phase.
+An aborted arm is still judged and shown, so the command exits 2: a result, not a failure.
 
 `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm. That is the
 leave-one-out idea from the problem above, one layer and one feature at a time.
@@ -189,6 +188,10 @@ with the counts, not with the agent's summary.
 - **No measurable difference**: the counts are equal, or differ in a way one run can produce.
 - **Bare ahead**: the same as harness ahead, the other way round.
 
+![Dot chart: one dot per run per arm for F1 to F4, filled for passed, hollow for failed](../docs/diagrams/results-final.svg)
+
+*Tonight's A/B adds one dot per arm to rows like these.*
+
 The course's own run: both arms passed 46 of 46 hidden tests. The bare arm's tests killed 3 of 3
 mutants and the harness arm's 1 of 3, and the blinded reviewer rejected the harness arm's change
 over its audit row. The harness arm never reached its test phase, because its gate ran out of time
@@ -196,8 +199,7 @@ on a busy machine. As one dot it reads bare ahead on mutants, for a reason that 
 about the layers. An earlier F5 run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
-arm, plus a confirmation on a second Section 3 ticket
-([evidence](../docs/evidence/final.md#final-project)):
+arm, plus a confirmation on a second Section 3 ticket ([evidence](../docs/evidence/final.md#final-project)):
 
 | Section | Primary measure | Result |
 |---|---|---|
