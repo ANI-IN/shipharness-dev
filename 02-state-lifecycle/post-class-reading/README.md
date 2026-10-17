@@ -1,20 +1,30 @@
-# post-class-reading
+# Module 1: Harness Engineering for Coding Agents - Section 2 reading list
 
-Three short pieces for after class, about 27 minutes in total. Each cites the primary sources in
-[docs/REFERENCES.md](../../docs/REFERENCES.md) by source id and finding id, points at the `shipharness`
-code it describes, and ends with a section "Why it matters for your own repo".
+Three short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
+words and shows how to apply it to your own repository.
 
-| Piece | Reading time | What it covers |
+> **Terms on this page**
+>
+> - **Session**: One run of the agent with one context window, from its first turn to its stop.
+> - **Context reset**: Clearing the context and starting a fresh session, with a handoff.
+> - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
+> - **Exec plan**: A plan checked into the repository, with its progress and its decisions.
+
+## Readings
+
+| Reading | Reading time | Why read it |
 |---|---|---|
-| [01-sessions-in-the-sources.md](01-sessions-in-the-sources.md) | 9 min | A2, A3, A4, A5, and A6 side by side: who writes the first files, how a session learns what happened, fresh context or compaction, what the course changes, and what the pilot's bare arm did across the stop |
-| [02-plans-and-handoffs.md](02-plans-and-handoffs.md) | 8 min | The exec-plan and session-handoff templates, section by section against A7, A1, and A3; what the pilot changed in the handoff; questions to answer before writing your own |
-| [03-the-continuity-measure.md](03-the-continuity-measure.md) | 10 min | How the referee computes `continuity_failure` and `redone_lines_pct`, the measurement bug pilot run 2 found and its fix, the cases the measure does not catch, the console's file-level "redone" marker, and the F2 stop-point variants |
+| [01 Effective harnesses for long-running agents](01-effective-harnesses-for-long-running-agents.md) | 5 minutes | The files and routines that carry work from one session to the next |
+| [02 Harness design: context resets](02-harness-design-context-resets.md) | 5 minutes | Resets against compaction, and why the choice depends on the model |
+| [03 Using PLANS.md](03-exec-plans.md) | 5 minutes | A plan the next session can restart from |
 
-The primary sources themselves, for a full read:
+## How to use these
 
-- A2, "Effective harnesses for long-running agents" (Anthropic, 2025-11-26):
-  https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents
-- A3, "Harness design for long-running application development" (Anthropic, 2026-03-24):
-  https://www.anthropic.com/engineering/harness-design-long-running-apps
-- A7, "Using PLANS.md for multi-hour problem solving" (OpenAI Cookbook, 2025-10-07, archived):
-  https://cookbook.openai.com/articles/codex_exec_plans
+- Read them in order. The first sets up the files; the second asks when you need a reset at all; the
+  third makes the plan good enough to restart from.
+- After each reading, do the first step of its "Apply it to your repo" list on a repository you work
+  on. It takes a few minutes and makes the idea stick.
+- Then read the primary sources. Start with the "Getting up to speed" part of
+  [Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running), then the
+  context reset part of [Anthropic, Harness design](../../docs/evidence.md#src-anthropic-harness-design).
+- The class recap is in [session-notes.md](../session-notes.md).

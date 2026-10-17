@@ -1,0 +1,11 @@
+$ time make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot
+uv run shipharness ab --section demo-2 --feature F2 --arms harness  --session-budget=12,38 --purpose pilot \
+  --profile class
+A/B <run id> (F2, layers=['instructions', 'state'], profile=class, harness in action)
+  harness  ABORTED: timeout  claim=not_done primary={"continuity_failure": false} passed=True hidden 56/56 mutants 0/4 reviewer=reject cost=$0.0268
+Cost: $0.029525 (this command: gpt-5.6-luna $0.002702, gpt-6-luna $0.026823; ...)
+make: *** [Makefile:121: show-2] Error 2
+
+real	10m7.396s
+user	0m12.429s
+sys	0m6.989s

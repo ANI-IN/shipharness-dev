@@ -94,7 +94,7 @@ def derive_ledger(
 def render_ledger(ledger: list[StepStatus]) -> list[str]:
     """Markdown lines the next session reads. TODO 1c.
 
-    The test stand-in agent's reading rules (README, "The test stand-in agent") decide what works:
+    The test stand-in agent's reading rules (SPEC.md, "Inputs") decide what works:
     a line with `[x]` and the step id marks the step done; a line with the step id and the word
     "written" names files already on disk. For example:
         - [x] S1 Comments table: done in commit 615f2d2

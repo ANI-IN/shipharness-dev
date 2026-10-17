@@ -1,5 +1,5 @@
-"""The required live step (README, "Required live step"): the four-session task, the evidence files
-the live wrapper writes, and the checks the grader applies to them.
+"""The required live step (SPEC.md, "Evidence to hand in"): the four-session task, the evidence
+files the live wrapper writes, and the checks the grader applies to them.
 
 The live step is the only part of A2 that uses the course model. The scenarios use the test
 stand-in agent (literal_agent.py), which is not a model. The checks here read files only: they

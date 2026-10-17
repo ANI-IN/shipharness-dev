@@ -5,7 +5,7 @@ It plays the agent in the offline A2 scenarios and is used for grading only, so 
 It implements the runner's model-client protocol, so the real loop (`shipharness.runner.loop`) runs
 it with the real tools, sessions, wrap-up messages, and forced stops. Each call is decided from the
 current session's transcript only, so every session starts with an empty context, as a resumed
-model session does. Its rules (README, "The test stand-in agent"):
+model session does. Its rules (SPEC.md, "Inputs"):
 
 1. Every session starts with three reads: progress.md, session-handoff.md, and the exec plan
    `docs/exec-plans/active/<feature>.md` (one turn each).
