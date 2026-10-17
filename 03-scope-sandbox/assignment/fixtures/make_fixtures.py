@@ -1,7 +1,7 @@
 """Build the visible scripted diffs for assignment A3 from real `git diff` output.
 
 Usage (from the repository root):
-    uv run python submodules/03-scope-sandbox/assignment/fixtures/make_fixtures.py
+    uv run python 03-scope-sandbox/assignment/fixtures/make_fixtures.py
 
 Each case starts from the same small TeamTrack-shaped tree (BASE), applies a list of file
 operations, stages them, and records `git diff --cached`. Hand-written patches (the agent's

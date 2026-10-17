@@ -1,6 +1,6 @@
 """Your tests for R8. Write each test before the code it checks, and see it fail first.
 
-Run: uv run python -m pytest -q submodules/04-verification/assignment/starter/tests
+Run: uv run python -m pytest -q 04-verification/assignment/starter/tests
 (from the repository root, with this starter folder on PYTHONPATH; see the README, "How to test").
 """
 

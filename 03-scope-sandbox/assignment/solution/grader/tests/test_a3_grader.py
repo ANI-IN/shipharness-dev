@@ -1,7 +1,7 @@
 """Tests for the A3 self-check (assignment/check.py) and grader (solution/grader/grade.py).
 
 Run (from the repository root):
-    uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/solution/grader/tests
+    uv run python -m pytest -q -p no:cacheprovider 03-scope-sandbox/assignment/solution/grader/tests
     (the last test is marked slow: add -m slow to run it)
 
 The live evidence these tests grade is the SYNTHETIC A/B in synthetic_live.py, collected with
@@ -20,12 +20,12 @@ from typing import Any
 import pytest
 import synthetic_live as synth
 
-SUBMODULE = Path(__file__).resolve().parents[3]
-REPO = SUBMODULE.parents[1]
+SUBMODULE = Path(__file__).resolve().parents[4]
+REPO = SUBMODULE.parent
 CHECK = SUBMODULE / "assignment" / "check.py"
-GRADE = SUBMODULE / "solution" / "grader" / "grade.py"
+GRADE = SUBMODULE / "assignment" / "solution" / "grader" / "grade.py"
 STARTER = SUBMODULE / "assignment" / "starter"
-SOLUTION = SUBMODULE / "solution"
+SOLUTION = SUBMODULE / "assignment" / "solution"
 
 
 def run(script: Path, impl: Path, *extra: str) -> subprocess.CompletedProcess[str]:
@@ -223,12 +223,12 @@ def test_check_fails_on_invalid_live_evidence(tmp_path: Path) -> None:
 @pytest.mark.slow
 def test_hidden_diffs_are_reproducible(tmp_path: Path) -> None:
     """make_hidden.py regenerates exactly the committed diffs (git output is deterministic)."""
-    hidden = SUBMODULE / "solution" / "grader" / "hidden"
+    hidden = SUBMODULE / "assignment" / "solution" / "grader" / "hidden"
     work = tmp_path / "hidden"
     shutil.copytree(hidden, work, ignore=shutil.ignore_patterns("__pycache__"))
     script = work / "make_hidden.py"
     text = script.read_text(encoding="utf-8").replace(
-        "HERE.parents[2]", repr(str(SUBMODULE)).join(("Path(", ")"))
+        "HERE.parents[3]", repr(str(SUBMODULE)).join(("Path(", ")"))
     )
     script.write_text(text, encoding="utf-8")
     subprocess.run([sys.executable, str(script)], cwd=REPO, check=True, capture_output=True)

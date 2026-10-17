@@ -300,3 +300,16 @@ def test_no_target_mentions_build_milestones() -> None:
     text = MAKEFILE.read_text(encoding="utf-8")
     assert "milestone" not in text.lower()
     assert any("uv run shipharness experiments" in line for line in _rules()["experiments"])
+
+
+def test_testpaths_hold_the_platform_and_the_section_assignment_tests() -> None:
+    # Course-first layout (owner messages 12.2, 13): the suite runs from platform/ and from the
+    # section folders; every listed folder exists in the build repository.
+    options = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))["tool"]["pytest"]["ini_options"]
+    paths = options["testpaths"]
+    assert paths[:2] == ["platform/tests/unit", "platform/teamtrack/tests/visible"]
+    for number in ("01", "02", "03", "04"):
+        assert any(p.startswith(f"{number}-") for p in paths), number
+    for path in paths:
+        assert (REPO / path).is_dir(), path
+    assert options["pythonpath"] == ["platform/teamtrack"]

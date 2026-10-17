@@ -3,10 +3,10 @@
 Usage (from the repository root; README "Live step"):
     uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment \\
         2>&1 | tee ab-output.txt
-    uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl PATH \\
+    uv run python 03-scope-sandbox/assignment/live.py collect --impl PATH \\
         --ab-output ab-output.txt --command \\
         "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
-    uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl PATH
+    uv run python 03-scope-sandbox/assignment/live.py verify --impl PATH
 
 collect copies the A/B's evidence into PATH/live/ (both ScoreRecords from exports/scores/, the
 fields of ab.json the check needs, both arms' diff.patch) and writes verdict-<arm>.json: your
@@ -65,7 +65,16 @@ _SHA = re.compile(r"^[0-9a-f]{40}$")
 _EVIDENCE_FILES = ("command.txt", "ab-output.txt", "ab-summary.json")
 
 
-REPO = Path(__file__).resolve().parents[3]
+def _course_root(assignment: Path) -> Path:
+    """The course repository root: the nearest folder above `assignment` with a pyproject.toml
+    (found by that marker, not a fixed depth), else the folder that holds the section folder."""
+    for folder in assignment.parents:
+        if (folder / "pyproject.toml").is_file():
+            return folder
+    return assignment.parents[1]
+
+
+REPO = _course_root(Path(__file__).resolve().parent)
 
 
 def shown(path: Path) -> str:

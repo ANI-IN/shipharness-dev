@@ -2,7 +2,7 @@
 
 Usage (from the repository root, after the A/B command in the README has finished):
 
-    uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name>
+    uv run python 01-instructions/assignment/ab_summary.py --batch a1-<name>
         [--exports exports] [--bare NAME] [--harness NAME]
 
 Reads only local files: `exports/experiments/<name>.json` (one per arm, picked by the batch label

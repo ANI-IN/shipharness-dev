@@ -2,7 +2,7 @@
 
 Usage (from the repository root, on your work branch, after the A/B command in the README):
 
-    uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-<name>
+    uv run python 01-instructions/assignment/live_evidence.py --batch a1-<name>
         --output <file> [--work DIR] [--exports exports] [--runs .shipharness/runs]
 
 `--output` is the file you saved the command and its printed output to (README, task 6). The
@@ -36,10 +36,20 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
+
+def _course_root(assignment: Path) -> Path:
+    """The course repository root: the nearest folder above `assignment` with a pyproject.toml
+    (found by that marker, not a fixed depth), else the folder that holds the section folder."""
+    for folder in assignment.parents:
+        if (folder / "pyproject.toml").is_file():
+            return folder
+    return assignment.parents[1]
+
+
 ASSIGNMENT = Path(__file__).resolve().parent
-REPO = ASSIGNMENT.parents[2]
+REPO = _course_root(ASSIGNMENT)
 STARTER = ASSIGNMENT / "starter"
-DATASET = REPO / "datasets" / "teamtrack-features-v1.jsonl"
+DATASET = REPO / "platform" / "datasets" / "teamtrack-features-v1.jsonl"
 
 ARMS = ("bare", "harness")
 COMMAND_START = "uv run shipharness experiments"

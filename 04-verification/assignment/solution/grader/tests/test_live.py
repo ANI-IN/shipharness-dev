@@ -19,9 +19,9 @@ import pytest
 TESTS = Path(__file__).resolve().parent
 GRADER = TESTS.parent
 SOLUTION = GRADER.parent
-ASSIGNMENT = SOLUTION.parent / "assignment"
+ASSIGNMENT = SOLUTION.parent  # solution/ sits inside assignment/
 VISIBLE = ASSIGNMENT / "visible_tests"
-REPO = SOLUTION.parents[2]
+REPO = ASSIGNMENT.parents[1]
 sys.path[:0] = [str(TESTS), str(VISIBLE)]
 
 import a4_live  # noqa: E402

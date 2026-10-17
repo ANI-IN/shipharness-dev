@@ -2,7 +2,7 @@
 
 Usage (from the repository root):
 
-    uv run python submodules/01-instructions/assignment/check.py [--work DIR] [--allow-pending]
+    uv run python 01-instructions/assignment/check.py [--work DIR] [--allow-pending]
 
 DIR is your work folder (default: assignment/starter): `instructions/` (your restructured tree),
 `checker/` (your check_docs.py and its tests), `ab-report.md`, and `live/` (the live evidence of
@@ -29,11 +29,21 @@ from pathlib import Path
 from types import ModuleType
 from urllib.parse import unquote
 
+
+def _course_root(assignment: Path) -> Path:
+    """The course repository root: the nearest folder above `assignment` with a pyproject.toml
+    (found by that marker, not a fixed depth), else the folder that holds the section folder."""
+    for folder in assignment.parents:
+        if (folder / "pyproject.toml").is_file():
+            return folder
+    return assignment.parents[1]
+
+
 ASSIGNMENT = Path(__file__).resolve().parent
-REPO = ASSIGNMENT.parents[2]
+REPO = _course_root(ASSIGNMENT)
 STARTER = ASSIGNMENT / "starter"
 ORIGINAL = STARTER / "original" / "AGENTS.md"
-PRODUCT = REPO / "teamtrack"
+PRODUCT = REPO / "platform" / "teamtrack"
 
 
 def _load_live() -> ModuleType:

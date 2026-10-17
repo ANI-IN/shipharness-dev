@@ -14,7 +14,7 @@ import pytest
 
 TESTS = Path(__file__).resolve().parent
 SOLUTION = TESTS.parents[1]
-VISIBLE = SOLUTION.parent / "assignment" / "visible_tests"
+VISIBLE = SOLUTION.parent / "visible_tests"
 sys.path[:0] = [str(VISIBLE)]
 
 from a4_live import trace_link_problems  # noqa: E402

@@ -8,7 +8,7 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-VISIBLE = Path(__file__).resolve().parents[3] / "assignment" / "visible_tests"
+VISIBLE = Path(__file__).resolve().parents[3] / "visible_tests"
 sys.path.insert(0, str(VISIBLE))
 
 from a4_support import (  # noqa: E402, F401

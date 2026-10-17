@@ -1,7 +1,7 @@
 """Build the hidden scripted diffs for assignment A3 (kept out of the starter; shown at review).
 
 Usage (from the repository root):
-    uv run python submodules/03-scope-sandbox/solution/grader/hidden/make_hidden.py
+    uv run python 03-scope-sandbox/assignment/solution/grader/hidden/make_hidden.py
 
 Uses the same BASE tree and helpers as the visible fixtures, so every git-generated case is
 real `git diff --cached` output. Hand-written cases are the patches an agent can pass to
@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 HERE = Path(__file__).resolve().parent
-FIXTURES = HERE.parents[2] / "assignment" / "fixtures"
+FIXTURES = HERE.parents[3] / "assignment" / "fixtures"
 sys.path.insert(0, str(FIXTURES))
 
 from make_fixtures import PNG, build  # noqa: E402

@@ -1,7 +1,7 @@
 """A2 grader: the visible and hidden scenarios against a state layer, plus the live-run evidence,
 scored out of 100.
 
-    uv run python submodules/02-state-lifecycle/solution/grader/grade.py --impl <submission>
+    uv run python 02-state-lifecycle/assignment/solution/grader/grade.py --impl <submission>
         [--visible-only] [--details] [--json <file>] [--fail-under <score>]
 
 `--impl` is the submission: the folder that holds the `a2_state` package and the `live/` evidence,
@@ -25,7 +25,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ASSIGNMENT = HERE.parents[1] / "assignment"
+ASSIGNMENT = HERE.parents[1]  # grader/ -> solution/ -> assignment/
 for path in (ASSIGNMENT, HERE):
     if str(path) not in sys.path:
         sys.path.insert(0, str(path))

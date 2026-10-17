@@ -2,12 +2,12 @@
 
 Usage (from the repository root):
 
-    uv run python submodules/01-instructions/solution/grader/grade.py [--work DIR]
+    uv run python 01-instructions/assignment/solution/grader/grade.py [--work DIR]
         [--allow-pending] [--min-score N]
 
 DIR is the learner's submission: their work folder (instructions/, checker/, ab-report.md, live/),
 or a checkout of their repository, in which case the work folder is
-submodules/01-instructions/assignment/starter inside it. Default: the unchanged starter.
+01-instructions/assignment/starter inside it. Default: the unchanged starter.
 
 Visible checks are the self-check (`assignment/check.py`), including the live-evidence checks of
 `assignment/live_evidence.py` (criterion F). Hidden checks, kept here and not in the starter:
@@ -43,7 +43,7 @@ from types import ModuleType
 
 GRADER = Path(__file__).resolve().parent
 SOLUTION = GRADER.parent
-A1 = SOLUTION.parent
+A1 = SOLUTION.parents[1]  # the section folder: solution/ sits inside assignment/
 REFERENCE_WORK = SOLUTION / "work"
 REFERENCE_CHECKER = REFERENCE_WORK / "checker" / "check_docs.py"
 PRISTINE_TESTS = REFERENCE_WORK / "checker" / "test_check_docs.py"
@@ -293,7 +293,7 @@ def _hidden_cases(checker: Path) -> Item:
 # -- the grade ------------------------------------------------------------------------------------
 
 
-LEARNER_WORK = Path("submodules/01-instructions/assignment/starter")
+LEARNER_WORK = Path("01-instructions/assignment/starter")
 
 
 def resolve_work(path: Path) -> Path:

@@ -1,7 +1,7 @@
 """Grader for assignment A3 (make grade-assignment-3): visible + hidden tests, score out of 100.
 
 Usage (from the repository root):
-    uv run python submodules/03-scope-sandbox/solution/grader/grade.py [--impl PATH] [--live DIR]
+    uv run python 03-scope-sandbox/assignment/solution/grader/grade.py [--impl PATH] [--live DIR]
         [--json OUT]
 
 --impl names the learner's submission folder: it holds the `a3scope` package, `tests/`, and the
@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any
 
 GRADER = Path(__file__).resolve().parent
-SUBMODULE = GRADER.parents[1]
+SUBMODULE = GRADER.parents[2]  # grader/ -> solution/ -> assignment/ -> the section
 sys.path.insert(0, str(SUBMODULE / "assignment"))
 
 import check  # noqa: E402  (assignment/check.py: shared pytest runner and grouping)

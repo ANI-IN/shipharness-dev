@@ -18,7 +18,7 @@ import pytest
 
 GRADER = Path(__file__).resolve().parents[1]
 SOLUTION = GRADER.parent
-ASSIGNMENT = SOLUTION.parent / "assignment"
+ASSIGNMENT = SOLUTION.parent  # solution/ sits inside assignment/
 sys.path.insert(0, str(ASSIGNMENT))
 sys.path.insert(0, str(GRADER))
 
@@ -103,7 +103,7 @@ def test_the_grader_finds_the_submission_in_a_cloned_repo(
 ) -> None:
     folder = _submission(tmp_path)
     repo = tmp_path / "repo"
-    shutil.copytree(ASSIGNMENT / "starter", repo / "submodules" / "02" / "assignment" / "starter")
+    shutil.copytree(ASSIGNMENT / "starter", repo / "02-state-lifecycle" / "assignment" / "starter")
     shutil.copytree(folder, repo / "my-a2")
     assert grade.main(["--impl", str(repo), "--visible-only"]) == 0
     printed = capsys.readouterr().out

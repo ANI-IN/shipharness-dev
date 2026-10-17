@@ -2,7 +2,7 @@
 
 The synthetic A/B is written by hand; it is never presented as a real run. Run (repository root):
     uv run python -m pytest -q -p no:cacheprovider \
-        submodules/03-scope-sandbox/solution/grader/tests/test_a3_live.py
+        03-scope-sandbox/assignment/solution/grader/tests/test_a3_live.py
 """
 
 from __future__ import annotations
@@ -18,10 +18,10 @@ from typing import Any
 import pytest
 import synthetic_live as synth
 
-SUBMODULE = Path(__file__).resolve().parents[3]
-REPO = SUBMODULE.parents[1]
+SUBMODULE = Path(__file__).resolve().parents[4]
+REPO = SUBMODULE.parent
 LIVE = SUBMODULE / "assignment" / "live.py"
-SOLUTION = SUBMODULE / "solution"
+SOLUTION = SUBMODULE / "assignment" / "solution"
 STARTER = SUBMODULE / "assignment" / "starter"
 
 

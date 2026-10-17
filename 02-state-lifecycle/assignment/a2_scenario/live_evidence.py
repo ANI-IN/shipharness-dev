@@ -30,7 +30,7 @@ from shipharness.ab.score import ScoreRecord
 from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
 
-FEATURES_FILE = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
+FEATURES_FILE = REPO_ROOT / "platform" / "datasets" / "teamtrack-features-v1.jsonl"
 SOURCE_EXAMPLE = "F2-canonical"
 LIVE_EXAMPLE_ID = "F2-a2-four-sessions"
 LIVE_VARIANT = "a2-four-sessions"

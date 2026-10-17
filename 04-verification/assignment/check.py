@@ -1,6 +1,6 @@
 """Self-check for assignment A4: run the visible tests against your implementation.
 
-    uv run python submodules/04-verification/assignment/check.py [--impl <folder>]
+    uv run python 04-verification/assignment/check.py [--impl <folder>]
     make check-assignment-4 [A4_IMPL=<folder>]
 
 `--impl` is the folder that holds `a4_verification/`, `tests/`, `skill/`, `portfolio/`, and

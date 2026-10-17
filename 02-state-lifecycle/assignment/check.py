@@ -1,6 +1,6 @@
 """A2 self-check: run the visible scenarios against your state layer and show what fails.
 
-    uv run python submodules/02-state-lifecycle/assignment/check.py [--impl <folder>] [--keep]
+    uv run python 02-state-lifecycle/assignment/check.py [--impl <folder>] [--keep]
 
 `--impl` is the folder that holds your `a2_state` package (default: assignment/starter). Exit code
 0 when every criterion passes in every visible scenario, 1 otherwise. No model calls, no network,

@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-SUBMODULE = HERE.parents[2]
+SUBMODULE = HERE.parents[3]  # hidden/ -> grader/ -> solution/ -> assignment/ -> the section
 VISIBLE = SUBMODULE / "assignment" / "visible_tests"  # a3_checks.py: the shared case checks
 IMPL = Path(os.environ.get("A3_IMPL") or SUBMODULE / "assignment" / "starter").resolve()
 for folder in (VISIBLE, IMPL):

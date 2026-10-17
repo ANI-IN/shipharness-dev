@@ -8,7 +8,7 @@ Requirements (the grader checks all three):
 
 Run (from the repository root):
     uv run python -m pytest -q -p no:cacheprovider \
-        submodules/03-scope-sandbox/assignment/starter/tests
+        03-scope-sandbox/assignment/starter/tests
 """
 
 from __future__ import annotations

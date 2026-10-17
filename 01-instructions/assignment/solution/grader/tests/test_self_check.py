@@ -1,6 +1,6 @@
-"""Tests for the A1 self-check (submodules/01-instructions/assignment/check.py).
+"""Tests for the A1 self-check (01-instructions/assignment/check.py).
 
-Run: uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
+Run: uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/solution/grader/tests
 """
 
 from __future__ import annotations
@@ -98,29 +98,39 @@ def test_the_self_check_lists_the_five_live_items(capsys: pytest.CaptureFixture[
     assert len(names) == 24
 
 
-def test_learner_facing_files_never_point_into_the_solution_folder() -> None:
+def test_learner_facing_files_never_depend_on_the_solution_folder() -> None:
+    # Owner message 14: the solution ships next to the starter and the README links it; the
+    # starter, the self-check, and its helpers still never read from it.
     assignment = A1 / "assignment"
-    files = [p for p in assignment.rglob("*") if p.is_file() and "__pycache__" not in p.parts]
+    files = [
+        p
+        for p in assignment.rglob("*")
+        if p.is_file()
+        and "__pycache__" not in p.parts
+        and "solution" not in p.parts
+        and p != assignment / "README.md"
+    ]
     for path in files:
         text = path.read_text(encoding="utf-8")
         assert "solution/" not in text, path.relative_to(A1).as_posix()
+    assert "](./solution/)" in (assignment / "README.md").read_text(encoding="utf-8")
 
 
 def test_the_self_check_runs_in_a_learner_repository_without_solution(tmp_path: Path) -> None:
-    repo = A1.parents[1]
+    repo = A1.parent
     copy = tmp_path / "repo"
     shutil.copytree(
         A1 / "assignment",
-        copy / "submodules" / "01-instructions" / "assignment",
-        ignore=shutil.ignore_patterns("__pycache__"),
+        copy / "01-instructions" / "assignment",
+        ignore=shutil.ignore_patterns("__pycache__", "solution"),
     )
-    for name in ("teamtrack", "datasets", "skills"):
+    for name in ("platform", "use-in-your-repo"):
         (copy / name).symlink_to(repo / name, target_is_directory=True)
-    script = copy / "submodules" / "01-instructions" / "assignment" / "check.py"
+    script = copy / "01-instructions" / "assignment" / "check.py"
     run = subprocess.run(
         [sys.executable, str(script)], capture_output=True, text=True, timeout=600, cwd=copy
     )
-    assert not (copy / "submodules" / "01-instructions" / "solution").exists()
+    assert not (copy / "01-instructions" / "assignment" / "solution").exists()
     assert "Traceback" not in run.stderr, run.stderr
     assert run.returncode == 1
     assert run.stdout.strip().splitlines()[-1] == "self-check: 0 of 24 checks pass"
@@ -245,7 +255,7 @@ def test_a_missing_layout_file_is_named(tree: Path) -> None:
 
 def test_an_unchanged_copy_of_the_template_fails_the_skill_checks(tree: Path) -> None:
     shutil.rmtree(tree / ".agents" / "skills" / "add-list-endpoint")
-    template = check.REPO / "skills" / "skill-template"
+    template = check.REPO / "use-in-your-repo" / "skills" / "skill-template"
     shutil.copytree(template, tree / ".agents" / "skills" / "skill-template")
     results = by_name(check.check_skill(tree))
     assert not results["skill-frontmatter"].ok

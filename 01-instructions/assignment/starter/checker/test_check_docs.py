@@ -2,7 +2,7 @@
 unchanged copy of it against your check_docs.py. Add your own tests in a separate file.
 
 Run: uv run python -m pytest -q -p no:cacheprovider \
-         submodules/01-instructions/assignment/starter/checker/test_check_docs.py
+         01-instructions/assignment/starter/checker/test_check_docs.py
 """
 
 from __future__ import annotations

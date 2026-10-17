@@ -11,8 +11,8 @@ import pytest
 
 GRADER = Path(__file__).resolve().parents[1]
 SOLUTION = GRADER.parent
-MODULE = SOLUTION.parent
-ASSIGNMENT = MODULE / "assignment"
+ASSIGNMENT = SOLUTION.parent  # solution/ sits inside assignment/
+MODULE = ASSIGNMENT.parent
 VISIBLE = ASSIGNMENT / "visible_tests"
 HIDDEN = GRADER / "hidden_tests"
 sys.path[:0] = [str(GRADER), str(VISIBLE)]
@@ -58,7 +58,7 @@ def test_live_evidence_is_a_named_criterion_worth_10_points() -> None:
 
 
 def test_submission_path_may_be_the_impl_folder_or_a_course_repo_root(tmp_path: Path) -> None:
-    impl = tmp_path / "submodules" / "04-verification" / "assignment" / "starter"
+    impl = tmp_path / "04-verification" / "assignment" / "starter"
     (impl / "a4_verification").mkdir(parents=True)
     assert grade.resolve_impl(tmp_path) == impl.resolve()
     assert grade.resolve_impl(impl) == impl.resolve()

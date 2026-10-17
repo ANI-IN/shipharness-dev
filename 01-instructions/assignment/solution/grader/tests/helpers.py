@@ -8,7 +8,7 @@ from pathlib import Path
 from types import ModuleType
 
 SOLUTION = Path(__file__).resolve().parents[2]
-A1 = SOLUTION.parent
+A1 = SOLUTION.parents[1]  # the section folder: solution/ sits inside assignment/
 STARTER = A1 / "assignment" / "starter"
 SOLUTION_WORK = SOLUTION / "work"
 GRADER = SOLUTION / "grader"

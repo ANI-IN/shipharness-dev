@@ -1,7 +1,7 @@
 """Self-check for assignment A3 (make check-assignment-3).
 
 Usage (from the repository root):
-    uv run python submodules/03-scope-sandbox/assignment/check.py [--impl PATH]
+    uv run python 03-scope-sandbox/assignment/check.py [--impl PATH]
 
 --impl names the folder that holds your `a3scope` package and `tests/` (default: the starter).
 The check runs the visible tests, your denial test (with your rule, then with the rule removed),
@@ -26,8 +26,18 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+
+def _course_root(assignment: Path) -> Path:
+    """The course repository root: the nearest folder above `assignment` with a pyproject.toml
+    (found by that marker, not a fixed depth), else the folder that holds the section folder."""
+    for folder in assignment.parents:
+        if (folder / "pyproject.toml").is_file():
+            return folder
+    return assignment.parents[1]
+
+
 ASSIGNMENT = Path(__file__).resolve().parent
-REPO = ASSIGNMENT.parents[2]
+REPO = _course_root(ASSIGNMENT)
 VISIBLE = ASSIGNMENT / "visible_tests"
 STARTER = ASSIGNMENT / "starter"
 LEARNER_TEST = Path("tests") / "test_a3_sandbox_rule.py"

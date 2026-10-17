@@ -262,7 +262,7 @@ def ab_output() -> str:
 def collect_into(impl: Path, root: Path) -> Path:
     """Build the synthetic A/B under `root` and collect it into `impl`/live with live.py
     (sandbox results replayed from `root`/replay, no container). Returns `impl`/live."""
-    live = Path(__file__).resolve().parents[3] / "assignment" / "live.py"
+    live = Path(__file__).resolve().parents[4] / "assignment" / "live.py"
     raw = build(root)
     done = subprocess.run(
         [

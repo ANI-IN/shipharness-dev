@@ -14,7 +14,7 @@ from sqlalchemy import create_engine, text
 from shipharness.checks import CheckContext, get_check
 from shipharness.checks.discovery import Endpoint
 
-TEAMTRACK = Path(__file__).resolve().parents[4] / "teamtrack"
+TEAMTRACK = Path(__file__).resolve().parents[4] / "platform" / "teamtrack"
 MARKERS = {1: "[r8-deleted:1]", 11: "[r8-deleted:11]"}
 
 

@@ -2,9 +2,9 @@
 
 Usage (from the repository root):
 
-    uv run python submodules/01-instructions/solution/work/checker/check_docs.py \
-        --original submodules/01-instructions/assignment/starter/original/AGENTS.md \
-        --tree submodules/01-instructions/solution/work/instructions \
+    uv run python 01-instructions/assignment/solution/work/checker/check_docs.py \
+        --original 01-instructions/assignment/starter/original/AGENTS.md \
+        --tree 01-instructions/assignment/solution/work/instructions \
         --product teamtrack
 
 Output: one line per problem, `ERROR <kind> <key> [<detail>]`, then one summary line:
@@ -353,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--original", type=Path, required=True)
     parser.add_argument("--tree", type=Path, required=True)
-    parser.add_argument("--product", type=Path, default=Path("teamtrack"))
+    parser.add_argument("--product", type=Path, default=Path("platform/teamtrack"))
     args = parser.parse_args(argv)
     for name in ("original", "tree"):
         path: Path = getattr(args, name)

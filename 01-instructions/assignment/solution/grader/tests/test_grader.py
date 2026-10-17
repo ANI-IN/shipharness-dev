@@ -1,6 +1,6 @@
 """Tests for the A1 grader (solution/grader/grade.py) and its hidden checker cases.
 
-Run: uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
+Run: uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/solution/grader/tests
 """
 
 from __future__ import annotations
@@ -149,7 +149,7 @@ def test_missing_live_evidence_fails_the_live_criterion_by_name(
 def test_a_repository_checkout_is_accepted_as_the_submission(tmp_path: Path) -> None:
     work = synthetic_submission(tmp_path)
     checkout = tmp_path / "learner-repo"
-    starter = checkout / "submodules" / "01-instructions" / "assignment" / "starter"
+    starter = checkout / "01-instructions" / "assignment" / "starter"
     shutil.copytree(work, starter)
     assert grade.resolve_work(checkout) == starter
     assert grade.resolve_work(work) == work

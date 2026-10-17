@@ -28,8 +28,19 @@ import pytest
 
 HERE = Path(__file__).resolve().parent
 ASSIGNMENT = HERE.parent
-REPO = ASSIGNMENT.parents[2]
-TEAMTRACK_APP = REPO / "teamtrack" / "app"
+
+
+def _course_root(assignment: Path) -> Path:
+    """The course repository root: the nearest folder above `assignment` with a pyproject.toml
+    (found by that marker, not a fixed depth), else the folder that holds the section folder."""
+    for folder in assignment.parents:
+        if (folder / "pyproject.toml").is_file():
+            return folder
+    return assignment.parents[1]
+
+
+REPO = _course_root(ASSIGNMENT)
+TEAMTRACK_APP = REPO / "platform" / "teamtrack" / "app"
 STARTER = ASSIGNMENT / "starter"
 CHECK_NAME = "r8_soft_delete"
 
@@ -304,7 +315,9 @@ def skill_problems(root: Path) -> list[str]:
     if folder.name == "skill-template":
         problems.append("skill/: rename the folder and the `name` field (still skill-template)")
     text = (folder / "SKILL.md").read_text(encoding="utf-8")
-    template = (REPO / "skills" / "skill-template" / "SKILL.md").read_text(encoding="utf-8")
+    template = (REPO / "use-in-your-repo" / "skills" / "skill-template" / "SKILL.md").read_text(
+        encoding="utf-8"
+    )
     template_description = template.split("description:", 1)[1].split("license:", 1)[0]
     if template_description.strip() in text:
         problems.append(f"skill/{folder.name}: the description is still the template's")

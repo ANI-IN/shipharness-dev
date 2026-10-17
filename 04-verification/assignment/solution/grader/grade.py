@@ -1,10 +1,10 @@
 """Grader for assignment A4: visible + hidden tests, scored against the grading criteria (100).
 
-    uv run python submodules/04-verification/solution/grader/grade.py [--impl <submission>]
+    uv run python 04-verification/assignment/solution/grader/grade.py [--impl <submission>]
 
 `--impl` is the submission: the folder that holds `a4_verification/`, `tests/`, `skill/`,
 `portfolio/`, and `live/` (default: the reference solution). A checkout of the whole course repo
-also works: its `submodules/04-verification/assignment/starter/` folder is graded then. Each test
+also works: its `04-verification/assignment/starter/` folder is graded then. Each test
 carries `@pytest.mark.criterion("<id>")`; a criterion's points are split evenly over its tests.
 Nothing here calls a model, Docker, or the network: R8 runs in process on TeamTrack copies, the
 portfolio is checked for presence and structure, and the live evidence in `live/` (testgen report
@@ -22,9 +22,9 @@ from pathlib import Path
 
 GRADER = Path(__file__).resolve().parent
 SOLUTION = GRADER.parent
-ASSIGNMENT = SOLUTION.parent / "assignment"
+ASSIGNMENT = SOLUTION.parent  # solution/ sits inside assignment/
 # Where the implementation folder sits inside a checkout of the course repo.
-IMPL_IN_REPO = Path("submodules/04-verification/assignment/starter")
+IMPL_IN_REPO = Path("04-verification/assignment/starter")
 VISIBLE = ASSIGNMENT / "visible_tests"
 HIDDEN = GRADER / "hidden_tests"
 sys.path.insert(0, str(VISIBLE))

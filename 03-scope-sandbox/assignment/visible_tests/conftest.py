@@ -3,7 +3,7 @@
 A3_IMPL names the folder that holds the `a3scope` package (default: ../starter). The self-check
 (check.py) and the grader set it; you can also run these tests directly (repository root):
     uv run python -m pytest -q -p no:cacheprovider \
-        submodules/03-scope-sandbox/assignment/visible_tests
+        03-scope-sandbox/assignment/visible_tests
 """
 
 from __future__ import annotations

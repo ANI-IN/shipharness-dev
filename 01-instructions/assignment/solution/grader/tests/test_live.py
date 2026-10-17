@@ -3,7 +3,7 @@
 The evidence used here is invented by synthetic_live.py (batch `a1-synthetic`); it is never a real
 run. No keys, no Docker, no model calls.
 
-Run: uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
+Run: uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/solution/grader/tests
 """
 
 from __future__ import annotations
@@ -320,7 +320,7 @@ def test_runs_outside_the_class_model_or_caps_lose_cap_points(
 
 
 def test_a_run_that_placed_another_tree_fails_the_tree_check(work: Path) -> None:
-    course_tree = live.tree_files(live.REPO / "teamtrack" / "harness" / "instructions")
+    course_tree = live.tree_files(live.REPO / "platform" / "teamtrack" / "harness" / "instructions")
     for log in (work / "live" / "runs").glob("*/events.jsonl"):
         lines = [json.loads(ln) for ln in log.read_text(encoding="utf-8").splitlines()]
         for event in lines:
