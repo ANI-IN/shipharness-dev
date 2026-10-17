@@ -24,7 +24,7 @@ import importlib
 import os
 import subprocess
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -56,6 +56,18 @@ def _path_arg(path: Path) -> str:
         return str(Path(path).resolve())
 
 
+# Four sessions end in a handoff each, and every handoff runs the visible suite: that needs more
+# than the default 120 s of harness time. A caller's own HARNESS_TIMEOUT_S is kept.
+LIVE_HARNESS_TIMEOUT_S = "600"
+
+
+def child_env(base: Mapping[str, str]) -> dict[str, str]:
+    """The environment of the child process that runs the live A/B."""
+    env = {**base, "PYTHONUNBUFFERED": "1"}
+    env.setdefault("HARNESS_TIMEOUT_S", LIVE_HARNESS_TIMEOUT_S)
+    return env
+
+
 def run_child(impl: Path) -> Runner:
     """Run this script again with `-- <shipharness command>` and the layer installed, printing
     and keeping everything it writes to stdout."""
@@ -63,7 +75,7 @@ def run_child(impl: Path) -> Runner:
     def run(command: list[str]) -> tuple[int, str]:
         script = str(Path(__file__).resolve())
         argv = [sys.executable, script, "--impl", str(impl), "--", *command]
-        env = {**os.environ, "PYTHONUNBUFFERED": "1"}
+        env = child_env(os.environ)
         lines: list[str] = []
         with subprocess.Popen(argv, stdout=subprocess.PIPE, text=True, env=env) as child:
             assert child.stdout is not None

@@ -1,17 +1,18 @@
-# starter
+# Module 1: Harness Engineering for Coding Agents - Assignment 3 starter
 
-Your starting files for assignment A3 (task and grading criteria: [`../README.md`](../README.md)).
+Your work folder for [Assignment 3](../README.md). Edit the files marked "yours" below; the
+requirements are in [SPEC.md](../SPEC.md).
 
-| File | Status |
+| File | What to do |
 |---|---|
-| `a3scope/diffparse.py` | Part A1: `parse_diff`, `changed_paths` are `TODO` |
-| `a3scope/scope.py` | Part A2: `glob_matches`, `check_diff` are `TODO` |
-| `a3scope/status.py` | Part B: `update_status` is `TODO` |
-| `a3scope/policy.py` | Part C: `HISTORY_MESSAGE`, `HISTORY_RULES` are `TODO` |
-| `a3scope/sandbox.py` | Given: `PolicySandbox` (pre-exec denial, as in `DockerSandbox.exec`) |
-| `tests/test_a3_sandbox_rule.py` | Task 6: your denial test is `TODO` |
-| `tests/test_a3_docker_rule.py` | Given: optional real-container check (`pytest -m docker`) |
-| `live/` | Not here yet: `assignment/live.py collect` writes it after your live A/B (assignment README, "Live step") |
+| `a3scope/diffparse.py` | Yours, Part A1: write `parse_diff` and `changed_paths` |
+| `a3scope/scope.py` | Yours, Part A2: write `glob_matches` and `check_diff` |
+| `a3scope/status.py` | Yours, Part B: write `update_status` |
+| `a3scope/policy.py` | Yours, Part C: write `HISTORY_MESSAGE` and `HISTORY_RULES` |
+| `tests/test_a3_sandbox_rule.py` | Yours, task 6: write the denial test |
+| `a3scope/sandbox.py` | Given: `PolicySandbox`, which refuses a command before it runs |
+| `tests/test_a3_docker_rule.py` | Given: an optional check in a real container (`pytest -m docker`) |
+| `live/` | Written later by `live.py collect`, after your live A/B; commit it |
 
-Every `TODO` is marked `TODO(A3 ...)`; `make check-assignment-3` lists the ones left. The package
-imports and the self-check runs on these files as they are; it fails until the parts are done.
+Each place to fill is marked `TODO(A3 ...)`, and `make check-assignment-3` lists the ones left. The
+package imports and the self-check runs on these files as they are; it fails until the parts are done.

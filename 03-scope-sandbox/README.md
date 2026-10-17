@@ -1,11 +1,78 @@
-# S3 Scope and sandbox
+# Module 1: Harness Engineering for Coding Agents - Section 3: Scope and sandbox
 
-Course material for section S3: allowed paths per phase, evidence-gated status, the container sandbox policy.
+What the agent may change and reach: the files of one feature, checked by code, inside a container.
 
-| Path | What goes there |
-|---|---|
-| [`concepts.md`](concepts.md) | The section's concepts, cited to the sources in [docs/REFERENCES.md](../docs/REFERENCES.md), and what the course pilot found |
-| [`demo/`](demo/README.md) | Class runbook: harness in action (`make show-3`, live), captured output, and the pilot results with run ids |
-| [`assignment/`](assignment/README.md) | Assignment A3: task, grading criteria, starter files, self-check (`make check-assignment-3`) |
-| [`post-class-reading/`](post-class-reading/README.md) | Three cited pieces that go deeper than class time |
-| [`session-notes.md`](session-notes.md) | Notes for learners after class: what was shown, key ideas, what the A/B showed, common questions |
+## The problem
+
+**Illustrative scenario.** You ask a coding agent to stop lost updates on issues in a multi-tenant
+tracker. The ticket lists the files to change. The agent needs a new error, and the shared errors
+module that every endpoint imports looks like the right home, so it adds one there. The ticket's
+tests pass and review approves a small diff. Later, a change to that shared module breaks the
+feature, and an older endpoint starts answering differently. Nobody connects either to a ticket that
+never listed the file.
+
+The cost is a regression in code nobody asked to change, and a review of every file outside the
+ticket on every agent change.
+
+> **Terms on this page**
+>
+> - **Harness**: The files and code around the agent that decide what it sees and may do.
+> - **Harness layer**: One part of the harness: instructions, state, scope, or verification.
+> - **Bare arm**: An agent run with the ticket and the repository, and no harness.
+> - **Harness arm**: The same run with the harness turned on.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Allowed paths**: The globs a ticket lists for each phase; the files the agent may change then.
+> - **Feature list**: `feature_list.json`, the one feature of the run and its `passes` field.
+> - **Sandbox**: The container every tool command runs in, the same for both arms.
+
+## Why it happens
+
+- Agents copy what they find: "Codex replicates patterns that already exist in the repository—even
+  uneven or suboptimal ones." ([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness))
+  TeamTrack's handbook points to the shared errors module for every new error.
+- Unattended agents do things nobody asked for. One author's advice is "(Run this in a container, not
+  your actual machine)." ([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+- A list of files in a ticket is text. Nothing checks it, so the agent's own judgement decides.
+
+## How this section fixes it
+
+The scope layer makes the ticket's list a boundary that code checks. The harness writes a feature
+list with one feature, refuses any patch outside the phase's allowed paths, undoes a command's stray
+changes, and sets `passes` itself from evidence. Every tool command of both arms runs in the same
+container with no network ([Anthropic, Autonomous coding demo](../docs/evidence.md#src-autonomous-coding)
+keeps "File operations restricted to the project directory only").
+
+```mermaid
+flowchart LR
+  T["Ticket and<br/>allowed paths"] --> A["Agent"]
+  A -->|"apply_patch, run"| S{"Scope layer<br/>path allowed now?"}
+  S -->|"no"| B["BLOCKED or REVERTED"]
+  S -->|"yes"| W["Workspace in the sandbox<br/>no network, read-only root"]
+  W --> R["Referee counts<br/>out-of-scope files"]
+```
+
+The course measures whether it helps. On the class demo's ticket, every bare arm changed a shared
+file outside the list in three test runs, and the scope layer kept every harness arm inside it
+([evidence](../docs/evidence.md#s3-confirmation)). On the idempotency ticket (F3), neither arm ever left the list.
+The concepts page explains both, and what the result does not show.
+
+## How to work through this section
+
+In class the section takes 50 minutes. The live A/B starts early and runs while the concepts are
+taught.
+
+| Part | What it gives you | In class |
+|---|---|---|
+| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-20 |
+| [demo/](demo/README.md) | The live A/B on the F4 ticket, and how to read it | Launch at minute 3; review at 30-45 |
+| [demo/walkthrough.md](demo/walkthrough.md) | The 34 lines of code behind the layer | Minutes 20-30 |
+| [assignment/](assignment/README.md) | Assignment 3: a diff-scope policy, a `passes` gate, a sandbox rule | After class |
+| [post-class-reading/](post-class-reading/README.md) | Three short readings on feature lists and sandboxes | After class |
+| [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |
+
+## Where next
+
+- First time here? Install everything with [setup/](../setup/README.md), then run the
+  [demo](demo/README.md).
+- Already set up? Start with [concepts.md](concepts.md).
+- Want allowed paths for your own agent? See [use-in-your-repo/](../use-in-your-repo/README.md).

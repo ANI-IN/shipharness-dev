@@ -1,0 +1,5 @@
+$ uv run shipharness ab --section demo-3 --feature F4 --profile class --purpose pilot
+A/B <run id> (F4, layers=['instructions', 'scope', 'state'], profile=class)
+  bare     completed         claim=done     primary={"hidden_passed": 68, "mutants_killed": 4} passed=False hidden 68/69 mutants 4/4 reviewer=reject cost=$0.0216
+  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 65, "mutants_killed": 4} passed=False hidden 65/69 mutants 4/4 reviewer=reject cost=$0.0206
+Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; ...)
