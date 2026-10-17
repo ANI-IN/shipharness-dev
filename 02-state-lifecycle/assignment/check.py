@@ -32,7 +32,7 @@ def print_live(impl: Path) -> None:
     problems = live_evidence.validate(impl)
     if not (Path(impl) / live_evidence.EVIDENCE_DIR).is_dir():
         print(f"{head}: not found in {shown(Path(impl) / live_evidence.EVIDENCE_DIR)}.")
-        print("  Run the required live step once your layer is final (README).")
+        print("  Run the required live step once your layer is final (SPEC.md, evidence section).")
     elif problems:
         print(f"{head}: {len(problems)} problem(s):")
         for problem in problems:

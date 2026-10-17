@@ -3,7 +3,7 @@
 It runs as it is: the initializer step writes init.sh, progress.md, session-handoff.md, and the exec
 plan and commits them, and every session gets the Getting up to speed routine. Nothing is written
 at a session stop yet, so the next session starts blind and redoes work. `check.py` shows the
-result. Fill in TODO 1-7 (README, "Step-by-step tasks").
+result. Fill in TODO 1-7 (README, "Step by step").
 
 Helpers you can build on (read them first):
 - shipharness.harness.state.templates: initial_files, render, fields, exec_plan_path, ASSETS

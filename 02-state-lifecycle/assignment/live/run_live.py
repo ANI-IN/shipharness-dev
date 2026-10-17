@@ -1,6 +1,6 @@
 """Run shipharness with your state layer in place of the course's (calls OpenAI and LangSmith).
 
-Required live step (README, "Required live step"), once, after your layer is final:
+Required live step (SPEC.md, "Evidence to hand in"), once, after your layer is final:
 
     uv run python 02-state-lifecycle/assignment/live/run_live.py --impl <folder> \
         --forced-stops

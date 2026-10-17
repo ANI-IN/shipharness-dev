@@ -1,0 +1,18 @@
+The first tool call of session 2 (turn 2.1) and the start of its output, as the run log recorded
+them. The run log keeps only the start of a long output; it ends where the log cut it.
+
+$ pwd; git log --oneline -20; cat progress.md; cat session-handoff.md; cat docs/exec-plans/active/F2.md; bash init.sh
+exit=0
+/work
+66769af harness: session 1 handoff for F2
+0220900 docs: record F2 implementation handoff
+5adc026 harness setup
+9d8d105 harness: initializer step for F2
+f34b913 checkpoint m1-s2-start
+# Progress
+
+A log of what agents have done on this ticket (A2 keeps it in claude-progress.txt; this course
+calls it progress.md). Read it with the git log at the start of every session. Edit every section
+except "Session log": the harness appends one entry there at the end of each session.
+
+## Current f
