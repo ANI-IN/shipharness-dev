@@ -40,7 +40,8 @@ This is a real A/B, because the course measured a gap on this ticket before clas
 runs, every bare arm changed `app/services/errors.py` and every harness arm stayed inside the list
 ([evidence](../../docs/evidence/s3.md#s3-confirmation)). The files the scope layer gives the agent are in
 [harness/](harness/): `feature_list.json`, its schema, and `scope-rules.txt`, the exact scope text in
-the agent's context.
+the agent's context. `sandbox-policy.toml` next to them holds the container limits that both arms
+of this demo run under.
 
 ```mermaid
 flowchart LR

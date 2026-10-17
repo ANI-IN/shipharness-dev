@@ -117,6 +117,45 @@ def test_the_section_3_copy_is_the_f4_ticket_with_passes_false() -> None:
     assert "progress.md, session-handoff.md, docs/exec-plans/**" in rules  # the state layer is on
 
 
+def test_the_section_3_copy_has_the_sandbox_policy_the_demo_runs() -> None:
+    import tomllib
+
+    from shipharness.config import Settings
+    from shipharness.config.profiles import apply_profile
+    from shipharness.sandbox.policy import default_policy, docker_run_args
+
+    policy = default_policy(apply_profile(Settings(_env_file=None), "class"))
+    copy = REPO / "section-3-scope-sandbox" / "demo" / "harness" / sync.POLICY_FILE
+    text = copy.read_text(encoding="utf-8")
+    data = tomllib.loads(text)
+    for name in sync.POLICY_FIELDS:
+        expected = getattr(policy, name)
+        actual = data[name]
+        assert (tuple(actual) if isinstance(expected, tuple) else actual) == expected, name
+    assert data["cpus"] == 2.0 and data["run_timeout_s"] == 420  # the class profile
+    assert data["tmpfs"] == policy.tmpfs
+    deny = [(r["pattern"], r["reason_code"], r["message"]) for r in data["deny"]]
+    assert deny == [(r.pattern, r.reason_code, r.message) for r in policy.deny_command_patterns]
+    detect = [(r["pattern"], r["reason_code"]) for r in data["detect"]]
+    assert detect == [(r.pattern, r.reason_code) for r in policy.detect_output_patterns]
+    host = Path("/work-host")
+    command = " ".join(docker_run_args(policy, "<image>", host, "<name>"))
+    assert f"#   {command.replace(str(host.resolve()), '<workspace>')}" in text
+
+
+def test_the_section_4_copy_has_the_test_filters_and_the_house_rules() -> None:
+    from shipharness.filters import DEFAULT_FILTERS
+
+    copy = REPO / "section-4-verification" / "demo" / "harness"
+    filters = (copy / "test-filters.txt").read_text(encoding="utf-8").splitlines()
+    assert filters == [f"{f.number}. {f.name}" for f in DEFAULT_FILTERS]
+    assert len(filters) == 5
+    rules = (copy / "house-rules.txt").read_text(encoding="utf-8").splitlines()
+    assert [line.split(" ", 2)[1] for line in rules] == [f"R{i}" for i in range(1, 8)]
+    agents = sync.instructions_files()["AGENTS.md"].decode("utf-8").splitlines()
+    assert all(line in agents for line in rules)
+
+
 def test_the_section_4_gate_items_follow_the_gate() -> None:
     build = sync.gate_items("build")
     assert build[0] == "visible tests" and build[-1] == "clean state"
