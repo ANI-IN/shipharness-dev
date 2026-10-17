@@ -85,7 +85,7 @@ implementations, we let agents ship fast without undermining the foundation" (F-
 
 ## Sources
 
-Ids from the shipharness research register.
+Ids from the course reference list (REFERENCES.md in the shipharness repository).
 
 - A1: Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI,
   2026-02-11. https://openai.com/index/harness-engineering/

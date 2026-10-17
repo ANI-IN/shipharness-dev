@@ -3,8 +3,10 @@
 > **Not tested on macOS.** No command on this page was run on a Mac for the course. Every step
 > follows the official documentation cited next to it (each page read on 2026-10-17). The course's
 > tested platform is Ubuntu (inside WSL2 on the class host): see [setup-linux.md](setup-linux.md)
-> and [setup-windows.md](setup-windows.md). If a step fails on your Mac, bring the exact message to
-> class, and see [troubleshooting.md](troubleshooting.md).
+> and [setup-windows.md](setup-windows.md). macOS stays a known open item for this release: no
+> `docker info` or `make doctor` output from a Mac is shown here because none was captured. If a
+> step fails on your Mac, bring the exact message to class, and see
+> [troubleshooting.md](troubleshooting.md).
 
 You need a container runtime that provides the `docker` command. Pick **one**:
 

@@ -41,7 +41,7 @@ Copy-Item -Recurse skills\skill-template skills\my-skill
 
 Then set `name: my-skill` in `skills/my-skill/SKILL.md`. Until you do, validation fails, because the
 name must equal the folder name. Captured on 2026-10-17 from
-`uv run shipharness skills validate <copy>/my-skill` at commit 5e8fb08, on a copy named `my-skill` with
+`uv run shipharness skills validate <copy>/my-skill`, on a copy named `my-skill` with
 the name not yet changed; your output will differ:
 
 ```text
@@ -96,7 +96,7 @@ uv run agentskills validate skills/my-skill
 ```
 
 For the template folder itself, captured on 2026-10-17 from
-`uv run shipharness skills validate skills/skill-template` at commit 5e8fb08; your output will differ:
+`uv run shipharness skills validate skills/skill-template`; your output will differ:
 
 ```text
 + skill-template: valid (SKILL.md 46 lines)
@@ -105,7 +105,7 @@ Cost: $0.000000 (no model calls)
 ```
 
 `uv run agentskills validate skills/skill-template` printed `Valid skill: skills/skill-template`
-(captured on 2026-10-17 from that command at commit 5e8fb08; your output will differ).
+(captured on 2026-10-17 from that command; your output will differ).
 
 - `shipharness skills validate` reports errors for everything the reference validator checks, and
   warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and referenced

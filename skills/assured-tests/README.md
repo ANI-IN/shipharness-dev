@@ -129,7 +129,7 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/assured-tests
 uv run shipharness skills validate ~/my-repo/.agents/skills/assured-tests
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/assured-tests` at commit 5e8fb08;
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/assured-tests`;
 your output will differ:
 
 ```text
@@ -142,8 +142,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/assured-tests` (captured on 2026-10-17 from that command at commit
-5e8fb08: `Valid skill: skills/assured-tests`; your output will differ).
+`uv run agentskills validate skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: skills/assured-tests`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -171,7 +170,7 @@ The agent runs the script from the installed folder, for example
 Captured on 2026-10-17 against the course's TeamTrack app from
 `python3 skills/assured-tests/scripts/run_testgen.py --repo teamtrack --module app/services/members.py --max-tests 8 --dry-run`
 (run from the checkout root, with no `shipharness` on the PATH, so the script falls back to
-`uv run shipharness`) at commit 5e8fb08; your output will differ:
+`uv run shipharness`); your output will differ:
 
 ```text
 command: uv run shipharness testgen --repo teamtrack --module app/services/members.py --layers verify --max-tests 8
@@ -179,8 +178,25 @@ note: UNSANDBOXED. Generated tests will run on this machine with your permission
 note: this calls a model and costs money; the command prints a Cost: line at the end.
 ```
 
-The dry run makes no model calls. The real run, without `--dry-run`, does; this README shows no
-captured output from one.
+The dry run makes no model calls. The real run, without `--dry-run`, does. One real run of
+`shipharness testgen` on a TeamTrack module (the command the script wraps), captured on
+2026-10-17, run r-20261017-093940-52dde8; discarded-test lines cut to the first one; your output
+will differ:
+
+```text
+$ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen
+target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in /home/ani/shipharness/teamtrack
+! UNSANDBOXED — results not official: generated tests run on this machine
+Baseline: existing suite without doctests
+testgen r-20261017-093940-52dde8: completed; kept 1 of 5 proposed tests
++ tests/visible/test_issue_repository.py::test_list_for_project_uses_ascending_keyset_pages
+- tests/visible/test_issue_repository.py::test_add_flushes_issue_with_requested_fields_and_database_defaults: filter 3: adds no line coverage over the existing suite and kills no filter-set mutant that the existing tests miss (0 checked)
+Kept tests and report: .shipharness/a4/testgen
+Cost: $0.003287 (testgen, model gpt-6-luna)
+```
+
+The other three proposed tests were discarded by filter 3 for the same reason: on a module the
+existing suite already covers, most proposals add nothing, as the Limits section below says.
 
 ## What it costs
 
@@ -191,7 +207,8 @@ Two things cost money, and both are yours:
   how many tokens a run uses.
 - `shipharness testgen` calls the OpenAI API with your key. It prints `Cost: $X` when it ends and
   stops at the per-run cost cap, `MAX_RUN_COST_USD`, whose default is $0.20
-  (`src/shipharness/config/settings.py`). The course has no typical cost per testgen run to quote.
+  (`src/shipharness/config/settings.py`). The run shown above, with 5 proposed tests, cost
+$0.003287; that is one measured run, not a typical cost.
   When LangSmith tracing is on and `LANGSMITH_API_KEY` is set, the run is also traced to the
   `shipharness-testgen` project, which counts against your LangSmith trace allowance.
 

@@ -1,7 +1,8 @@
 <!-- REPLACE: TeamTrack's handoff template. In TeamTrack the harness rewrites Machine summary at every session stop; without a harness, the agent writes it: files changed, test result, last commits. -->
 # Session handoff
 
-A structured handoff that carries the previous session's state and the next steps (A3). The
+A structured handoff that carries the previous session's state and the next steps (Anthropic,
+"Harness design for long-running application development"). The
 harness rewrites "Machine summary" at every session stop. Write your own notes under "Notes from
 the agent" before the session ends.
 

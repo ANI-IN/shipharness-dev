@@ -7,7 +7,9 @@
 #          capped at MAX_RUN_COST_USD = $0.20 (src/shipharness/config/settings.py in shipharness).
 #          Prices per 1M tokens are in shipharness's config/prices.toml (gpt-6-luna: $0.10 input,
 #          $0.01 cached input, $0.50 output).
-# [[PENDING: measured cost of one shipharness testgen run | source: live class | how: the Cost line of uv run shipharness testgen --target TG-boltons-listutils --layers verify on the class host]]
+#          One measured example run (TeamTrack's app/repositories/issues.py, 5 proposed tests,
+#          1 kept) printed "Cost: $0.003287 (testgen, model gpt-6-luna)": captured on
+#          2026-10-17, run r-20261017-093940-52dde8; your cost will differ.
 
 name: shipharness
 

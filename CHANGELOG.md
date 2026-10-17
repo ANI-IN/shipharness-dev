@@ -26,21 +26,26 @@ All notable changes to this project are recorded here.
   `make replay` replays such runs.
 
 ### Constructed examples (2026-10-17)
-- `shipharness example --section demo-N` and `make example-1` .. `make example-4`: the harness arm
-  with section N's layer stack on its canonical task, in the real sandbox and judged by the real
-  referee, driven by scripted steps that make the mistake the layer exists to catch (a cross-org
-  query, a session that runs out of turns, an out-of-scope patch and a network command, a claim of
-  done with a failing test). No model, no API key, $0. Every console screen shows CONSTRUCTED
-  EXAMPLE; the run record and score are marked `constructed`, the score stays in the run directory,
-  and the A/B report, screen 4, swap tests, and exports never count it.
+- `shipharness example --section demo-N` and `make example-1` .. `make example-4`, optional extras
+  that are not part of any demo section ([docs/extras.md](docs/extras.md)): the harness arm with
+  section N's layer stack on its canonical task, in the real sandbox and judged by the real referee,
+  driven by scripted steps that make the mistake the layer exists to catch (a cross-org query, a
+  session that runs out of turns, an out-of-scope patch and a network command, a claim of done with
+  a failing test). No model, no API key, $0. Every console screen shows CONSTRUCTED EXAMPLE; the run
+  record and score are marked `constructed`, the score stays in the run directory, and the A/B
+  report, screen 4, swap tests, and exports never count it.
+- `testgen --layers verify` on a repository that is not TeamTrack: the visible-test directory comes
+  from the run (`--tests` folder or `--visible-tests`), and the migration-head check runs only with
+  an Alembic configuration (bug fix; TeamTrack runs unchanged).
+- The verify gate's ruff check uses ruff's default rule set (`E4,E7,E9,F`) when the repository has no
+  ruff configuration of its own (bug fix, harness arm only).
 - `make warm`: images rebuilt only when their source changed, containers paged in, and the referee
   and gate baselines of the class tasks cached, with no model calls.
 - `shipharness ab` exits 2 when an arm was aborted (cost cap or time limit); the run is still judged.
-- Constructed examples (`make example-N`): scripted steps with no model and a "CONSTRUCTED EXAMPLE"
-  badge on every console screen, one per section.
 - Class plan: the pre-registered pilot gate did not pass (no measurable difference on this task with
-  this model in any section), so S1 to S4 show harness in action, a pilot run replayed, and a
-  constructed example; the final keeps one live A/B; one slide and console screen 4 show every
+  this model in any section), so S1 to S4 run harness in action (`make show-N`, live); the final
+  keeps one live A/B; recorded showcases and constructed examples are optional extras outside the
+  demo flow, and `make replay` is the emergency fallback; one slide and console screen 4 show every
   result. Screen 4 groups dots by feature and leaves out records of an older referee version.
 - Starter kit: `kit/` and `shipharness init --target <repo>` (and `--check`) copy TeamTrack's harness
   as templates with REPLACE markers, deterministically, with a worked example on three boltons
@@ -141,11 +146,11 @@ All notable changes to this project are recorded here.
   agent's `.git/config`; host tools never follow links out of the workspace; bytes-safe output);
   run and tool exception safety; key masking in tool output and run logs; narrower redaction; board
   validation in the service layer; discovery of unauthenticated endpoints; class date defaults to
-  today; trace link retried at run end. LangSmith tracing enabled explicitly (found by a live probe).
+  today (replaced in M6 by an explicit class date); trace link retried at run end. LangSmith tracing enabled explicitly (found by a live probe).
 
 ### M2 Design and contracts (2026-10-16)
-- Course design and module contracts, approved by the owner with changes.
-- `.env.example`, `.gitignore`, secrets unit test, PRE-CLASS draft.
+- Course plan and module interfaces agreed; `.env.example`, `.gitignore`, secrets unit test,
+  PRE-CLASS draft.
 
 ### M1 Research (2026-10-16)
 - Source research: the teaching sources and findings the course cites, listed in
