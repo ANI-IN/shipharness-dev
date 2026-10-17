@@ -830,7 +830,7 @@ Talking points:
 
 ### S4:gate (3 minutes)
 
-File: `src/shipharness/harness/verify/gate.py:143-188` (pulled with `uv run python scripts/anchors.py extract S4:gate`)
+File: `src/shipharness/harness/verify/gate.py:143-184` (pulled with `uv run python scripts/anchors.py extract S4:gate`)
 
 ```python
 def run_gate(
@@ -859,11 +859,7 @@ def run_gate(
         items += sorted(check_items, key=_order)
         lines += check_lines
     clean = clean_state_check(
-        sandbox,
-        base_sha,
-        cfg.limit(120),
-        migrations=cfg.migrations,
-        ruff_select=cfg.ruff_select,
+        sandbox, base_sha, cfg.limit(120), migrations=cfg.migrations, ruff_select=cfg.ruff_select
     )
     items.append(clean)
     if clean.status == "fail":
