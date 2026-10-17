@@ -204,14 +204,16 @@ The table below lists every target with what it runs (from `make -n <target>`, c
 |---|---|---|---|
 | `make help` | prints the three lines above | none | |
 | `make setup` | `uv sync --frozen`, then `make images` if the runtime is found, then copies `.env.example` to `.env` if missing | none | `RUNTIME=podman` uses Podman |
-| `make images` | `docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `sandbox/Dockerfile` or `src/` |
+| `make images` | `docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `sandbox/Dockerfile` or `src/`; `AGENT_IMAGE=` and `REFEREE_IMAGE=` change the tags |
+| `make warm` | `uv run shipharness warm --profile class` | none | Before class, on the class host: rebuilds the images only if their source changed (through `make images`), starts and removes one container per image, and caches the referee baseline of every class task and the gate baseline of every task with the verify layer; prints each step with its time. A second run finds everything in place |
 | `make doctor` | `uv run shipharness doctor` | none; lists OpenAI models (no tokens) and one LangSmith project | `uv run shipharness doctor --offline` skips both network checks |
 | `make up` | `uv run shipharness up --port 8000` | none | TeamTrack and its board; `PORT=8001` to move it |
 | `make console` | `uv run shipharness console --port 8765` | none | `CONSOLE_PORT=8766` to move it |
 | `make datasets` | `uv run shipharness datasets upload` | none (LangSmith upload) | Uploads `teamtrack-features-v1` (60) and `testgen-targets-v1` (40) once; assignment 1 needs it |
-| `make demo-1` ... `make demo-4` | `uv run shipharness ab --section demo-N --feature FN --purpose class` | **yes**: two agent runs and two reviews, at most $0.48 at the caps | Section A/B; `LAYERS=-<layer>`, `PURPOSE=` |
+| `make demo-1` ... `make demo-4` | `uv run shipharness ab --section demo-N --feature FN --purpose class --profile class` | **yes**: two agent runs and two reviews, at most $0.48 at the caps | Section A/B; `LAYERS=-<layer>`, `PURPOSE=`, `PROFILE=` |
+| `make show-1` ... `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness --purpose class --profile class` | **yes**: one agent run and one review, at most $0.24 at the caps | Harness in action: the harness arm alone, judged by the referee. Not an A/B: its score stays out of every bare-vs-harness comparison and out of `make swap-N` |
 | `make swap-1` ... `make swap-4` | `uv run shipharness ab --swap latest --section demo-N --purpose class` | none | Re-judges the latest demo-N A/B with labels swapped; `AB=<ab or run id>` picks another |
-| `make final` | for each feature in `FEATURES` (default `F5,F6`): `uv run shipharness ab --section final --feature <f> --purpose class` | **yes**: at most $0.58 per feature at the caps | Features run one after another; exit code is the last non-zero one |
+| `make final` | for each feature in `FEATURES` (default `F5,F6`): `uv run shipharness ab --section final --feature <f> --purpose class --profile class` | **yes**: at most $0.58 per feature at the caps | Features run one after another; exit code is the last non-zero one |
 | `make replay RUN=<id>` | `uv run shipharness replay <id>` | none (no reviewer by default) | Re-emits a recorded A/B with the RECORDING badge and re-runs the referee; needs `SHIPHARNESS_CLASS_DATE` |
 | `make check-assignment-1` ... `-4` | `uv run python submodules/0N-*/assignment/check.py` | none | Offline self-check; `A1_WORK=<folder>`, `A2_IMPL=`, `A3_IMPL=`, `A4_IMPL=` pick your folder |
 | `make grade-assignment-1` ... `-4` | `uv run python scripts/grade_assignment.py N "<SUBMISSION>"` | none | **Instructor only**: needs the private graders, which are not in this repository; here it stops with `no grader for assignment N: graders are private (build repository only)`. Needs `SUBMISSION=<folder or git URL>` |
@@ -230,7 +232,8 @@ Variables:
 
 | Variable | Default | Used by | Meaning |
 |---|---|---|---|
-| `PURPOSE` | `class` | demo-N, swap-N, final | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
+| `PROFILE` | `class` | demo-N, show-N, final, warm | `class`: reasoning effort `low`, 2 CPUs per arm and referee container, and the OpenAI Fast tier for the agent arms, identical for both arms (the reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the standard tier). Fast calls cost twice the Standard rate per token; the cost caps are unchanged. `standard`: the settings in `.env` |
+| `PURPOSE` | `class` | demo-N, show-N, swap-N, final | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
 | `FEATURES` | `F5,F6` | final | Comma-separated final features, for example `FEATURES=F6` or `FEATURES=F7,F5` |
 | `LAYERS` | empty | demo-N, final | `-<layer>` removes one layer from the section's stack, for example `LAYERS=-state` |
 | `AB` | `latest` | swap-N | The A/B id (or a run id) to swap-test |

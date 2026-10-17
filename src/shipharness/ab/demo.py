@@ -46,7 +46,7 @@ from shipharness.runner.loop import RunOptions, run_agent
 from shipharness.runner.model import ModelClient
 from shipharness.runner.models import AgentRunResult, AgentRunSpec
 from shipharness.sandbox.base import Sandbox
-from shipharness.tracing import NullTracer, Tracer
+from shipharness.tracing import NullTracer, Tracer, write_export
 
 ARMS: tuple[Arm, ...] = get_args(Arm)
 SECTION_STACKS: dict[str, tuple[LayerName, ...]] = {
@@ -151,6 +151,7 @@ class ABDeps:
     mutant_runner: Any = None  # referee mutant runner; None = the filters package runner
     mutant_source_repo: Path | None = None  # where teamtrack/mutants lives (default course_repo)
     baseline_cache_dir: Path | None = None  # referee baselines reused across A/Bs of a task
+    profile: str = "standard"  # run profile already applied to `settings` (recorded, displayed)
 
 
 @dataclass
@@ -176,10 +177,13 @@ def arm_specs(
     workspaces: Mapping[Arm, Path],
     run_ids: Mapping[Arm, str],
     run_cost_limit_usd: float | None = None,
+    profile: str = "standard",
 ) -> dict[Arm, AgentRunSpec]:
     """Both arms' specs from one set of values. `run_cost_limit_usd` is the per-arm run cap
     (both phases together); it defaults to MAX_RUN_COST_USD, and the A/B passes the cost
-    tracker's run cap, which is MAX_FINAL_RUN_COST_USD for `--section final`."""
+    tracker's run cap, which is MAX_FINAL_RUN_COST_USD for `--section final`. `profile` names the
+    run profile already applied to `settings`. With only the harness arm in `workspaces`, the
+    spec is marked single-arm."""
     if run_cost_limit_usd is None:
         run_cost_limit_usd = settings.max_run_cost_usd
     shared: dict[str, Any] = dict(
@@ -196,6 +200,8 @@ def arm_specs(
         reasoning_effort=settings.openai_reasoning_effort,
         max_output_tokens=settings.max_output_tokens,
         service_tier=settings.openai_service_tier,
+        profile=profile,
+        single_arm=set(workspaces) == {"harness"},
         cost_limit_usd=run_cost_limit_usd,
     )
     return {
@@ -280,6 +286,35 @@ def _referee_mutants(task: ABTask, deps: ABDeps, checkpoint_sha: str | None) -> 
     return referee_mutants(task.mutant_set, deps.course_repo, deps.mutants, ref=checkpoint_sha)
 
 
+def task_seed(task: ABTask, deps: ABDeps) -> int:
+    """The referee and gate seed of a task (fixed per feature and checkpoint)."""
+    return deps.seed if deps.seed is not None else default_seed(task.feature_id, task.checkpoint)
+
+
+def make_referee(task: ABTask, deps: ABDeps, checkpoint_sha: str | None, base_dir: Path) -> Referee:
+    """The referee of one A/B. `make warm` builds it the same way, so the baseline it caches has
+    the key a class run looks up."""
+    return Referee(
+        task.referee_task(),
+        RefereeDeps(
+            course_repo=deps.course_repo,
+            checkpoint_ref=checkpoint_sha,
+            sandbox_factory=deps.referee_sandbox_factory,
+            exports_dir=Path(deps.settings.exports_dir),
+            base_dir=base_dir,
+            seed=task_seed(task, deps),
+            tracer=deps.tracer,
+            reviewer=deps.reviewer,
+            grading_criteria=deps.grading_criteria,
+            mutants=_referee_mutants(task, deps, checkpoint_sha),
+            mutant_runner=deps.mutant_runner,
+            baseline_cache_dir=deps.baseline_cache_dir,
+            sandboxed=deps.sandboxed,
+            container_paths=deps.container_paths,
+        ),
+    )
+
+
 def _start_previews(
     deps: ABDeps, bus: EventBus, specs: Mapping[Arm, AgentRunSpec]
 ) -> tuple[threading.Event, list[threading.Thread]]:
@@ -309,10 +344,16 @@ def run_ab(
     *,
     ab_id: str | None = None,
     section: str | None = None,
+    arms: tuple[Arm, ...] = ARMS,
 ) -> ABResult:
+    """Both arms (default), or the harness arm alone (`arms=("harness",)`: "harness in action",
+    judged the same way and marked single-arm, never compared with a bare run)."""
+    if tuple(arms) not in (ARMS, ("harness",)):
+        raise ValueError(f"arms must be both arms or the harness arm alone, got {arms!r}")
+    arms = tuple(arms)
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
-    run_ids = {arm: new_run_id() for arm in ARMS}
+    run_ids = {arm: new_run_id() for arm in arms}
     # The checkpoint is pinned to the commit its tag names now: both arms, the referee, and later
     # swap tests and replays export that commit, even if the tag moves afterwards.
     checkpoint_sha = (
@@ -327,7 +368,7 @@ def run_ab(
             base=deps.workspace_base,
             label=deps.checkpoint_ref,
         )
-        for arm in ARMS
+        for arm in arms
     }
     specs = arm_specs(
         task,
@@ -337,26 +378,11 @@ def run_ab(
         workspaces=workspaces,
         run_ids=run_ids,
         run_cost_limit_usd=deps.cost.caps.run,  # final section: MAX_FINAL_RUN_COST_USD
+        profile=deps.profile,
     )
-    seed = deps.seed if deps.seed is not None else default_seed(task.feature_id, task.checkpoint)
-    referee = Referee(
-        task.referee_task(),
-        RefereeDeps(
-            course_repo=deps.course_repo,
-            checkpoint_ref=checkpoint_sha,
-            sandbox_factory=deps.referee_sandbox_factory,
-            exports_dir=Path(deps.settings.exports_dir),
-            base_dir=workspaces["bare"].parent.parent / "referee",
-            seed=seed,
-            tracer=deps.tracer,
-            reviewer=deps.reviewer,
-            grading_criteria=deps.grading_criteria,
-            mutants=_referee_mutants(task, deps, checkpoint_sha),
-            mutant_runner=deps.mutant_runner,
-            baseline_cache_dir=deps.baseline_cache_dir,
-            sandboxed=deps.sandboxed,
-            container_paths=deps.container_paths,
-        ),
+    seed = task_seed(task, deps)
+    referee = make_referee(
+        task, deps, checkpoint_sha, workspaces[arms[0]].parent.parent / "referee"
     )
     # The baseline depends only on the checkpoint, so it runs while the arms work.
     baseline = threading.Thread(target=referee.baseline, name="referee-baseline", daemon=True)
@@ -377,29 +403,31 @@ def run_ab(
 
         try:
             with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
-                futures = {arm: pool.submit(run_and_judge, arm) for arm in ARMS}
+                futures = {arm: pool.submit(run_and_judge, arm) for arm in arms}
                 done = {arm: future.result() for arm, future in futures.items()}
         finally:
             stop.set()  # previews stop (and their containers with them) on every path
             for thread in previews:
                 thread.join(timeout=10)
-        results = {arm: done[arm][0] for arm in ARMS}
-        records = {arm: done[arm][1] for arm in ARMS}
+        results = {arm: done[arm][0] for arm in arms}
+        records = {arm: done[arm][1] for arm in arms}
         # [walkthrough:Opening:two_arms] end
-    arms = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in ARMS}
+    runs = {arm: ArmRun(specs[arm], results[arm], records[arm]) for arm in arms}
     write_ab_record(
         run_dir,
         task,
         seed,
-        arms,
+        runs,
         section=section,
         checkpoint_sha=checkpoint_sha,
         from_working_tree=deps.checkpoint_ref is None,
+        profile=deps.profile,
     )
-    return ABResult(ab_id=ab_id, arms=arms, run_dir=run_dir)
+    return ABResult(ab_id=ab_id, arms=runs, run_dir=run_dir)
 
 
 AB_RECORD = "ab.json"
+SINGLE_ARM_MODE = "harness in action"
 
 
 def write_ab_record(
@@ -411,17 +439,23 @@ def write_ab_record(
     section: str | None = None,
     checkpoint_sha: str | None = None,
     from_working_tree: bool = False,
+    profile: str = "standard",
 ) -> Path:
     """Everything swap and replay need, without host paths or keys. `section` (demo-N or final)
     lets `make swap-N` find the section's most recent A/B. `checkpoint_sha` is the commit the
     arms started from (swap and replay export it, never the tag); a working-tree A/B records
-    null and `from_working_tree: true`."""
+    null and `from_working_tree: true`. `profile` is the run profile; `single_arm` (harness arm
+    alone, mode "harness in action") keeps the record out of swap tests and comparisons."""
+    single_arm = set(arms) == {"harness"}
     data = {
         "task": asdict(task),
         "seed": seed,
         "section": section,
         "checkpoint_sha": checkpoint_sha,
         "from_working_tree": from_working_tree,
+        "profile": profile,
+        "single_arm": single_arm,
+        "mode": SINGLE_ARM_MODE if single_arm else "A/B",
         "arms": {
             arm: {
                 "spec": run.spec.public_dict(),
@@ -478,8 +512,19 @@ def _judge(
             spec, result, run_dir / spec.arm / "sessions", store=snapshot_store(run_dir, spec.arm)
         ),
         arm_ended=_ARM_ENDED.pop(spec.run_id, None),
+        export=not spec.single_arm,
     )
-    return verdict.record
+    if not spec.single_arm:
+        return verdict.record
+    return export_single_arm(verdict.record, referee.deps.exports_dir)
+
+
+def export_single_arm(record: ScoreRecord, exports_dir: Path) -> ScoreRecord:
+    """Write a single-arm run's score marked as such (it is never written unmarked, so no report
+    ever counts it in a bare-vs-harness comparison)."""
+    marked = record.model_copy(update={"single_arm": True})
+    write_export("scores", marked.run_id, marked, exports_dir)
+    return marked
 
 
 def snapshot_store(run_dir: Path, arm: str) -> Path:

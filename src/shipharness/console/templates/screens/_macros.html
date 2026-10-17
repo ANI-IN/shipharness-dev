@@ -4,6 +4,8 @@
   <div class="badges">
     {% if state.recorded %}<span class="badge recording"><span class="sym" aria-hidden="true">●</span> RECORDING</span>{% endif %}
     {% if state.unsandboxed %}<span class="badge unsandboxed"><span class="sym" aria-hidden="true">⚠</span> UNSANDBOXED — results not official</span>{% endif %}
+    {% if state.single_arm %}<span class="badge single-arm"><span class="sym" aria-hidden="true">▶</span> HARNESS IN ACTION — one arm, not an A/B</span>{% endif %}
+    {% if state.profile %}<span class="badge profile">profile: {{ state.profile }}</span>{% endif %}
   </div>
 </div>
 {%- endmacro %}

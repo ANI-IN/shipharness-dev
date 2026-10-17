@@ -103,6 +103,7 @@ class Report:
     older: int = 0  # records of an earlier referee version, left out
     unsandboxed: int = 0
     recorded: int = 0
+    single_arm: int = 0  # harness-in-action runs, left out of the bare-vs-harness comparison
 
     @property
     def empty(self) -> bool:
@@ -166,6 +167,9 @@ def load_report(exports_dir: Path) -> Report:
             continue
         if record.get("referee_version") != REFEREE_VERSION:
             report.older += 1  # scored before the current measurement rules
+            continue
+        if record.get("single_arm"):
+            report.single_arm += 1  # no bare run to compare with (make show-N)
             continue
         arm, variant = str(record["arm"]), str(record["variant"])
         feature = str(record.get("feature_id") or "?")

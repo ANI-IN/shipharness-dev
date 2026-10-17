@@ -131,7 +131,10 @@ def run_review(
                 cost.release(reservation)
                 raise
         try:
-            cost.settle(reservation, usage_from_openai(response.usage))
+            # No tier is requested (the reviewer stays on the standard tier); the ledger keeps
+            # the tier the response reports, and the price follows it.
+            tier = getattr(response, "service_tier", None)
+            cost.settle(reservation, usage_from_openai(response.usage), str(tier) if tier else None)
         except CapExceeded as exc:
             return ReviewOutcome(None, "cap", round(scope.spent_usd, 6), str(exc))
         spent = round(scope.spent_usd, 6)

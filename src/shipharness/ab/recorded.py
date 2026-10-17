@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from shipharness.ab.demo import AB_RECORD, ARMS, ABTask
+from shipharness.ab.demo import AB_RECORD, ARMS, ABTask, export_single_arm
 from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import Referee, RefereeDeps, Reviewer, SandboxFactory
 from shipharness.ab.score import ScoreRecord
@@ -49,6 +49,10 @@ JUDGED_FIELDS: tuple[str, ...] = (
     "primary",
     "passed_primary",
 )
+
+
+class SingleArmRecord(ValueError):
+    """The record is a single-arm run (`ab --arms harness`): there is no other arm to swap with."""
 
 
 class UnpinnedRecord(ValueError):
@@ -92,6 +96,7 @@ class LoadedAB:
     checkpoint_sha: str | None = None
     from_working_tree: bool = False
     pinned: bool = False  # False: the record predates checkpoint_sha
+    single_arm: bool = False  # the harness arm alone ("harness in action")
 
     def export_ref(self) -> str | None:
         """What swap and replay export: the recorded commit (None = the working tree, for an
@@ -129,20 +134,22 @@ def load_ab(run_dir: Path) -> LoadedAB:
         checkpoint_sha=data.get("checkpoint_sha"),
         from_working_tree=bool(data.get("from_working_tree", False)),
         pinned="checkpoint_sha" in data,
+        single_arm=bool(data.get("single_arm", False)),
     )
 
 
 def latest_ab_dir(runs_dir: Path, section: str | None) -> Path:
     """The most recent recorded A/B (ab ids start with a sortable time stamp), limited to one
-    section (demo-N or final) when `section` is given."""
+    section (demo-N or final) when `section` is given. Single-arm runs (`make show-N`) are not
+    A/Bs and are skipped."""
     for record in sorted(Path(runs_dir).glob(f"ab-*/{AB_RECORD}"), reverse=True):
-        if section is None:
-            return record.parent
         try:
-            recorded = json.loads(record.read_text(encoding="utf-8")).get("section")
+            data = json.loads(record.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if recorded == section:
+        if data.get("single_arm"):
+            continue
+        if section is None or data.get("section") == section:
             return record.parent
     where = f" for section {section}" if section else ""
     raise FileNotFoundError(f"no recorded A/B{where} under {runs_dir}")
@@ -198,6 +205,11 @@ class SwapReport:
 
 def swap_test(run_dir: Path, deps: RecordedDeps) -> SwapReport:
     ab = load_ab(run_dir)
+    if ab.single_arm:
+        raise SingleArmRecord(
+            f"{ab.ab_id} is a single-arm run (harness in action): the swap test needs both arms; "
+            "pass the id of an A/B"
+        )
     referee = _referee(ab, deps, run_dir / "swap" / "referee", reviewer=None)
     other: dict[str, Arm] = {"bare": "harness", "harness": "bare"}
     swapped: dict[str, ScoreRecord] = {}
@@ -250,7 +262,7 @@ def replay_ab(run_dir: Path, deps: RecordedDeps, *, ab_id: str | None = None) ->
     records: dict[str, ScoreRecord] = {}
     with EventBus(new_dir / "events.jsonl", ab_id=new_id) as bus:
         count = replay(run_dir / "events.jsonl", bus)
-        for arm in ARMS:
+        for arm in [a for a in ARMS if a in ab.arms]:  # a single-arm run has the harness only
             loaded = ab.arms[arm]
             (new_dir / arm).mkdir(parents=True, exist_ok=True)
             source_diff = run_dir / arm / "diff.patch"
@@ -269,6 +281,11 @@ def replay_ab(run_dir: Path, deps: RecordedDeps, *, ab_id: str | None = None) ->
                 session_patches=loaded.session_patches,
                 recorded=True,
                 log_run_id=loaded.spec["run_id"],  # continuity counts the original run's sessions
+                export=not ab.single_arm,
             )
-            records[arm] = verdict.record
+            records[arm] = (
+                export_single_arm(verdict.record, deps.exports_dir)
+                if ab.single_arm
+                else verdict.record
+            )
     return ReplayResult(new_id, ab.ab_id, count, records, new_dir)

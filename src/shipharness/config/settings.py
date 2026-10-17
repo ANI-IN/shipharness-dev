@@ -29,7 +29,9 @@ class Settings(BaseSettings):
     openai_reasoning_effort: str = "medium"
     openai_eval_model: str = "gpt-5.6-luna"
     openai_eval_reasoning_effort: str = "medium"
-    openai_service_tier: Literal["auto", "default", "flex"] = "auto"
+    # "fast": the Fast tier (class profile, agent arms only); calls are priced by the tier the
+    # response reports, so a Fast request downgraded to standard is charged standard rates.
+    openai_service_tier: Literal["auto", "default", "flex", "fast"] = "auto"
 
     # LangSmith
     langsmith_tracing: bool = True
@@ -60,6 +62,7 @@ class Settings(BaseSettings):
     sandbox_runtime: Literal["docker", "podman"] = "docker"
     sandbox_image_agent: str = "shipharness-agent:1"
     sandbox_image_referee: str = "shipharness-referee:1"
+    sandbox_cpus: float = 1.0  # per arm, referee, and preview container (class profile: 2)
 
     # Paths
     runs_dir: Path = Path(".shipharness/runs")

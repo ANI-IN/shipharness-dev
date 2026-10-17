@@ -4,8 +4,9 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.5` (2026-10-16, M6 pilot: §23 records the fixes the pilot found; where §23
-and an earlier section differ, §23 wins). Version 1.4 (2026-10-16, M5: §22 records features,
+Contract version: `1.6` (2026-10-17: §24 records the class profile, harness in action, and the
+warm-up; where §24 and an earlier section differ, §24 wins). Version 1.5 (2026-10-16, M6 pilot: §23
+records the fixes the pilot found; where §23 and an earlier section differ, §23 wins). Version 1.4 (2026-10-16, M5: §22 records features,
 datasets, checkpoints, and the pre-M6 fixes; where §22 and an earlier section differ, §22 wins).
 Version 1.3 (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
 where §21 and an earlier section differ, §21 wins). Version 1.2 (M3): ledger file name, runner fields, sandbox and tracer
@@ -1072,3 +1073,53 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
 - The referee baseline runs while the arms work and is cached per task under
   `<RUNS_DIR>/../cache/referee-baseline`, keyed by checkpoint SHA, seed, hidden test ids, allowed
   paths, exemptions, checks, and a hash of the referee code (`RefereeDeps.baseline_cache_dir`).
+
+---
+
+## 24. Class profile, harness in action, warm-up (binding; owner decision 2026-10-17)
+
+- Run profiles (`shipharness.config.profiles`): `PROFILES = {"standard": {}, "class": {...}}`,
+  `apply_profile(settings, name) -> Settings`. `class` sets `openai_reasoning_effort="low"`,
+  `openai_service_tier="fast"`, `sandbox_cpus=2.0`; both arms read the same values, the reviewer keeps
+  `OPENAI_EVAL_REASONING_EFFORT` and requests no tier. `build_runtime(..., profile="standard")` applies
+  it; `Runtime.profile`, `ABDeps.profile`, `AgentRunSpec.profile` (default `"standard"`), and `ab.json`
+  `profile` record it; every console screen header shows `profile: <name>`. `shipharness ab --profile
+  standard|class` (default standard); the Makefile's `PROFILE ?= class` reaches demo-N, show-N, final,
+  and warm; `scripts/pilot.py --profile` (default standard) passes it to every A/B.
+- `Settings.sandbox_cpus: float = 1.0` (`SANDBOX_CPUS`, in `freeze.RUN_SETTINGS`); `default_policy`
+  sets `SandboxPolicy.cpus` from it, so arm, referee, and preview containers get the same limit.
+- Fast tier: `OPENAI_SERVICE_TIER` accepts `fast`. `config/prices.toml` holds Fast rates in a
+  `[models."<model>".fast]` table (gpt-6-luna: 0.20 / 0.02 / 0.25 / 1.00 per 1M tokens, source
+  https://developers.openai.com/api/docs/pricing, verified 2026-10-17). `Prices.get(model, tier=None)`
+  returns Fast rates for `tier == "fast"` (UnknownModelPrice without a Fast table) and Standard rates
+  otherwise; `Prices.check_tier(model, tier)` runs in `build_runtime`, so `fast` for a model without
+  Fast rates is a startup error (`shipharness ab` exits 2 with one line). `CostTracker.reserve`,
+  `check_before_call`, and `worst_case` take `service_tier` (the requested tier: the worst case uses its
+  rates); `settle` and `record` take `service_tier` (the tier the response reports: `fast` is charged
+  Fast rates, anything else, including a downgraded request's `default`, Standard rates). Ledger
+  entries carry `service_tier` as reported (null when not reported). `ModelResponse.service_tier` and
+  `Step.service_tier` carry the reported tier; the runner reserves at `spec.service_tier` and settles at
+  the reported one; the reviewer records the tier its response reports.
+- Harness in action: `shipharness ab --arms both|harness` (default both); `run_ab(..., arms=ARMS)`
+  accepts both arms or `("harness",)`. A single-arm run uses the same events; `AgentRunSpec.single_arm`
+  is true, `ab.json` has `single_arm: true` and `mode: "harness in action"` (an A/B: `false`, `"A/B"`),
+  and its ScoreRecord has `single_arm: true` (`ScoreRecord.single_arm: bool = False`; the referee is
+  called with `export=False` and `demo.export_single_arm` writes the marked record). The A/B report and
+  screen 4 leave single-arm records out of every comparison (screen 4 counts them); `latest_ab_dir`
+  skips them (swap-N finds the latest A/B); `swap_test` refuses one (`SingleArmRecord`, exit 2);
+  `replay_ab` replays the harness arm and keeps the mark. The live guard checks the model client of the
+  first arm that runs. `make show-N`: `shipharness ab --section demo-N --feature FN --arms harness
+  $(LAYERS_OPT) --purpose $(PURPOSE) --profile $(PROFILE)`.
+- Warm-up (`shipharness.ab.warm`, `shipharness warm`, `make warm`; no model calls):
+  `image_source_digest(root)` hashes `sandbox/Dockerfile`, `pyproject.toml`, `uv.lock`, and `src/`
+  (without caches); `plan_images(images, digest, stamp, image_id)` builds an image that is missing,
+  has no stamp, has a changed source, or was replaced since; the stamp is
+  `<RUNS_DIR>/../cache/images.json` (`{image: {source, id}}`), and the build runs the existing
+  `make images` target with `AGENT_IMAGE` and `REFEREE_IMAGE` (Makefile variables, defaults
+  `shipharness-agent:1` and `shipharness-referee:1`). One `docker run --rm` per image pages it in.
+  `class_tasks(dataset)` are the canonical F1-F4 (demo-1..4) and F5-F7 (final);
+  `plan_baselines(tasks, deps, base)` plans one referee baseline per task (built by `demo.make_referee`,
+  the A/B's own constructor, so the cache key matches) and one gate baseline per task whose stack has
+  the verify layer (the harness arm's workspace and `Harness.prepare_workspace`, as at the start of a
+  run; `VerifyLayer.cached_baseline_path(ctx)` names the file). `run_baselines` computes the missing
+  ones in parallel; `warm_up` prints one line per step with its time.

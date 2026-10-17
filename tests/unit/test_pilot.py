@@ -89,9 +89,9 @@ def test_judged_fields_ignore_ids_and_timings() -> None:
 def test_ab_command_selects_the_pre_registered_variant() -> None:
     assert pilot.ab_command("F1", None) == [
         "uv", "run", "shipharness", "ab", "--section", "demo-1", "--feature", "F1",
-        "--purpose", "pilot", "--no-preview",
+        "--purpose", "pilot", "--no-preview", "--profile", "standard",
     ]  # fmt: skip
-    assert pilot.ab_command("F2", "stop-1")[-5:] == [
+    assert pilot.ab_command("F2", "stop-1")[-7:-2] == [
         "--variant", "stop-1", "--purpose", "pilot", "--no-preview",
     ]  # fmt: skip
 
@@ -107,7 +107,16 @@ def test_variants_option_maps_features_to_dataset_variants() -> None:
 def test_budgets_option_adds_the_session_budget_override() -> None:
     assert pilot.parse_budgets("F2=12/38") == {"F2": "12,38"}
     cmd = pilot.ab_command("F2", None, "12,38")
-    assert cmd[-5:] == ["--session-budget", "12,38", "--purpose", "pilot", "--no-preview"]
+    assert cmd[-7:-2] == ["--session-budget", "12,38", "--purpose", "pilot", "--no-preview"]
+
+
+def test_profile_option_passes_through_and_defaults_to_standard() -> None:
+    # Owner, 2026-10-17: pilot runs keep the standard profile unless asked.
+    assert pilot.ab_command("F1", None)[-2:] == ["--profile", "standard"]
+    assert pilot.ab_command("F3", None, None, "class")[-2:] == ["--profile", "class"]
+    args = pilot.parse_args([])
+    assert args.profile == "standard"
+    assert pilot.parse_args(["--profile", "class"]).profile == "class"
 
 
 def test_judged_fields_ignore_the_capture_time() -> None:

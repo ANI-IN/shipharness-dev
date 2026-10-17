@@ -28,6 +28,8 @@ SAMPLES = {
     "$(LAYERS_OPT)": "--layers=-scope",
     "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
     "$(PURPOSE)": "pilot",
+    "$(PROFILE)": "standard",
+    "$(RUNTIME)": "docker",
     "$(AB)": "ab-20261016-000000-abcdef",
     "$(RUN)": "r-20261016-000000-abcdef",
     "$$f": "F5",
@@ -208,3 +210,60 @@ def test_demo_targets_pass_the_purpose_and_an_optional_session_budget() -> None:
 def test_replay_target_passes_the_purpose() -> None:
     _, params = _parse(_shipharness_calls("replay")[0])
     assert params["purpose"] == "pilot"
+
+
+# -- class profile, show-N, warm (owner, 2026-10-17) --------------------------------------------
+
+
+def test_class_targets_run_the_class_profile_by_default() -> None:
+    # demo-N, final, and show-N pass PROFILE (default class); PROFILE=standard reaches the CLI.
+    assert _variables()["PROFILE"] == "class"
+    targets = [*(f"demo-{n}" for n in range(1, 5)), "final", *(f"show-{n}" for n in range(1, 5))]
+    for target in targets:
+        _, params = _parse(_shipharness_calls(target)[0])
+        assert params["profile"] == "standard", target  # the sample value of $(PROFILE)
+    for target in [*(f"swap-{n}" for n in range(1, 5)), "replay"]:  # no new arm runs: no profile
+        assert "$(PROFILE)" not in " ".join(_rules()[target]), target
+
+
+@pytest.mark.parametrize("n", [1, 2, 3, 4])
+def test_show_target_runs_the_harness_arm_alone_on_the_section_task(n: int) -> None:
+    calls = _shipharness_calls(f"show-{n}")
+    assert len(calls) == 1
+    command, params = _parse(calls[0])
+    assert command == "ab"
+    assert params["section"] == f"demo-{n}"
+    assert params["feature"] == f"F{n}"
+    assert params["arms"] == "harness"
+    assert params["purpose"] == "pilot"  # the same PURPOSE handling as demo-N
+    assert params["swap"] is None and params["replay"] is None  # a live run: the live guard holds
+
+
+def test_demo_targets_still_run_both_arms() -> None:
+    for n in (1, 2, 3, 4):
+        _, params = _parse(_shipharness_calls(f"demo-{n}")[0])
+        assert params["arms"] == "both"
+
+
+def test_warm_target_runs_the_warm_command_with_the_profile() -> None:
+    calls = _shipharness_calls("warm")
+    assert len(calls) == 1
+    command, params = _parse(calls[0])
+    assert command == "warm"
+    assert params["profile"] == "standard"
+    assert ".PHONY" in MAKEFILE.read_text(encoding="utf-8")
+    phony = " ".join(
+        line for line in MAKEFILE.read_text(encoding="utf-8").replace("\\\n", " ").splitlines()
+        if line.startswith(".PHONY")
+    )  # fmt: skip
+    for target in ("warm", "show-1", "show-2", "show-3", "show-4"):
+        assert f" {target} " in f" {phony} ", target
+
+
+def test_images_target_tags_the_images_the_settings_name() -> None:
+    # make warm rebuilds through `make images` with the image names it uses.
+    variables = _variables()
+    assert variables["AGENT_IMAGE"] == "shipharness-agent:1"
+    assert variables["REFEREE_IMAGE"] == "shipharness-referee:1"
+    recipe = " ".join(_rules()["images"])
+    assert "-t $(AGENT_IMAGE)" in recipe and "-t $(REFEREE_IMAGE)" in recipe

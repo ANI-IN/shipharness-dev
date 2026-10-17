@@ -3,6 +3,12 @@
 <div class="grid two">
 {% for arm in arms %}
 {% set a = state.arm(arm) %}
+{% if state.single_arm and arm == "bare" %}
+<article class="panel arm-panel" data-arm="{{ arm }}">
+  <header class="arm-head"><h2>{{ arm_label(arm, a) }}</h2></header>
+  <p class="muted">Not run: harness in action shows the harness arm alone. The bare-vs-harness comparison comes from the A/B runs (make demo-N).</p>
+</article>
+{% else %}
 <article class="panel arm-panel" data-arm="{{ arm }}">
   <header class="arm-head">
     <h2>{{ arm_label(arm, a) }}</h2>
@@ -66,5 +72,6 @@
     {% if a.claim_supported is not none %}<p>{{ status("supported" if a.claim_supported else "unsupported") }}</p>{% endif %}
   </div>
 </article>
+{% endif %}
 {% endfor %}
 </div>

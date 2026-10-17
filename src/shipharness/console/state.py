@@ -589,6 +589,23 @@ class ConsoleState:
     def arm(self, name: str) -> ArmState:
         return self.arms.get(name) or ArmState(name)
 
+    def _specs(self) -> list[dict[str, Any]]:
+        starts = [a.run_start for a in self.arms.values() if a.run_start]
+        return [s["spec"] for s in starts if isinstance(s.get("spec"), dict)]
+
+    @property
+    def profile(self) -> str | None:
+        """The run profile from the run_start spec (the same for both arms); None before."""
+        for spec in self._specs():
+            if spec.get("profile"):
+                return str(spec["profile"])
+        return None
+
+    @property
+    def single_arm(self) -> bool:
+        """The harness arm runs alone (`make show-N`, harness in action): no bare arm starts."""
+        return any(bool(spec.get("single_arm")) for spec in self._specs())
+
     def apply(self, event: Event) -> None:
         self.seq = max(self.seq, event.seq)
         self.ab_id = self.ab_id or event.ab_id

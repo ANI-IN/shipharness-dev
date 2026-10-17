@@ -4,6 +4,17 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### Class profile, harness in action, warm-up (2026-10-17)
+- `shipharness ab --profile standard|class`: the class profile (reasoning effort low, 2 CPUs per arm
+  and referee container, OpenAI Fast tier for the agent arms) is identical for both arms and used by
+  `make demo-N`, `make show-N`, and `make final` (`PROFILE ?= class`); pilot runs keep standard.
+- Fast tier pricing: each call is charged by the tier its response reports, the worst case held
+  before a call uses the requested tier, and the ledger records the reported tier.
+- `shipharness ab --arms harness` and `make show-N`: the harness arm alone, judged by the referee and
+  left out of every bare-vs-harness comparison and of swap tests.
+- `make warm`: images rebuilt only when their source changed, containers paged in, and the referee
+  and gate baselines of the class tasks cached, with no model calls.
+
 ### M6 pilot fixes (2026-10-16)
 - Trace projects by purpose: class runs only in `shipharness-class-<date>` with an explicit class
   date; pilot runs in `shipharness-pilot`; assignments in `shipharness-assignments`.

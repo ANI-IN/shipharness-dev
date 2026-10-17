@@ -37,6 +37,8 @@ class AgentRunSpec(BaseModel):
     reasoning_effort: str
     max_output_tokens: int = 8000
     service_tier: str = "auto"
+    profile: str = "standard"  # run profile (config/profiles.py), the same for both arms
+    single_arm: bool = False  # True: harness arm alone (`ab --arms harness`), not an A/B
     cost_limit_usd: float = 0.20
     workspace: Path
 

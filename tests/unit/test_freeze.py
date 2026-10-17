@@ -57,7 +57,8 @@ def test_frozen_paths_cover_treatment_measurement_tasks_and_environment() -> Non
     for editable in ("src/shipharness/console", "src/shipharness/ab/report.py", "slides", "docs"):
         assert not any(editable == p or editable.startswith(p + "/") for p in paths), editable
     for key in ("openai_model", "openai_reasoning_effort", "max_turns_per_session",
-                "run_timeout_s", "harness_timeout_s", "max_run_cost_usd"):  # fmt: skip
+                "run_timeout_s", "harness_timeout_s", "max_run_cost_usd",
+                "sandbox_cpus"):  # fmt: skip
         assert key in freeze.RUN_SETTINGS, key
 
 

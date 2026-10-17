@@ -382,9 +382,11 @@ def test_cost_precheck_counts_tool_schema_tokens(tmp_path: Path) -> None:
     estimates: list[int] = []
 
     class Spy(CostTracker):
-        def check_before_call(self, scope, model, est_input_tokens, max_output_tokens):  # type: ignore[no-untyped-def]
+        def check_before_call(self, scope, model, est_input_tokens, max_output_tokens, *tier):  # type: ignore[no-untyped-def]
             estimates.append(est_input_tokens)
-            return super().check_before_call(scope, model, est_input_tokens, max_output_tokens)
+            return super().check_before_call(
+                scope, model, est_input_tokens, max_output_tokens, *tier
+            )
 
     client = ScriptedModelClient([finish()])
     tracker = Spy(PRICES, Caps(0.2, 0.04, 2.5, 2.5, 25.0), tmp_path / "l.jsonl", session_id="t")

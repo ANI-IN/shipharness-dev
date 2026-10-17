@@ -110,13 +110,22 @@ class VerifyLayer(BaseLayer):
 
     # -- hooks ---------------------------------------------------------------------------------
 
-    def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
-        root = ctx.workspace
-        self.existing_tests = sorted(
+    @staticmethod
+    def _visible_tests(root: Path) -> list[str]:
+        return sorted(
             p.relative_to(root).as_posix()
             for p in iter_workspace_files(root / "tests" / "visible")
             if p.suffix == ".py"
         )
+
+    def cached_baseline_path(self, ctx: LayerContext) -> Path | None:
+        """Where prepare_workspace reads and writes this workspace's gate baseline (`make warm`
+        plans with it before any container starts)."""
+        self.existing_tests = self._visible_tests(ctx.workspace)
+        return self._baseline_cache_path(ctx)
+
+    def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
+        self.existing_tests = self._visible_tests(ctx.workspace)
         if self.baseline_json is not None or not self.compute_baseline:
             return []
         cached = self._baseline_cache_path(ctx)
