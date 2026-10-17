@@ -16,6 +16,8 @@ bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
 
 `make_repo.sh` copies the three modules, their tests, `LICENSE`, and `.gitignore` from the pinned
 clone into a new git repository and commits them. The boltons code is not stored in this folder.
+It stops with `ERROR boltons clone not found at ...` when the fetch has not run, and with
+`ERROR <dir> already exists: pick a new directory` when the target folder is taken; run the fetch, or pick a new folder.
 
 ## What is in `filled/`
 

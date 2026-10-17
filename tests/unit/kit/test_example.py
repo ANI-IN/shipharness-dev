@@ -5,6 +5,7 @@ from __future__ import annotations
 import configparser
 import importlib.util
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -72,6 +73,47 @@ def test_adapter_holds_a_layers_contract_for_the_three_modules() -> None:
     config.read_string(adapter.layering_contract())
     layers = config["importlinter:contract:bq1"]["layers"].split()
     assert layers == ["boltons.queueutils", "boltons.listutils", "boltons.typeutils"]
+
+
+GUIDES = [
+    REPO_ROOT / "docs" / "apply-to-your-repo.md",
+    KIT_DIR / "README.md",
+    EXAMPLE / "README.md",
+]
+_LINK = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+_PENDING = re.compile(
+    r"^\[\[PENDING: [^|\]]+ \| source: (M6 pilot|M8 batch 1|M8 ablation|live class) \| how: .+\]\]$"
+)
+
+
+def _slug(heading: str) -> str:
+    text = re.sub(r"[^\w\- ]", "", heading.strip().lower())
+    return text.replace(" ", "-")
+
+
+def _anchors(path: Path) -> set[str]:
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return {_slug(line.lstrip("#")) for line in lines if line.startswith("#")}
+
+
+@pytest.mark.parametrize("guide", GUIDES, ids=lambda p: p.relative_to(REPO_ROOT).as_posix())
+def test_guide_links_and_anchors_resolve(guide: Path) -> None:
+    for target in _LINK.findall(guide.read_text(encoding="utf-8")):
+        if re.match(r"^[a-z]+:", target):
+            continue
+        file_part, _, anchor = target.partition("#")
+        path = (guide.parent / file_part).resolve() if file_part else guide
+        assert path.exists(), (guide.name, target)
+        if anchor:
+            assert anchor in _anchors(path), (guide.name, target)
+
+
+def test_guide_pending_markers_use_the_course_form() -> None:
+    text = (REPO_ROOT / "docs" / "apply-to-your-repo.md").read_text(encoding="utf-8")
+    markers = [line for line in text.splitlines() if "[[PENDING" in line]
+    assert markers
+    for line in markers:
+        assert _PENDING.match(line), line
 
 
 @pytest.mark.slow

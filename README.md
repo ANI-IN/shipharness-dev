@@ -392,6 +392,12 @@ has the commands and how to read their output:
   for a FastAPI service, with a baseline so only new violations count; exit code 3 on new violations,
   for CI. No model calls.
 
+To start from TeamTrack's harness instead of an empty folder, `uv run shipharness init --target
+<your-repo>` copies the starter kit (`kit/`): the AGENTS.md map, the docs, the session files, the
+feature list, house-rule checks, a CI workflow, and the four skills, each with TeamTrack's values and
+a REPLACE marker to fill. No model calls. The step-by-step guide, with a worked example on three
+boltons modules, is [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md).
+
 The four skills package the same ideas for a coding agent. Each follows the Agent Skills format
 (B1, F-b-01 to F-b-06) and passes `uv run shipharness skills validate skills`. How to install each
 one in Claude Code, Codex, or Cursor is in its README:

@@ -73,6 +73,18 @@ changes, the test names the template to recopy. Print a fresh rendering with
 `uv run python -m shipharness.kit.sources progress.md` (or `init.sh`, `session-handoff.md`,
 `docs/exec-plans/active/F1.md`, `feature_list.json`, `feature_list.schema.json`).
 
+## When it fails
+
+| Output | Fix |
+|---|---|
+| `x target directory not found: <dir>` | Create the repository folder first, or fix the path |
+| `! skipped <file>: exists with other content (--force overwrites)` | Merge the template into your file by hand, or pass `--force` |
+| `x no kit files in <dir>: run shipharness init --target <dir> first` | `--check` was pointed at a folder without the kit |
+| `x <n> REPLACE markers left in <m> files` (exit 1) | Fill or delete each listed line, then run `--check` again |
+
+More, with captured output: the "When something goes wrong" table in
+[docs/apply-to-your-repo.md](../docs/apply-to-your-repo.md).
+
 ## What the kit does not do
 
 - It writes rules down; only the checks, tests, and CI enforce them. `docs/house-rules.md` and the

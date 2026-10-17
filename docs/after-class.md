@@ -123,6 +123,8 @@ Installing the skills into Claude Code, Codex, or Cursor is described in each sk
 [assured-tests](../skills/assured-tests/README.md),
 [skill-template](../skills/skill-template/README.md).
 
+To copy TeamTrack's whole harness into your repository in one command and fill it step by step, follow [apply-to-your-repo.md](apply-to-your-repo.md).
+
 ## 7. The Thursday review
 
 The review session goes through the four assignments: the expected approach, a walkthrough of the
