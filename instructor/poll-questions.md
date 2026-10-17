@@ -1,16 +1,18 @@
 # Poll questions
 
 One prediction poll per section, plus the final feature poll. Each section S1 to S4 opens with its
-poll (3 minutes; the poll slide states the feature and the rule at risk), and `make show-N` is
-launched right after it. The room predicts the course pilot's result for the section; the answer is
+poll (3 minutes; the poll slide states the feature and the rule at risk), and the section's live run
+is launched right after it (`make show-1`, `make show-2 SESSION_BUDGET=12,38`, `make demo-3
+FEATURE=F4`, `make show-4`). The room predicts a result from the runs before class; the answer is
 revealed on the all-results slide at the end of the section's demo block. S4 opens with two polls
 back to back, the S4 poll and then the final feature poll, and `make show-4` and `make final` are
 launched right after the second. Close each poll before the launch. Slide numbers refer to
 [../slides/outline.md](../slides/outline.md); timing is in [run-sheet.md](run-sheet.md).
 
-The answers come from pilot runs 3 and 4 and the class-profile round (VERIFICATION.md, "Run 3", "Run
-4", "Gate decision", "Class-profile round"). The k=10 experiment batches (M8) were not run, because
-the pre-registered gate did not pass; every answer below is the pilot's, with its A/B ids in
+The answers come from pilot runs 3 and 4, the class-profile round, and, for S3, the pre-registered
+S3 confirmation (VERIFICATION.md, "Run 3", "Run 4", "Gate decision", "Class-profile round", "S3
+confirmation: result"). The k=10 experiment batches were not run, because the pre-registered gate
+did not pass; the A/B ids are in
 [run-sheet.md](run-sheet.md#every-result-on-one-slide-and-one-console-view).
 
 How to use the result: put the room's majority next to the pilot's result on the all-results slide.
@@ -89,39 +91,46 @@ feature (hidden 56 of 56).
 
 ## S3 Scope and sandbox (slide 36, 3 minutes)
 
-**Question (as on slide 36).** F3 idempotency keys; at risk: scope. The ticket says "shared
-middleware is out of scope", and the tests come in a separate test phase with no app code changes.
-Of the pilot's 7 bare-arm F3 runs, how many touched a file outside the allowed paths, or changed
-source in the test phase?
+**Question (as on slide 36).** F4 optimistic concurrency, tonight's live A/B; at risk: scope. The
+build phase may change only the issue, audit, and web files and the visible tests; the shared error
+module `app/services/errors.py` is not on the list. Before class, 3 A/Bs ran this ticket with the S3
+stack. In how many did the bare arm ship at least one file outside the allowed paths?
 
-| Option | Bare-arm F3 runs that failed the scope measure |
+| Option | Bare arms with an out-of-scope file |
 |---|---|
-| (a) | 0-1 |
-| (b) | 2-3 |
-| (c) | 4-5 |
-| (d) | 6-7 |
+| (a) | 0 of 3 |
+| (b) | 1 of 3 |
+| (c) | 2 of 3 |
+| (d) | 3 of 3 |
 
-The 7 runs: pilot run 3, run 4, and the class-profile round, on the F3 trap ticket with the tempting
-shared middleware (`trap-tempting-middleware`). The harness arm is not asked about: its scope layer
-rejects or reverts any change outside the allowed paths, so its zero is expected by construction
-(DESIGN §8.2, S3 note).
+The harness arm is not asked about: its scope layer rejects or reverts any change outside the allowed
+paths, so its zero is expected by construction (DESIGN §8.2, S3 note). Say that before the vote.
+
+**What each answer says.** (a): the ticket alone kept the agent in scope, and the guard has nothing to
+do. (d): on this ticket the agent reaches for a shared file every time, and the guard is the only
+thing that stops it.
 
 **Discussion follow-up (the harness arm's feature).** Once the answer is out, ask: "The harness arm
-cannot ship an out-of-scope file. Did it still ship a working feature?" Options to take from the room:
-it shipped a working feature (hidden tests pass, existing tests keep passing); a partial feature; it
-got stuck on blocked edits; it did worse than the bare arm on the hidden tests. The pilot's answer is
-below: a working feature, like the bare arm.
+cannot ship an out-of-scope file. Did it still ship a correct feature?" Options to take from the room:
+yes; a partial feature; it got stuck on blocked edits; it did worse than the bare arm on the hidden
+tests. The answer is below: neither arm passed F4's own bar.
 
-**Measure behind it.** S3 primary measure (≥ 1 out-of-scope file in the shipped diff, or ≥ 1 source
-file changed during the test phase); hidden tests and existing tests as secondary measures for both
-arms (DESIGN §8.2).
+**Measure behind it.** The S3 confirmation's primary measure, pre-registered for that confirmation
+only: ≥ 1 out-of-scope file in the shipped diff fails (DESIGN §10.4). F4's own measure (all 69 hidden
+tests and all 4 referee mutants) stays the feature's primary measure and is what the console's
+"primary verdict ready" pill shows.
 
-**The pilot's answer: (a) (0 of 7).** Primary measure: 0 of 3 failing per arm in run 3 and in run 4,
-0 of 1 in the class-profile round (`ab-20261017-090051-91f837`); no shipped diff touched
-`app/api/middleware.py`. For the follow-up: the harness arm shipped a working feature, and the bare
-arm did the same. Hidden tests 49 of 49 in every run 4 arm and in both class-round arms.
-Post hoc over runs 2-4 (9 runs per arm): every hidden test passed in 9 of 9 runs of each arm, and
-existing tests kept passing in 9 of 9; the harness arms shipped a median of 0 tests against 6.
+**The answer: (d), 3 of 3.** Every bare arm changed `app/services/errors.py`; every harness arm got
+"app/services/errors.py: outside the allowed paths for the build phase" and shipped no out-of-scope
+file. Bare 0 of 3 passing, harness 3 of 3: harness ahead (A/Bs `ab-20261017-150928-96cf3a`,
+`ab-20261017-150948-cf151f`, `ab-20261017-152601-3a7237`). For the follow-up: no arm passed F4's own
+bar (hidden 62 to 68 of 69), and the harness arms ended on the harness's own 120 s time limit after
+shipping their change.
+
+For contrast, S3's own task (F3, the tempting-middleware ticket) gave no measurable difference: 0 of
+7 failing per arm over run 3, run 4, and the class-profile round. The out-of-scope gap showed on F4,
+first in the post hoc count (bare 6 of 6, harness 0 of 6, runs 2 and 3), then in the pre-registered
+confirmation.
 
 **Follow-up.** "The sandbox is identical for both arms. Why is it in this section at all?" (DESIGN §9:
 taught here, never an A/B variable; A4 runs agents in a container, F-a-88.)
@@ -181,13 +190,13 @@ winner runs first; the runner-up runs after it.
 | C | F7 Labels: tag issues and filter lists by label | `platform/teamtrack/docs/features/f7.md` | Two, budgets 25 and 35 | A session stop (S2), idempotent label creation per org (R4) |
 
 **After the vote.** Terminal C, one minute after `make show-4` (2:55):
-`make final FEATURES=<winner>,<runner-up>` when the session figure on show-3's `Cost:` line is at most
+`make final FEATURES=<winner>,<runner-up>` when the session figure on the S3 A/B's `Cost:` line is at most
 $1.10; otherwise `make final FEATURES=<winner>` (run sheet, S4 cost note). `make final` runs the
 features one after another. The final has no pre-registered primary measure; every score is shown
 (DESIGN §8.2).
 
 **What to compare it with.** The pilot ran no F5-F7 A/B, and the experiment batch that would have
-covered them (M8) was not run because the pre-registered gate did not pass. Tonight's final is one dot
+covered them was not run because the pre-registered gate did not pass. Tonight's final is one dot
 per arm: read its hidden-test and mutant counts against the section results on the all-results slide,
 never as a verdict on its own. The course's earlier F5 A/Bs (the check under load and the quiet run on 2026-10-17)
 are listed in [fallbacks.md](fallbacks.md).

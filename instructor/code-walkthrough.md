@@ -9,7 +9,8 @@ longer than 40 lines.
 
 Talking points cite RESEARCH.md source and finding ids. Line numbers in the headings include the two
 marker lines; when they drift, `uv run python platform/scripts/anchors.py list` has the current ones. In class
-the walkthrough runs while `make show-N` goes on (run sheet, section pattern).
+the walkthrough runs while the section's live run goes on (`make show-N`, or the S3 A/B
+`make demo-3 FEATURE=F4`; run sheet, section pattern).
 
 How to show code in class: open the file in the editor at the start marker (search for
 `[walkthrough:<id>] start`), font size large enough for the back row, and walk top to bottom. Slides
@@ -495,7 +496,9 @@ def _phase_reason(rules: PathRules) -> str:
 
 Talking points:
 - `PathRules` holds one phase's allow list (from the task, for example `[allowed_paths]` in
-  `platform/teamtrack/reference/f3/task.toml`).
+  `platform/teamtrack/reference/f3/task.toml`). Tonight's S3 A/B runs F4: its build list in
+  `platform/teamtrack/reference/f4/task.toml` does not include `app/services/errors.py`, the file
+  every bare arm of the S3 confirmation changed and every harness arm was refused.
 - Order inside `reason()`: harness-only files first (`feature_list.json` may not be edited at all;
   A2, F-a-80; DESIGN D-14), then the state files when the state layer is on, then the allow list.
 - The returned string is what the agent reads in its tool result. A1 writes lint messages "to inject
