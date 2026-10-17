@@ -539,7 +539,8 @@ def _images(ln: Line) -> list[tuple[str, str | None, str]]:
 
 
 def count_words(page: Page) -> int:
-    """Prose words: fences, comments, and image lines are left out; link targets are removed."""
+    """Words in prose, headings, lists, quotes, and table cells: fences, comments, and image lines
+    are left out; link targets are removed."""
     total = 0
     for ln in page.lines:
         if ln.kind != "prose" or _is_alone(ln):

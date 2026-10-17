@@ -647,6 +647,15 @@ def test_word_count() -> None:
     assert cs.count_words(cs.parse_page(text)) == 8
 
 
+def test_concepts_length_counts_table_cells(tmp_path: Path) -> None:
+    rel = "section-1-instructions/concepts.md"
+    prose = "word " * 1750 + "\n"
+    table = "\n| Step | Result |\n|---|---|\n" + "| one two three | four five six |\n" * 20
+    assert not [p for p in problems(tmp_path, rel, prose) if p.check == "SC11"]
+    found = [p for p in problems(tmp_path, rel, prose + table) if p.check == "SC11"]
+    assert [(p.line, p.message) for p in found] == [(1, "1872 prose words, limit about 1800")]
+
+
 def test_allow_marker(tmp_path: Path) -> None:
     line = "Run ab-20261017-112101-c5d839 <!-- check-style: allow SC08 quoted output -->\n"
     assert problems(tmp_path, "docs/a.md", line) == []
