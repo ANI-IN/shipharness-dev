@@ -114,7 +114,7 @@ leaves it out of its list.
 ## Limits
 
 - Filters 1-3 show that a kept test builds, passed five runs, and added line coverage or killed a
-  filter-set mutant (B11 and B12; [evidence](../../../../docs/evidence/s4.md#s4-quotes)). They do not show that the test checks the
+  filter-set mutant ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862); [evidence](../../../../docs/evidence/s4.md#s4-quotes)). They do not show that the test checks the
   behaviour a reviewer cares about.
 - Filter 6 compares syntax trees. Two tests that check the same thing with different calls both
   stay; it removes copies, not overlap.
@@ -122,3 +122,8 @@ leaves it out of its list.
   required query parameters filter the deleted row out by accident would hide a leak; so would a
   list longer than one page if the deleted rows were not the first ones.
 - The run used one target and one model run; one run is an example, not a rate.
+
+## Sources
+
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
+- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.

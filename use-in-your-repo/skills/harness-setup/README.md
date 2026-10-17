@@ -10,25 +10,25 @@ Nobody can say which parts of a harness the repository is missing.
 ## Why it happens
 
 - The agent sees only its context: "From the agent’s point of view, anything it can’t access
-  in-context while running effectively doesn’t exist." (A1)
+  in-context while running effectively doesn’t exist." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 - Sessions do not remember each other: "each new session begins with no memory of what came
-  before." (A2)
+  before." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 
 ## How this skill helps
 
 An Agent Skill that checks a repository's harness for coding agents and fills the gaps from
 templates. A skill is a folder with a `SKILL.md` file (YAML frontmatter, then Markdown
-instructions) and optional `scripts/`, `references/`, and `assets/` folders (B1). This page
+instructions) and optional `scripts/`, `references/`, and `assets/` folders ([Agent Skills, Specification](https://agentskills.io/specification)). This page
 says what the skill does, how to install it in Claude Code, Codex, and Cursor, how to call it, and
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
-Source codes such as (A1) or (B1) point to the Sources list at the end of this page.
+Sources are named in short form, such as (OpenAI, Harness engineering), and listed in full at the end of this page.
 
 ## What it does and when to use it
 
 The course describes the harness as "the environment around the agent": what the agent can read,
 what it remembers between sessions, what it may change, and what proves its work is done. The cited
-basis is A1: engineers "design environments, specify intent, and build feedback loops" (A1).
+basis is [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): engineers "design environments, specify intent, and build feedback loops" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 The skill works in three steps:
 
 1. Assess. `scripts/assess.py` reads the repository and writes an HTML report with one row per
@@ -42,9 +42,9 @@ The skill works in three steps:
 Use it:
 
 - before you hand a repository to a coding agent for work that spans more than one session;
-- when an agent breaks rules that are written somewhere it does not look (A1: "anything it can’t
+- when an agent breaks rules that are written somewhere it does not look ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "anything it can’t
   access in-context while running effectively doesn’t exist");
-- when a new session repeats or undoes the last session's work (A2: "each new session begins with
+- when a new session repeats or undoes the last session's work ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): "each new session begins with
   no memory of what came before").
 
 ## What is in the folder
@@ -59,12 +59,12 @@ Use it:
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them (B1, B2).
+needs them ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, What are skills](https://agentskills.io/what-are-skills)).
 
 ## Install
 
 The Agent Skills specification does not say where skills live; each agent has its own folders
-(B3). These are the folders each tool documents, checked on its official page on
+([Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md)). These are the folders each tool documents, checked on its official page on
 2026-10-17.
 
 | Tool | Project folder | User-level folder | Skill folders it reads |
@@ -80,20 +80,18 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. (B7;
-  https://code.claude.com/docs/en/skills, read 2026-10-17.)
+  `/reload-skills`. The page does not mention `.agents/skills/`. ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. (B8; https://learn.chatgpt.com/docs/build-skills, redirected
+  mention `.claude/skills/`. ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9; https://cursor.com/docs/skills, redirected from
+  starts. ([Cursor, Skills](https://cursor.com/docs/skills), redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
-  Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
-  https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
+  Cursor 2.4, released 2026-01-22, "in the editor and CLI" ([Cursor 2.4 changelog](https://cursor.com/changelog/2-4), read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
   if it does not appear.
 
@@ -144,7 +142,7 @@ Cost: $0.000000 (no model calls)
 
 `shipharness skills validate` runs the checks of skills-ref, the reference validator, and adds
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
-referenced files (B1, B5). The skill uses only the six frontmatter
+referenced files ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, skills-ref](https://github.com/agentskills/agentskills)). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
 `uv run agentskills validate use-in-your-repo/skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/harness-setup`).
 
@@ -155,9 +153,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/harness-setup` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/harness-setup` (B7, read 2026-10-17) |
-| Codex (CLI or IDE extension) | Type `$harness-setup`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
-| Cursor | Type `/` in Agent chat and search for `harness-setup` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
+| Claude Code | `/harness-setup` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/harness-setup` ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$harness-setup`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `harness-setup` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** ([Cursor, Skills](https://cursor.com/docs/skills), read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/harness-setup` in Claude Code or
 `$harness-setup` in Codex to call it by name):
@@ -204,31 +202,26 @@ agent's own work reading the report and writing the files. The shipharness valid
   so in their evidence.
 - The script reads files only. It never runs the repository's code, so it cannot tell whether
   `init.sh` or the test command works; rule 3 in `SKILL.md` asks the agent to run each one.
-- The templates write rules down; they do not enforce them. A1: "When documentation falls short,
+- The templates write rules down; they do not enforce them. [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "When documentation falls short,
   we promote the rule into code". Use [house-rules](../house-rules/README.md) to turn a
   rule into a check and [assured-tests](../assured-tests/README.md) to add tests that are kept only
   when they prove something.
-- `evidence` and `testedAt` in the feature list template are course additions to A2's design, as
-  is the rule that only the harness sets `passes` to true (course design, built on A2 and A3).
+- `evidence` and `testedAt` in the feature list template are course additions to the design in [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), as
+  is the rule that only the harness sets `passes` to true (course design, built on [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 - The tool facts above come from each vendor's documentation as read on 2026-10-17. The course did
   not run the skill inside Claude Code, Codex, or Cursor to confirm them; vendors change these
   pages, so check them again if a skill does not appear.
 
 ## Sources
 
-- A1: Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI,
-  2026-02-11. https://openai.com/index/harness-engineering/
-- A2: Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
-  https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents
-- A3: Prithvi Rajasekaran, "Harness design for long-running application development", Anthropic,
-  2026-03-24. https://www.anthropic.com/engineering/harness-design-long-running-apps
-- B1: Agent Skills Specification. https://agentskills.io/specification
-- B2: What are skills? https://agentskills.io/what-are-skills
-- B3: How to add skills support to your agent.
-  https://agentskills.io/client-implementation/adding-skills-support.md
-- B5: skills-ref, the reference validator. https://github.com/agentskills/agentskills
-- B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
-- B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
-  https://cursor.com/docs/context/skills on 2026-10-17)
-- B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4
+- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
+- [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
+- [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps): Prithvi Rajasekaran, "Harness design for long-running application development", Anthropic, 2026-03-24.
+- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- [Agent Skills, What are skills](https://agentskills.io/what-are-skills): Agent Skills project, "What are skills?".
+- [Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md): Agent Skills project, "How to add skills support to your agent".
+- [Agent Skills, skills-ref](https://github.com/agentskills/agentskills): Agent Skills project, skills-ref, the reference validator (source and README; PyPI package 0.1.1, 2026-01-10).
+- [Claude Code, Skills](https://code.claude.com/docs/en/skills): Anthropic, Claude Code docs, "Extend Claude with skills".
+- [Codex, Skills](https://learn.chatgpt.com/docs/build-skills): OpenAI, Codex docs, "Build skills" (redirected from https://developers.openai.com/codex/skills).
+- [Cursor, Skills](https://cursor.com/docs/skills): Cursor docs, "Agent Skills" (redirected from https://cursor.com/docs/context/skills).
+- [Cursor 2.4 changelog](https://cursor.com/changelog/2-4): Cursor, 2.4 changelog, 2026-01-22.

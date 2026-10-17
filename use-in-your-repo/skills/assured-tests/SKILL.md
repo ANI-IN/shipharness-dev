@@ -11,7 +11,7 @@ license: MIT
 compatibility: Python 3.12+, uv, and the shipharness CLI with an OpenAI key; calls a model (costs money).
 metadata:
   course: shipharness
-  sources: B11 B12 A2 B1
+  sources: Meta, TestGen-LLM; Meta, ACH; Anthropic, Effective harnesses; Agent Skills, Specification
 ---
 
 # Assured tests
@@ -20,7 +20,7 @@ A generated test is easy to write and easy to get wrong: it can fail on correct 
 luck, or pass without checking anything. TestGen-LLM at Meta answers this by running every
 candidate through "progressively demanding semantic filters" and keeping only survivors, which "are
 thus guaranteed to improve the existing test class, and to provide reliable regression test signal"
-(B11, F-b-16, F-b-21). This skill applies the same idea with five filters.
+([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)). This skill applies the same idea with five filters.
 
 ## The five filters
 
@@ -28,11 +28,11 @@ A proposed test is kept only if it passes all five, checked in this order, cheap
 
 | # | Filter | Source |
 |---|---|---|
-| 1 | Imports and runs: pytest collects it with no errors | B11, "buildable" (F-b-17) |
-| 2 | Passes on every one of five runs | B11 (F-b-18, F-b-19) |
-| 3 | Adds line coverage over the existing suite, or kills a filter-set mutant that no existing test kills | B11 coverage (F-b-20); B12 hardening (F-b-29, F-b-32) |
+| 1 | Imports and runs: pytest collects it with no errors | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171), "buildable" |
+| 2 | Passes on every one of five runs | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171) |
+| 3 | Adds line coverage over the existing suite, or kills a filter-set mutant that no existing test kills | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171) coverage; [Meta, ACH](https://arxiv.org/abs/2501.12862) hardening |
 | 4 | Has real assertions and does not mock the unit under test | Course filter (no direct source) |
-| 5 | No source file changed during the test phase | Course filter, built on B11 F-b-22 and A2 F-a-80 |
+| 5 | No source file changed during the test phase | Course filter, built on [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
 
 Why each filter exists, and what it cannot catch: [filters](references/filters.md). The two papers
 in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
@@ -79,18 +79,13 @@ in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
 - Each run calls a model; `shipharness testgen` prints `Cost: $X` at exit and respects the course
   cost cap.
 - The current code is the oracle: a kept test asserts what the code does today, so it protects
-  against future regressions but "cannot detect existing faults residing in the code base" (B12,
-  F-b-41).
+  against future regressions but "cannot detect existing faults residing in the code base" ([Meta, ACH](https://arxiv.org/abs/2501.12862),
+  ).
 - Filter 2's five runs catch most flakiness, not all of it.
 
 ## Sources
 
-Ids from the course reference list (docs/REFERENCES.md in the shipharness repository).
-
-- B11: Alshahwan et al., "Automated Unit Test Improvement using Large Language Models at Meta",
-  FSE '24, arXiv 2402.09171. https://arxiv.org/abs/2402.09171
-- B12: Foster et al., "Mutation-Guided LLM-based Test Generation at Meta", arXiv 2501.12862
-  (submitted to FSE 2025 Industry Track). https://arxiv.org/abs/2501.12862
-- A2: Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
-  https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents
-- B1: Agent Skills Specification. https://agentskills.io/specification
+- [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
+- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
+- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.

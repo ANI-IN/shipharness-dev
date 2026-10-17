@@ -67,7 +67,7 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
    `docs/RELIABILITY.md`, R6 in `ARCHITECTURE.md`. History and review notes are background, not rules.
    Check: every active tag has exactly one planned home.
 
-3. **Write the checker first.** Fill the two stubs marked A1-3 and A1-4 in
+3. **Write the checker first.** Fill the two stubs marked `TODO(A1-3)` and `TODO(A1-4)` in
    `starter/checker/check_docs.py`, then add your own tests. Check: the visible tests pass, and the
    checker reports 69 problems on the starter tree (66 missing rules, 3 broken paths).
 

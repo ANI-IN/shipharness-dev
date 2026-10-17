@@ -12,6 +12,23 @@
 This page lists everything you look up but do not read in order: every make target, every setting
 and variable, the caps and limits, and the folders. Each table names the file its values come from.
 
+### Codes used in this course
+
+Pages write each code with plain words next to it, such as "R1 tenant isolation".
+
+- **Section 1 to Section 4**: Instructions; State and session lifecycle; Scope and sandbox;
+  Verification. Slide code anchors such as `S4:gate` use the short form.
+- **Assignment 1 to Assignment 4**: the take-home work of Sections 1 to 4.
+- **F1 to F7**: TeamTrack's feature tickets. F1 org-wide issue search, F2 comments on issues, F3
+  idempotency keys on issue creation, F4 version checks (optimistic concurrency) and issue history,
+  F5 bulk close, F6 watchers, F7 labels.
+- **R1 to R7**: TeamTrack's house rules, each a written rule with a check. R1 tenant isolation, R2
+  roles, R3 API conventions, R4 idempotent creates, R5 audit log, R6 layering, R7 migrations.
+- **House rules**: the rules a team wants every change to follow, each with a check that prints how
+  to fix a violation.
+- **Sources**: named by a short name with a link, such as (OpenAI, Harness engineering); each page
+  lists its sources in full at the end.
+
 ## Make targets
 
 Every target is a thin wrapper over `uv run ...` (`Makefile`). On Windows, run make inside Ubuntu

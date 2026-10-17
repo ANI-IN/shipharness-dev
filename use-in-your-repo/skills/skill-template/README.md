@@ -10,18 +10,18 @@ session can see.
 ## Why it happens
 
 - The agent sees only its context: "From the agent’s point of view, anything it can’t access
-  in-context while running effectively doesn’t exist." (A1)
+  in-context while running effectively doesn’t exist." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 - A procedure that is not written where the agent loads it has to be repeated by hand every time.
 
 ## How this skill helps
 
 A starting point for writing your own Agent Skill. A skill is a folder with a `SKILL.md` file:
 YAML frontmatter, then Markdown instructions, plus optional `scripts/`, `references/`, and
-`assets/` folders (B1). This page covers two uses: copying the folder by hand to write a new
+`assets/` folders ([Agent Skills, Specification](https://agentskills.io/specification)). This page covers two uses: copying the folder by hand to write a new
 skill, and installing it in Claude Code, Codex, or Cursor so the agent does the copying for you.
 The template itself is [SKILL.md](SKILL.md).
 
-Source codes such as (A1) or (B1) point to the Sources list at the end of this page.
+Sources are named in short form, such as (OpenAI, Harness engineering), and listed in full at the end of this page.
 
 ## What it does and when to use it
 
@@ -65,40 +65,40 @@ Cost: $0.000000 (no model calls)
 ```
 
 The specification's rules for `name`: 1-64 characters, lowercase letters, digits, and hyphens
-only, no hyphen at the start or end, no two hyphens in a row, and equal to the folder name (B1). `shipharness skills validate` reads "letters" as ASCII `a-z`. Delete the `.gitkeep` files
+only, no hyphen at the start or end, no two hyphens in a row, and equal to the folder name ([Agent Skills, Specification](https://agentskills.io/specification)). `shipharness skills validate` reads "letters" as ASCII `a-z`. Delete the `.gitkeep` files
 in folders you fill, delete folders you do not use, and replace the copied `README.md` with one
 for your skill or delete it.
 
 ## Write the description
 
 Agents load only `name` and `description` for every installed skill at startup, and read the rest
-of `SKILL.md` only when a task matches the description (B1, B2). So the description decides
+of `SKILL.md` only when a task matches the description ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, What are skills](https://agentskills.io/what-are-skills)). So the description decides
 whether the skill is ever used:
 
-- Say what the skill does and when to use it, in at most 1024 characters (B1).
+- Say what the skill does and when to use it, in at most 1024 characters ([Agent Skills, Specification](https://agentskills.io/specification)).
 - Use the words a user would type for that task.
 - Start the "when" part with "Use when".
 - If a plain value contains `: `, quote it or use a `>` block, as in the template. Otherwise YAML
   parsers, including the reference validator's, reject the frontmatter.
 
 Only six frontmatter fields are allowed: `name`, `description`, `license`, `compatibility` (at most
-500 characters), `metadata` (a map of strings to strings), and `allowed-tools` (experimental) (B1). The reference validator rejects any other field (B5). Claude Code documents extra
-frontmatter fields of its own (B7); a skill that uses them fails the reference validator,
+500 characters), `metadata` (a map of strings to strings), and `allowed-tools` (experimental) ([Agent Skills, Specification](https://agentskills.io/specification)). The reference validator rejects any other field ([Agent Skills, skills-ref](https://github.com/agentskills/agentskills)). Claude Code documents extra
+frontmatter fields of its own ([Claude Code, Skills](https://code.claude.com/docs/en/skills)); a skill that uses them fails the reference validator,
 so put such data under `metadata`, or accept that the skill is Claude Code only.
 
 ## Write the body
 
 - Keep `SKILL.md` under 500 lines; the specification recommends under 5000 tokens for the
-  instructions (B1).
+  instructions ([Agent Skills, Specification](https://agentskills.io/specification)).
 - Write steps the agent can follow and check: exact commands, the output to expect, what to do
   when it differs.
 - Move detail into `references/` and link each file from `SKILL.md` with a relative path from the
   skill folder. Keep references one level deep: a reference file should not send the agent to
-  another reference file (B1).
+  another reference file ([Agent Skills, Specification](https://agentskills.io/specification)).
 - Put templates and static files in `assets/`.
 - Write scripts in Python. Make them deterministic, give them `--help`, keep their output to a few
   lines, and print `ERROR <reason>` on one line when something fails, so the agent can grep for it
-  (A4).
+  ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
 
 ## Check the files
 
@@ -126,7 +126,7 @@ Cost: $0.000000 (no model calls)
 - `agentskills validate` is the reference validator, skills-ref 0.1.1 from PyPI (a dev dependency
   of this repository). Its README calls the command `skills-ref validate`; the PyPI package installs
   it under the name `agentskills`. Its README says it is "intended for demonstration purposes only"
-  (B5).
+  ([Agent Skills, skills-ref](https://github.com/agentskills/agentskills)).
 
 The validators check the files. Whether an agent loads and follows the skill is a separate test;
 see "Use it" below.
@@ -134,7 +134,7 @@ see "Use it" below.
 ## Install it
 
 The Agent Skills specification does not say where skills live; each agent has its own folders
-(B3). These are the folders each tool documents, checked on its official page on
+([Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md)). These are the folders each tool documents, checked on its official page on
 2026-10-17. Replace `<name>` with the skill's folder name (`my-skill`, or `skill-template` to
 install the template itself).
 
@@ -151,20 +151,18 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. (B7;
-  https://code.claude.com/docs/en/skills, read 2026-10-17.)
+  `/reload-skills`. The page does not mention `.agents/skills/`. ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. (B8; https://learn.chatgpt.com/docs/build-skills, redirected
+  mention `.claude/skills/`. ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9; https://cursor.com/docs/skills, redirected from
+  starts. ([Cursor, Skills](https://cursor.com/docs/skills), redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
-  Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
-  https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
+  Cursor 2.4, released 2026-01-22, "in the editor and CLI" ([Cursor 2.4 changelog](https://cursor.com/changelog/2-4), read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
   if it does not appear.
 
@@ -199,9 +197,9 @@ validator on each installed copy after you change it, for example
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/<name>` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/<name>` (B7, read 2026-10-17) |
-| Codex (CLI or IDE extension) | Type `$<name>`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
-| Cursor | Type `/` in Agent chat and search for `<name>` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
+| Claude Code | `/<name>` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/<name>` ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$<name>`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `<name>` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** ([Cursor, Skills](https://cursor.com/docs/skills), read 2026-10-17) |
 
 Example prompt with the template installed (prefix `/skill-template` in Claude Code or
 `$skill-template` in Codex to call it by name):
@@ -223,15 +221,15 @@ The template and any skill you write from it run inside your own agent (Claude C
 Cursor), on that tool's model and your plan or API account with that vendor. The course does not
 pay for it and has not measured how many tokens a run uses. Each installed skill adds its `name`
 and `description` to the agent's context at startup, about 100 tokens per skill according to the
-specification (B1). The shipharness validators print `Cost: $0.000000 (no model calls)`.
+specification ([Agent Skills, Specification](https://agentskills.io/specification)). The shipharness validators print `Cost: $0.000000 (no model calls)`.
 
 ## Limits
 
 - The template gives structure, not content. A skill is as good as its steps and checks.
-- The reference validator is labelled for demonstration only (B5). Passing it shows that
+- The reference validator is labelled for demonstration only ([Agent Skills, skills-ref](https://github.com/agentskills/agentskills)). Passing it shows that
   the frontmatter and layout follow the specification, not that any tool will load the skill.
 - The specification is strict about the name, while its client guide tells agents to warn and load
-  the skill anyway on a name and folder mismatch (B3). Do not rely on that leniency; keep
+  the skill anyway on a name and folder mismatch ([Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md)). Do not rely on that leniency; keep
   the name equal to the folder name.
 - The tool facts above come from each vendor's documentation as read on 2026-10-17. The course did
   not run skills inside Claude Code, Codex, or Cursor to confirm them; vendors change these pages,
@@ -243,18 +241,13 @@ The other course skills are worked examples of this template:
 
 ## Sources
 
-- B1: Agent Skills Specification. https://agentskills.io/specification
-- B2: What are skills? https://agentskills.io/what-are-skills
-- B3: How to add skills support to your agent.
-  https://agentskills.io/client-implementation/adding-skills-support.md
-- B5, B6: skills-ref, the reference validator. https://github.com/agentskills/agentskills ;
-  https://pypi.org/project/skills-ref/
-- B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
-- B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
-  https://cursor.com/docs/context/skills on 2026-10-17)
-- B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4
-- A4: Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic,
-  2026-02-05. https://www.anthropic.com/engineering/building-c-compiler
-- A1: Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI,
-  2026-02-11. https://openai.com/index/harness-engineering/
+- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
+- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
+- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- [Agent Skills, What are skills](https://agentskills.io/what-are-skills): Agent Skills project, "What are skills?".
+- [Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md): Agent Skills project, "How to add skills support to your agent".
+- [Agent Skills, skills-ref](https://github.com/agentskills/agentskills): Agent Skills project, skills-ref, the reference validator (source and README; PyPI package 0.1.1, 2026-01-10).
+- [Claude Code, Skills](https://code.claude.com/docs/en/skills): Anthropic, Claude Code docs, "Extend Claude with skills".
+- [Codex, Skills](https://learn.chatgpt.com/docs/build-skills): OpenAI, Codex docs, "Build skills" (redirected from https://developers.openai.com/codex/skills).
+- [Cursor, Skills](https://cursor.com/docs/skills): Cursor docs, "Agent Skills" (redirected from https://cursor.com/docs/context/skills).
+- [Cursor 2.4 changelog](https://cursor.com/changelog/2-4): Cursor, 2.4 changelog, 2026-01-22.

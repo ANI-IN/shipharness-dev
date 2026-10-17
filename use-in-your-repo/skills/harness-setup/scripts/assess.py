@@ -5,8 +5,8 @@ Usage:
     python assess.py <repo> [--out harness-assessment.html] [--json]
 
 Five areas: instructions, state, scope, verification, session lifecycle. Every check names the
-source it comes from (ids from the course reference list, REFERENCES.md) and the template that
-fixes it.
+source it comes from (a short name such as "OpenAI, Harness engineering"; the skill's README lists
+each source in full) and the template that fixes it.
 
 The assessment is deterministic and read-only: it reads files, never runs code from the repository,
 never calls a network or a model, never follows a link that leaves the repository, and writes no
@@ -29,7 +29,8 @@ AREAS = ("Instructions", "State", "Scope", "Verification", "Session lifecycle")
 SKIP_DIRS = {".git", ".venv", "venv", "node_modules", "__pycache__", ".mypy_cache", ".ruff_cache"}
 MAX_FILES = 20_000
 MAX_READ = 1_000_000  # bytes read from any one file
-# Course thresholds around A1's "roughly 100 lines"; the source gives no hard limit.
+# Course thresholds around the "roughly 100 lines" in OpenAI, Harness engineering; the source
+# gives no hard limit.
 MAP_PASS_LINES = 150
 MAP_PARTIAL_LINES = 300
 A1_DOCS = (
@@ -158,7 +159,10 @@ def instructions(repo: Repo) -> list[Check]:
     if agents is not None:
         status, evidence = "pass", "AGENTS.md found at the repository root"
     elif repo.is_file("CLAUDE.md"):
-        status, evidence = "partial", "only CLAUDE.md found; A1's map is a root AGENTS.md"
+        status, evidence = (
+            "partial",
+            ("only CLAUDE.md found; the map in OpenAI, Harness engineering is a root AGENTS.md"),
+        )
     else:
         status, evidence = "fail", "no AGENTS.md at the repository root"
     checks.append(
@@ -169,7 +173,7 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/AGENTS.md",
-            "A1 (F-a-27, F-a-28)",
+            "OpenAI, Harness engineering",
         )
     )
 
@@ -180,7 +184,7 @@ def instructions(repo: Repo) -> list[Check]:
         status = _status(lines <= MAP_PASS_LINES, lines <= MAP_PARTIAL_LINES)
         evidence = (
             f"{lines} lines (pass at {MAP_PASS_LINES} or fewer, partial up to {MAP_PARTIAL_LINES}:"
-            " course thresholds around A1's roughly 100 lines)"
+            " course thresholds around the roughly 100 lines in OpenAI, Harness engineering)"
         )
     checks.append(
         Check(
@@ -190,7 +194,7 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "move rules into docs/ and keep pointers in AGENTS.md",
-            "A1 (F-a-23, F-a-24, F-a-28)",
+            "OpenAI, Harness engineering",
         )
     )
 
@@ -215,14 +219,17 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "create the missing files or fix the paths",
-            "A1 (F-a-37)",
+            "OpenAI, Harness engineering",
         )
     )
 
     if repo.is_file("ARCHITECTURE.md"):
         status, evidence = "pass", "ARCHITECTURE.md found at the root"
     elif repo.is_file("docs/ARCHITECTURE.md"):
-        status, evidence = "partial", "docs/ARCHITECTURE.md found; A1 keeps it at the root"
+        status, evidence = (
+            "partial",
+            ("docs/ARCHITECTURE.md found; OpenAI, Harness engineering keeps it at the root"),
+        )
     else:
         status, evidence = "fail", "no ARCHITECTURE.md"
     checks.append(
@@ -233,7 +240,7 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/ARCHITECTURE.md",
-            "A1 (F-a-30, F-a-32)",
+            "OpenAI, Harness engineering",
         )
     )
 
@@ -241,7 +248,8 @@ def instructions(repo: Repo) -> list[Check]:
     docs_md = repo.listing("docs", (".md",))
     status = "pass" if len(present) >= 4 else _status(False, bool(present or docs_md))
     evidence = (
-        f"{len(present)} of {len(A1_DOCS)} entries from A1's docs/ layout present"
+        f"{len(present)} of {len(A1_DOCS)} entries from the docs/ layout in "
+        "OpenAI, Harness engineering"
         + (f": {', '.join(present)}" if present else "")
         + f"; Markdown files under docs/: {len(docs_md)}"
     )
@@ -253,7 +261,7 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/SECURITY.md and the docs layout reference",
-            "A1 (F-a-29, F-a-30)",
+            "OpenAI, Harness engineering",
         )
     )
 
@@ -278,7 +286,8 @@ def instructions(repo: Repo) -> list[Check]:
             status,
             evidence,
             "skills/skill-template, installed in both folders",
-            "B1; B7, B8, B9 (install paths)",
+            "Agent Skills, Specification; Claude Code, Skills; Codex, Skills; Cursor, Skills "
+            "(install paths)",
         )
     )
     return checks
@@ -304,7 +313,7 @@ def state(repo: Repo) -> list[Check]:
             "pass" if progress else "fail",
             f"{progress} found" if progress else "no progress.md or claude-progress.txt",
             "assets/templates/progress.md",
-            "A2 (F-a-50, F-a-53, F-a-56)",
+            "Anthropic, Effective harnesses",
         )
     ]
     if repo.is_file("init.sh"):
@@ -326,7 +335,7 @@ def state(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/init.sh",
-            "A2 (F-a-61, F-a-64)",
+            "Anthropic, Effective harnesses",
         )
     )
     plans = repo.listing("docs/exec-plans", (".md",))
@@ -344,7 +353,7 @@ def state(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/exec-plan.md in docs/exec-plans/active/",
-            "A1 (F-a-34, F-a-35); A7 (F-a-46, F-a-48)",
+            "OpenAI, Harness engineering; OpenAI, Exec plans",
         )
     )
     has_git = (repo.root / ".git").exists()
@@ -356,7 +365,7 @@ def state(repo: Repo) -> list[Check]:
             "pass" if has_git else "fail",
             ".git found (not read)" if has_git else "no .git in this folder",
             "git init and commit the harness files",
-            "A2 (F-a-53, F-a-57)",
+            "Anthropic, Effective harnesses",
         )
     )
     return checks
@@ -388,7 +397,7 @@ def scope(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/feature_list.json",
-            "A2 (F-a-78, F-a-81); A5 (F-a-85)",
+            "Anthropic, Effective harnesses; Anthropic, Autonomous coding demo",
         )
     )
 
@@ -419,7 +428,7 @@ def scope(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/feature_list.json",
-            "A2 (F-a-79, F-a-82)",
+            "Anthropic, Effective harnesses",
         )
     )
 
@@ -440,7 +449,7 @@ def scope(repo: Repo) -> list[Check]:
             status,
             evidence,
             "assets/templates/feature_list.schema.json",
-            "A6 (F-a-77: structured formats for state)",
+            "Anthropic, Prompting best practices (structured formats for state)",
         )
     )
 
@@ -465,7 +474,7 @@ def scope(repo: Repo) -> list[Check]:
             "pass" if layering else "fail",
             ("found " + ", ".join(layering)) if layering else "no import-linter or layering config",
             "add an import-linter contract (house-rules skill)",
-            "A1 (F-a-93, F-a-95)",
+            "OpenAI, Harness engineering",
         )
     )
 
@@ -487,7 +496,7 @@ def scope(repo: Repo) -> list[Check]:
                 else "no Dockerfile or devcontainer"
             ),
             "run agents in a container with no network",
-            "A4 (F-a-88, F-a-90); A5 (F-a-86)",
+            "Anthropic, C compiler; Anthropic, Autonomous coding demo",
         )
     )
     return checks
@@ -504,7 +513,7 @@ def verification(repo: Repo) -> list[Check]:
             "pass" if tests else "fail",
             f"{len(tests)} test files" if tests else "no test files found",
             "write tests; generate more with the assured-tests skill",
-            "A4 (F-a-127, F-a-128)",
+            "Anthropic, C compiler",
         )
     ]
     ci = [
@@ -521,7 +530,7 @@ def verification(repo: Repo) -> list[Check]:
             "pass" if ci else "fail",
             ("found " + ", ".join(ci[:3])) if ci else "no CI configuration",
             "add a CI job that runs tests and lint",
-            "A4 (F-a-129)",
+            "Anthropic, C compiler",
         )
     )
     pyproject = repo.read("pyproject.toml") or ""
@@ -545,7 +554,7 @@ def verification(repo: Repo) -> list[Check]:
             "pass" if linters else "fail",
             ("found " + ", ".join(linters)) if linters else "no linter configuration",
             "configure a linter; write custom rules with the house-rules skill",
-            "A1 (F-a-96, F-a-97)",
+            "OpenAI, Harness engineering",
         )
     )
     clean_doc = next(
@@ -571,7 +580,7 @@ def verification(repo: Repo) -> list[Check]:
                 else "no clean-state checklist"
             ),
             "assets/templates/clean-state-checklist.md",
-            "A2 (F-a-84)",
+            "Anthropic, Effective harnesses",
         )
     )
     coverage = [
@@ -593,7 +602,7 @@ def verification(repo: Repo) -> list[Check]:
             if coverage
             else "no coverage configuration (needed to judge generated tests)",
             "configure coverage.py; see the assured-tests skill",
-            "B11 (F-b-20)",
+            "Meta, TestGen-LLM",
         )
     )
     return checks
@@ -612,7 +621,7 @@ def session_lifecycle(repo: Repo) -> list[Check]:
             (f"AGENTS.md mentions {', '.join(routine)}" if routine else "not described")
             + " (keyword check)",
             "the Getting up to speed section of assets/templates/AGENTS.md",
-            "A2 (F-a-58, F-a-59, F-a-60)",
+            "Anthropic, Effective harnesses",
         )
     ]
     has_handoff = repo.is_file("session-handoff.md")
@@ -624,7 +633,7 @@ def session_lifecycle(repo: Repo) -> list[Check]:
             "pass" if has_handoff else "fail",
             "session-handoff.md found" if has_handoff else "no session-handoff.md",
             "assets/templates/session-handoff.md",
-            "A3 (F-a-65)",
+            "Anthropic, Harness design",
         )
     )
     one_feature = bool(re.search(r"one feature", docs))
@@ -636,7 +645,7 @@ def session_lifecycle(repo: Repo) -> list[Check]:
             "pass" if one_feature else "fail",
             ("AGENTS.md says one feature" if one_feature else "not stated") + " (keyword check)",
             "state it in AGENTS.md",
-            "A2 (F-a-83); A3 (F-a-102)",
+            "Anthropic, Effective harnesses; Anthropic, Harness design",
         )
     )
     runs_init = "init.sh" in docs
@@ -648,7 +657,7 @@ def session_lifecycle(repo: Repo) -> list[Check]:
             "pass" if runs_init else "fail",
             ("AGENTS.md mentions init.sh" if runs_init else "not stated") + " (keyword check)",
             "the Getting up to speed section of assets/templates/AGENTS.md",
-            "A2 (F-a-61, F-a-62)",
+            "Anthropic, Effective harnesses",
         )
     )
     end_routine = bool(re.search(r"end of (the )?session|end the session|session end", docs))
@@ -668,7 +677,7 @@ def session_lifecycle(repo: Repo) -> list[Check]:
             )
             + " (keyword check)",
             "the End of session section of assets/templates/AGENTS.md",
-            "A2 (F-a-63)",
+            "Anthropic, Effective harnesses",
         )
     )
     return checks
@@ -728,8 +737,8 @@ def render_html(root: Path, checks: list[Check]) -> str:
         f"<style>{CSS}</style></head><body>",
         "<h1>Harness assessment</h1>",
         f'<p class="meta">Repository: <code>{esc(Path(root).resolve().name)}</code>. '
-        "Read-only, deterministic file checks; keyword checks are heuristics. Sources are ids "
-        "from the course reference list, REFERENCES.md.</p>",
+        "Read-only, deterministic file checks; keyword checks are heuristics. Sources are short "
+        "names; the harness-setup skill's README lists each one in full.</p>",
         '<div class="wrap"><table><tr><th>Area</th><th>Pass</th><th>Partial</th><th>Fail</th></tr>',
     ]
     for area in AREAS:

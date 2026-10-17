@@ -1,6 +1,6 @@
 # Session handoff
 
-<!-- A structured handoff that the next session reads first (A3: a context reset is "combined with
+<!-- A structured handoff that the next session reads first (Anthropic, Harness design: a context reset is "combined with
 a structured handoff that carries the previous agent's state and the next steps"). The machine
 summary is filled in by the harness or a script at session stop, so it exists even if the agent
 writes nothing. The agent writes the notes during wrap-up. Overwrite this file every session. -->

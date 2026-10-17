@@ -27,14 +27,17 @@ Public course files are: `README.md`, `setup/`, the section folders `section-1-*
 `final-project/`, the Markdown pages in `slides/` (`README.md`, `deck.md`, `outline.md`),
 `use-in-your-repo/`, and `docs/`. Every Markdown page in them is checked, including the pages under
 an assignment's `starter/` and `solution/` folders. The assignment graders and hidden test cases are
-not part of the course text. Files outside that list are not part of the course text either.
+not part of the course text. Files outside that list are not part of the course text either. The
+working slide file `slides/module1-slides.md` is checked for the label rules of rule 5 only.
 
 Agent files are the files an agent reads, not a learner: `section-N-*/demo/harness/`,
 `final-project/harness/` (except its `README.md`), Assignment 1's
 instruction trees (`instructions/` and `original/` under `starter/` and `solution/`), skills
 (`use-in-your-repo/skills/`, a `skill/<name>/` folder in an assignment, any `.agents/skills/` or
 `.claude/skills/` folder), `use-in-your-repo/kit/templates/`, and `use-in-your-repo/kit/examples/*/filled/`.
-They follow their own format; only the image rules apply to them.
+They follow their own format; only the image rules and the finding-id rule apply to them. The
+skills in `use-in-your-repo/skills/` and the kit templates are copied into learners' repositories,
+so every label rule of rule 5 applies to them too, in their scripts and other text files as well.
 
 Folder rules (checked on a full run): every `section-N-*/` folder has `README.md`, `concepts.md`,
 `session-notes.md`, `demo/` (`README.md`, `run.sh`, `walkthrough.md`, `harness/`, `expected/`),
@@ -99,8 +102,9 @@ and then the how-to.
 
 Each page defines the course terms it uses once, in one glossary box placed at the end of
 `## The problem`, after the scenario (or right after the H1 on pages without that section). Define a term in the box, then
-use it without explaining it again. Do not write sentences about labels, such as "S1 is a course
-label, not a source term". If a label such as R1 appears on screen, define it in the box instead.
+use it without explaining it again. Do not write sentences about labels, such as "this code is a
+course label, not a source term". If a label such as R1 appears on screen, define it in the box
+instead.
 
 ```markdown
 > **Terms on this page**
@@ -113,12 +117,28 @@ label, not a source term". If a label such as R1 appears on screen, define it in
 
 Use the same wording for a term on every page. The standard wordings are at the end of this page.
 
-### 5. Evidence stays in the evidence pages
+### 5. Evidence stays in the evidence pages, and labels stay plain
 
-Run ids, A/B ids, finding ids, and commit hashes appear only in the evidence pages:
-`docs/evidence.md` (the index) and the files under `docs/evidence/`, one per section
-(`s1.md` to `s4.md`, `final.md`, and `general.md`). The main text gives at most a short source name
-with a link.
+Run ids, A/B ids, source ids (`A1` to `A7`, `B1` to `B14`), finding ids (`F-a-` or `F-b-` and a
+number), and commit hashes appear only in the evidence pages: `docs/evidence.md` (the index) and the
+files under `docs/evidence/`, one per section (`s1.md` to `s4.md`, `final.md`, and `general.md`).
+
+- Name a source by a short name with a link, such as (OpenAI, Harness engineering),
+  (Anthropic, Effective harnesses), (Anthropic, Harness design), (Anthropic, C compiler),
+  (Meta, TestGen-LLM), (Meta, ACH), or (SpecBench). List each source once, with its full title and
+  link, in a short `## Sources` list at the end of the page.
+- Where a page relies on a finding, keep the claim and link to the section of the evidence page.
+- Assignments are "Assignment 1" to "Assignment 4", never `A1` to `A4`, so they do not clash with
+  the source ids. Code identifiers such as `a2_state` or `make check-assignment-3` stay.
+- Sections are "Section 1" to "Section 4", never a bare `S1` to `S4` in prose. A walkthrough anchor
+  such as `S4:gate` is an identifier and stays.
+- Other course codes come with plain words: "version checks (F4)", "R1 tenant isolation". The list
+  is under "Codes used in this course" in `docs/reference.md`.
+- Tokens in code spans and fenced code are identifiers and are not checked (SC21, SC22). Captured
+  terminal output (`expected/*.txt`, `captured/*.txt`) is real output: it is not edited, and the
+  check does not read it.
+- The skills and the kit templates carry no source, finding, run, or assignment ids at all. A
+  house-rule name such as "R1 tenant isolation" is example content and stays.
 
 Good:
 
@@ -126,12 +146,14 @@ Good:
 Agents copy patterns that already exist in the repository, even poor ones
 ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 In our test runs, no arm leaked data on this ticket ([evidence](../docs/evidence/s1.md)).
+In Section 1 you hand in Assignment 1.
 ```
 
 Not this:
 
 ```markdown
-A1 reports that agents copy patterns (A1, F-a-20); see run ab-20261016-181736-a07558.
+A1 reports that agents copy patterns (A1, F-a-NN); see run ab-20261016-181736-a07558.
+In S1 you hand in A1.
 ```
 
 ### 6. No internal language

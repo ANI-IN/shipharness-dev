@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # init.sh: start the development server and run a basic end-to-end check.
-# Source: A2 asks for "an init.sh script that can run the development server", then a basic
+# Source: Anthropic, Effective harnesses asks for "an init.sh script that can run the development server", then a basic
 # end-to-end test before any new work. Every session runs it first.
 # Set the four commands below for your repository (or export them before running).
-# Output stays short; full logs go to $LOG_DIR (A4: print a few lines, log the rest to a file).
+# Output stays short; full logs go to $LOG_DIR (Anthropic, C compiler: print a few lines, log the rest to a file).
 set -euo pipefail
 
 cd "$(dirname "$0")"

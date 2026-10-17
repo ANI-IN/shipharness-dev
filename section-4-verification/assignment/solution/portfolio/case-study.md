@@ -8,8 +8,8 @@ Reference version. The run numbers come from the reference solution's live run, 
 TeamTrack's handbook says a deleted issue behaves as if it does not exist: 404 on read, hidden
 from lists. Nothing checked that. A coding agent that adds an endpoint can query the issues table
 without the `deleted_at` filter, and the visible tests still pass, because no visible test deletes
-an issue first. A1 describes the fix for this class of problem: rules the team cares about become
-checks, "enforced mechanically via custom linters ... and structural tests" (A1; [evidence](../../../../docs/evidence/s4.md#s4-quotes)). The
+an issue first. [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) describes the fix for this class of problem: rules the team cares about become
+checks, "enforced mechanically via custom linters ... and structural tests" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [evidence](../../../../docs/evidence/s4.md#s4-quotes)). The
 legacy `/v1/issues` handler already shows the failure: it lists deleted issues today.
 
 ## What I built
@@ -22,7 +22,7 @@ legacy `/v1/issues` handler already shows the failure: it lists deleted issues t
   finding as old and counts only new ones.
 - Filter 6 for the test pipeline: a proposed test that repeats an existing test, or a test kept
   earlier in the same run, is discarded with the name of the test it copies. TestGen-LLM added a
-  filter "to remove previously seen test cases" (B11; [evidence](../../../../docs/evidence/s4.md#s4-quotes)); this one also ignores renamed local
+  filter "to remove previously seen test cases" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [evidence](../../../../docs/evidence/s4.md#s4-quotes)); this one also ignores renamed local
   variables, which is a course choice.
 - A skill, `testgen-evidence`, that turns a testgen run into an evidence report.
 
@@ -50,9 +50,9 @@ The marker title mattered more than the probes. My first idea was to look for th
 id in each response, but project 1, user 1, and org 1 share that number, so every list of projects
 would have been a finding. Text that only the deleted row can contain removes that whole class of
 false positive. The second lesson is about baselines: a check that reports the legacy handler on
-every run is noise unless its findings match across runs, which is what `detail_key` is for. A4
+every run is noise unless its findings match across runs, which is what `detail_key` is for. [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)
 warns that "it is easy to see tests pass and assume the job is done, when this is rarely the
-case" (A4; [evidence](../../../../docs/evidence/s4.md#s4-quotes)); seeded faults are how I found out whether my own check was done.
+case" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler); [evidence](../../../../docs/evidence/s4.md#s4-quotes)); seeded faults are how I found out whether my own check was done.
 
 ## Next steps
 
@@ -60,3 +60,9 @@ case" (A4; [evidence](../../../../docs/evidence/s4.md#s4-quotes)); seeded faults
   hide a leak.
 - Extend the adapter to archived projects, which the handbook treats the same way.
 - Run filter 6 inside `shipharness testgen` rather than after it.
+
+## Sources
+
+- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
+- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.

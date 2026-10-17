@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - A2 reference live step
+# Module 1: Harness Engineering for Coding Agents - Assignment 2 reference live step
 
 This folder holds the files of the reference solution's live step: one A/B on the four-session F2
 task (`F2-a2-four-sessions`, session budget [10, 10, 10, 20]), with the reference

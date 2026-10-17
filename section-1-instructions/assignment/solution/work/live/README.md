@@ -15,13 +15,13 @@ is captured, this folder holds no evidence, and the grader gives the reference 0
 points of criterion F, with or without `--allow-pending` (`captured/grade-solution.txt`).
 
 If the run is captured later, these are the commands (repository root; needs keys and Docker;
-within A1's budget of $2.50):
+within the Assignment 1 budget of $2.50):
 
 ```bash
 git switch -c a1-reference-run                     # throwaway branch: never merge it
 rm -rf platform/teamtrack/harness/instructions
 cp -r section-1-instructions/assignment/solution/work/instructions platform/teamtrack/harness/instructions
-git add platform/teamtrack/harness/instructions && git commit -m "A1: reference tree for the live A/B"
+git add platform/teamtrack/harness/instructions && git commit -m "Assignment 1: reference tree for the live A/B"
 git log -1 --format=%h                             # the "Instructions tree commit"
 CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference"
 echo "\$ $CMD" > ~/a1-reference-output.txt

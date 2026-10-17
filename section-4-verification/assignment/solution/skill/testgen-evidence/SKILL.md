@@ -9,18 +9,18 @@ description: >
 license: MIT
 metadata:
   course: shipharness
-  assignment: A4
-  sources: B11 B12 A4
+  assignment: Assignment 4
+  sources: Meta, TestGen-LLM; Meta, ACH; Anthropic, C compiler
 ---
 
 # Testgen evidence
 
 Generated tests are worth keeping only if they survive filters, and a reader should be able to
 check that claim. TestGen-LLM applies "a series of progressively demanding semantic filters" to
-candidate tests (B11), and the survivors "are thus guaranteed to improve the existing test
-class, and to provide reliable regression test signal" (B11). This skill runs those filters
+candidate tests ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)), and the survivors "are thus guaranteed to improve the existing test
+class, and to provide reliable regression test signal" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)). This skill runs those filters
 through `shipharness testgen`, adds a duplicate-test filter (TestGen-LLM later added "an extra
-filter to remove previously seen test cases", B11), and writes the result down.
+filter to remove previously seen test cases", [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)), and writes the result down.
 
 ## When to use
 
@@ -65,19 +65,13 @@ filter to remove previously seen test cases", B11), and writes the result down.
 - [ ] Every command in the report was run as written; the report holds its real output.
 - [ ] Each discarded test is listed with its filter number and reason.
 - [ ] The Limits section says what the filters cannot prove: a kept test passed five runs and
-      added line coverage (B11) or killed a mutant no existing test kills (B12),
-      which does not make it a good specification. A4 warns
+      added line coverage ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)) or killed a mutant no existing test kills ([Meta, ACH](https://arxiv.org/abs/2501.12862)),
+      which does not make it a good specification. [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler) warns
       that "it is easy to see tests pass and assume the job is done, when this is rarely the
-      case" (A4).
+      case" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
 
 ## Sources
 
-Each quote above was checked against its source text; the checks are listed in the shipharness
-course repository, on its Section 4 evidence page ("Quotes used in Section 4").
-
-- B11: Alshahwan et al., "Automated Unit Test Improvement using Large Language Models at Meta",
-  FSE 2024. https://arxiv.org/abs/2402.09171
-- B12: Foster et al., "Mutation-Guided LLM-based Test Generation at Meta", 2025.
-  https://arxiv.org/abs/2501.12862
-- A4: Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic,
-  2026-02-05. https://www.anthropic.com/engineering/building-c-compiler
+- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
+- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.

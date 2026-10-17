@@ -9,9 +9,9 @@ because they copy an older handler that predates the rule. Every reviewer has to
 ## Why it happens
 
 - Agents copy what they find: agents replicate "patterns that already exist in the repository—even
-  uneven or suboptimal ones" (A1).
+  uneven or suboptimal ones" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 - A rule on paper is not enforced: "When documentation falls short, we promote the rule into code"
-  (A1).
+  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 
 ## How this skill helps
 
@@ -19,32 +19,32 @@ An Agent Skill that turns a team convention into a house rule: a one-page rule d
 mechanical check whose error message tells the agent how to fix the problem, and a test with a
 seeded violation the check must catch. A skill is a folder with a `SKILL.md` file (YAML
 frontmatter, then Markdown instructions) and optional `scripts/`, `references/`, and `assets/`
-folders (B1). This page says what the skill does, how to install it in Claude Code, Codex,
+folders ([Agent Skills, Specification](https://agentskills.io/specification)). This page says what the skill does, how to install it in Claude Code, Codex,
 and Cursor, how to call it, and how to check that it loaded. The instructions the agent follows
 are in [SKILL.md](SKILL.md).
 
-Source codes such as (A1) or (B1) point to the Sources list at the end of this page.
+Sources are named in short form, such as (OpenAI, Harness engineering), and listed in full at the end of this page.
 
 ## What it does and when to use it
 
-"House rules" is the course's label, not a source term. It stands for what A1 calls "golden
-principles" encoded in the repository and "taste invariants" enforced with custom lints (A1). The idea in one line, also from A1: "When documentation falls short, we promote
+"House rules" is the course's label, not a source term. It stands for what [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) calls "golden
+principles" encoded in the repository and "taste invariants" enforced with custom lints ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)). The idea in one line, also from [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "When documentation falls short, we promote
 the rule into code".
 
 A house rule is done when all three parts exist:
 
 1. A rule document with the rule in one checkable sentence, why it exists, and the smallest
    correct and incorrect examples.
-2. A check that prints one line per violation saying what is wrong and how to fix it. A1 writes
-   lint messages "to inject remediation instructions into agent context", and A4 asks for
+2. A check that prints one line per violation saying what is wrong and how to fix it. [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) writes
+   lint messages "to inject remediation instructions into agent context", and [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler) asks for
    "ERROR" with the reason "on the same line so grep will find it".
 3. A test with a seeded violation the check must catch and a clean case it must pass, written
    before the check.
 
 Use it when the same review comment keeps coming back, when agents copy a pattern that should not
-be copied (A1: agents replicate "patterns that already exist in the repository—even uneven or
+be copied ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): agents replicate "patterns that already exist in the repository—even uneven or
 suboptimal ones"), or when a rule is written in the docs and agents still break it. Do not
-use it for what a formatter already handles or for one-off decisions; A1 enforces invariants and
+use it for what a formatter already handles or for one-off decisions; [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) enforces invariants and
 does not micromanage implementations.
 
 ## What is in the folder
@@ -56,12 +56,12 @@ does not micromanage implementations.
 | `assets/rule-template.md` | The rule document template the script copies |
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
-rest of `SKILL.md` when a task matches the description (B1, B2).
+rest of `SKILL.md` when a task matches the description ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, What are skills](https://agentskills.io/what-are-skills)).
 
 ## Install
 
 The Agent Skills specification does not say where skills live; each agent has its own folders
-(B3). These are the folders each tool documents, checked on its official page on
+([Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md)). These are the folders each tool documents, checked on its official page on
 2026-10-17.
 
 | Tool | Project folder | User-level folder | Skill folders it reads |
@@ -77,20 +77,18 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. (B7;
-  https://code.claude.com/docs/en/skills, read 2026-10-17.)
+  `/reload-skills`. The page does not mention `.agents/skills/`. ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. (B8; https://learn.chatgpt.com/docs/build-skills, redirected
+  mention `.claude/skills/`. ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9; https://cursor.com/docs/skills, redirected from
+  starts. ([Cursor, Skills](https://cursor.com/docs/skills), redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
-  Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
-  https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
+  Cursor 2.4, released 2026-01-22, "in the editor and CLI" ([Cursor 2.4 changelog](https://cursor.com/changelog/2-4), read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
   if it does not appear.
 
@@ -141,7 +139,7 @@ Cost: $0.000000 (no model calls)
 
 `shipharness skills validate` runs the checks of skills-ref, the reference validator, and adds
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
-referenced files (B1, B5). The skill uses only the six frontmatter
+referenced files ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, skills-ref](https://github.com/agentskills/agentskills)). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
 `uv run agentskills validate use-in-your-repo/skills/house-rules` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/house-rules`).
 
@@ -152,9 +150,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/house-rules` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/house-rules` (B7, read 2026-10-17) |
-| Codex (CLI or IDE extension) | Type `$house-rules`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (B8, read 2026-10-17) |
-| Cursor | Type `/` in Agent chat and search for `house-rules` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (B9, read 2026-10-17) |
+| Claude Code | `/house-rules` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/house-rules` ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$house-rules`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `house-rules` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** ([Cursor, Skills](https://cursor.com/docs/skills), read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/house-rules` in Claude Code or
 `$house-rules` in Codex to call it by name):
@@ -205,17 +203,13 @@ from; [skill-template](../skill-template/README.md) is the starting point for a 
 
 ## Sources
 
-- A1: Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI,
-  2026-02-11. https://openai.com/index/harness-engineering/
-- A4: Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic,
-  2026-02-05. https://www.anthropic.com/engineering/building-c-compiler
-- B1: Agent Skills Specification. https://agentskills.io/specification
-- B2: What are skills? https://agentskills.io/what-are-skills
-- B3: How to add skills support to your agent.
-  https://agentskills.io/client-implementation/adding-skills-support.md
-- B5: skills-ref, the reference validator. https://github.com/agentskills/agentskills
-- B7: Extend Claude with skills (Claude Code). https://code.claude.com/docs/en/skills
-- B8: Build skills (Codex). https://learn.chatgpt.com/docs/build-skills
-- B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
-  https://cursor.com/docs/context/skills on 2026-10-17)
-- B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4
+- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
+- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
+- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- [Agent Skills, What are skills](https://agentskills.io/what-are-skills): Agent Skills project, "What are skills?".
+- [Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md): Agent Skills project, "How to add skills support to your agent".
+- [Agent Skills, skills-ref](https://github.com/agentskills/agentskills): Agent Skills project, skills-ref, the reference validator (source and README; PyPI package 0.1.1, 2026-01-10).
+- [Claude Code, Skills](https://code.claude.com/docs/en/skills): Anthropic, Claude Code docs, "Extend Claude with skills".
+- [Codex, Skills](https://learn.chatgpt.com/docs/build-skills): OpenAI, Codex docs, "Build skills" (redirected from https://developers.openai.com/codex/skills).
+- [Cursor, Skills](https://cursor.com/docs/skills): Cursor docs, "Agent Skills" (redirected from https://cursor.com/docs/context/skills).
+- [Cursor 2.4 changelog](https://cursor.com/changelog/2-4): Cursor, 2.4 changelog, 2026-01-22.

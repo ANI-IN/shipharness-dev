@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- A map for coding agents, not a manual. Keep it near 100 lines (A1: "A short AGENTS.md
+<!-- A map for coding agents, not a manual. Keep it near 100 lines (OpenAI, Harness engineering: "A short AGENTS.md
 (roughly 100 lines) is injected into context and serves primarily as a map"). Put each rule in the
 document it belongs to and point to it from here. Replace every <placeholder>. -->
 
