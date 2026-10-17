@@ -84,7 +84,14 @@ def _documents(targets: list[str]) -> list[Path]:
     for target in targets:
         path = Path(target) if Path(target).is_absolute() else REPO / target
         if path.is_dir():
-            files.extend(sorted(p for p in path.rglob("*.md") if ".venv" not in p.parts))
+            files.extend(
+                sorted(
+                    p
+                    for p in path.rglob("*.md")
+                    # engineering-notes/ quotes the owner's instructions verbatim: never edited.
+                    if ".venv" not in p.parts and "engineering-notes" not in p.parts
+                )
+            )
         elif path.is_file():
             files.append(path)
     return files
