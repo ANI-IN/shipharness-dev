@@ -39,13 +39,12 @@ only tests that prove something, and score the result with tests and faults it n
 ## How it works
 
 Two causes sit behind the scenario. The first is self-grading. Anthropic's harness team found that
-"agents reliably skew positive when grading their own work." Their fix is structural: "Separating the
-agent doing the work from the agent judging it proves to be a strong lever to address this issue."
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+"agents reliably skew positive when grading their own work." Their fix is structural: separate "the
+agent doing the work from the agent judging it"
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 The second is that green tests are not a finished feature. Anthropic's compiler team: "it is easy to
-see tests pass and assume the job is done, when this is rarely the case." So "the task verifier" must
-be "nearly perfect, otherwise Claude will solve the wrong problem."
+see tests pass and assume the job is done, when this is rarely the case."
 ([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler))
 
 SpecBench measured the gap: "while every frontier agent saturates the visible suite, reward hacking
@@ -161,14 +160,12 @@ It does not help, or helps less, when:
 - The agent never claims done. A gate on the claim never runs; in the test runs it did not.
 - The bug is in the code and the test is right. Filter 2 keeps only passing tests, so it discards
   the test that found the bug. ACH: it "cannot detect existing faults residing in the code base".
-- Few tests are proposed. The filters cannot keep a test nobody wrote.
 - The checks are wrong. A strict gate on the wrong checks makes the agent solve the wrong problem.
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an assumption
 about what the model can't do on its own, and those assumptions are worth stress testing." The
-verification layer assumes the agent's "done" and its own tests cannot be trusted. A separate judge
-"is worth the cost when the task sits beyond what the current model does reliably solo."
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+verification layer assumes the agent's "done" and its own tests cannot be trusted
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 ## Key takeaways
 
@@ -186,7 +183,6 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
 3. In the demo run, filter 2 discarded a test that failed with "assert 422 == 412". Was the test
    wrong?
 4. Filter 3 keeps a test that catches a mutant even if it adds no coverage. Why?
-5. No harness arm reached the gate on F4 in the test runs. What does that tell you about the gate?
 
 <details>
 <summary>Answers</summary>
@@ -199,8 +195,6 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
    correct, so it discards a failing test.
 4. Coverage says a line ran, not that a test would notice it going wrong. About half of ACH's
    mutant-catching tests added no coverage.
-5. A gate on the claim helps only if the agent claims done. On F4 the harness arms used all their
-   build turns, or stopped with `not_done`, so the gate was never tested there.
 
 </details>
 
@@ -210,7 +204,3 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
 - [Mutation-guided tests (ACH)](post-class-reading/02-mutation-guided-tests-ach.md)
 - [Separate evaluators](post-class-reading/03-separate-evaluator.md)
 - [Held-out tests (SpecBench)](post-class-reading/04-held-out-tests-specbench.md)
-- The sources: [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design);
-  [Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler);
-  [Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm);
-  [Meta, ACH](../docs/evidence/s4.md#src-ach); [SpecBench](../docs/evidence/s4.md#src-specbench).

@@ -1062,3 +1062,27 @@ def test_scripts_the_public_makefile_and_ci_run_are_learner_scripts() -> None:
     assert sorted(named - set(mr.LEARNER_SCRIPTS)) == []
     assert mr.classify("platform/scripts/check_style.py") is None
     assert mr.classify("docs/STYLE.md") is None  # the guide the style check implements
+
+
+def test_every_final_project_file_ships() -> None:
+    # The release candidate of 2026-10-17 shipped final-project/ with only README.md and its PNGs.
+    files = sorted(
+        p.relative_to(REPO).as_posix()
+        for p in (REPO / "final-project").rglob("*")
+        if p.is_file() and "__pycache__" not in p.parts
+    )
+    assert "final-project/run.sh" in files
+    assert "final-project/harness/.agents/skills/add-endpoint/SKILL.md" in files  # a dot folder
+    assert [f for f in files if mr.classify(f) is not None] == []
+    included = mr.select(files).included
+    assert included == files
+    for item in mr.FINAL_EXPECTED:
+        assert any(f == item or (item.endswith("/") and f.startswith(item)) for f in files), item
+    assert [m for m in mr.missing_expected(files) if m.startswith("final-project/")] == []
+
+
+def test_a_thin_final_project_is_reported_missing_parts() -> None:
+    missing = mr.missing_expected(["final-project/README.md", "final-project/expected/a.png"])
+    assert "final-project/README.md" not in missing
+    for item in ("final-project/run.sh", "final-project/harness/", "final-project/CHECKLIST.md"):
+        assert item in missing

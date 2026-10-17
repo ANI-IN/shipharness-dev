@@ -461,13 +461,13 @@ def test_is_public() -> None:
         "docs/STYLE.md",
         "slides/README.md",
         "slides/deck.md",
-        "slides/outline.md",
         "section-4-verification/assignment/solution/portfolio/case-study.md",
     ]
     private = [
         GRADER_MD,
         HIDDEN_MD,
         "slides/img/notes.md",
+        "slides/outline.md",
         "CHANGELOG.md",
         "docs/CHANGELOG.md",
         "platform/sandbox/README.md",
@@ -540,8 +540,13 @@ def test_agent_files() -> None:
         "section-1-instructions/assignment/starter/original/AGENTS.md",
         "section-1-instructions/assignment/solution/work/instructions/.agents/skills/a/SKILL.md",
         "section-4-verification/assignment/solution/skill/testgen-evidence/SKILL.md",
+        "final-project/harness/AGENTS.md",
+        "final-project/harness/docs/exec-plans/active/F5.md",
     ]
     course = [
+        "final-project/harness/README.md",
+        "final-project/README.md",
+        "final-project/your-repo/README.md",
         "section-1-instructions/assignment/starter/README.md",
         "section-1-instructions/assignment/solution/README.md",
         "section-1-instructions/assignment/solution/SOLUTION.md",
@@ -659,6 +664,15 @@ def test_word_count() -> None:
         "<!-- hidden words here -->\n\n![Alt text words](img.png)\n\n| Five | six |\n"
     )
     assert cs.count_words(cs.parse_page(text)) == 8
+
+
+def test_concepts_length_counts_table_cells(tmp_path: Path) -> None:
+    rel = "section-1-instructions/concepts.md"
+    prose = "word " * 1750 + "\n"
+    table = "\n| Step | Result |\n|---|---|\n" + "| one two three | four five six |\n" * 20
+    assert not [p for p in problems(tmp_path, rel, prose) if p.check == "SC11"]
+    found = [p for p in problems(tmp_path, rel, prose + table) if p.check == "SC11"]
+    assert [(p.line, p.message) for p in found] == [(1, "1872 prose words, limit about 1800")]
 
 
 def test_allow_marker(tmp_path: Path) -> None:
@@ -970,6 +984,13 @@ def test_every_diagram_in_the_repo_has_its_source() -> None:
     assert cs.diagram_problems(REPO) == []
 
 
-@pytest.mark.xfail(strict=True, reason="final-project rebuild lands on its own branch")
 def test_the_final_project_folder_in_the_repo_is_complete() -> None:
     assert cs.final_project_problems(REPO) == []
+
+
+def test_starter_fill_in_templates_keep_their_markers(tmp_path: Path) -> None:
+    text = "# Case study: <title>\n\nTODO: one paragraph.\n\nRun ab-20261017-112101-c5d839.\n"
+    rel = "section-4-verification/assignment/starter/portfolio/case-study.md"
+    assert {p.check for p in problems(tmp_path, rel, text)} == {"SC08"}
+    readme = "section-4-verification/assignment/starter/README.md"
+    assert "SC01" in {p.check for p in problems(tmp_path, readme, text)}

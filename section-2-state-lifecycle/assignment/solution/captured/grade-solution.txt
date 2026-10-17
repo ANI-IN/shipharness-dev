@@ -1,8 +1,7 @@
-# Captured on 2026-10-17 at commit 0aee4d2 (offline: test stand-in agent, no model calls, no run id).
-# Your output will differ: commit hashes change on every run.
-$ make grade-assignment-2 SUBMISSION=submodules/section-2-state-lifecycle/solution
-uv run python scripts/grade_assignment.py 2 "submodules/section-2-state-lifecycle/solution"
-A2 grade: 6 scenarios (2 visible, 4 hidden) against submodules/section-2-state-lifecycle/solution
+# captured on 2026-10-18 from `make grade-assignment-2 SUBMISSION=02-state-lifecycle/assignment/solution` (offline: test stand-in agent, no model calls); the live run in live/ is not valid, see live/README.md; details in docs/evidence/s2.md
+$ make grade-assignment-2 SUBMISSION=02-state-lifecycle/assignment/solution
+uv run python platform/scripts/grade_assignment.py 2 "02-state-lifecycle/assignment/solution"
+A2 grade: 6 scenarios (2 visible, 4 hidden) against 02-state-lifecycle/assignment/solution
 Agent in the scenarios: the test stand-in agent (a2_scenario/literal_agent.py), deterministic, not a model.
 
 V1-boundary-stops: PASS
@@ -13,7 +12,8 @@ H3-notes-and-rewrite: PASS
 H4-early-tick: PASS
 
 Live run evidence: not valid
-  - live/: missing task.jsonl, command.txt, output.txt, summary.json, scores/
+  - summary: the harness arm needs 4 build sessions, the first 3 ended by turn_budget (found 3: ['turn_budget', 'turn_budget', 'timeout'])
+  - summary: the harness arm needs 3 session_stop events (sessions 1-3), found [1, 2]
 
 Criterion                                                                                                                         Points  Earned
 finished: Feature finished across three forced stops                                                                                  13    13.0
@@ -33,5 +33,5 @@ clean_tree: Every harness write is committed (clean working tree at the end)    
 live_run: Live run: gpt-6-luna, four sessions, three forced stops, evidence valid                                                     10     0.0
 
 Score: 90.0/100
-grading assignment 2: submodules/section-2-state-lifecycle/solution
+grading assignment 2: 02-state-lifecycle/assignment/solution
 [exit code 0]
