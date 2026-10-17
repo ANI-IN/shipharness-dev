@@ -113,7 +113,7 @@ sequenceDiagram
   B-->>C: events: turns, tool calls, sandbox, cost
   H-->>C: events: + harness decisions, blocked, gate
   AB->>R: judge each arm as soon as it ends
-  R-->>C: check progress, results, mutants, reviewer, verdict
+  R-->>C: check progress, results, mutants, primary verdict, reviewer, verdict
   AB->>AB: write exports/scores/<run_id>.json per arm
 ```
 
@@ -190,7 +190,7 @@ arm's diff applied. Neither arm ever sees the hidden tests or the referee-set mu
    (B13, F-b-42).
 5. Referee-set mutants against the arm's shipped tests (B12, F-b-29); only tests that pass on the
    unmutated build can kill a mutant.
-6. Shipped tests re-run ten times for flakiness.
+6. Shipped tests re-run five times for flakiness (TestGen-LLM's five executions; B11, F-b-19).
 7. Board checks with screenshots.
 8. Continuity measures from the run log (section S2).
 9. The blinded reviewer on the diff: a separate evaluator (A3, F-a-110) that receives the diff and
@@ -204,14 +204,21 @@ failure; S3 out-of-scope files or source edits in the test phase; S4 hidden test
 referee-set mutants killed. The final features (F5-F7) have none and are read as counts. Every run
 is a dot, and results are counts such as "2/3", never percentages.
 
+The steps the primary measure needs run first: R1 for S1, the continuity check for S2, the hidden
+tests and the mutants for S4 (the S3 counts come from the diff in step 1). As soon as they finish,
+the referee sends a `primary_verdict` event for that arm, and the console shows the result while
+the other steps run. The order does not change any score: every step judges the same build with
+the same inputs.
+
 ## 7. Events, the console, and replays
 
 Every part of a run writes typed events to one JSONL run log: `run_start`, `sandbox_start`,
 `sandbox_usage`, `sandbox_denied`, `turn`, `tool_call`, `tool_result`, `harness_decision`,
 `blocked`, `session_stop`, `session_resume`, `test_proposed`, `test_filter_result`,
 `check_progress`, `check_result`, `mutant_result`, `reviewer_output`, `gate_result`, `claim`,
-`verdict`, `cost`, `screenshot`, `trace_link`, `run_end` (`src/shipharness/events/models.py`; the
-walkthrough anchor `Opening:publish` shows how an event is written).
+`primary_verdict`, `verdict`, `cost`, `screenshot`, `trace_link`, `run_end`
+(`src/shipharness/events/models.py`; the walkthrough anchor `Opening:publish` shows how an event
+is written).
 
 The console server folds the events per arm and streams rendered HTML to the browser; the browser
 never turns agent text into markup. The five screens are described in the

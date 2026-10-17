@@ -10,7 +10,7 @@ Params (runner --params):
   by their base name.
 - `hidden_tests`: pytest node ids relative to the build directory (mount hidden tests inside the
   build tree, for example at tests/hidden/). A requested id that is not collected counts as failed.
-- `shipped_tests`: node ids or files the arm added; `flaky_runs`: repetitions (default 10).
+- `shipped_tests`: node ids or files the arm added; `flaky_runs`: repetitions (default 5).
 """
 
 from __future__ import annotations
@@ -27,7 +27,8 @@ from shipharness.checks._pytest import (
 )
 from shipharness.checks.base import CheckContext, CheckResult, Finding, make_result, register_check
 
-DEFAULT_FLAKY_RUNS = 10
+# TestGen-LLM deems a test flaky unless it passes on "every one of five executions" (B11, F-b-19).
+DEFAULT_FLAKY_RUNS = 5
 
 
 @register_check

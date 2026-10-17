@@ -186,6 +186,27 @@ def test_run_ab_runs_both_arms_in_parallel_and_scores_both(
     assert FakeInstructions.seen_kwargs[-1]["feature_category"] == "api"
 
 
+def test_each_arm_gets_a_primary_verdict_before_its_full_verdict(
+    course_repo: Path, tmp_path: Path
+) -> None:
+    deps = make_deps(course_repo, tmp_path, Clients())
+    result = run_ab(ABTask.from_dataset_line(LINE), frozenset({"instructions"}), deps)
+    events = list(read_events(tmp_path / "runs" / result.ab_id / "events.jsonl"))
+    for arm, arm_run in result.arms.items():
+        [early] = [e for e in events if e.type == "primary_verdict" and e.arm == arm]
+        [final] = [e for e in events if e.type == "verdict" and e.arm == arm]
+        [ended] = [e for e in events if e.type == "run_end" and e.arm == arm]
+        assert ended.seq < early.seq < final.seq
+        assert early.data["run_id"] == arm_run.spec.run_id == early.run_id
+        assert early.data["passed"] == arm_run.record.passed_primary
+        assert early.data["values"] == arm_run.record.primary
+        assert early.data["primary_measure"] == "r1_new_violations>=1"
+        assert early.data["elapsed_s"] >= 0 and early.recorded is False
+    from shipharness.ab.demo import _ARM_ENDED
+
+    assert not {a.spec.run_id for a in result.arms.values()} & set(_ARM_ENDED)  # used, not kept
+
+
 def test_workspaces_are_outside_the_course_checkout_and_bare_has_no_harness_files(
     course_repo: Path, tmp_path: Path
 ) -> None:

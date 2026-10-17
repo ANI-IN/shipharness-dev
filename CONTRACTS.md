@@ -387,6 +387,7 @@ class EventBus:
 | `reviewer_output` | Review (§12) |
 | `gate_result` | GateResult (§13) |
 | `claim` | `phase`, `claim` (`done` \| `not_done` \| `none`), `summary`, `gate_id` \| null |
+| `primary_verdict` | `arm`, `run_id`, `feature_id`, `primary_measure`, `passed: bool`, `values` (measure name → value), `elapsed_s` (since the arm ended). Sent as soon as the checks the primary measure reads have finished, before the secondary checks; `passed`/`values` equal the final `passed_primary`/`primary` unless the referee then cannot finish judging |
 | `verdict` | `primary` (measure name → value), `passed_primary: bool`, `summary` |
 | `cost` | `scope`, `model`, `call_usd`, `run_usd`, `session_usd`, `limit_usd` |
 | `screenshot` | `path` (relative to run dir), `view` (`board` \| `issue` \| `conflict`), `as_user`, `overlays` (list of `{issue_id, mark}`) |

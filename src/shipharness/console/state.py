@@ -10,6 +10,7 @@ import re
 from collections import deque
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Any
 
 from shipharness.events import Event
@@ -40,7 +41,38 @@ _CATEGORIES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(^|/)tests?/"), "test"),
 )
 HARNESS_CATEGORIES = {"map", "skill", "state", "harness doc"}
+# Primary-measure fields as the screens name them.
+MEASURE_LABELS = {
+    "r1_new_violations": "new R1 violations",
+    "continuity_failure": "continuity failure",
+    "out_of_scope_files": "out-of-scope files",
+    "test_phase_source_edits": "test-phase source edits",
+    "hidden_passed": "hidden tests passed",
+    "mutants_killed": "mutants killed",
+}
 CATEGORY_ORDER = ("map", "skill", "harness doc", "state", "handbook", "code", "test")
+
+
+def measure_values(values: dict[str, Any]) -> str:
+    """Primary values as one readable line: "new R1 violations 2", booleans as yes / no."""
+    if not values:
+        return "no primary measure"
+    parts = []
+    for name, value in values.items():
+        shown = ("yes" if value else "no") if isinstance(value, bool) else str(value)
+        parts.append(f"{MEASURE_LABELS.get(name, name)} {shown}")
+    return " · ".join(parts)
+
+
+def _seconds_between(start: str | None, end: str | None) -> float | None:
+    if not start or not end:
+        return None
+    try:
+        a = datetime.fromisoformat(start.replace("Z", "+00:00"))
+        b = datetime.fromisoformat(end.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    return max((b - a).total_seconds(), 0.0)
 
 
 def categorise(path: str) -> str:
@@ -167,6 +199,7 @@ class ArmState:
     checks: dict[str, dict[str, Any]] = field(default_factory=dict)
     claims: dict[str, dict[str, Any]] = field(default_factory=dict)
     verdict: dict[str, Any] | None = None
+    primary: dict[str, Any] | None = None  # the latest primary_verdict
     reviewer: dict[str, Any] | None = None
     tests: dict[str, TestRow] = field(default_factory=dict)
     mutants: list[dict[str, Any]] = field(default_factory=list)
@@ -176,6 +209,8 @@ class ArmState:
     session_index: int = 1
     _calls: dict[str, ToolLine] = field(default_factory=dict)
     _session_ends: dict[int, str] = field(default_factory=dict)
+    # Event seq and time stamp of the launch (run_start), the primary verdict, and the verdict.
+    _seen: dict[str, tuple[int, str]] = field(default_factory=dict)
 
     # -- derived views --------------------------------------------------------------------------
     @property
@@ -188,13 +223,47 @@ class ArmState:
         return self.claims.get("build") or (list(self.claims.values())[-1] if self.claims else None)
 
     @property
+    def secondary_pending(self) -> bool:
+        """The primary verdict is in and the full verdict that follows it is not."""
+        if "primary" not in self._seen:
+            return False
+        return self._seen.get("verdict", (0, ""))[0] < self._seen["primary"][0]
+
+    @property
+    def primary_view(self) -> dict[str, Any] | None:
+        """{"passed", "values"} of the primary measure: from the full verdict once it follows the
+        primary verdict (or when the log has none), else from the primary verdict."""
+        if self.primary is not None and (self.verdict is None or self.secondary_pending):
+            return {"passed": bool(self.primary["passed"]), "values": dict(self.primary["values"])}
+        if self.verdict is not None:
+            return {
+                "passed": bool(self.verdict["passed_primary"]),
+                "values": dict(self.verdict["primary"]),
+            }
+        return None
+
+    @property
+    def time_to_primary_s(self) -> float | None:
+        """Seconds from the arm's launch to its primary verdict (None until both are known)."""
+        launch, early = self._seen.get("launch"), self._seen.get("primary")
+        return _seconds_between(launch[1], early[1]) if launch and early else None
+
+    @property
+    def time_to_verdict_s(self) -> float | None:
+        """Seconds from the arm's launch to its full verdict (None while it is still running)."""
+        launch, final = self._seen.get("launch"), self._seen.get("verdict")
+        if not launch or not final or self.secondary_pending:
+            return None
+        return _seconds_between(launch[1], final[1])
+
+    @property
     def claim_supported(self) -> bool | None:
         """Agent said done and the referee agrees (None until both are known)."""
-        claim = self.claim
-        if claim is None or self.verdict is None:
+        claim, view = self.claim, self.primary_view
+        if claim is None or view is None:
             return None
         said_done = claim["claim"] == "done"
-        return said_done == bool(self.verdict["passed_primary"])
+        return said_done == view["passed"]
 
     def files_by_category(self) -> list[tuple[str, list[FileRead]]]:
         """Files-read map: categories in a fixed order (map first), files in read order."""
@@ -312,6 +381,7 @@ class ArmState:
         data, kind = event.data, event.type
         if kind == "run_start":
             self.run_start = data
+            self._seen["launch"] = (event.seq, event.ts)
         elif kind == "sandbox_start":
             self.sandbox = data
         elif kind == "sandbox_usage":
@@ -412,8 +482,12 @@ class ArmState:
             self.gates.append(data)
         elif kind == "claim":
             self.claims[data["phase"]] = data
+        elif kind == "primary_verdict":
+            self.primary = data
+            self._seen["primary"] = (event.seq, event.ts)
         elif kind == "verdict":
             self.verdict = data
+            self._seen["verdict"] = (event.seq, event.ts)
         elif kind == "cost":
             if data["scope"] != "review" or self.cost is None:
                 self.cost = data
@@ -468,6 +542,12 @@ def summarise(event: Event) -> str:
             return f"gate {d['gate_id']} {'pass' if d['passed'] else 'fail'}"
         case "claim":
             return f"claim {d['phase']}: {d['claim']}"
+        case "primary_verdict":
+            outcome = "pass" if d["passed"] else "fail"
+            return (
+                f"primary verdict {outcome} after {d['elapsed_s']:.0f}s "
+                f"({measure_values(d['values'])})"
+            )
         case "verdict":
             return f"verdict {'pass' if d['passed_primary'] else 'fail'}: {d['summary']}"
         case "cost":

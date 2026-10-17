@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import json
 import threading
+import time
 from collections.abc import Callable, Mapping
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import asdict, dataclass, field
@@ -236,6 +237,11 @@ def _harness(
     return Harness.from_names(layers, deps.layer_registry, **kwargs)
 
 
+# run id -> time.monotonic() when the arm finished; the referee's primary_verdict event reports the
+# seconds since then.
+_ARM_ENDED: dict[str, float] = {}
+
+
 def run_arm(
     task: ABTask, spec: AgentRunSpec, deps: ABDeps, bus: EventBus, run_dir: Path
 ) -> AgentRunResult:
@@ -257,11 +263,13 @@ def run_arm(
         sandbox = deps.sandbox_factory(spec.arm, spec.workspace, bus, spec.run_id)
         sandbox.start()
     except Exception as exc:  # noqa: BLE001 - recorded as an ERROR run, still judged
+        _ARM_ENDED[spec.run_id] = time.monotonic()
         return _error_result(spec, f"arm setup failed: {type(exc).__name__}: {exc}")
     try:
         client = deps.client_factory(spec.arm)
         return run_agent(spec, harness, sandbox, bus, deps.cost, deps.tracer, client, options)
     finally:
+        _ARM_ENDED[spec.run_id] = time.monotonic()
         sandbox.stop()
 
 
@@ -469,6 +477,7 @@ def _judge(
         session_patches=session_patches(
             spec, result, run_dir / spec.arm / "sessions", store=snapshot_store(run_dir, spec.arm)
         ),
+        arm_ended=_ARM_ENDED.pop(spec.run_id, None),
     )
     return verdict.record
 

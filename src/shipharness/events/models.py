@@ -28,6 +28,7 @@ EventType = Literal[
     "reviewer_output",
     "gate_result",
     "claim",
+    "primary_verdict",
     "verdict",
     "cost",
     "screenshot",
@@ -191,6 +192,20 @@ class Claim(_Data):
     gate_id: str | None
 
 
+class PrimaryVerdict(_Data):
+    """Sent by the referee as soon as the checks the primary measure reads have finished, before
+    the secondary checks. `passed` and `values` equal the final record's `passed_primary` and
+    `primary` unless the referee then fails to finish judging (the `verdict` event says so)."""
+
+    arm: Arm
+    run_id: str
+    feature_id: str
+    primary_measure: str
+    passed: bool
+    values: dict[str, float | int | bool]
+    elapsed_s: float  # since the arm ended (since judging began, for a replay or swap test)
+
+
 class Verdict(_Data):
     primary: dict[str, float | int | bool]
     passed_primary: bool
@@ -246,6 +261,7 @@ EVENT_DATA_MODELS: dict[str, type[_Data]] = {
     "reviewer_output": ReviewerOutput,
     "gate_result": GateResultData,
     "claim": Claim,
+    "primary_verdict": PrimaryVerdict,
     "verdict": Verdict,
     "cost": Cost,
     "screenshot": Screenshot,

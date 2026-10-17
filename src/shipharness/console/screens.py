@@ -18,7 +18,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
 from shipharness.console.report import Report, safe_url
-from shipharness.console.state import ARMS, ConsoleState
+from shipharness.console.state import ARMS, ConsoleState, measure_values
 
 HERE = Path(__file__).parent
 
@@ -138,6 +138,7 @@ class ScreenRenderer:
             arms=ARMS,
             screens=SCREENS,
             escape=escape,
+            measure_values=measure_values,
         )
 
     def render(self, key: str, ctx: ScreenContext) -> str:

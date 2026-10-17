@@ -52,6 +52,11 @@ OUT_OF_SCOPE = """diff --git a/app/main.py b/app/main.py
 """
 
 
+def requested_checks(command: str) -> list[str]:
+    argv = shlex.split(command)
+    return argv[argv.index("--checks") + 1].split(",")
+
+
 class Factory:
     def __init__(
         self, results: list[dict[str, Any]], failing: frozenset[str] = frozenset()
@@ -63,8 +68,9 @@ class Factory:
 
     def _exec(self, cmd: str) -> ExecResult:
         if "checks.runner" in cmd:
-            output = runner_output(self.results, command=cmd)
-            return ExecResult(exit_code=0, output=output, duration_ms=1)
+            asked = requested_checks(cmd)  # the runner answers only the checks it is asked for
+            found = [r for r in self.results if r["check"] in asked]
+            return ExecResult(exit_code=0, output=runner_output(found, command=cmd), duration_ms=1)
         if "-m pytest" in cmd:
             if any(t in cmd for t in self.failing):
                 return ExecResult(exit_code=1, output="1 failed in 0.1s\n", duration_ms=1)
@@ -179,11 +185,17 @@ def test_runner_gets_the_fixed_seed_and_params(course_repo: Path, tmp_path: Path
     factory = Factory(all_green())
     judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
     box = factory.sandboxes[-1]
-    [cmd] = [c for c in box.commands if "checks.runner" in c]
-    argv = shlex.split(cmd)
-    assert argv[argv.index("--seed") + 1] == "42"
-    assert set(argv[argv.index("--checks") + 1].split(",")) == set(REFEREE_CHECKS)
-    assert "--baseline" in argv
+    # Two runner calls: the primary measure's check (R1 for F1) first, then the rest.
+    first, rest = [shlex.split(c) for c in box.commands if "checks.runner" in c]
+    assert first[first.index("--checks") + 1] == "r1_tenant"
+    asked = [
+        *first[first.index("--checks") + 1].split(","),
+        *rest[rest.index("--checks") + 1].split(","),
+    ]
+    assert sorted(asked) == sorted(REFEREE_CHECKS)
+    for argv in (first, rest):
+        assert argv[argv.index("--seed") + 1] == "42"
+        assert "--baseline" in argv
     [params_cmd] = [c for c in box.commands if c.startswith("printf") and "params" in c]
     params = json.loads(base64.b64decode(params_cmd.split()[2]))
     assert params["hidden_dir"] == "tests/hidden"
@@ -475,6 +487,12 @@ def test_regression_expects_every_test_that_existed_at_the_checkpoint(
     assert params["regression_expected"] == ["tests/visible/test_app.py::test_app"]
 
 
+def test_shipped_tests_are_run_five_times_for_flakiness(course_repo: Path, tmp_path: Path) -> None:
+    factory = Factory(all_green())
+    judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT)
+    assert _referee_params(factory)["flaky_runs"] == 5
+
+
 def test_referee_tells_continuity_which_run_it_scores(course_repo: Path, tmp_path: Path) -> None:
     factory = Factory(all_green())
     judge(Referee(task(), deps(course_repo, tmp_path, factory)), tmp_path, PRODUCT, run_id="r-h7")
@@ -516,7 +534,7 @@ class LiveRegression(Factory):
 
         def exec_(cmd: str) -> ExecResult:
             commands.append(cmd)
-            if "checks.runner" not in cmd:
+            if "checks.runner" not in cmd or "regression" not in requested_checks(cmd):
                 return self._exec(cmd)
             [params_cmd] = [c for c in commands if c.startswith("printf") and "params" in c]
             params = json.loads(base64.b64decode(params_cmd.split()[2]))
@@ -530,7 +548,12 @@ class LiveRegression(Factory):
             )
             dumped = real.model_dump(mode="json")
             self.regression.append(dumped)
-            results = [r if r["check"] != "regression" else dumped for r in all_green()]
+            asked = requested_checks(cmd)
+            results = [
+                r if r["check"] != "regression" else dumped
+                for r in all_green()
+                if r["check"] in asked
+            ]
             output = runner_output(results, command=cmd)
             return ExecResult(exit_code=0, output=output, duration_ms=1)
 

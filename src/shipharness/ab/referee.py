@@ -5,6 +5,10 @@ check runner in a referee container (network none) with the hidden tests mounted
 referee-set mutants against the shipped tests, the blinded reviewer, then a ScoreRecord written
 to `exports/scores/` and a verdict event. Both arms go through exactly this code. Aborted runs are
 judged too.
+
+The checks the task's primary measure reads run first (with the mutants, when it counts them), and
+a primary_verdict event goes out as soon as they finish; the secondary checks follow. The order
+never changes a score: every check runs on the same build with the same inputs either way.
 """
 
 from __future__ import annotations
@@ -18,6 +22,7 @@ import re
 import shutil
 import subprocess
 import threading
+import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
@@ -33,7 +38,7 @@ from shipharness.ab.artifacts import (
     is_harness_artifact,
 )
 from shipharness.ab.artifacts import strip_harness_artifacts as strip
-from shipharness.ab.score import ScoreRecord, evaluate_primary
+from shipharness.ab.score import ScoreRecord, evaluate_primary, primary_fields
 from shipharness.ab.workspace import (
     export_checkpoint,
     export_hidden_tests,
@@ -82,9 +87,51 @@ WORK = "/work"  # the referee container mounts the build here (sandbox policy wo
 log = structlog.get_logger(__name__)
 HIDDEN_DIR = "tests/hidden"  # inside the build, read-only, referee container only
 INPUTS_MOUNT = "/referee-in"  # run log and per-session patches, read-only
-FLAKY_RUNS = 10
+# Shipped tests are run five times: TestGen-LLM deems a test flaky unless it passes on "every one of
+# five executions" (B11, F-b-19).
+FLAKY_RUNS = 5
 # One line per test in pytest's -rA summary: `PASSED tests/x.py::test_a`.
 _RESULT_LINE = re.compile(r"^(PASSED|FAILED|ERROR|XFAIL|XPASS) (\S+)")
+
+# Which checks feed each ScoreRecord field (see shipharness.checks.scores). "mutants" are the
+# referee-set mutants, run after the checks; an empty tuple means the host computes the field from
+# the applied diff before any check runs.
+MUTANTS = "mutants"
+FIELD_SOURCES: dict[str, tuple[str, ...]] = {
+    "r1_new_violations": ("r1_tenant",),
+    "r1_leaks": ("r1_tenant",),
+    "r2_new_violations": ("r2_roles",),
+    "r3_new_failures": ("r3_conventions",),
+    "r4_duplicates": ("r4_idempotency",),
+    "r5_audit_missing": ("r5_audit",),
+    "r6_ok": ("r6_layering",),
+    "r7_ok": ("r7_migrations",),
+    "regression_passed": ("regression",),
+    "regression_total": ("regression",),
+    "hidden_passed": ("hidden_tests",),
+    "hidden_total": ("hidden_tests",),
+    "flaky_tests": ("flakiness",),
+    "continuity_failure": ("continuity",),
+    "redone_lines_pct": ("continuity",),
+    "board_ok": ("board",),
+    "mutants_killed": (MUTANTS,),
+    "mutants_total": (MUTANTS,),
+    "shipped_tests": (),
+    "out_of_scope_files": (),
+    "test_phase_source_edits": (),
+}
+
+
+def primary_stage(measure: str) -> tuple[tuple[str, ...], bool]:
+    """(checks, mutants): what must have run before `measure` can be evaluated. Checks keep the
+    REFEREE_CHECKS order. A field without a known source waits for every check and the mutants."""
+    needed: set[str] = set()
+    for name in primary_fields(measure):
+        if name not in FIELD_SOURCES:
+            return REFEREE_CHECKS, True
+        needed.update(FIELD_SOURCES[name])
+    return tuple(c for c in REFEREE_CHECKS if c in needed), MUTANTS in needed
+
 
 SandboxFactory = Callable[[Path, list[Mount], Arm], Sandbox]
 MutantRunner = Callable[[Any, list[str], Path, Sandbox], str]
@@ -125,6 +172,9 @@ class RefereeDeps:
     # Baselines are deterministic for a checkpoint commit, task inputs, seed, and check code, so
     # A/Bs of the same task reuse them (None: no cache).
     baseline_cache_dir: Path | None = None
+    # True: the primary measure's checks run first and primary_verdict is sent before the rest.
+    # False: one runner call for every check, then the mutants (same scores, later verdict).
+    early_primary: bool = True
 
 
 @dataclass
@@ -335,6 +385,8 @@ class Referee:
             return None, f"referee container did not start: {type(exc).__name__}: {exc}"[:500]
         return sandbox, None
 
+    _INPUTS = "/tmp/shipharness-referee"
+
     def _run_checks(
         self,
         sandbox: Sandbox,
@@ -342,14 +394,29 @@ class Referee:
         baseline: str | None,
         checks: tuple[str, ...],
     ) -> tuple[list[CheckResult], list[dict[str, Any]], str | None]:
-        root = "/tmp/shipharness-referee"
+        error = self._write_inputs(sandbox, params, baseline)
+        if error is not None:
+            return [], [], error
+        return self._run_runner(sandbox, checks, bool(baseline), self.deps.timeout_s)
+
+    def _write_inputs(
+        self, sandbox: Sandbox, params: dict[str, Any], baseline: str | None
+    ) -> str | None:
+        """Write the check params (and the baseline) into the container. None = ok."""
+        root = self._INPUTS
         sandbox.exec(f"mkdir -p {root}", 60)
         try:
             write_container_file(sandbox, f"{root}/params.json", json.dumps(params, sort_keys=True))
             if baseline:
                 write_container_file(sandbox, f"{root}/baseline.json", baseline)
         except RuntimeError as exc:
-            return [], [], f"referee container not usable: {exc}"[:500]
+            return f"referee container not usable: {exc}"[:500]
+        return None
+
+    def _run_runner(
+        self, sandbox: Sandbox, checks: tuple[str, ...], baseline: bool, timeout_s: int
+    ) -> tuple[list[CheckResult], list[dict[str, Any]], str | None]:
+        root = self._INPUTS
         nonce = new_nonce()
         command = runner_command(
             build=".",
@@ -361,7 +428,7 @@ class Referee:
             baseline=f"{root}/baseline.json" if baseline else None,
             nonce=nonce,
         )
-        output = sandbox.exec(command, self.deps.timeout_s)
+        output = sandbox.exec(command, timeout_s)
         try:
             results, progress = parse_runner_output(output.output, nonce=nonce)
         except RunnerOutputError as exc:
@@ -493,14 +560,18 @@ class Referee:
         recorded: bool = False,
         export: bool = True,  # False for the swap test: its records are not runs
         log_run_id: str | None = None,
+        arm_ended: float | None = None,
     ) -> ArmVerdict:
         """`log_run_id` is the run id whose events `run_log` holds (continuity counts that run's
-        sessions); swap and replay pass the original run id while scoring under their own."""
+        sessions); swap and replay pass the original run id while scoring under their own.
+        `arm_ended` is the `time.monotonic()` reading when the arm finished (default: now); the
+        primary_verdict event reports the seconds since then."""
 
         def emit(type_: str, data: Any) -> None:
             if bus is not None:
                 bus.publish(type_, data, run_id=run_id, arm=arm, recorded=recorded)  # type: ignore[arg-type]
 
+        ended = time.monotonic() if arm_ended is None else arm_ended
         baseline = self.baseline(arm)
         rdir = self.deps.base_dir / f"{arm}-{hashlib.sha256(run_id.encode()).hexdigest()[:10]}"
         build = export_checkpoint(self.deps.course_repo, self.deps.checkpoint_ref, rdir / "build")
@@ -535,6 +606,44 @@ class Referee:
             referee_url = self.deps.tracer.url(root)
             if referee_url:
                 emit("trace_link", {"url": referee_url, "kind": "referee"})
+            scored: dict[str, Any] = {
+                "run_id": run_id,
+                "ab_id": ab_id,
+                "arm": arm,
+                "layers": layers,
+                "result": result,
+                "shipped": len(shipped_ids),
+                "out_of_scope": len(out_of_scope),
+                "phase_edits": len(phase_edits),
+                "referee_url": referee_url,
+                "recorded": recorded,
+            }
+            announced: list[bool] = []
+
+            def announce(
+                found: list[CheckResult], mutants: dict[str, str], why: str | None
+            ) -> None:
+                """Send primary_verdict once: the primary measure on what has been judged so far
+                (the same record code as the final verdict, so the values are the same)."""
+                if announced:
+                    return
+                announced.append(True)
+                early = self._record(
+                    **scored, results=found, mutants=mutants, review=None, failed=why is not None
+                )
+                emit(
+                    "primary_verdict",
+                    {
+                        "arm": arm,
+                        "run_id": run_id,
+                        "feature_id": self.task.feature_id,
+                        "primary_measure": self.task.primary_measure,
+                        "passed": early.passed_primary,
+                        "values": early.primary,
+                        "elapsed_s": round(time.monotonic() - ended, 3),
+                    },
+                )
+
             sandbox: Sandbox | None = None
             if apply_error is None:
                 sessions = _product_sessions(list(session_patches or []), rdir / "sessions")
@@ -551,38 +660,18 @@ class Referee:
                         existing_ids=existing_ids,
                         run_id=log_run_id or run_id,
                     )
-                    results, progress, error = self._run_checks(
-                        sandbox, params, baseline, REFEREE_CHECKS
+                    results, mutant_outcomes, error = self._judge_build(
+                        sandbox, params, baseline, build, shipped_ids, emit, announce
                     )
-                    for update in last_progress(progress):
-                        emit("check_progress", update)
-                    for r in results:
-                        with self.deps.tracer.child(
-                            f"check:{r.check}",
-                            "tool",
-                            new_violations=r.new_violations,
-                            total_probes=r.total_probes,
-                        ):
-                            pass
-                        emit("check_result", _event_fields(r))
-                    mutant_outcomes = self._mutants(sandbox, build, shipped_ids, emit)
                 finally:
                     sandbox.stop()
+            announce([], {}, error)  # nothing ran in a container (diff or start failed)
             review = self._review(diff, emit)
             record = self._record(
-                run_id=run_id,
-                ab_id=ab_id,
-                arm=arm,
-                layers=layers,
-                result=result,
+                **scored,
                 results=results,
                 mutants=mutant_outcomes,
-                shipped=len(shipped_ids),
-                out_of_scope=len(out_of_scope),
-                phase_edits=len(phase_edits),
                 review=review,
-                referee_url=referee_url,
-                recorded=recorded,
                 failed=error is not None,
             )
             root.set_outputs({"passed_primary": record.passed_primary})
@@ -610,6 +699,72 @@ class Referee:
         }
         (rdir / "referee.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
         return ArmVerdict(record=record, results=results, referee_dir=rdir, apply_error=apply_error)
+
+    def _judge_build(
+        self,
+        sandbox: Sandbox,
+        params: dict[str, Any],
+        baseline: str | None,
+        build: Path,
+        shipped_ids: list[str],
+        emit: Callable[[str, Any], None],
+        announce: Callable[[list[CheckResult], dict[str, str], str | None], None],
+    ) -> tuple[list[CheckResult], dict[str, str], str | None]:
+        """Run the checks and the referee mutants in the referee container.
+
+        With `early_primary`, the checks the primary measure reads (and the mutants, when it counts
+        them) run first and `announce` gets their results; the secondary checks follow in a second
+        runner call within the same time budget. Otherwise one call runs every check, then the
+        mutants, then `announce`. A runner failure in either call discards every check result, as
+        a failure of the one combined call does; the mutants run either way."""
+        if self.deps.early_primary:
+            first, mutants_first = primary_stage(self.task.primary_measure)
+        else:
+            first, mutants_first = REFEREE_CHECKS, True
+        stages = (first, tuple(c for c in REFEREE_CHECKS if c not in first))
+        results: list[CheckResult] = []
+        mutants: dict[str, str] | None = None
+        budget = float(self.deps.timeout_s)
+        error = self._write_inputs(sandbox, params, baseline)
+        for index, checks in enumerate(stages):
+            if checks and error is None:
+                started = time.monotonic()
+                found, progress, error = self._run_runner(
+                    sandbox, checks, bool(baseline), max(1, round(budget))
+                )
+                budget -= time.monotonic() - started
+                if error is None:
+                    self._report(found, progress, emit)
+                    results += found
+            if index == 0:
+                if mutants_first:
+                    mutants = self._mutants(sandbox, build, shipped_ids, emit)
+                announce([] if error else list(results), mutants or {}, error)
+        if mutants is None:
+            mutants = self._mutants(sandbox, build, shipped_ids, emit)
+        if error is not None:
+            return [], mutants, error
+        order = {name: i for i, name in enumerate(REFEREE_CHECKS)}
+        return sorted(results, key=lambda r: order.get(r.check, len(order))), mutants, None
+
+    def _report(
+        self,
+        results: list[CheckResult],
+        progress: list[dict[str, Any]],
+        emit: Callable[[str, Any], None],
+    ) -> None:
+        """check_progress and check_result events (and trace spans) for one runner call."""
+        for update in last_progress(progress):
+            emit("check_progress", update)
+        for r in results:
+            with self.deps.tracer.child(
+                f"check:{r.check}",
+                "tool",
+                new_violations=r.new_violations,
+                total_probes=r.total_probes,
+            ):
+                pass
+            emit("check_result", _event_fields(r))
 
     def _mutants(
         self, sandbox: Sandbox, build: Path, tests: list[str], emit: Callable[[str, Any], None]

@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from collections.abc import Callable
 from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
 
 from shipharness.checks import CheckContext, CheckResult, get_check
 from shipharness.checks.builtin import load_builtin_checks
@@ -106,6 +109,23 @@ def test_flakiness_finds_tests_that_pass_and_fail(make_build: Callable[[], Path]
     assert [f.detail_key for f in always] == [
         "test:tests/visible/test_shipped.py::test_always_fails"
     ]
+
+
+def test_flakiness_runs_shipped_tests_five_times_by_default(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import shipharness.checks.pytest_checks as module
+
+    runs: list[list[str]] = []
+
+    def fake_run(build: Path, targets: list[str], *args: object, **kwargs: object) -> object:
+        runs.append(list(targets))
+        return SimpleNamespace(outcomes={"tests/visible/test_a.py::test_a": "passed"})
+
+    monkeypatch.setattr(module, "run_pytest", fake_run)
+    result = run("flakiness", tmp_path, shipped_tests=["tests/visible/test_a.py"])
+    assert len(runs) == 5  # TestGen-LLM's five executions (B11)
+    assert result.passed is True and result.total_probes == 1
 
 
 def test_flakiness_with_no_shipped_tests_passes(base_build: Path) -> None:

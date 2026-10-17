@@ -112,6 +112,11 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 .claims { display: flex; flex-wrap: wrap; gap: 0 24px; margin-top: 4px; }
 .claims p { margin: 0; }
 .claims .k { font-weight: 800; margin-right: 6px; }
+.referee .values { font-weight: 800; margin-right: 8px; }
+.referee .secondary, .referee .timing { color: var(--muted); margin: 0 8px 0 4px; }
+.this-run { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; flex: none; margin-bottom: 8px; }
+.this-run p { margin: 0; }
+.this-run .arm-name { margin-right: 8px; }
 
 /* Screen 2 */
 .boards .arm-panel { display: flex; flex-direction: column; }
