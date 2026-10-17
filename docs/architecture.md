@@ -16,6 +16,7 @@ Contents:
 8. [Cost tracking and caps](#8-cost-tracking-and-caps)
 9. [Files on disk](#9-files-on-disk)
 10. [LangSmith projects](#10-langsmith-projects)
+11. [Check it on your machine](#11-check-it-on-your-machine)
 
 ## 1. The big picture
 
@@ -57,8 +58,8 @@ only the run log and `exports/`.
   prints any part of a key.
 - **Identical sandbox for both arms.** The sandbox is never the A/B variable. The policy printed at
   the start of every run (captured on 2026-10-17 from `render_policy(default_policy(Settings()))`,
-  the first command of stage 2 in [instructor-guide.md](instructor-guide.md#stage-2-t-30-minutes),
-  at commit 5e8fb08; your output will differ):
+  the first command of stage 2 in [instructor-guide.md](instructor-guide.md#stage-2-t-30-minutes);
+  your output will differ):
 
   ```
   Sandbox policy (identical for both arms)
@@ -274,3 +275,21 @@ and the referee still judges and shows it. Values are in the
 `shipharness experiments` traces to `shipharness-experiments` and counts toward the experiment
 total. A run writes about two traces: the agent's root trace and the referee's evaluation trace,
 with the reviewer call as a child (`src/shipharness/tracing/`).
+
+## 11. Check it on your machine
+
+Two commands show the path from a `make` target to the A/B runner without calling a model or
+starting a container. Captured on 2026-10-17; your output will differ:
+
+```
+$ make -n demo-1
+uv run shipharness ab --section demo-1 --feature F1   --purpose class \
+  --profile class
+$ uv run shipharness ab --help
+ Usage: shipharness ab [OPTIONS]
+
+ Same task, harness off vs on, both judged by the referee.
+```
+
+`make -n show-1` prints the same command with `--arms harness` (the harness arm alone). When a run
+fails, the exact messages and fixes are in [troubleshooting.md](troubleshooting.md#running-an-ab).

@@ -85,7 +85,7 @@ in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
 
 ## Sources
 
-Ids from the shipharness research register.
+Ids from the course reference list (REFERENCES.md in the shipharness repository).
 
 - B11: Alshahwan et al., "Automated Unit Test Improvement using Large Language Models at Meta",
   FSE '24, arXiv 2402.09171. https://arxiv.org/abs/2402.09171

@@ -117,7 +117,7 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/house-rules
 uv run shipharness skills validate ~/my-repo/.agents/skills/house-rules
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/house-rules` at commit 5e8fb08;
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/house-rules`;
 your output will differ:
 
 ```text
@@ -130,8 +130,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/house-rules` (captured on 2026-10-17 from that command at commit
-5e8fb08: `Valid skill: skills/house-rules`; your output will differ).
+`uv run agentskills validate skills/house-rules` (captured on 2026-10-17 from that command: `Valid skill: skills/house-rules`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -158,7 +157,7 @@ The agent runs the script from the installed folder, for example
 `python .claude/skills/house-rules/scripts/new_rule.py --id R8 --title "..." --root .`. You can
 preview what it writes with `--dry-run`. Captured on 2026-10-17 against the course's TeamTrack app from
 `uv run python skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root teamtrack --dry-run`
-(run from the checkout root) at commit 5e8fb08; your output will differ:
+(run from the checkout root); your output will differ:
 
 ```text
 would write docs/rules/R8-soft-deleted-rows-never-appear.md

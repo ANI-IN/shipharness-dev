@@ -118,7 +118,7 @@ uv run shipharness skills validate ~/my-repo/.claude/skills/harness-setup
 uv run shipharness skills validate ~/my-repo/.agents/skills/harness-setup
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/harness-setup` at commit 5e8fb08;
+Captured on 2026-10-17 from `uv run shipharness skills validate skills/harness-setup`;
 your output will differ:
 
 ```text
@@ -131,8 +131,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/harness-setup` (captured on 2026-10-17 from that command at commit
-5e8fb08: `Valid skill: skills/harness-setup`; your output will differ).
+`uv run agentskills validate skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: skills/harness-setup`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -161,7 +160,7 @@ Code or `python .agents/skills/harness-setup/scripts/assess.py . --out harness-a
 Codex. You can run it yourself first. This is the summary it printed for the course's TeamTrack
 app, cut to the first lines; captured on 2026-10-17 from
 `uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html` (run
-from the checkout root) at commit 5e8fb08; your output will differ:
+from the checkout root); your output will differ:
 
 ```text
 Instructions       pass 0  partial 1  fail 5

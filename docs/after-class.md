@@ -15,8 +15,9 @@ repository. Source ids such as (A3, F-a-126) point to [REFERENCES.md](../REFEREN
 
 ## 2. Read the results again, slowly
 
-In S1 to S4 the class showed the harness arm alone (`make show-N`, harness in action), a pilot run
-replayed, and a constructed example; the final showed one live A/B per poll-chosen feature. One run is
+In S1 to S4 the class showed the harness arm alone, live (`make show-N`, harness in action); the
+final showed one live A/B per poll-chosen feature. The optional extras (replays of named pilot runs
+and scripted examples with no model) are in [extras.md](extras.md). One run is
 one dot: read it next to the course pilot's results, never alone, because model output varies between
 runs. The pilot's primary results and the post hoc counts, with their A/B ids, are in the
 [README, section 4](../README.md#4-how-the-course-measures-it): no measurable difference on this task
@@ -33,7 +34,7 @@ per run for every feature that has a primary measure (F1-F4). It makes no model 
 a message.)
 
 How to read a single score record, field by field, is in
-[final-project/README.md, part 5](../final-project/README.md#5-how-to-read-the-results).
+[final-project/README.md, part 6](../final-project/README.md#6-what-a-result-means).
 
 ## 3. Run a demo yourself
 

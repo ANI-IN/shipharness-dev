@@ -1,51 +1,119 @@
 # Final project: shipharness end to end
 
-This walkthrough takes you through one complete shipharness run on TeamTrack, from a clean checkout
-to the score records, shows how to read what it produces, and then points the same tools at your own
-repository. In class, the final feature poll opens S4, `make final FEATURES=...` runs during S4 next
-to `make show-4` (the harness arm alone on F4), and the closing block (Final and wrap-up, 20 minutes)
-walks through its finished results: all screens, screen 4 next to the course pilot's results, skills
-and the starter kit to take home, and the assignments. The final is the class's one live A/B: the
-sections show the harness arm alone, because the course pilot found no measurable difference between
-the arms on any section's primary measure ([README, section 4](../README.md#4-how-the-course-measures-it)).
-This page is written so you can repeat the run alone afterwards. What you produce in part 6 is the raw
-material for the assignment 4 portfolio (part 8).
-
-The harness is the environment around the agent. The course uses A1's description of that work:
-engineers "design environments, specify intent, and build feedback loops" (A1, F-a-02). A1 does not
-define "harness engineering", so no definition is attributed to it. Source ids and finding ids such
-as (A3, F-a-65) are listed with links in [REFERENCES.md](../REFERENCES.md).
+Source ids and finding ids such as (A3, F-a-65) are listed with links in
+[REFERENCES.md](../REFERENCES.md).
 
 Contents:
 
-1. [Before you start](#1-before-you-start)
-2. [The final features](#2-the-final-features)
-3. [Run `make final`](#3-run-make-final)
-4. [What each console screen shows](#4-what-each-console-screen-shows)
-5. [How to read the results](#5-how-to-read-the-results)
-6. [Run shipharness on your own repository](#6-run-shipharness-on-your-own-repository)
-7. [Cost and time](#7-cost-and-time)
-8. [Portfolio: how this feeds assignment 4](#8-portfolio-how-this-feeds-assignment-4)
-9. [When something goes wrong](#9-when-something-goes-wrong)
+1. [What this demo shows and why](#1-what-this-demo-shows-and-why)
+2. [Prerequisites per operating system](#2-prerequisites-per-operating-system)
+3. [Before you start: the checks](#3-before-you-start-the-checks)
+4. [Run it](#4-run-it)
+5. [What to watch, minute by minute](#5-what-to-watch-minute-by-minute)
+6. [What a result means](#6-what-a-result-means)
+7. [Expected time and cost](#7-expected-time-and-cost)
+8. [If it fails](#8-if-it-fails)
+9. [Run shipharness on your own repository](#9-run-shipharness-on-your-own-repository)
+10. [Portfolio: how this feeds assignment 4](#10-portfolio-how-this-feeds-assignment-4)
 
-## 1. Before you start
+## 1. What this demo shows and why
 
-Work through these in order. Each line says how to check it.
+This page runs the class's one live A/B, `make final`, on TeamTrack and shows how to read it. It
+matters because one A/B is one dot, and the page shows how to read that dot against the pilot's
+results.
 
-| Step | Command | Done when |
-|---|---|---|
-| Setup for your platform | [Linux](../docs/setup-linux.md), [Windows (WSL2)](../docs/setup-windows.md), [macOS](../docs/setup-macos.md) | `make doctor` ends with `result: + ready`, and its `container runtime` line starts with `+ ok` |
-| Checkpoint tags | `git tag -l 'm1-*'` | The list includes `m1-final-start`: the base product plus the F1-F4 reference implementations, where the final features start |
-| Images | `make images` (only if `make setup` could not build them) | `make setup` printed no `docker not found` line |
-| Class date | `SHIPHARNESS_CLASS_DATE=<today>` in `.env` | Class commands refuse without it. Or add `PURPOSE=assignment` to every command below |
-| Budget | Read [part 7](#7-cost-and-time) | Every command under one class date shares a $2.50 session cap |
+## 2. Prerequisites per operating system
 
-## 2. The final features
+You need git, make, uv (which brings Python), a container runtime that provides `docker`, and two
+API keys. The full steps, with sources, are on the setup page for your platform; the table gives
+the install commands and the versions the course tested.
 
-In class the poll at the start of S4 picks the features from F5-F7: the winner, and the runner-up
-when the session budget has room. Each feature is a separate A/B: a bare arm and a harness arm with
-all four layers (instructions, state, scope, verify), the same ticket, model, tools, sandbox, turn
-budgets, and cost cap.
+| | Linux (Ubuntu) | Windows (WSL2) | macOS |
+|---|---|---|---|
+| Setup page | [setup-linux.md](../docs/setup-linux.md) | [setup-windows.md](../docs/setup-windows.md) | [setup-macos.md](../docs/setup-macos.md) (not tested for the course) |
+| First | | In PowerShell as administrator: `wsl --install`, restart, then open the Ubuntu terminal and run every later command there | |
+| git, make, curl | `sudo apt update && sudo apt install -y git make curl` | the Linux command, in Ubuntu | `xcode-select --install` |
+| uv | `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh` | the Linux command, in Ubuntu | the same command, or `brew install uv` |
+| Python | Nothing to install: uv fetches 3.12 (`.python-version`; `pyproject.toml` needs `>=3.12`) | the same | the same |
+| Container runtime | Docker Engine from Docker's apt repository ([step 3](../docs/setup-linux.md#3-install-docker-engine)) | Docker Engine inside Ubuntu, systemd on ([steps 2-3](../docs/setup-windows.md#2-check-that-systemd-is-on)) | Docker Desktop or Colima ([setup-macos.md](../docs/setup-macos.md)) |
+| The repository | `git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness`, then `cd ~/shipharness && make setup` | the same, in `~` (never under `/mnt/c`) | the same |
+| Versions tested (class host, 2026-10-17) | `git version 2.53.0`, `GNU Make 4.4.1`, `uv 0.13.1`, Python 3.12.15, `Docker version 29.9.1` on Ubuntu 26.04.1 | the Linux versions, inside WSL 3.0.3.0 on Windows 11 Pro | none (no Mac was tested) |
+
+Check your versions with `git --version`, `make --version | head -1`, `uv --version`, and
+`docker --version`. Accounts: an OpenAI API account at the Build tier or higher and a LangSmith
+account on the free Developer plan with no card ([README, section 7](../README.md#7-prerequisites-and-accounts)).
+Put both keys in `.env` in the repository root (`make setup` creates it from `.env.example`).
+
+## 3. Before you start: the checks
+
+Run these from the repository root, in order.
+
+**1. `make doctor`: tools, runtime, and both keys.** You are ready when the last line is
+`result: + ready` and every line starts with `+ ok`; the key lines then end in `accepted by OpenAI`
+and `accepted by LangSmith` (the OpenAI check lists models and uses no tokens). Captured on
+2026-10-17 from `make doctor` in a checkout without a `.env` file, so both keys show as missing;
+your output will differ:
+
+```
+$ make doctor
+uv run shipharness doctor
+shipharness doctor
+  + ok          python                 3.12.15
+  + ok          git                    /usr/bin/git
+  + ok          uv                     /home/ani/.local/bin/uv
+  + ok          container runtime      docker at /usr/bin/docker
+  x missing     OPENAI_API_KEY         not set
+    next step: OPENAI_API_KEY is missing: add it to .env at the repo root
+  x missing     LANGSMITH_API_KEY      not set
+    next step: LANGSMITH_API_KEY is missing: add it to .env at the repo root
+  + ok          prices                 gpt-6-luna, gpt-5.6-luna
+  + ok          .env not in git        not tracked
+  result: x not ready (fix the items above)
+Cost: $0.000000 (no model calls)
+make: *** [Makefile:54: doctor] Error 1
+```
+
+**2. The class date.** Class commands need `SHIPHARNESS_CLASS_DATE=<the day you run, YYYY-MM-DD>`
+in `.env` and refuse without it (`x SHIPHARNESS_CLASS_DATE is not set: ...`). Practising alone, add
+`PURPOSE=assignment` to every command below instead.
+
+**3. `make warm`: images, containers, and baselines, with no model calls.** It rebuilds the two
+sandbox images only if their source changed, starts and removes one container per image, and caches
+the referee baseline of every class task and the gate baseline of every task with the verify layer
+(`uv run shipharness warm --help`: "Prepare the class host: images, containers, and baselines. No
+model calls."). Done when it prints `warm: done (<s> s)` before its cost line. Captured on 2026-10-17 on the class
+host, last lines; the images were rebuilt because their source had changed; your output will
+differ:
+
+```
+images: built (shipharness-agent:1: source changed; shipharness-referee:1: source changed) (137.9 s)
+page-in shipharness-agent:1 (0.8 s)
+page-in shipharness-referee:1 (0.5 s)
+plan: 0 baselines to compute (0.7 s)
+referee baseline demo-1 F1: cached (0.0 s)
+...
+referee baseline final F5: cached (0.0 s)
+...
+gate baseline final F5: cached (0.0 s)
+...
+warm: done (140.6 s)
+Cost: $0.000000 (this command: no calls; session $0.000000 of $2.50; build $2.248909 of $15.00 ($12.751091 left))
+```
+
+In the course's class-profile round, the first `make warm` on a machine with no cached baselines
+took 407 s (image rebuild 145 s, 7 referee and 4 gate baselines) and the second 1.2 s. `make -n warm`
+only prints the command and starts nothing.
+
+**4. The checkpoint tags.** `git tag -l 'm1-*'` lists nine tags, from `m1-alt-a` to `m1-s4-start`,
+including `m1-final-start`, where the final features start (the base product plus the F1-F4
+reference implementations).
+
+## 4. Run it
+
+**Pick the features.** In class, the poll at the start of S4 picks the features from F5-F7: the
+winner, and the runner-up when the session budget has room. Each feature is a separate A/B: a bare
+arm and a harness arm with all four layers (instructions, state, scope, verify), the same ticket,
+model, tools, sandbox, turn budgets, and cost cap.
 
 | Feature | Spec | Sessions (turn budget each) | Hidden tests | Referee-set mutants |
 |---|---|---|---|---|
@@ -57,35 +125,29 @@ Sources: session budgets from `teamtrack/reference/f5/task.toml` (and `f6`, `f7`
 counts are the test functions in `teamtrack/tests/hidden/f5/` (3 files, 46 tests), `f6/` (3 files,
 54) and `f7/` (4 files, 64), none of them parametrized; referee-set mutants from
 `teamtrack/mutants/features/f5.jsonl` (and `f6`, `f7`), which also hold two filter-set mutants each.
-
 F6 and F7 run over two sessions, so a session ends partway through the feature and the next session
-starts with an empty context. That is A3's "context reset", produced here by a session turn budget
-smaller than the feature (A3, F-a-65). "Session turn budget" is the course's name for the mechanism;
-it is not a source term.
+starts with an empty context: A3's "context reset", produced here by a session turn budget smaller
+than the feature (A3, F-a-65). "Session turn budget" is the course's name for the mechanism, not a
+source term. Some hidden tests combine the new feature with an earlier one (for example
+`tests/hidden/f7/test_f7_with_f1.py` in `teamtrack/`), as SpecBench's "held-out tests that compose
+those same features to simulate real-world usage" (B13, F-b-42). Neither arm ever sees the hidden
+tests or the referee-set mutants.
 
-Some hidden tests combine the new feature with an earlier one (for example
-`tests/hidden/f7/test_f7_with_f1.py` in `teamtrack/`). SpecBench's held-out suites work the same way:
-"held-out tests that compose those same features to simulate real-world usage" (B13, F-b-42).
-Neither arm ever sees the hidden tests or the referee-set mutants.
+**Start it, in two terminals in the repository root:**
 
-F5-F7 have no pre-registered primary measure. Their results are read as dots and counts. Part 5
-explains what that means on screen.
+| Terminal | Command | What it does |
+|---|---|---|
+| 1 | `make console` | The live console on http://127.0.0.1:8765/; leave it running |
+| 2 | `make final FEATURES=F5` | One live A/B on F5 (in class: `FEATURES=<poll winners>`, for example `FEATURES=F5,F6`); add `PURPOSE=assignment` when practising alone |
 
-## 3. Run `make final`
+Then open http://127.0.0.1:8765/ and click the newest run (ids start with a time stamp).
 
-Use two terminals in the repository root.
-
-```bash
-make console                  # terminal 1: live console on http://127.0.0.1:8765/
-make final FEATURES=F5,F6     # terminal 2: the features the poll chose
-```
-
-`FEATURES` is a comma-separated list; the default is `F5,F6`. `make final` runs one A/B per
-feature, one after the other. What it runs (the `final` recipe in the `Makefile`, with
-`FEATURES=F6,F5` and the defaults `PURPOSE=class` and `PROFILE=class`):
+`FEATURES` is a comma-separated list; the default is `F5,F6`, run one after the other. What it runs
+(captured on 2026-10-17 from `make -n final FEATURES=F5`; the defaults are `PURPOSE=class` and
+`PROFILE=class`):
 
 ```
-rc=0; for f in $(echo "F6,F5" | tr ',' ' '); do \
+rc=0; for f in $(echo "F5" | tr ',' ' '); do \
   uv run shipharness ab --section final --feature $f  --purpose class \
     --profile class || rc=$?; \
 done; exit $rc
@@ -93,20 +155,13 @@ done; exit $rc
 
 `--profile class` is the class profile, identical for both arms: reasoning effort `low`, 2 CPUs per
 arm and referee container, and the agent's model calls at OpenAI's Fast tier (twice the Standard
-token rate; prices in part 7). `PROFILE=standard` runs the settings in your `.env` instead.
-
-Every feature runs even if an earlier one fails, and the exit code is the last non-zero one.
+token rate; prices in part 7). `PROFILE=standard` runs the settings in your `.env` instead. Every
+feature runs even if an earlier one fails, and the exit code is the last non-zero one.
 `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm, the same
-leave-one-out idea as A3's "removing one component at a time" (A3, F-a-125). `PURPOSE=assignment`
-traces to the `shipharness-assignments` LangSmith project instead of the class project.
+leave-one-out idea as A3's "removing one component at a time" (A3, F-a-125).
 
 `shipharness ab` checks your OpenAI key before any arm starts and refuses when it is missing or
-rejected. It never falls back to a recorded run; replays are a separate command and are labelled.
-
-In class the instructor starts `make final` in a third terminal one minute after `make show-4`, at
-the start of S4, so the final A/B runs while S4 is taught. Two runs go at once, show-4 (one arm) and
-one final feature (two arms); because `make final` runs its features one after another, there are
-never more. The results are discussed in the closing block.
+rejected. It never falls back to a recorded run.
 
 What one A/B does:
 
@@ -116,9 +171,10 @@ flowchart LR
   T --> H["harness arm<br/>fresh repo + container<br/>4 layers"]
   B --> R["referee<br/>own container, fresh copy + diff"]
   H --> R
+  R --> P["primary verdict ready<br/>(screen 1)"]
   R --> V["blinded reviewer"]
   R --> E["exports/scores/run_id.json"]
-  B & H & R --> C["run log → console"]
+  B & H & R --> C["run log → console screens 1-5"]
 ```
 
 1. The checkpoint is exported into two fresh git repositories, one per arm.
@@ -138,28 +194,99 @@ values and `passed` flag, `hidden <passed>/<total>`, `mutants <killed>/<total>`,
 verdict, and the arm's cost (`_print_record` in `src/shipharness/ab/commands.py`). The last line is
 `Cost: $<x> (this command: <costs per model>; session $<x> of $2.50; build $<x> of $15.00 (...))`.
 
-The course ran one final feature with the class profile on 2026-10-17; its output:
+The course ran `make final FEATURES=F5 PURPOSE=pilot` with the class profile on a quiet machine,
+one command at a time, after `make warm`. Its output, captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ (the
+recipe lines cut):
 
-[[CAPTURE: terminal output of make final FEATURES=F5 (class profile): the A/B line, both arm lines, and the Cost line | how: make final FEATURES=F5 PURPOSE=pilot]]
+```
+A/B ab-20261017-120323-c97138 (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
+  harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
+Cost: $0.045597 (this command: gpt-5.6-luna $0.005302, gpt-6-luna $0.040295; session $1.461754 of $2.50; build $2.387502 of $15.00 ($12.612498 left))
+make: *** [Makefile:163: final] Error 2
+
+real	12m46.782s
+```
+
+The harness arm hit the agent time limit in its test phase (`ABORTED: timeout`), so the command
+exited 2. `passed=True` on both lines only means that F5 has no primary measure (part 6.1).
 
 If an arm is aborted (cost cap or agent time limit), the run is still judged and shown, and the
 command exits 2, which make reports as `Error 2` after the cost line.
 
+**In class.** The instructor starts `make final` in a third terminal one minute after `make show-4`,
+at the start of S4, so the final A/B runs while S4 is taught. Two runs go at once, show-4 (one arm)
+and one final feature (two arms); because `make final` runs its features one after another, there
+are never more. The closing block (Final and wrap-up, 20 minutes) walks through the finished results.
+
+Emergency fallback only: if a live run fails for a reason outside the experiment (Docker, network,
+OpenAI), `make replay RUN=<ab or run id>` shows a recorded A/B; every screen then carries a red
+RECORDING badge and the referee runs again live.
+
 The architecture behind these steps is in [docs/architecture.md](../docs/architecture.md).
 
-To show a recorded A/B instead of a live one, use `make replay RUN=<ab or run id>`. Every screen then
-carries a red RECORDING badge; the recorded diff is applied and the referee runs again live.
+## 5. What to watch, minute by minute
 
-## 4. What each console screen shows
+The run below is the course's own `make final FEATURES=F5` (A/B `ab-20261017-120323-c97138`, launched on
+2026-10-17 at 12:03:21 UTC). The console was photographed every minute; the minute is the time since
+launch. Your run will take a different path and different times.
 
-Open http://127.0.0.1:8765/ and click the newest run (ids start with a time stamp). Keys `1` to `5`
-switch screens; `F` cycles full screen for one arm. The screens are built only from the run log's
-events and from `exports/`. One screenshot per screen, from the course's F5 run with the class
-profile:
+| Minute | Screen | What you see |
+|---|---|---|
+| 1 | 1 | Both arms building. Each turn row shows its tool calls (`read_file`, `apply_patch app/api/schemas.py`, ...). The harness arm's "Harness decisions" show `• note scope feature_list.json written with F5 (passes: false)`, `• note verify gate baseline reused (same checkpoint commit)`, and `• note instructions agent read skill add-endpoint`. Both say "Agent said – no claim" and "Referee ⏳ referee pending" |
+| 2 | 1 | Both arms write `tests/visible/test_bulk_close.py` and run it; failing runs show red `✗ run_visible_tests` and `✗ run` pills |
+| 3 | 1 | Bare: turn `1.25 finish done`, "Agent said ✓ done", then test-phase turns `2.1`, `2.2`, ... Harness: `■ session stop state session 1 handoff written to session-handoff.md`; its test phase starts by reading `progress.md`, the git log, and the handoff |
+| 4 | 1 | Bare: `✓ run completed · 37 turns`, then `✓ primary verdict ready: PASS` with "no primary measure", "launch to primary verdict 03:27", `⏳ secondary checks running`, and `✓ claim supported` |
+| 6-7 | 1 | Bare: the full verdict, "hidden tests 46/46, mutants killed 2/3, R1 new 0 ... launch to full verdict 06:50". Harness: a second `■ session stop` (session 2 handoff written) |
+| 10 | 1 | Harness: `✗ run ABORTED: timeout · 42 turns`, "Agent said – no claim", `✓ primary verdict ready: PASS` at 09:48, secondary checks running |
+| 13 | 1, then 2-5 | Harness: full verdict at 12:32 (hidden 46/46, mutants killed 2/3, R1 new 0). The terminal prints both arm lines and the cost line; walk through screens 2 to 5 |
+| all | 2 | One board frame per arm, each marked `✓ only own-org cards, no duplicates`: F5 changes no board pixels, so the frame does not change |
 
-[[CAPTURE: one screenshot each of screens 1 to 5 of the make final FEATURES=F5 A/B (class profile), 1920x1080, after the referee finished | how: make console, open the A/B of make final FEATURES=F5 PURPOSE=pilot, press 1 to 5]]
+There is no verdict banner that names a winner: each arm gets its own "primary verdict ready" pill
+and its own full verdict, and part 6 says how to read the pair.
 
-### Screen 1: Live Console
+![Console screen 1 at minute 4 of the final A/B](img/final-screen-1-t04m.png)
+
+Console screen 1 (final, minute 4), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+![Console screen 1 at minute 10 of the final A/B](img/final-screen-1-t10m.png)
+
+Console screen 1 (final, minute 10), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+### The five screens
+
+Keys `1` to `5` switch screens; `F` cycles full screen for one arm. The screens are built only from
+the run log's events and from `exports/`.
+
+After the referee finished, the five screens of the same run:
+
+![Console screen 1 after the verdict](img/final-screen-1.png)
+
+Console screen 1 (final), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+![Console screen 2, the boards](img/final-screen-2.png)
+
+Console screen 2 (final), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+![The harness arm's board frame](img/final-board-harness.png)
+
+The harness arm's board frame as the preview container captured it (screen 2 shows it scaled),
+captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+![Console screen 3, the evidence](img/final-screen-3.png)
+
+Console screen 3 (final), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+![Console screen 4, the A/B report](img/final-screen-4.png)
+
+Console screen 4 (final), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ. Screen 4 pools every score record of the current referee version in
+`exports/`, so its rows show every scored run there (mostly the course pilot's), not only this run.
+
+![Console screen 5, the traces](img/final-screen-5.png)
+
+Console screen 5 (final), captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ.
+
+#### Screen 1: Live Console
 
 Both arms side by side. For each arm:
 
@@ -179,18 +306,17 @@ Both arms side by side. For each arm:
   own work" (A3, F-a-15).
 - **Primary verdict ready:** a `primary verdict ready: PASS` or `FAIL` pill as soon as the referee
   has the primary measure, with the time from launch, before the secondary checks finish. F5-F7 have
-  no primary measure, so read part 5.1 before you trust a PASS on them.
+  no primary measure, so read part 6.1 before you trust a PASS on them.
 
-### Screen 2: Boards
+#### Screen 2: Boards
 
 A screenshot of each arm's running TeamTrack board, taken as an Acme user every 5 s by the arm's
 preview container. Cards from another org are marked `⚠ other org`, duplicate cards `⧉ duplicate`; a
 clean board says "only own-org cards, no duplicates". If a run captured a two-tab edit, a third panel
 shows it (`✗ lost update` or `✓ conflict detected`). In the course pilot no arm leaked another org's
-cards, so the `⚠ other org` mark has not appeared in a real run; S1's constructed example
-(`make example-1`) shows it.
+cards, so the `⚠ other org` mark has not appeared in a real run (the console tests cover it).
 
-### Screen 3: Evidence
+#### Screen 3: Evidence
 
 Three panels, each split by arm:
 
@@ -204,23 +330,23 @@ Three panels, each split by arm:
   `✗ discarded` with the reason), the coverage count for filter 3, and the mutant table (filter set
   and referee set, `✓ killed` or `✗ survived`).
 
-### Screen 4: A/B Report
+#### Screen 4: A/B Report
 
-Read from `exports/`, so it includes every scored run there, not only tonight's:
+Read from `exports/`, so it includes every scored run there, not only the runs of this class:
 
 - **Primary measures, one dot per run:** one row per feature, dataset variant (for example
   `CANONICAL`), and arm, with the layers, one dot per run (`●` passed, `○` failed), and a passed count
   in the form `<passed>/<runs>`. Score records made by an older referee version and harness-in-action
   runs (`make show-N`, one arm only) are left out; the screen says how many.
 - **Ablation:** one bar per layer combination with its count, from leave-one-layer-out runs. The
-  course's own ablation batch was not run (part 5.3), so this panel is empty unless you run
+  course's own ablation batch was not run (part 6.3), so this panel is empty unless you run
   `make demo-N LAYERS=-<layer>` yourself.
 - **Cost per verified feature:** spend divided by runs that passed, per arm.
 - **Reviewer agreement:** how often the blinded reviewer's verdict matched the referee's, as a count.
 - **LangSmith:** experiment links and comparison links from `exports/experiments/`. A `make final`
   A/B does not create a comparison link itself; comparison links come from `shipharness experiments`.
 
-### Screen 5: Traces
+#### Screen 5: Traces
 
 - **Live tail:** the last events from both arms and the A/B.
 - **First wrong turn** per arm. The rule is a heuristic and says so on screen: the first turn that
@@ -229,9 +355,9 @@ Read from `exports/`, so it includes every scored run there, not only tonight's:
 - **LangSmith:** the agent and referee trace links for each arm. A3's advice to the harness builder
   is to "read its traces on realistic problems" (A3, F-a-126).
 
-## 5. How to read the results
+## 6. What a result means
 
-### 5.1 The final has no primary measure
+### 6.1 The final has no primary measure
 
 F5-F7 register no primary measure (`primary_measure = ""` in each `task.toml`). For such a task the
 referee records an empty `primary` and `passed_primary: true` for every run (`evaluate_primary` in
@@ -242,9 +368,9 @@ mean the feature works:
 - screen 4 draws a filled dot and counts the run as verified in "Cost per verified feature";
 - the HTML report draws no dot plot for F5-F7, because it plots only primary measures.
 
-For the final, read the per-run counts instead (5.2).
+For the final, read the per-run counts instead (6.2).
 
-### 5.2 One run: the score record
+### 6.2 One run: the score record
 
 Each arm's record is in `exports/scores/<run_id>.json`. The fields to compare between the two arms of
 one A/B:
@@ -305,7 +431,7 @@ counts, not with the agent's summary. The reviewer is a separate evaluator, foll
 F-a-110). It receives the diff and the ticket with arm-identifying files and commit messages
 removed, and the arm label is never sent.
 
-### 5.3 Many runs: the report
+### 6.3 Many runs: the report
 
 ```bash
 uv run shipharness report
@@ -326,7 +452,7 @@ uv run python scripts/anchors.py extract Final:dots
 ```
 
 which prints the start of `render_dot_plot` in `src/shipharness/ab/report.py` (captured on
-2026-10-17 from `uv run python scripts/anchors.py extract Final:dots` at commit 5e8fb08; first lines;
+2026-10-17 from `uv run python scripts/anchors.py extract Final:dots`; first lines;
 your output will differ):
 
 ```
@@ -337,8 +463,8 @@ def render_dot_plot(group: dict[str, Any], width: int = 640) -> str:
 
 Rules for reading it:
 
-- Every run is a dot; results are counts ("9/10"), not percentages. With 10 runs per arm, a
-  difference of one run is one dot; a percentage would hide how few runs stand behind it.
+- Every run is a dot; results are counts ("3/3"), not percentages. With 3 runs per arm, one run
+  is one dot; a percentage would hide how few runs stand behind it.
 - Aborted runs (`ABORTED: cap`) are kept, scored, and shown.
 - Each section has one primary measure, registered before any run. Everything else is secondary.
 
@@ -360,7 +486,91 @@ Every section: no measurable difference on this task with this model. The run 3 
 are listed in the [README, section 4](../README.md#4-how-the-course-measures-it), with the post hoc
 counts (measures chosen after the results; descriptive).
 
-## 6. Run shipharness on your own repository
+### 6.4 Harness ahead, no measurable difference, bare ahead
+
+F5-F7 have no primary measure, and the final runs one A/B per feature, so a final A/B can only show
+counts per arm: hidden tests passed, referee-set mutants killed by the arm's own tests, files
+outside the allowed paths, existing tests kept, and whether the agent's claim held. What the three
+readings mean for the final:
+
+- **Harness ahead**: the harness arm has the better counts, and the pilot's dots already show the
+  same gap. One A/B alone cannot show it: a difference in one A/B is one dot.
+- **No measurable difference**: the counts are equal, or they differ in a way one run can produce.
+  This is the honest reading of a single final A/B unless the pilot's dots already show a gap, and
+  the pilot showed none in any section (6.3).
+- **Bare ahead**: the same as harness ahead, the other way round.
+
+The course's own final A/B (F5, captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ): both arms passed all 46 hidden tests, killed 2 of the 3
+referee-set mutants with their own tests, kept all 216 existing tests passing, and changed no file
+outside the allowed paths, and the blinded reviewer accepted both. The bare arm claimed done after
+37 turns and shipped 8 tests; the harness arm hit the agent time limit in its test phase after 42
+turns, made no claim, and shipped 2 tests. Reading: **no measurable difference**. An earlier F5 run of
+`make final`, made while other work loaded the machine (A/B `ab-20261017-101037-8e6924`, 2026-10-17,
+both arms at the agent time limit), had 46 of 46 hidden tests in both arms and mutants 1 of 3 bare
+and 3 of 3 harness: a different split from one run to the next, which is why one A/B is one dot.
+
+## 7. Expected time and cost
+
+Caps (from `.env.example` and `src/shipharness/config/settings.py`; the cost tracker enforces them,
+and a run that hits one ends as `ABORTED: cap` and is still scored):
+
+| Cap | Value |
+|---|---|
+| Per arm per final run (build and test phases together) | $0.25 (`MAX_FINAL_RUN_COST_USD`) |
+| Per arm per demo run, and per testgen run | $0.20 (`MAX_RUN_COST_USD`) |
+| Per blinded review | $0.04 (`MAX_REVIEW_COST_USD`) |
+| Per command | $2.50 (`MAX_BATCH_COST_USD`) |
+| Per class session (every command under one `SHIPHARNESS_CLASS_DATE`) | $2.50 (`MAX_SESSION_COST_USD`) |
+| Agent time per arm per run | 300 s (`RUN_TIMEOUT_S`) |
+| Harness work per arm per run | 120 s (`HARNESS_TIMEOUT_S`) |
+
+Worst case at the caps, per final feature: 2 arms × $0.25 + 2 reviews × $0.04 = $0.58. So
+`FEATURES=F5,F6` is at most $1.16, and all three features at most $1.74, which fits a session in which
+you ran nothing else. In class, four `make show-N` runs (at most $0.24 each with the review) and two
+final features stay under the $2.50 session cap at the caps (at most $2.12). Prices are in
+`config/prices.toml`, per 1M tokens: gpt-6-luna at the Standard tier $0.10 input, $0.01 cached input,
+$0.125 cache write, $0.50 output, and at the Fast tier, which the class profile uses for the agent's
+calls, $0.20, $0.02, $0.25, $1.00; gpt-5.6-luna, the reviewer, $0.20, $0.02, $0.25, $1.20 (Standard
+tier only). Each call is charged by the tier its response reports.
+
+Measured, one final feature (F5) with the class profile, one command at a time on a quiet machine
+(captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ): launch to the cost line 12 min 47 s (`real 12m46.782s`); on screen 1, launch to primary
+verdict 03:27 for the bare arm and 09:48 for the harness arm, and launch to full verdict 06:50 and
+12:32. Cost: bare arm $0.0177 and its review $0.0025, harness arm $0.0226 and its review $0.0028;
+command total $0.045597 (agents on gpt-6-luna $0.040295, reviews on gpt-5.6-luna $0.005302). An
+earlier F5 run while other work loaded the machine (`ab-20261017-101037-8e6924`) took 15 min 16 s and
+cost $0.0329. For comparison, the course's class-profile round ran one section A/B for each of F1-F4
+for $0.1953 in total (A/Bs `ab-20261017-084558-0356a0`, `ab-20261017-085139-7c0661`,
+`ab-20261017-090051-91f837`, `ab-20261017-090903-926c02`).
+
+| Command | Model cost | LangSmith traces |
+|---|---|---|
+| `make final`, per feature | Up to $0.58 (caps above) | About 4: an agent trace and a referee trace per arm |
+| `shipharness testgen` | Up to $0.20; one measured example run, captured on 2026-10-17, run `r-20261017-093940-52dde8` (TeamTrack's `app/repositories/issues.py`, 5 proposed tests, 1 kept), printed `Cost: $0.003287 (testgen, model gpt-6-luna)`; the starter kit's worked example on boltons (3 proposed tests, 3 kept, run `r-20261017-121823-aa1c4b`) printed `Cost: $0.002031 (testgen, model gpt-6-luna)`; your cost will differ | One agent trace |
+| `assess.py`, `shipharness check`, `uv run shipharness report` | None | None |
+
+The agent and harness time limits apply per arm, and the arms run in parallel; referee time comes on
+top of both. F6 and F7 have not been measured with the class profile.
+
+## 8. If it fails
+
+The most likely problems, most likely first. Every message is in
+[docs/troubleshooting.md](../docs/troubleshooting.md) with the file that prints it.
+
+| What you see | What it means | What to do |
+|---|---|---|
+| Results printed, then `make: *** [Makefile:<line>: final] Error 2` | An arm was aborted (`ABORTED: timeout` or `ABORTED: cap`); `shipharness ab` exits 2 then | Nothing to fix: the run is complete, judged, and shown; an aborted arm is a result ([details](../docs/troubleshooting.md#arm-status-and-result-lines)) |
+| An arm line says `ABORTED: timeout`, reason `agent time limit: RUN_TIMEOUT_S 300 s` | The arm used its 300 s of agent time | Judged with what it shipped. Run one A/B at a time on a quiet machine; other work slows the arms |
+| The run took longer, or cost less, than the Fast prices predict | OpenAI answered some Fast requests at the Standard tier; those calls report `default` and are charged the Standard rate | Nothing to fix; `tail -n 20 .shipharness/ledger.jsonl` shows `"service_tier"` per call ([details](../docs/troubleshooting.md#the-class-profile-and-the-fast-tier)) |
+| `x OPENAI_API_KEY is missing: ...` or `x OpenAI refused the key: ...; no arm was started` | The live guard refused before any arm started | `make doctor` names the problem; fix `.env` |
+| `x SHIPHARNESS_CLASS_DATE is not set: ...` | Class commands need the class date | Set it in `.env`, or add `PURPOSE=assignment` |
+| Every screen says UNSANDBOXED, or an arm ends in `ERROR` with `docker run failed` | Docker is not running, or an image is missing | `sudo systemctl start docker`, then `make doctor` (the `container runtime` line must start with `+ ok`) and `make images` |
+| `make console` fails because port 8765 is taken | Another server runs on it | `make console CONSOLE_PORT=8766`, and open that port |
+| `make -n warm` started baselines | An old checkout: before the 2026-10-17 fix the recipe called make, so `make -n` ran it | Update the checkout; today `make -n warm` only prints the command |
+
+More in [docs/troubleshooting.md](../docs/troubleshooting.md).
+
+## 9. Run shipharness on your own repository
 
 Three tools work outside TeamTrack. Run them from the shipharness repository root and pass your
 repository's path. The four course skills package the same workflows for coding agents; their
@@ -369,7 +579,7 @@ READMEs describe how to install them in Claude Code, Codex, and Cursor:
 [assured-tests](../skills/assured-tests/README.md),
 [skill-template](../skills/skill-template/README.md).
 
-### 6.1 Assess the harness: the `harness-setup` skill
+### 9.1 Assess the harness: the `harness-setup` skill
 
 ```bash
 uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html
@@ -383,8 +593,7 @@ instructions (I1-I6), state (S1-S4), scope (C1-C5), verification (V1-V5), and se
 (L1-L5).
 
 Captured on 2026-10-17 on the bare TeamTrack from
-`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html` at
-commit 5e8fb08, first lines; your output will differ:
+`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html`, first lines; your output will differ:
 
 ```
 Instructions       pass 0  partial 1  fail 5
@@ -400,7 +609,7 @@ area, and run the script again. The first rule of the skill is to keep AGENTS.md
 as the table of contents", "roughly 100 lines" (A1, F-a-27, F-a-28). The skill also says what it
 does not do: templates write rules down, and enforcement needs code (checks, tests, a gate).
 
-### 6.2 Generate tests that prove something: `shipharness testgen`
+### 9.2 Generate tests that prove something: `shipharness testgen`
 
 ```bash
 uv run shipharness testgen --repo <your-repo> --module <path/in/repo.py> --layers verify \
@@ -440,7 +649,7 @@ discarded, then the cost line. It calls the model and costs up to the $0.20 run 
 asserts what the code does today, so it guards against future regressions but cannot catch a fault
 that is already in the code (B12, F-b-41). Review kept tests as code before you commit them.
 
-### 6.3 Check house rules on a FastAPI service: `shipharness check --adapter`
+### 9.3 Check house rules on a FastAPI service: `shipharness check --adapter`
 
 ```bash
 uv run shipharness check --app <your-app-dir> --adapter mypackage.harness_adapter:ADAPTER \
@@ -457,7 +666,7 @@ second's data), gives the ids to probe with, counts audit rows, detects another 
 response, and lists exemptions. The built-in TeamTrack adapter in the same file is a worked example.
 
 Try it on TeamTrack first (no adapter needed). Captured on 2026-10-17 from
-`uv run shipharness check --app teamtrack --rules R6,R7` at commit 5e8fb08; your output will differ:
+`uv run shipharness check --app teamtrack --rules R6,R7`; your output will differ:
 
 ```
 $ uv run shipharness check --app teamtrack --rules R6,R7
@@ -479,57 +688,7 @@ on code you trust. "House rules" is the course's label for what A1 calls "golden
 into a rule with a check and a test, use the `house-rules` skill
 (`skills/house-rules/scripts/new_rule.py --help`).
 
-## 7. Cost and time
-
-Caps (from `.env.example` and `src/shipharness/config/settings.py`; the cost tracker enforces them,
-and a run that hits one ends as `ABORTED: cap` and is still scored):
-
-| Cap | Value |
-|---|---|
-| Per arm per final run (build and test phases together) | $0.25 (`MAX_FINAL_RUN_COST_USD`) |
-| Per arm per demo run, and per testgen run | $0.20 (`MAX_RUN_COST_USD`) |
-| Per blinded review | $0.04 (`MAX_REVIEW_COST_USD`) |
-| Per command | $2.50 (`MAX_BATCH_COST_USD`) |
-| Per class session (every command under one `SHIPHARNESS_CLASS_DATE`) | $2.50 (`MAX_SESSION_COST_USD`) |
-| Agent time per arm per run | 300 s (`RUN_TIMEOUT_S`) |
-| Harness work per arm per run | 120 s (`HARNESS_TIMEOUT_S`) |
-
-Worst case at the caps, per final feature: 2 arms × $0.25 + 2 reviews × $0.04 = $0.58. So
-`FEATURES=F5,F6` is at most $1.16, and all three features at most $1.74, which fits a session in which
-you ran nothing else. In class, four `make show-N` runs (at most $0.24 each with the review) and two
-final features stay under the $2.50 session cap at the caps (at most $2.12); a cap that is reached
-ends a run cleanly and the referee still scores it. Prices are in `config/prices.toml`, per 1M tokens:
-gpt-6-luna at the Standard tier $0.10 input, $0.01 cached input, $0.125 cache write, $0.50 output, and
-at the Fast tier, which the class profile uses for the agent's calls, $0.20, $0.02, $0.25, $1.00;
-gpt-5.6-luna, the reviewer, $0.20, $0.02, $0.25, $1.20 (Standard tier only). Each call is charged by
-the tier its response reports.
-
-Measured so far, with the class profile: the course's class-profile round on 2026-10-17 ran one
-section A/B for each of F1-F4, one at a time, for $0.1953 in total (agents $0.1689 at the Fast tier,
-reviews $0.0263), and every one of those A/Bs finished within 927 s of launch (A/Bs
-`ab-20261017-084558-0356a0`, `ab-20261017-085139-7c0661`, `ab-20261017-090051-91f837`,
-`ab-20261017-090903-926c02`). No F5-F7 A/B ran in the pilot or that round.
-
-| Command | Model cost | LangSmith traces |
-|---|---|---|
-| `make final`, per feature | Up to $0.58 (caps above) | About 4: an agent trace and a referee trace per arm |
-| `shipharness testgen` | Up to $0.20 | One agent trace |
-| `assess.py`, `shipharness check`, `uv run shipharness report` | None | None |
-
-The agent and harness time limits apply per arm, and the arms run in parallel; referee time comes on
-top of both.
-
-The measured cost and time of one final feature, F5 with the class profile (F6 and F7 have not been
-measured):
-
-[[CAPTURE: cost per arm and per review, the Cost line, and the wall time from launch to the Cost line of make final FEATURES=F5 (class profile) | how: time make final FEATURES=F5 PURPOSE=pilot]]
-
-The measured cost and time of one `shipharness testgen` run on a small library, the worked example in
-[docs/apply-to-your-repo.md](../docs/apply-to-your-repo.md) (three proposed tests, a $0.10 cap):
-
-[[CAPTURE: Cost line and wall time of the worked example's testgen run | how: cd /tmp/boltons-queueutils && time MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
-
-## 8. Portfolio: how this feeds assignment 4
+## 10. Portfolio: how this feeds assignment 4
 
 Assignment 4 (Verification and portfolio) asks for house rule R8 and one new filter, `shipharness
 testgen` on a repository you choose, one live F4 A/B, and the portfolio: an evidence report, a
@@ -540,25 +699,10 @@ This project gives you each piece:
 
 | Portfolio item | Where it comes from |
 |---|---|
-| Evidence report | The testgen output from 6.2 (`testgen-report.json` and the kept tests), the assessment from 6.1, and the check results from 6.3; or your own A/B scores in `exports/scores/` with `exports/report.html` |
+| Evidence report | The testgen output from 9.2 (`testgen-report.json` and the kept tests), the assessment from 9.1, and the check results from 9.3; or your own A/B scores in `exports/scores/` with `exports/report.html` |
 | LangSmith links | The `trace_url` and `referee_trace_url` of each arm's score record, and the links on screens 4 and 5 |
 | One-page case study | The repository, what the assessment found, which harness parts you added, the counts before and after (kept tests of proposed, new violations, hidden tests and mutants), and what still fails |
 | Your own skill | Start from `skills/skill-template/` (walkthrough anchor `Final:skill_template`), then `uv run shipharness skills validate <your-skill-dir>` |
 
-Report counts the way the course does: one dot per run, "9/10", not percentages.
+Report counts the way the course does: one dot per run, as counts such as "3/3", not percentages.
 
-## 9. When something goes wrong
-
-| Symptom | What it means | What to do |
-|---|---|---|
-| `x SHIPHARNESS_CLASS_DATE is not set: ...` | Class commands need the class date | Set it in `.env`, or add `PURPOSE=assignment` |
-| `x OPENAI_API_KEY is missing: ...` or `x OpenAI refused the key: ...` | The live guard refused before any arm started | `make doctor` names the problem |
-| Every screen says UNSANDBOXED | No container runtime was found, or `SANDBOX_MODE=none` | Fix the runtime ([setup docs](../docs/setup-linux.md#3-install-docker-engine)); unsandboxed results are not official |
-| An arm ends as `ABORTED: cap` | It reached a cost cap | The run is still scored and shown; check the session figure in the cost line |
-| `x no task for feature=...` | The feature id is not in `datasets/teamtrack-features-v1.jsonl` | Use F5, F6, or F7 |
-| `make replay` prints `! replay needs RUN=<ab or run id>` | No id given | `make replay RUN=<id>` with an id from the console's run list |
-| The console shows no runs | It reads `.shipharness/runs/` (`RUNS_DIR`) | Start `make console` from the repository root |
-| Port 8765 or 8000 is taken | Another server is running | `make console CONSOLE_PORT=8766`, `make up PORT=8001` |
-| Screen 4 says "No exports yet" | Nothing in `exports/scores/` yet | Wait for the referee to finish the first arm |
-
-More in [docs/troubleshooting.md](../docs/troubleshooting.md).

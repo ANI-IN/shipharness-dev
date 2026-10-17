@@ -42,21 +42,19 @@ uv run python scripts/fetch_testgen_libs.py boltons
 bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
 ```
 
-Every capture in this guide was made on 2026-10-17 at commit d132507, in a shipharness checkout at
-`/home/ani/wt/crepo` (so `SHIPHARNESS` below was that path), with the worked example at
-`/tmp/boltons-queueutils`. Lines that print the checkout path show `/home/ani/wt/crepo`; yours show
-your own path.
+Every capture in this guide was made on 2026-10-17 in a shipharness checkout, with the worked
+example at `/tmp/boltons-queueutils`. In the captured lines, the checkout's own path is written as
+`$SHIPHARNESS` (the only change made to them); yours show your own path.
 
-Captured on 2026-10-17 from `uv run python scripts/fetch_testgen_libs.py boltons` at commit d132507,
+Captured on 2026-10-17 from `uv run python scripts/fetch_testgen_libs.py boltons`,
 on a checkout without the clone (the script cloned boltons and verified the pinned commit); your
 output will differ:
 
 ```text
-ok boltons 26.2.0 4332b35a278d694f30c99881faa61cde695c7a96 -> /home/ani/wt/crepo/.shipharness/libs/boltons/src
+ok boltons 26.2.0 4332b35a278d694f30c99881faa61cde695c7a96 -> $SHIPHARNESS/.shipharness/libs/boltons/src
 ```
 
-Captured on 2026-10-17 from `bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils`
-at commit d132507; your output will differ:
+Captured on 2026-10-17 from `bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils`; your output will differ:
 
 ```text
 created /tmp/boltons-queueutils from boltons 4332b35
@@ -92,8 +90,7 @@ uv sync
 uv run shipharness --version
 ```
 
-What you should see. Captured on 2026-10-17 from `uv sync` and `uv run shipharness --version` at
-commit d132507; your output will differ:
+What you should see. Captured on 2026-10-17 from `uv sync` and `uv run shipharness --version`; your output will differ:
 
 ```text
 Resolved 85 packages in 3ms
@@ -130,11 +127,10 @@ uv run shipharness init --target "$TARGET"
 ```
 
 What you should see: one `+ <path>` line per file written, then a summary. In the worked example,
-captured on 2026-10-17 from `uv run shipharness init --target /tmp/boltons-queueutils` at commit
-20178c6, first two and last eleven lines; your output will differ:
+captured on 2026-10-17 from `uv run shipharness init --target /tmp/boltons-queueutils`, first two and last eleven lines; your output will differ:
 
 ```text
-Kit: /home/ani/wt/crepo/kit/templates -> /tmp/boltons-queueutils
+Kit: $SHIPHARNESS/kit/templates -> /tmp/boltons-queueutils
 + .agents/skills/assured-tests/README.md
 ...
 + feature_list.json
@@ -161,7 +157,7 @@ How to check it worked:
    commit d132507; your output will differ:
 
    ```text
-   Kit: /home/ani/wt/crepo/kit/templates -> /tmp/boltons-queueutils
+   Kit: $SHIPHARNESS/kit/templates -> /tmp/boltons-queueutils
    wrote 0 files, 0 overwritten, 0 skipped, 97 unchanged
    Next: fill the REPLACE markers, then run: shipharness init --check /tmp/boltons-queueutils
    Cost: $0.000000 (no model calls)
@@ -169,7 +165,7 @@ How to check it worked:
 
 2. Validate the installed skills. Captured on 2026-10-17 from
    `uv run --project "$SHIPHARNESS" shipharness skills validate .claude/skills` (run in the
-   repository) at commit d132507; your output will differ:
+   repository); your output will differ:
 
    ```text
    + assured-tests: valid (SKILL.md 96 lines)
@@ -188,7 +184,7 @@ How to check it worked:
 Common mistakes:
 
 - The target does not exist. Captured on 2026-10-17 from
-  `uv run shipharness init --target /tmp/no-such-repo` at commit d132507:
+  `uv run shipharness init --target /tmp/no-such-repo`:
 
   ```text
   x target directory not found: /tmp/no-such-repo
@@ -198,10 +194,10 @@ Common mistakes:
 - Your repository already has one of the files, for example its own `AGENTS.md`. init never
   overwrites it and says so. Captured on 2026-10-17 from
   `uv run shipharness init --target /tmp/kit-skip-demo --skills claude | grep -v "^+ "` (a folder
-  holding only an `AGENTS.md`) at commit d132507:
+  holding only an `AGENTS.md`):
 
   ```text
-  Kit: /home/ani/wt/crepo/kit/templates -> /tmp/kit-skip-demo
+  Kit: $SHIPHARNESS/kit/templates -> /tmp/kit-skip-demo
   ! skipped AGENTS.md: exists with other content (--force overwrites)
   wrote 61 files, 0 overwritten, 1 skipped, 0 unchanged
   Next: fill the REPLACE markers, then run: shipharness init --check /tmp/kit-skip-demo
@@ -225,8 +221,7 @@ uv run --project "$SHIPHARNESS" shipharness init --check .
 ```
 
 What you should see first: one line per marker, `file:line: what to write`, then a count and exit
-code 1. Captured on 2026-10-17 from `uv run shipharness init --check /tmp/boltons-queueutils` at
-commit d132507, first four and last three lines; your output will differ:
+code 1. Captured on 2026-10-17 from `uv run shipharness init --check /tmp/boltons-queueutils`, first four and last three lines; your output will differ:
 
 ```text
 .github/workflows/shipharness.yml:1: CI for your repository's house rules. The values are TeamTrack's, as if teamtrack/ were its own repository: the app is at the repository root, the existing tests are in tests/visible, and the adapter is harness/shipharness_adapter.py.
@@ -258,8 +253,7 @@ In the worked example, the map, the architecture document, and the docs were rew
 three modules, and six documents were deleted because a library with no API, tenants, or database
 has no use for them. The feature is a real bug: the docstrings of `peek` and `pop` say an empty
 queue raises `KeyError`, and the code raises `IndexError`. Captured on 2026-10-17 from
-`uv run --project "$SHIPHARNESS" python -c "from boltons.queueutils import HeapPriorityQueue; HeapPriorityQueue().pop()"`
-at commit d132507, last line of the traceback:
+`uv run --project "$SHIPHARNESS" python -c "from boltons.queueutils import HeapPriorityQueue; HeapPriorityQueue().pop()"`, last line of the traceback:
 
 ```text
 IndexError: pop on empty queue
@@ -348,7 +342,7 @@ Use your own list after `--rules`, for example `R1,R2,R3,R4,R5,R6,R7` for a serv
 seven.
 
 What you should see: one `PASS` or `FAIL` line per check. Captured on 2026-10-17 from the second
-command in the worked example at commit d132507; your output will differ:
+command in the worked example; your output will differ:
 
 ```text
 UNSANDBOXED: the checks import and run this app's code on this machine.
@@ -363,7 +357,7 @@ The 21 probes of `regression` are the 16 test functions and 5 doctests, because
 `check-params.json` sets `regression_targets` to `--doctest-modules boltons tests`.
 
 How to check it worked: break the rule on purpose and watch the check fail. Captured on 2026-10-17
-from these two commands in the worked example at commit d132507; your output will differ:
+from these two commands in the worked example; your output will differ:
 
 ```text
 $ echo "from .queueutils import PriorityQueue" >> boltons/typeutils.py
@@ -387,7 +381,7 @@ repository; replace the repository name if you cloned a fork.
 Common mistakes:
 
 - `PYTHONPATH` missing, so the adapter cannot be imported. Captured on 2026-10-17 from the check
-  command without `PYTHONPATH=harness`, last line, at commit d132507:
+  command without `PYTHONPATH=harness`, last line:
 
   ```text
   ModuleNotFoundError: No module named 'shipharness_adapter'
@@ -395,7 +389,7 @@ Common mistakes:
 
 - A rule in `--rules` whose adapter methods you deleted. Captured on 2026-10-17 from
   `PYTHONPATH=harness uv run --project "$SHIPHARNESS" shipharness check --app . --adapter shipharness_adapter:HouseRulesAdapter --rules R2`
-  in the worked example at commit d132507:
+  in the worked example:
 
   ```text
   UNSANDBOXED: the checks import and run this app's code on this machine.
@@ -416,7 +410,7 @@ What it is: the first command that puts a model to work on your code. `shipharne
 model for tests of one module and keeps a proposed test only if it passes five filters: it runs,
 it passes five runs in a row, it adds coverage or kills a mutant, it has real assertions, and it
 changed no source file (the filters and their sources are in
-[final-project/README.md, part 6](../final-project/README.md#6-run-shipharness-on-your-own-repository)).
+[final-project/README.md, part 9](../final-project/README.md#9-run-shipharness-on-your-own-repository)).
 `--layers verify` gives the model the course's verify layer. It works on any repository with a
 pytest suite, which makes it the first harnessed run for a repository that is not TeamTrack.
 
@@ -425,8 +419,7 @@ by default (`src/shipharness/config/settings.py`), and the cost tracker refuses 
 would cross it (README, [Costs and caps](../README.md#13-costs-and-caps)). Prices per 1M tokens are
 in `config/prices.toml`: gpt-6-luna $0.10 input, $0.01 cached input, $0.50 output. The variable
 overrides the default for one command; captured on 2026-10-17 from
-`MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" python -c "from shipharness.config import Settings; print(Settings().max_run_cost_usd)"`
-at commit d132507:
+`MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" python -c "from shipharness.config import Settings; print(Settings().max_run_cost_usd)"`:
 
 ```text
 0.1
@@ -447,14 +440,31 @@ MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo
 `--sandbox local` runs the generated tests on your machine with your permissions, and the command
 prints UNSANDBOXED; for code you do not trust, build an image and pass `--sandbox docker --image`.
 `--python` is an interpreter with your repository's dependencies, pytest, and coverage; the
-shipharness environment has all three for this example.
+shipharness environment has all three for this example. With `--layers verify`, the visible tests the
+layer runs are the folder of `--tests` (here `tests/`), and the migration-head check runs only when the
+repository has an Alembic configuration, so a library such as boltons needs neither TeamTrack's
+`tests/visible` folder nor a database (a bug fixed on 2026-10-17: before the fix, every gate on
+boltons failed on those two TeamTrack paths).
 
 What you should see (the format is in `src/shipharness/testgen/commands.py`): a `Baseline:` line,
 a summary `testgen <run id>: <status>; kept <n> of <m> proposed tests`, one line per proposed test
 (`+ <test id>` for a kept test, `- <test id>: filter <n>: <reason>` for a discarded one),
 `Kept tests and report: <folder>`, and the cost line.
 
-[[CAPTURE: terminal output of the first harnessed run on the worked example (Baseline line, summary, one line per kept or discarded test, Cost line) and its wall time | how: cd /tmp/boltons-queueutils && time MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
+Captured on 2026-10-17, run r-20261017-121823-aa1c4b; your output will differ:
+
+```text
+! UNSANDBOXED — results not official: generated tests run on this machine
+Baseline: existing suite without doctests
+testgen r-20261017-121823-aa1c4b: completed; kept 3 of 3 proposed tests
++ tests/test_queueutils_generated.py::test_priority_updates_preserve_order_for_equal_priorities
++ tests/test_queueutils_generated.py::test_remove_and_empty_queue_defaults
++ tests/test_queueutils_generated.py::test_custom_priority_key_and_unexpected_keyword
+Kept tests and report: /tmp/boltons-queueutils-testgen
+Cost: $0.002031 (testgen, model gpt-6-luna)
+```
+
+The run stayed far below the $0.10 cap: three proposed tests, all kept, for $0.002031.
 
 How to check it worked: the output folder holds the kept tests and `testgen-report.json`, and the
 last line is a cost line at or below your cap.
@@ -462,7 +472,7 @@ last line is a cost line at or below your cap.
 Common mistakes:
 
 - No API key. testgen stops before any model call. Captured on 2026-10-17 from the command above
-  with `OPENAI_API_KEY=` (empty) in front, at commit d132507:
+  with `OPENAI_API_KEY=` (empty) in front:
 
   ```text
   x OPENAI_API_KEY is missing: add it to .env at the repo root
@@ -496,7 +506,33 @@ test as code before you commit it. A discarded test's line names the filter that
 without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered module most
 proposed tests are discarded there (`skills/assured-tests/SKILL.md`).
 
-[[CAPTURE: the kept test files and the per-test filter results of testgen-report.json from the step 5 run | how: ls /tmp/boltons-queueutils-testgen && cat /tmp/boltons-queueutils-testgen/testgen-report.json]]
+In the worked example, `testgen-report.json` lists the kept tests and one result per filter per
+test. Captured on 2026-10-17, run r-20261017-121823-aa1c4b, from
+`/tmp/boltons-queueutils-testgen/testgen-report.json`; cut to the first test's five results; your
+output will differ:
+
+```json
+  "run_id": "r-20261017-121823-aa1c4b",
+  "status": "completed",
+  "unsandboxed": true,
+  "kept": [
+    "tests/test_queueutils_generated.py::test_priority_updates_preserve_order_for_equal_priorities",
+    "tests/test_queueutils_generated.py::test_remove_and_empty_queue_defaults",
+    "tests/test_queueutils_generated.py::test_custom_priority_key_and_unexpected_keyword"
+  ],
+  "results": [
+    {"test_id": "...::test_priority_updates_preserve_order_for_equal_priorities", "filter": 1, "passed": true, "reason": "collected 1 test"},
+    {"test_id": "...", "filter": 2, "passed": true, "reason": "passed 5 of 5 runs"},
+    {"test_id": "...", "filter": 3, "passed": true, "reason": "adds 5 covered lines: boltons/queueutils.py:134,163-165,170"},
+    {"test_id": "...", "filter": 4, "passed": true, "reason": "has real assertions and does not mock boltons.queueutils"},
+    {"test_id": "...", "filter": 5, "passed": true, "reason": "no source file changed during the test phase"},
+```
+
+The other two kept tests passed filter 3 by adding 9 covered lines (`boltons/queueutils.py:163-170,183`)
+and 1 covered line (`boltons/queueutils.py:114`). The kept tests are in one file,
+`tests/test_queueutils_generated.py`, under the `--out` folder; review it before you copy it into your
+repository. (The JSON above is reformatted to one result per line and the repeated test ids are
+shortened to `...`; the values are unchanged.)
 
 What to do when a result surprises you: rerun the check alone (`--rules R6`) to see one rule's
 findings; for testgen, open `testgen-report.json` and read the reason recorded for each test.
@@ -513,9 +549,9 @@ decide per layer from what it prevents and what it costs to keep current.
 Each layer encodes an assumption about what the model cannot do on its own; A3 says "those
 assumptions are worth stress testing" (A3, F-a-124). The course pilot is a worked case: on TeamTrack
 with gpt-6-luna, no section showed a measurable difference on its primary measure, and the harness
-arms ran longer and cost more per run; the one post hoc difference was that harness arms with the
-scope layer never changed a file outside the allowed paths (README, [How the course measures
-it](../README.md#4-how-the-course-measures-it)). A result like that is a reason to keep a layer small
+arms ran longer and cost more per run. Post hoc (measures chosen after the results, not tested): on
+F4, bare arms changed files outside the allowed paths in 6 of 6 runs and harness arms with the scope
+layer in 0 of 6 (README, [How the course measures it](../README.md#4-how-the-course-measures-it)). A result like that is a reason to keep a layer small
 and cheap, or to measure it on your own failures, not a reason to keep it by default.
 
 | Layer | Kit files | The worked example's decision | Why |
@@ -540,5 +576,5 @@ in `skills/harness-setup/references/failure-modes.md`.
 | `check crashed: AttributeError: ... no attribute 'create_app'` | A dropped rule is still in `--rules` |
 | `x OPENAI_API_KEY is missing` | Add the key to `.env` in the shipharness checkout |
 
-More on the commands: [final-project/README.md, part 6](../final-project/README.md#6-run-shipharness-on-your-own-repository).
+More on the commands: [final-project/README.md, part 9](../final-project/README.md#9-run-shipharness-on-your-own-repository).
 More on the kit itself: [kit/README.md](../kit/README.md).

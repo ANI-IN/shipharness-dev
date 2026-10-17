@@ -10,7 +10,7 @@ HTMX). Each customer is an org, and every customer row carries an `org_id`.
 
 ## Where to look
 
-<!-- REPLACE: one row per kind of change, pointing at the document that holds its rules. Every path must exist. -->
+<!-- REPLACE: one row per kind of change, pointing at the document that holds its rules. Every path must exist. TeamTrack's add-endpoint skill is not part of the kit: delete that row or write your own skill (skills/skill-template in shipharness). -->
 | When you are about to | Read first |
 |---|---|
 | add or change an endpoint | `.agents/skills/add-endpoint/SKILL.md` (step by step) |
