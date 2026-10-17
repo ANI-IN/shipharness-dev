@@ -394,22 +394,18 @@ def test_a_pending_marker_stands_in_for_the_evidence_only_when_allowed(tmp_path:
     assert "pending" in result["live-files"][1]
 
 
-def test_the_reference_live_folder_says_the_run_was_not_captured_and_keeps_the_command() -> None:
+def test_the_reference_live_folder_explains_the_run_and_keeps_the_command() -> None:
     text = (SOLUTION_WORK / "live" / "README.md").read_text(encoding="utf-8")
     assert not live.PENDING.search(text)
-    assert "was not captured" in text
+    assert "No measurable difference" in text
     assert syn.COMMAND.replace(syn.BATCH, "a1-reference") in text
 
 
-def test_the_reference_live_folder_earns_no_live_points_even_with_allow_pending(
-    tmp_path: Path,
-) -> None:
-    work = fresh_work(tmp_path)
-    shutil.copytree(SOLUTION_WORK / "live", work / "live")
+def test_the_reference_live_folder_earns_every_live_point() -> None:
+    # The real evidence of batch a1-reference (captured 2026-10-17), with the reference report.
     for allow in (False, True):
-        result = scores(work, allow_pending=allow)
-        assert all(score == 0 for score, _ in result.values())
-        assert "missing or malformed" in result["live-files"][1]
+        result = scores(SOLUTION_WORK, allow_pending=allow)
+        assert all(score == 1 for score, _ in result.values()), result
 
 
 # -- collecting the evidence ----------------------------------------------------------------------

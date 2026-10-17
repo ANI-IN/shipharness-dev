@@ -1,53 +1,77 @@
-# Assignment 1 A/B report: the instructions layer on section-1 (reference tree)
+# Assignment 1 A/B report: the instructions layer on the Section 1 tasks (reference tree)
 
-This is the reference solution's report. Its structure is what a learner's report must have. The
-reference live run was not captured: the course plan of 2026-10-17 required a real
-captured live run for Assignments 3 and 4 only, so the Assignment 1 reference A/B was left out of scope.
-Every value below that needs the run says so instead of giving a number.
+This is the reference solution's report for Assignment 1: Instructions. Its structure is what your
+report must have. Every number below comes from the live evidence in [live/](live/), as printed by
+`ab_summary.py --exports live`.
 
 ## Setup
 
 - Command: `uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference`
-- Runs per arm: 24 (8 section-1 tasks, k=3; the course plan)
-- Model and reasoning effort: `OPENAI_MODEL` and `OPENAI_REASONING_EFFORT` from the settings
-  (the course defaults), recorded in each experiment's metadata
+- Runs per arm: 24 (8 Section 1 tasks, 3 runs each)
+- Model and reasoning effort: gpt-6-luna, medium (the course defaults, recorded in each
+  experiment's metadata)
 
-Instructions tree commit: none, because the reference live run was not captured (it is being
-re-run).
+Instructions tree commit: 19a1731 <!-- check-style: allow SC10 the Section 1 checker reads this commit -->
+
+That commit holds this folder's `instructions/`, copied unchanged to
+`platform/teamtrack/harness/instructions/` on a throwaway branch before the run.
 
 ## Results
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new violation of the tenant isolation rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
-| R3: runs with at least one new failure of the API conventions rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R1: runs with at least one new violation of House rule 1: Tenant isolation | 0/24 | 0/24 | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R3: runs with at least one new failure of House rule 3: API conventions | 0/24 | 0/24 | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| Leaks found by the tenant isolation probes (sum over runs) | 0 | 0 |
+| Runs aborted or errored | 2 | 0 |
 
-No counts: the reference live run was not captured (it is being re-run).
+The two aborted runs are bare runs that reached the agent time limit. The referee still judged their
+builds, so they count as runs. Neither one fails a measure.
+
+Per task (runs failing of 3; bare arm first, then harness arm):
+
+| Task | Tenant isolation | API conventions |
+|---|---|---|
+| Control task: role filter on the user list | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1: Org-wide issue search, canonical ticket | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, legacy-pattern ticket | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, ticket written as a bug report | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, ticket written by a product manager | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, terse ticket | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, other starting code (version a) | 0/3, 0/3 | 0/3, 0/3 |
+| Feature 1, other starting code (version b) | 0/3, 0/3 | 0/3, 0/3 |
 
 ## Links
 
-No LangSmith experiment links: the reference live run was not captured (it is being re-run).
+- [Bare arm experiment in LangSmith](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/datasets/c8c46487-1d0a-406b-bf4a-11a19b2c405b/compare?selectedSessions=a0b770c7-c675-4ebc-9861-f7ae1fc718d8)
+- [Harness arm experiment in LangSmith](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/datasets/c8c46487-1d0a-406b-bf4a-11a19b2c405b/compare?selectedSessions=33ae45f5-c9bb-41fb-9a18-684a1ee97f98)
 
 ## Cost and traces
 
-Budget for this command: at most $2.50 and 150 traces (the course budget); the run stops cleanly at
-`MAX_BATCH_COST_USD`. No measured cost or trace count: the reference live run was not captured
-(it is being re-run).
+- Cost: $0.545310 (agent and review cost, summed over the 48 score records; the command's own cost
+  line reads $0.545313). The budget for this command is $2.50.
+- Traces: 96 (one agent trace and one referee trace per run, counted from the trace links in the
+  score records). The budget is 150.
 
 ## Reading the result
 
-The primary measure for Section 1 is registered by the course: a run fails when it has at least one
-new violation of the tenant isolation rule (`R1`), and results are counts of failing runs out of k
-per task, summed over the eight tasks. The API conventions rule (`R3`) is the secondary measure this
-assignment adds: runs with at least one new failure of it. With counts from a captured run, compare
-the arms on `R1` first, then on `R3`, and look task by task at `F1-trap` (the legacy handler next to
-the right pattern) and at the control task `C1`, where both arms should pass. Check in the run logs
-that harness runs opened the map's targets and the skill; a harness run that never read
-`docs/SECURITY.md` or the skill did not test the restructuring.
+No measurable difference. The primary measure for Section 1 is registered by the course: a run fails
+when it adds at least one new violation of House rule 1: Tenant isolation (`R1`). No run failed it:
+0 of 24 bare runs and 0 of 24 harness runs. The secondary measure, House rule 3: API conventions
+(`R3`), gives the same counts: 0 of 24 in each arm.
+
+Task by task, every row reads 0 of 3 in both arms. That includes the legacy-pattern ticket, where
+an unscoped legacy handler sits next to the right pattern, and the control task, where both arms
+should pass.
+
+With no failing bare run, the map had nothing to fix on these tasks with this model. The result does
+not show that the restructured tree is useless. It shows that gpt-6-luna at medium effort already
+keeps these two rules here when it can read the long handbook.
 
 ## Limits
 
-Three runs per task is a small sample, so a difference of one or two runs between the arms is not
-evidence on its own. One model and one effort level are used. The referee counts only what the
-tenant isolation and API conventions probes (the requests the referee sends to test each rule)
-cover, and both arms read the same facts, so the comparison measures organisation, not content.
+Three runs per task is a small sample, so even a difference of one or two runs between the arms would
+not be evidence on its own. One model and one effort level were used. The referee counts only what
+the tenant isolation and API conventions probes (the requests the referee sends to test each rule)
+cover. Both arms read the same facts, so the comparison measures organisation, not content. Two bare
+runs reached the agent time limit, so the bare arm had a little less agent time in total.

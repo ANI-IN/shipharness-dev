@@ -79,18 +79,16 @@ def test_the_starter_fails_with_one_line_per_check(capsys: pytest.CaptureFixture
     assert out.strip().splitlines()[-1].startswith("self-check: ")
 
 
-def test_the_uncaptured_reference_fails_only_the_ab_value_and_live_checks(
+def test_the_captured_reference_passes_every_check(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    # The reference live run was not captured (owner scope, 2026-10-17); the reference holds no
-    # pending markers, so --allow-pending changes nothing.
-    expected = {"report-command", "report-results", "report-links", "report-cost"}
-    expected |= {"live-files", "live-command", "live-caps", "live-tree", "live-report"}
+    # The reference holds the real live evidence of batch a1-reference (captured 2026-10-17) and
+    # no pending markers, so --allow-pending changes nothing.
     for allow in (False, True):
         results = check.run_checks(SOLUTION_WORK, allow_pending=allow)
-        assert {r.name for r in results if not r.ok} == expected
-    assert check.main(["--work", str(SOLUTION_WORK), "--allow-pending"]) == 1
-    assert "FAIL live-files" in capsys.readouterr().out
+        assert {r.name for r in results if not r.ok} == set()
+    assert check.main(["--work", str(SOLUTION_WORK)]) == 0
+    assert capsys.readouterr().out.strip().splitlines()[-1] == "self-check: 24 of 24 checks pass"
 
 
 def test_the_self_check_lists_the_five_live_items(capsys: pytest.CaptureFixture[str]) -> None:
@@ -138,9 +136,12 @@ def test_the_self_check_runs_in_a_learner_repository_without_solution(tmp_path: 
     assert run.stdout.strip().splitlines()[-1] == "self-check: 0 of 24 checks pass"
 
 
-def test_pending_markers_do_not_count_as_results_by_default() -> None:
-    results = by_name(check.run_checks(SOLUTION_WORK))
-    assert not results["report-results"].ok
+def test_pending_markers_do_not_count_as_results_by_default(tmp_path: Path) -> None:
+    marker = "[[PENDING: counts | source: live class | how: ab_summary.py]]"
+    text = (SOLUTION_WORK / "ab-report.md").read_text(encoding="utf-8").replace("0/24", "pending")
+    text = text.replace("## Results\n", f"## Results\n\n{marker}\n")
+    assert not report(tmp_path, text)["report-results"].ok
+    assert report(tmp_path, text, allow_pending=True)["report-results"].ok
 
 
 # -- the report -----------------------------------------------------------------------------------

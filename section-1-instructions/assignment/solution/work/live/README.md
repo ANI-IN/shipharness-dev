@@ -1,28 +1,23 @@
 # Module 1: Harness Engineering for Coding Agents - Live evidence of the reference A/B
 
-This folder holds the live evidence of the reference solution's A/B, in the layout that
-`assignment/live_evidence.py` collects and that the self-check and the grader check:
+This folder holds the live evidence for the reference solution of Assignment 1: Instructions. It is
+the real output of one A/B run, collected by `assignment/live_evidence.py`. The self-check and the
+grader read these files. They never re-run anything.
 
-| Path | What it is |
-|---|---|
-| `output.txt` | the command line (`$ ...`) and everything it printed, ending with its `Cost: $...` line |
-| `experiments/<name>.json` | the two experiment exports of batch `a1-reference` (bare and harness) |
-| `scores/<run_id>.json` | the score record (`platform/src/shipharness/ab/score.py`) of every run in them |
-| `runs/<run_id>/events.jsonl` | the run log of every harness-arm run |
+## What the run was
 
-The reference live run is being re-run; its first attempt was interrupted on 2026-10-17. Until it
-is captured, this folder holds no evidence, and the grader gives the reference 0 of the 12
-points of criterion F, with or without `--allow-pending` (`captured/grade-solution.txt`).
+One A/B on the eight Section 1 tasks, three runs per task and arm: 24 bare runs and 24 harness runs
+with gpt-6-luna. The harness arm used the instructions layer with this solution's `instructions/`
+tree. The bare arm had the ticket and the repository only. The run took place on 2026-10-17 and cost
+$0.545310, within the Assignment 1 budget of $2.50.
 
-If the run is captured later, these are the commands (repository root; needs keys and Docker;
-within the Assignment 1 budget of $2.50):
+The commands, from the repository root (they need keys and Docker):
 
 ```bash
 git switch -c a1-reference-run                     # throwaway branch: never merge it
 rm -rf platform/teamtrack/harness/instructions
 cp -r section-1-instructions/assignment/solution/work/instructions platform/teamtrack/harness/instructions
 git add platform/teamtrack/harness/instructions && git commit -m "Assignment 1: reference tree for the live A/B"
-git log -1 --format=%h                             # the "Instructions tree commit"
 CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference"
 echo "\$ $CMD" > ~/a1-reference-output.txt
 $CMD | tee -a ~/a1-reference-output.txt
@@ -31,6 +26,25 @@ uv run python section-1-instructions/assignment/live_evidence.py --batch a1-refe
 uv run python section-1-instructions/assignment/ab_summary.py --batch a1-reference --exports section-1-instructions/assignment/solution/work/live
 ```
 
-After such a capture, fill `../ab-report.md` from the `ab_summary.py` output, replace the
-paragraph above with the capture date, and check that the grader gives the reference 100 without
-`--allow-pending`.
+## What the folder holds
+
+| Path | What it is |
+|---|---|
+| `output.txt` | The command line and everything it printed, ending with its cost line |
+| `experiments/` | The two experiment exports, one for the bare arm and one for the harness arm |
+| `scores/` | One score record per run (48), as the referee wrote it |
+| `runs/` | The run log of each harness run (24) |
+
+Each harness run log notes the instruction files the layer placed. The grader checks that this list
+equals the files of `../instructions/`.
+
+## The result
+
+No measurable difference between the arms:
+
+- House rule 1: Tenant isolation: 0 of 24 runs failing in the bare arm, 0 of 24 in the harness arm.
+- House rule 3: API conventions: 0 of 24 runs failing in each arm.
+- Two bare runs reached the agent time limit; the referee still judged their builds.
+
+The full report is [../ab-report.md](../ab-report.md). With this folder, the grader gives the
+reference solution 100 out of 100 (`../../captured/grade-solution.txt`).

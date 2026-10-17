@@ -156,17 +156,33 @@ and the checker output in [captured/checker-solution.txt](captured/checker-solut
 
 ### Live run evidence
 
-The live A/B ran once, with keys and Docker, as in [SPEC.md, "Run the A/B"](../SPEC.md#run-the-ab),
-with `--batch a1-reference` and this folder's `work/instructions/`. Its evidence is in
-[work/live/](work/live/): the command output, the two experiment exports, the score records, and the
-harness run logs. The report filled from it is [work/ab-report.md](work/ab-report.md).
+The live A/B ran once, on 2026-10-17, with keys and Docker, as in
+[SPEC.md, "Run the A/B"](../SPEC.md#run-the-ab), with `--batch a1-reference` and this folder's
+`work/instructions/`. It made 48 runs with gpt-6-luna: 24 per arm, 3 for each of the eight Section 1
+tasks. It cost $0.545310 of the $2.50 budget.
 
-The instructor's grade of this folder is in
-[captured/grade-solution.txt](captured/grade-solution.txt). It comes from
-`make grade-assignment-1 SUBMISSION=section-1-instructions/assignment/solution/work`; the grader is not in
-this repository. Dates, batch, and run ids are on the
+The result is no measurable difference between the arms:
+
+| Measure | Bare arm | Harness arm |
+|---|---|---|
+| House rule 1: Tenant isolation, runs failing | 0 of 24 | 0 of 24 |
+| House rule 3: API conventions, runs failing | 0 of 24 | 0 of 24 |
+| Runs aborted (agent time limit) | 2 of 24 | 0 of 24 |
+
+The referee judged every run, the two aborted ones too. With no failing bare run, the map had
+nothing to fix on these tasks with this model.
+
+The evidence is in [work/live/](work/live/): the command output, the two experiment exports, the
+score records, and the harness run logs. [work/live/README.md](work/live/README.md) explains each
+file. The report filled from it is [work/ab-report.md](work/ab-report.md).
+
+The instructor's grade of this folder is 100 out of 100
+([captured/grade-solution.txt](captured/grade-solution.txt)), from
+`make grade-assignment-1 SUBMISSION=section-1-instructions/assignment/solution/work`. The self-check
+passes 24 of 24 checks ([captured/self-check-solution.txt](captured/self-check-solution.txt)). The
+grader is not in this repository. Dates, batch, and run ids are on the
 [evidence page](../../../docs/evidence/s1.md#s1-a1-solution).
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, [https://openai.com/index/harness-engineering/](https://openai.com/index/harness-engineering/), OpenAI (Ryan Lopopolo), 2026-02-11
