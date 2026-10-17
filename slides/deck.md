@@ -1,5 +1,5 @@
 <!--
-deck.md: the source of the Module 1 slides. `make slides` (scripts/build_slides.py) turns it into
+deck.md: the source of the Module 1 slides. `make slides` (platform/scripts/build_slides.py) turns it into
 slides/dist/deck.html, deck.pdf, and deck.pptx. This file is the single source of the slide content;
 slides/outline.md holds only the block table and the class plan per section.
 
@@ -12,7 +12,7 @@ Format, one block per slide:
   subtitle: One line              optional, under the title
   diagram: architecture now=L1    the recurring diagram defined below, with nodes highlighted
   image: images/board.png         a picture, path relative to this folder (must exist)
-  code: S1:prefix 10-19           lines of a walkthrough anchor (scripts/anchors.py), e.g. 1-4,9-12;
+  code: S1:prefix 10-19           lines of a walkthrough anchor (platform/scripts/anchors.py), e.g. 1-4,9-12;
                                   left-out lines show as "..."; at most 12 code lines per slide
   slot: s1_dots                   a result slot, empty until filled from run data:
   slot: s1_dots = 3 of 10 failed  text, or an image path such as images/s1-dots.png
@@ -113,7 +113,7 @@ to undo) has no single source that says both, so the four citations stand side b
 merged. Cause 4: the visible suite passes while held-out tests that compose features fail (B13).
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: README.md §2; REFERENCES.md.
+Source: README.md §2; docs/REFERENCES.md.
 
 ## 4. A harness encodes assumptions about the model
 section: Opening
@@ -133,7 +133,7 @@ all four parts and the sandbox. The section names S1 to S4 and the phrase "keep 
 place" are course framing, not source terms.
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: README.md §3; REFERENCES.md (A1 F-a-02; A3 F-a-124, F-a-69).
+Source: README.md §3; docs/REFERENCES.md (A1 F-a-02; A3 F-a-124, F-a-69).
 
 ## 5. shipharness, TeamTrack, console
 section: Opening
@@ -169,7 +169,7 @@ harness so far against the bare arm; only taking one piece out tests that piece.
 "removing one component at a time and reviewing what impact it had on the final result." (F-a-125)
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: README.md §4, §10 (primary measures); teamtrack/docs/HANDBOOK.md (R1-R7); datasets/README.md.
+Source: README.md §4, §10 (primary measures); platform/teamtrack/docs/HANDBOOK.md (R1-R7); platform/datasets/README.md.
 
 ## 7. Check your setup
 section: Opening
@@ -186,7 +186,7 @@ it builds the images if their source changed, pages each image in, and caches th
 baselines, so the first launch does not pay for startup.
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: Makefile `doctor`, `warm`; skills/harness-setup/scripts/assess.py.
+Source: Makefile `doctor`, `warm`; use-in-your-repo/skills/harness-setup/scripts/assess.py.
 
 ## 8. Poll
 section: S1 Instructions
@@ -204,7 +204,7 @@ The answer comes on slide 20. The 7 runs: pilot run 3 (effort medium), run 4 (ef
 class-profile round, all on the F1 trap ticket (trap-legacy-pattern).
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: submodules/01-instructions/demo/README.md §4.
+Source: 01-instructions/demo/README.md §4.
 
 ## 9. Launching harness in action: F1 org-wide issue search
 section: S1 Instructions
@@ -237,7 +237,7 @@ class-profile round (A/B ab-20261017-084558-0356a0) the harness arm's primary ve
 its full verdict 324 s after launch.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: Makefile `show-1`; README.md §10; teamtrack/reference/f1/task.toml.
+Source: Makefile `show-1`; README.md §10; platform/teamtrack/reference/f1/task.toml.
 
 ## 10. S1: what the agent knows
 section: S1 Instructions
@@ -269,7 +269,7 @@ notes:
 Both arms get every rule. The question is not whether the rule exists but whether the agent applies it.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: teamtrack/docs/HANDBOOK.md (R1); README.md §4; teamtrack/docs/features/f1.md.
+Source: platform/teamtrack/docs/HANDBOOK.md (R1); README.md §4; platform/teamtrack/docs/features/f1.md.
 
 ## 12. Cause: what is not in context does not exist
 section: S1 Instructions
@@ -285,7 +285,7 @@ notes:
 Cause 1 from the opening, in A1's words. A handbook the agent never opens does not exist for it.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: A1 in REFERENCES.md.
+Source: A1 in docs/REFERENCES.md.
 
 ## 13. Harness piece: AGENTS.md as a map
 section: S1 Instructions
@@ -297,11 +297,11 @@ minutes: 3
 - Also in docs/: design-docs/, product-specs/, references/ (A1, F-a-30, F-a-31)
 
 notes:
-TeamTrack's harness instructions follow this layout: teamtrack/harness/instructions/. The map points;
+TeamTrack's harness instructions follow this layout: platform/teamtrack/harness/instructions/. The map points;
 the documents hold the rules.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: A1 in REFERENCES.md; teamtrack/harness/instructions/.
+Source: A1 in docs/REFERENCES.md; platform/teamtrack/harness/instructions/.
 
 ## 14. Progressive disclosure
 section: S1 Instructions
@@ -317,7 +317,7 @@ Only tier 1 (name and description) sits in the context for every skill; the agen
 when a task needs it.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: A1, B1, B2 in REFERENCES.md.
+Source: A1, B1, B2 in docs/REFERENCES.md.
 
 ## 15. Keep the map true
 section: S1 Instructions
@@ -334,7 +334,7 @@ against one giant instruction file (F-a-23, F-a-24). The course's bare arm has t
 handbook on disk, so the pilot did not test A1's comparison.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: A1 in REFERENCES.md; README.md §4.
+Source: A1 in docs/REFERENCES.md; README.md §4.
 
 ## 16. Code: the map
 section: S1 Instructions
@@ -428,13 +428,13 @@ tool call; no arm copied the legacy handler into a leak. Post hoc, descriptive (
 against $0.0103. "Post hoc" means chosen after the results were known: descriptive, never a test.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: quiet run ab-20261017-112101-c5d839 (screen 3); course pilot runs 2-4 and class-profile round (A/B ids above); submodules/01-instructions/concepts.md (third tool call).
+Source: quiet run ab-20261017-112101-c5d839 (screen 3); course pilot runs 2-4 and class-profile round (A/B ids above); 01-instructions/concepts.md (third tool call).
 
 ## 21. Runbook and next
 section: S1 Instructions
 minutes: 5
 
-- Runbook: `submodules/01-instructions/demo/README.md`
+- Runbook: `01-instructions/demo/README.md`
 - Discussion: the map changed nothing on this ticket. What would have to be true of a model or a ticket for it to earn its place?
 - Next: what happens when a session ends halfway
 
@@ -460,7 +460,7 @@ The answer comes on slide 33. The 7 A/Bs: pilot run 3, run 4, and the class-prof
 canonical with a 12-turn first session and a 38-turn second session.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: submodules/02-state-lifecycle/demo/README.md §4.
+Source: 02-state-lifecycle/demo/README.md §4.
 
 ## 23. Launching harness in action: F2 comments
 section: S2 State and session lifecycle
@@ -493,7 +493,7 @@ ab-20261017-085139-7c0661) the harness arm's primary verdict came 358 s and its 
 after launch.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: Makefile `show-2`; README.md §10; teamtrack/reference/f2/task.toml.
+Source: Makefile `show-2`; README.md §10; platform/teamtrack/reference/f2/task.toml.
 
 ## 24. S2: what the agent remembers
 section: S2 State and session lifecycle
@@ -524,7 +524,7 @@ notes:
 Cause 2 from the opening.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: A2 in REFERENCES.md.
+Source: A2 in docs/REFERENCES.md.
 
 ## 26. Harness piece: state on disk
 section: S2 State and session lifecycle
@@ -540,7 +540,7 @@ A2's two agents differ only by their first prompt (F-a-52). In the course, the h
 initial files itself.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: A2 in REFERENCES.md; docs/architecture.md §5.
+Source: A2 in docs/REFERENCES.md; docs/architecture.md §5.
 
 ## 27. Getting up to speed, and ending a session
 section: S2 State and session lifecycle
@@ -554,7 +554,7 @@ notes:
 "Getting up to speed" is A2's own name for the routine.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: A2 in REFERENCES.md.
+Source: A2 in docs/REFERENCES.md.
 
 ## 28. Exec plans and the structured handoff
 section: S2 State and session lifecycle
@@ -572,7 +572,7 @@ reset with a structured handoff (A3, F-a-65). A piece that answers a model's wea
 while the weakness is there."
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: A1, A3, A7 in REFERENCES.md.
+Source: A1, A3, A7 in docs/REFERENCES.md.
 
 ## 29. Code: init.sh
 section: S2 State and session lifecycle
@@ -677,13 +677,13 @@ The leave-one-layer-out bars were planned for the course's larger experiment bat
 run because the pre-registered pilot gate did not pass.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: quiet run ab-20261017-113213-fe89a3 (screens 3 and 5); course pilot runs 2-4 and class-profile round (A/B ids above); submodules/02-state-lifecycle/concepts.md (git status).
+Source: quiet run ab-20261017-113213-fe89a3 (screens 3 and 5); course pilot runs 2-4 and class-profile round (A/B ids above); 02-state-lifecycle/concepts.md (git status).
 
 ## 34. Runbook and next
 section: S2 State and session lifecycle
 minutes: 5
 
-- Runbook: `submodules/02-state-lifecycle/demo/README.md`
+- Runbook: `02-state-lifecycle/demo/README.md`
 - Discussion: the bare arm found its own state with `git status`. Which state file would you keep for this model, and how would you measure it?
 - Next: a 10-minute break
 
@@ -723,7 +723,7 @@ The answer comes on slide 47. The 7 runs: pilot run 3, run 4, and the class-prof
 trap ticket with the tempting shared middleware (trap-tempting-middleware).
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: submodules/03-scope-sandbox/demo/README.md §4.
+Source: 03-scope-sandbox/demo/README.md §4.
 
 ## 37. Launching harness in action: F3 idempotency keys
 section: S3 Scope and sandbox
@@ -754,7 +754,7 @@ class-profile round (A/B ab-20261017-090051-91f837) the harness arm's primary ve
 its full verdict 481 s after launch.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: Makefile `show-3`; README.md §10; docs/architecture.md §2; teamtrack/reference/f3/task.toml.
+Source: Makefile `show-3`; README.md §10; docs/architecture.md §2; platform/teamtrack/reference/f3/task.toml.
 
 ## 38. S3: what the agent may change and reach
 section: S3 Scope and sandbox
@@ -787,7 +787,7 @@ notes:
 Four citations side by side, not merged: no single source states cause 3.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: README.md §2 (cause 3); REFERENCES.md.
+Source: README.md §2 (cause 3); docs/REFERENCES.md.
 
 ## 40. Harness piece: one feature list, one feature
 section: S3 Scope and sandbox
@@ -803,7 +803,7 @@ A2 lets the agent set `passes` (F-a-108); the course follows A3's separation of 
 (F-a-110). That choice is course design.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: A2, A3, A5 in REFERENCES.md.
+Source: A2, A3, A5 in docs/REFERENCES.md.
 
 ## 41. Allowed paths per phase
 section: S3 Scope and sandbox
@@ -819,7 +819,7 @@ notes:
 A1: "enforce boundaries centrally, allow autonomy locally." (F-a-98)
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: docs/architecture.md §5; A1, A2, A5 in REFERENCES.md.
+Source: docs/architecture.md §5; A1, A2, A5 in docs/REFERENCES.md.
 
 ## 42. Sandbox 1: why a container
 section: S3 Scope and sandbox
@@ -834,7 +834,7 @@ notes:
 The sandbox is highlighted on the diagram: one per arm, identical.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: A4, A5 in REFERENCES.md.
+Source: A4, A5 in docs/REFERENCES.md.
 
 ## 43. Sandbox 2: the same limits for both arms
 section: S3 Scope and sandbox
@@ -851,7 +851,7 @@ Say: "The sandbox is the same for both arms. It is taught here, but it is never 
 Detailed sandbox design is Module 2.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: docs/architecture.md §2 (sandbox policy); submodules/03-scope-sandbox/concepts.md (sandbox_denied).
+Source: docs/architecture.md §2 (sandbox policy); 03-scope-sandbox/concepts.md (sandbox_denied).
 
 ## 44. Code: allowed paths and evidence
 section: S3 Scope and sandbox
@@ -942,7 +942,7 @@ Source: quiet run ab-20261017-114259-b64f54 (screen 3); course pilot runs 2-4 an
 section: S3 Scope and sandbox
 minutes: 5
 
-- Runbook: `submodules/03-scope-sandbox/demo/README.md`
+- Runbook: `03-scope-sandbox/demo/README.md`
 - Discussion: the clearest post hoc difference showed where scope was not the primary measure. How would you register that before the next run?
 - Next: who decides that the work is done
 
@@ -971,7 +971,7 @@ shipped test catches it only if it checks that a write moves the ETag, or that a
 version gets 412.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: submodules/04-verification/demo/README.md §4.
+Source: 04-verification/demo/README.md §4.
 
 ## 50. Poll: the final feature
 section: S4 Verification
@@ -988,7 +988,7 @@ notes:
 Some hidden tests combine the new feature with an earlier one.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: submodules/04-verification/demo/README.md (final feature poll); final-project/README.md §2.
+Source: 04-verification/demo/README.md (final feature poll); final-project/README.md §2.
 
 ## 51. Launching harness in action on F4, and the final A/B
 section: S4 Verification
@@ -1026,7 +1026,7 @@ agent time limit, exit 2). The final A/B must be finished by 3:40, when slide 64
 block; with two features `make final` runs them one after another.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: README.md §10, §13; Makefile `show-4`, `final`; teamtrack/reference/f4/task.toml; teamtrack/mutants/features/f4.jsonl.
+Source: README.md §10, §13; Makefile `show-4`, `final`; platform/teamtrack/reference/f4/task.toml; platform/teamtrack/mutants/features/f4.jsonl.
 
 ## 52. S4: what proves the work is done
 section: S4 Verification
@@ -1058,7 +1058,7 @@ notes:
 Cause 4 from the opening.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: A3, A4, B13 in REFERENCES.md.
+Source: A3, A4, B13 in docs/REFERENCES.md.
 
 ## 54. Harness piece: test filters
 section: S4 Verification
@@ -1075,7 +1075,7 @@ reports its evaluation funnel over 86 test classes (F-b-23). The referee's flaki
 shipped test five times since 2026-10-17 (it was ten before), for both arms.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: submodules/04-verification/concepts.md §3.3; B11 in REFERENCES.md.
+Source: 04-verification/concepts.md §3.3; B11 in docs/REFERENCES.md.
 
 ## 55. Mutants and hidden tests
 section: S4 Verification
@@ -1091,7 +1091,7 @@ notes:
 The referee-set mutants were never visible to the filters.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: submodules/04-verification/concepts.md §3.4; B12, B13, B14 in REFERENCES.md; counts in submodules/04-verification/post-class-reading/04-held-out-tests-specbench.md.
+Source: 04-verification/concepts.md §3.4; B12, B13, B14 in docs/REFERENCES.md; counts in 04-verification/post-class-reading/04-held-out-tests-specbench.md.
 
 ## 56. A separate evaluator and a gate
 section: S4 Verification
@@ -1108,7 +1108,7 @@ the evaluator is still inclined to be generous (F-a-112). The F-a-123 sentence s
 implication is that the evaluator is not a fixed yes-or-no decision."
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: docs/architecture.md §5, §6; A2, A3, A4 in REFERENCES.md.
+Source: docs/architecture.md §5, §6; A2, A3, A4 in docs/REFERENCES.md.
 
 ## 57. Measure each piece
 section: S4 Verification
@@ -1124,7 +1124,7 @@ The course planned a leave-one-layer-out batch for all four layers (M8). It was 
 pre-registered pilot gate did not pass, so the course has no per-layer result to show.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: A3 in REFERENCES.md; docs/architecture.md §5 (leave one layer out).
+Source: A3 in docs/REFERENCES.md; docs/architecture.md §5 (leave one layer out).
 
 ## 58. Code: the filter pipeline
 section: S4 Verification
@@ -1230,7 +1230,7 @@ Source: quiet run ab-20261017-115138-c45d9d (screen 3); course pilot runs 2-4 an
 section: S4 Verification
 minutes: 5
 
-- Runbook: `submodules/04-verification/demo/README.md`
+- Runbook: `04-verification/demo/README.md`
 - Discussion: one false "done" in 4 pilot F4 runs per arm, from the bare arm. What would a gate need to catch to earn its turns on this model?
 - Next: the final results
 
@@ -1350,16 +1350,16 @@ warns that its own results should "not be assumed to generalize without similar 
 (F-a-143); the same holds here: one model, one task per section, a few runs per arm.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: course pilot runs 2-4 and class-profile round; A1 F-a-143 in REFERENCES.md.
+Source: course pilot runs 2-4 and class-profile round; A1 F-a-143 in docs/REFERENCES.md.
 
 ## 69. Assignments
 section: Wrap-up
 minutes: 3
 
-- A1 Instructions: `submodules/01-instructions/assignment/`, ≤ $2.50 and 150 traces
-- A2 State and session lifecycle: `submodules/02-state-lifecycle/assignment/`, ≤ $0.40 and 4 traces
-- A3 Scope and sandbox: `submodules/03-scope-sandbox/assignment/`, ≤ $0.48 and 4 traces
-- A4 Verification and portfolio: `submodules/04-verification/assignment/`, ≤ $0.68
+- A1 Instructions: `01-instructions/assignment/`, ≤ $2.50 and 150 traces
+- A2 State and session lifecycle: `02-state-lifecycle/assignment/`, ≤ $0.40 and 4 traces
+- A3 Scope and sandbox: `03-scope-sandbox/assignment/`, ≤ $0.48 and 4 traces
+- A4 Verification and portfolio: `04-verification/assignment/`, ≤ $0.68
 - Each: a brief with grading criteria, a starter folder, `make check-assignment-N` offline, one live step
 - Total ≤ $6 and ≤ 400 traces; Thursday review
 
@@ -1368,7 +1368,7 @@ Learner budgets are course design; the figures are the live-step bounds in READM
 assignment's "Cost and trace budget".
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: submodules/01-instructions/assignment/README.md to submodules/04-verification/assignment/README.md; Makefile `check-assignment-N`.
+Source: 01-instructions/assignment/README.md to 04-verification/assignment/README.md; Makefile `check-assignment-N`.
 
 ## 70. Skills and the starter kit to take home
 section: Wrap-up
@@ -1378,7 +1378,7 @@ code: Final:skill_template 1-6
 - `harness-setup`, `assured-tests`, `house-rules`, `skill-template`, in the Agent Skills format (B1)
 - `uv run shipharness init --target <repo>`: the kit, with TeamTrack's values and REPLACE markers
 - `uv run shipharness init --check <repo>` lists the markers still to fill; no model calls
-- Guide: `docs/apply-to-your-repo.md`, ending with which layers earn their place in your repository
+- Guide: `use-in-your-repo/apply-to-your-repo.md`, ending with which layers earn their place in your repository
 
 notes:
 The `skill-template` frontmatter from `name` to `license`. The kit copies the AGENTS.md map, the docs/
@@ -1386,7 +1386,7 @@ layout, the state files, the feature list and its schema, house-rule check templ
 policy, a CI workflow, and the four skills into `.claude/skills/` and `.agents/skills/`.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: B1 in REFERENCES.md; README.md §14; kit/README.md; anchor Final:skill_template.
+Source: B1 in docs/REFERENCES.md; README.md §14; use-in-your-repo/kit/README.md; anchor Final:skill_template.
 
 ## 71. References (1 of 2)
 section: Wrap-up
@@ -1400,10 +1400,10 @@ minutes: 1
 - A6 Prompting best practices · Anthropic, Claude docs · living page; A7 Using PLANS.md · Aaron Friel, OpenAI · 2025-10-07
 
 notes:
-Full links in REFERENCES.md.
+Full links in docs/REFERENCES.md.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: REFERENCES.md.
+Source: docs/REFERENCES.md.
 
 ## 72. References (2 of 2)
 section: Wrap-up
@@ -1416,7 +1416,7 @@ minutes: 1
 - B15 (Spec-Bench, speculative decoding) is unrelated and not cited
 
 notes:
-Full links in REFERENCES.md.
+Full links in docs/REFERENCES.md.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: REFERENCES.md.
+Source: docs/REFERENCES.md.

@@ -42,11 +42,11 @@ Quotation note: paper quotes were taken from text extracted locally from the arX
 | Other fields | The spec defines only the six fields above. The reference validator rejects any other top-level key (see Validator). | B1, B5 |
 | Body | "There are no format restrictions. Write whatever helps agents perform the task effectively." | B1 §Body content |
 | Whole body loads on activation | "the agent will load this entire file once it's decided to activate a skill. Consider splitting longer `SKILL.md` content into referenced files." | B1 §Body content |
-| Optional dirs | "A skill directory may contain any files and directories beyond the required `SKILL.md`." Recommended: `scripts/` ("executable code that agents can run"), `references/` ("additional documentation that agents can read when needed"), `assets/` ("static resources") | B1 §Optional directories |
+| Optional dirs | "A skill directory may contain any files and directories beyond the required `SKILL.md`." Recommended: `platform/scripts/` ("executable code that agents can run"), `references/` ("additional documentation that agents can read when needed"), `assets/` ("static resources") | B1 §Optional directories |
 | Reference files small | "Agents load these on demand, so smaller files mean less use of context." | B1 §references/ |
 | Progressive disclosure, tier 1 | "**Metadata** (~100 tokens): The `name` and `description` fields are loaded at startup for all skills" | B1 §Progressive disclosure |
 | Progressive disclosure, tier 2 | "**Instructions** (< 5000 tokens recommended): The full `SKILL.md` body is loaded when the skill is activated" | B1 §Progressive disclosure |
-| Progressive disclosure, tier 3 | "**Resources** (as needed): Files (e.g. those in `scripts/`, `references/`, or `assets/`) are loaded only when required" | B1 §Progressive disclosure |
+| Progressive disclosure, tier 3 | "**Resources** (as needed): Files (e.g. those in `platform/scripts/`, `references/`, or `assets/`) are loaded only when required" | B1 §Progressive disclosure |
 | Body length | "Keep your main `SKILL.md` under 500 lines. Move detailed reference material to separate files." | B1 §Progressive disclosure; B7 repeats it |
 | File references | "use relative paths from the skill root" | B1 §File references |
 | Reference depth | "Keep file references one level deep from `SKILL.md`. Avoid deeply nested reference chains." | B1 §File references |
@@ -172,7 +172,7 @@ Quotation note: paper quotes were taken from text extracted locally from the arX
 | progressive disclosure (Metadata / Instructions / Resources; Discovery / Activation / Execution) | B1, B2, B3 | F-b-05 | S1 skills |
 | "under 500 lines" / "< 5000 tokens recommended" | B1 | F-b-06 | S1 skills |
 | file references "one level deep" | B1 | F-b-07 | S1 skills |
-| `scripts/`, `references/`, `assets/` | B1 | F-b-01, F-b-05 | S1 skills |
+| `platform/scripts/`, `references/`, `assets/` | B1 | F-b-01, F-b-05 | S1 skills |
 | `.agents/skills/` cross-client convention | B3, B8, B9 | F-b-08, F-b-14, F-b-15 | S1 skills |
 | lenient validation | B3 | F-b-09 | S1 skills |
 | skills-ref (reference library; `skills-ref validate`) | B1, B5, B6 | F-b-10, F-b-11 | S1 skills |

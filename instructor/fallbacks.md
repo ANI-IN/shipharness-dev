@@ -34,13 +34,13 @@ The short version of the replay is in [run-sheet.md](run-sheet.md#fallback-repla
 ## What a recording is
 
 A recording is a run directory written by `shipharness ab` (`make show-N`, `make demo-N`, `make
-final`) under `RUNS_DIR`, default `.shipharness/runs/` (`src/shipharness/config/settings.py`; the
+final`) under `RUNS_DIR`, default `.shipharness/runs/` (`platform/src/shipharness/config/settings.py`; the
 folder is git-ignored), plus the score exports the referee wrote.
 
 | Path | Contents | Needed by |
 |---|---|---|
 | `.shipharness/runs/<id>/events.jsonl` | The full run log: every event of the arms and the referee (CONTRACTS §8) | Replay (re-emitted with `recorded=True`) |
-| `.shipharness/runs/<id>/ab.json` | Task, seed, section, `checkpoint_sha`, the arms' specs and results, `single_arm` for a show-N run, paths of the diffs and session patches (`write_ab_record` in `src/shipharness/ab/demo.py`) | Replay and swap |
+| `.shipharness/runs/<id>/ab.json` | Task, seed, section, `checkpoint_sha`, the arms' specs and results, `single_arm` for a show-N run, paths of the diffs and session patches (`write_ab_record` in `platform/src/shipharness/ab/demo.py`) | Replay and swap |
 | `.shipharness/runs/<id>/<arm>/diff.patch` | What the arm shipped | Replay and swap |
 | `.shipharness/runs/<id>/<arm>/sessions/session-<n>.patch` | One patch per session (continuity check, S2) | Replay and swap |
 | `.shipharness/runs/<id>/screenshots/<arm>/*.png` | Board screenshots (screen 2) | Only the original run (see the screenshot gap below) |
@@ -48,7 +48,7 @@ folder is git-ignored), plus the score exports the referee wrote.
 
 A show-N recording holds the harness arm only (`single_arm` in `ab.json`). `make replay` replays it;
 the swap test refuses it (`x <id> is a single-arm run (harness in action): the swap test needs both
-arms; pass the id of an A/B`, `src/shipharness/ab/recorded.py`).
+arms; pass the id of an A/B`, `platform/src/shipharness/ab/recorded.py`).
 
 Replay and swap export the checkpoint from the commit recorded in `ab.json` (`checkpoint_sha`), never
 from the tag name (CONTRACTS §22). The checkpoint tags were moved on 2026-10-17 with the owner's
@@ -131,13 +131,13 @@ console tests, and the optional constructed example `make example-1` shows them 
    events)`, one result line per arm, and the cost line.
 6. Screen `4` includes replay dots and says how many there are ("<n> runs are replays (recorded).");
    `uv run shipharness report` leaves replays out unless `--include-recorded` is passed
-   (`src/shipharness/ab/commands.py`).
+   (`platform/src/shipharness/ab/commands.py`).
 
 ### Screenshot gap (screen 2 in a replay)
 
 `replay_ab` copies each arm's `diff.patch` into the new run directory but not the `screenshots/`
 folder, while the replayed `screenshot` events point at paths inside the run directory
-(`src/shipharness/ab/recorded.py`, `src/shipharness/console/preview.py`). Screen `2` of a replay
+(`platform/src/shipharness/ab/recorded.py`, `platform/src/shipharness/console/preview.py`). Screen `2` of a replay
 therefore shows broken images. Copy the folder once the replay's directory exists and reload the page
 (Ctrl+R; the `F` key is the console's full-screen toggle):
 
@@ -178,7 +178,7 @@ all-results slide for where it sits.
 layer stack on its canonical task in the real sandbox, judged by the real referee, with the model
 replaced by scripted steps that make the mistake the layer exists to catch. They cost $0, need no API
 key, carry the `CONSTRUCTED EXAMPLE` badge on every screen, and are never counted
-(`src/shipharness/examples/`). They need Docker, but not OpenAI.
+(`platform/src/shipharness/examples/`). They need Docker, but not OpenAI.
 
 | Command | What it shows (from the scenario's docstring) |
 |---|---|

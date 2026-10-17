@@ -50,8 +50,8 @@ setup:
 	@if [ ! -f .env ]; then cp .env.example .env && echo "+ created .env: fill in the two API keys"; fi
 
 images:
-	$(RUNTIME) build -f sandbox/Dockerfile --target agent -t $(AGENT_IMAGE) .
-	$(RUNTIME) build -f sandbox/Dockerfile --target referee -t $(REFEREE_IMAGE) .
+	$(RUNTIME) build -f platform/sandbox/Dockerfile --target agent -t $(AGENT_IMAGE) .
+	$(RUNTIME) build -f platform/sandbox/Dockerfile --target referee -t $(REFEREE_IMAGE) .
 
 doctor:
 	$(UV) run shipharness doctor --purpose $(PURPOSE)
@@ -68,20 +68,20 @@ datasets:
 lint:
 	$(UV) run ruff check .
 	$(UV) run ruff format --check .
-	cd teamtrack && $(UV) run lint-imports --config .importlinter
-	$(UV) run python scripts/anchors.py check
-	$(UV) run shipharness skills validate skills
+	cd platform/teamtrack && $(UV) run lint-imports --config .importlinter
+	$(UV) run python platform/scripts/anchors.py check
+	$(UV) run shipharness skills validate use-in-your-repo/skills
 
 format:
 	$(UV) run ruff check --fix .
 	$(UV) run ruff format .
 
 lint-prose:
-	$(UV) run python scripts/lint_prose.py
+	$(UV) run python platform/scripts/lint_prose.py
 	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # DESIGN.md, RESEARCH.md: build repository only, not included in the public release
 
 anchors:
-	$(UV) run python scripts/anchors.py list
+	$(UV) run python platform/scripts/anchors.py list
 
 # Fast suite: pyproject addopts deselects slow, live, and docker tests.
 test:
@@ -92,10 +92,10 @@ test-all:
 	$(UV) run pytest -n auto -m "not live and not docker"
 
 test-live:
-	$(UV) run pytest -m live tests/live
+	$(UV) run pytest -m live platform/tests/live
 
 test-docker:
-	$(UV) run pytest -m docker tests/unit/test_sandbox_docker.py
+	$(UV) run pytest -m docker platform/tests/unit/test_sandbox_docker.py
 
 # Section demos: section N's canonical task is feature FN, canonical variant.
 demo-1:
@@ -182,24 +182,24 @@ experiments report pilot:
 
 # check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
 check-assignment-1:
-	$(UV) run python submodules/01-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
+	$(UV) run python 01-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
 
 check-assignment-2:
-	$(UV) run python submodules/02-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
+	$(UV) run python 02-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
 
 check-assignment-3:
-	$(UV) run python submodules/03-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
+	$(UV) run python 03-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
 
 check-assignment-4:
-	$(UV) run python submodules/04-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
+	$(UV) run python 04-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
 
 # grade-assignment-N SUBMISSION=<folder or git URL>: instructor only (graders are private).
 grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
 	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
-	$(UV) run python scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
+	$(UV) run python platform/scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
 
-# slides: slides/deck.md -> slides/dist/deck.{html,pdf,pptx}; lists open PENDING items and empty
+# slides: slides/deck.md -> slides/dist/deck.{html,pdf,pptx} (platform/scripts/build_slides.py); lists open PENDING items and empty
 # result slots. SLIDES_OPTS=--strict fails while any remain (release check); --check validates only.
 SLIDES_OPTS ?=
 slides:
-	$(UV) run python scripts/build_slides.py $(SLIDES_OPTS)
+	$(UV) run python platform/scripts/build_slides.py $(SLIDES_OPTS)

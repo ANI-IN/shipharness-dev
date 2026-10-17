@@ -17,7 +17,7 @@ step was not practical, so the slide content now lives only in `deck.md`.
 
 ```bash
 make slides                                   # validate, then write dist/deck.html, deck.pdf, deck.pptx
-uv run python scripts/build_slides.py --check   # validate and list open items only (no browser)
+uv run python platform/scripts/build_slides.py --check   # validate and list open items only (no browser)
 make slides SLIDES_OPTS=--strict              # release check: fails while any open item remains
 cp slides/dist/deck.pdf slides/dist/deck.pptx slides/   # after a clean strict build: the released copies
 ```
@@ -32,7 +32,7 @@ in `dist/diagrams/` by content hash, so later builds work offline until a diagra
 |---|---|---|
 | `x Chromium did not start (uv run playwright install chromium): ...` or `x playwright is not installed: ...`, exit code 3 | Playwright's Chromium is missing | `uv run playwright install chromium`, then `make slides` again |
 | `x browser step failed: <error type>: ...`, exit code 3, while a new or changed diagram is drawn | The first render of that diagram cannot load Mermaid from cdn.jsdelivr.net | Connect to the network and rerun; diagrams already cached in `dist/diagrams/` need no network |
-| `x slide N (line L): ...` lines, then `<n> validation errors; nothing built`, exit code 2 | A slide breaks a rule in the list of checks below (count, bullets, image path, code reference) | Fix that slide in `deck.md`; `uv run python scripts/build_slides.py --check` repeats the check without a browser |
+| `x slide N (line L): ...` lines, then `<n> validation errors; nothing built`, exit code 2 | A slide breaks a rule in the list of checks below (count, bullets, image path, code reference) | Fix that slide in `deck.md`; `uv run python platform/scripts/build_slides.py --check` repeats the check without a browser |
 | `! slide N: text still overflows at <px>px; shorten it` or `! slide N: body text shrunk to <px>px to fit` | Too much text for one slide | Shorten that slide's bullets, or move detail to its notes |
 | `x --strict: open items remain`, exit code 1 | A PENDING or CAPTURE marker or an empty result slot is left | The report above that line lists each one with its slide; fill or remove it |
 
@@ -69,7 +69,7 @@ Speaker notes until the next slide, with the run sheet section and the source.
 Other fields: `layout:` (`default`, `title`, or `statement`), `subtitle:`, `image:` (path relative to
 this folder), `slot:` (a result slot: `slot: name` while empty, `slot: name = value` or an image path
 once filled), `code: <anchor id> <lines>` (lines of a walkthrough anchor from
-`uv run python scripts/anchors.py extract <id>`, for example `S4:filters 20-23,30-36`; left-out lines
+`uv run python platform/scripts/anchors.py extract <id>`, for example `S4:filters 20-23,30-36`; left-out lines
 show as `...`), `diagram: architecture now=L1,L2` (the recurring architecture diagram defined once at
 the top of `deck.md`, with the named nodes drawn with a thick border and the word "now"), and inline
 ` ```mermaid ` blocks.

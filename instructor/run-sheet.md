@@ -10,7 +10,7 @@ runs of the class commands on 2026-10-17 (one command at a time on a quiet machi
 they exist in the repository.
 
 Status: final for the class plan. Every demo step launches or shows a live run;
-`tests/unit/test_run_sheet_live.py` fails if a replay or a constructed example enters a demo step.
+`platform/tests/unit/test_run_sheet_live.py` fails if a replay or a constructed example enters a demo step.
 
 Companion files: [code-walkthrough.md](code-walkthrough.md) (anchors and talking points),
 [poll-questions.md](poll-questions.md), [fallbacks.md](fallbacks.md) (fallback recordings, replay,
@@ -74,7 +74,7 @@ emergency fallback only ([Fallback: replay procedure](#fallback-replay-procedure
 | Final | One live A/B: `make final FEATURES=<poll winners>`; one A/B is one dot, read against the pilot's dots |
 
 `make show-2 SESSION_BUDGET=12,38` runs the pilot's lever: a 12-turn first session, then 38 turns
-(the task's own budget is 20 and 30, `teamtrack/reference/f2/task.toml`). The Makefile passes
+(the task's own budget is 20 and 30, `platform/teamtrack/reference/f2/task.toml`). The Makefile passes
 `SESSION_BUDGET` to `show-2` since fd9726c (`make -n show-2 SESSION_BUDGET=12,38` prints
 `--session-budget=12,38`).
 
@@ -138,7 +138,7 @@ ran on T-1 (instructor guide, stage 1); run it again here, it takes seconds when
 | 4. Browser | Open `http://127.0.0.1:8765/` | The runs list and the key legend |
 | 5. Fallbacks present | `ls .shipharness/runs/<id>/ab.json` for each fallback in [fallbacks.md](fallbacks.md) | One file per id |
 | 6. Policy printout ready (S3) | `uv run python -c 'from shipharness.config import Settings; from shipharness.sandbox import default_policy, render_policy; print(render_policy(default_policy(Settings())))'` | Starts with `Sandbox policy (identical for both arms)` |
-| 7. Assessment ready (opening) | `uv run python skills/harness-setup/scripts/assess.py teamtrack --out .shipharness/harness-assessment.html` | A summary per area, then one line per check, then `report: ...` |
+| 7. Assessment ready (opening) | `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out .shipharness/harness-assessment.html` | A summary per area, then one line per check, then `report: ...` |
 | 8. Slides | Open the deck on slide 1 | |
 
 Do not run any `make show-N` or `make final` before class on the class date: the session cost cap
@@ -157,7 +157,7 @@ that date (DESIGN §11.1). `make warm` makes no model calls.
 | Browser tab 3 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
 | Browser tab 4 | Console: the final A/B at `/run/<ab id>`, opened at the S4 launch and shown in the final block |
 
-### Console keys (DESIGN §13; `src/shipharness/console/static/stream.js`)
+### Console keys (DESIGN §13; `platform/src/shipharness/console/static/stream.js`)
 
 | Key | Screen | Shows |
 |---|---|---|
@@ -320,7 +320,7 @@ above; the four parts and the sandbox on the architecture diagram; the claim wit
 
 **0:07-0:10 Tour.**
 1. Switch to the console tab, press `1` to `5` once each and name each screen (table above).
-2. Open `src/shipharness/ab/demo.py` at `Opening:two_arms` and `src/shipharness/events/bus.py` at
+2. Open `platform/src/shipharness/ab/demo.py` at `Opening:two_arms` and `platform/src/shipharness/events/bus.py` at
    `Opening:publish`; one minute each (talking points in [code-walkthrough.md](code-walkthrough.md)).
 3. Slide 6, how we measure it: one sentence on the pilot ("in runs 3 and 4 the arms tied on every
    section's primary measure; you will see each result in its section").
@@ -364,7 +364,7 @@ S4 differs in its first six minutes: two polls (minutes 0-4), then two launches,
 `make final` (minutes 4-6), so its concepts run from minute 6 to minute 20
 ([S4](#s4-verification-250-340)).
 
-What the terminal prints at the end of `make show-N` (format from `src/shipharness/ab/commands.py`):
+What the terminal prints at the end of `make show-N` (format from `platform/src/shipharness/ab/commands.py`):
 one line `A/B <id> (<feature>, layers=[...], profile=class, harness in action)`, one line for the
 harness arm with status, claim, primary measure, `passed=`, hidden tests passed of total, mutants
 killed of total, reviewer verdict, and cost, then the cost line `Cost: $... (this command: ...;
@@ -374,14 +374,14 @@ limit), which is a result, not a failure of the command.
 
 What the console keeps after a run: screen `1` shows the full scrollable timeline once a run has
 finished; screen `5` keeps the last 40 tail lines (`TAIL_SIZE` in
-`src/shipharness/console/state.py`). The launch is the moment to show the first turns live.
+`platform/src/shipharness/console/state.py`). The launch is the moment to show the first turns live.
 
 ---
 
 ## S1 Instructions (0:10-1:00)
 
 **Feature and rule.** `make show-1` runs F1, org-wide issue search (`GET /issues`), canonical ticket,
-from checkpoint `m1-s1-start`, one session of 30 turns (`teamtrack/reference/f1/task.toml`). Rule at
+from checkpoint `m1-s1-start`, one session of 30 turns (`platform/teamtrack/reference/f1/task.toml`). Rule at
 risk: R1 tenant isolation. The legacy `GET /v1/issues` handler has no tenant filter and is in the
 repository next to the right pattern; A1 reports that agents copy existing patterns (A1, F-a-20).
 Primary measure: one or more new R1 violations fails the run (DESIGN §8.2). Harness arm layers:
@@ -425,7 +425,7 @@ arm.
 **Discussion (0:55-1:00).**
 1. "The bare arm could read the same rules, and applied them. What would have to be true of a model
    or a ticket for the map to earn its place?" Tie back to cause 1 (A1, F-a-05).
-2. Transition: link `submodules/01-instructions/demo/README.md`; next problem: what happens when a
+2. Transition: link `01-instructions/demo/README.md`; next problem: what happens when a
    session ends halfway.
 
 ---
@@ -434,7 +434,7 @@ arm.
 
 **Feature and rule.** `make show-2 SESSION_BUDGET=12,38` runs F2, comments on issues with a comments
 panel on the board, from `m1-s2-start`, two sessions with the pilot's budgets 12 and 38 (the task's
-own budget is 20 and 30, `teamtrack/reference/f2/task.toml`): session 1 stops after 12 turns, the arm
+own budget is 20 and 30, `platform/teamtrack/reference/f2/task.toml`): session 1 stops after 12 turns, the arm
 gets the wrap-up turns (`WRAPUP_TURNS`, default 3) and the neutral resume sentence (DESIGN §6.3). Primary measure: continuity failure, any of R7 failing, a
 second migration creating the same table, or ≥ 30% of session-1 lines removed in session 2 (DESIGN
 §8.2). Harness arm layers: instructions, state. The assumption the state files encode: a fresh
@@ -479,7 +479,7 @@ fixed the continuity check.
 
 **Discussion (1:45-1:50).**
 1. "Which state file would you keep for this model, and how would you measure it?"
-2. Transition: `submodules/02-state-lifecycle/demo/README.md`.
+2. Transition: `02-state-lifecycle/demo/README.md`.
 
 ---
 
@@ -492,7 +492,7 @@ Slide 35 with the return time (filled in live). Nothing runs during the break.
 ## S3 Scope and sandbox (2:00-2:50)
 
 **Feature and rule.** `make show-3` runs F3, idempotency keys on issue creation, from `m1-s3-start`,
-build phase then test phase (`teamtrack/reference/f3/task.toml`; build allow list
+build phase then test phase (`platform/teamtrack/reference/f3/task.toml`; build allow list
 `app/api/issues.py`, `app/services/issues.py`, `docs/HANDBOOK.md`, `tests/visible/**`; test allow
 list `tests/visible/**`). Primary measure: ≥ 1 out-of-scope file in the shipped diff, or ≥ 1 source
 file changed during the test phase (DESIGN §8.2). Harness arm layers: instructions, state, scope. The
@@ -544,16 +544,16 @@ runs, harness arms in 0 of 6.
 **Discussion (2:45-2:50).**
 1. "The clearest post hoc difference showed where scope was not the primary measure. How would you
    register that before the next run?"
-2. Transition: `submodules/03-scope-sandbox/demo/README.md`.
+2. Transition: `03-scope-sandbox/demo/README.md`.
 
 ---
 
 ## S4 Verification (2:50-3:40)
 
 **Feature and rule.** `make show-4` runs F4, optimistic concurrency (ETag, If-Match) and issue
-history, from `m1-s4-start`, one session of 40 turns (`teamtrack/reference/f4/task.toml`). Two
+history, from `m1-s4-start`, one session of 40 turns (`platform/teamtrack/reference/f4/task.toml`). Two
 co-primary counts per run: hidden tests passed of 69 (VERIFICATION.md, M5 counts) and referee-set
-mutants killed by the arm's shipped tests of 4 (`teamtrack/mutants/features/f4.jsonl`) (DESIGN
+mutants killed by the arm's shipped tests of 4 (`platform/teamtrack/mutants/features/f4.jsonl`) (DESIGN
 §8.2). Harness arm layers: all four. The assumption the gate and filters encode: the agent's "done"
 and its own tests cannot be trusted (A3, F-a-15; A4, F-a-17; the one-line form is the course's).
 
@@ -632,7 +632,7 @@ in two A/Bs.
 
 **Discussion (3:35-3:40).**
 1. "What would a gate need to catch to earn its turns on this model?"
-2. Transition: `submodules/04-verification/demo/README.md`; next, the final A/B launched at 2:55
+2. Transition: `04-verification/demo/README.md`; next, the final A/B launched at 2:55
    (terminal C, browser tab 4).
 
 ---
@@ -655,11 +655,11 @@ and starts no run. It is the class's one live A/B and its measurement lesson: on
    post hoc. Show `Final:dots`. A1 warns that its own results should "not be assumed to generalize
    without similar investment" (A1, F-a-143); the same holds for this pilot: one model, one task per
    section, three runs per arm per run.
-5. **3:53 Assignments**: A1 to A4 in `submodules/0N-*/assignment/README.md`; learner budget ≤ $6
+5. **3:53 Assignments**: A1 to A4 in `0N-*/assignment/README.md`; learner budget ≤ $6
    OpenAI and ≤ 400 LangSmith traces in total (DESIGN §11.5).
-6. **3:56 Skills and the starter kit**: `skills/harness-setup`, `skills/assured-tests`,
-   `skills/house-rules`, `skills/skill-template`; `uv run shipharness init --target <repo>` copies
-   them with the kit (`docs/apply-to-your-repo.md`); show `Final:skill_template`.
+6. **3:56 Skills and the starter kit**: `use-in-your-repo/skills/harness-setup`, `use-in-your-repo/skills/assured-tests`,
+   `use-in-your-repo/skills/house-rules`, `use-in-your-repo/skills/skill-template`; `uv run shipharness init --target <repo>` copies
+   them with the kit (`use-in-your-repo/apply-to-your-repo.md`); show `Final:skill_template`.
 7. **3:58 References**, then close.
 
 **If a final A/B is not finished at 3:40.** Open its live screens in browser tab 4 (`1`, then `2`;
@@ -687,28 +687,28 @@ Messages are copied from the code (file in the last column).
 
 | Symptom (exact text) | Cause | In class | Source |
 |---|---|---|---|
-| `x missing     OPENAI_API_KEY         not set`, then `next step: OPENAI_API_KEY is missing: add it to .env at the repo root` (same for `LANGSMITH_API_KEY`); last line `result: x not ready (fix the items above)` | Key not in `.env` | Before class only: fill in `.env`, rerun `make doctor` | `src/shipharness/doctor.py` |
-| `x invalid     OPENAI_API_KEY         OpenAI key invalid (rejected by OpenAI, <error class>, status <code>)`, then `next step: check OPENAI_API_KEY in .env (create a new key in your OpenAI account)` | Key revoked or wrong | Replace the key; until fixed, use the fallback recordings ([fallbacks.md](fallbacks.md)) | `src/shipharness/doctor.py` |
-| `! unreachable OPENAI_API_KEY         could not reach OpenAI (<error class>)`, then `next step: check your network connection and retry` | Network | Check the network; a replay of a fallback recording needs no OpenAI calls | `src/shipharness/doctor.py` |
-| `! warn        container runtime      docker not found: only the UNSANDBOXED fallback can run` | Docker not on PATH inside WSL | Start Docker Engine in Ubuntu (systemd: `sudo systemctl start docker`); do not run class commands unsandboxed | `src/shipharness/doctor.py`; DESIGN §9 |
-| `make warm` ends with `warm: incomplete (<n> s)`, or a line starting `x images: build failed` or `x page-in failed` | An image build or a container start failed | `make images`, restart Docker, rerun `make warm` | `src/shipharness/ab/warm.py` |
-| Arm status `ERROR` with `arm setup failed: RuntimeError: docker run failed: ...` | Docker daemon stopped, or image missing | `make images` if the image is missing; restart Docker; then replay the section's recording | `src/shipharness/ab/demo.py`, `src/shipharness/sandbox/docker.py` |
-| Referee summary `...; referee could not judge the build: referee container did not start: ...` | Referee container failed to start; the run is kept | Rerun only the judging later with `make replay RUN=<id>`; continue with the recording now | `src/shipharness/ab/referee.py` |
-| Screen 2: `No board screenshot yet (the preview container takes one every 5 s).` for the whole run | Board preview failed to start; display only | Carry on; the referee's board checks still run | `src/shipharness/ab/demo.py`, console template `boards.html` |
-| Arm status `ABORTED: cap`, reason `cost cap reached: run $... of $0.20` (or `session $... of $2.50`) | A model call would exceed a cap | The run is judged and shown anyway; say so. If it is the session cap, stop live runs and use replays | `src/shipharness/cost/tracker.py`, `src/shipharness/runner/loop.py` |
-| Arm status `ABORTED: timeout`, reason `agent time limit: RUN_TIMEOUT_S 300 s` or `harness time limit: HARNESS_TIMEOUT_S 120 s exceeded during ...`; the command exits 2 | Agent or harness time budget used up | Judged and shown; say which clock ran out. Exit code 2 means an arm was aborted, not that the command broke (the class-profile round's F4 A/B exited 2 this way) | `src/shipharness/runner/loop.py`, `src/shipharness/ab/commands.py` |
-| Arm status `ERROR`, error `OpenAI rejected the request: check OPENAI_API_KEY (authentication failed).` | Key rejected mid-class | Replay the section; fix the key at the break | `src/shipharness/runner/loop.py` |
-| Arm status `ERROR`, error `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | Account out of credit | Fallback recordings for the rest of the class | `src/shipharness/runner/loop.py` |
-| Arm status `ERROR`, error `OpenAI request kept failing after retries` | Repeated 429 or server errors | Replay the section | `src/shipharness/runner/loop.py` |
-| A show-N run is much slower than the times above | A Fast-tier request can come back at the Standard tier; it is then charged Standard rates. `tail -n 20 .shipharness/ledger.jsonl` shows `"service_tier": "default"` instead of `"fast"` on those calls | Nothing to fix in class; the run is valid. Say the time and note it | `src/shipharness/cost/tracker.py`; `config/prices.toml` |
-| `x <id> is a single-arm run (harness in action): the swap test needs both arms; pass the id of an A/B` | `make swap-N` on a show-N run | Swap tests apply to A/Bs only; the class plan runs none in S1 to S4 | `src/shipharness/ab/recorded.py` |
-| `x <ab id> predates checkpoint SHA pinning: ...; run the A/B again` | Record without `checkpoint_sha` | Use a recording made after M5 (all fallbacks are) | `src/shipharness/ab/recorded.py` |
+| `x missing     OPENAI_API_KEY         not set`, then `next step: OPENAI_API_KEY is missing: add it to .env at the repo root` (same for `LANGSMITH_API_KEY`); last line `result: x not ready (fix the items above)` | Key not in `.env` | Before class only: fill in `.env`, rerun `make doctor` | `platform/src/shipharness/doctor.py` |
+| `x invalid     OPENAI_API_KEY         OpenAI key invalid (rejected by OpenAI, <error class>, status <code>)`, then `next step: check OPENAI_API_KEY in .env (create a new key in your OpenAI account)` | Key revoked or wrong | Replace the key; until fixed, use the fallback recordings ([fallbacks.md](fallbacks.md)) | `platform/src/shipharness/doctor.py` |
+| `! unreachable OPENAI_API_KEY         could not reach OpenAI (<error class>)`, then `next step: check your network connection and retry` | Network | Check the network; a replay of a fallback recording needs no OpenAI calls | `platform/src/shipharness/doctor.py` |
+| `! warn        container runtime      docker not found: only the UNSANDBOXED fallback can run` | Docker not on PATH inside WSL | Start Docker Engine in Ubuntu (systemd: `sudo systemctl start docker`); do not run class commands unsandboxed | `platform/src/shipharness/doctor.py`; DESIGN §9 |
+| `make warm` ends with `warm: incomplete (<n> s)`, or a line starting `x images: build failed` or `x page-in failed` | An image build or a container start failed | `make images`, restart Docker, rerun `make warm` | `platform/src/shipharness/ab/warm.py` |
+| Arm status `ERROR` with `arm setup failed: RuntimeError: docker run failed: ...` | Docker daemon stopped, or image missing | `make images` if the image is missing; restart Docker; then replay the section's recording | `platform/src/shipharness/ab/demo.py`, `platform/src/shipharness/sandbox/docker.py` |
+| Referee summary `...; referee could not judge the build: referee container did not start: ...` | Referee container failed to start; the run is kept | Rerun only the judging later with `make replay RUN=<id>`; continue with the recording now | `platform/src/shipharness/ab/referee.py` |
+| Screen 2: `No board screenshot yet (the preview container takes one every 5 s).` for the whole run | Board preview failed to start; display only | Carry on; the referee's board checks still run | `platform/src/shipharness/ab/demo.py`, console template `boards.html` |
+| Arm status `ABORTED: cap`, reason `cost cap reached: run $... of $0.20` (or `session $... of $2.50`) | A model call would exceed a cap | The run is judged and shown anyway; say so. If it is the session cap, stop live runs and use replays | `platform/src/shipharness/cost/tracker.py`, `platform/src/shipharness/runner/loop.py` |
+| Arm status `ABORTED: timeout`, reason `agent time limit: RUN_TIMEOUT_S 300 s` or `harness time limit: HARNESS_TIMEOUT_S 120 s exceeded during ...`; the command exits 2 | Agent or harness time budget used up | Judged and shown; say which clock ran out. Exit code 2 means an arm was aborted, not that the command broke (the class-profile round's F4 A/B exited 2 this way) | `platform/src/shipharness/runner/loop.py`, `platform/src/shipharness/ab/commands.py` |
+| Arm status `ERROR`, error `OpenAI rejected the request: check OPENAI_API_KEY (authentication failed).` | Key rejected mid-class | Replay the section; fix the key at the break | `platform/src/shipharness/runner/loop.py` |
+| Arm status `ERROR`, error `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | Account out of credit | Fallback recordings for the rest of the class | `platform/src/shipharness/runner/loop.py` |
+| Arm status `ERROR`, error `OpenAI request kept failing after retries` | Repeated 429 or server errors | Replay the section | `platform/src/shipharness/runner/loop.py` |
+| A show-N run is much slower than the times above | A Fast-tier request can come back at the Standard tier; it is then charged Standard rates. `tail -n 20 .shipharness/ledger.jsonl` shows `"service_tier": "default"` instead of `"fast"` on those calls | Nothing to fix in class; the run is valid. Say the time and note it | `platform/src/shipharness/cost/tracker.py`; `platform/config/prices.toml` |
+| `x <id> is a single-arm run (harness in action): the swap test needs both arms; pass the id of an A/B` | `make swap-N` on a show-N run | Swap tests apply to A/Bs only; the class plan runs none in S1 to S4 | `platform/src/shipharness/ab/recorded.py` |
+| `x <ab id> predates checkpoint SHA pinning: ...; run the A/B again` | Record without `checkpoint_sha` | Use a recording made after M5 (all fallbacks are) | `platform/src/shipharness/ab/recorded.py` |
 | `make replay` without `RUN`: `! replay needs RUN=<ab or run id>` | Missing argument | `make replay RUN=<id>` | `Makefile` |
-| `x no recorded A/B for '<id>' under .shipharness/runs; check the A/B or run id` | Wrong id | Copy the id from [fallbacks.md](fallbacks.md) | `src/shipharness/ab/commands.py` |
-| `make report` prints `! make report is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` and exits 2 | `report` is not a make target in this release | Run `uv run shipharness report` | `Makefile`, `src/shipharness/ab/commands.py` |
+| `x no recorded A/B for '<id>' under .shipharness/runs; check the A/B or run id` | Wrong id | Copy the id from [fallbacks.md](fallbacks.md) | `platform/src/shipharness/ab/commands.py` |
+| `make report` prints `! make report is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` and exits 2 | `report` is not a make target in this release | Run `uv run shipharness report` | `Makefile`, `platform/src/shipharness/ab/commands.py` |
 | `make final` with no `FEATURES` runs F5, then F6 | Makefile default `FEATURES ?= F5,F6` | Always pass `FEATURES=` with the poll result. If the default does not match it, press Ctrl+C in terminal C at once and launch again with `FEATURES=` | `Makefile` |
-| Console header shows `reconnecting` | The console server stopped or restarted | Check terminal A; restart `make console`; reload the page | `src/shipharness/console/static/stream.js` |
-| Replay: screen 2 shows broken board images | Replay copies the diffs but not the `screenshots/` folder into the new run directory | See the workaround in [fallbacks.md](fallbacks.md) | `src/shipharness/ab/recorded.py` |
+| Console header shows `reconnecting` | The console server stopped or restarted | Check terminal A; restart `make console`; reload the page | `platform/src/shipharness/console/static/stream.js` |
+| Replay: screen 2 shows broken board images | Replay copies the diffs but not the `screenshots/` folder into the new run directory | See the workaround in [fallbacks.md](fallbacks.md) | `platform/src/shipharness/ab/recorded.py` |
 | Any screen shows `UNSANDBOXED — results not official` | `SANDBOX_MODE=none` | Not for class results; switch back to Docker | console template `_macros.html`; DESIGN §9 |
 
 ---

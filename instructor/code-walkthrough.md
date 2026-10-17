@@ -1,14 +1,14 @@
 # Code walkthrough
 
 Every walkthrough anchor in the repository, in class order, with the file, the lines, and what to
-say. The code blocks below were pulled with `scripts/anchors.py extract`; they are not retyped. If a
+say. The code blocks below were pulled with `platform/scripts/anchors.py extract`; they are not retyped. If a
 block looks out of date, the file wins: print the current lines with
-`uv run python scripts/anchors.py extract <id>` and `uv run python scripts/anchors.py list` for the
-line numbers. `uv run python scripts/anchors.py check` fails if an anchor is missing, unbalanced, or
+`uv run python platform/scripts/anchors.py extract <id>` and `uv run python platform/scripts/anchors.py list` for the
+line numbers. `uv run python platform/scripts/anchors.py check` fails if an anchor is missing, unbalanced, or
 longer than 40 lines.
 
 Talking points cite RESEARCH.md source and finding ids. Line numbers in the headings include the two
-marker lines; when they drift, `uv run python scripts/anchors.py list` has the current ones. In class
+marker lines; when they drift, `uv run python platform/scripts/anchors.py list` has the current ones. In class
 the walkthrough runs while `make show-N` goes on (run sheet, section pattern).
 
 How to show code in class: open the file in the editor at the start marker (search for
@@ -33,7 +33,7 @@ code is the fairness of the comparison, not the details.
 
 ### Opening:two_arms
 
-File: `src/shipharness/ab/demo.py:403-424` (pulled with `uv run python scripts/anchors.py extract Opening:two_arms`)
+File: `platform/src/shipharness/ab/demo.py:403-424` (pulled with `uv run python platform/scripts/anchors.py extract Opening:two_arms`)
 
 ```python
         # Same task, same model, effort, budgets, cost cap, tools, and sandbox for both arms.
@@ -73,7 +73,7 @@ Talking points:
 
 ### Opening:publish
 
-File: `src/shipharness/events/bus.py:143-183` (pulled with `uv run python scripts/anchors.py extract Opening:publish`)
+File: `platform/src/shipharness/events/bus.py:143-183` (pulled with `uv run python platform/scripts/anchors.py extract Opening:publish`)
 
 ```python
     def publish(
@@ -134,7 +134,7 @@ arms can read (DESIGN §6.1). The code shows how the harness arm is pointed at i
 
 ### S1:agents_md (3 minutes)
 
-File: `teamtrack/harness/instructions/AGENTS.md:1-38` (pulled with `uv run python scripts/anchors.py extract S1:agents_md`)
+File: `platform/teamtrack/harness/instructions/AGENTS.md:1-38` (pulled with `uv run python platform/scripts/anchors.py extract S1:agents_md`)
 
 ````markdown
 # AGENTS.md
@@ -195,7 +195,7 @@ Talking points:
 
 ### S1:progressive (3.5 minutes)
 
-File: `src/shipharness/runner/skills_loader.py:49-90` (pulled with `uv run python scripts/anchors.py extract S1:progressive`)
+File: `platform/src/shipharness/runner/skills_loader.py:49-90` (pulled with `uv run python platform/scripts/anchors.py extract S1:progressive`)
 
 ```python
 class SkillsLoader:
@@ -253,7 +253,7 @@ Talking points:
 
 ### S1:prefix (3.5 minutes)
 
-File: `src/shipharness/harness/instructions/router.py:28-50` (pulled with `uv run python scripts/anchors.py extract S1:prefix`)
+File: `platform/src/shipharness/harness/instructions/router.py:28-50` (pulled with `uv run python platform/scripts/anchors.py extract S1:prefix`)
 
 ```python
 def build_prefix(source: Path) -> str:
@@ -298,7 +298,7 @@ session.
 
 ### S2:init (3 minutes)
 
-File: `src/shipharness/harness/state/assets/init.sh:2-29` (pulled with `uv run python scripts/anchors.py extract S2:init`)
+File: `platform/src/shipharness/harness/state/assets/init.sh:2-29` (pulled with `uv run python platform/scripts/anchors.py extract S2:init`)
 
 ```bash
 # init.sh for {{feature_id}}, written by the harness initializer step.
@@ -342,7 +342,7 @@ Talking points:
 
 ### S2:stop_resume (4 minutes)
 
-File: `src/shipharness/harness/state/lifecycle.py:95-134` (pulled with `uv run python scripts/anchors.py extract S2:stop_resume`)
+File: `platform/src/shipharness/harness/state/lifecycle.py:95-134` (pulled with `uv run python platform/scripts/anchors.py extract S2:stop_resume`)
 
 ```python
 def session_stop(
@@ -387,13 +387,13 @@ Talking points:
 - The forced stop is a course mechanism, the session turn budget, which produces what A3 calls a
   context reset: "clearing the context window entirely and starting a fresh agent, combined with a
   structured handoff" (A3, F-a-65 to F-a-69; RESEARCH G-5). For F2 the budget is `[20, 30]`
-  (`teamtrack/reference/f2/task.toml`).
+  (`platform/teamtrack/reference/f2/task.toml`).
 - `session_stop` writes the machine part of `session-handoff.md` itself (files changed, test status,
   last commits), so the handoff exists even when the agent writes none (DESIGN §6.3).
 - It appends the progress entry and commits both files: "End the session by writing a git commit and
   progress update." (A2, F-a-63)
 - `resume_text` is extra text for the harness arm only. Both arms first get the same neutral resume
-  sentence (`NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py`), and both get the same number of
+  sentence (`NEUTRAL_RESUME` in `platform/src/shipharness/runner/prompts.py`), and both get the same number of
   wrap-up turns (DESIGN §6.1).
 - `phase == "test"`: a test-phase session starts with the feature's tests (`TEST_PHASE_FIRST`,
   change 9 in VERIFICATION.md, "Pilot-driven changes after run 2"), so the session does not spend its
@@ -403,7 +403,7 @@ Talking points:
 
 ### S2:write (3 minutes)
 
-File: `src/shipharness/harness/state/progress.py:11-37` (pulled with `uv run python scripts/anchors.py extract S2:write`)
+File: `platform/src/shipharness/harness/state/progress.py:11-37` (pulled with `uv run python platform/scripts/anchors.py extract S2:write`)
 
 ```python
 def session_entry(
@@ -453,7 +453,7 @@ operations "to the project directory only" (F-a-86), A6 as supplementary (F-a-21
 
 ### S3:allowed_paths (2.5 minutes)
 
-File: `src/shipharness/harness/scope/guard.py:59-97` (pulled with `uv run python scripts/anchors.py extract S3:allowed_paths`)
+File: `platform/src/shipharness/harness/scope/guard.py:59-97` (pulled with `uv run python platform/scripts/anchors.py extract S3:allowed_paths`)
 
 ```python
 @dataclass(frozen=True)
@@ -495,7 +495,7 @@ def _phase_reason(rules: PathRules) -> str:
 
 Talking points:
 - `PathRules` holds one phase's allow list (from the task, for example `[allowed_paths]` in
-  `teamtrack/reference/f3/task.toml`).
+  `platform/teamtrack/reference/f3/task.toml`).
 - Order inside `reason()`: harness-only files first (`feature_list.json` may not be edited at all;
   A2, F-a-80; DESIGN D-14), then the state files when the state layer is on, then the allow list.
 - The returned string is what the agent reads in its tool result. A1 writes lint messages "to inject
@@ -508,7 +508,7 @@ Talking points:
 
 ### S3:passes (2.5 minutes)
 
-File: `src/shipharness/harness/scope/status.py:84-120` (pulled with `uv run python scripts/anchors.py extract S3:passes`)
+File: `platform/src/shipharness/harness/scope/status.py:84-120` (pulled with `uv run python platform/scripts/anchors.py extract S3:passes`)
 
 ```python
 def update_status(
@@ -557,7 +557,7 @@ Talking points:
 
 ### S3:policy (2 minutes)
 
-File: `src/shipharness/sandbox/policy.py:62-87` (pulled with `uv run python scripts/anchors.py extract S3:policy`)
+File: `platform/src/shipharness/sandbox/policy.py:62-87` (pulled with `uv run python platform/scripts/anchors.py extract S3:policy`)
 
 ```python
 class SandboxPolicy(BaseModel):
@@ -598,7 +598,7 @@ Talking points:
 
 ### S3:run_args (1.5 minutes)
 
-File: `src/shipharness/sandbox/policy.py:90-124` (pulled with `uv run python scripts/anchors.py extract S3:run_args`)
+File: `platform/src/shipharness/sandbox/policy.py:90-124` (pulled with `uv run python platform/scripts/anchors.py extract S3:run_args`)
 
 ```python
 def docker_run_args(
@@ -645,7 +645,7 @@ Talking points:
 
 ### S3:dockerfile (1.5 minutes)
 
-File: `sandbox/Dockerfile:19-33` (pulled with `uv run python scripts/anchors.py extract S3:dockerfile`)
+File: `platform/sandbox/Dockerfile:19-33` (pulled with `uv run python platform/scripts/anchors.py extract S3:dockerfile`)
 
 ```dockerfile
 RUN uv sync --frozen --no-install-project --group dev
@@ -655,7 +655,7 @@ RUN useradd --uid 1000 --create-home agent \
     && git config --system user.email "agent@sandbox.invalid" \
     && git config --system --add safe.directory /work
 # The check runner (python -m shipharness.checks.runner) comes from the image, never the workspace.
-COPY src/ /opt/shipharness/src/
+COPY platform/src/ /opt/shipharness/src/
 ENV PYTHONPATH=/opt/shipharness/src
 
 FROM base AS agent
@@ -683,7 +683,7 @@ tests miss what held-out tests catch (B13, F-b-45, F-b-50).
 
 ### S4:filters (2.5 minutes)
 
-File: `src/shipharness/filters/pipeline.py:34-74` (pulled with `uv run python scripts/anchors.py extract S4:filters`)
+File: `platform/src/shipharness/filters/pipeline.py:34-74` (pulled with `uv run python platform/scripts/anchors.py extract S4:filters`)
 
 ```python
 def run_pipeline(
@@ -737,7 +737,7 @@ Talking points:
 
 ### S4:probe (3 minutes)
 
-File: `src/shipharness/checks/r1_tenant.py:65-104` (pulled with `uv run python scripts/anchors.py extract S4:probe`)
+File: `platform/src/shipharness/checks/r1_tenant.py:65-104` (pulled with `uv run python platform/scripts/anchors.py extract S4:probe`)
 
 ```python
 def judge(probe: Probe, response: Any, t: Target, home: str, other: str) -> Finding | None:
@@ -791,7 +791,7 @@ Talking points:
 
 ### S4:blind (1.5 minutes)
 
-File: `src/shipharness/reviewer/blind.py:15-39` (pulled with `uv run python scripts/anchors.py extract S4:blind`)
+File: `platform/src/shipharness/reviewer/blind.py:15-39` (pulled with `uv run python platform/scripts/anchors.py extract S4:blind`)
 
 ```python
 def blind(diff: str | bytes) -> str:
@@ -830,7 +830,7 @@ Talking points:
 
 ### S4:gate (3 minutes)
 
-File: `src/shipharness/harness/verify/gate.py:143-184` (pulled with `uv run python scripts/anchors.py extract S4:gate`)
+File: `platform/src/shipharness/harness/verify/gate.py:143-184` (pulled with `uv run python platform/scripts/anchors.py extract S4:gate`)
 
 ```python
 def run_gate(
@@ -893,7 +893,7 @@ Talking points:
 
 ### Final:dots (2 minutes)
 
-File: `src/shipharness/ab/report.py:83-119` (pulled with `uv run python scripts/anchors.py extract Final:dots`)
+File: `platform/src/shipharness/ab/report.py:83-119` (pulled with `uv run python platform/scripts/anchors.py extract Final:dots`)
 
 ```python
 def render_dot_plot(group: dict[str, Any], width: int = 640) -> str:
@@ -940,7 +940,7 @@ Talking points:
 
 ### Final:skill_template (2 minutes)
 
-File: `skills/skill-template/SKILL.md:2-35` (pulled with `uv run python scripts/anchors.py extract Final:skill_template`)
+File: `use-in-your-repo/skills/skill-template/SKILL.md:2-35` (pulled with `uv run python platform/scripts/anchors.py extract Final:skill_template`)
 
 ````markdown
 name: skill-template
@@ -968,7 +968,7 @@ license: MIT
 
 ## Steps
 
-1. <First action. Name the exact command, for example `python scripts/<script>.py <args>`.>
+1. <First action. Name the exact command, for example `python platform/scripts/<script>.py <args>`.>
 2. <What to check in the output before going on.>
 3. <...>
 
@@ -984,6 +984,6 @@ Talking points:
   (DESIGN D-17).
 - `description` says what the skill does and when to use it: it is the tier-1 text an agent sees
   (B1, F-b-05).
-- Validate a copy with `uv run shipharness skills validate skills/<name>`. Install into
+- Validate a copy with `uv run shipharness skills validate use-in-your-repo/skills/<name>`. Install into
   `.claude/skills/` and `.agents/skills/`: no single directory is read by Claude Code, Codex, and
   Cursor (RESEARCH §4.5).

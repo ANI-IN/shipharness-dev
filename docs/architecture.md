@@ -2,14 +2,14 @@
 
 How shipharness is put together: what runs on your machine, what runs in containers, how one A/B
 flows from the command to the console, and where every file it writes ends up. Source ids such as
-(A2, F-a-49) point to [REFERENCES.md](../REFERENCES.md).
+(A2, F-a-49) point to [docs/REFERENCES.md](REFERENCES.md).
 
 Contents:
 
 1. [The big picture](#1-the-big-picture)
 2. [Rules that hold everywhere](#2-rules-that-hold-everywhere)
 3. [One A/B, step by step](#3-one-ab-step-by-step)
-4. [Packages in `src/shipharness/`](#4-packages-in-srcshipharness)
+4. [Packages in `platform/src/shipharness/`](#4-packages-in-srcshipharness)
 5. [The harness layers](#5-the-harness-layers)
 6. [The referee](#6-the-referee)
 7. [Events, the console, and replays](#7-events-the-console-and-replays)
@@ -54,7 +54,7 @@ only the run log and `exports/`.
 ## 2. Rules that hold everywhere
 
 - **No key in any container.** No host environment variable is passed into a container, and names
-  containing `KEY`, `TOKEN`, or `SECRET` are refused (`sandbox/README.md`). `make doctor` never
+  containing `KEY`, `TOKEN`, or `SECRET` are refused (`platform/sandbox/README.md`). `make doctor` never
   prints any part of a key.
 - **Identical sandbox for both arms.** The sandbox is never the A/B variable. The policy printed at
   the start of every run (captured on 2026-10-17 from `render_policy(default_policy(Settings()))`,
@@ -76,17 +76,17 @@ only the run log and `exports/`.
   ```
 
   This follows A4's practice of running the agent in a container without internet access (A4,
-  F-a-18, F-a-88, F-a-90). The code is in `src/shipharness/sandbox/policy.py` (walkthrough anchors
+  F-a-18, F-a-88, F-a-90). The code is in `platform/src/shipharness/sandbox/policy.py` (walkthrough anchors
   `S3:policy` and `S3:run_args`). The printout shows the settings as loaded; the class profile
   (`--profile class`, the default of the `make` targets for live runs) sets `cpus` to 2.0 for every
   arm, referee, and preview container, together with reasoning effort `low` and the OpenAI Fast tier
-  for the agent's calls, the same for both arms (`src/shipharness/config/profiles.py`).
+  for the agent's calls, the same for both arms (`platform/src/shipharness/config/profiles.py`).
 - **Agent-written code never runs on the host**, except in the labelled no-Docker fallback
   (`SANDBOX_MODE=none`), where every screen shows `UNSANDBOXED — results not official`.
-- **Each arm gets its own fresh git repository**, exported from `teamtrack/` at the checkpoint tag,
+- **Each arm gets its own fresh git repository**, exported from `platform/teamtrack/` at the checkpoint tag,
   with one initial commit. It is not a worktree of the course repository, so the hidden tests,
   referee mutants, and reference implementations cannot be reached through git
-  (`src/shipharness/ab/workspace.py`).
+  (`platform/src/shipharness/ab/workspace.py`).
 - **Both arms get the same inputs**: the same repository content (including the rules, which the
   bare arm finds in `docs/HANDBOOK.md`), the same ticket, model, reasoning effort, seven tools,
   turn and session budgets, wrap-up turns, cost cap, and sandbox. The harness changes how knowledge,
@@ -96,7 +96,7 @@ only the run log and `exports/`.
 ## 3. One A/B, step by step
 
 What `make demo-N` (and each feature of `make final`) does. The walkthrough anchor
-`Opening:two_arms` in `src/shipharness/ab/demo.py` shows the code that starts the two arms.
+`Opening:two_arms` in `platform/src/shipharness/ab/demo.py` shows the code that starts the two arms.
 
 ```mermaid
 sequenceDiagram
@@ -124,7 +124,7 @@ sequenceDiagram
 1. `shipharness ab` checks the OpenAI key first (a model metadata request, no tokens) and refuses
    before any arm starts if the key is missing, rejected, or the model client is a stand-in. There
    is no scripted fallback; `make replay` is the explicit fallback and is labelled RECORDING
-   (`_live_guard` in `src/shipharness/ab/commands.py`).
+   (`_live_guard` in `platform/src/shipharness/ab/commands.py`).
 2. The checkpoint (for example `m1-s1-start`) is exported into two new repositories.
 3. Both arms run in parallel. The harness arm runs the layers of its section (table in
    [section 5](#5-the-harness-layers)); the bare arm runs none.
@@ -136,14 +136,14 @@ sequenceDiagram
 ("harness in action"); its score record is marked `single_arm` and stays out of every bare-vs-harness
 comparison, screen 4, and the swap test.
 
-## 4. Packages in `src/shipharness/`
+## 4. Packages in `platform/src/shipharness/`
 
 | Package | What it does |
 |---|---|
-| `config/` | Settings from `.env` (pydantic-settings), prices from `config/prices.toml`, caps |
+| `platform/config/` | Settings from `.env` (pydantic-settings), prices from `platform/config/prices.toml`, caps |
 | `cost/` | Cost tracker: token usage times prices, cap checks before every model call |
 | `events/` | Typed events, the event bus, the JSONL run log, the replay reader |
-| `sandbox/` | Container lifecycle, command execution with timeouts, usage sampling, denial detection, the no-Docker fallback; `policy.py` holds the limits |
+| `platform/sandbox/` | Container lifecycle, command execution with timeouts, usage sampling, denial detection, the no-Docker fallback; `policy.py` holds the limits |
 | `runner/` | The agent loop on the OpenAI Responses API, the seven tools, the skills loader, sessions |
 | `harness/instructions/` | Places the AGENTS.md map and the skills; builds the stable context prefix |
 | `harness/state/` | `init.sh`, `progress.md`, exec plans, the structured handoff, session stop and resume |
@@ -203,7 +203,7 @@ arm's diff applied. Neither arm ever sees the hidden tests or the referee-set mu
 8. Continuity measures from the run log (section S2).
 9. The blinded reviewer on the diff: a separate evaluator (A3, F-a-110) that receives the diff and
    the ticket with arm-identifying files and commit messages removed (`S4:blind` in
-   `src/shipharness/reviewer/blind.py`). The reviewer is shown next to the referee, and its
+   `platform/src/shipharness/reviewer/blind.py`). The reviewer is shown next to the referee, and its
    agreement is counted; it does not decide the verdict.
 10. One score record per arm and a verdict, with "agent said" next to the referee's result.
 
@@ -225,7 +225,7 @@ Every part of a run writes typed events to one JSONL run log: `run_start`, `sand
 `blocked`, `session_stop`, `session_resume`, `test_proposed`, `test_filter_result`,
 `check_progress`, `check_result`, `mutant_result`, `reviewer_output`, `gate_result`, `claim`,
 `primary_verdict`, `verdict`, `cost`, `screenshot`, `trace_link`, `run_end`
-(`src/shipharness/events/models.py`; the walkthrough anchor `Opening:publish` shows how an event
+(`platform/src/shipharness/events/models.py`; the walkthrough anchor `Opening:publish` shows how an event
 is written).
 
 The console server folds the events per arm and streams rendered HTML to the browser; the browser
@@ -274,7 +274,7 @@ and the referee still judges and shows it. Values are in the
 
 `shipharness experiments` traces to `shipharness-experiments` and counts toward the experiment
 total. A run writes about two traces: the agent's root trace and the referee's evaluation trace,
-with the reviewer call as a child (`src/shipharness/tracing/`).
+with the reviewer call as a child (`platform/src/shipharness/tracing/`).
 
 ## 11. Check it on your machine
 

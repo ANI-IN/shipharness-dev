@@ -4,7 +4,7 @@ Stage by stage, from the day before class to the Thursday review. Each stage lis
 to check, the pass criteria, the expected time and cost, and what to do if it fails. Everything runs
 inside the Ubuntu terminal of the class host (WSL2), in `~/shipharness`. Source ids such as
 (A1, F-a-05) point to the References section of the [README](../README.md#17-references) (the
-release also carries them as `REFERENCES.md`). Messages quoted here are copied from the code; the
+release also carries them as `docs/REFERENCES.md`). Messages quoted here are copied from the code; the
 full list of failure messages is in [troubleshooting.md](troubleshooting.md). Optional extras that
 are not part of any demo section (replays of the pilot's real-mistake showcases, constructed
 examples) are in [extras.md](extras.md).
@@ -176,14 +176,14 @@ newest `ab-...` (ids start with a time stamp). The run list does not refresh by 
 One line `A/B <id> (<feature>, layers=[...], profile=class)`, with `, harness in action` added for
 `make show-N`; then one line per arm with status, claim, primary measure, `passed=`, hidden tests
 passed of total, mutants killed of total, reviewer verdict, and cost (`_print_record` in
-`src/shipharness/ab/commands.py`); then the cost line
+`platform/src/shipharness/ab/commands.py`); then the cost line
 `Cost: $<this command> (this command: <model costs>; session $<x> of $2.50; build ...)`. Read the
 session figure aloud in each demo block. The exit code is 0 when every arm completed, 2 when an arm
 was aborted (cost cap or time limit), 1 when an arm ended in `ERROR`.
 
 ### Caps and the class budget
 
-From `.env.example` and `src/shipharness/config/settings.py`:
+From `.env.example` and `platform/src/shipharness/config/settings.py`:
 
 | Cap | Value |
 |---|---|
@@ -202,7 +202,7 @@ $2.50 session cap. `make warm` makes no model calls.
 The class profile (`PROFILE=class`, the default of `make show-N`, `make demo-N`, and `make final`)
 runs both arms identically at reasoning effort `low`, with 2 CPUs per arm and referee container, and
 sends the agent's model calls at OpenAI's Fast tier. Fast costs twice the Standard rate per token for
-gpt-6-luna (`config/prices.toml`: $0.20 input, $0.02 cached input, $0.25 cache write, $1.00 output
+gpt-6-luna (`platform/config/prices.toml`: $0.20 input, $0.02 cached input, $0.25 cache write, $1.00 output
 per 1M tokens, against $0.10, $0.01, $0.125, $0.50). Each call is charged by the tier the response
 reports, so a Fast request that comes back at the Standard tier costs the Standard rate. The reviewer
 keeps its own settings and the Standard tier. The caps are unchanged.
@@ -234,9 +234,9 @@ is refused, the run ends as `ABORTED: cap`, and the referee still judges it.
 through `make images` only if their source changed, starts and removes one container per image so
 the images are paged in, and computes and caches the referee baseline of every class task and the
 gate baseline of every task with the verify layer. It prints one line per step with its time and
-ends with `warm: done (<s> s)` or `warm: incomplete (<s> s)` (`src/shipharness/ab/warm.py`). It
-makes no model calls and is safe to rerun. Run it after any change to `sandbox/Dockerfile` or
-`src/`, and again on the class day.
+ends with `warm: done (<s> s)` or `warm: incomplete (<s> s)` (`platform/src/shipharness/ab/warm.py`). It
+makes no model calls and is safe to rerun. Run it after any change to `platform/sandbox/Dockerfile` or
+`platform/src/`, and again on the class day.
 
 **Recording the fallbacks.** A fallback is a normal run directory under `.shipharness/runs/` plus its
 score records in `exports/scores/`. Record on T-1, not on the class day, and with `PURPOSE=pilot`, so
@@ -298,7 +298,7 @@ class date shares the $2.50 session cap.
 
 ```bash
 uv run python -c 'from shipharness.config import Settings; from shipharness.sandbox import default_policy, render_policy; print(render_policy(default_policy(Settings())))'
-uv run python skills/harness-setup/scripts/assess.py teamtrack --out .shipharness/harness-assessment.html
+uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out .shipharness/harness-assessment.html
 ```
 
 The policy printout, captured on 2026-10-17 from the first command above at commit 5e8fb08; your
@@ -334,7 +334,7 @@ Session lifecycle  pass 0  partial 0  fail 5
 
 | | |
 |---|---|
-| **Commands** | Console tab: press `1` to `5` once each; editor: `Opening:two_arms` (`src/shipharness/ab/demo.py`) and `Opening:publish` (`src/shipharness/events/bus.py`), one minute each; terminal B: `make doctor`; terminal B: the assessment from stage 2 |
+| **Commands** | Console tab: press `1` to `5` once each; editor: `Opening:two_arms` (`platform/src/shipharness/ab/demo.py`) and `Opening:publish` (`platform/src/shipharness/events/bus.py`), one minute each; terminal B: `make doctor`; terminal B: the assessment from stage 2 |
 | **What to check** | The problem slide names the four failures and that the referee checks every run for them; the "how we measure it" slide states the pre-registered outcome rule |
 | **Pass criteria** | Doctor ready on screen without any part of a key shown; the assessment shows the gaps of the bare TeamTrack |
 | **Expected time and cost** | 10 minutes; $0 |
@@ -349,12 +349,12 @@ Say during the assessment: "This is what the bare arm works with: no map, no pro
 feature list. The harness arm gets those parts; the rules themselves are in both." Every rule is also
 in `docs/HANDBOOK.md` of the bare arm's repository.
 
-To show an anchor's code: `uv run python scripts/anchors.py extract Opening:two_arms`.
+To show an anchor's code: `uv run python platform/scripts/anchors.py extract Opening:two_arms`.
 
 ## Stage 4: S1 Instructions (0:10-1:00)
 
 `make show-1` runs feature F1, org-wide issue search (`GET /issues`), canonical ticket, from
-checkpoint `m1-s1-start`, one session of 30 turns (`teamtrack/reference/f1/task.toml`), with the
+checkpoint `m1-s1-start`, one session of 30 turns (`platform/teamtrack/reference/f1/task.toml`), with the
 instructions layer. Rule at risk: R1 tenant isolation. The legacy `GET /v1/issues` handler has no
 tenant filter and sits next to the right pattern; A1 reports that agents copy existing patterns (A1,
 F-a-20). Primary measure: one or more new R1 violations fails the run. The assumption the map
@@ -377,7 +377,7 @@ a model or a ticket for the map to earn its place?" (A1, F-a-05).
 
 `make show-2 SESSION_BUDGET=12,38` runs feature F2, comments on issues, from `m1-s2-start`, with the
 instructions and state layers, in two sessions of 12 and 38 turns (the pilot's lever; the task's own
-budget is 20 and 30, `teamtrack/reference/f2/task.toml`): session 1 stops after 12 turns, the arm
+budget is 20 and 30, `platform/teamtrack/reference/f2/task.toml`): session 1 stops after 12 turns, the arm
 gets the wrap-up turns (`WRAPUP_TURNS`, default 3) and the resume sentence. Primary measure: continuity failure (R7 fails, a second migration creates the same table,
 or at least 30% of session 1's added lines are removed in session 2). The assumption the state files
 encode: a fresh session cannot pick up the work from the repository alone (A2, F-a-08; one-line form
@@ -402,7 +402,7 @@ file would you keep for this model, and how would you measure it?"
 ## Stage 6: S3 Scope and sandbox (2:00-2:50)
 
 `make show-3` runs feature F3, idempotency keys on issue creation, from `m1-s3-start`, a build phase
-then a test phase (`teamtrack/reference/f3/task.toml`), with the instructions, state, and scope
+then a test phase (`platform/teamtrack/reference/f3/task.toml`), with the instructions, state, and scope
 layers. The shared middleware in `app/api/middleware.py` is off-limits and easier to change. Primary
 measure: one or more out-of-scope files in the shipped diff, or one or more source files changed
 during the test phase. The scope layer enforces this measure, so the harness arm's zero is expected by
@@ -427,9 +427,9 @@ where scope was not the primary measure: bare arms left scope in 6 of 6 runs, ha
 ## Stage 7: S4 Verification, with the final launched (2:50-3:40)
 
 `make show-4` runs feature F4, optimistic concurrency (ETag, If-Match) and issue history, from
-`m1-s4-start`, one session of 40 turns (`teamtrack/reference/f4/task.toml`), with all four layers.
+`m1-s4-start`, one session of 40 turns (`platform/teamtrack/reference/f4/task.toml`), with all four layers.
 Two co-primary counts per run: hidden tests passed (of 69) and referee-set mutants killed by the
-arm's shipped tests (of 4, `teamtrack/mutants/features/f4.jsonl`). The blinded reviewer runs on the
+arm's shipped tests (of 4, `platform/teamtrack/mutants/features/f4.jsonl`). The blinded reviewer runs on the
 diff.
 
 | | |
@@ -491,11 +491,11 @@ Close the results with A1's caveat about its own results, which applies to the p
 should "not be assumed to generalize without similar investment" (A1, F-a-143). The pilot measured
 one model, one task per section, and three runs per arm per run.
 
-Assignments: four briefs in `submodules/0N-*/assignment/README.md`; the learner budget is at most $6
-of OpenAI usage and 400 LangSmith traces in total. Skills to take home: `skills/harness-setup`,
-`skills/house-rules`, `skills/assured-tests`, `skills/skill-template`. The starter kit copies them,
+Assignments: four briefs in `0N-*/assignment/README.md`; the learner budget is at most $6
+of OpenAI usage and 400 LangSmith traces in total. Skills to take home: `use-in-your-repo/skills/harness-setup`,
+`use-in-your-repo/skills/house-rules`, `use-in-your-repo/skills/assured-tests`, `use-in-your-repo/skills/skill-template`. The starter kit copies them,
 with the AGENTS.md map and the session files, into a learner's repository:
-`uv run shipharness init --target <repo>` ([apply-to-your-repo.md](apply-to-your-repo.md)).
+`uv run shipharness init --target <repo>` ([apply-to-your-repo.md](../use-in-your-repo/apply-to-your-repo.md)).
 
 ## Stage 9: After class
 
@@ -537,8 +537,8 @@ Reveal for assignment 3: show one hidden diff at a time with the phase it was re
 submissions got it wrong, as a count; pair a rejected diff with the closest legitimate one to show
 where a false positive comes from.
 
-The solutions are not in the repository before the review. They are released as a tagged release
-after the review session.
+The reference solutions are in the repository, next to each starter in
+`0N-*/assignment/solution/`; the graders and hidden cases stay private.
 
 ## Replay procedure
 
