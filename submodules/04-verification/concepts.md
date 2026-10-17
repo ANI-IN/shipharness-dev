@@ -241,7 +241,7 @@ sequenceDiagram
 | `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result has a reason |
 | `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | 404 expected for a foreign id; a 2xx with Globex data is a leak |
 | `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | Harness artifacts, commit metadata, workspace paths, run ids removed |
-| `S4:gate` | `src/shipharness/harness/verify/gate.py:143-188` | Pending pills first; items in the arm container; feedback only on failure |
+| `S4:gate` | `src/shipharness/harness/verify/gate.py:143-184` | Pending pills first; items in the arm container; feedback only on failure |
 
 The gate's check list, `GATE_CHECKS` (`gate.py`, lines 33-43), names R1-R7, `regression`, and
 `board`: no hidden tests and no mutants.

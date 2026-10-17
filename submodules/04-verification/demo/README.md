@@ -431,7 +431,7 @@ anchor.
 | 1 | `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result is published with a reason |
 | 2 | `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | R1: a foreign id must give 404; a 2xx carrying Globex data is a leak |
 | 3 | `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | What the reviewer never sees: harness artifacts, commit metadata, workspace paths, run ids, the arm label |
-| 4 | `S4:gate` | `src/shipharness/harness/verify/gate.py:143-188` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 33-43) has no hidden tests or mutants |
+| 4 | `S4:gate` | `src/shipharness/harness/verify/gate.py:143-184` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 33-43) has no hidden tests or mutants |
 
 When the gate refuses a claim, the agent gets `Gate <id>: <n> of <m> items failed (<names>).`, up
 to three failure lines, and `Fix these, commit your work, and call finish again.` (`_feedback` in
