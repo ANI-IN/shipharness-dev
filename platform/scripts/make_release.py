@@ -84,6 +84,8 @@ ALLOW_DIRS = (
     "platform/config/",
     "platform/tests/",
     "slides/img/",  # screenshots the deck embeds (make slides)
+    "docs/images/",  # screenshots the README and shared pages embed
+    "docs/evidence/",  # run ids, finding ids, and provenance per section
 )
 DOCS_FILES = tuple(
     f"docs/{name}.md"
@@ -94,6 +96,9 @@ DOCS_FILES = tuple(
         "after-class",
         "extras",
         "CHANGELOG",
+        "reference",
+        "evidence",
+        "STYLE",
     )
 )
 SETUP_FILES = tuple(

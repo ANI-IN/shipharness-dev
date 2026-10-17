@@ -26,6 +26,14 @@ _spec.loader.exec_module(mr)
 
 A1 = "01-instructions"
 TRACKED = [
+    "docs/images/screen-2-boards.png",
+    "docs/evidence/s1.md",
+    "docs/evidence.md",
+    "docs/reference.md",
+    "docs/STYLE.md",
+    "01-instructions/demo/expected/screen-1-final.png",
+    "01-instructions/demo/run.sh",
+    "01-instructions/demo/harness/AGENTS.md",
     ".github/workflows/ci.yml",
     "use-in-your-repo/kit/README.md",
     "use-in-your-repo/kit/templates/AGENTS.md",
@@ -1011,3 +1019,20 @@ def test_a_commit_by_another_identity_or_with_a_trailer_is_reported(
     assert any("committer t <t@t.invalid>" in p for p in problems)
     assert any("Co-authored-by trailer" in p for p in problems)
     assert len([p for p in problems if "more" in p]) == 1  # one line per offending commit
+
+
+def test_the_style_rewrite_pages_and_images_ship() -> None:
+    # STYLE rewrite (2026-10-17): evidence pages, the reference page, STYLE.md, docs/images/, and each
+    # section's demo folder (run.sh, harness/, expected/) are public course files.
+    included = mr.select(TRACKED).included
+    for path in [
+        "docs/images/screen-2-boards.png",
+        "docs/evidence/s1.md",
+        "docs/evidence.md",
+        "docs/reference.md",
+        "docs/STYLE.md",
+        "01-instructions/demo/expected/screen-1-final.png",
+        "01-instructions/demo/run.sh",
+        "01-instructions/demo/harness/AGENTS.md",
+    ]:
+        assert path in included, path
