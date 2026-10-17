@@ -1,4 +1,4 @@
-# captured on 2026-10-17 from `make check-assignment-4` at commit bba422b (no model calls); your output will differ.
+# captured on 2026-10-17 from `make check-assignment-4` at commit eba4c55 (no model calls); your output will differ.
 $ make check-assignment-4
 uv run python section-4-verification/assignment/check.py 
 A4 self-check for /home/ani/wt/gaps/section-4-verification/assignment/starter
@@ -18,7 +18,7 @@ A4 self-check for /home/ani/wt/gaps/section-4-verification/assignment/starter
 [R8-interface]
   PASS test_check_is_registered_through_the_shipharness_registry
   FAIL test_result_has_probes_and_r8_findings_with_detail_keys: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
-  FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['/home/ani/wt/gaps/.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-o...ey": "crashed", "baseline": false}], "duration_ms": 524, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
+  FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['/home/ani/wt/gaps/.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-o...ey": "crashed", "baseline": false}], "duration_ms": 328, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
 
 [R8-no-false-positives]
   FAIL test_clean_build_reports_only_the_legacy_list: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
@@ -36,7 +36,7 @@ A4 self-check for /home/ani/wt/gaps/section-4-verification/assignment/starter
 
 [own-tests]
   FAIL test_at_least_eight_own_tests: AssertionError: tests/ has 2 test functions: ['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue'] assert 2 >= 8 + where 2 = len(['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue
-  FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.86s; FAILED section-4-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED section-4-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 + where 1
+  FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.36s; FAILED section-4-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED section-4-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 + where 1
 
 [portfolio-case-study]
   FAIL test_case_study_structure: AssertionError: portfolio/case-study.md: still contains TODO portfolio/case-study.md: 90 words; one page means 250 to 700 assert not ['portfolio/case-study.md: still contains TODO', 'portfolio/case-study.md: 90 words; one page means 250 to 700']

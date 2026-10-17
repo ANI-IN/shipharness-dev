@@ -1,4 +1,4 @@
-# captured on 2026-10-17 from `make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution` at commit bba422b (no model calls); your output will differ.
+# captured on 2026-10-17 from `make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution` at commit eba4c55 (no model calls); your output will differ.
 $ make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution
 uv run python section-4-verification/assignment/check.py --impl section-4-verification/assignment/solution
 A4 self-check for /home/ani/wt/gaps/section-4-verification/assignment/solution
