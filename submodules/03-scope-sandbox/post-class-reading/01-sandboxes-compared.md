@@ -18,7 +18,7 @@ lacks it.
 | Network | `--network none`: "Within the container, only the loopback device is created." (D27) | "Claude did not have internet access at any point during its development" (F-a-90) | Not recorded | "By default, the agent runs with network access turned off." (D21); can be turned on for `workspace-write` |
 | What the agent can write | `/work` (the arm's repository) and `/tmp`; the root filesystem is read-only | Its container, with the repository mounted at `/upstream` (F-a-88) | "File operations restricted to the project directory only" (F-a-86) | `workspace-write`: the workspace and temp directories; `.git`, `.agents`, `.codex`, `.aws` under writable roots stay read-only (D21) |
 | Which commands | Any command; six deny rules refuse network commands before they run; output is checked afterwards | Not recorded | An allowlist: "Commands not in the allowlist are blocked by the security hook." (F-a-87) | Set by the sandbox mode (`read-only`, `workspace-write`, `danger-full-access`) and the approval policy (`on-request`, `never`, `granular`) (D22, D23) |
-| Resource limits | 1 CPU, 1024 MB with no swap, 256 processes, 120 s per command, 300 s per run | Not recorded | Not recorded | Not recorded |
+| Resource limits | 1 CPU (2 in the class profile), 1024 MB with no swap, 256 processes, 120 s per command, 300 s per run | Not recorded | Not recorded | Not recorded |
 | Human approval | None; runs are non-interactive | None; the author's advice is "(Run this in a container, not your actual machine)." (F-a-18) | Not recorded | Approval policies, for example `on-request` for interactive runs and `never` for non-interactive ones (D23) |
 
 ## Four differences worth noticing
@@ -61,10 +61,12 @@ time. It does not decide which files inside `/work` belong to this feature. That
 job (`blocked`, harness arm only); the container's refusals are `sandbox_denied` events (both arms).
 Module 2 covers detailed sandbox design.
 
-In the course pilot's run 2 (2026-10-16), no command in any of the 12 A/Bs (24 arm runs) produced a
-`sandbox_denied` event (`grep -c sandbox_denied` on each run log, read 2026-10-17). The agent used what the image had and
-never tried the network. A boundary that is never hit in normal work is still doing its job: it
-bounds the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19).
+In the course pilot's runs 2 to 4 (2026-10-16 to 2026-10-17) and the class-profile round
+(2026-10-17), no command produced a `sandbox_denied` event (counted in each run's `events.jsonl`,
+2026-10-17). The agent used what the image had and never tried the network. The container is
+never an A/B variable, so the pilot cannot say whether it earns its place; the course keeps it on the
+sources' advice, for the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19). Class
+shows a denial in a constructed example (`make example-3`) for that reason.
 
 ## Why it matters for your own repo
 
