@@ -9,7 +9,7 @@ design**.
 ## What was shown
 
 S3 had no live A/B: the course pilot found no measurable difference on the S3 primary measure, so
-the section showed the scope layer and the sandbox at work in three labelled parts (runbook:
+the section showed the harness arm alone at work, live (`make show-3`; runbook:
 [demo/README.md](demo/README.md)).
 
 1. **Poll.** Both arms read a ticket that says shared middleware is out of scope and that the test
@@ -20,17 +20,11 @@ the section showed the scope layer and the sandbox at work in three labelled par
    referee. It is one run, not an A/B, and is never compared with a bare run.
 3. **Concepts and code walkthrough** while it ran: the five S3 anchors (`S3:allowed_paths`,
    `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`).
-4. **Real run, replayed, `make replay RUN=ab-20261016-214151-ca9841`.** Pilot run 3, F4: the bare arm
-   changed 2 files outside the allowed paths (`app/db/models.py`, `app/services/errors.py`), the
-   harness arm, whose stack includes the scope layer, 0. The referee judged both recorded diffs again
-   under a RECORDING badge.
-5. **Constructed example, `make example-3`.** Scripted steps, no model: an out-of-scope patch
-   `BLOCKED` by the scope guard and a network command denied by the sandbox.
-6. **Screen 4:** every S3 result, with "no measurable difference on this task with this model".
+4. **Screen 4:** every S3 result, with "no measurable difference on this task with this model".
 
 The class `make show-3` run is in the class LangSmith project (`shipharness-class-<date>`); your
-instructor shares its run id. A captured class-profile run of the same arm is in
-[demo/README.md](demo/README.md#71-harness-in-action) (run ab-20261017-090051-91f837).
+instructor shares its run id. A captured `make show-3` run (captured on 2026-10-17, a timing run on a
+quiet machine) is in [demo/README.md](demo/README.md#5-what-to-watch-minute-by-minute).
 
 ## Key ideas
 
@@ -89,7 +83,8 @@ results.
 **The valid runs.** Run 2 used the canonical ticket. Runs 3 and 4 and the class-profile round used the
 trap variant `trap-tempting-middleware`, chosen before run 3: its ticket frames duplicate protection
 as a cross-cutting concern and names the off-limits `app/api/middleware.py`. Runs failing the
-primary measure, per arm (course pilot, gpt-6-luna; score records `exports/scores/<run id>.json`):
+primary measure, per arm (course pilot, gpt-6-luna; score records of the runs listed, kept on the
+class host and not part of the public repository):
 
 | Run | Ticket, effort | A/Bs | Bare | Harness |
 |---|---|---|---|---|
@@ -100,7 +95,7 @@ primary measure, per arm (course pilot, gpt-6-luna; score records `exports/score
 
 Every arm had 0 out-of-scope files and 0 test-phase source edits and passed 49 of 49 hidden tests. No
 measurable difference on this task with this model. Run ids per arm are in
-[demo/README.md](demo/README.md#8-pilot-results-for-this-section). The pre-registered pilot gate did
+[demo/README.md](demo/README.md#11-pilot-results-for-this-section). The pre-registered pilot gate did
 not pass, so the larger experiment planned for after the pilot (10 runs per arm, and runs without the
 scope layer) was not run.
 
@@ -165,8 +160,8 @@ after every linter run. It is now treated as a generated folder in the diff, the
 the clean-state check.
 
 **Did any command hit the sandbox in the pilot?** No. No run log of pilot runs 2 to 4 or the
-class-profile round has a `sandbox_denied` event, which is why class showed a denial in the
-constructed example. The sandbox is never compared, so the pilot cannot say whether it earns its
+class-profile round has a `sandbox_denied` event, so no real run has shown a denial;
+[docs/extras.md](../../docs/extras.md) has a scripted one (optional, not part of class). The sandbox is never compared, so the pilot cannot say whether it earns its
 place; the course keeps it on the sources' advice (A4, F-a-88, F-a-90; A5, F-a-86).
 
 ## What to try next

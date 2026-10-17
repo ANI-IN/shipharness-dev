@@ -2,8 +2,7 @@
 
 Reading time: about 8 minutes.
 
-Class shows the harness arm alone (`make show-3`), one replayed pilot run, and one constructed
-example, because the pilot found no gap on F3. This piece covers what the course pilot found, how to
+Class shows the harness arm alone, live (`make show-3`), because the pilot found no gap on F3. This piece covers what the course pilot found, how to
 read a measure that one arm meets by construction, the other `section-3` variants, and how to run the
 comparison without the scope layer yourself. All numbers were measured in the course pilot on
 2026-10-16 and 2026-10-17 (gpt-6-luna). Sources are cited by ID; the full list is in
@@ -59,7 +58,8 @@ medium in runs 1 and 2, the trap variant at effort medium in run 3 and at effort
 - **Pilot run 2 (2026-10-16): no gap.** With the measures fixed, both arms passed F3 in 3 of 3 A/Bs.
   Bare arms stayed inside the allowed paths on their own. The harness arms shipped 0 tests and killed
   0 of 4 mutants in all three runs, against 6 to 10 tests and 4 of 4 for the bare arms (score records
-  in `exports/scores/`; run ids in [../demo/README.md](../demo/README.md#8-pilot-results-for-this-section)), so the
+  of the runs listed, kept on the class host; run ids in
+  [../demo/README.md](../demo/README.md#11-pilot-results-for-this-section)), so the
   secondary measures leaned the other way.
 - **Pilot run 3: the trap variant.** The course chose `trap-tempting-middleware` as the F3 lever
   before the run. If a section still shows no gap after run 3 and one more round at effort `low`, it
@@ -92,10 +92,10 @@ In the class-profile round both arms passed 49 of 49 hidden tests and killed 4 o
 harness arm shipped 5 tests, the bare arm 4.
 
 The pre-registered pilot gate did not pass in any section, so class runs no live S3 A/B: it shows
-`make show-3` (canonical ticket), the replayed F4 run below, and a constructed example. Where the
+`make show-3` (canonical ticket), live. Where the
 scope layer did show was F4, post hoc (measures chosen after the results): bare arms changed files
 outside the allowed paths in 6 of 6 runs of pilot runs 2 and 3, two files each, and harness arms,
-whose stack includes the scope layer, in 0 of 6. The replayed run is one of them,
+whose stack includes the scope layer, in 0 of 6. One of them is
 ab-20261016-214151-ca9841: the bare arm changed `app/db/models.py` and `app/services/errors.py`.
 
 Two lessons carry beyond F3. First, the pilot's first S3 failure was a scope bug in the harness, not
@@ -143,10 +143,12 @@ show something. One A/B is one dot: read it against the tables above, not alone.
 
 ## Questions to bring to the review session
 
-- In the replayed F4 run (ab-20261016-214151-ca9841), were the two out-of-scope files needed for
-  the feature, or shortcuts? Open the bare arm's score record
-  (`exports/scores/r-20261016-214151-23531c.json`: `out_of_scope_files`) and its diff
-  (`.shipharness/runs/ab-20261016-214151-ca9841/bare/diff.patch`).
+- In the F4 run ab-20261016-214151-ca9841, were the two out-of-scope files needed for the feature,
+  or shortcuts? The bare arm's diff added a new `PreconditionFailed` error class (status 412) to the
+  shared `app/services/errors.py` and a `version_id_col` mapper setting on `Issue` in
+  `app/db/models.py`; F4's allowed paths name neither file. Then run the same check on your own
+  A/B: `out_of_scope_files` in its score record under `exports/scores/`, and its `bare/diff.patch`
+  under `.shipharness/runs/<ab id>/`.
 - Why did the pilot run 2 harness arms ship no tests in their 12-turn test phase? Read one harness
   arm's second session in the run log and count the turns spent before the first test file was opened.
 - In the one real `blocked` event of the pilot and the class-profile round (class-profile F4 A/B

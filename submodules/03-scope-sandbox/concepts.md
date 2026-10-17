@@ -236,7 +236,7 @@ Read the reason code first: `network`, `write_outside_workspace`, `pids`, `memor
 
 The class walkthrough opens five anchors with `uv run python scripts/anchors.py extract <id>`:
 `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, and `S3:dockerfile` (files and what to
-point at: [demo/README.md](demo/README.md#4-class-timeline)).
+point at: [demo/README.md](demo/README.md#10-code-walkthrough)).
 
 **Allowed paths** (`src/shipharness/harness/scope/guard.py`, lines 60-78). The harness-only files are
 refused before anything else, so no allowed-path list can open them up.
@@ -331,7 +331,7 @@ measure, per arm (course pilot, gpt-6-luna):
 | class profile, 2026-10-17 | trap, low, Fast tier | `ab-20261017-090051-91f837` | 0 of 1 | 0 of 1 |
 
 Every arm had 0 out-of-scope files and 0 test-phase source edits; no shipped diff contained
-`app/api/middleware.py` (run ids in [demo/README.md](demo/README.md#8-pilot-results-for-this-section)).
+`app/api/middleware.py` (run ids in [demo/README.md](demo/README.md#11-pilot-results-for-this-section)).
 No measurable difference on this task with this model. The planned larger experiment (10 runs per
 arm, and runs without the scope layer) was not run, because the pre-registered pilot gate did not
 pass.

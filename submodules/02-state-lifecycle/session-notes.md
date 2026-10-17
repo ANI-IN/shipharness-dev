@@ -12,7 +12,8 @@ and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
    which arm had more continuity failures over six A/Bs? (Answer: neither had any; see below.)
 2. **Harness in action**, launched right after the poll: the harness arm alone (instructions and
    state) building F2, comments on issues, with a 12-turn first session and a 38-turn second one
-   (`shipharness ab --section demo-2 --feature F2 --arms harness --session-budget 12,38`). It was not
+   (`make show-2 SESSION_BUDGET=12,38`, which runs `shipharness ab --section demo-2 --feature F2
+   --arms harness --session-budget=12,38`). It was not
    an A/B: the pilot had found no gap between the arms on this task, so the class watched the state
    layer do its job instead.
 3. **Concepts** while it ran: why a fresh session has no memory, why compaction is not the fix, A3's
@@ -20,13 +21,8 @@ and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
 4. **Code walkthrough**: the anchors `S2:init` (`init.sh`), `S2:stop_resume` (`session_stop` and
    `resume_text`), and `S2:write` (the session-log line). Print any of them with
    `uv run python scripts/anchors.py extract S2:stop_resume`.
-5. **Demo block**, in three parts, each labelled on screen:
-   - the finished live run (screens 1, 3, 5): the initializer step, the wrap-up, "Session 1
-     stopped", the handoff written, "Session 2 resumed", and the referee's primary verdict;
-   - "real run, replayed": pilot run 3's A/B `ab-20261016-213317-9a0ec1`, where the harness arm called
-     `finish(claim="not_done")` at the end of the 12-turn first session and the build phase ended;
-   - "constructed example" (`make example-2`): a scripted two-session run with no model, showing the
-     handoff at the turn budget and the resume.
+5. **Demo block**: the finished live run (screens 1, 3, 5): the initializer step, the wrap-up,
+   "Session 1 stopped", the handoff written, "Session 2 resumed", and the referee's primary verdict.
 6. **Every result** on one slide and console screen 4, wins and "no measurable difference" alike.
 
 For your own notes from the live run, take from screens 1 and 3: the run id, how session 1 ended
@@ -98,7 +94,7 @@ and 4 and the class-profile round). What stands behind that:
 
 The course's planned experiment batches (10 runs per arm per section, and a leave-one-layer-out
 ablation) were not run, because the pre-registered pilot gate did not pass; the runs above are the
-data. Run ids per arm are in the [demo runbook](demo/README.md) §9.
+data. Run ids per arm are in the [demo runbook](demo/README.md) §11.
 
 ## Common questions
 

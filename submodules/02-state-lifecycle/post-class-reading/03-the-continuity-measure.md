@@ -38,7 +38,7 @@ session 2 removed with the same text.
 
 ## Where the session patches come from
 
-The patches are written on the host after the run (`src/shipharness/ab/demo.py`, lines 481-505):
+The patches are written on the host after the run (`src/shipharness/ab/demo.py`, lines 563-587):
 
 ```python
 def session_patches(
@@ -75,7 +75,7 @@ every session of the run, build and test phases together, in order. The check us
 patches.
 
 Before the check, the referee hands it copies with harness artifacts removed
-(`src/shipharness/ab/referee.py`, lines 267-277):
+(`src/shipharness/ab/referee.py`, lines 317-327):
 
 ```python
 def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
@@ -100,8 +100,8 @@ Until that function existed, the check read the raw patches. In the course pilot
 every F2 harness arm failed part (c): session 1 added only `progress.md`, `session-handoff.md`, and
 the exec plan, and session 2 rewrote them. The score records show the three `redone_lines_pct`
 values: 84.0 (`r-20261016-181736-260803`), 76.5 (`r-20261016-184318-fdee0c`), and 50.0
-(`r-20261016-190548-9352c4`) (captured on 2026-10-16 from `exports/scores/<run id>.json`, runs as
-listed; your output will differ). The bare arms in the same A/Bs scored 2.1, 0.0, and 0.0.
+(`r-20261016-190548-9352c4`) (captured on 2026-10-16 from the score records of those runs, kept on the class host and not
+part of the public repository; runs as listed; your output will differ). The bare arms in the same A/Bs scored 2.1, 0.0, and 0.0.
 
 The arithmetic was right and the harness did what it was built to do: the wrap-up asks the agent to
 rewrite its notes, and the state layer rewrites the machine summary at every stop. The check simply
@@ -134,7 +134,7 @@ primary measure.
 ## The console's "redone" marker is not part (c)
 
 Screen 3's session timeline marks a file "redone" when a session changes a file that an earlier
-session also changed (`src/shipharness/console/state.py`, `ArmState.sessions`, lines 246-263):
+session also changed (`src/shipharness/console/state.py`, `ArmState.sessions`, lines 315-332):
 
 ```python
     def sessions(self) -> list[SessionSummary]:

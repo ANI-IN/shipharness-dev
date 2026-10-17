@@ -312,10 +312,19 @@ files you submit and re-runs your policy on them, offline.
    --help` lists class, pilot, and assignment) instead of a class project (`make demo-3` uses
    `--purpose class`, which needs `SHIPHARNESS_CLASS_DATE`). The course pilot ran the same A/B three
    times per pilot run. The command prints one line per arm and a cost line (`Cost: $...`). Each arm
-   stops at `MAX_RUN_COST_USD`, the command at `MAX_BATCH_COST_USD`. The A/B calls OpenAI and starts
-   containers, so it was not run while this page was written;
-   `live.py verify` accepts this exact command in `command.txt` (tested offline on the synthetic
-   evidence of the course's own tests).
+   stops at `MAX_RUN_COST_USD`, the command at `MAX_BATCH_COST_USD`. The course ran this exact
+   command on the reference solution on 2026-10-17; its output (captured on 2026-10-17, run
+   ab-20261017-092810-d5d31c; your output will differ):
+
+   ```text
+   A/B ab-20261017-092810-d5d31c (F3, layers=['instructions', 'scope', 'state'], profile=standard)
+     bare     completed         claim=done     primary={"out_of_scope_files": 0, "test_phase_source_edits": 0} passed=True hidden 49/49 mutants 4/4 reviewer=reject cost=$0.0086
+     harness  ABORTED: timeout  claim=done     primary={"out_of_scope_files": 0, "test_phase_source_edits": 0} passed=True hidden 49/49 mutants 0/4 reviewer=reject cost=$0.0073
+   Cost: $0.021708 (this command: gpt-5.6-luna $0.005858, gpt-6-luna $0.015850; session $0.021708 of $2.50; build $2.091206 of $15.00 ($12.908794 left))
+   ```
+
+   The harness arm hit the agent time limit (`ABORTED: timeout`), so the command exited 2; the run
+   is still judged and counts. `live.py verify` accepts this exact command in `command.txt`.
 3. Right after it, collect the evidence into your submission folder (the arm workspaces live in the
    temp folder and are not kept forever):
 

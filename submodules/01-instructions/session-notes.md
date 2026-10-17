@@ -11,15 +11,16 @@ not source terms ([concepts.md](concepts.md), note on labels).
 
 | Block | What happened | Where to read it again |
 |---|---|---|
-| Poll | In how many of 10 runs does each arm add at least one new R1 violation while building F1? | [demo/README.md](demo/README.md), section 4 |
-| Launch | `make show-1`: the harness arm alone on F1 (org-wide issue search) with the instructions layer, live. "Harness in action", not an A/B: the pilot showed no gap to demonstrate | [demo/README.md](demo/README.md), sections 1, 3, 5 |
+| Poll | In how many of 10 runs does each arm add at least one new R1 violation while building F1? | [demo/README.md](demo/README.md), section 9 |
+| Launch | `make show-1`: the harness arm alone on F1 (org-wide issue search) with the instructions layer, live. "Harness in action", not an A/B: the pilot showed no gap to demonstrate | [demo/README.md](demo/README.md), parts 1, 4, 5 |
 | Concepts | Problem, cause, harness piece, implementation, measure, and what the map assumes | [concepts.md](concepts.md) |
 | Walkthrough | The legacy `/v1/issues` handler next to the scoped query; anchors `S1:agents_md`, `S1:progressive`, `S1:prefix` | `uv run python scripts/anchors.py extract S1:prefix` |
-| Demo block | The finished `make show-1` run (screens 1 and 3); a real run, replayed: pilot run 3's F4 A/B `ab-20261016-212252-aa1644`, where the referee's R1 check found 3 new violations in the harness arm; a constructed example, `make example-1`, a scripted cross-org leak with ⚠ marks on the board; screen 4 with every pilot result | [demo/README.md](demo/README.md), sections 6-8 |
+| Demo block | The finished `make show-1` run (screens 1, 3, 2); screen 4 with every pilot result | [demo/README.md](demo/README.md), parts 5 and 6 |
 
 The class's `make show-1` run ran on the class host, so its record is not in this repository; in
-class, its verdict was read off console screen 1. A captured `make show-1` run is in
-[demo/README.md](demo/README.md), section 6.
+class, its verdict was read off console screen 1. A captured `make show-1` run (captured on 2026-10-17, run
+`ab-20261017-112101-c5d839`, a timing run on a quiet machine) is in
+[demo/README.md](demo/README.md), parts 5 and 7.
 
 ---
 
@@ -65,7 +66,7 @@ class, its verdict was read off console screen 1. A captured `make show-1` run i
 
 Results are counts of failing runs, never percentages (a course rule). Every number below is from
 the course pilot, gpt-6-luna with the same settings for both arms; the per-run records with run ids
-are in [demo/README.md](demo/README.md), section 10.
+are in [demo/README.md](demo/README.md), section 11.
 
 ### The primary measure on F1
 
@@ -116,12 +117,10 @@ arm hit the agent time limit.
 ### What class showed instead
 
 With no gap to demonstrate, S1 showed the harness arm alone at work (`make show-1`: it reads the map,
-then the documents the ticket needs), a real run, replayed (pilot run 3, F4, A/B
-`ab-20261016-212252-aa1644`: the harness arm, which had the map, added 3 new R1 violations, and the
-referee caught them), and a constructed example (`make example-1`: a scripted cross-org leak that the
-R1 check and the board's ⚠ marks show). The replay makes the section's point: the map is a bet on
-what the model will miss, and only a measure such as the referee's R1 check tells you whether it paid
-off.
+then the documents the ticket needs), live, judged by the referee. The map is a bet on what the model
+will miss, and only a measure such as the referee's R1 check tells you whether it paid off. Optional
+extras outside class (a replayed pilot run and a scripted example) are listed in
+[docs/extras.md](../../docs/extras.md).
 
 ---
 
@@ -163,7 +162,7 @@ Both, on different questions. The referee's R1 check is the pre-registered prima
 design after A3's separate evaluator (A3, F-a-110), is a secondary measure; in
 `ab-20261016-183644-0036f0` it objected to how both arms handled an archived project passed as
 `project_id`, said `tenant_isolation_risk: none`, and the hidden tests passed 52 of 52 in both arms
-([demo/README.md](demo/README.md), section 10).
+([demo/README.md](demo/README.md), section 11).
 
 **Does the files-read map on screen 3 prove the harness worked?**
 No. It shows which documents each arm opened with `read_file`, which helps explain a result. The

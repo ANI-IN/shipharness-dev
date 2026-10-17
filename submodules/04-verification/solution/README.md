@@ -21,5 +21,5 @@ Run the grader on this folder: `make grade-assignment-4 SUBMISSION=submodules/04
 run in `live/`, and the three portfolio criteria (5 + 2 + 3) on pages filled from that run.
 Grade a submission: `uv run python submodules/04-verification/solution/grader/grade.py --impl
 <submission folder>` (the implementation folder with its `live/`, or a checkout of the course repo).
-The grader treats this folder like any submission: a `[[PENDING]]` marker in `portfolio/` or a
+The grader treats this folder like any submission: a PENDING marker in `portfolio/` or a
 `live/` without evidence fails the portfolio and live-evidence criteria here too.

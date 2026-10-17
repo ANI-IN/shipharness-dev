@@ -65,8 +65,9 @@ In the course pilot's runs 2 to 4 (2026-10-16 to 2026-10-17) and the class-profi
 (2026-10-17), no command produced a `sandbox_denied` event (counted in each run's `events.jsonl`,
 2026-10-17). The agent used what the image had and never tried the network. The container is
 never an A/B variable, so the pilot cannot say whether it earns its place; the course keeps it on the
-sources' advice, for the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19). Class
-shows a denial in a constructed example (`make example-3`) for that reason.
+sources' advice, for the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19). No
+real run has shown a denial; a scripted one is in [docs/extras.md](../../../docs/extras.md)
+(optional, not part of class).
 
 ## Why it matters for your own repo
 

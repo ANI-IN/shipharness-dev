@@ -100,7 +100,7 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
   measure (`portfolio/langsmith.md`). The live-evidence criterion grades the files, not the
   outcome, so the reference earns its 10 points on them; the run is an example of the evidence,
   not a result about the harness.
-- No criterion rests on a `[[PENDING]]` marker. Until 2026-10-17 the grader accepted markers for
+- No criterion rests on a PENDING marker. Until 2026-10-17 the grader accepted markers for
   this folder only (`pending_only` in `a4_live.py`, `reference_mode` in `a4_support.py`), so 20
   of its 100 points were not earned on real work. That special case is removed: the visible tests
   and the self-check no longer name this folder, and `grader/tests/test_live.py` and
