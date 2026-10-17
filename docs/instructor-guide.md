@@ -356,7 +356,7 @@ encodes: the model will not apply a rule it has not been pointed to (course word
 | **Commands** | 0:13 `make show-1`; 0:30-0:40 anchors `S1:agents_md`, `S1:progressive`, `S1:prefix`; 0:35 check terminal B for the `Cost:` line; 0:40-0:53 demo block on the finished run |
 | **What to check** | At launch: the first harness decision lists the placed instruction files. Demo block: screen `1` timeline (the map and the documents it points to read before the code); screen `3` "Files read" by category and the R1 line; screen `2` the board ("✓ only own-org cards"); screen `5` the trace links |
 | **Pass criteria** | show-1 prints its arm line and a `Cost:` line before 0:35 |
-| **Expected time and cost** | S1_TIME |
+| **Expected time and cost** | Quiet run of `make show-1` (2026-10-17, run `ab-20261017-112101-c5d839`): primary verdict 4:11 and full verdict 10:00 after launch, 10 min 14 s for the whole command; $0.0179 for the arm plus $0.0019 for the review. Class-profile round, harness arm of `ab-20261017-084558-0356a0`: 114 s and 324 s; $0.0151 plus $0.0028. At most $0.24 at the caps |
 | **If it fails** | Still running at 0:35: finish the walkthrough, then open the demo block on screens `1` and `3` of the running show-1; screen `1` shows `primary verdict ready` as soon as it is known. An arm `ERROR` from Docker, the network, or OpenAI: [Replay procedure](#replay-procedure) with the S1 fallback recording. An unwelcome result is a result: show it |
 
 Say at the result: "This is one harness arm on one run. It tells us the layer ran; it cannot tell us
@@ -378,9 +378,9 @@ is the course's). Since 2026-10-17 the runner rule for both arms is: before the 
 | | |
 |---|---|
 | **Commands** | 1:03 `make show-2 SESSION_BUDGET=12,38`; 1:20-1:30 anchors `S2:init`, `S2:stop_resume`, `S2:write`; 1:25 check terminal B for the `Cost:` line; 1:30-1:43 demo block on the finished run |
-| **What to check** | At launch: the first decision is the initializer step (`init.sh`, `progress.md`, `session-handoff.md`, the exec plan). Demo block: screen `1` `■ Session 1 stopped` and `▶ Session 2 resumed`; screen `3` "Sessions" (turns, how each ended, `↺ redone` files) and the state files in "Files read"; screen `2` the comments panel on the board |
+| **What to check** | At launch: the first decision is the initializer step (`init.sh`, `progress.md`, `session-handoff.md`, the exec plan). Demo block: screen `1` `■ Session 1 stopped` and `▶ Session 2 resumed`; screen `3` "Sessions" (turns, how each ended, `↺ redone` files) and the state files in "Files read"; screen `2` the board ("✓ only own-org cards, no duplicates"); screen `5` the first wrong turn |
 | **Pass criteria** | `Cost:` line before 1:25 |
-| **Expected time and cost** | S2_TIME |
+| **Expected time and cost** | Quiet run of `make show-2 SESSION_BUDGET=12,38` (2026-10-17, run `ab-20261017-113213-fe89a3`): primary verdict 6:46 and full verdict 9:52 after launch, 10 min 7 s for the whole command, exit 2 (session 2 hit the agent time limit); $0.0268 for the arm plus $0.0027 for the review. Class-profile round, harness arm of `ab-20261017-085139-7c0661`: 358 s and 533 s; $0.0357 plus $0.0041. At most $0.24 at the caps |
 | **If it fails** | As S1, with the S2 fallback recording |
 
 Say at the result: "Before change 14, a `finish(not_done)` at the end of session 1 ended the build
@@ -404,7 +404,7 @@ construction.
 | **Commands** | 2:03 `make show-3`; 2:20-2:30 anchors `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; 2:25 check terminal B for the `Cost:` line; 2:30-2:43 demo block on the finished run, with the sandbox moment |
 | **What to check** | At launch: the sandbox line (container id, `network none`, CPU, memory, time left). Demo block: screen `1` harness decisions `⊘ block` / `↺ revert` with the reason the agent read, if any; screen `3` diff map and "Sandbox denials" |
 | **Pass criteria** | `Cost:` line before 2:25 |
-| **Expected time and cost** | S3_TIME |
+| **Expected time and cost** | Quiet run of `make show-3` (2026-10-17, run `ab-20261017-114259-b64f54`): primary verdict 4:25 and full verdict 7:31 after launch, 7 min 43 s for the whole command; $0.0142 for the arm plus $0.0030 for the review; no blocked edit and no sandbox denial. Class-profile round, harness arm of `ab-20261017-090051-91f837`: 317 s and 481 s; $0.0135 plus $0.0031. At most $0.24 at the caps |
 | **If it fails** | As S1, with the S3 fallback recording |
 
 Sandbox moment: if screen `3` lists a denial, show its reason code (`network`,

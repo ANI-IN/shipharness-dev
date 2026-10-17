@@ -472,13 +472,26 @@ minutes: 2
 - Watch for: the handoff written at the end of session 1, and session 2 resuming from it
 - Harness arm layers: instructions, state
 
+```mermaid
+flowchart LR
+  L["make show-2"] --> A["Session 1: 12 turns"]
+  A --> H["Harness writes the handoff and progress.md"]
+  H --> B["Session 2: empty context, 38 turns"]
+  B --> G["Getting up to speed: progress.md, git log"]
+  G --> R["Referee: continuity first"]
+  R --> V["primary verdict ready"]
+```
+
 notes:
 Continuity failure, the primary measure: R7 fails, a second migration creates the same table, or 30%
 or more of session 1's added lines are removed in session 2.
 
-Timing reference: in the class-profile round (A/B ab-20261017-085139-7c0661), the harness arm's
-primary verdict came 358 s after launch and its full verdict 533 s after launch.
-[[CAPTURE: wall time of make show-2 on the class host, launch to the primary verdict and to the full verdict | how: make show-2 SESSION_BUDGET=12,38]]
+Timing reference: in the quiet run of `make show-2 SESSION_BUDGET=12,38` (captured on 2026-10-17, run
+ab-20261017-113213-fe89a3; your output will differ) the primary verdict came 6:46 after launch, the
+full verdict 9:52 after launch, and the command took 10 min 7 s in all. It exited 2: session 2 hit
+the agent time limit (a result, not a failure of the command). In the class-profile round (A/B
+ab-20261017-085139-7c0661) the harness arm's primary verdict came 358 s and its full verdict 533 s
+after launch.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: Makefile `show-2`; README.md §10; teamtrack/reference/f2/task.toml.
@@ -606,52 +619,66 @@ The next session reads this line during Getting up to speed.
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: anchor S2:write.
 
-## 32. Demo block: harness in action, and a real run replayed
+## 32. Demo block: what to watch
 section: S2 State and session lifecycle
 minutes: 8
+image: img/s2-watch.png
 live: `make show-2`: the primary verdict and the file session 2 read first
 
-- `make show-2`, finished: screen 1 shows the session stop, the handoff, and the resume
-- Screen 3: state files read at the start of session 2; screen 5: the trace links
-- Real run, replayed: `make replay RUN=ab-20261016-213317-9a0ec1` (pilot run 3, F2)
-- Its harness arm called `finish(claim="not_done")` after session 1; the build phase ended, session 2 never ran
-- The fix, for both arms: before the last build session, that call ends only the session
+- Screen 1: "■ Session 1 stopped" with the handoff file, then "▶ Session 2 resumed" with an empty context
+- Session 2's first turn: `pwd; git log; cat progress.md`, A2's getting up to speed routine
+- Screen 3: "Sessions", the turns and how each session ended; screen 5: the trace links
+- Console screen 1 (show-2), captured on 2026-10-17, run ab-20261017-113213-fe89a3; your output will differ
 
 notes:
-The replayed run: pilot run 3, F2, A/B ab-20261016-213317-9a0ec1, harness arm hidden tests 3 of 56.
-The same early finish happened in ab-20261016-214959-de790f (run 3) and, in run 4 (effort low), in
-the bare arm of all three A/Bs and in one harness arm. The fix is a bug fix that applies to both arms;
-the class-profile round ran with it. Follow-up question: which file did session 2 read first, and did
-it change what that session did next?
+In the quiet run (captured on 2026-10-17, run ab-20261017-113213-fe89a3; your output will differ),
+about 2 minutes after launch: turn 1.11 ran `git add progress.md docs/exec-plans/active/...`, turn
+1.12 called
+`finish not_done`, and screen 1 showed "Session 1 stopped: ended by claim_not_done; handoff
+session-handoff.md", then "Session 2 resumed: prefix: core, instructions, state". Since change 14
+(both arms) that call ends only the session, so session 2 ran; in pilot run 3 the same call ended
+the build phase (A/B ab-20261016-213317-9a0ec1, hidden tests 3 of 56). Session 2 began with `pwd; git
+log --oneline -20; cat progress.md`, then the ticket and the handbook. The harness decisions show
+the initializer step (init.sh, progress.md, session-handoff.md) and "session 1 handoff written to
+session-handoff.md". The board (screen 2) showed "✓ only own-org cards, no duplicates". The image is
+cut to the harness panel.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: README.md §11; Makefile `show-2`, `replay`.
+Source: quiet run ab-20261017-113213-fe89a3 (screen 1); README.md §11; Makefile `show-2`.
 
-## 33. Demo block: a constructed example, and what the pilot measured
+## 33. Demo block: reading the result
 section: S2 State and session lifecycle
 minutes: 7
+image: img/s2-result.png
 
-- Constructed example: `make example-2`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
+- show-2 in the quiet run: no continuity failure (passes), hidden tests 56 of 56; session 2 hit the agent time limit
+- Screen 5's first wrong turn, a heuristic: turn 2.16 edited `app/api/issues.py`, outside the diff scope
 - Pilot, continuity failure fails: bare 0 of 7, harness 0 of 7 (poll answer: A); no measurable difference on this task with this model
 - The measure cannot fail when session 1 leaves nothing to redo: in runs 3 and 4, 6 of 12 arms built nothing
-- The bare arm found its own state: in run 2 its session 2 ran `git status` in its fourth tool call
-- Post hoc, descriptive (9 runs per arm): agent time limit hit, harness 4, bare 0; median wall 361 s against 232 s
-- Class-profile round, with the fix: both arms built the feature, 56 of 56 hidden tests
+- Console screens 3 and 5 (show-2), captured on 2026-10-17, run ab-20261017-113213-fe89a3; your output will differ
 
 notes:
+The quiet run's arm line (captured on 2026-10-17, run ab-20261017-113213-fe89a3; your output will
+differ): `harness ABORTED: timeout claim=not_done primary={"continuity_failure": false} passed=True
+hidden 56/56 mutants 0/4 reviewer=reject cost=$0.0268`. Sessions: 12 turns (claim_not_done), then
+31. The diff-scope check is a secondary measure, and the F2 harness arm has no scope layer, so
+nothing stopped that edit. Exit code 2 means the arm was aborted at a time limit, not that the
+command broke.
+
 The 7 A/Bs: run 3 (ab-20261016-211419-dfe06f, ab-20261016-213317-9a0ec1, ab-20261016-214959-de790f),
 run 4 (ab-20261016-232842-ac03b2, ab-20261016-234027-226a76, ab-20261016-235211-ea59a9), class-profile
 round (ab-20261017-085139-7c0661). Built nothing (3 of 56 hidden tests): run 3 harness in
 ab-20261016-213317-9a0ec1 and ab-20261016-214959-de790f; run 4 bare in all three A/Bs and harness in
-ab-20261016-234027-226a76. The `git status` call: run 2, A/B ab-20261016-181736-08a9c4, run
-r-20261016-181736-a05ddb. Post hoc rows: runs 2-4, 9 runs per arm.
+ab-20261016-234027-226a76. The bare arm found its own state: in run 2 (A/B ab-20261016-181736-08a9c4,
+run r-20261016-181736-a05ddb) its session 2 ran `git status` in its fourth tool call. Post hoc,
+descriptive (runs 2-4, 9 runs per arm): agent time limit hit, harness 4, bare 0; median wall 361 s
+against 232 s. Class-profile round, with the fix: both arms built the feature, 56 of 56 hidden tests.
 
 The leave-one-layer-out bars were planned for the course's larger experiment batch (M8), which was not
 run because the pre-registered pilot gate did not pass.
-[[CAPTURE: what make example-2 shows on each console screen, and its wall time | how: make example-2]]
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: course pilot runs 2-4 and class-profile round (A/B ids above); submodules/02-state-lifecycle/concepts.md (git status).
+Source: quiet run ab-20261017-113213-fe89a3 (screens 3 and 5); course pilot runs 2-4 and class-profile round (A/B ids above); submodules/02-state-lifecycle/concepts.md (git status).
 
 ## 34. Runbook and next
 section: S2 State and session lifecycle
@@ -705,14 +732,27 @@ minutes: 2
 
 - Now: run `make show-3` in terminal B; it runs during slides 38-45, back on slide 46
 - Harness in action: the harness arm alone on F3; not an A/B
-- Watch for: a blocked or reverted edit with its reason, and the sandbox policy at work
+- Watch for: a blocked or reverted edit with its reason, if the agent tries one, and the sandbox line
 - Build, then a test phase; allow lists from the task; shared middleware is off-limits
-- Harness arm layers: instructions, state, scope
+
+```mermaid
+flowchart LR
+  L["make show-3"] --> F["feature_list.json: F3, passes false"]
+  F --> B["Build phase: allow list"]
+  B --> T["Test phase: tests only"]
+  B -. "edit outside the list" .-> X["Blocked or reverted, with the reason"]
+  T --> R["Referee: scope first"]
+  R --> V["primary verdict ready"]
+```
 
 notes:
-Timing reference: in the class-profile round (A/B ab-20261017-090051-91f837), the harness arm's
-primary verdict came 317 s after launch and its full verdict 481 s after launch.
-[[CAPTURE: wall time of make show-3 on the class host, launch to the primary verdict and to the full verdict | how: make show-3]]
+Harness arm layers: instructions, state, scope.
+
+Timing reference: in the quiet run of `make show-3` (captured on 2026-10-17, run
+ab-20261017-114259-b64f54; your output will differ) the primary verdict came 4:25 after launch, the
+full verdict 7:31 after launch, and the command took 7 min 43 s in all (exit 0). In the
+class-profile round (A/B ab-20261017-090051-91f837) the harness arm's primary verdict came 317 s and
+its full verdict 481 s after launch.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: Makefile `show-3`; README.md §10; docs/architecture.md §2; teamtrack/reference/f3/task.toml.
@@ -844,47 +884,60 @@ Fields from `network` to `no_new_privileges`. Show `S3:run_args` and `S3:dockerf
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: anchors S3:policy, S3:run_args, S3:dockerfile.
 
-## 46. Demo block: harness in action, and a real run replayed
+## 46. Demo block: what to watch
 section: S3 Scope and sandbox
 minutes: 8
+image: img/s3-watch.png
 live: `make show-3`: blocked or reverted decisions and any `sandbox_denied` event
 
-- `make show-3`, finished: screen 1 lists blocked or reverted decisions with their reasons
-- Screen 3: the diff map and any `sandbox_denied` event
-- Real run, replayed: `make replay RUN=ab-20261016-214151-ca9841` (pilot run 3, F4)
-- Its bare arm changed 2 files outside the allowed paths; its harness arm, with the scope layer, 0
+- Screen 1: harness decisions; the scope layer writes `feature_list.json` with F3, `passes: false`
+- A ⊘ block or ↺ revert appears only if the agent tries an edit outside the allow list
+- Screen 3: the diff map and "Sandbox denials"; screen 5: the trace links
+- Console screen 1 (show-3), captured on 2026-10-17, run ab-20261017-114259-b64f54; your output will differ
 
 notes:
-The replayed run: pilot run 3, F4, A/B ab-20261016-214151-ca9841. F4 runs all four layers, so the
-scope layer is in its harness arm. Follow-up: the harness arm cannot leave the allowed paths by
-construction. What would make you trust that it also shipped a working feature?
+In the quiet run (captured on 2026-10-17, run ab-20261017-114259-b64f54; your output will differ)
+the agent began with `pwd; git status --short; git log --oneline`, read the ticket, then
+`cat docs/QUALITY_SCORE.md`. It never tried an edit outside the allow list: no ⊘ block, no ↺
+revert, and no sandbox denial. The harness decisions were the 31 instruction files, the initializer
+step, and "feature_list.json written with F3 (passes: false)". Sessions: build 18 turns, test 12.
+If tonight's run blocks an edit, read its reason aloud: it is what the agent read in its tool result,
+and it names the phase and the allowed paths. If it records a `sandbox_denied` event, show its reason
+code and command; otherwise show the policy printout. The image is cut to the harness panel.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: README.md §11; Makefile `show-3`, `replay`.
+Source: quiet run ab-20261017-114259-b64f54 (screen 1); README.md §11; Makefile `show-3`.
 
-## 47. Demo block: a constructed example, the sandbox, and what the pilot measured
+## 47. Demo block: reading the result
 section: S3 Scope and sandbox
 minutes: 7
+image: img/s3-result.png
 
-- Constructed example: `make example-3`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
-- Sandbox moment: no pilot A/B recorded a `sandbox_denied` event; show the policy printout
+- show-3 in the quiet run: out-of-scope files 0, test-phase source edits 0 (passes); hidden tests 49 of 49, mutants killed 4 of 4
+- The harness arm's zero is expected by construction; the question is whether it still shipped a working feature
 - Pilot, out-of-scope file or test-phase source edit fails: bare 0 of 7, harness 0 of 7 (poll answer: a); no measurable difference on this task with this model
-- Post hoc, F3 (9 runs per arm): harness arms shipped a median of 0 tests against 6; claimed done in 4 against 9
-- Post hoc, F4 (all four layers): bare arms left the allowed paths in 6 of 6 runs, harness arms in 0 of 6
-- A measure nobody registered for scope: a reason to register it next time, not a result
+- Scope was registered only for F3; the F4 count (post hoc) is a reason to register it next time, not a result
+- Console screen 3 (show-3), captured on 2026-10-17, run ab-20261017-114259-b64f54; your output will differ
 
 notes:
+The quiet run's arm line (captured on 2026-10-17, run ab-20261017-114259-b64f54; your output will
+differ): `harness completed claim=done primary={"out_of_scope_files": 0, "test_phase_source_edits":
+0} passed=True hidden 49/49 mutants 4/4 reviewer=reject cost=$0.0142`. Its diff map: app/api/issues.py,
+app/services/issues.py, docs/HANDBOOK.md, tests/visible/test_issue_idempotency.py, all inside the
+build allow list. Sandbox denials: none.
+
 The 7 A/Bs: run 3 (ab-20261016-212115-a361f5, ab-20261016-213624-d7eb13, ab-20261016-215443-f2c188),
 run 4 (ab-20261016-233517-2c9ea4, ab-20261016-234509-8b9bfa, ab-20261016-235305-723a0f),
-class-profile round (ab-20261017-090051-91f837). Post hoc F4 rows: runs 2 and 3 (6 runs per arm).
-On F2 the harness arms also stayed inside the allowed paths (0 of 9), but demo-2 has no scope layer,
-so that is not the scope layer's doing. Sandbox: no `sandbox_denied` event in any recorded pilot A/B
-(checked on 2026-10-17 with `grep -l sandbox_denied .shipharness/runs/*/events.jsonl`). If
-tonight's `make show-3` recorded one, show its reason code and command first.
-[[CAPTURE: what make example-3 shows on each console screen, and its wall time | how: make example-3]]
+class-profile round (ab-20261017-090051-91f837). Post hoc, F3 (9 runs per arm): harness arms
+shipped a median of 0 tests against 6; claimed done in 4 against 9. Post hoc, F4 (all four layers;
+runs 2 and 3, 6 runs per arm): bare arms left the allowed paths in 6 of 6 runs, harness arms in 0 of
+6. On F2 the harness arms also stayed inside the allowed paths (0 of 9), but demo-2 has no scope
+layer, so that is not the scope layer's doing. Sandbox: no `sandbox_denied` event in any recorded
+pilot A/B (checked on 2026-10-17 with `grep -l sandbox_denied .shipharness/runs/*/events.jsonl`),
+and none in the quiet run.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50), sandbox moment.
-Source: course pilot runs 2-4 and class-profile round (A/B ids above).
+Source: quiet run ab-20261017-114259-b64f54 (screen 3); course pilot runs 2-4 and class-profile round (A/B ids above).
 
 ## 48. Runbook and next
 section: S3 Scope and sandbox

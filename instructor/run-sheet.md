@@ -396,7 +396,14 @@ have arrived, point at them: "Watch which files it opens before it writes code."
 | Reading the result | `1` | "primary verdict ready" with the time from launch, then the referee's verdict: new R1 violations, hidden tests, mutants | "This is one harness arm on one run. It tells us the layer ran; it cannot tell us the layer helped. That needs the A/B, next." |
 | All results | slide 20, screen `4` | S1 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. Here the assumption did not hold: the bare arm applied R1 from the handbook." |
 
-S1_QUIET
+What the quiet run of `make show-1` showed (captured on 2026-10-17, run
+`ab-20261017-112101-c5d839`; your output will differ): screen 1 listed 31 instruction files placed
+(the AGENTS.md map, docs, skills); the agent's third tool call opened `docs/HANDBOOK.md`, and the
+harness decisions recorded `ARCHITECTURE.md` and the add-endpoint skill as read; build session 23
+turns, test phase 12; "primary verdict ready: PASS" (new R1 violations 0) 4:11 after launch, the full
+verdict 10:00 after launch (hidden tests 52/52, mutants 2/4, reviewer accept); screen 2 "✓ only
+own-org cards, no duplicates"; screen 5 "no wrong turn found". Cost: $0.0179 for the arm, $0.0019 for
+the review.
 
 Post hoc for S1 (descriptive; VERIFICATION.md, exploratory rows "F1 bare" and "F1 harness", 10 runs
 per arm): harness arms claimed done in 5 of 10 runs, bare arms in 9 of 10; median cost per arm
@@ -439,11 +446,19 @@ plan); its first turns follow the Getting up to speed routine.
 |---|---|---|---|
 | Harness in action | `1` | "■ Session 1 stopped" and "▶ Session 2 resumed" in the finished timeline | "This stop is the session turn budget. A3 calls the pattern a context reset with a structured handoff (A3, F-a-65; RESEARCH G-5)." |
 | Harness in action | `3` Evidence | "Sessions" (turns, `ended_by`, ↺ redone files); "Files read": `progress.md`, `session-handoff.md` | "Session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62)." |
-| Harness in action | `2` | The board after the run: the comments panel | "Did the second session finish what the first started?" |
+| Harness in action | `2`, `5` | The board after the run ("✓ only own-org cards, no duplicates"); the first wrong turn and the trace links | "Did the second session finish what the first started? Screen 5 names the first turn that edited a file a failing check names." |
 | Reading the result | `1`, `3` | "primary verdict ready", then the continuity verdict; screen 3 "Sessions" | "Before change 14, a `finish(not_done)` at the end of session 1 ended the build phase in 6 of the 12 F2 arms of runs 3 and 4. Now it ends only that session, in both arms." |
 | All results | slide 33, screen `4` | S2 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. The measure cannot fail when session 1 leaves nothing to redo: 6 of the 12 F2 arms of runs 3 and 4 built nothing (hidden 3 of 56)." |
 
-S2_QUIET
+What the quiet run of `make show-2 SESSION_BUDGET=12,38` showed (captured on 2026-10-17, run
+`ab-20261017-113213-fe89a3`; your output will differ): about 2 minutes after launch, turn 1.12 called
+`finish not_done` and screen 1 showed "■ Session 1 stopped: ended by claim_not_done; handoff
+session-handoff.md", then "▶ Session 2 resumed: prefix: core, instructions, state"; session 2's first
+turn ran `pwd; git log --oneline -20; cat progress.md`. Sessions: 12 turns, then 31, when the agent
+time limit ended the run (`ABORTED: timeout`, exit 2). "primary verdict ready: PASS" (no continuity
+failure) 6:46 after launch, the full verdict 9:52 after launch: hidden tests 56/56, mutants 0/4,
+diff scope 1 new (secondary; screen 5's first wrong turn: turn 2.16 edited `app/api/issues.py`),
+reviewer reject. Cost: $0.0268 for the arm, $0.0027 for the review.
 
 Post hoc for S2 (VERIFICATION.md, exploratory rows "F2 bare" and "F2 harness", 9 runs per arm):
 harness arms hit the agent time limit in 4 of 9, bare arms in 0 of 9; median arm wall time 361 s
@@ -499,7 +514,15 @@ If none occurred, show the policy printout (command in "Before class", step 6) a
 pilot runs 3 and 4 or the class-profile round had a sandbox denial" (`grep -c sandbox_denied` over
 those runs' `events.jsonl`, read 2026-10-17: 0 in every A/B).
 
-S3_QUIET
+What the quiet run of `make show-3` showed (captured on 2026-10-17, run `ab-20261017-114259-b64f54`;
+your output will differ): the agent began with `pwd; git status --short; git log --oneline`; the
+harness decisions were the 31 instruction files, the initializer step, and "feature_list.json
+written with F3 (passes: false)"; the agent never tried an edit outside the allow list, so no ⊘
+block or ↺ revert appeared, and screen 3 listed no sandbox denial. Sessions: build 18 turns, test 12.
+"primary verdict ready: PASS" (out-of-scope files 0, test-phase source edits 0) 4:25 after launch,
+the full verdict 7:31 after launch: hidden tests 49/49, mutants 4/4, reviewer reject. Cost: $0.0142
+for the arm, $0.0030 for the review. So in a run like this one, the sandbox moment is the policy
+printout.
 
 Post hoc for S3 and F4 (VERIFICATION.md, exploratory rows "F3" and "F4"): on F3 harness arms shipped
 a median of 0 tests against 6, killed a median of 0 of 4 referee mutants against 4, and claimed done

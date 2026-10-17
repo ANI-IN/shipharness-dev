@@ -1,4 +1,4 @@
-"""instructor/run-sheet.md: every demo step is live (owner message 7, "demo sections are 100% live").
+"""instructor/run-sheet.md: every demo step is live (owner message 7: demo sections are live).
 
 The run sheet's demo flow may only launch live model runs (`make show-N`, `make demo-N`,
 `make final`). Replays, recorded showcases, and constructed examples are fallbacks or optional
