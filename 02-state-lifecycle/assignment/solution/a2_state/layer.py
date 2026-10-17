@@ -5,7 +5,8 @@ At every session stop the harness, not the agent, writes the state the next sess
 1. a step ledger derived from git (step commits, uncommitted product files);
 2. the exec plan's Progress section: the ledger plus one line per session;
 3. session-handoff.md: the S2 machine summary plus the ledger, with the agent's notes kept;
-4. progress.md: the CONTRACTS §15.2 sections restored and one log entry per session;
+4. progress.md: its sections (Current feature, Done, In progress, Next, Session log) restored and
+   one log entry per session;
 5. one harness commit of those files;
 6. a resume message with the ledger, the next step, and the migration head;
 7. at the end of the phase, the exec plan moved to completed/ with its outcome.

@@ -79,20 +79,17 @@ extend-immutable-calls = [
 
 [tool.pytest.ini_options]
 # The platform suite, TeamTrack's visible tests, and the section assignment tests that pass on
-# the committed code: scenario tests, reference-solution tests (public), and grader tests (build
-# repository only; a missing path is skipped). Left out: the starter and visible assignment
-# tests (they fail on the unchanged starter by design; make check-assignment-N runs them) and
-# test folders with their own conftest.py (a second `conftest` module would shadow the one
-# TeamTrack's tests import by name; the graders run those).
+# the committed code (the scenario tests and the reference solutions' own tests). Left out: the
+# starter and visible assignment tests (they fail on the unchanged starter by design; make
+# check-assignment-N runs them) and test folders with their own conftest.py (a second
+# `conftest` module would shadow the one TeamTrack's tests import by name). The graders' tests
+# are private: platform/tests/unit/test_section_graders.py runs them in the build repository.
 testpaths = [
     "platform/tests/unit",
     "platform/teamtrack/tests/visible",
     "01-instructions/assignment/solution/work/checker",
     "02-state-lifecycle/assignment/tests",
     "02-state-lifecycle/assignment/solution/tests",
-    "02-state-lifecycle/assignment/solution/grader/tests",
-    "03-scope-sandbox/assignment/solution/grader/tests",
-    "04-verification/assignment/solution/grader/tests",
 ]
 norecursedirs = [".claude", ".superpowers", ".venv", ".git", ".hypothesis", ".shipharness", "exports", "research", "node_modules"]
 pythonpath = ["platform/teamtrack"]

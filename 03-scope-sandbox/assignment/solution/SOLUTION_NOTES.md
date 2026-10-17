@@ -1,7 +1,7 @@
 # A3 solution notes
 
 Reference solution for assignment A3 (`../assignment/README.md`). Code: `a3scope/`; denial test:
-`tests/test_a3_sandbox_rule.py`; grader: `grader/grade.py`; hidden cases: `grader/hidden/`.
+`tests/test_a3_sandbox_rule.py`; the grader and its hidden cases are private (instructor only).
 
 ## Approach
 
@@ -70,7 +70,7 @@ from a neighbour.
 - **Mutation check for the denial test.** "A test that proves the denial" is checked by running the
   learner's test with the rule removed (`assignment/visible_tests/plugins/a3_rule_removed.py`): a test
   that still passes proves nothing about the rule.
-- **Hidden diffs are real git output.** `grader/hidden/make_hidden.py` builds each case from file
+- **Hidden diffs are real git output.** A private script builds each case from file
   operations on a small TeamTrack-shaped tree and records `git diff --cached` (with `-M`, and
   `--find-copies-harder` or `--binary` where a case needs it). Hand-written cases are the patches an
   agent can pass to `apply_patch` directly. A slow test regenerates them and compares bytes.
@@ -118,14 +118,14 @@ The history rule is a regex on the command text, so it is a guard rail, not a bo
 
 A boundary would need the harness to own history: keep the evidence commit in a ref the agent cannot
 write (a second repository, or a read-only bind mount of a bare copy), or record the evidence by tree
-hash as well as commit SHA. Those are Module 2 sandbox topics (DESIGN §9).
+hash as well as commit SHA. Those are Module 2 sandbox topics.
 
 The diff parser reads unified and git diffs only: no context diffs (`***`), no `--no-prefix` edge cases
 beyond equal halves, and no file names containing a newline outside git's quoting.
 
 ## Hidden cases (revealed at the Thursday review, brief §5.3)
 
-Diff cases (`grader/hidden/cases.json`, `diffs/<id>.diff`). Policy: the F3 allowed paths (build:
+Diff cases (in the private grader). Policy: the F3 allowed paths (build:
 `app/api/issues.py`, `app/services/issues.py`, `docs/HANDBOOK.md`, `tests/visible/**`; test:
 `tests/visible/**`) and the state layer on, unless the case says otherwise.
 
@@ -182,7 +182,7 @@ Inline hidden tests add: quoted-name unquoting, binary-patch section end, header
 statuses of a deletion and a mode change, CRLF line endings, a form feed inside content, and a
 `git format-patch` preamble.
 
-Status cases (`grader/hidden/test_a3_hidden_status.py`, 40): `passes` set from a gate with skipped
+Status cases (40): `passes` set from a gate with skipped
 items, only the named feature changed, `testedAt` converted from another time zone, no
 `existing tests` item, a run with skips, xfails and warnings, a `=`-padded summary, the timeout passed
 through; kept false for five claim shapes, the test phase, already set, thirteen gate shapes (`passed`
@@ -191,7 +191,7 @@ pending item; failed existing tests; not a dict), twelve test-run outputs (failu
 with exit 5 and 0, failures with exit 0, no summary, empty, a fake summary followed by the real one,
 timed out, exit 124, denied, "passed" in a test name), and an unknown feature.
 
-Command cases (`grader/hidden/test_a3_hidden_rule.py`): 28 rewrites denied, 4 network commands still
+Command cases: 28 rewrites denied, 4 network commands still
 decided by the default rules, 42 commands allowed (including the harness's own commit, apply, status,
 and diff commands built from the real `commit_command`, `SETUP_COMMIT`, and `PATCH_FILE`).
 
@@ -250,7 +250,7 @@ described in [README.md](README.md), "Captured live run of this solution".
    (the grader prints the failed test ids).
 5. Discussion questions (3 min):
    - The history rule cannot stop `git commit --amen`. What would make history a boundary instead of a
-     guard rail, and where would that live: the sandbox (DESIGN §9) or the harness?
+     guard rail, and where would that live: the sandbox or the harness?
    - A2's agent used git "to revert bad code changes" (A2, F-a-57). Which revert commands should an agent
      keep, and does `git reset --hard` with no revision belong on the deny list?
    - The gate check refuses `passed: true` with a failed item. Who can produce such a gate result, and
@@ -260,7 +260,7 @@ described in [README.md](README.md), "Captured live run of this solution".
 ## Live step: what the pilot showed
 
 The M6 pilot ran the live step's A/B (`shipharness ab --section demo-3 --feature F3 --no-preview`)
-three times per pilot run (VERIFICATION.md, M6 pilot). Two findings matter for the live verdicts:
+three times per pilot run (course pilot). Two findings matter for the live verdicts:
 
 - Pilot run 1 (before the measurement fixes) charged every F3 arm with 4 out-of-scope files that were the import linter's cache
   (`.import_linter_cache/`), and counted uncommitted build work as test-phase source edits for arms
@@ -272,7 +272,7 @@ three times per pilot run (VERIFICATION.md, M6 pilot). Two findings matter for t
   harness set `passes` (two of the three pilot run 2 harness arms), while the referee strips it. That
   difference is the one the assignment README asks learners to explain.
 
-Pilot run 3 uses the trap variant for F3 (`trap-tempting-middleware`, DESIGN §10.4); the live step stays on
+Pilot run 3 uses the trap variant for F3 (`trap-tempting-middleware`, a pre-registered dataset variant); the live step stays on
 the canonical task (`--feature F3`), and the grader checks for that.
 
 ## Integration notes
@@ -280,12 +280,11 @@ the canonical task (`--feature F3`), and the grader checks for that.
 - Make targets: `check-assignment-3` (`A3_IMPL=<folder>`) and `grade-assignment-3`
   (`SUBMISSION=<folder or git URL>`, passed to the grader as `--impl` by
   `platform/scripts/grade_assignment.py`).
-- The live-step command now carries `--purpose assignment` (traces to `shipharness-assignments`,
-  DESIGN §12). `assignment/live.py` accepts it (it bans only `--replay`, `--swap`, `--layers`, `--k`,
+- The live-step command now carries `--purpose assignment` (traces to
+  `shipharness-assignments`). `assignment/live.py` accepts it (it bans only `--replay`, `--swap`, `--layers`, `--k`,
   `--example`, and `--from-working-tree`), its usage text shows the flag, and
   `test_verify_accepts_the_assignment_purpose` covers it.
 - `check.py`'s closing hint names the instructor grader (`make grade-assignment-3
   SUBMISSION=<folder>`); `test_check_points_to_the_instructor_grader` covers both branches.
-- `solution/grader/tests/` is not under the repository's `testpaths`
-  (`["platform/tests/unit", "platform/teamtrack/tests/visible"]` in `pyproject.toml`); run it on its own. Its last test
-  is marked `slow`.
+- The grader's own tests (private) run in the build repository's full suite; their last test is
+  marked `slow`.

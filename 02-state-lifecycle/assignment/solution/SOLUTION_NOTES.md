@@ -1,8 +1,7 @@
 # A2 solution notes
 
-Reference solution: `a2_state/` (layer.py, ledger.py, progress_log.py). Grader:
-`grader/grade.py` with the hidden scenarios in `grader/a2_hidden.py`. Hidden grader tests:
-`grader/tests/`. Unit tests of the solution's helpers: `tests/`.
+Reference solution: `a2_state/` (layer.py, ledger.py, progress_log.py). The grader and its hidden
+scenarios are private (instructor only). Unit tests of the solution's helpers: `tests/`.
 
 ## Results (captured)
 
@@ -49,7 +48,7 @@ session reads it:
    `## Notes from the agent` section as written.
 5. progress.md: the layer keeps its own list of session-log entries (in the
    `progress.session_entry` format) and rebuilds the file with `normalise_progress`: the
-   CONTRACTS §15.2 sections in order, the agent's text kept where it wrote any, missing sections from
+   progress.md sections (Current feature, Done, In progress, Next, Session log) in order, the agent's text kept where it wrote any, missing sections from
    the template, and the session log from the layer's list.
 6. One harness commit per stop (`commit_paths` on the handoff, progress.md, and the plan).
 7. The resume message: the ledger, the next step (and that its listed files exist), and
@@ -88,7 +87,7 @@ machine summary, migration heads read as text, and sandboxed commits.
 - Parsing the previous session-log entries back out of progress.md instead of keeping a list. It
   survives a harness restart, but not an agent that rewrote the file before the stop.
 - A JSON state file (A2's argument for JSON, F-a-81). It would be harder for the agent to damage,
-  but CONTRACTS §15 fixes progress.md, the handoff, and the exec plan as the workspace artifacts.
+  but the course fixes progress.md, the handoff, and the exec plan as the workspace artifacts.
 
 ## Trade-offs
 
@@ -132,7 +131,7 @@ never runs a model and scores nothing else from the model's output.
 
 Why [10, 10, 10, 20]: the dataset's F2 lines all give the build phase 50 turns in two sessions
 ([20, 30], [13, 37], [25, 25], [38, 12]); the live task keeps 50 and splits it into four sessions.
-Since change 14 (VERIFICATION.md, "Changes after the gate") the runner starts the next build session
+Since a runner change after the pilot gate the runner starts the next build session
 when a session ends by its turn budget or by `finish(claim="not_done")` (`_next_session_runs` in
 `platform/src/shipharness/runner/loop.py`), and emits a `session_stop` event after each such session except
 the last. The live check still requires the first three build sessions to end by the turn budget
@@ -141,9 +140,9 @@ stops the run before session 4, makes the evidence invalid; the learner moves `l
 again.
 
 No real run of `F2-a2-four-sessions` exists: the reference live run is not captured (owner scope,
-2026-10-17), and M8 was not run because the pre-registered gate did not pass (VERIFICATION.md, "Gate
-decision"). The nearest data is the pilot's F2 runs with a 12-turn first session (VERIFICATION.md,
-"Run 3", "Run 4", "Class-profile round", and change 14): 6 of the 14 arm runs ended session 1 with
+2026-10-17), and M8 was not run because the pre-registered gate did not pass (course pilot, gate
+decision). The nearest data is the pilot's F2 runs with a 12-turn first session (course pilot,
+runs 3 and 4 and the class-profile round): 6 of the 14 arm runs ended session 1 with
 `finish(claim="not_done")` after 9 to 12 turns (run 3 harness `ab-20261016-213317-9a0ec1`,
 `-214959-de790f`; run 4 bare `ab-20261016-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9`, and
 harness `-234027-226a76`); both arms of the class-profile round (`ab-20261017-085139-7c0661`) ended

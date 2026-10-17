@@ -8,9 +8,9 @@ Every value below that needs the run says so instead of giving a number.
 ## Setup
 
 - Command: `uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference`
-- Runs per arm: 24 (8 section-1 tasks, k=3; DESIGN §11.5)
+- Runs per arm: 24 (8 section-1 tasks, k=3; the course plan)
 - Model and reasoning effort: `OPENAI_MODEL` and `OPENAI_REASONING_EFFORT` from the settings
-  (CONTRACTS §1), recorded in each experiment's metadata
+  (the course defaults), recorded in each experiment's metadata
 
 Instructions tree commit: none, because the reference live run was not captured (owner scope,
 2026-10-17).
@@ -30,13 +30,13 @@ No LangSmith experiment links: the reference live run was not captured (owner sc
 
 ## Cost and traces
 
-Budget for this command: at most $2.50 and 150 traces (DESIGN §11.5); the run stops cleanly at
+Budget for this command: at most $2.50 and 150 traces (the course budget); the run stops cleanly at
 `MAX_BATCH_COST_USD`. No measured cost or trace count: the reference live run was not captured
 (owner scope, 2026-10-17).
 
 ## Reading the result
 
-The primary measure for section 1 is registered in DESIGN §8.2: a run fails when it has at least one
+The primary measure for section 1 is registered by the course: a run fails when it has at least one
 new R1 violation, and results are counts of failing runs out of k per task, summed over the eight
 tasks. R3 is the secondary measure this assignment adds: runs with at least one new R3 failure. With
 counts from a captured run, compare the arms on R1 first, then on R3, and look task by task at F1-trap

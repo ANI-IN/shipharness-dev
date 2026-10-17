@@ -1,7 +1,7 @@
 # A1 solution notes
 
-Reference solution for assignment A1 ([brief](../../README.md)). Source ids refer to
-`RESEARCH.md`. Everything marked "course design" was designed for this course and is not a claim of
+Reference solution for assignment A1 ([brief](../README.md)). Source ids are listed in
+[docs/REFERENCES.md](../../../docs/REFERENCES.md). Everything marked "course design" was designed for this course and is not a claim of
 the sources.
 
 ## Approach
@@ -10,7 +10,7 @@ the sources.
    66 active rules and 4 retired ones (R2.5, R3.8, R7.5, CV-23). Everything else is background:
    history, incident notes, review comments, questions and answers, a glossary.
 2. **Checker first, test-first.** The visible tests (`work/checker/test_check_docs.py`, a byte copy of
-   the starter's) and the eleven hidden cases (`grader/hidden/checker_cases.py`) were written before
+   the starter's) and the eleven hidden cases (in the private grader) were written before
    the reference checker, seen failing against the starter stubs (12 of 15 visible tests fail), and
    then made to pass. The checker ran after every document of the split.
 3. **One home per rule.** Each document answers one question an agent asks before it edits code:
@@ -59,7 +59,7 @@ the sources.
 - **Code-span paths are checked too.** The course's own map points with code spans
   (`platform/teamtrack/harness/instructions/AGENTS.md`), so a checker that reads only Markdown links would
   miss most pointers.
-- **No new facts** (DESIGN §6.1, applied to the learner's tree). The bare arm reads
+- **No new facts** (course design, applied to the learner's tree). The bare arm reads
   `docs/HANDBOOK.md` and the code; every fact in the original comes from one of the two. Requiring
   each code span of the tree to appear in the original, or to be an existing path, keeps the A/B a
   test of organisation, not of extra information.
@@ -73,8 +73,8 @@ the sources.
   hidden cases. Hygiene points scale with coverage and "clean" points need at least one detected
   fault, so an empty tree or a checker that reports nothing scores near zero (the starter scores 1.8).
 - **Report graded by structure.** The brief forbids re-running models in grading. The structure
-  checks enforce what DESIGN §8.3 asks of every A/B: counts, not percentages, one primary measure
-  (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` accepts well-formed pending markers in
+  checks enforce what the course asks of every A/B: counts, not percentages, one primary measure
+  (R1, the section's registered primary measure) reported per arm, the budget. `--allow-pending` accepts well-formed pending markers in
   place of A/B values and live evidence; the reference holds none (its live run was not captured), so
   the flag does not change its score, and learners are graded without it.
 - **The A/B is the required live step** (course design, owner decision). The learner submits what
@@ -85,7 +85,7 @@ the sources.
   present, events against the event models, run ids and tasks against the command and the
   `section-1` split of `platform/datasets/teamtrack-features-v1.jsonl`, `gpt-6-luna` (export metadata, the
   run logs' `run_start` and `cost` events, the cost line), `recorded` false, `sandboxed` true, and
-  the caps of CONTRACTS §1. Missing or malformed evidence zeroes all of F.
+  the course caps. Missing or malformed evidence zeroes all of F.
 - **Proof that the learner's tree was used.** `ScoreRecord` names the layers, not the tree, so the
   check reads the run log instead: `InstructionsLayer.prepare_workspace` writes one
   `harness_decision` note per harness run, "placed N instruction files", whose `paths` are the files
@@ -97,7 +97,7 @@ the sources.
 - **Points for F** come from criteria whose weight the live evidence now covers or that had slack:
   E A/B report 15 to 10 (its counts are now cross-checked in F), D hidden cases 14 to 10, C Skill 15
   to 12. The totals stay at 100.
-- **`ab_summary.py` reads only `exports/`**, as `uv run shipharness report` does (DESIGN §12), so the numbers in a
+- **`ab_summary.py` reads only `exports/`**, as `uv run shipharness report` does, so the numbers in a
   report come from the score records and never from memory.
 
 ## Alternatives considered
@@ -107,8 +107,8 @@ the sources.
   not reproducible; the self-check must run with no keys.
 - **Verbatim statements.** Rejected: it forbids the rewording that makes focused documents readable.
 - **A third arm with the 900-line file injected as `AGENTS.md`.** It would separate "instructions in
-  context" from "instructions organised", but it doubles the A/B cost beyond A1's $2.50 (DESIGN
-  §11.5), and `shipharness experiments` compares a bare arm with a harness arm only. The two-arm A/B
+  context" from "instructions organised", but it doubles the A/B cost beyond A1's $2.50 (the
+  course budget), and `shipharness experiments` compares a bare arm with a harness arm only. The two-arm A/B
   compares the bare arm, which has the same facts in `docs/HANDBOOK.md` on disk, with the restructured
   tree in context.
 - **One skill per house rule.** Rejected for the assignment: the brief asks for one skill, and B1's
@@ -159,11 +159,9 @@ differ", then the command:
 | `captured/grade-starter.txt` | `make grade-assignment-1 SUBMISSION=01-instructions/assignment/starter` | 2026-10-17 |
 | `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=01-instructions/assignment/solution/work` | 2026-10-17 |
 | `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
-| `captured/grade-solution-allow-pending.txt` | `grade.py --work 01-instructions/assignment/solution/work --allow-pending` | 2026-10-17 |
-| `captured/tests.txt` | the grader tests and the checker tests | 2026-10-17 |
 
-The starter files and the checker output were captured at commit d52d8c6; the solution's self-check,
-both solution grades, and the tests at commit 0c3387d, after the reference's markers were replaced.
+The starter files and the checker output were captured at commit d52d8c6; the solution's self-check
+and grade at commit 0c3387d, after the reference's markers were replaced.
 
 Summary, as captured on 2026-10-17:
 
@@ -175,15 +173,14 @@ Summary, as captured on 2026-10-17:
 - The grader gives the starter 1.8/100 and the solution 83.0/100. The solution loses exactly the
   live-step points: 5 of the 10 points of criterion E (the A/B values the live run supplies) and all
   12 points of criterion F (live run evidence).
-- The reference holds no pending markers, so `--allow-pending` also gives it 83.0/100
-  (`captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes the flag,
+- The reference holds no pending markers, so grading with `--allow-pending` also gives it
+  83.0/100; `make grade-assignment-1` never passes the flag,
   and learners are graded without it.
-- The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
-  evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that
+- The grader's own tests also grade a SYNTHETIC submission (the reference work folder plus invented
+  live evidence built by a private test fixture), which scores 100 without `--allow-pending`; that
   is a test fixture, not a run. Its score records carry `referee_version` and `single_arm`, the two
   fields `ScoreRecord` gained on 2026-10-17 (`platform/src/shipharness/ab/score.py`); without them all 31
   synthetic-evidence tests failed.
 
-The grading criteria table in the brief ([../assignment/README.md](../../README.md), "Grading
-criteria (100 points)") was checked against `grader/grade.py` (`CRITERIA`, `VISIBLE_POINTS`, and the
-hidden items) on 2026-10-17: every criterion total and every item weight agree, and they sum to 100.
+The grading criteria table in the brief ([../README.md](../README.md), "Grading criteria (100
+points)") was checked against the grader (`CRITERIA`, `VISIBLE_POINTS`, and the hidden items) on 2026-10-17: every criterion total and every item weight agree, and they sum to 100.

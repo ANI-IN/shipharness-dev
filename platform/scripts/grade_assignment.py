@@ -4,8 +4,8 @@
     uv run python platform/scripts/grade_assignment.py N <folder or git URL>
 
 A git URL is cloned shallow into a temporary folder; a folder is graded in place. The grader for
-assignment N sits in the section's `assignment/solution/grader/` folder: the reference solution
-ships in the public release, its grader does not. The grader's exit code is passed through.
+assignment N sits in the grader folder of the section's reference solution: the solution ships
+in the public release, its grader does not. The grader's exit code is passed through.
 """
 
 from __future__ import annotations

@@ -106,7 +106,7 @@ Real output of the last command above on `platform/teamtrack/`; the full JSON do
 The one finding is the legacy `/v1/issues` handler, which reads every row through
 `list_all_legacy` with no `deleted_at` filter. It exists at the checkpoint, so it belongs in the
 baseline: rerunning with `--baseline` set to this output gives no new violations, like the legacy
-R1 leak in DESIGN §5. Every other endpoint in the OpenAPI schema answers 404 for a deleted issue or
+R1 leak in the R1 baseline. Every other endpoint in the OpenAPI schema answers 404 for a deleted issue or
 leaves it out of its list.
 
 ## Limits

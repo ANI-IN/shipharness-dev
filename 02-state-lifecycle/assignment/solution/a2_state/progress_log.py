@@ -1,4 +1,4 @@
-"""progress.md kept whole: the CONTRACTS §15.2 sections in order and one log entry per session.
+"""progress.md kept whole: its sections in order and one log entry per session.
 
 The agent owns Done, In progress, and Next; the harness owns the Session log. When the agent
 rewrites the file, the missing sections come back from the template, what the agent wrote is kept,

@@ -1,7 +1,7 @@
 # solution
 
-Reference solution and grader for assignment A3 (brief: `../assignment/README.md`). The hidden cases
-live here, not in the starter; they are revealed at the Thursday review (brief ยง5.3).
+Reference solution for assignment A3 (brief: [../README.md](../README.md)). Try the assignment
+first, then compare. The grader, its hidden cases, and its tests stay private (instructor only).
 
 | Path | What it is |
 |---|---|
@@ -9,11 +9,6 @@ live here, not in the starter; they are revealed at the Thursday review (brief ย
 | `tests/test_a3_sandbox_rule.py` | Reference denial test (passes with the rule, fails without it) |
 | `tests/test_a3_docker_rule.py` | Optional real-container check (`pytest -m docker`) |
 | `SOLUTION_NOTES.md` | Approach, design choices, alternatives, trade-offs, known limits, hidden case list, review notes |
-| `grader/grade.py` | `make grade-assignment-3`: visible + hidden tests + live evidence, score out of 100 |
-| `grader/hidden/` | Hidden scripted diffs (`diffs/`, `cases.json`, built by `make_hidden.py`) and hidden tests |
-| `grader/tests/test_a3_grader.py` | Tests for the self-check and the grader |
-| `grader/tests/test_a3_live.py` | Tests for the live step tool (`assignment/live.py`) |
-| `grader/tests/synthetic_live.py` | SYNTHETIC A/B for those tests, written by hand: never a real run |
 | `live/` | Captured live step of this solution (A/B `ab-20261017-092810-d5d31c`, below) |
 | `captured/` | Captured output of the self-check and the grader on the starter and on this solution |
 
@@ -21,21 +16,19 @@ Run (from the repository root):
 
 ```bash
 make check-assignment-3 A3_IMPL=03-scope-sandbox/assignment/solution    # self-check
-make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution # grader, score out of 100
-uv run python -m pytest -q -p no:cacheprovider 03-scope-sandbox/assignment/solution/grader/tests
+make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution # grader (instructor only)
 uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/solution/tests
 ```
 
 The first two were run again on 2026-10-17 after the live run was captured (output in
-`captured/`). The grader tests were run the same day (42 passed, the slow one deselected); the
-docker line was not (no containers), and `captured/docker-solution.txt` holds the container check
+`captured/`). The grader's own tests were run the same day (42 passed, the slow one deselected);
+the docker line was not (no containers), and `captured/docker-solution.txt` holds the container check
 from 2026-10-16.
 
 Grade a learner submission (a folder, or a git URL that is cloned shallow; `platform/scripts/grade_assignment.py`):
 
 ```bash
-make grade-assignment-3 SUBMISSION=<folder or git URL>
-uv run python 03-scope-sandbox/assignment/solution/grader/grade.py --impl <submission folder>  # the same, without make
+make grade-assignment-3 SUBMISSION=<folder or git URL>   # instructor only
 ```
 
 `--live <dir>` points at live evidence kept elsewhere. The grader reads `<submission>/live/`, validates
@@ -70,12 +63,7 @@ is an example, not a rate.
 
 Grading this folder now scores 100.0 / 100 with `Result: PASS`: criterion 6 is 10 / 10 on the
 captured run, graded like any submission's `live/` (`captured/grade-solution.txt`). The grader's
-own tests also grade a copy with the synthetic evidence in `grader/tests/synthetic_live.py`, which
-is never a real run, and grade this folder as it is
+own tests also grade a copy with synthetic evidence (a private test fixture), which is never a
+real run, and grade this folder as it is
 (`test_reference_solution_passes_on_its_captured_live_run`).
 
-Rebuild the hidden diffs after changing a case (the slow grader test checks they are reproducible):
-
-```bash
-uv run python 03-scope-sandbox/assignment/solution/grader/hidden/make_hidden.py
-```

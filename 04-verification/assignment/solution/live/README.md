@@ -33,7 +33,7 @@ echo '$ uv run shipharness ab --section demo-4 --feature F4 --purpose assignment
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview 2>&1 | tee -a $L/ab.txt
 AB=$(grep -o 'ab-[0-9]\{8\}-[0-9]\{6\}-[0-9a-f]\{6\}' $L/ab.txt | head -1)
 grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $L/scores/
-uv run python 04-verification/assignment/solution/grader/grade.py
+make grade-assignment-4 SUBMISSION=04-verification/assignment/solution   # instructor only
 ```
 
 What `apply_filter` printed is not kept here; its result is in the report (the filter-6 row and

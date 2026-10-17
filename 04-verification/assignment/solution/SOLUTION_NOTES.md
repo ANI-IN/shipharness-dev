@@ -2,7 +2,8 @@
 
 Reference solution for R8 (soft delete respected on every endpoint), filter 6 (no duplicate test),
 the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the learner skill. Brief:
-`../assignment/README.md`. Source ids point to `RESEARCH.md` and `research/notes/`.
+[../README.md](../README.md). Source ids are listed in
+[docs/REFERENCES.md](../../../docs/REFERENCES.md).
 
 ## Approach
 
@@ -103,13 +104,13 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 - No criterion rests on a PENDING marker. Until 2026-10-17 the grader accepted markers for
   this folder only (`pending_only` in `a4_live.py`, `reference_mode` in `a4_support.py`), so 20
   of its 100 points were not earned on real work. That special case is removed: the visible tests
-  and the self-check no longer name this folder, and `grader/tests/test_live.py` and
-  `grader/tests/test_portfolio.py` check that a marker fails the live-evidence and portfolio
+  and the self-check no longer name this folder, and the grader's own tests (private) check that
+  a marker fails the live-evidence and portfolio
   criteria for every folder, and that this folder passes them on its captured run.
 
 ## Hidden tests (reveal in the Thursday review)
 
-`grader/hidden_tests/hidden_seeds.py` builds these TeamTrack copies:
+The private grader builds these TeamTrack copies:
 
 | Seed | What it adds or breaks | Expected R8 finding |
 |---|---|---|
@@ -122,7 +123,7 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 | `H_RECENT_OK`, `H_BODY_OK` | Correct versions of the two new endpoints | nothing new |
 | `H_DECOY` | New `GET /projects/{project_id}/digest` returning `{"id": 1, ...}` | nothing new |
 
-The hidden filter tests (`grader/hidden_tests/test_filter_hidden.py`) cover consistent and swapped
+The hidden filter tests cover consistent and swapped
 local renames, fixture names, global helpers, attributes, parametrize data, earlier kept
 candidates, an existing test compared with itself, class methods, async tests, loop, `with`, and
 `except` names, and a file that does not parse.
@@ -140,7 +141,7 @@ a committed mutation check of the grader is an open item.
 - Expected approach: the four probe kinds, marker evidence, stable `detail_key`, AST
   normalisation with local renaming.
 - Discussion: why does the legacy `/v1/issues` finding belong in the baseline rather than in an
-  exemption list? (R1 makes the same choice for the same handler: DESIGN §5.)
+  exemption list? (R1 makes the same choice for the same handler: its legacy leak is in the baseline too.)
 - Discussion: filter 6 removes copies; filter 3 already discards tests that add nothing. When does
   a duplicate pass filter 3? (When the copy is proposed in the same run as the original: both add
   the same new coverage over the existing suite.)
@@ -186,7 +187,7 @@ hidden filter tests grade the filter itself.
 
 Why the F4 A/B replaces the section-4 experiment: by the caps, the A/B (two runs at $0.20 and two
 reviews at $0.04) costs at most $0.48 and the live step at most $0.68, inside the A4 plan of $1.75
-(DESIGN §11.5); the experiment's per-command cap alone ($2.50) was above that plan.
+(the course budget); the experiment's per-command cap alone ($2.50) was above that plan.
 
 The run sections of `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
 `portfolio/case-study.md` are filled from those files: counts, run ids, `trace_url` values, and
@@ -194,7 +195,7 @@ cost lines as the files hold them. What the A/B shows: the bare arm passed 68 of
 and killed 4 of 4 referee mutants; the harness arm stopped with `ABORTED: timeout` after 43 turns
 with 43 of 69 and 0 of 4 and no shipped test; neither passed the primary measure.
 
-What pilot run 2 says about the F4 A/B in the live step (VERIFICATION.md, M6 pilot run 2): both
+What pilot run 2 says about the F4 A/B in the live step (course pilot, run 2): both
 arms failed the primary measure in all three F4 A/Bs. The bare arm killed 3, 4, 3 of 4 referee
 mutants and passed 69, 66, 69 of 69 hidden tests; the harness arm shipped 0, 0, 3 tests and so
 killed 0, 0, 2 mutants. None of its shipped tests came from the 12-turn test phase: in the first
@@ -203,10 +204,9 @@ were written in build session 1 while the test phase's one new test was discarde
 ("kept 0, discarded 1"). Change 9 (a test-phase session starts with the feature's tests) was the
 harness-arm change for run 3; changes 10 and 11 (judge each arm when it finishes; one batched
 unmutated-pass step, shown equivalent on 181 tests) change referee speed, not outcomes. Run 3
-(VERIFICATION.md, "Run 3"): both arms failed 3 of 3 again, and the harness arm shipped no tests (its
+(course pilot): both arms failed 3 of 3 again, and the harness arm shipped no tests (its
 test phase was cut short by the agent time limit, "F4 test phase (investigated, no bug)"). The
-class-profile round (VERIFICATION.md, "Class-profile round", `ab-20261017-090903-926c02`, class
-profile, which the assignment's A/B does not use): both arms 68 of 69 hidden tests, mutants 4 of 4
+class-profile round (course pilot, `ab-20261017-090903-926c02`, class profile, which the assignment's A/B does not use): both arms 68 of 69 hidden tests, mutants 4 of 4
 (bare) and 1 of 4 (harness). The live step is graded on its files, not on these results.
 
 The live A/B command carries `--purpose assignment`. Without it `shipharness ab` uses the class
@@ -215,7 +215,7 @@ the class project (`_trace_target` in `platform/src/shipharness/ab/commands.py`)
 `a4_live.py` requires it, and parses the cost line in the form `cost_line` prints today (with the
 `; build $X of $15.00 ($Y left)` part, which the first version of the check rejected). The A/B
 line may end with `, profile=<name>`, which `shipharness ab` prints since 2026-10-17 and the real
-capture has (78df3f5). All three are covered in `grader/tests/test_live.py`.
+capture has (78df3f5). The grader's own tests cover all three.
 
 ## Make targets
 
