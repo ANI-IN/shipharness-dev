@@ -1,13 +1,15 @@
-"""Single diagrams: mappings, the data model, and one picture per mechanism."""
+"""Single diagrams: mappings, the data model, and one picture per mechanism.
+
+Coordinates are canvas units of a "wide" canvas (1920x1080); style comes from style.py.
+"""
 
 from __future__ import annotations
 
-from exlib import AMBER, BLUE, GREY, INK, Scene, tint
-
-AMBER_FILL = tint(AMBER, "33")
-BLUE_FILL = tint(BLUE)
-GREY_FILL = tint(GREY, "33")
-INK_FILL = tint(INK, "10")
+from exlib import AMBER, BLUE, GREY, INK, Scene
+from style import FONT_BODY as B
+from style import FONT_SMALL
+from style import FONT_TITLE as T
+from style import STROKE_WIDTH_BOLD as BOLD
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
@@ -15,7 +17,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(DOCS, "stories-causes-layers")
     def stories_causes_layers(s: Scene) -> None:
         stories = [
-            "Agent copies a tenant leak\nfrom legacy code",
+            "Agent copies a tenant\nleak from legacy code",
             "A migration is rewritten\nacross sessions",
             "Out-of-scope edits\nbreak old features",
             "Agent says done\nwhen it is not",
@@ -23,8 +25,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         causes = [
             "The rule is on disk,\nnot in its context",
             "Each new session starts\nwith no memory",
-            "The file list is written down,\nbut nothing checks it",
-            "It grades its own work;\nvisible tests are not the feature",
+            "The file list is written\ndown, but nothing checks it",
+            "It grades its own work;\nvisible tests are not\nthe feature",
         ]
         layers = [
             "Instructions\nSection 1",
@@ -32,14 +34,14 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "Scope and sandbox\nSection 3",
             "Verification\nSection 4",
         ]
-        s.text(270, 30, "Story", 28, INK, "center")
-        s.text(870, 30, "Cause", 28, INK, "center")
-        s.text(1440, 30, "Layer", 28, BLUE, "center")
+        s.text(320, 60, "Story", T, INK, "center")
+        s.text(980, 60, "Cause", T, INK, "center")
+        s.text(1590, 60, "Layer", T, INK, "center")
         for i in range(4):
-            y = 100 + i * 170
-            a = s.box(40, y, 460, 130, stories[i])
-            b = s.box(640, y, 460, 130, causes[i], fill=INK_FILL)
-            c = s.box(1240, y, 400, 130, layers[i], stroke=BLUE, fill=BLUE_FILL)
+            y = 140 + i * 215
+            a = s.box(60, y, 520, 180, stories[i], role="plain")
+            b = s.box(700, y, 560, 180, causes[i], role="neutral")
+            c = s.box(1380, y, 420, 180, layers[i], role="harness")
             s.arrow(a, b, start="right", end="left")
             s.arrow(b, c, start="right", end="left", color=BLUE)
 
@@ -48,48 +50,55 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # (comments, watchers, labels, issue_labels).
     @diagram(DOCS, "teamtrack-data-model")
     def teamtrack_data_model(s: Scene) -> None:
-        orgs = s.box(630, 30, 340, 100, "orgs\nid, name, slug", fill=INK_FILL)
-        s.box(40, 190, 1520, 890, dashed=True, stroke=AMBER, stroke_width=3)
+        orgs = s.box(760, 40, 400, 110, "orgs\nid, name, slug", role="neutral")
+        s.box(60, 190, 1800, 760, dashed=True, stroke=AMBER, stroke_width=BOLD)
+        users = s.box(120, 250, 460, 120, "users\norg_id, email, role", role="plain")
+        projects = s.box(730, 250, 460, 120, "projects\norg_id, key, archived_at", role="plain")
+        labels = s.box(1340, 250, 460, 120, "labels (F7)\norg_id, name", role="plain")
+        members = s.box(120, 470, 460, 120, "project_members\nproject_id, user_id", role="plain")
+        issues = s.box(
+            730,
+            440,
+            460,
+            180,
+            "issues\norg_id, project_id,\nassignee_id, created_by,\nversion",
+            role="plain",
+            stroke_width=BOLD,
+        )
+        issue_labels = s.box(
+            1340, 470, 460, 120, "issue_labels (F7)\nissue_id, label_id", role="plain"
+        )
+        comments = s.box(
+            300, 690, 560, 120, "comments (F2)\norg_id, issue_id, author_id", role="plain"
+        )
+        watchers = s.box(
+            1060, 690, 560, 120, "watchers (F6)\norg_id, issue_id, user_id", role="plain"
+        )
         s.text(
-            70,
-            975,
+            100,
+            835,
             "Tenant boundary: every row in here carries org_id.\n"
-            "Another org's row answers 404, never 403 (R1).",
-            22,
+            "Another org's row answers 404, never 403\n(R1 tenant isolation).",
+            B,
             INK,
         )
-        users = s.box(80, 330, 360, 120, "users\norg_id, email, role")
-        projects = s.box(620, 330, 360, 120, "projects\norg_id, key, archived_at")
-        labels = s.box(1160, 330, 360, 120, "labels (F7)\norg_id, name")
-        members = s.box(80, 560, 360, 120, "project_members\nproject_id, user_id")
-        issues = s.box(
-            620,
-            540,
-            360,
-            160,
-            "issues\norg_id, project_id,\nassignee_id, created_by,\nversion",
-            stroke_width=3,
-        )
-        issue_labels = s.box(1160, 560, 360, 120, "issue_labels (F7)\nissue_id, label_id")
-        comments = s.box(330, 820, 380, 120, "comments (F2)\norg_id, issue_id, author_id")
-        watchers = s.box(890, 820, 380, 120, "watchers (F6)\norg_id, issue_id, user_id")
-        s.text(1540, 900, "Also scoped by org_id:\naudit_log, idempotency_keys", 20, INK, "right")
-        s.arrow(orgs, users, start="bottom", end="top", via=[(260, 200)])
+        s.text(1820, 865, "Also scoped by org_id:\naudit_log, idempotency_keys", B, INK, "right")
+        s.arrow(orgs, users, start="bottom", end="top", via=[(350, 200)])
         s.arrow(orgs, projects, start="bottom", end="top")
-        s.arrow(orgs, labels, start="bottom", end="top", via=[(1340, 200)])
+        s.arrow(orgs, labels, start="bottom", end="top", via=[(1570, 200)])
         s.arrow(users, members, start="bottom", end="top")
-        s.arrow(projects, members, start="left", end="right", via=[(530, 390), (530, 620)])
+        s.arrow(projects, members, start="left", end="right", via=[(655, 310), (655, 530)])
         s.arrow(projects, issues, start="bottom", end="top")
-        s.arrow(issues, comments, start="bottom", end="top")
-        s.arrow(issues, watchers, start="bottom", end="top")
+        s.arrow(issues, comments, start="bottom", end="top", start_off=-80)
+        s.arrow(issues, watchers, start="bottom", end="top", start_off=80)
         s.arrow(issues, issue_labels, start="right", end="left")
         s.arrow(labels, issue_labels, start="bottom", end="top")
         s.text(
-            800,
-            1110,
-            "Arrow: one row has many rows. (F2), (F6), (F7): tables that the "
-            "comments, watchers, and labels tickets add.",
-            20,
+            960,
+            975,
+            "Arrow: one row has many rows. Tables marked (F2), (F6), (F7)\n"
+            "come from the comments, watchers, and labels tickets.",
+            B,
             INK,
             "center",
         )
@@ -99,36 +108,34 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # AGENTS.md (94 lines, the "Where to look" rows); OpenAI quote from concepts.md.
     @diagram(S1, "manual-vs-map")
     def manual_vs_map(s: Scene) -> None:
-        top, height = 90, 800
-        s.text(40, 30, "Before: one 899-line AGENTS.md", 26, INK)
-        s.box(40, top, 520, height, fill=INK_FILL)
+        top, height = 120, 760
+        s.text(60, 60, "Before: one 899-line AGENTS.md", B, INK)
+        s.box(60, top, 660, height, role="neutral")
         rows = [
-            (1, "1  AGENTS.md: TeamTrack (read all of this ...)", INK),
-            (196, "196  House rules R1 to R7 (R1 at line 204)", AMBER),
+            (1, "1  AGENTS.md: TeamTrack (read all ...)", INK),
+            (196, "196  House rules R1 to R7\n       (tenant rule at line 204)", AMBER),
             (586, "586  The legacy /v1 API", AMBER),
             (669, "669  Team notes and history", INK),
             (787, "787  Questions we keep getting", INK),
         ]
         for line, label, color in rows:
-            y = top + 12 + (line - 1) / 899 * (height - 60)
-            s.text(60, y, label, 20, INK)
+            y = top + 14 + (line - 1) / 899 * (height - 90)
+            s.text(80, y, label, B, INK)
             if color == AMBER:
-                s.line([(48, y + 28), (552, y + 28)], color=AMBER, stroke_width=3)
-        s.text(300, top + height + 16, "Four retired rules are still in it.", 20, INK, "center")
-        s.text(640, 30, "After: a 94-line map", 26, BLUE)
+                hy = y + 37 * (label.count("\n") + 1)
+                s.line([(70, hy), (710, hy)], color=AMBER, stroke_width=4)
+        s.text(390, top + height + 16, "Four retired rules are still in it.", B, INK, "center")
+        s.text(800, 60, "After: a 94-line map", B, INK)
         map_h = round(height * 94 / 899)
-        amap = s.box(
-            640,
-            top,
-            300,
-            map_h,
-            "AGENTS.md map\nin every session's context",
-            stroke=BLUE,
-            fill=BLUE_FILL,
-            size=20,
-            pad=10,
+        amap = s.box(800, top, 380, map_h, "AGENTS.md map", role="harness", stroke_width=BOLD)
+        s.text(
+            990,
+            top + map_h + 16,
+            "in every session's\ncontext; drawn to\nscale: 94 of 899 lines",
+            B,
+            INK,
+            "center",
         )
-        s.text(790, top + map_h + 14, "drawn to scale:\n94 of 899 lines", 20, BLUE, "center")
         docs = [
             ".agents/skills/add-endpoint/SKILL.md\nadd or change an endpoint",
             "ARCHITECTURE.md\ntouch a router, service, or model",
@@ -137,15 +144,15 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "docs/RELIABILITY.md\nwrites, idempotency, migrations",
         ]
         for i, label in enumerate(docs):
-            d = s.box(1080, top + i * 150, 460, 110, label)
-            s.arrow(amap, d, start="right", end="left", start_off=(i - 2) * 8)
-        s.text(1310, top + 760, "On disk: opened only when\nthe task needs it", 20, INK, "center")
+            d = s.box(1260, top + i * 146, 600, 116, label, role="plain")
+            s.arrow(amap, d, start="right", end="left", start_off=(i - 2) * 6)
+        s.text(1560, top + 736, "On disk: opened only when\nthe task needs it", B, INK, "center")
         s.text(
-            800,
-            top + height + 70,
-            '"give Codex a map, not a 1,000-page instruction manual."  '
+            960,
+            top + height + 80,
+            '"give Codex a map, not a 1,000-page instruction manual."\n'
             "(OpenAI, Harness engineering)",
-            20,
+            B,
             INK,
             "center",
         )
@@ -157,32 +164,34 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(S1, "skills-three-tiers")
     def skills_three_tiers(s: Scene) -> None:
         t1 = s.box(
-            40,
-            40,
-            1080,
-            170,
+            60,
+            60,
+            1300,
+            230,
             "Tier 1: the catalogue line, always in the context\n"
-            "- add-endpoint: Add or change a TeamTrack HTTP endpoint so it follows\n"
-            "  house rules R1-R7 ... (read .agents/skills/add-endpoint/SKILL.md to use it)",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            "- add-endpoint: Add or change a TeamTrack HTTP\n"
+            "  endpoint so it follows house rules R1-R7 ...\n"
+            "  (read .agents/skills/add-endpoint/SKILL.md to use it)",
+            role="harness",
             align="left",
         )
         t2 = s.box(
-            40,
-            330,
-            1080,
-            130,
+            60,
+            420,
+            1300,
+            140,
             "Tier 2: SKILL.md, 100 lines\nloaded when the agent decides to use the skill",
+            role="plain",
             stroke=BLUE,
             align="left",
         )
         t3 = s.box(
-            40,
-            580,
-            1080,
-            130,
+            60,
+            740,
+            1300,
+            140,
             "Tier 3: references/tests.md, 57 lines\nopened only when a step points to it",
+            role="plain",
             stroke=BLUE,
             dashed=True,
             align="left",
@@ -190,13 +199,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         s.arrow(t1, t2, "the task matches the description", start="bottom", end="top", color=BLUE)
         s.arrow(t2, t3, "a step needs it", start="bottom", end="top", color=BLUE)
         s.box(
-            1200,
-            300,
-            400,
-            190,
+            1440,
+            390,
+            420,
+            200,
             "One round of test runs:\nall 3 harness arms read\ntier 2; none opened tier 3",
-            stroke=AMBER,
-            fill=AMBER_FILL,
+            role="accent",
         )
 
     # Sources: runner/loop.py base_items (developer message = core prompt + layer blocks, then
@@ -204,104 +212,101 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # state/lifecycle.py; scope/layer.py; verify/layer.py.
     @diagram(S1, "context-prefix")
     def context_prefix(s: Scene) -> None:
-        s.box(40, 40, 1080, 790, dashed=True)
-        s.text(70, 56, "Developer message: the same text at the start of every session", 22, INK)
+        s.box(60, 60, 1300, 800, dashed=True)
+        s.text(90, 76, "Developer message: the same text at the start of every session", B, INK)
         blocks = [
             (
                 "1  Core prompt: the tools, how to call finish\n"
                 "    (both arms; the bare arm gets only this block)",
-                INK,
-                INK_FILL,
+                "neutral",
             ),
-            ("2  Instructions: the AGENTS.md map,\n    then the skills catalogue", BLUE, BLUE_FILL),
+            ("2  Instructions: the AGENTS.md map,\n    then the skills catalogue", "harness"),
             (
                 "3  State: Getting up to speed\n    (progress.md, git log, session-handoff.md)",
-                BLUE,
-                BLUE_FILL,
+                "harness",
             ),
             (
                 "4  Scope: the one feature and\n    the files you may change in each phase",
-                BLUE,
-                BLUE_FILL,
+                "harness",
             ),
-            ("5  Verification: what the gate checks\n    when you claim done", BLUE, BLUE_FILL),
+            ("5  Verification: what the gate checks\n    when you claim done", "harness"),
         ]
         prev = None
-        for i, (label, stroke, fill) in enumerate(blocks):
-            b = s.box(80, 110 + i * 142, 1000, 112, label, stroke=stroke, fill=fill, align="left")
+        for i, (label, role) in enumerate(blocks):
+            b = s.box(100, 136 + i * 142, 1220, 112, label, role=role, align="left")
             if prev is not None:
                 s.arrow(prev, b, start="bottom", end="top", gap=4)
             prev = b
         s.box(
-            40,
-            880,
-            1080,
+            60,
+            900,
+            1300,
             120,
             "User message: the phase and the ticket. A later session also gets:\n"
             '"A previous session worked on this ticket and was stopped."',
+            role="plain",
             align="left",
         )
-        s.text(1170, 120, "Read in this order,\nfirst to last.", 22, INK)
+        s.text(1420, 120, "Read in this order,\nfirst to last.", B, INK)
         s.text(
-            1170,
-            300,
+            1420,
+            330,
             "Each section adds\nits layer's block.\nThe full harness\nsends all five.",
-            22,
-            BLUE,
+            B,
+            INK,
         )
-        s.text(1170, 520, "Documents and\nskill bodies stay\non disk.", 22, INK)
+        s.text(1420, 600, "Documents and\nskill bodies stay\non disk.", B, INK)
 
     # Sources: platform/src/shipharness/harness/state/handoff.py (MachineSummary.render, the two
     # headings, merge); state/lifecycle.py (wrap-up text: what the notes hold).
     @diagram(S2, "handoff-contents")
     def handoff_contents(s: Scene) -> None:
-        s.box(520, 40, 680, 900, fill=INK_FILL)
-        s.text(860, 56, "session-handoff.md", 26, INK, "center")
+        s.box(560, 50, 800, 930, role="neutral")
+        s.text(960, 66, "session-handoff.md", T, INK, "center")
         mach = s.box(
-            550,
-            110,
-            620,
-            440,
+            590,
+            130,
+            740,
+            480,
             "## Machine summary\n"
-            "Written by the harness at the end of session N\n"
-            "(phase, what ended it, turns)\n"
+            "Written by the harness at the end\n"
+            "of session N (phase, what ended it, turns)\n"
             "- Commits: start, end\n- Files changed in this session\n"
             "- Visible tests\n- Last commits\n- Open TODO markers\n"
             "- Migration heads\n- Harness documents read so far",
-            stroke=BLUE,
-            fill=tint(BLUE, "33"),
+            role="harness",
             align="left",
         )
         notes = s.box(
-            550,
-            600,
-            620,
-            300,
+            590,
+            640,
+            740,
+            310,
             "## Notes from the agent\n- What it was doing\n- What is left\n"
             "- What to watch out for\n- House rules and file locations\n"
             "  that matter for this ticket",
+            role="plain",
             align="left",
         )
         harness = s.box(
-            40,
-            250,
-            360,
-            150,
+            60,
+            270,
+            380,
+            190,
             "The harness, at the stop\nfacts read from\nthe repository",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            role="harness",
         )
-        agent = s.box(40, 680, 360, 140, "The agent,\nin its wrap-up turns")
+        agent = s.box(60, 720, 380, 150, "The agent, in\nits wrap-up turns", role="plain")
         s.arrow(harness, mach, "writes", start="right", end="left", color=BLUE)
         s.arrow(agent, notes, "writes", start="right", end="left")
-        nxt = s.box(1340, 420, 320, 140, "The next session\nreads it first")
+        nxt = s.box(1500, 450, 360, 160, "The next session\nreads it first", role="plain")
         s.arrow(mach, nxt, start="right", end="left", end_off=-30, color=BLUE)
         s.arrow(notes, nxt, start="right", end="left", end_off=30)
         s.text(
-            860,
             960,
+            995,
             "The harness rewrites only its part; the notes stay as written.",
-            20,
+            B,
             INK,
             "center",
         )
@@ -311,36 +316,27 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # concepts.md (R7).
     @diagram(S2, "alembic-heads")
     def alembic_heads(s: Scene) -> None:
-        s.text(250, 30, "One head", 28, INK, "center")
-        a0 = s.box(80, 100, 340, 100, "0001_initial")
-        a1 = s.box(80, 320, 340, 110, "0002_comments\n(session 1)", stroke=BLUE, fill=BLUE_FILL)
+        s.text(310, 60, "One head", T, INK, "center")
+        a0 = s.box(110, 140, 400, 110, "0001_initial", role="plain")
+        a1 = s.box(110, 420, 400, 120, "0002_comments\n(session 1)", role="harness")
         s.arrow(a0, a1, "down_revision", start="bottom", end="top")
-        s.box(60, 520, 380, 110, "1 head:\nhouse rule R7 holds", stroke=INK, fill=INK_FILL)
-        s.line([(560, 20), (560, 660)], dashed=True, color=GREY)
-        s.text(1070, 30, "Two heads", 28, INK, "center")
-        b0 = s.box(900, 100, 340, 100, "0001_initial")
-        b1 = s.box(660, 320, 360, 110, "0002_comments\n(session 1)", stroke=BLUE, fill=BLUE_FILL)
-        b2 = s.box(
-            1120,
-            320,
-            360,
-            110,
-            "a second comments\nmigration (session 2)",
-            stroke=AMBER,
-            fill=AMBER_FILL,
-        )
-        s.arrow(b0, b1, start="bottom", end="top", start_off=-60)
-        s.arrow(b0, b2, start="bottom", end="top", start_off=60)
-        s.text(1070, 446, "both: down_revision = 0001_initial", 20, INK, "center")
+        s.box(80, 680, 460, 140, "1 head: house rule\nR7 migrations holds", role="neutral")
+        s.line([(660, 40), (660, 860)], dashed=True, color=GREY)
+        s.text(1310, 60, "Two heads", T, INK, "center")
+        b0 = s.box(1110, 140, 400, 110, "0001_initial", role="plain")
+        b1 = s.box(760, 420, 440, 120, "0002_comments\n(session 1)", role="harness")
+        b2 = s.box(1420, 420, 440, 120, "a second comments\nmigration (session 2)", role="accent")
+        s.arrow(b0, b1, start="bottom", end="top", start_off=-80)
+        s.arrow(b0, b2, start="bottom", end="top", start_off=80)
+        s.text(1310, 570, "both: down_revision = 0001_initial", B, INK, "center")
         s.box(
-            780,
-            520,
-            580,
-            110,
-            "2 heads:\nhouse rule R7 needs exactly one",
-            stroke=AMBER,
-            fill=AMBER_FILL,
-            stroke_width=3,
+            990,
+            680,
+            640,
+            140,
+            "2 heads: house rule\nR7 migrations needs one",
+            role="fail",
+            stroke_width=BOLD,
         )
 
     # Sources: harness/scope/guard.py (HARNESS_ONLY, STATE_FILES, the reason text);
@@ -348,77 +344,65 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # docs/evidence/s3.md (the blocked file).
     @diagram(S3, "scope-check-flow")
     def scope_check_flow(s: Scene) -> None:
-        call = s.box(40, 80, 320, 120, "Tool call: apply_patch\nchanges a path")
-        d1 = s.box(470, 50, 360, 180, "feature_list.json?", shape="diamond")
-        b1 = s.box(
-            470,
-            340,
-            360,
-            130,
-            "BLOCKED\nwritten only\nby the harness",
-            stroke=AMBER,
-            fill=AMBER_FILL,
-        )
-        d2 = s.box(960, 30, 420, 220, "In this phase's\nallowed paths?", shape="diamond")
-        ok = s.box(1500, 80, 300, 120, "Allowed:\nthe patch applies", stroke=BLUE, fill=BLUE_FILL)
+        call = s.box(60, 95, 360, 130, "Tool call: apply_patch\nchanges a path", role="plain")
+        d1 = s.box(500, 60, 580, 200, "feature_list.json?", shape="diamond")
+        b1 = s.box(1200, 95, 660, 130, "BLOCKED\nwritten only by the harness", role="fail")
+        d2 = s.box(530, 346, 520, 230, "In this phase's\nallowed paths?", shape="diamond")
+        ok = s.box(1200, 395, 660, 120, "Allowed: the patch applies", role="harness")
         b2 = s.box(
-            930,
-            340,
-            480,
-            170,
+            420,
+            660,
+            740,
+            180,
             "BLOCKED: app/services/errors.py\nis outside the allowed paths\n"
             "for the build phase (...)\nNothing is written.",
-            stroke=AMBER,
-            fill=AMBER_FILL,
+            role="fail",
         )
         s.arrow(call, d1, start="right", end="left")
-        s.arrow(d1, b1, "yes", start="bottom", end="top")
-        s.arrow(d1, d2, "no", start="right", end="left")
+        s.arrow(d1, b1, "yes", start="right", end="left")
+        s.arrow(d1, d2, "no", start="bottom", end="top")
         s.arrow(d2, ok, "yes", start="right", end="left")
         s.arrow(d2, b2, "no", start="bottom", end="top")
-        run = s.box(40, 640, 320, 120, "Tool call: run\na shell command")
-        ran = s.box(520, 640, 360, 120, "The command runs\nin the sandbox")
+        s.text(
+            1240,
+            650,
+            "progress.md, session-handoff.md,\nand docs/exec-plans/** count as\n"
+            "allowed when the state layer is on.",
+            B,
+            INK,
+        )
+        run = s.box(60, 890, 360, 120, "Tool call: run\na shell command", role="plain")
+        ran = s.box(520, 890, 400, 120, "The command runs\nin the sandbox", role="plain")
         rev = s.box(
-            1040,
-            630,
-            520,
-            140,
+            1080,
+            870,
+            780,
+            160,
             "Changes outside the allowed paths\nare restored from a snapshot:\nREVERTED",
-            stroke=AMBER,
-            fill=AMBER_FILL,
+            role="fail",
         )
         s.arrow(run, ran, start="right", end="left")
         s.arrow(ran, rev, "then", start="right", end="left")
-        s.text(
-            920,
-            840,
-            "progress.md, session-handoff.md, and docs/exec-plans/** count as "
-            "allowed when the state layer is on.",
-            20,
-            INK,
-            "center",
-        )
 
     # Sources: platform/sandbox/README.md; platform/src/shipharness/sandbox/policy.py;
     # section-3-scope-sandbox/concepts.md (the flags table); .env.example (OPENAI_MODEL).
     @diagram(S3, "sandbox-boundary")
     def sandbox_boundary(s: Scene) -> None:
-        s.box(40, 60, 1220, 820)
-        s.text(70, 76, "Host: your machine", 24, INK)
-        loop = s.box(90, 160, 330, 130, "Agent loop\n(the runner)")
+        s.box(60, 100, 1360, 860, role="plain")
+        s.text(90, 116, "Host: your machine", B, INK)
+        loop = s.box(100, 200, 340, 140, "Agent loop\n(the runner)", role="plain")
         s.box(
-            90,
-            380,
-            330,
-            120,
+            100,
+            430,
+            340,
+            140,
             "API keys\nstay here, in .env",
-            stroke=AMBER,
-            fill=AMBER_FILL,
-            stroke_width=3,
+            role="accent",
+            stroke_width=BOLD,
         )
-        s.box(90, 590, 330, 100, "LangSmith tracing")
-        s.box(640, 140, 580, 700, stroke=INK, fill=INK_FILL, stroke_width=3)
-        s.text(930, 156, "Sandbox container, one per arm", 22, INK, "center")
+        s.box(100, 660, 340, 110, "LangSmith tracing", role="plain")
+        s.box(700, 170, 640, 760, role="neutral", stroke_width=BOLD)
+        s.text(1020, 186, "Sandbox container, one per arm", B, INK, "center")
         items = [
             "/work: the arm's workspace\n(writable)",
             "/tmp writable;\nthe root is read-only",
@@ -430,37 +414,33 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         for i, label in enumerate(items):
             boxes.append(
                 s.box(
-                    680,
-                    210 + i * 124,
-                    500,
-                    100,
+                    740,
+                    250 + i * 134,
+                    560,
+                    110,
                     label,
-                    stroke=AMBER if i == 4 else INK,
-                    fill=AMBER_FILL if i == 4 else None,
+                    role="fail" if i == 4 else "plain",
                 )
             )
         s.arrow(loop, boxes[0], "tool commands\nonly", start="right", end="left")
-        api = s.box(1400, 120, 300, 150, "Model API", shape="ellipse")
+        api = s.box(1520, 130, 340, 180, "Model API", shape="ellipse", role="plain")
         s.arrow(
             loop,
             api,
             "the model calls go out from the host",
             start="top",
             end="top",
-            start_off=100,
-            via=[(355, 20), (1550, 20)],
+            start_off=110,
+            via=[(380, 40), (1690, 40)],
         )
-        net = s.box(1400, 700, 300, 110, "The internet", dashed=True)
-        s.arrow(boxes[4], net, "blocked", start="right", end="left", color=AMBER, dashed=True)
-        x, y = 1350, 755
-        s.line([(x - 18, y - 18), (x + 18, y + 18)], color=AMBER, stroke_width=4)
-        s.line([(x - 18, y + 18), (x + 18, y - 18)], color=AMBER, stroke_width=4)
+        net = s.box(1520, 790, 340, 120, "The internet", dashed=True)
+        s.arrow(boxes[4], net, "blocked", start="right", end="left", color="#E46962", dashed=True)
         s.text(
-            650,
-            910,
+            960,
+            990,
             "No host environment variable is passed in; names with KEY, TOKEN, "
             "or SECRET are refused.",
-            20,
+            B,
             INK,
             "center",
         )
@@ -470,10 +450,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # 7 tools); platform/sandbox/README.md (identical containers).
     @diagram(S3, "least-privilege")
     def least_privilege(s: Scene) -> None:
-        s.box(460, 40, 480, 90, "Bare arm", stroke=GREY, fill=GREY_FILL, stroke_width=3, size=24)
-        s.box(
-            1000, 40, 480, 90, "Harness arm", stroke=BLUE, fill=BLUE_FILL, stroke_width=3, size=24
-        )
+        s.box(440, 60, 680, 90, "Bare arm", role="bare", stroke_width=BOLD)
+        s.box(1180, 60, 680, 90, "Harness arm", role="harness", stroke_width=BOLD)
         rows = [
             ("Files it may change", "any file in its workspace", "only the phase's allowed paths"),
             ("In the test phase", "any file, source included", "tests only (tests/visible/**)"),
@@ -484,54 +462,59 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                 "only the harness writes it",
             ),
         ]
-        y = 170
+        y = 180
         for label, bare, harn in rows:
-            s.text(420, y + 55 - 12.5 * label.count("\n") - 12.5, label, 22, INK, "right")
-            s.box(460, y, 480, 110, bare, stroke=GREY)
-            s.box(1000, y, 480, 110, harn, stroke=BLUE, fill=BLUE_FILL)
-            y += 135
+            lines = label.count("\n") + 1
+            s.text(400, y + 55 - 17.5 * lines, label, B, INK, "right")
+            s.box(440, y, 680, 110, bare, role="plain", stroke=GREY)
+            s.box(1180, y, 680, 110, harn, role="harness")
+            y += 130
         for label, both in [
             ("Tools", "the same 7 tools for both arms"),
             ("Sandbox", "the same container: no network,\nread-only root, limits"),
         ]:
-            s.text(420, y + 55 - 12.5 * both.count("\n") * 0 - 12.5, label, 22, INK, "right")
-            s.box(460, y, 1020, 110, both, dashed=True)
-            y += 135
+            s.text(400, y + 55 - 17.5, label, B, INK, "right")
+            s.box(440, y, 1420, 110, both, dashed=True)
+            y += 130
 
     # Sources: platform/teamtrack/mutants/features/f4.jsonl (app.services.issues-m401, line 54);
     # platform/teamtrack/reference/f4/f4.patch (tests/visible/test_issue_concurrency.py).
     @diagram(S4, "mutation-testing")
     def mutation_testing(s: Scene) -> None:
         orig = s.box(
-            40, 40, 620, 170, "Original code\napp/services/issues.py, line 54\nissue.version += 1"
+            60,
+            60,
+            700,
+            190,
+            "Original code\napp/services/issues.py, line 54\nissue.version += 1",
+            role="plain",
         )
         mut = s.box(
-            940,
-            40,
-            620,
-            170,
+            1160,
+            60,
+            700,
+            190,
             "Mutant: one planted fault\nissue.version += 0\nwrites no longer move the version",
-            stroke=AMBER,
-            fill=AMBER_FILL,
+            role="accent",
         )
         s.arrow(orig, mut, "plant one small fault", start="right", end="left")
         ta = s.box(
-            40,
-            360,
-            740,
-            190,
+            60,
+            400,
+            880,
+            220,
             "Test A\ntest_second_writer_with_the_old_version_gets_412\n"
             "On the mutant the second writer\ngets 200, not 412.",
-            stroke=INK,
+            role="plain",
         )
         tb = s.box(
-            820,
-            360,
-            740,
-            190,
+            980,
+            400,
+            880,
+            220,
             "Test B\ntest_get_returns_the_version_as_etag\n"
             'On the mutant the first ETag\nis still "1".',
-            stroke=INK,
+            role="plain",
         )
         s.arrow(
             mut,
@@ -540,35 +523,35 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             start="bottom",
             end="top",
             start_off=-200,
-            via=[(1050, 290), (410, 290)],
+            via=[(1310, 325), (500, 325)],
         )
-        s.arrow(mut, tb, start="bottom", end="top", start_off=-60)
+        s.arrow(mut, tb, start="bottom", end="top", start_off=-90)
         ka = s.box(
-            140,
-            660,
-            540,
-            120,
+            180,
+            720,
+            640,
+            130,
             "fails on the mutant:\nthe mutant is killed",
-            stroke=INK,
-            fill=AMBER,
-            stroke_width=3,
+            role="harness",
+            stroke_width=BOLD,
         )
         kb = s.box(
-            920,
-            660,
-            540,
-            120,
+            1100,
+            720,
+            640,
+            130,
             "passes on the mutant:\nthe mutant survives",
-            stroke=INK,
-            stroke_width=3,
+            role="fail",
+            stroke_width=BOLD,
         )
         s.arrow(ta, ka, start="bottom", end="top")
         s.arrow(tb, kb, start="bottom", end="top")
         s.text(
-            800,
-            830,
-            "Both tests are from the F4 reference tests. Only test A would catch a lost update.",
-            20,
+            960,
+            900,
+            "Both tests are from the reference tests for version checks (F4).\n"
+            "Only test A would catch a lost update.",
+            B,
             INK,
             "center",
         )
@@ -578,35 +561,32 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # test_second_writer_with_the_old_version_gets_412.
     @diagram(DOCS, "optimistic-concurrency")
     def optimistic_concurrency(s: Scene) -> None:
-        xa, xs, xb = 220, 820, 1420
-        a = s.box(xa - 160, 30, 320, 100, "Tab A\nwriter 1")
-        srv = s.box(
-            xs - 170, 30, 340, 100, "TeamTrack API\nissue at version 1", stroke=BLUE, fill=BLUE_FILL
-        )
-        b = s.box(xb - 160, 30, 320, 100, "Tab B\nwriter 2")
+        xa, xs, xb = 300, 960, 1620
+        s.box(xa - 180, 60, 360, 110, "Tab A\nwriter 1", role="plain")
+        s.box(xs - 200, 60, 400, 110, "TeamTrack API\nissue at version 1", role="harness")
+        s.box(xb - 180, 60, 360, 110, "Tab B\nwriter 2", role="plain")
         for x in (xa, xs, xb):
-            s.line([(x, 140), (x, 900)], dashed=True, color=GREY)
-        _ = (a, srv, b)
+            s.line([(x, 180), (x, 950)], dashed=True, color=GREY)
 
         def msg(x1: float, x2: float, y: float, label: str, color: str = INK) -> None:
             d = 12 if x2 > x1 else -12
             s.path([(x1 + d, y), (x2 - d, y)], label, color=color)
 
-        msg(xa, xs, 190, "GET /issues/{issue_id}")
-        msg(xs, xa, 260, 'ETag: "1"')
-        msg(xb, xs, 340, "GET /issues/{issue_id}")
-        msg(xs, xb, 410, 'ETag: "1"')
-        msg(xa, xs, 510, 'PATCH, If-Match: "1"')
-        msg(xs, xa, 580, '200, ETag: "2"')
-        s.box(xs - 130, 615, 260, 70, "now version 2", stroke=BLUE, fill=BLUE_FILL)
-        msg(xb, xs, 740, 'PATCH, If-Match: "1"')
-        msg(xs, xb, 820, "412 precondition_failed:\nnothing changes", AMBER)
+        msg(xa, xs, 235, "GET /issues/{issue_id}")
+        msg(xs, xa, 305, 'ETag: "1"')
+        msg(xb, xs, 385, "GET /issues/{issue_id}")
+        msg(xs, xb, 455, 'ETag: "1"')
+        msg(xa, xs, 550, 'PATCH, If-Match: "1"')
+        msg(xs, xa, 620, '200, ETag: "2"')
+        s.box(xs - 150, 655, 300, 70, "now version 2", role="harness")
+        msg(xb, xs, 790, 'PATCH, If-Match: "1"')
+        msg(xs, xb, 880, "412 precondition_failed:\nnothing changes", "#E46962")
         s.text(
-            820,
-            930,
-            "Without If-Match a write works as before. "
+            960,
+            965,
+            "Without If-Match a write works as before.\n"
             "On the board, the same stale save gets a 409 page.",
-            20,
+            B,
             INK,
             "center",
         )
@@ -615,60 +595,57 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # layer holds); platform/sandbox/README.md; section-4-verification/concepts.md (referee).
     @diagram(DOCS, "harness-one-picture")
     def harness_one_picture(s: Scene) -> None:
-        ticket = s.box(40, 400, 220, 100, "Ticket", fill=INK_FILL)
-        model = s.box(400, 380, 260, 140, "Model", shape="ellipse")
-        s.box(860, 300, 340, 300, dashed=True)
-        s.text(1030, 550, "Sandbox, both arms", 22, INK, "center")
-        tools = s.box(910, 390, 240, 120, "Tools")
-        done = s.box(640, 640, 280, 90, 'finish(claim="done")', stroke=AMBER, fill=AMBER_FILL)
+        ticket = s.box(60, 415, 220, 100, "Ticket", role="neutral")
+        model = s.box(380, 390, 280, 150, "Model", shape="ellipse", role="plain")
+        s.box(800, 300, 420, 340, dashed=True)
+        s.text(1010, 580, "Sandbox, both arms", B, INK, "center")
+        tools = s.box(870, 380, 280, 130, "Tools", role="plain")
+        done = s.box(560, 680, 340, 90, 'finish(claim="done")', role="accent")
         s.arrow(ticket, model, start="right", end="left")
         s.arrow(model, tools, start="right", end="left", start_off=-22, end_off=-22)
         s.arrow(tools, model, start="left", end="right", start_off=22, end_off=22)
-        s.arrow(model, done, start="bottom", end="top")
+        s.arrow(model, done, start="bottom", end="top", start_off=60, end_off=-60)
         ins = s.box(
-            160,
+            140,
             40,
             560,
-            170,
+            180,
             "Instructions: what the agent knows\nthe AGENTS.md map in the context;\n"
             "docs/ and skills on disk",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            role="harness",
         )
         sc = s.box(
-            880,
+            800,
             40,
             560,
-            170,
+            180,
             "Scope: what it may change\nfeature_list.json, one feature,\nallowed paths per phase",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            role="harness",
         )
         st = s.box(
-            40,
-            800,
-            560,
-            170,
+            60,
+            830,
+            620,
+            180,
             "State and lifecycle: what it remembers\nprogress.md, session-handoff.md,\n"
             "exec plan, init.sh, git",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            role="harness",
         )
         ve = s.box(
-            880,
             800,
-            560,
-            170,
+            830,
+            620,
+            180,
             "Verification: what proves done\nthe verify gate on the done claim,\nfive test filters",
-            stroke=BLUE,
-            fill=BLUE_FILL,
+            role="harness",
         )
         ref = s.box(
             1440,
-            380,
-            380,
-            200,
-            "Referee\nafter the agents stop:\nhidden tests, referee\nmutants, R1-R7",
+            360,
+            420,
+            220,
+            "Referee\nafter the agents stop:\nhidden tests, referee\nmutants, house rules",
+            role="plain",
         )
         s.arrow(ins, model, start="bottom", end="top", color=BLUE)
         s.arrow(sc, tools, start="bottom", end="top", color=BLUE)
@@ -680,15 +657,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(DOCS, "which-layer-when")
     def which_layer_when(s: Scene) -> None:
         start = s.box(
-            40,
-            390,
-            280,
-            120,
-            "What went wrong?",
-            stroke=AMBER,
-            fill=AMBER_FILL,
-            stroke_width=3,
-            size=24,
+            60,
+            410,
+            300,
+            130,
+            "What went\nwrong?",
+            role="accent",
+            stroke_width=BOLD,
         )
         symptoms = [
             "It broke a rule that is\nwritten down somewhere",
@@ -703,11 +678,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "Verification\ncheck the claim with code",
         ]
         for i in range(4):
-            y = 60 + i * 230
-            a = s.box(460, y, 520, 140, symptoms[i])
-            b = s.box(1120, y, 480, 140, layers[i], stroke=BLUE, fill=BLUE_FILL)
-            s.arrow(start, a, start="right", end="left", start_off=(i - 1.5) * 20)
+            y = 50 + i * 230
+            a = s.box(480, y, 600, 150, symptoms[i], role="plain")
+            b = s.box(1260, y, 600, 150, layers[i], role="harness")
+            s.arrow(start, a, start="right", end="left", start_off=(i - 1.5) * 24)
             s.arrow(a, b, start="right", end="left", color=BLUE)
         s.text(
-            820, 1000, "Then measure it: an A/B on your ticket, counted in runs.", 22, INK, "center"
+            960, 975, "Then measure it: an A/B on your ticket, counted in runs.", B, INK, "center"
         )
+        _ = FONT_SMALL

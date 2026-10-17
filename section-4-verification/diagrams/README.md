@@ -51,3 +51,51 @@ well.
 - **Slide topic**: what we measured in Section 4.
 - **Files**: `results-s4`.
 - **Source**: [the Section 4 evidence](../../docs/evidence/s4.md).
+
+### Failure story: done, but two edits still collide
+
+![Six numbered steps from adding If-Match to two editors still overwriting](./failure-story-s4.svg)
+
+*If-Match is optional, and no test sends a stale one.*
+
+- **What it teaches**: how a green suite and a done claim can still miss the feature.
+- **Slide**: "The problem: Done, but two edits still collide".
+- **Files**: `failure-story-s4`.
+- **Source**: the slide's notes and `platform/teamtrack/docs/features/f4.md`.
+- **How to edit**: change `failure-story-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Socratic build-up: the suite is green, is it done?
+
+![The question, the answer no with 68 of 69 hidden tests, and three reasons](./socratic-s4.svg)
+
+*Frame 1 asks; frame 2 answers with the reasons.*
+
+- **What it teaches**: why the agent's own green suite does not decide done.
+- **Slide**: "Verification: The suite is green. Is F4 done?", frame N on build N.
+- **Files**: `socratic-s4`, with step frames `socratic-s4-step-1` to `socratic-s4-step-2`.
+- **Source**: [the Section 4 evidence](../../docs/evidence/s4.md).
+- **How to edit**: change `socratic-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Timeline of the captured show-4 run
+
+![A time line from 0:00 to 11:06 with eight labelled ticks](./timeline-s4.svg)
+
+*Captured 2026-10-17, harness arm only, agent limit then 300 s.*
+
+- **What it teaches**: when the gate passed, what the filters kept, and when the verdicts came.
+- **Slide**: "What just happened: eleven minutes of show-4".
+- **Files**: `timeline-s4`.
+- **Source**: the captured show-4 run in [the Section 4 evidence](../../docs/evidence/s4.md) and `demo/expected/terminal.txt`.
+- **How to edit**: change `timeline-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Cheat sheet: four checks the agent does not own
+
+![Four boxes with icons: verify gate, test filters, hidden tests, referee mutants](./cheat-sheet-s4.svg)
+
+*Two give feedback to the agent; two are held out.*
+
+- **What it teaches**: the four checks of Section 4 on one page.
+- **Slide**: "Cheat Sheet: four checks the agent does not own".
+- **Files**: `cheat-sheet-s4`.
+- **Source**: `section-4-verification/concepts.md`.
+- **How to edit**: change `cheat-sheet-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

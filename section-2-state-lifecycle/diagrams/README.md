@@ -61,3 +61,63 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Files**: `results-s2`.
 - **Source**: [the Section 2 evidence](../../docs/evidence/s2.md). One earlier round is not shown:
   the evidence page reports it as a measurement bug.
+
+### Failure story: the second session redoes the first
+
+![Two rows of three steps: session 1 stops, session 2 starts empty and repeats the work](./failure-story-s2.svg)
+
+*Session 2 had the whole repository and still redid the migration.*
+
+- **What it teaches**: how a stop without a handoff leads to a second migration and two heads.
+- **Slide**: "Problem statement: The second session redoes the first".
+- **Files**: `failure-story-s2`.
+- **Source**: the slide's notes; house rule R7 migrations in `platform/teamtrack/docs/HANDBOOK.md`.
+- **How to edit**: change `failure-story-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Socratic build-up: why redo work already on disk?
+
+![The question, the answer not on its own, and two reasons](./socratic-s2.svg)
+
+*Frame 1 asks, frame 2 answers, frame 3 gives the reasons.*
+
+- **What it teaches**: why carrying the old context over is not enough on its own.
+- **Slide**: "Fresh session: Why redo work already on disk?", frame N on build N.
+- **Files**: `socratic-s2`, with step frames `socratic-s2-step-1` to `socratic-s2-step-3`.
+- **Source**: `section-2-state-lifecycle/concepts.md`.
+- **How to edit**: change `socratic-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### The exec plan and the progress ledger
+
+![The initializer writes the exec plan and progress.md; the agent and the session stop update them; the next session reads both](./exec-plan-ledger.svg)
+
+*Two files, two writers, read before any code.*
+
+- **What it teaches**: who writes the exec plan and `progress.md`, when, and who reads them.
+- **Slide**: "3) The exec plan and the progress ledger".
+- **Files**: `exec-plan-ledger`.
+- **Source**: `platform/src/shipharness/harness/state/layer.py` and `lifecycle.py`, and `demo/walkthrough.md`.
+- **How to edit**: change `exec-plan-ledger` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Timeline of the captured show-2 run
+
+![A time line from 0:00 to 10:07 with session 1 and session 2 bars and six ticks](./timeline-s2.svg)
+
+*Captured 2026-10-17 with the agent limit then at 300 s.*
+
+- **What it teaches**: one run across a planned stop: when session 1 ended and when each verdict came.
+- **Slide**: "What just happened: One run, two sessions".
+- **Files**: `timeline-s2`.
+- **Source**: the show-2 capture in [the Section 2 evidence](../../docs/evidence/s2.md) and `demo/expected/terminal.txt`.
+- **How to edit**: change `timeline-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Cheat sheet: four state pieces
+
+![Four boxes with icons: init.sh, progress.md, exec plan, handoff, each with its writer](./cheat-sheet-s2.svg)
+
+*Each piece names who writes it.*
+
+- **What it teaches**: the four state files that carry work across a stop.
+- **Slide**: "Cheat Sheet: Four state pieces across a stop".
+- **Files**: `cheat-sheet-s2`.
+- **Source**: `section-2-state-lifecycle/concepts.md`.
+- **How to edit**: change `cheat-sheet-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

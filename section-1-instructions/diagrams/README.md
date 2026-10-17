@@ -61,3 +61,63 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **Slide topic**: what we measured in Section 1.
 - **Files**: `results-s1`.
 - **Source**: [the Section 1 evidence](../../docs/evidence/s1.md).
+
+### Failure story: the search that showed another org
+
+![Six numbered steps from a search ticket to Acme seeing Globex issues](./failure-story-s1.svg)
+
+*Every step looks reasonable; the last one is the leak.*
+
+- **What it teaches**: how a copied legacy query leaks another org's issues, one step at a time.
+- **Slide**: "Failure story: The search that showed another org".
+- **Files**: `failure-story-s1`.
+- **Source**: the slide's notes; `list_all_legacy` in `platform/teamtrack/app/repositories/issues.py`.
+- **How to edit**: change `failure-story-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Socratic build-up: why not paste every rule?
+
+![The question, the answer no, and three reasons](./socratic-s1.svg)
+
+*Frame 1 asks, frame 2 answers, frame 3 gives the reasons.*
+
+- **What it teaches**: why pasting every rule into the prompt is not the main mechanism.
+- **Slide**: "Instructions: Why not paste every rule?", frame N on build N.
+- **Files**: `socratic-s1`, with step frames `socratic-s1-step-1` to `socratic-s1-step-3`.
+- **Source**: `section-1-instructions/assignment/starter/original/AGENTS.md` (899 lines, the tenant rule at line 204).
+- **How to edit**: change `socratic-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Mechanical checks keep the map true
+
+![The map and docs go through three checks; all pass gives OK, a failure gives an error to fix](./checker-flow.svg)
+
+*The checks inform; they never block the agent.*
+
+- **What it teaches**: the three checks that keep the map, the docs, and the skills honest.
+- **Slide**: "4) Mechanical checks keep the map true".
+- **Files**: `checker-flow`.
+- **Source**: Assignment 1 (`check_docs.py`), `test_parity.py`, and the reference checker's OK line in [the Section 1 evidence](../../docs/evidence/s1.md).
+- **How to edit**: change `checker-flow` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Timeline of the captured show-1 run
+
+![A time line from 0:00 to 10:14 with six labelled ticks](./timeline-s1.svg)
+
+*Captured 2026-10-17 with the agent limit then at 300 s.*
+
+- **What it teaches**: what happened in the run, minute by minute, and when each verdict arrived.
+- **Slide**: "What just happened: The run, minute by minute".
+- **Files**: `timeline-s1`.
+- **Source**: the show-1 capture in [the Section 1 evidence](../../docs/evidence/s1.md) and `demo/expected/terminal.txt`.
+- **How to edit**: change `timeline-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+
+### Cheat sheet: the instructions layer
+
+![Four boxes with icons: a map, disclosure, the prefix, checks](./cheat-sheet-s1.svg)
+
+*One box per idea, in the order the section teaches them.*
+
+- **What it teaches**: the four ideas of Section 1 on one page.
+- **Slide**: "Cheat Sheet: The instructions layer in four moves".
+- **Files**: `cheat-sheet-s1`.
+- **Source**: `section-1-instructions/concepts.md`.
+- **How to edit**: change `cheat-sheet-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
