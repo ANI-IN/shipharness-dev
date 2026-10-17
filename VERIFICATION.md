@@ -480,6 +480,27 @@ Kit worked example, step 5 rerun after change 20 (`docs/apply-to-your-repo.md`):
 `Cost: $0.002031 (testgen, model gpt-6-luna)`, and wrote no Alembic files (the first run,
 `r-20261017-095514-ac8f1c`, before the fix: "kept 0 of 0", a fake Alembic setup committed to pass the gate).
 
+### Release checks (2026-10-17)
+
+- Full fast suite on main c04e72a: `pytest -n 8 -m "not live and not docker"`: 2222 passed, 1 skipped
+  (the freeze test: no freeze tag), 25 min 38 s. All Docker tests (`pytest -m docker`): 16 passed, 5 min
+  16 s; no container left running afterwards. After the class-v1 change (branch classv1): fast suite 2222
+  passed, 11 skipped.
+- Release dry run on main (after the class-v1 change): 861+ public files; leak check PASS (no private
+  file, solution, grader test, internal script, or export); 0 broken references; frozen content PASS;
+  all 8 rebuilt checkpoint tags have the same `teamtrack/` tree as the build repository's tags;
+  `harness-frozen: not written (no freeze record in the build repository)`; `class-v1` written with its
+  own check PASS; `--build` would pass. Zero `[[PENDING` and `[[CAPTURE` markers in public files (two hits
+  are code that parses the marker format).
+- `make slides SLIDES_OPTS=--strict`: 72 pages, 240 minutes, 0 PENDING, 0 CAPTURE, 0 empty slots.
+- No `harness-frozen` tag exists or ships (the pilot gate did not pass; owner, message 8). The release
+  tag is `class-v1` ("Class version 1: the code, datasets, and settings used for the class. No experiment
+  freeze; the pilot gate did not pass (see the course notes).") with the content hashes of the 27 frozen
+  paths and the 8 checkpoint trees; `uv run shipharness verify --tag class-v1` checks a copy against it.
+- Spend outside the build ledger: the two kit testgen runs on the boltons repository ($0.004894 and
+  $0.002031) are recorded in that repository's own ledger, so the $15 build cap did not see them; true
+  build total = main ledger + $0.006925.
+
 ### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
 
 Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
