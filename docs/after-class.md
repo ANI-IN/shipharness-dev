@@ -34,7 +34,7 @@ per run for every feature that has a primary measure (F1-F4). It makes no model 
 a message.)
 
 How to read a single score record, field by field, is in
-[final-project/README.md, part 5](../final-project/README.md#5-how-to-read-the-results).
+[final-project/README.md, part 6](../final-project/README.md#6-what-a-result-means).
 
 ## 3. Run a demo yourself
 

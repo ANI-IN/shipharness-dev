@@ -410,7 +410,7 @@ What it is: the first command that puts a model to work on your code. `shipharne
 model for tests of one module and keeps a proposed test only if it passes five filters: it runs,
 it passes five runs in a row, it adds coverage or kills a mutant, it has real assertions, and it
 changed no source file (the filters and their sources are in
-[final-project/README.md, part 6](../final-project/README.md#6-run-shipharness-on-your-own-repository)).
+[final-project/README.md, part 9](../final-project/README.md#9-run-shipharness-on-your-own-repository)).
 `--layers verify` gives the model the course's verify layer. It works on any repository with a
 pytest suite, which makes it the first harnessed run for a repository that is not TeamTrack.
 
@@ -451,7 +451,20 @@ a summary `testgen <run id>: <status>; kept <n> of <m> proposed tests`, one line
 (`+ <test id>` for a kept test, `- <test id>: filter <n>: <reason>` for a discarded one),
 `Kept tests and report: <folder>`, and the cost line.
 
-[[CAPTURE: terminal output of the first harnessed run on the worked example (Baseline line, summary, one line per kept or discarded test, Cost line) and its wall time | how: cd /tmp/boltons-queueutils && time MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
+Captured on 2026-10-17, run r-20261017-121823-aa1c4b; your output will differ:
+
+```text
+! UNSANDBOXED — results not official: generated tests run on this machine
+Baseline: existing suite without doctests
+testgen r-20261017-121823-aa1c4b: completed; kept 3 of 3 proposed tests
++ tests/test_queueutils_generated.py::test_priority_updates_preserve_order_for_equal_priorities
++ tests/test_queueutils_generated.py::test_remove_and_empty_queue_defaults
++ tests/test_queueutils_generated.py::test_custom_priority_key_and_unexpected_keyword
+Kept tests and report: /tmp/boltons-queueutils-testgen
+Cost: $0.002031 (testgen, model gpt-6-luna)
+```
+
+The run stayed far below the $0.10 cap: three proposed tests, all kept, for $0.002031.
 
 How to check it worked: the output folder holds the kept tests and `testgen-report.json`, and the
 last line is a cost line at or below your cap.
@@ -493,7 +506,33 @@ test as code before you commit it. A discarded test's line names the filter that
 without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered module most
 proposed tests are discarded there (`skills/assured-tests/SKILL.md`).
 
-[[CAPTURE: the kept test files and the per-test filter results of testgen-report.json from the step 5 run | how: ls /tmp/boltons-queueutils-testgen && cat /tmp/boltons-queueutils-testgen/testgen-report.json]]
+In the worked example, `testgen-report.json` lists the kept tests and one result per filter per
+test. Captured on 2026-10-17, run r-20261017-121823-aa1c4b, from
+`/tmp/boltons-queueutils-testgen/testgen-report.json`; cut to the first test's five results; your
+output will differ:
+
+```json
+  "run_id": "r-20261017-121823-aa1c4b",
+  "status": "completed",
+  "unsandboxed": true,
+  "kept": [
+    "tests/test_queueutils_generated.py::test_priority_updates_preserve_order_for_equal_priorities",
+    "tests/test_queueutils_generated.py::test_remove_and_empty_queue_defaults",
+    "tests/test_queueutils_generated.py::test_custom_priority_key_and_unexpected_keyword"
+  ],
+  "results": [
+    {"test_id": "...::test_priority_updates_preserve_order_for_equal_priorities", "filter": 1, "passed": true, "reason": "collected 1 test"},
+    {"test_id": "...", "filter": 2, "passed": true, "reason": "passed 5 of 5 runs"},
+    {"test_id": "...", "filter": 3, "passed": true, "reason": "adds 5 covered lines: boltons/queueutils.py:134,163-165,170"},
+    {"test_id": "...", "filter": 4, "passed": true, "reason": "has real assertions and does not mock boltons.queueutils"},
+    {"test_id": "...", "filter": 5, "passed": true, "reason": "no source file changed during the test phase"},
+```
+
+The other two kept tests passed filter 3 by adding 9 covered lines (`boltons/queueutils.py:163-170,183`)
+and 1 covered line (`boltons/queueutils.py:114`). The kept tests are in one file,
+`tests/test_queueutils_generated.py`, under the `--out` folder; review it before you copy it into your
+repository. (The JSON above is reformatted to one result per line and the repeated test ids are
+shortened to `...`; the values are unchanged.)
 
 What to do when a result surprises you: rerun the check alone (`--rules R6`) to see one rule's
 findings; for testgen, open `testgen-report.json` and read the reason recorded for each test.
@@ -537,5 +576,5 @@ in `skills/harness-setup/references/failure-modes.md`.
 | `check crashed: AttributeError: ... no attribute 'create_app'` | A dropped rule is still in `--rules` |
 | `x OPENAI_API_KEY is missing` | Add the key to `.env` in the shipharness checkout |
 
-More on the commands: [final-project/README.md, part 6](../final-project/README.md#6-run-shipharness-on-your-own-repository).
+More on the commands: [final-project/README.md, part 9](../final-project/README.md#9-run-shipharness-on-your-own-repository).
 More on the kit itself: [kit/README.md](../kit/README.md).

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# REPLACE: TeamTrack's init.sh as the harness writes it for F1. Keep its two jobs: reach a known state, then run one basic end-to-end test. Run it before you commit.
+# REPLACE: TeamTrack's init.sh as the harness writes it for F1. Keep its two jobs: reach a known state, then run one basic end-to-end test. Run it before you commit. Source id: A2 is Anthropic, "Effective harnesses for long-running agents" (2025-11-26).
 # init.sh for F1, written by the harness initializer step.
-# Anthropic, "Effective harnesses for long-running agents": "an init.sh script that can run the development server", then
+# A2: "an init.sh script that can run the development server", then
 # "run through a basic end-to-end test before implementing a new feature".
 #
 #   bash init.sh          scratch database at head, then a basic end-to-end test

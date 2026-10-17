@@ -120,8 +120,10 @@ without a runtime only the UNSANDBOXED fallback can run, and class runs need the
 make up
 ```
 
-Open http://127.0.0.1:8000/board, pick a demo user on the login page (for example `admin@acme.test`),
-and you should see the Acme project board. The demo data has two orgs, Acme and Globex
+It prints `TeamTrack: http://127.0.0.1:8000/board  (API docs: /docs)` and the server's log (captured
+output in [step 7 of setup-linux.md](../docs/setup-linux.md#7-make-up)). Open
+http://127.0.0.1:8000/board, pick a demo user on the sign-in page (for example `admin@acme.test`), and
+you should see the Acme project board. The demo data has two orgs, Acme and Globex
 (`teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken, run
 `make up PORT=8001`.
 

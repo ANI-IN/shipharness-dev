@@ -95,7 +95,7 @@ features and exits with the last non-zero code.
 | `ERROR`, `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | The OpenAI account is out of credit or at its spend limit | Add credit |
 | `ERROR`, `OpenAI request kept failing after retries` | Repeated rate-limit or server errors | Try again later |
 | `ERROR`, `arm setup failed: RuntimeError: docker run failed: ...` | Docker stopped, or an image is missing | `make images`; restart Docker |
-| `passed=True` on a `make final` line, but low `hidden <x>/<total>` | F5-F7 have no primary measure, so `passed` is always true for them | Read the hidden-test and mutant counts ([final-project/README.md](../final-project/README.md#51-the-final-has-no-primary-measure)) |
+| `passed=True` on a `make final` line, but low `hidden <x>/<total>` | F5-F7 have no primary measure, so `passed` is always true for them | Read the hidden-test and mutant counts ([final-project/README.md](../final-project/README.md#61-the-final-has-no-primary-measure)) |
 
 ## The class profile and the Fast tier
 

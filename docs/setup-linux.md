@@ -19,7 +19,7 @@ install uses the same commands, but no native install was tested for the course.
 | 4 `make setup` | `make -n setup` checked on 2026-10-17 (it prints `uv sync --frozen`, the two image builds, and the `.env` copy); `uv sync --frozen` ran on 2026-10-17. The image builds ran on the class host for the course pilot |
 | 5 `.env` | Format from `.env.example` |
 | 6 `make doctor` | `uv run shipharness doctor --offline` ran on 2026-10-17 (output below); the online key check is the same command without `--offline` |
-| 7 `make up` | **Not run on the class host tonight (2026-10-17).** `make -n up` ran (it prints `uv run shipharness up --port 8000`); the board login and demo users come from `teamtrack/docs/HANDBOOK.md` |
+| 7 `make up` | Ran on 2026-10-17 (output in step 7); `/board` answered with the sign-in page |
 
 **As of 2026-10-17, the `git clone` command in step 4 has not been run on the class host.** Its URL
 is the public learner repository, which can be cloned only after it is published. The class host's
@@ -209,10 +209,29 @@ Cost: $0.000000 (no model calls)
 make up
 ```
 
-This command was not run on the class host tonight (2026-10-17); what follows comes from
-`teamtrack/docs/HANDBOOK.md`, the board's login page (`teamtrack/app/web/templates/login.html`), and
-`make -n up`. Open http://127.0.0.1:8000/board, pick a demo user on the login page (for example
-`admin@acme.test`), and you see the Acme project board. The demo data has two orgs, Acme and Globex
+It prints where the board is, then the server's log. Captured on 2026-10-17 on the class host,
+first lines; your output will differ:
+
+```
+uv run shipharness up --port 8000
+TeamTrack: http://127.0.0.1:8000/board  (API docs: /docs)
+INFO:     Started server process [927409]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+```
+
+How to check it worked, from a second terminal (captured the same day):
+
+```
+$ curl -s -o /dev/null -w '%{http_code} %{redirect_url}
+' http://127.0.0.1:8000/board
+303 http://127.0.0.1:8000/board/login
+```
+
+The board sends you to its sign-in page (`<title>Sign in · TeamTrack</title>`, with demo users such
+as `admin@acme.test`). Open http://127.0.0.1:8000/board in a browser, pick a demo user on the sign-in
+page (for example `admin@acme.test`), and you see the Acme project board. The demo data has two orgs, Acme and Globex
 (`teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken:
 `make up PORT=8001`.
 

@@ -1,8 +1,7 @@
-<!-- REPLACE: TeamTrack's progress log as the harness writes it for feature F1. Keep the section names: agents update Done, In progress, and Next, and add one Session log line per session. -->
+<!-- REPLACE: TeamTrack's progress log as the harness writes it for feature F1. Keep the section names: agents update Done, In progress, and Next, and add one Session log line per session. Source id: A2 is Anthropic, "Effective harnesses for long-running agents" (2025-11-26). -->
 # Progress
 
-A log of what agents have done on this ticket (Anthropic's "Effective harnesses for
-long-running agents" keeps it in claude-progress.txt; this course
+A log of what agents have done on this ticket (A2 keeps it in claude-progress.txt; this course
 calls it progress.md). Read it with the git log at the start of every session. Edit every section
 except "Session log": the harness appends one entry there at the end of each session.
 

@@ -386,7 +386,19 @@ primary verdict as soon as its checks finish ("primary verdict ready"), before t
 The harness arms are slower because harness work (session handoffs that run the visible suite, the
 test-phase filters) runs on its own clock after the agent's turns. The class's own runs:
 
-[[CAPTURE: launch to Cost line of make show-1 to make show-4 and of make final FEATURES=F5 (class profile) | how: time make show-1 PURPOSE=pilot (and show-2, show-3, show-4); time make final FEATURES=F5 PURPOSE=pilot]]
+Captured on 2026-10-17 on the class host, one command at a time on a quiet machine after
+`make warm`, each with `PURPOSE=pilot`; the time is the `real` line of `time make ...`, from launch
+to the cost line; your times will differ:
+
+| Command | A/B | Result | Launch → cost line | Command cost |
+|---|---|---|---|---|
+| `make show-1` | `ab-20261017-112101-c5d839` | completed, primary pass, hidden 52/52, mutants 2/4 | 10 min 14 s | $0.019744 |
+| `make show-2 SESSION_BUDGET=12,38` | `ab-20261017-113213-fe89a3` | agent time limit (exit 2), primary pass, hidden 56/56, mutants 0/4 | 10 min 7 s | $0.029525 |
+| `make show-3` | `ab-20261017-114259-b64f54` | completed, primary pass, hidden 49/49, mutants 4/4 | 7 min 43 s | $0.017216 |
+| `make show-4` | `ab-20261017-115138-c45d9d` | agent time limit (exit 2), primary fail, hidden 68/69, mutants 0/4 | 11 min 6 s | $0.026511 |
+| `make final FEATURES=F5` | `ab-20261017-120323-c97138` | bare completed, harness agent time limit (exit 2); hidden 46/46 and mutants 2/3 in both arms | 12 min 47 s | $0.045597 |
+
+Every one finished before the demo block at section minute 30 when launched at minute 3.
 
 Class commands call OpenAI live and never fall back to a recording. If a live run fails for a reason
 outside the experiment (Docker, the network, OpenAI), the instructor shows a recording made before
@@ -416,7 +428,7 @@ shows `⚠ UNSANDBOXED — results not official`.
 
 For every record, including older ones, run `uv run shipharness report` and open
 `exports/report.html`. Screenshots and a field-by-field reading of the results are in
-[final-project/README.md](final-project/README.md#4-what-each-console-screen-shows).
+[final-project/README.md](final-project/README.md#5-what-to-watch-minute-by-minute).
 
 ## 12. Assignments
 
@@ -475,10 +487,14 @@ the settings in `.env`.
 | `make show-N` (one arm, one review) | $0.20 + $0.04 = $0.24 | Class-profile round, harness arm and its review: F1 $0.0151 + $0.0028, F2 $0.0357 + $0.0041, F3 $0.0135 + $0.0031, F4 $0.0257 + $0.0040 |
 | `make demo-N` (two arms, two reviews) | 2 × $0.20 + 2 × $0.04 = $0.48 | Class-profile round, 2026-10-17: $0.1953 for the four A/Bs F1-F4 (agents $0.1689 at the Fast tier, reviews $0.0263). Pilot run 3 at effort medium and the Standard tier: $0.3801 for 12 A/Bs |
 | `make final`, per feature | 2 × $0.25 + 2 × $0.04 = $0.58 | F5 with the class profile, below |
-| `shipharness testgen` | $0.20 | One measured example run, captured on 2026-10-17, run `r-20261017-093940-52dde8` (TeamTrack's `app/repositories/issues.py`, 5 proposed tests, 1 kept): `Cost: $0.003287 (testgen, model gpt-6-luna)`; your cost will differ |
+| `shipharness testgen` | $0.20 | One measured example run, captured on 2026-10-17, run `r-20261017-093940-52dde8` (TeamTrack's `app/repositories/issues.py`, 5 proposed tests, 1 kept): `Cost: $0.003287 (testgen, model gpt-6-luna)`. The worked example in [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md#step-5-the-first-harnessed-run) (boltons, 3 proposed tests, 3 kept, run `r-20261017-121823-aa1c4b`): `Cost: $0.002031 (testgen, model gpt-6-luna)`; your cost will differ |
 | `make swap-N`, `make replay`, `make warm`, `make doctor`, `make console`, `make check-assignment-N`, `uv run shipharness report`, `shipharness check`, `shipharness init`, `assess.py` | $0 | $0 |
 
-[[CAPTURE: Cost line of make final FEATURES=F5 (class profile): per-arm cost, review cost, and the command total | how: make final FEATURES=F5 PURPOSE=pilot]]
+Measured, `make final FEATURES=F5` with the class profile (captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ): bare arm $0.0177 and its
+review $0.0025, harness arm $0.0226 and its review $0.0028, and the cost line
+`Cost: $0.045597 (this command: gpt-5.6-luna $0.005302, gpt-6-luna $0.040295; ...)`. The four
+`make show-N` runs of the same session cost $0.017216 to $0.029525 each (table in
+[section 10](#10-how-the-class-runs-and-the-timing)).
 At the caps, the class plan (four show-N runs and two final features) needs at most
 4 × $0.24 + 2 × $0.58 = $2.12, under the $2.50 session cap.
 
@@ -507,7 +523,7 @@ which layers earn their place), with a worked example on three boltons modules a
 is [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md); the file list is in
 [kit/README.md](kit/README.md).
 
-The [final project, part 6](final-project/README.md#6-run-shipharness-on-your-own-repository) has the
+The [final project, part 9](final-project/README.md#9-run-shipharness-on-your-own-repository) has the
 other commands and how to read their output:
 
 - `uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`:
