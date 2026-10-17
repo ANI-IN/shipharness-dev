@@ -672,6 +672,7 @@ _KIND_MENTION = re.compile(
     r"(?P<n>[1-9])(?![\w.]\d|\d)"
 )
 _SOURCE_REF = re.compile(r"\bSource (\d+)\b")
+_QUOTE = re.compile(r"^\s*(?:>\s*)+")
 _MD_LINK = re.compile(r"(?<!!)\[(?P<text>[^\]]*)\]\((?P<url>[^)\s]*)[^)]*\)")
 _EMPTY_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(\s*\)|(?<!!)\[\s*\]\([^)]*\)|\[link\]", re.I)
 _URL_TARGET = re.compile(r"\]\((https?:[^)\s]*)")
@@ -1081,7 +1082,8 @@ def _joined(run: list[Line], attr: str) -> tuple[str, list[tuple[int, int]]]:
     text, starts = "", []
     for ln in run:
         starts.append((len(text), ln.no))
-        text += getattr(ln, attr) + "\n"
+        # A quote marker at the start of a line is not part of the sentence it continues.
+        text += _QUOTE.sub(lambda m: " " * len(m.group(0)), getattr(ln, attr)) + "\n"
     return text, starts
 
 

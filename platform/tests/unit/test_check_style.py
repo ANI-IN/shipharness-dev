@@ -1259,6 +1259,7 @@ def test_an_allow_marker_keeps_a_code_a_checker_reads(tmp_path: Path) -> None:
         ("**Filter 2: Passes five runs** re-runs each test; Filter 2 drops flaky ones.\n", True),
         ("| Feature 7: Labels | final |\n|---|---|\n| Feature 7 | again |\n", True),
         ("Feature 3: Safe retries for issue creation.\n", True),
+        ("> - **Rules**: House rule 7:\n>   Migrations, in a quote that wraps.\n", True),
         ("Feature 3: Idempotent issue creation.\n", False),
         ("Feature 7: Labelsx.\n", False),
         ("See house rule 4 first.\n", False),
