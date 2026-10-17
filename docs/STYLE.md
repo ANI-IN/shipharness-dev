@@ -134,8 +134,8 @@ files under `docs/evidence/`, one per section (`s1.md` to `s4.md`, `final.md`, a
   (Meta, TestGen-LLM), (Meta, ACH), or (SpecBench). List each source once, with its full title and
   link, in a short `## Sources` list at the end of the page. That H2 may close any template; on a
   concepts page, `## Further reading` is the list. A known source named on a page with no link to
-  it, or linked on a page without the list, fails the check (SC25). URLs come from the source
-  register in `RESEARCH.md` and the Sources sections of the evidence pages, never from memory.
+  it, or linked on a page without the list, fails the check (SC25). URLs come from the course's source
+  register (the Sources sections of the evidence pages), never from memory.
 - A link always has text and a target: no `[text]()`, no `[link]`, no malformed URL (SC24).
 - Where a page relies on a finding, keep the claim and link to the section of the evidence page.
 - Assignments are "Assignment 1" to "Assignment 4", never `A1` to `A4`, so they do not clash with

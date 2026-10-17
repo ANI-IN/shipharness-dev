@@ -607,7 +607,7 @@ _GOOD_URL = re.compile(r"^https?://[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+(?::\d+)?(?:
 # The list of sources at the end of a page; on a concepts page, "Further reading" is that list.
 _SOURCES_HEADING = re.compile(r"^(?:#{2,3} Sources|\*\*Sources\*\*|## Further reading)\s*$")
 # The sources a page may name: a short-name pattern, and the URL a link to it must use (from the
-# source register in RESEARCH.md). The module title "Harness Engineering" is not a source name.
+# course's source register). The module title "Harness Engineering" is not a source name.
 _OWNER = r"(?:,|['’]s)?\s+[\"“]?"
 SOURCES: list[tuple[str, re.Pattern[str], re.Pattern[str]]] = [
     (
