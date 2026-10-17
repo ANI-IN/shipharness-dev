@@ -96,6 +96,14 @@ def _target(call: ToolCall) -> str:
     return str(value or "")[:200]
 
 
+def _next_session_runs(phase: Phase, ended_by: str) -> bool:
+    """Whether the phase goes on to its next session (if it has one). A spent turn budget always
+    does. In the build phase, a finish(claim="not_done") ends only that session: before the last
+    build session it means "out of turns here", not "give up" (pilot runs 3 and 4, F2, both arms).
+    Every other ending (done, timeout, cap, error, no tool call) ends the phase."""
+    return ended_by == "turn_budget" or (phase == "build" and ended_by == "claim_not_done")
+
+
 class _Run:
     """State for one arm's run. Not reused."""
 
@@ -520,7 +528,7 @@ class _Run:
                             )
                         result = self.run_session(phase, session_index, budget, position > 0)
                         self.sessions.append(result)
-                        if result.ended_by != "turn_budget":
+                        if not _next_session_runs(phase, result.ended_by):
                             break
                         if position < len(budgets) - 1:
                             self.emit(

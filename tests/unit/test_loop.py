@@ -614,3 +614,49 @@ def test_sessions_record_working_tree_snapshots_without_commits(tmp_path: Path) 
     (session,) = result.sessions
     assert session.start_sha == session.end_sha  # nothing was committed
     assert session.start_tree and session.end_tree and session.start_tree != session.end_tree
+
+
+# Pilot change (2026-10-17, "bug fix, applies to both arms"): in pilot runs 3 and 4, F2 arms of
+# both arms called finish(claim="not_done") at the end of the first of two build sessions, which
+# ended the build phase, so the second session never ran. Before the last build session, not_done
+# now ends only that session; the next session starts as after a turn budget.
+
+
+def test_not_done_before_the_last_build_session_ends_only_that_session(tmp_path: Path) -> None:
+    steps = [read_app(), finish("not_done", "out of turns"), read_app(), finish()]
+    result, events, client = run(tmp_path, steps, session_budget=[3, 3])
+    assert [s.ended_by for s in result.sessions] == ["claim_not_done", "claim_done"]
+    assert result.status == "completed"
+    assert result.claim == "done"
+    assert "session_stop" in types(events) and "session_resume" in types(events)
+    third_input = client.inputs[2]
+    assert any(NEUTRAL_RESUME in str(item.get("content")) for item in third_input)
+
+
+def test_not_done_in_the_last_build_session_still_ends_the_phase(tmp_path: Path) -> None:
+    steps = [read_app(), read_app(), finish("not_done", "cannot finish")]
+    result, _events, _ = run(tmp_path, steps, session_budget=[2, 3])
+    assert [s.ended_by for s in result.sessions] == ["turn_budget", "claim_not_done"]
+    assert result.claim == "not_done"
+
+
+def test_not_done_in_the_test_phase_ends_the_phase(tmp_path: Path) -> None:
+    steps = [finish(), finish("not_done", "no tests")]
+    result, _events, _ = run(
+        tmp_path, steps, phases=("build", "test"), session_budget=[1, 1], test_phase_turns=3
+    )
+    assert [(s.phase, s.ended_by) for s in result.sessions] == [
+        ("build", "claim_done"),
+        ("test", "claim_not_done"),
+    ]
+
+
+def test_the_rule_is_the_same_for_the_harness_arm(tmp_path: Path) -> None:
+    class Quiet(BaseLayer):
+        name = "state"
+
+    steps = [read_app(), finish("not_done", "out of turns"), read_app(), finish()]
+    result, _events, _ = run(
+        tmp_path, steps, harness=Harness([Quiet()]), arm="harness", session_budget=[3, 3]
+    )
+    assert [s.ended_by for s in result.sessions] == ["claim_not_done", "claim_done"]
