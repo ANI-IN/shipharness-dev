@@ -15,10 +15,10 @@ REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml"
 
 DEFAULT_TARGETS = [
     "README.md",
-    "DESIGN.md",  # checked where it exists
-    "RESEARCH.md",  # checked where it exists
-    "CONTRACTS.md",  # checked where it exists
-    "VERIFICATION.md",  # checked where it exists
+    "DESIGN.md",  # checked only where it exists (not in this repository's public copy)
+    "RESEARCH.md",  # checked only where it exists (not in this repository's public copy)
+    "CONTRACTS.md",  # checked only where it exists (not in this repository's public copy)
+    "VERIFICATION.md",  # checked only where it exists (not in this repository's public copy)
     "CHANGELOG.md",
     "setup",
     "docs",

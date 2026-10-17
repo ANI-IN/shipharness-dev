@@ -79,7 +79,7 @@ format:
 
 lint-prose:
 	$(UV) run python platform/scripts/lint_prose.py
-	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # vale is optional; DESIGN.md and RESEARCH.md only where they exist
+	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # vale is optional; DESIGN.md and RESEARCH.md only where they exist (not in this repository's public copy)
 
 # check-style: the mechanical rules of docs/STYLE.md on the public course pages. Errors fail;
 # CHECK_STYLE_OPTS=--strict fails on warnings too, --warn-only reports and never fails.
