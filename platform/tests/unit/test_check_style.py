@@ -734,3 +734,8 @@ def test_the_final_project_page_follows_the_demo_template_plus_the_take_home_ste
         "Use it on your own repository"
     ]
     assert cs.doc_type("final-project/README.md") == "final-project"
+
+
+def test_the_generated_references_page_is_not_checked() -> None:
+    # make_release.py writes docs/REFERENCES.md into the public repo: every source and finding id.
+    assert not cs.is_public("docs/REFERENCES.md")
