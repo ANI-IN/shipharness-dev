@@ -336,3 +336,20 @@ def test_demo_3_runs_the_s3_confirmation_task_by_feature() -> None:
     assert command == "ab" and params["section"] == "demo-3"
     assert _variables()["FEATURE"] == "F3"
     assert "--feature $(FEATURE)" in " ".join(_rules()["demo-3"])
+
+
+# -- course style check ---------------------------------------------------------------------------
+
+
+def test_check_style_target_runs_the_style_checker() -> None:
+    # make check-style: errors fail; CHECK_STYLE_OPTS=--strict also fails on warnings.
+    assert _variables()["CHECK_STYLE_OPTS"] == ""
+    assert _rules()["check-style"] == [
+        "$(UV) run python platform/scripts/check_style.py $(CHECK_STYLE_OPTS)"
+    ]
+    phony = " ".join(
+        line for line in MAKEFILE.read_text(encoding="utf-8").replace("\\n", " ").splitlines()
+        if line.startswith(".PHONY")
+    )  # fmt: skip
+    assert " check-style " in f" {phony} "
+    assert "check-style" in " ".join(_rules()["help"])

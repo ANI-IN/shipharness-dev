@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -1036,3 +1037,16 @@ def test_the_style_rewrite_pages_and_images_ship() -> None:
         "01-instructions/demo/harness/AGENTS.md",
     ]:
         assert path in included, path
+
+
+def test_scripts_the_public_makefile_and_ci_run_are_learner_scripts() -> None:
+    # A public Makefile target or CI step that runs an internal script would break the release.
+    texts = [(REPO / "Makefile").read_text(encoding="utf-8")]
+    texts.append((REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"))
+    named = set()
+    for text in texts:
+        named |= set(re.findall(r"platform/scripts/[\w-]+\.py", text))
+    assert "platform/scripts/check_style.py" in named
+    assert sorted(named - set(mr.LEARNER_SCRIPTS)) == []
+    assert mr.classify("platform/scripts/check_style.py") is None
+    assert mr.classify("docs/STYLE.md") is None  # the guide the style check implements

@@ -31,14 +31,15 @@ AGENT_IMAGE ?= shipharness-agent:1
 REFEREE_IMAGE ?= shipharness-referee:1
 RUN ?=
 
-.PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
+.PHONY: help setup images doctor up console datasets lint format lint-prose check-style anchors test \
+	test-live \
 	test-docker demo-1 demo-2 demo-3 demo-4 show-1 show-2 show-3 show-4 swap-1 swap-2 swap-3 swap-4 \
 	final replay warm experiments \
 	report pilot check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
 	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4 slides
 
 help:
-	@echo "setup doctor up console datasets lint format lint-prose test test-all test-live test-docker"
+	@echo "setup doctor up console datasets lint format lint-prose check-style test test-all test-live test-docker"
 	@echo "demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
 	@echo "warm (before class: images, containers, referee and gate baselines; no model calls)"
 	@echo "experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help"
@@ -79,6 +80,12 @@ format:
 lint-prose:
 	$(UV) run python platform/scripts/lint_prose.py
 	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # DESIGN.md, RESEARCH.md: build repository only, not included in the public release
+
+# check-style: the mechanical rules of docs/STYLE.md on the public course pages. Errors fail;
+# CHECK_STYLE_OPTS=--strict fails on warnings too, --warn-only reports and never fails.
+CHECK_STYLE_OPTS ?=
+check-style:
+	$(UV) run python platform/scripts/check_style.py $(CHECK_STYLE_OPTS)
 
 anchors:
 	$(UV) run python platform/scripts/anchors.py list

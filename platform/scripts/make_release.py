@@ -95,6 +95,7 @@ DOCS_FILES = tuple(
         "architecture",
         "after-class",
         "extras",
+        "STYLE",  # the course style guide that make check-style implements
         "CHANGELOG",
         "reference",
         "evidence",
@@ -146,6 +147,7 @@ SCRIPTS_DIR = "platform/scripts/"
 LEARNER_SCRIPTS = (
     "platform/scripts/anchors.py",  # make lint, make anchors, CI, the section docs
     "platform/scripts/lint_prose.py",  # make lint-prose, CI, README
+    "platform/scripts/check_style.py",  # make check-style, CI, docs/STYLE.md
     "platform/scripts/fetch_testgen_libs.py",  # assignment 4 README
     "platform/scripts/grade_assignment.py",  # make grade-assignment-N: says graders are private
     "platform/scripts/build_slides.py",  # make slides
