@@ -2,20 +2,20 @@
 
 Reading time: about 15 minutes.
 
-This section follows one order: the problem the bare arm shows, the cause (cited), the harness piece,
-how `shipharness` implements it, and what the A/B measures. Source IDs (A1, B1, ...) and finding IDs
-(F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../REFERENCES.md), which is generated when the
-course is released. Code excerpts come from the walkthrough anchors `S1:agents_md`, `S1:progressive`,
-and `S1:prefix`; print one with `uv run python scripts/anchors.py extract S1:prefix`.
+This section follows one order: the problem the task sets, the cause (cited), the harness piece, how
+`shipharness` implements it, what the A/B measures, and, last, what the piece assumes about the model
+and what the course pilot measured. Source IDs (A1, B1, ...) and finding IDs (F-a-NN, F-b-NN) are
+listed in [REFERENCES.md](../../REFERENCES.md), which is generated when the course is released. Code
+excerpts come from the walkthrough anchors `S1:agents_md`, `S1:progressive`, and `S1:prefix`; print
+one with `uv run python scripts/anchors.py extract S1:prefix`.
 
 A note on labels. "S1", "layer", "trap", "blinded reviewer", and the house rules R1-R7 are course
-labels, not source terms. "House rules" is the course's name for what A1 calls "golden principles":
-"we started encoding what we call “golden principles” directly into the repository and built a
-recurring cleanup process." (A1, F-a-99).
+labels, not source terms. "House rules" is the course's name for what A1 calls "golden principles"
+(A1, F-a-99).
 
 ---
 
-## 1. The problem seen in the bare run
+## 1. The problem the task sets
 
 The S1 demo task is F1, org-wide issue search. `GET /issues` lists every live issue of the caller's
 org across its projects, with filters and cursor pagination (`teamtrack/docs/features/f1.md`). Both
@@ -48,38 +48,8 @@ The bare arm is not missing the rule. It is in the "Legacy /v1 API" section of `
 (line 136 of 150) and in two docstrings inside the legacy code itself. The handbook is the only place
 that states it before the agent reaches that code, and only if the agent opens the handbook.
 
-### What the pilot showed on the canonical ticket
-
-The failure did not happen in pilot run 2. Measured in the course pilot, run 2, 2026-10-16: all six F1
-arms (three bare, three harness, ticket `F1-canonical`) passed the primary measure with 0 new R1
-violations and 52 of 52 hidden tests (run ids in [demo/README.md](demo/README.md) section 7). Every
-bare arm opened `docs/HANDBOOK.md` with its third tool call, because the ticket names it, and
-`read_file` returns up to 400 lines (`src/shipharness/runner/tools.py`), so the whole handbook was in
-context before any code was read. No arm opened `app/api/legacy_v1.py`.
-
-So the canonical ticket hands the bare arm the pointer the map would give it. The course's
-pre-registered next step for a section with no gap is its trap variant: `F1-trap` names
-`app/api/legacy_v1.py` as the place where "a lot of the query code exists" and does not mention the
-handbook (`datasets/teamtrack-features-v1.jsonl`). Pilot run 3 ran it and run 4 repeated it at
-effort low; the class ticket follows the course's decision after that run.
-
-### What the pilot showed on the trap ticket
-
-Measured in the course pilot, run 3, 2026-10-16, A/Bs `ab-20261016-211419-07937b`,
-`ab-20261016-212745-2c14fb`, and `ab-20261016-214636-c8b3c4` (ticket `F1-trap`, gpt-6-luna at effort
-medium for both arms), and run 4, effort low, 2026-10-16, A/Bs `ab-20261016-232842-b372c2`,
-`ab-20261016-233807-3f34fa`, and `ab-20261016-234639-4a18bd`:
-
-| Run | Arm | Runs failing (`r1_new_violations >= 1`) | New R1 violations per run | Hidden tests per run | Run ids |
-|---|---|---|---|---|---|
-| 3 | bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-211419-8fb5f4`, `r-20261016-212745-a9900c`, `r-20261016-214636-8e13f4` |
-| 3 | harness | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-211419-741ab3`, `r-20261016-212745-8a0bbf`, `r-20261016-214636-53d21a` |
-| 4, effort low | bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-232842-1b27e7`, `r-20261016-233807-7f74f1`, `r-20261016-234639-cd17ac` |
-| 4, effort low | harness | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-232842-f3515e`, `r-20261016-233807-36c040`, `r-20261016-234639-209fdf` |
-
-No bare arm had a new R1 finding, so there is none to show: the legacy `/v1` handler was not copied
-into a leak in any arm. No measurable difference on this task with this model (course pilot, runs 3
-and 4). Per-run records are in [demo/README.md](demo/README.md) section 7.
+The course pilot did not see this failure in any run, on the canonical ticket or on its trap variant;
+section 6 gives the results and what they say about the map.
 
 ---
 
@@ -88,9 +58,7 @@ and 4). Per-run records are in [demo/README.md](demo/README.md) section 7.
 ### 2.1 What is not in context does not exist for the agent
 
 A1 states the core point: "From the agent’s point of view, anything it can’t access in-context while
-running effectively doesn’t exist." (A1, F-a-05). That covers knowledge the agent cannot find: "If it
-isn’t discoverable to the agent, it’s illegible in the same way it would be unknown to a new hire
-joining three months later." (A1, F-a-07).
+running effectively doesn’t exist." (A1, F-a-05).
 
 In the bare arm the tenant rule is in the repository; whether it is in context when the agent writes
 `GET /issues` depends on what it read first.
@@ -101,10 +69,8 @@ The second part of the cause is the trap: the agent "replicates patterns that al
 repository" (A1, F-a-20). Code the agent opens is in context by definition, so a legacy handler that
 already lists all issues competes with a rule the agent may never have loaded.
 
-The course's cause 3 (agents copy existing patterns and can take actions that are hard to undo) has
-no single sentence in the sources. Its support, side by side: A4's container warning (F-a-18) and its
-`pkill` incident (F-a-19), A1's pattern copying (F-a-20), and A5's security model (F-a-86). S1 uses
-only F-a-20, for the trap; the rest belongs to S3.
+The course's cause 3 has no single source sentence; its sources stand side by side in S3. S1 uses only
+A1's pattern copying (F-a-20), for the trap.
 
 ### 2.3 One big instruction file is not the fix
 
@@ -141,8 +107,6 @@ one home:
 | `docs/QUALITY_SCORE.md` | Testing, known gaps, the legacy endpoint |
 | `docs/product-specs/`, `docs/references/` | Feature specs; Alembic and import-linter notes |
 | `.agents/skills/add-endpoint/` | One Agent Skill: the steps for adding an endpoint |
-
-The state layer (S2) adds `docs/exec-plans/` and the progress files; S1 does not place them.
 
 ### 3.3 Progressive disclosure, for docs and for skills
 
@@ -213,16 +177,12 @@ flowchart LR
   IL -- "prepare_workspace copies" --> Workspace
 ```
 
-The layer talks to the runner only through three hooks (`src/shipharness/harness/base.py`):
-
-| Hook | What the instructions layer does | File |
-|---|---|---|
-| `prepare_workspace` | Copies `teamtrack/harness/instructions/` into the workspace; never touches `docs/HANDBOOK.md` | `src/shipharness/harness/instructions/layer.py` |
-| `context_prefix` | Returns one block from `build_prefix`: the map, then the skills catalogue | `src/shipharness/harness/instructions/router.py` |
-| `after_tool` | On a `read_file` of a placed doc or skill file, emits a `note` decision once; skill reads carry their tier | `src/shipharness/harness/instructions/layer.py` |
-
-The layer never blocks a tool call and never calls the model; it enforces nothing. Enforcement is S3
-and S4.
+The layer talks to the runner only through three hooks (`src/shipharness/harness/base.py`; section
+4.5 shows them in one run): `prepare_workspace` copies `teamtrack/harness/instructions/` into the
+workspace and never touches `docs/HANDBOOK.md` (`layer.py`); `context_prefix` returns the block from
+`build_prefix` (`router.py`); `after_tool` emits a `note` decision when the agent reads a placed doc
+or skill file. The layer never blocks a tool call and never calls the model; it enforces nothing.
+Enforcement is S3 and S4.
 
 ### 4.2 The prefix (anchor `S1:prefix`)
 
@@ -261,10 +221,8 @@ on console screen 3.
 
 ### 4.4 The map itself (anchor `S1:agents_md`)
 
-The anchor covers lines 1-38 of 94 in `teamtrack/harness/instructions/AGENTS.md`: the opening, the
-"Where to look" table (its endpoint row points to the skill), and the house rules at a glance (R1:
-"another org's resource is 404, never 403"). Below it are the "Do not copy" note on `GET /v1/issues`,
-the commands, and the "Before you finish" checklist. All 94 lines are in the prefix.
+The anchor covers lines 1-38 of the 94-line `teamtrack/harness/instructions/AGENTS.md`: the opening,
+the "Where to look" table, and the house rules at a glance. All 94 lines are in the prefix.
 
 ### 4.5 The layer's flow in one run
 
@@ -316,7 +274,7 @@ From each arm's score record (`ScoreRecord` in `src/shipharness/ab/score.py`):
 | `r3_new_failures` | API conventions (list and error envelopes, status codes) |
 | `hidden_passed` / `hidden_total` | Did the feature work? `F1-canonical` lists 52 hidden test ids |
 | `regression_passed` / `regression_total` | Existing tests keep passing |
-| `reviewer_verdict` | The blinded reviewer (course design after A3's separate evaluator, F-a-110): a separate model judges each diff with every arm-identifying trace removed (`src/shipharness/reviewer/blind.py`) |
+| `reviewer_verdict` | The blinded reviewer (course design after A3's separate evaluator, F-a-110): a second model judges each diff with arm labels removed (`src/shipharness/reviewer/blind.py`) |
 | `cost_usd`, `turns_total`, `wall_s` | What each arm spent |
 
 The files-read map on console screen 3 is not a score; it only shows what each arm opened with
@@ -329,30 +287,10 @@ The files-read map on console screen 3 is not a score; it only shows what each a
 - Layer switch (`make demo-1 LAYERS=-instructions`): both arms run bare, so any gap is run-to-run
   variation.
 - Ablation: A3 describes "removing one component at a time and reviewing what impact it had on the
-  final result." (A3, F-a-125). The course's ablation batch removes `instructions` from the full stack.
+  final result." (A3, F-a-125). The course planned an ablation batch that removes `instructions`
+  from the full stack; it was not run (section 6.1).
 
-### 5.4 Results
-
-A live result is always shown next to the other dots.
-
-| Run | Arm | Runs failing the primary measure | New R1 violations per run | Hidden tests per run | Agent time (s) |
-|---|---|---|---|---|---|
-| Pilot run 2, 2026-10-16, F1 canonical, k=3 | bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | 171-193 |
-| | harness | 0 of 3 | 0, 0, 0 | 52 of 52 each | 127-177 |
-| Live console check, 2026-10-16, A/B `ab-20261016-210339-909651`, F1 canonical | bare | 0 of 1 | 0 | 52 of 52 | 198.7 |
-| | harness | 0 of 1 | 0 | 52 of 52 | 133.1 |
-
-Both ran gpt-6-luna at effort medium; run ids and reviewer verdicts are in
-[demo/README.md](demo/README.md) section 7. No gap on this ticket. Three runs per arm is a pilot, not
-an experiment; the batch 1 dots (k=10) are the result the class reports.
-
-[[PENDING: S1 dots for F1 canonical, runs failing out of k per arm (r1_new_violations>=1), with run ids | source: M8 batch 1 | how: uv run shipharness report]]
-
-[[PENDING: secondary counts for F1 canonical per arm (r1_leaks, r3_new_failures, hidden passed of 52) | source: M8 batch 1 | how: uv run shipharness report]]
-
-[[PENDING: ablation result for the leave-out-instructions configuration (all minus instructions) on the 12 ablation tasks | source: M8 ablation | how: uv run shipharness report]]
-
-### 5.5 What this A/B cannot tell you
+### 5.4 What this A/B cannot tell you
 
 - The A/B compares the same knowledge in two forms (a map in the prefix against a handbook on disk).
   It does not test whether rules help at all.
@@ -363,6 +301,68 @@ an experiment; the batch 1 dots (k=10) are the result the class reports.
 
 ---
 
+## 6. What the map assumes, and what the pilot measured
+
+A3 gives the test every harness piece should face: "every component in a harness encodes an
+assumption about what the model can't do on its own, and those assumptions are worth stress testing"
+(A3, F-a-124). The map's assumption, in the course's words: the model will not apply a rule it has
+not been pointed to. Its basis is A1's point about context (A1, F-a-05, F-a-28).
+
+### 6.1 The primary measure
+
+Measured in the course pilot: gpt-6-luna at the same effort for both arms. Runs failing the primary
+measure (one or more new R1 violations), per arm:
+
+| Run | Ticket, effort | Bare | Harness | A/Bs |
+|---|---|---|---|---|
+| 2, 2026-10-16 | `F1-canonical`, medium | 0 of 3 | 0 of 3 | `ab-20261016-181736-a07558`, `ab-20261016-183644-0036f0`, `ab-20261016-185628-37483b` |
+| Live console check, 2026-10-16 | `F1-canonical`, medium | 0 of 1 | 0 of 1 | `ab-20261016-210339-909651` |
+| 3, 2026-10-16 | `F1-trap`, medium | 0 of 3 | 0 of 3 | `ab-20261016-211419-07937b`, `ab-20261016-212745-2c14fb`, `ab-20261016-214636-c8b3c4` |
+| 4, 2026-10-16 | `F1-trap`, low | 0 of 3 | 0 of 3 | `ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, `ab-20261016-234639-4a18bd` |
+| Class-profile round, 2026-10-17 | `F1-trap`, low, Fast tier | 0 of 1 | 0 of 1 | `ab-20261017-084558-0356a0` |
+
+Every arm passed 52 of 52 hidden tests; run ids are in [demo/README.md](demo/README.md) section 10.
+No measurable difference on this task with this model (course pilot, runs 3 and 4 and the
+class-profile round). The course planned larger batches (k=10) and a leave-one-out ablation; neither
+was run, because the pre-registered pilot gate did not pass.
+
+### 6.2 Why the assumption did not hold here
+
+On the canonical ticket the bare arm was pointed to the rule anyway. The ticket ends "Follow the house
+rules in docs/HANDBOOK.md"; every bare arm in run 2 opened the handbook with its third tool call; and
+`read_file` returns up to 400 lines (`src/shipharness/runner/tools.py`), so the whole 150-line
+handbook was in context before any code was read. The trap ticket `F1-trap` names
+`app/api/legacy_v1.py` as the place where "a lot of the query code exists" and does not mention the
+handbook (`datasets/teamtrack-features-v1.jsonl`); still, no arm copied the legacy query into a leak. In the
+class-profile round the bare arm did not open the handbook in its first nine tool calls and wrote a
+scoped query all the same. For this model and these tickets, the map had nothing to fix.
+
+### 6.3 Post hoc: what else the arms did
+
+These measures were chosen after the results were known, so they describe and do not test (10 runs
+per arm: runs 2, 3, and 4 and the console check). Harness arms claimed done in 5 runs, bare arms in 9;
+no claim was false in either arm. Median cost per arm was $0.0122 against $0.0103, and median arm
+wall time 168 s against 177 s; neither arm hit the agent time limit. The map cost little here and
+changed nothing the referee measures.
+
+The A/B does not measure everything a map is for: A1's other reasons against one large file, that it
+goes stale and cannot be checked mechanically (section 2.3), concern the people who maintain the
+rules, not one run.
+
+### 6.4 What class shows instead
+
+With no gap to show, S1 runs no live A/B in class. It shows the harness arm alone reading the map
+(`make show-1`), a replay of a pilot run where the referee's R1 check caught three new violations in
+a harness arm that had the map (run 3, F4, `ab-20261016-212252-aa1644`), and a constructed cross-org
+leak (`make example-1`); runbook in [demo/README.md](demo/README.md). The pilot did not measure A1's
+own comparison, a map against one giant instruction file (A1, F-a-23, F-a-24): its bare arm has a
+handbook on disk (section 5.4).
+
+On your own repository, keep the map where a measure on your model shows it earns its place, or for
+the maintenance reasons above; say which.
+
+---
+
 ## Check your understanding
 
 1. The bare arm has `docs/HANDBOOK.md` with the same rules. Which A1 sentence explains why the rule can
@@ -370,10 +370,10 @@ an experiment; the batch 1 dots (k=10) are the result the class reports.
 2. Why does `build_prefix` read from the course checkout and not from the arm's workspace?
 3. A skill's description says only "Endpoint helper." Which tier of progressive disclosure fails, and
    what would the agent miss?
-4. In pilot run 2 the bare arm passed F1 three times out of three. What in the canonical ticket made
-   that likely, and what does the trap variant change?
+4. In the pilot the bare arm passed F1 in every run. Which assumption of the map did that test, and
+   why was the canonical ticket a weak test of it?
 
 ## Sources
 
-A1, A3, A4, A5, B1, and B2, all accessed 2026-10-16. Titles, links, and every finding ID cited here
+A1, A3, B1, and B2, all accessed 2026-10-16. Titles, links, and every finding ID cited here
 are in [REFERENCES.md](../../REFERENCES.md).

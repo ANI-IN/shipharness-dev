@@ -13,5 +13,6 @@ section "Why it matters for your own repo".
 
 After reading, read the primary sources themselves, starting with A1's section "We made repository
 knowledge the system of record" and B1's section on progressive disclosure. Pilot results for S1
-are in [../demo/README.md](../demo/README.md) (sections 6, 7, and 9), and the experiment dots join
-them once the batches have run. The class recap is in [../session-notes.md](../session-notes.md).
+are in [../demo/README.md](../demo/README.md) (sections 9, 10, and 11). The planned experiment
+batches were not run, because the pre-registered pilot gate did not pass. The class recap is in
+[../session-notes.md](../session-notes.md).

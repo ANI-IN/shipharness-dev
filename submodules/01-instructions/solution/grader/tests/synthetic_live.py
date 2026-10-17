@@ -78,6 +78,8 @@ def record(rid: str, arm: str, task: tuple[str, str, str], r1: int = 0, r3: int 
         "referee_trace_url": None,
         "sandboxed": True,
         "recorded": False,
+        "single_arm": False,
+        "referee_version": "2026-10-17",
         "captured_at": "2026-10-16T12:00:00+00:00",
     }
 

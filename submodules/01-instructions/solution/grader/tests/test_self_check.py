@@ -77,13 +77,18 @@ def test_the_starter_fails_with_one_line_per_check(capsys: pytest.CaptureFixture
     assert out.strip().splitlines()[-1].startswith("self-check: ")
 
 
-def test_the_reference_solution_passes_every_check_when_pending_markers_are_allowed(
+def test_the_uncaptured_reference_fails_only_the_ab_value_and_live_checks(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    results = check.run_checks(SOLUTION_WORK, allow_pending=True)
-    assert [r.name for r in results if not r.ok] == []
-    assert check.main(["--work", str(SOLUTION_WORK), "--allow-pending"]) == 0
-    assert "FAIL" not in capsys.readouterr().out
+    # The reference live run was not captured (owner scope, 2026-10-17); the reference holds no
+    # pending markers, so --allow-pending changes nothing.
+    expected = {"report-command", "report-results", "report-links", "report-cost"}
+    expected |= {"live-files", "live-command", "live-caps", "live-tree", "live-report"}
+    for allow in (False, True):
+        results = check.run_checks(SOLUTION_WORK, allow_pending=allow)
+        assert {r.name for r in results if not r.ok} == expected
+    assert check.main(["--work", str(SOLUTION_WORK), "--allow-pending"]) == 1
+    assert "FAIL live-files" in capsys.readouterr().out
 
 
 def test_the_self_check_lists_the_five_live_items(capsys: pytest.CaptureFixture[str]) -> None:

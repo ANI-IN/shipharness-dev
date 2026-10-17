@@ -6,7 +6,7 @@ is [../assignment/README.md](../assignment/README.md).
 
 | Path | What it is |
 |---|---|
-| `work/` | a finished work folder: `instructions/` (map, docs, the `add-list-endpoint` skill), `checker/` (the reference checker and the visible tests), `ab-report.md` (structure complete, A/B values as pending markers), `live/` (where the captured live run goes; for now its `README.md` holds the exact commands and a pending marker) |
+| `work/` | a finished work folder: `instructions/` (map, docs, the `add-list-endpoint` skill), `checker/` (the reference checker and the visible tests), `ab-report.md` (structure complete; each A/B value says the reference live run was not captured), `live/` (no evidence; its `README.md` says why and keeps the exact commands) |
 | `grader/grade.py` | the grader: the self-check's visible checks (live evidence included) plus hidden checks; prints the score out of 100 |
 | `grader/hidden/checker_cases.py` | the eleven hidden checker cases |
 | `grader/tests/` | tests for the self-check, the grader, the live evidence, and `ab_summary.py`; `synthetic_live.py` builds the SYNTHETIC live evidence they use (invented values, batch `a1-synthetic`, never a real run) |
@@ -27,9 +27,12 @@ It runs `grader/grade.py --work <submission>`; the submission is the learner's w
 checkout of their repository (the grader then uses `submodules/01-instructions/assignment/starter`
 inside it). A git URL is cloned shallow first (`scripts/grade_assignment.py`).
 
-The reference scores 83.0/100 today (`captured/grade-solution.txt`, captured on 2026-10-17): the
-five points for the A/B values (criterion E) and the twelve points of criterion F (live run evidence)
-are not awarded, because the reference live run has not been captured. That is expected and is not
-a defect of the solution. `grade.py --allow-pending` accepts a well-formed `[[PENDING: ...]]` marker
-in place of those values and gives the reference 100; learners are graded without the flag. The
-commands that capture the reference run are in [work/live/README.md](work/live/README.md).
+The reference scores 83.0/100 (`captured/grade-solution.txt`): the five points for the A/B values
+(criterion E) and the twelve points of criterion F (live run evidence) are not awarded, because the
+reference live run was not captured. The owner's FOCUS instructions of 2026-10-17 required a real
+captured live run for A3 and A4 only, so the A1 reference A/B was left out of scope. That is not a
+defect of the solution. The reference holds no pending markers, so `grade.py --allow-pending` also
+gives it 83.0 (`captured/grade-solution-allow-pending.txt`); learners are graded without the flag. A
+learner's submission with real live evidence can reach 100: the grader tests grade a SYNTHETIC one
+that does. The commands that would capture the reference run are in
+[work/live/README.md](work/live/README.md).

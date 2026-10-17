@@ -37,10 +37,10 @@ the sources.
    alternate checkpoints, and the trap variant; `datasets/teamtrack-features-v1.jsonl`), and the
    measures are R1 and R3. Its description is the only part loaded up front (B1, F-b-05); the steps
    and `references/tests.md` load when the skill is used.
-6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and it
-   has not been captured yet: the report (`work/ab-report.md`) carries pending markers for its
-   values, and `work/live/README.md` holds the exact commands and the pending marker where the
-   captured files go.
+6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and the
+   reference live run was not captured: the owner's FOCUS instructions of 2026-10-17 required a real
+   captured live run for A3 and A4 only. The report (`work/ab-report.md`) says so in place of each
+   value, and `work/live/README.md` says why and keeps the exact commands.
 
 ## Design choices
 
@@ -74,8 +74,9 @@ the sources.
   fault, so an empty tree or a checker that reports nothing scores near zero (the starter scores 1.8).
 - **Report graded by structure.** The brief forbids re-running models in grading. The structure
   checks enforce what DESIGN §8.3 asks of every A/B: counts, not percentages, one primary measure
-  (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` exists only so the reference can
-  reach 100 before its live run is captured; learners are graded without it.
+  (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` accepts well-formed pending markers in
+  place of A/B values and live evidence; the reference holds none (its live run was not captured), so
+  the flag does not change its score, and learners are graded without it.
 - **The A/B is the required live step** (course design, owner decision). The learner submits what
   the run wrote: the experiment exports, the ScoreRecord of every run (`exports/scores/`), the
   harness arm's run logs, and the command with its output. `assignment/live_evidence.py` collects
@@ -140,10 +141,10 @@ the sources.
   `[text][label]` with no definition is not reported.
 - The hidden-case outcome lists failing case names in the grader output, which hints at the area of
   a bug without showing the fixture.
-- The reference A/B (the live step) has not been run yet. The integrator captures it tonight; the
-  one pending marker for it, with the exact commands, is in
-  [work/live/README.md](work/live/README.md). Its R1 and R3 counts, cost, wall time, and trace count
-  then go into `work/ab-report.md` from `ab_summary.py`.
+- The reference A/B (the live step) was not run: the owner's FOCUS instructions of 2026-10-17
+  required a real captured live run for A3 and A4 only. So the reference has no measured R1 and R3
+  counts, cost, wall time, or trace count, and scores 83 of 100. The commands that would capture it
+  are in [work/live/README.md](work/live/README.md).
 
 ## Captured output
 
@@ -159,24 +160,29 @@ differ", then the command:
 | `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work` | 2026-10-17 |
 | `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
 | `captured/grade-solution-allow-pending.txt` | `grade.py --work submodules/01-instructions/solution/work --allow-pending` | 2026-10-17 |
-| `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests | 2026-10-16 (not re-run while the live pilot runs) |
+| `captured/tests.txt` | the grader tests and the checker tests | 2026-10-17 |
+
+The starter files and the checker output were captured at commit d52d8c6; the solution's self-check,
+both solution grades, and the tests at commit 0c3387d, after the reference's markers were replaced.
 
 Summary, as captured on 2026-10-17:
 
 - The self-check passes 0 of 24 checks on the starter (exit 1; `make` exits 2) and 15 of 24 on the
   solution. The nine that fail on the solution are the four A/B value checks of the report
   (`report-command`, `report-results`, `report-links`, `report-cost`) and the five live-evidence
-  checks: the report holds pending markers and `work/live/` holds a marker instead of a captured run.
+  checks: the reference live run was not captured (owner scope, 2026-10-17: real captured live runs
+  were required for A3 and A4 only), so the report has no values and `work/live/` has no evidence.
 - The grader gives the starter 1.8/100 and the solution 83.0/100. The solution loses exactly the
   live-step points: 5 of the 10 points of criterion E (the A/B values the live run supplies) and all
-  12 points of criterion F (live run evidence). This is expected until the reference live run is
-  captured (VERIFICATION.md, overnight Phase 0, records "A1 83/100").
-- `--allow-pending` makes the grader accept the markers in place of the A/B values and the evidence
-  (100.0/100 on the solution, `captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes it, and
-  learners are graded without it.
+  12 points of criterion F (live run evidence).
+- The reference holds no pending markers, so `--allow-pending` also gives it 83.0/100
+  (`captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes the flag,
+  and learners are graded without it.
 - The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
   evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that
-  is a test fixture, not a run.
+  is a test fixture, not a run. Its score records carry `referee_version` and `single_arm`, the two
+  fields `ScoreRecord` gained on 2026-10-17 (`src/shipharness/ab/score.py`); without them all 31
+  synthetic-evidence tests failed.
 
 The grading criteria table in the brief ([../assignment/README.md](../assignment/README.md), "Grading
 criteria (100 points)") was checked against `grader/grade.py` (`CRITERIA`, `VISIBLE_POINTS`, and the
