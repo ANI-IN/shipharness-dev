@@ -365,6 +365,28 @@ after the tags were built. The file is not part of any arm workspace or score, a
 no result is affected. Not fixed tonight: moving tags that have results needs the owner's approval, and
 reverting the comment puts a private script name back into a public file. Owner decision.
 
+### Changes after the gate (owner instructions 2026-10-17, `instructor/engineering-notes/focus-2026-10-17.md`)
+
+Round 5 (the pre-registered k=3 round with an F1 monolithic-instructions bare arm, an F2 round-only
+measure, and a longer F4 time limit) was planned and then dropped by the owner's FOCUS message ("No new
+experiments beyond what's listed here") before any of it was built or run. The one remaining data run is
+the class-profile round (1 A/B per section).
+
+| # | Change | Label | Reason | Revealed by | Commit |
+|---|---|---|---|---|---|
+| 14 | Before the last build session, `finish(claim="not_done")` ends only that session; the next session starts as after a spent turn budget (the last build session and the test phase keep the old rule) | bug fix, applies to both arms | Arms of both arms gave up the build phase at the end of a 12-turn first session; session 2 never ran | Run 3 F2 harness (`ab-20261016-213317-9a0ec1`, `-214959-de790f`); run 4 F2 bare in all three A/Bs (`ab-20261016-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9`) and harness `-234027-226a76` (sessions ended `claim_not_done` after 9-12 turns) | 501be88 |
+| 15 | Checkpoint comment in `teamtrack/reference/checkpoints.toml` stays neutral; the 8 checkpoint tags are rebuilt (owner approval: "Neutral text, move tags") | tooling, no outcome change (arm workspaces exclude `reference/**`; results stay pinned by `checkpoint_sha`) | Release rebuilt tags differed from the build tags in that one comment line | Release dry run 2 | (tag rebuild, recorded below when done) |
+
+F4 test phase (investigated, no bug): in run 3 the harness arms proposed no tests because the test session
+was cut short, not because tests were lost. `ab-20261016-214151-ca9841` and `-220010-c5b4bf`: after the 40-turn
+build session, the test session got 7 and 6 turns before the 300 s agent time limit ended the run (agent
+time 321 s and 316 s), and spent them on the getting-up-to-speed routine (read progress.md, session-handoff.md, the exec
+plan, feature_list.json; `bash init.sh`; `run_visible_tests`). `ab-20261016-212252-aa1644`: 12 test turns
+on the same routine, a failing visible suite (172 of 190), and a progress.md patch that did not apply.
+The test-phase filters saw no new test file in any of the three ("kept 0, discarded 0"). The harness's
+test-phase resume text asks for the getting-up-to-speed steps first and for tests first in the same
+message. This is harness design, not a defect in collection or scoring; not changed (no new experiments).
+
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 
 **Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change
