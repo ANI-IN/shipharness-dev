@@ -5,8 +5,9 @@
 
 Both modes write the allow-listed files of --ref (default HEAD) plus a generated REFERENCES.md
 into a fresh git repository (one commit as ANI-IN), rebuild the checkpoint tags there with the
-logic of scripts/build_checkpoints.py, and write the `harness-frozen` content record as that
-repository's own tag. The report covers, in order:
+logic of scripts/build_checkpoints.py, and write the annotated `class-v1` release tag on its one
+commit (content hashes, checkpoint trees, run settings). The public `harness-frozen` tag is
+written only when the build repository has a freeze record. The report covers, in order:
 
 1. the public files (counts per top-level folder; the full list goes to --list-file) and the
    owner-listed files that do not exist yet;
@@ -14,7 +15,7 @@ repository's own tag. The report covers, in order:
 3. the broken-reference check: public files that link to or name a private or excluded file;
 4. REFERENCES.md (sources and findings from RESEARCH.md and its notes that public files cite);
 5. each checkpoint tag's tree against the build repository's tag tree;
-6. the frozen-content check (shipharness.freeze) per frozen path;
+6. the frozen-content check (shipharness.freeze) per frozen path, and the tags written;
 7. the target repository and the push commands the owner's release step would run.
 
 The dry run exits 1 on a leak or a frozen path that differs; broken references, unresolved
@@ -990,8 +991,16 @@ class FrozenResult:
     basis: str  # "tag": the build repo's harness-frozen record; "head": a record made from HEAD
     paths: dict[str, bool]  # frozen path -> content matches
     checkpoint_differs: list[str]  # record checkpoint trees (whole-tree ids) the public tags lack
-    record_commit: str  # where the public harness-frozen tag points
+    record_commit: str | None  # the public harness-frozen tag; None without a freeze record
     self_check: list[str]  # the public record against the public repository itself
+
+
+@dataclass
+class ClassTagResult:
+    commit: str  # where the public class-v1 tag points
+    paths: int
+    checkpoint_trees: int
+    self_check: list[str]  # the class-v1 record against the public repository itself
 
 
 @dataclass
@@ -1004,11 +1013,13 @@ class Release:
     tree_leaks: list[tuple[str, str]]
     checkpoints: list[TagCompare]
     frozen: FrozenResult
+    class_tag: ClassTagResult
     missing: list[str]
     push: list[str]
 
     def failures(self) -> list[str]:
-        """What fails the dry run: leaks and frozen content that differs."""
+        """What fails the dry run: leaks, frozen content that differs, and a tag record that does
+        not match the public repository."""
         out = self.report.dry_run_failures()
         if self.tree_leaks:
             out.append(f"{len(self.tree_leaks)} private path(s) in the public repository")
@@ -1017,6 +1028,8 @@ class Release:
             out.append("frozen content differs: " + ", ".join(differs))
         if self.frozen.self_check:
             out.append("public record check: " + "; ".join(self.frozen.self_check))
+        if self.class_tag.self_check:
+            out.append("class-v1 record check: " + "; ".join(self.class_tag.self_check))
         return out
 
     def build_failures(self) -> list[str]:
@@ -1089,8 +1102,9 @@ def _frozen_dirty(repo: Path, paths: Iterable[str]) -> list[str]:
 def frozen_check(repo: Path, ref: str, public: Path) -> FrozenResult:
     """Owner rule 2: the public tree's frozen content against the build repo's harness-frozen
     record (exceptions applied) or, without that tag, a record made from the build repo's HEAD.
-    Writes the record as the public repository's own harness-frozen tag, with the public
-    checkpoint trees (whole-tree ids differ between the two repositories by design)."""
+    Only with a real freeze record (the build repo's tag) is the record written as the public
+    repository's own harness-frozen tag, with the public checkpoint trees (whole-tree ids differ
+    between the two repositories by design); a HEAD record is compared, never tagged."""
     from shipharness import freeze
     from shipharness.config import Settings
 
@@ -1111,6 +1125,8 @@ def frozen_check(repo: Path, ref: str, public: Path) -> FrozenResult:
     paths = {p: f"content differs: {p}" not in found for p in record["frozen_paths"]}
     prefix = "checkpoint content differs: "
     differs = sorted(f[len(prefix) :] for f in found if f.startswith(prefix))
+    if basis != "tag":
+        return FrozenResult(basis, paths, differs, None, [])
     own = {
         **record,
         "checkpoint_trees": freeze.checkpoint_trees(public),
@@ -1121,14 +1137,29 @@ def frozen_check(repo: Path, ref: str, public: Path) -> FrozenResult:
     return FrozenResult(basis, paths, differs, commit, freeze.compare_content(public, written))
 
 
-def push_commands(public: Path, tags: Iterable[str]) -> list[str]:
+def class_tag(public: Path, commit: str) -> ClassTagResult:
+    """The annotated class-v1 release tag on the public commit: the owner's sentence and a record
+    of the content hashes, checkpoint trees, and run settings computed in the public repository
+    (code defaults; `.env` is never read). Its own check runs `shipharness verify` logic on it."""
+    from shipharness import freeze
+    from shipharness.config import Settings
+
+    record = freeze.class_record(public, Settings(_env_file=None))
+    at = freeze.write_class_tag(public, record, identity=(AUTHOR_NAME, AUTHOR_EMAIL), target=commit)
+    _, found = freeze.verify_copy(public, freeze.CLASS_TAG)
+    return ClassTagResult(at, len(record["paths"]), len(record["checkpoint_trees"]), found)
+
+
+def push_commands(public: Path, tags: Iterable[str], *, harness_frozen: bool = False) -> list[str]:
     """What the owner's release step runs after a final yes (printed here, never executed)."""
-    refs = " ".join(f"refs/tags/{t}" for t in sorted(tags))
+    refs = [f"refs/tags/{t}" for t in sorted(tags)] + ["refs/tags/class-v1"]
+    if harness_frozen:
+        refs.append("refs/tags/harness-frozen")
     return [
         f"cd {public}",
         f"git remote add origin https://github.com/{TARGET}.git",
         "git push origin main",
-        f"git push origin {refs} refs/tags/harness-frozen",
+        f"git push origin {' '.join(refs)}",
     ]
 
 
@@ -1148,7 +1179,8 @@ def write_tree(repo: Path, entries: Mapping[str, Entry], dest: Path) -> None:
 
 def assemble(repo: Path, report: Report, dest: Path) -> Release:
     """Write the public repository into `dest` (empty or new): one commit, the rebuilt checkpoint
-    tags, and the harness-frozen record tag. Nothing outside `dest` is changed."""
+    tags, the class-v1 release tag, and the harness-frozen record tag only when the build
+    repository has a freeze record. Nothing outside `dest` is changed."""
     dest = Path(dest)
     if dest.exists() and any(dest.iterdir()):
         raise ReleaseError(f"{dest} exists and is not empty")
@@ -1183,6 +1215,7 @@ def assemble(repo: Path, report: Report, dest: Path) -> Release:
 
     checkpoints = compare_checkpoints(repo, dest, keep)
     frozen = frozen_check(repo, report.ref, dest)
+    release_tag = class_tag(dest, commit)
     return Release(
         report=report,
         public=dest,
@@ -1192,8 +1225,9 @@ def assemble(repo: Path, report: Report, dest: Path) -> Release:
         tree_leaks=leaks(in_tags),
         checkpoints=checkpoints,
         frozen=frozen,
+        class_tag=release_tag,
         missing=missing_expected(public_files),
-        push=push_commands(dest, tags),
+        push=push_commands(dest, tags, harness_frozen=frozen.record_commit is not None),
     )
 
 
@@ -1274,7 +1308,7 @@ def render(rel: Release, list_file: str, references_file: str) -> str:
     basis = (
         "the build repository's harness-frozen record, exceptions applied"
         if f.basis == "tag"
-        else "no harness-frozen tag yet: a record made from the build repository's HEAD"
+        else "no freeze record: the content of the build repository's HEAD"
     )
     bad = [p for p, ok in f.paths.items() if not ok]
     w(f"== 6. Frozen content: {'PASS' if not bad else 'FAIL'} against {basis}")
@@ -1285,11 +1319,20 @@ def render(rel: Release, list_file: str, references_file: str) -> str:
             f"   record checkpoint trees (whole-tree ids) not equal in the public repo: "
             f"{len(f.checkpoint_differs)} ({', '.join(f.checkpoint_differs)}); see section 5"
         )
-    w(f"   public harness-frozen tag written at {f.record_commit[:12]} with the public")
+    if f.record_commit is None:
+        w("   harness-frozen: not written (no freeze record in the build repository)")
+    else:
+        w(f"   public harness-frozen tag written at {f.record_commit[:12]} with the public")
+        w(
+            "   checkpoint trees; its own check: "
+            + ("PASS" if not f.self_check else "; ".join(f.self_check))
+        )
+    c = rel.class_tag
     w(
-        "   checkpoint trees; its own check: "
-        + ("PASS" if not f.self_check else "; ".join(f.self_check))
+        f"   class-v1 tag written at {c.commit[:12]}; its own check: "
+        + ("PASS" if not c.self_check else "; ".join(c.self_check))
     )
+    w(f"   (record: {c.paths} content hashes, {c.checkpoint_trees} checkpoint trees, run settings)")
     w("")
     w(f"== 7. Target: {TARGET} (recreated empty by the owner; nothing is pushed by this script)")
     w("   push commands for the owner's release step (printed, never executed):")

@@ -142,3 +142,71 @@ def test_the_tag_message_cites_no_private_build_document() -> None:
     message = _message({"content_hashes": {}})
     # Private build documents, not included in the public release:
     assert "DESIGN" not in message and "VERIFICATION" not in message  # not included in the release
+
+
+# -- class-v1: the release tag without an experiment freeze ----------------------------------------
+
+CLASS_SENTENCE = (
+    "Class version 1: the code, datasets, and settings used for the class. No experiment freeze; "
+    "the pilot gate did not pass (see the course notes)."
+)
+
+
+def class_tagged(tmp_path: Path) -> Path:
+    repo = make_repo(tmp_path)
+    record = freeze.class_record(repo, Settings(_env_file=None))
+    freeze.write_class_tag(repo, record, identity=("ANI-IN", "a@b.invalid"))
+    return repo
+
+
+def test_class_tag_message_is_the_owner_sentence_then_the_record(tmp_path: Path) -> None:
+    repo = class_tagged(tmp_path)
+    assert freeze.CLASS_TAG == "class-v1"
+    assert freeze.CLASS_MESSAGE == CLASS_SENTENCE
+    message = git(repo, "tag", "--list", "class-v1", "--format=%(contents)")
+    first, blank, marker = message.splitlines()[:3]
+    assert (first, blank, marker) == (CLASS_SENTENCE, "", "class-record:")
+    assert git(repo, "tag", "--list", "class-v1", "--format=%(taggername)") == "ANI-IN"
+    assert git(repo, "rev-parse", "class-v1^{commit}") == git(repo, "rev-parse", "HEAD")
+    assert freeze.read_record(repo) is None  # no harness-frozen tag: no freeze
+
+
+def test_class_record_holds_hashes_checkpoint_trees_and_run_settings(tmp_path: Path) -> None:
+    repo = class_tagged(tmp_path)
+    record = freeze.read_tag_record(repo, freeze.CLASS_TAG)
+    assert record is not None
+    assert record["paths"] == list(freeze.FROZEN_PATHS)
+    assert record["content_hashes"] == freeze.content_hashes(repo, freeze.FROZEN_PATHS)
+    assert record["checkpoint_trees"] == {
+        "m1-s1-start": git(repo, "rev-parse", "m1-s1-start^{tree}")
+    }
+    assert record["run_settings"]["run_timeout_s"] == 300
+    assert "openai_api_key" not in json.dumps(record)
+    assert freeze.read_tag_record(repo, "no-such-tag") is None
+
+
+def test_class_tag_is_refused_when_it_already_exists(tmp_path: Path) -> None:
+    import pytest
+
+    repo = class_tagged(tmp_path)
+    with pytest.raises(freeze.FreezeError, match="exists"):
+        freeze.write_class_tag(repo, {"paths": []}, identity=("t", "t@t"))
+
+
+def test_verify_copy_matches_then_names_each_difference(tmp_path: Path) -> None:
+    repo = class_tagged(tmp_path)
+    record, found = freeze.verify_copy(repo, freeze.CLASS_TAG)
+    assert record is not None and found == []
+    (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 2\n", encoding="utf-8")
+    (repo / "src" / "shipharness" / "console" / "app.py").write_text("B = 2\n", encoding="utf-8")
+    git(repo, "tag", "-d", "m1-s1-start")
+    _, found = freeze.verify_copy(repo, freeze.CLASS_TAG)
+    assert found == [
+        "content differs: src/shipharness/runner",
+        "checkpoint tag missing: m1-s1-start (run git fetch --tags)",
+    ]
+
+
+def test_verify_copy_without_the_tag_returns_no_record(tmp_path: Path) -> None:
+    repo = make_repo(tmp_path)
+    assert freeze.verify_copy(repo, freeze.CLASS_TAG) == (None, [])

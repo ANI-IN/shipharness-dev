@@ -609,10 +609,10 @@ def test_dry_run_builds_one_commit_rebuilds_the_tags_and_writes_the_record(
     assert _git(public, "rev-list", "--count", "HEAD") == "1"
     assert _git(public, "remote") == ""
     assert sorted(_git(public, "tag", "--list").split()) == [
-        "harness-frozen",
+        "class-v1",
         "m1-s1-start",
         "m1-s2-start",
-    ]
+    ]  # no harness-frozen: the build repository has no freeze record
     assert "REFERENCES.md" in rel.public_files
     assert "DESIGN.md" not in rel.public_files
     assert rel.tree_leaks == []
@@ -623,11 +623,42 @@ def test_dry_run_builds_one_commit_rebuilds_the_tags_and_writes_the_record(
         assert not c.full_match  # the build tree also holds the private files
     assert rel.frozen.basis == "head"
     assert rel.frozen.paths and all(rel.frozen.paths.values())
-    assert rel.frozen.self_check == []
-    record = freeze.read_record(public)
-    assert record is not None
-    assert record["checkpoint_trees"] == freeze.checkpoint_trees(public)
+    assert rel.frozen.record_commit is None
+    assert freeze.read_record(public) is None
+    assert "refs/tags/harness-frozen" not in rel.push[-1]
     assert rel.failures() == []
+
+
+def test_without_a_freeze_record_the_report_says_harness_frozen_was_not_written(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    text = mr.render(rel, "files.txt", "REFERENCES.md")
+    assert "harness-frozen: not written (no freeze record in the build repository)" in text
+    assert f"class-v1 tag written at {rel.commit[:12]}; its own check: PASS" in text
+
+
+def test_dry_run_writes_the_class_v1_tag_with_its_record(mini_repo: Path, tmp_path: Path) -> None:
+    from shipharness import freeze
+    from shipharness.config import Settings
+
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    public = rel.public
+    assert _git(public, "rev-parse", "class-v1^{commit}") == rel.commit
+    assert _git(public, "cat-file", "-t", "class-v1") == "tag"  # annotated
+    tagger = _git(public, "tag", "--list", "class-v1", "--format=%(taggername) %(taggeremail)")
+    assert tagger == f"{mr.AUTHOR_NAME} <{mr.AUTHOR_EMAIL}>"
+    message = _git(public, "tag", "--list", "class-v1", "--format=%(contents)")
+    assert message.startswith(freeze.CLASS_MESSAGE + "\n\nclass-record:\n")
+    record = freeze.read_tag_record(public, "class-v1")
+    assert record is not None
+    assert record["content_hashes"] == freeze.content_hashes(public, freeze.FROZEN_PATHS)
+    assert record["checkpoint_trees"] == freeze.checkpoint_trees(public)
+    assert sorted(record["checkpoint_trees"]) == ["m1-s1-start", "m1-s2-start"]
+    assert record["run_settings"] == freeze.run_settings(Settings(_env_file=None))  # no .env
+    assert rel.class_tag.commit == rel.commit
+    assert rel.class_tag.self_check == []
+    assert "refs/tags/class-v1" in rel.push[-1]
 
 
 def test_dry_run_compares_against_the_build_repo_freeze_tag_when_it_exists(
@@ -640,6 +671,14 @@ def test_dry_run_compares_against_the_build_repo_freeze_tag_when_it_exists(
     rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
     assert rel.frozen.basis == "tag"
     assert all(rel.frozen.paths.values())
+    public = rel.public
+    assert {"harness-frozen", "class-v1"} <= set(_git(public, "tag", "--list").split())
+    assert rel.frozen.record_commit == rel.commit
+    assert rel.frozen.self_check == []
+    record = freeze.read_record(public)
+    assert record is not None
+    assert record["checkpoint_trees"] == freeze.checkpoint_trees(public)
+    assert rel.push[-1].endswith("refs/tags/class-v1 refs/tags/harness-frozen")
 
 
 def test_a_frozen_path_that_differs_fails_the_dry_run(mini_repo: Path, tmp_path: Path) -> None:
@@ -673,7 +712,11 @@ def test_push_commands_are_printed_for_the_target_and_never_run() -> None:
     assert mr.TARGET == "ANI-IN/harness-engineering-session"
     assert "git push origin main" in commands
     assert commands[-1] == (
-        "git push origin refs/tags/m1-s1-start refs/tags/m1-s2-start refs/tags/harness-frozen"
+        "git push origin refs/tags/m1-s1-start refs/tags/m1-s2-start refs/tags/class-v1"
+    )
+    frozen = mr.push_commands(Path("/tmp/pub"), ["m1-s1-start"], harness_frozen=True)
+    assert frozen[-1] == (
+        "git push origin refs/tags/m1-s1-start refs/tags/class-v1 refs/tags/harness-frozen"
     )
 
 
@@ -686,7 +729,7 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
     assert sorted(result.tags) == ["m1-s1-start", "m1-s2-start"]
     assert _git(dest, "rev-parse", "m1-s2-start^") == head
     assert _git(dest, "show", "m1-s2-start:teamtrack/app/x.py") == "a = 1\nb = 2"
-    assert "harness-frozen" in _git(dest, "tag", "--list").split()
+    assert sorted(_git(dest, "tag", "--list").split()) == ["class-v1", *sorted(result.tags)]
     tree = set(_git(dest, "ls-files").split())
     assert {"README.md", "REFERENCES.md", "src/pkg/later.py"} <= tree
     assert "teamtrack/tests/hidden/test_h.py" in tree
@@ -743,7 +786,9 @@ def test_dry_run_cli_reports_broken_references_without_failing(
     assert "tests/unit/test_pilot.py" in out  # the excluded-tests list
     assert "ANI-IN/harness-engineering-session" in out
     assert "git push origin main" in out
-    assert "harness-frozen" in out
+    assert "harness-frozen: not written (no freeze record in the build repository)" in out
+    assert "class-v1 tag written at" in out and "refs/tags/class-v1" in out
+    assert "refs/tags/harness-frozen" not in out
     assert "REFERENCES.md" in listing.read_text(encoding="utf-8").split()
 
 
