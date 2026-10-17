@@ -501,6 +501,20 @@ Kit worked example, step 5 rerun after change 20 (`docs/apply-to-your-repo.md`):
   $0.002031) are recorded in that repository's own ledger, so the $15 build cap did not see them; true
   build total = main ledger + $0.006925.
 
+### Release candidate (2026-10-17)
+
+`scripts/make_release.py --build ~/rc-build` from main c288c28: its own verification in the built
+repository passed (`uv run --frozen pytest -q`: 1927 passed, 3 skipped); one commit 2102016 by ANI-IN, 877
+files, tags m1-s1-start .. m1-alt-b (8) and `class-v1`; no `harness-frozen`. Pushed to the private
+repository `ANI-IN/harness-engineering-session-rc` (created through the GitHub API with git's credential;
+the token was never printed or stored). A first push from c04e72a-era tooling had a test-collection
+failure (a release-tool bug: tests importing an excluded test module) and missing deck images; both were
+fixed test-first (8ce90a5, c288c28) and the candidate's single commit and tags were replaced with a force
+push to that private repository, minutes after it was created. Fresh clone: 1 commit, 877 files,
+`uv sync --frozen` ok, `uv run shipharness verify --tag class-v1`: "your copy matches class-v1: 27 paths,
+8 checkpoint trees", fast suite in the clone 2000 passed, 4 skipped. Build-repository tag
+`class-v1-source` marks c288c28.
+
 ### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
 
 Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
