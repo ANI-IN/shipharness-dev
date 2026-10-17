@@ -60,10 +60,26 @@ context before any code was read. No arm opened `app/api/legacy_v1.py`.
 So the canonical ticket hands the bare arm the pointer the map would give it. The course's
 pre-registered next step for a section with no gap is its trap variant: `F1-trap` names
 `app/api/legacy_v1.py` as the place where "a lot of the query code exists" and does not mention the
-handbook (`datasets/teamtrack-features-v1.jsonl`). Pilot run 3 runs it; the class ticket follows
-the course's decision after that run.
+handbook (`datasets/teamtrack-features-v1.jsonl`). Pilot run 3 ran it and run 4 repeated it at
+effort low; the class ticket follows the course's decision after that run.
 
-[[PENDING: F1-trap result of pilot run 3 per arm (runs failing of 3 on r1_new_violations>=1) and one bare-arm R1 finding if any (endpoint, probe, status), with run ids | source: M6 pilot | how: course pilot (build repository)]]
+### What the pilot showed on the trap ticket
+
+Measured in the course pilot, run 3, 2026-10-16, A/Bs `ab-20261016-211419-07937b`,
+`ab-20261016-212745-2c14fb`, and `ab-20261016-214636-c8b3c4` (ticket `F1-trap`, gpt-6-luna at effort
+medium for both arms), and run 4, effort low, 2026-10-16, A/Bs `ab-20261016-232842-b372c2`,
+`ab-20261016-233807-3f34fa`, and `ab-20261016-234639-4a18bd`:
+
+| Run | Arm | Runs failing (`r1_new_violations >= 1`) | New R1 violations per run | Hidden tests per run | Run ids |
+|---|---|---|---|---|---|
+| 3 | bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-211419-8fb5f4`, `r-20261016-212745-a9900c`, `r-20261016-214636-8e13f4` |
+| 3 | harness | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-211419-741ab3`, `r-20261016-212745-8a0bbf`, `r-20261016-214636-53d21a` |
+| 4, effort low | bare | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-232842-1b27e7`, `r-20261016-233807-7f74f1`, `r-20261016-234639-cd17ac` |
+| 4, effort low | harness | 0 of 3 | 0, 0, 0 | 52 of 52 each | `r-20261016-232842-f3515e`, `r-20261016-233807-36c040`, `r-20261016-234639-209fdf` |
+
+No bare arm had a new R1 finding, so there is none to show: the legacy `/v1` handler was not copied
+into a leak in any arm. No measurable difference on this task with this model (course pilot, runs 3
+and 4). Per-run records are in [demo/README.md](demo/README.md) section 7.
 
 ---
 
