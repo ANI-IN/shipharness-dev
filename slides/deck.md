@@ -222,7 +222,7 @@ Reload the console's run list and open the newest run. Stay on screen 1 while th
 Why no live A/B here: before class F1 showed no gap (slide 20), so the class shows the layer at
 work instead, live.
 
-Timing: in a timed run before class (agent time limit then 300 s; now 420 s), the primary verdict
+Timing: in a timed run on 2026-10-17, before class (agent time limit then 300 s; now 420 s), the primary verdict
 came 4:11 after launch and the full verdict 10:00 after launch. Cost $0.0197. Your output will
 differ. Runs: docs/evidence.md, Captures.
 
@@ -471,7 +471,7 @@ notes:
 Continuity failure, the primary measure: R7 fails, a second migration creates the same table, or
 30% or more of session 1's added lines are removed in session 2.
 
-Timing: in a timed run before class (agent time limit then 300 s; now 420 s), the primary verdict
+Timing: in a timed run on 2026-10-17, before class (agent time limit then 300 s; now 420 s), the primary verdict
 came 6:46 after launch and the full verdict 9:52 after launch. Cost $0.0295. It exited 2: session 2
 hit the agent time limit. That is a result, not a broken command. Your output will differ. Runs:
 docs/evidence.md, Captures.
@@ -985,11 +985,11 @@ are live at a time. The class profile is the same for both arms: effort low, the
 per container, the early primary verdict, five flakiness re-runs, and a 420 s agent time limit.
 Final run cap $0.25 per arm.
 
-Timing for show-4: in a timed run before class (agent time limit then 300 s; now 420 s), the primary
+Timing for show-4: in a timed run on 2026-10-17, before class (agent time limit then 300 s; now 420 s), the primary
 verdict came 9:19 after launch and the full verdict 10:55. Cost $0.0265. It exited 2: the agent time
 limit ended the test phase.
 
-Timing for the final: a timed run of `make final FEATURES=F5` before class took 12 min 47 s. The
+Timing for the final: a timed run of `make final FEATURES=F5` on 2026-10-17, before class, took 12 min 47 s. The
 bare arm's verdicts came at 3:27 and 6:50, the harness arm's at 9:48 and 12:32 (it hit the agent
 time limit, exit 2). Cost $0.0456. The final must be finished by 3:40, when slide 64 opens the final
 block. Your output will differ. Runs: docs/evidence.md, Captures.

@@ -36,7 +36,7 @@ Terminal B runs the section demos. Terminal C runs the final.
 After each launch, reload the console's run list and open the newest run. At section minute 25,
 look for the `Cost:` line in terminal B.
 
-Times and costs, measured before class ([evidence](evidence.md#captures)):
+Times and costs, measured on 2026-10-17, before class ([evidence](evidence.md#captures)):
 
 | Run | Primary, then full verdict | Cost | Cap |
 |---|---|---|---|

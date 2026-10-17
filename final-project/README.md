@@ -113,7 +113,7 @@ per arm and $0.04 per review, so at most $0.58 per feature. The class profile gi
 agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`). Prices are in
 `platform/config/prices.toml`.
 
-The course's own F5 run took 12 min 47 s from launch to the cost line and cost $0.045597. It ran
+The course's own F5 run on 2026-10-17 took 12 min 47 s from launch to the cost line and cost $0.045597. It ran
 with the earlier 300 s agent time limit ([evidence](../docs/evidence/final.md#final-project)).
 
 ## What to watch
