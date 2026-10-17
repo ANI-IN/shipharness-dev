@@ -4,16 +4,44 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
-### Class profile, harness in action, warm-up (2026-10-17)
-- `shipharness ab --profile standard|class`: the class profile (reasoning effort low, 2 CPUs per arm
-  and referee container, OpenAI Fast tier for the agent arms) is identical for both arms and used by
-  `make demo-N`, `make show-N`, and `make final` (`PROFILE ?= class`); pilot runs keep standard.
-- Fast tier pricing: each call is charged by the tier its response reports, the worst case held
-  before a call uses the requested tier, and the ledger records the reported tier.
-- `shipharness ab --arms harness` and `make show-N`: the harness arm alone, judged by the referee and
-  left out of every bare-vs-harness comparison and of swap tests.
+### Class profile, class plan, starter kit, slides (2026-10-17)
+- `shipharness ab --profile standard|class`: the class profile (reasoning effort low, 2 CPUs per arm,
+  referee, and preview container, OpenAI Fast tier for the agent arms) is identical for both arms and
+  used by `make demo-N`, `make show-N`, `make final`, and `make warm` (`PROFILE ?= class`); pilot and
+  experiment runs keep standard. The reviewer keeps its own settings and the Standard tier.
+- Fast tier pricing: `config/prices.toml` has a `.fast` table for gpt-6-luna (twice the Standard
+  token rates); each call is charged by the tier its response reports, so a downgraded request costs
+  the Standard rate; the worst case held before a call uses the requested tier, and the ledger
+  records the reported tier.
+- Early primary verdict: the referee runs the checks a task's primary measure needs first and emits
+  `primary_verdict` per arm; the console shows "primary verdict ready" with the time from launch, and
+  the secondary checks follow. Measurement change for both arms with no outcome change.
+- Flakiness re-runs of shipped tests: 5 instead of 10 (TestGen-LLM's "five executions"); a
+  secondary measurement change for both arms (`flaky_tests` from earlier records counts 10).
+- Runner rule for both arms: before the last build session, `finish(claim="not_done")` ends only that
+  session, and the next session starts as after a spent turn budget (pilot run 3 had harness arms end
+  the build phase after a 12-turn first session).
+- `shipharness ab --arms harness` and `make show-N`: the harness arm alone ("harness in action"),
+  judged by the referee and left out of every bare-vs-harness comparison, screen 4, and swap tests;
+  `make replay` replays such runs.
 - `make warm`: images rebuilt only when their source changed, containers paged in, and the referee
   and gate baselines of the class tasks cached, with no model calls.
+- `shipharness ab` exits 2 when an arm was aborted (cost cap or time limit); the run is still judged.
+- Constructed examples (`make example-N`): scripted steps with no model and a "CONSTRUCTED EXAMPLE"
+  badge on every console screen, one per section.
+- Class plan: the pre-registered pilot gate did not pass (no measurable difference on this task with
+  this model in any section), so S1 to S4 show harness in action, a pilot run replayed, and a
+  constructed example; the final keeps one live A/B; one slide and console screen 4 show every
+  result. Screen 4 groups dots by feature and leaves out records of an older referee version.
+- Starter kit: `kit/` and `shipharness init --target <repo>` (and `--check`) copy TeamTrack's harness
+  as templates with REPLACE markers, deterministically, with a worked example on three boltons
+  modules and the guide `docs/apply-to-your-repo.md`.
+- Feature steps: a dataset line without `steps` lets the state and scope layers take the ticket's
+  bullet lines or its title (harness arm only).
+- `make slides`: `scripts/build_slides.py` validates `slides/deck.md` and writes HTML, PDF, and PPTX
+  with speaker notes; `SLIDES_OPTS=--check` or `--strict`.
+- Documentation: README, instructor guide and run sheet, troubleshooting, final project, and after
+  class updated for the class plan, the pilot results, and the class-profile round.
 
 ### M6 pilot fixes (2026-10-16)
 - Trace projects by purpose: class runs only in `shipharness-class-<date>` with an explicit class

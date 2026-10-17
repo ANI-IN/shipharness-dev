@@ -7,8 +7,9 @@ block looks out of date, the file wins: print the current lines with
 line numbers. `uv run python scripts/anchors.py check` fails if an anchor is missing, unbalanced, or
 longer than 40 lines.
 
-Status: M11 draft. Talking points cite RESEARCH.md source and finding ids. Line numbers in the
-headings include the two marker lines.
+Talking points cite RESEARCH.md source and finding ids. Line numbers in the headings include the two
+marker lines; when they drift, `uv run python scripts/anchors.py list` has the current ones. In class
+the walkthrough runs while `make show-N` goes on (run sheet, section pattern).
 
 How to show code in class: open the file in the editor at the start marker (search for
 `[walkthrough:<id>] start`), font size large enough for the back row, and walk top to bottom. Slides

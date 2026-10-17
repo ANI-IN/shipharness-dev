@@ -3,10 +3,13 @@
 This walkthrough takes you through one complete shipharness run on TeamTrack, from a clean checkout
 to the score records, shows how to read what it produces, and then points the same tools at your own
 repository. In class, the final feature poll opens S4, `make final FEATURES=...` runs during S4 next
-to `make demo-4`, and the closing block (Final and wrap-up, 20 minutes) walks through its finished
-results: all screens, screen 4 and the report, the LangSmith comparison, skills to take home, and the
-assignments. This page is written so you can repeat the run alone afterwards. What you produce in
-part 6 is the raw material for the assignment 4 portfolio (part 8).
+to `make show-4` (the harness arm alone on F4), and the closing block (Final and wrap-up, 20 minutes)
+walks through its finished results: all screens, screen 4 next to the course pilot's results, skills
+and the starter kit to take home, and the assignments. The final is the class's one live A/B: the
+sections show the harness arm alone, because the course pilot found no measurable difference between
+the arms on any section's primary measure ([README, section 4](../README.md#4-how-the-course-measures-it)).
+This page is written so you can repeat the run alone afterwards. What you produce in part 6 is the raw
+material for the assignment 4 portfolio (part 8).
 
 The harness is the environment around the agent. The course uses A1's description of that work:
 engineers "design environments, specify intent, and build feedback loops" (A1, F-a-02). A1 does not
@@ -78,13 +81,19 @@ make final FEATURES=F5,F6     # terminal 2: the features the poll chose
 ```
 
 `FEATURES` is a comma-separated list; the default is `F5,F6`. `make final` runs one A/B per
-feature, one after the other. What it runs (from `make -n final FEATURES=F6,F5`):
+feature, one after the other. What it runs (the `final` recipe in the `Makefile`, with
+`FEATURES=F6,F5` and the defaults `PURPOSE=class` and `PROFILE=class`):
 
 ```
 rc=0; for f in $(echo "F6,F5" | tr ',' ' '); do \
-  uv run shipharness ab --section final --feature $f  --purpose class || rc=$?; \
+  uv run shipharness ab --section final --feature $f  --purpose class \
+    --profile class || rc=$?; \
 done; exit $rc
 ```
+
+`--profile class` is the class profile, identical for both arms: reasoning effort `low`, 2 CPUs per
+arm and referee container, and the agent's model calls at OpenAI's Fast tier (twice the Standard
+token rate; prices in part 7). `PROFILE=standard` runs the settings in your `.env` instead.
 
 Every feature runs even if an earlier one fails, and the exit code is the last non-zero one.
 `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm, the same
@@ -94,10 +103,10 @@ traces to the `shipharness-assignments` LangSmith project instead of the class p
 `shipharness ab` checks your OpenAI key before any arm starts and refuses when it is missing or
 rejected. It never falls back to a recorded run; replays are a separate command and are labelled.
 
-In class the instructor starts `make final` in a third terminal one minute after `make demo-4`, at
-the start of S4, so the final A/B runs while S4 is taught. Two A/Bs run at once, demo-4 and one
-final feature; because `make final` runs its features one after another, there are never more
-than two. The results are discussed in the closing block.
+In class the instructor starts `make final` in a third terminal one minute after `make show-4`, at
+the start of S4, so the final A/B runs while S4 is taught. Two runs go at once, show-4 (one arm) and
+one final feature (two arms); because `make final` runs its features one after another, there are
+never more. The results are discussed in the closing block.
 
 What one A/B does:
 
@@ -117,9 +126,10 @@ flowchart LR
 3. Both arms build the feature, then write tests, in parallel. The agent loop runs on your machine;
    only tool commands run in the containers, and no API key enters a container.
 4. The referee judges each arm's diff in its own container on a fresh copy of the checkpoint, as soon
-   as that arm ends: existing tests, house-rule probes R1-R7, hidden tests, referee-set mutants
-   against the arm's shipped tests, five re-runs for flakiness, board checks, and the blinded
-   reviewer.
+   as that arm ends. It runs the checks the primary measure needs first and announces the primary
+   verdict (screen 1 shows "primary verdict ready"), then the rest: existing tests, house-rule probes
+   R1-R7, hidden tests, referee-set mutants against the arm's shipped tests, five re-runs for
+   flakiness, board checks, and the blinded reviewer.
 5. One score record per arm is written to `exports/scores/<run_id>.json`, and the terminal prints one
    line per arm and a cost line.
 
@@ -128,7 +138,12 @@ values and `passed` flag, `hidden <passed>/<total>`, `mutants <killed>/<total>`,
 verdict, and the arm's cost (`_print_record` in `src/shipharness/ab/commands.py`). The last line is
 `Cost: $<x> (this command: <costs per model>; session $<x> of $2.50; build $<x> of $15.00 (...))`.
 
-[[PENDING: captured terminal output of `make final FEATURES=F5,F6` (A/B ids, per-arm lines, cost lines) | source: live class | how: make final FEATURES=F5,F6, saving the full terminal output]]
+The course ran one final feature with the class profile on 2026-10-17; its output:
+
+[[CAPTURE: terminal output of make final FEATURES=F5 (class profile): the A/B line, both arm lines, and the Cost line | how: make final FEATURES=F5 PURPOSE=pilot]]
+
+If an arm is aborted (cost cap or agent time limit), the run is still judged and shown, and the
+command exits 2, which make reports as `Error 2` after the cost line.
 
 The architecture behind these steps is in [docs/architecture.md](../docs/architecture.md).
 
@@ -139,7 +154,10 @@ carries a red RECORDING badge; the recorded diff is applied and the referee runs
 
 Open http://127.0.0.1:8765/ and click the newest run (ids start with a time stamp). Keys `1` to `5`
 switch screens; `F` cycles full screen for one arm. The screens are built only from the run log's
-events and from `exports/`.
+events and from `exports/`. One screenshot per screen, from the course's F5 run with the class
+profile:
+
+[[CAPTURE: one screenshot each of screens 1 to 5 of the make final FEATURES=F5 A/B (class profile), 1920x1080, after the referee finished | how: make console, open the A/B of make final FEATURES=F5 PURPOSE=pilot, press 1 to 5]]
 
 ### Screen 1: Live Console
 
@@ -159,17 +177,18 @@ Both arms side by side. For each arm:
 - **Agent said vs Referee:** the agent's claim next to the referee's verdict, and whether the claim is
   supported. This is the gap cause 4 describes: "agents reliably skew positive when grading their
   own work" (A3, F-a-15).
-
-[[PENDING: screenshot of screen 1 during the final (both arms, F6 session stop marker visible) | source: live class | how: make console, open the final A/B, press 1, capture at 1920x1080]]
+- **Primary verdict ready:** a `primary verdict ready: PASS` or `FAIL` pill as soon as the referee
+  has the primary measure, with the time from launch, before the secondary checks finish. F5-F7 have
+  no primary measure, so read part 5.1 before you trust a PASS on them.
 
 ### Screen 2: Boards
 
 A screenshot of each arm's running TeamTrack board, taken as an Acme user every 5 s by the arm's
 preview container. Cards from another org are marked `⚠ other org`, duplicate cards `⧉ duplicate`; a
 clean board says "only own-org cards, no duplicates". If a run captured a two-tab edit, a third panel
-shows it (`✗ lost update` or `✓ conflict detected`).
-
-[[PENDING: screenshot of screen 2 during the final (both boards) | source: live class | how: make console, open the final A/B, press 2, capture at 1920x1080]]
+shows it (`✗ lost update` or `✓ conflict detected`). In the course pilot no arm leaked another org's
+cards, so the `⚠ other org` mark has not appeared in a real run; S1's constructed example
+(`make example-1`) shows it.
 
 ### Screen 3: Evidence
 
@@ -185,23 +204,21 @@ Three panels, each split by arm:
   `✗ discarded` with the reason), the coverage count for filter 3, and the mutant table (filter set
   and referee set, `✓ killed` or `✗ survived`).
 
-[[PENDING: screenshot of screen 3 after the referee finished (filter table and mutant matrix visible) | source: live class | how: make console, open the final A/B, press 3, capture at 1920x1080]]
-
 ### Screen 4: A/B Report
 
 Read from `exports/`, so it includes every scored run there, not only tonight's:
 
-- **Primary measures, one dot per run:** rows grouped by dataset variant (for example `CANONICAL`)
-  and arm, with the layers, one dot per run (`●` passed, `○` failed), and a passed count in the form
-  `<passed>/<runs>`. Rows are not split by feature: every canonical run of one arm, from any
-  feature, lands in the same row.
-- **Ablation:** one bar per layer combination with its count.
+- **Primary measures, one dot per run:** one row per feature, dataset variant (for example
+  `CANONICAL`), and arm, with the layers, one dot per run (`●` passed, `○` failed), and a passed count
+  in the form `<passed>/<runs>`. Score records made by an older referee version and harness-in-action
+  runs (`make show-N`, one arm only) are left out; the screen says how many.
+- **Ablation:** one bar per layer combination with its count, from leave-one-layer-out runs. The
+  course's own ablation batch was not run (part 5.3), so this panel is empty unless you run
+  `make demo-N LAYERS=-<layer>` yourself.
 - **Cost per verified feature:** spend divided by runs that passed, per arm.
 - **Reviewer agreement:** how often the blinded reviewer's verdict matched the referee's, as a count.
 - **LangSmith:** experiment links and comparison links from `exports/experiments/`. A `make final`
   A/B does not create a comparison link itself; comparison links come from `shipharness experiments`.
-
-[[PENDING: screenshot of screen 4 after the final, with the M8 experiment exports loaded | source: M8 batch 1 | how: make console, open the final A/B, press 4, capture at 1920x1080]]
 
 ### Screen 5: Traces
 
@@ -211,8 +228,6 @@ Read from `exports/`, so it includes every scored run there, not only tonight's:
   failed gate.
 - **LangSmith:** the agent and referee trace links for each arm. A3's advice to the harness builder
   is to "read its traces on realistic problems" (A3, F-a-126).
-
-[[PENDING: screenshot of screen 5 for one final arm with a first wrong turn marked | source: live class | how: make console, open the final A/B, press 5, capture at 1920x1080]]
 
 ## 5. How to read the results
 
@@ -328,9 +343,22 @@ Rules for reading it:
 - Each section has one primary measure, registered before any run. Everything else is secondary.
 
 Replays are left out unless you pass `--include-recorded`. Model output varies between runs, so a
-single live A/B is one dot: read it next to the experiment dots, never alone.
+single live A/B is one dot: read it next to the course pilot's dots, never alone.
 
-[[PENDING: report.html dot plots for F1-F4 from the headline batch (k=10 per arm) | source: M8 batch 1 | how: uv run shipharness experiments --split section-N --k 10 --reviewer --batch batch-1 for N = 1 to 4 (options: uv run shipharness experiments --help), then uv run shipharness report]]
+The course pilot's dots for F1-F4, primary measure passed per run, bare / harness, are below. The
+headline batch with k=10 per arm (and the ablation and control-task batches) was not run, because the
+pre-registered gate before it did not pass: the harness arm was ahead in none of the four sections.
+
+| Feature | Pilot run 3, effort medium (k=3) | Pilot run 4, effort low (k=3) | Class-profile round (k=1) |
+|---|---|---|---|
+| F1, legacy-pattern ticket | bare ●●●, harness ●●● | bare ●●●, harness ●●● | bare ●, harness ● (`ab-20261017-084558-0356a0`) |
+| F2, first session 12 turns, then 38 | bare ●●●, harness ●●● | bare ●●●, harness ●●● | bare ●, harness ● (`ab-20261017-085139-7c0661`) |
+| F3, tempting-middleware ticket | bare ●●●, harness ●●● | bare ●●●, harness ●●● | bare ●, harness ● (`ab-20261017-090051-91f837`) |
+| F4, canonical ticket | bare ○○○, harness ○○○ | not run | bare ○, harness ○ (`ab-20261017-090903-926c02`) |
+
+Every section: no measurable difference on this task with this model. The run 3 and run 4 A/B ids
+are listed in the [README, section 4](../README.md#4-how-the-course-measures-it), with the post hoc
+counts (measures chosen after the results; descriptive).
 
 ## 6. Run shipharness on your own repository
 
@@ -468,14 +496,19 @@ and a run that hits one ends as `ABORTED: cap` and is still scored):
 
 Worst case at the caps, per final feature: 2 arms × $0.25 + 2 reviews × $0.04 = $0.58. So
 `FEATURES=F5,F6` is at most $1.16, and all three features at most $1.74, which fits a session in which
-you ran nothing else. In class, four demos (at most $0.48 each with reviews) and one final feature
-reach the $2.50 session cap at the caps; the cap then ends a run cleanly and the referee still scores
-it. Prices are in `config/prices.toml` (gpt-6-luna: $0.10 input, $0.01 cached input, $0.125 cache
-write, $0.50 output per 1M tokens; gpt-5.6-luna, the reviewer: $0.20, $0.02, $0.25, $1.20).
+you ran nothing else. In class, four `make show-N` runs (at most $0.24 each with the review) and two
+final features stay under the $2.50 session cap at the caps (at most $2.12); a cap that is reached
+ends a run cleanly and the referee still scores it. Prices are in `config/prices.toml`, per 1M tokens:
+gpt-6-luna at the Standard tier $0.10 input, $0.01 cached input, $0.125 cache write, $0.50 output, and
+at the Fast tier, which the class profile uses for the agent's calls, $0.20, $0.02, $0.25, $1.00;
+gpt-5.6-luna, the reviewer, $0.20, $0.02, $0.25, $1.20 (Standard tier only). Each call is charged by
+the tier its response reports.
 
-Measured so far: the course pilot's run 2 on 2026-10-16 spent $0.3966 on 12 section A/Bs (F1-F4,
-three each, both arms and reviews), and every one of those A/Bs took between 485 and 923 s from the
-first event to the last verdict, with two A/Bs running at a time.
+Measured so far, with the class profile: the course's class-profile round on 2026-10-17 ran one
+section A/B for each of F1-F4, one at a time, for $0.1953 in total (agents $0.1689 at the Fast tier,
+reviews $0.0263), and every one of those A/Bs finished within 927 s of launch (A/Bs
+`ab-20261017-084558-0356a0`, `ab-20261017-085139-7c0661`, `ab-20261017-090051-91f837`,
+`ab-20261017-090903-926c02`). No F5-F7 A/B ran in the pilot or that round.
 
 | Command | Model cost | LangSmith traces |
 |---|---|---|
@@ -486,11 +519,15 @@ first event to the last verdict, with two A/Bs running at a time.
 The agent and harness time limits apply per arm, and the arms run in parallel; referee time comes on
 top of both.
 
-[[PENDING: measured cost per final feature (both arms + reviews) for F5, F6, F7 | source: live class | how: make final FEATURES=F5,F6,F7, read the Cost lines and cost_usd + review_cost_usd in exports/scores]]
+The measured cost and time of one final feature, F5 with the class profile (F6 and F7 have not been
+measured):
 
-[[PENDING: measured wall time per final feature, from start to referee verdict | source: live class | how: time make final FEATURES=F5 (and F6, F7); wall_s in exports/scores for the agent part]]
+[[CAPTURE: cost per arm and per review, the Cost line, and the wall time from launch to the Cost line of make final FEATURES=F5 (class profile) | how: time make final FEATURES=F5 PURPOSE=pilot]]
 
-[[PENDING: measured cost and wall time of one shipharness testgen run on a library target | source: live class | how: time uv run shipharness testgen --target TG-boltons-listutils --layers verify]]
+The measured cost and time of one `shipharness testgen` run on a small library, the worked example in
+[docs/apply-to-your-repo.md](../docs/apply-to-your-repo.md) (three proposed tests, a $0.10 cap):
+
+[[CAPTURE: Cost line and wall time of the worked example's testgen run | how: cd /tmp/boltons-queueutils && time MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
 
 ## 8. Portfolio: how this feeds assignment 4
 

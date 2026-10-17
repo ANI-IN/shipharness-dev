@@ -4,11 +4,9 @@ Plan for the review of the four assignments: about 25 minutes per assignment (ex
 solution walkthrough, common mistakes, discussion questions), then 20 minutes of open questions. The
 A3 hidden diffs are revealed in this session.
 
-Status: M11 draft. The assignments are being written in parallel (milestone M7). This guide refers to
-their folders by path only; details they define (grading criteria weights, starter TODOs, solution
-notes, the A3 hidden diffs, the commands each assignment uses) are `[[PENDING]]` and filled in after
-M7. The "likely mistakes" lists below come from the design and the section concepts; replace or
-extend them with each assignment README's "Common mistakes" section and with what the grader saw.
+The "likely mistakes" lists below come from the design, the section concepts, and each solution's
+`SOLUTION_NOTES.md`; extend them with each assignment README's "Common mistakes" section and with
+what the grader saw.
 
 | Assignment | Brief and grading criteria | Starter | Solution | Self-check | Grader |
 |---|---|---|---|---|---|
@@ -17,8 +15,13 @@ extend them with each assignment README's "Common mistakes" section and with wha
 | A3 Scope and sandbox | `submodules/03-scope-sandbox/assignment/README.md` | `submodules/03-scope-sandbox/assignment/starter/` | `submodules/03-scope-sandbox/solution/` | `make check-assignment-3` | `make grade-assignment-3` |
 | A4 Verification and portfolio | `submodules/04-verification/assignment/README.md` | `submodules/04-verification/assignment/starter/` | `submodules/04-verification/solution/` | `make check-assignment-4` | `make grade-assignment-4` |
 
-The `check-assignment-N` and `grade-assignment-N` targets print "available after milestone M7" until
-the assignment builders' rules are added to the Makefile.
+`make check-assignment-N` is the learner's offline self-check. `make grade-assignment-N
+SUBMISSION=<folder or git URL>` runs the private grader in `submodules/0N-*/solution/grader/`; in the
+learner repository it stops with `no grader for assignment N: graders are private (build repository
+only)`. Reference scores (each solution's `captured/grade-solution.txt`, captured 2026-10-17): A1
+83/100, A2 90/100, A3 90/100 (FAIL: valid live evidence is a pass condition), A4 100/100 (20 of those
+points pass on pending markers accepted for the reference folder only). Every lost or
+marker-held point is the reference solution's live run, which had not been captured on that date.
 
 ## Agenda
 
@@ -33,10 +36,9 @@ the assignment builders' rules are added to the Makefile.
 Each 25-minute block: expected approach (5), solution walkthrough (8), common mistakes (5),
 discussion (7). For A3 the reveal takes the walkthrough slot plus part of the mistakes slot.
 
-Before the session: run each grader on the reference solution and collect the class's grader output
-(score per criterion), so the mistakes discussion uses real counts.
-
-[[PENDING: grader score distribution per assignment and per criterion for this cohort | source: live class | how: make grade-assignment-N on each submission]]
+Before the session: run each grader on the reference solution and on every submission, and tally the
+output per criterion: how many submissions lost points on it, and its most common message. The
+mistakes discussion uses those counts, not impressions. Bring the tally as one table per assignment.
 
 ---
 
@@ -60,10 +62,17 @@ an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner 
 - The A/B keeps everything equal except the instructions layer and reports counts per arm, not
   percentages (DESIGN §8.3 rule 5).
 
-**Solution walkthrough (8 min).** Open `submodules/01-instructions/solution/` and walk the map, one
-doc, the skill, and the checker.
-
-[[PENDING: A1 solution files to open, and the reference A/B result on section-1 (k=3) | source: M7 A1 builder | how: submodules/01-instructions/solution/ and its notes]]
+**Solution walkthrough (8 min).** Open `submodules/01-instructions/solution/` and walk, in this
+order: `work/instructions/AGENTS.md` (the map), `work/instructions/ARCHITECTURE.md`, one document
+under `work/instructions/docs/` (`SECURITY.md` holds R1), the `add-list-endpoint` skill (`work/instructions/.agents/skills/add-list-endpoint/SKILL.md`), and the
+checker `work/checker/check_docs.py` with its tests `work/checker/test_check_docs.py`. Then
+`SOLUTION_NOTES.md`, "Design choices" and "Known limits". The reference A/B on `section-1` (k=3) has
+not been run: `work/ab-report.md` has the full structure with its values still marked pending, and the
+reference scores 83/100 because criterion E (A/B values, 5 points) and criterion F (live run evidence,
+12 points) need that run (`captured/grade-solution.txt`). Say so, and show the report's structure,
+which is what a learner's report must have. For a measured comparison on this section, point to the
+class pilot's S1 results (run sheet, all-results table): no measurable difference on F1 with this
+model.
 
 **Likely mistakes (5 min).**
 - The map copies rule text instead of pointing to it, and grows back toward the original size (A1:
@@ -101,10 +110,15 @@ heads, redone work, and progress-file integrity. Learner budget ≤ $1.50 and �
 - The exec plan moves from `active/` to `completed/` when the feature is done (A1, A7; F-a-45 to
   F-a-48).
 
-**Solution walkthrough (8 min).** Open `submodules/02-state-lifecycle/solution/` and show the
-session log after three stops and the single migration head.
-
-[[PENDING: A2 solution files to open, and the reference run's progress log and migration heads | source: M7 A2 builder | how: submodules/02-state-lifecycle/solution/ and its notes]]
+**Solution walkthrough (8 min).** Open `submodules/02-state-lifecycle/solution/a2_state/layer.py`
+(the `ResumableStateLayer`), then `ledger.py` and `progress_log.py`, then `SOLUTION_NOTES.md`. The
+grader's hidden scenarios (`grader/a2_hidden.py`, four scenarios and a hidden four-step feature) run
+a scripted stand-in agent, not a model. On the reference solution every scenario criterion passes, among them
+"progress.md logs every session exactly once, in order", "Exec plan moved to
+docs/exec-plans/completed/, with an outcome", and "session-handoff.md: final summary, migration heads,
+agent notes kept" (`captured/grade-solution.txt`, 90.0/100; the 10 live-run points need the reference
+live run). Show `captured/grade-class-s2-layer.txt` next to it: the class's own S2 layer graded as a
+baseline, so the room sees which criteria the course layer does not meet.
 
 **Likely mistakes (5 min).**
 - Relying on the agent to write the handoff; when a stop lands mid-edit, nothing is written.
@@ -138,8 +152,18 @@ budget ≤ $0.25 and ≤ 30 traces, mostly deterministic (DESIGN §11.5).
   `src/shipharness/sandbox/policy.py`; CONTRACTS §9).
 
 **Reveal: the hidden diffs (10 min).** The diffs live with the A3 grader:
+`submodules/03-scope-sandbox/solution/grader/hidden/diffs/` (43 diffs: 26 named `bad-*`, 17 named
+`good-*`), with the expected verdict, phase, allow lists, and refusal reason of each in
+`grader/hidden/cases.json` (built by `make_hidden.py`). The pass condition is every bad diff rejected
+and zero false positives. Pairs that show where a false positive or a miss comes from:
 
-[[PENDING: path of the A3 hidden scripted diffs and the expected verdict for each | source: M7 A3 builder | how: submodules/03-scope-sandbox/assignment/ grader files]]
+| Rejected | Accepted | What the pair shows |
+|---|---|---|
+| `bad-glob-prefix-boundary` (`tests/visible_extra/test_a.py`, test phase) | `good-deep-test-path` (`tests/visible/api/v2/test_replay.py`) | `tests/visible/**` must not match a sibling folder that shares the prefix |
+| `bad-exact-pattern-suffix` (`app/api/issues.py.orig`) | `good-dot-slash-prefix` (`app/api/issues.py` written as `./app/api/issues.py`) | An exact path allows only itself; a leading `./` is normalised, not refused |
+| `bad-progress-without-state-layer` (`progress.md`, state layer off) | `good-exec-plan-moves-to-completed` (state layer on) | State files are allowed only when the state layer is on |
+| `bad-space-path-out-of-scope` (`docs/design notes/f3 retry.md` under the F3 allow list) | `good-double-star-zero-dirs` (the same path under `docs/**/*.md`) | A path with spaces is parsed, then judged by the allow list in force |
+| `bad-traversal-inside-allowed-glob` (`tests/visible/../../app/services/issues.py`) | `good-delete-in-scope` (`tests/visible/test_old.py`) | `..` that leaves the allowed folder is refused as `path_escape` |
 
 How to run the reveal:
 1. Show one diff at a time, with the phase it was replayed in.
@@ -183,9 +207,15 @@ skill. Learner budget ≤ $1.75 and ≤ 120 traces (DESIGN §11.5).
   that pass all filters (B11, F-b-16 to F-b-22).
 - The evidence report gives counts per run, not percentages, and links the LangSmith experiment.
 
-**Solution walkthrough (8 min).**
-
-[[PENDING: A4 solution files to open (R8 check, new filter, sample evidence report) | source: M7 A4 builder | how: submodules/04-verification/solution/ and its notes]]
+**Solution walkthrough (8 min).** Open, in order:
+`submodules/04-verification/solution/a4_verification/r8_soft_delete.py` (the R8 check) with its
+adapter `adapter.py` and `captured/r8-teamtrack.json` (R8 on TeamTrack, real output, no model call);
+`dedup_filter.py` (filter 6) and `apply_filter.py`; `portfolio/evidence-report.md`,
+`portfolio/case-study.md`, and `portfolio/langsmith.md`; the example learner skill
+`skill/testgen-evidence/SKILL.md`. The portfolio's model-run sections and `live/` hold pending
+markers until the reference live run is captured; the grader accepts them for the reference folder
+only, so its 100/100 includes 20 points that rest on those markers (`SOLUTION_NOTES.md`, "Known
+limits"). Say so when you show the score.
 
 **Likely mistakes (5 min).**
 - R8 checks list endpoints only, and misses get-by-id, nested lists, and writes that still resolve a

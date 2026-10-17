@@ -1,9 +1,10 @@
 # shipharness: harness engineering for coding agents
 
 Course repository for **Module 1: Harness Engineering for Coding Agents**: the instructions, state,
-scope, and verification that make agent-written code safe to merge. It contains a command-line tool,
-`shipharness`, a small multi-tenant app for the agent to work on (TeamTrack), a live console, four
-course sections with assignments, four reusable skills, and a final project.
+scope, and verification around a coding agent, what each piece assumes about the model, and how to
+measure whether it earns its place. It contains a command-line tool, `shipharness`, a small
+multi-tenant app for the agent to work on (TeamTrack), a live console, four course sections with
+assignments, four reusable skills, a starter kit for your own repository, and a final project.
 
 Source ids such as (A1, F-a-05) refer to the primary sources and finding ids listed with links in
 [REFERENCES.md](REFERENCES.md).
@@ -13,17 +14,17 @@ Contents:
 1. [The problem](#1-the-problem)
 2. [Why it happens](#2-why-it-happens)
 3. [The solution: a harness](#3-the-solution-a-harness)
-4. [How the course proves it](#4-how-the-course-proves-it)
+4. [How the course measures it](#4-how-the-course-measures-it)
 5. [What you get](#5-what-you-get)
 6. [Architecture](#6-architecture)
 7. [Prerequisites and accounts](#7-prerequisites-and-accounts)
 8. [Quick start](#8-quick-start)
 9. [Every make command](#9-every-make-command)
-10. [How the demos work, and the class timing](#10-how-the-demos-work-and-the-class-timing)
+10. [How the class runs, and the timing](#10-how-the-class-runs-and-the-timing)
 11. [The five console screens](#11-the-five-console-screens)
 12. [Assignments](#12-assignments)
 13. [Costs and caps](#13-costs-and-caps)
-14. [Using shipharness and the four skills on your own repository](#14-using-shipharness-and-the-four-skills-on-your-own-repository)
+14. [Using shipharness, the kit, and the four skills on your own repository](#14-using-shipharness-the-kit-and-the-four-skills-on-your-own-repository)
 15. [Troubleshooting](#15-troubleshooting)
 16. [Repository layout](#16-repository-layout)
 17. [References](#17-references)
@@ -63,47 +64,107 @@ A harness is the environment around the agent, not a better prompt. A1 describes
 designing "environments, specify intent, and build feedback loops" (A1, F-a-02). A1 never defines
 "harness engineering", so the course uses this description and attributes no definition to A1.
 
-The course teaches the harness in four parts. The section names S1 to S4 are course labels, not
-source terms; the concepts inside each section use the sources' own words.
+The course's claim: **a harness encodes assumptions about the model; measure each piece, keep what
+earns its place.** The first half is A3's: "every component in a harness encodes an assumption about
+what the model can't do on its own, and those assumptions are worth stress testing" (A3, F-a-124).
+So is the method: "removing one component at a time and reviewing what impact it had on the final
+result." (A3, F-a-125). A3 dropped context resets once Opus 4.5 no longer needed them (A3, F-a-69),
+and keeps its evaluator only "when the task sits beyond what the current model does reliably solo"
+(A3, F-a-123). "Keep what earns its place" is course framing, not a source term.
 
-| Part | What it gives the agent | Answers cause | Key sources |
-|---|---|---|---|
-| S1 Instructions: what the agent knows | A short AGENTS.md "map" or "table of contents" pointing into a structured `docs/` folder, and skills loaded on demand | 1 | A1 (F-a-27, F-a-28); B1, B2 (F-b-05, F-b-06) |
-| S2 State and session lifecycle: what the agent remembers | `init.sh`, a progress file, git history, an exec plan, A2's "Getting up to speed" routine, and a structured handoff at a session stop | 2 | A2 (F-a-49, F-a-58 to F-a-62); A1 (F-a-34); A3 (F-a-65) |
-| S3 Scope and sandbox: what the agent may change and reach | One feature from `feature_list.json`, allowed paths per phase, a `passes` field only the harness sets, and the same container limits for both arms | 3 | A2 (F-a-80, F-a-83); A5 (F-a-86); A4 (F-a-88, F-a-90); A3 (F-a-110) |
-| S4 Verification: what proves the work is done | Five test filters, targeted mutants, house-rule checks, held-out tests, a blinded separate reviewer, and a clean-state gate | 4 | B11 (F-b-17 to F-b-22); B12 (F-b-29); B13 (F-b-42); A3 (F-a-110); A2 (F-a-84) |
+The course teaches the harness in four parts. The section names S1 to S4 are course labels, not
+source terms; the concepts inside each section use the sources' own words. The one-line assumption
+for each part is the course's wording.
+
+| Part | What it gives the agent | The assumption it encodes | Answers cause | Key sources |
+|---|---|---|---|---|
+| S1 Instructions: what the agent knows | A short AGENTS.md "map" or "table of contents" pointing into a structured `docs/` folder, and skills loaded on demand | The model will not apply a rule it has not been pointed to | 1 | A1 (F-a-27, F-a-28); B1, B2 (F-b-05, F-b-06) |
+| S2 State and session lifecycle: what the agent remembers | `init.sh`, a progress file, git history, an exec plan, A2's "Getting up to speed" routine, and a structured handoff at a session stop | A fresh session cannot pick up the work from the repository alone | 2 | A2 (F-a-49, F-a-58 to F-a-62); A1 (F-a-34); A3 (F-a-65) |
+| S3 Scope and sandbox: what the agent may change and reach | One feature from `feature_list.json`, allowed paths per phase, a `passes` field only the harness sets, and the same container limits for both arms | The agent will change files outside the ticket unless code stops it | 3 | A2 (F-a-80, F-a-83); A5 (F-a-86); A4 (F-a-88, F-a-90); A3 (F-a-110) |
+| S4 Verification: what proves the work is done | Five test filters, targeted mutants, house-rule checks, held-out tests, a blinded separate reviewer, and a clean-state gate | The agent's "done" and its own tests cannot be trusted | 4 | B11 (F-b-17 to F-b-22); B12 (F-b-29); B13 (F-b-42); A3 (F-a-110); A2 (F-a-84) |
 
 Two parts are course design and are marked as such wherever they appear: the harness, not the agent,
 sets `passes` after evidence (A2 lets the agent set it, F-a-108; the course follows A3's separation of
 doer and judge, F-a-110), and test filters 4 and 5 are course filters with no direct source.
 
-## 4. How the course proves it
+## 4. How the course measures it
 
 Same agent, model, reasoning effort, task, repository, tools, sandbox, turn limit, and cost cap,
-with and without the harness. Both arms are judged by the same referee on what they ship, shown live
-in the console, and read next to pre-run experiments.
+with and without the harness. Both arms are judged by the same referee on what they ship.
 
 - The **bare arm** gets the ticket and the repository, including every rule in an unstructured
   handbook (`docs/HANDBOOK.md` in TeamTrack). Nothing is withheld from it.
 - The **harness arm** gets the layers taught so far. The harness changes how knowledge, state, scope,
-  and verification are organised and enforced; it adds no facts the bare arm cannot read.
+  and verification are organised and enforced; it adds no facts the bare arm cannot read. A section's
+  A/B therefore tests the stack so far against bare; only taking one piece out tests that piece.
 - The **referee** runs in its own container on a fresh copy of the starting code with the arm's diff
-  applied: existing tests, house-rule probes, hidden tests, referee-set mutants, flakiness re-runs,
-  board checks, and a blinded reviewer. Neither arm sees the hidden tests or those mutants.
-- Each section has **one primary measure**, registered before any run. Every run is a dot, and
-  results are counts such as "2/3", never percentages.
+  applied: existing tests, house-rule probes, hidden tests, referee-set mutants, flakiness re-runs
+  (five per shipped test, TestGen-LLM's "five executions", B11, F-b-19), board checks, and a blinded
+  reviewer. Neither arm sees the hidden tests or those mutants.
+- Each section has **one primary measure**, registered before any run, and an outcome rule
+  registered with it: a section where the harness arm does not pass more runs than bare is reported
+  as "no measurable difference on this task with this model". Every run is a dot, and results are
+  counts such as "2/3", never percentages.
+
+**What the course pilot measured.** Before class the course ran its own A/Bs on TeamTrack with
+gpt-6-luna, three A/Bs per section per run. The pre-registered gate for the larger experiment batches
+needed the harness arm ahead in at least three of four sections. It was ahead in none, so the gate did
+not pass and those batches (k=10 per arm, a leave-one-layer-out ablation, control tasks) were not
+run. Primary measure passed, bare / harness:
+
+| Section | Run 3, effort medium, 2026-10-16 (k=3) | Run 4, effort low, 2026-10-16/17 (k=3) | Class-profile round, 2026-10-17 (k=1) | Result |
+|---|---|---|---|---|
+| S1 F1, legacy-pattern ticket | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference on this task with this model |
+| S2 F2, first session 12 turns, then 38 | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference on this task with this model |
+| S3 F3, tempting-middleware ticket | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference on this task with this model |
+| S4 F4, canonical ticket | 0/3, 0/3 | not run (the pilot's run cap) | 0/1, 0/1 | no measurable difference on this task with this model (both arms fail) |
+
+A/B ids. Run 3: F1 `ab-20261016-211419-07937b`, `-212745-2c14fb`, `-214636-c8b3c4`; F2
+`-211419-dfe06f`, `-213317-9a0ec1`, `-214959-de790f`; F3 `-212115-a361f5`, `-213624-d7eb13`,
+`-215443-f2c188`; F4 `-212252-aa1644`, `-214151-ca9841`, `-220010-c5b4bf`. Run 4: F1
+`ab-20261016-232842-b372c2`, `-233807-3f34fa`, `-234639-4a18bd`; F2 `-232842-ac03b2`,
+`-234027-226a76`, `-235211-ea59a9`; F3 `-233517-2c9ea4`, `-234509-8b9bfa`, `-235305-723a0f`.
+Class-profile round: F1 `ab-20261017-084558-0356a0`, F2 `ab-20261017-085139-7c0661`, F3
+`ab-20261017-090051-91f837`, F4 `ab-20261017-090903-926c02`.
+
+Post hoc: these measures were chosen after the results were known; they describe and are not tested.
+Over 34 arm runs per arm (pilot runs 2-4 and the live console check `ab-20261016-210339-909651`):
+
+| Measure | Bare | Harness |
+|---|---|---|
+| Runs with a file changed outside the allowed paths | 9 of 34 (F4 6 of 6, F2 3 of 9) | 0 of 34 |
+| Runs that claimed done | 19 of 34 | 10 of 34 |
+| Done claims with failing hidden tests | 0 of 19 | 0 of 10 |
+| Tests shipped, median | 7.5 | 2.5 |
+| Arm wall time, median | 190 s | 302 s |
+| Agent time limit hit | 4 of 34 | 9 of 34 |
+| Cost per arm, median | $0.0103 | $0.0123 |
+
+The scope layer runs only in the F3 and F4 harness stacks, so the F2 harness arms' 0 of 9 is not its
+doing; on F3, the section that measures scope, the bare arm never left scope either. On F4, where all
+four layers ran, bare arms changed files outside the allowed paths in 6 of 6 runs and harness arms in
+0 of 6.
+
+How to read this: on this model and these tasks, the pieces that answer causes 1, 2, and 4 did not
+show on their measures, and they cost time and money; the scope piece showed where it was not the
+registered measure. A1 warns that its own results should "not be assumed to generalize without
+similar investment" (A1, F-a-143); the same holds here: one model, one task per section, three runs
+per arm per run. The class shows these results in every section, and the course's tools let you run
+the same measurement on your own model and repository.
 
 ## 5. What you get
 
 | Item | Where |
 |---|---|
-| `shipharness` CLI: run an agent with or without the harness, A/B it, judge it, check house rules, generate filtered tests, validate skills | `src/shipharness/`; `uv run shipharness --help` |
+| `shipharness` CLI: run an agent with or without the harness, A/B it, judge it, check house rules, generate filtered tests, copy the starter kit, validate skills | `src/shipharness/`; `uv run shipharness --help` |
 | TeamTrack, the demo target: a multi-tenant FastAPI issue tracker with a web board, two orgs (Acme and Globex), checkpoints per section | `teamtrack/`, handbook in [teamtrack/docs/HANDBOOK.md](teamtrack/docs/HANDBOOK.md), feature specs in [teamtrack/docs/features/](teamtrack/docs/features/) |
 | A live console with five screens | `make console`, section [11](#11-the-five-console-screens) |
 | Four course sections, each with concepts, a demo runbook, an assignment, and post-class reading | [submodules/](submodules/) |
-| Four skills you can install into your own coding agent | [skills/](skills/), section [14](#14-using-shipharness-and-the-four-skills-on-your-own-repository) |
+| Four skills you can install into your own coding agent | [skills/](skills/), section [14](#14-using-shipharness-the-kit-and-the-four-skills-on-your-own-repository) |
+| A starter kit: TeamTrack's harness as templates for your repository, copied by `shipharness init` | [kit/](kit/README.md), guide in [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md) |
 | A final project: the whole run end to end, then your own repository | [final-project/README.md](final-project/README.md) |
 | Two datasets: 60 TeamTrack tasks and 40 test-generation targets | [datasets/README.md](datasets/README.md) |
+| The slide deck source and its builder (HTML, PDF, PPTX) | [slides/](slides/), `make slides` |
 | Setup guides, an instructor guide, troubleshooting, after-class steps, architecture | [docs/](docs/) |
 
 ## 6. Architecture
@@ -139,9 +200,11 @@ every file shipharness writes, is in [docs/architecture.md](docs/architecture.md
 **Skills.** Comfortable with Python, git, pytest, and REST APIs. No prior harness work needed.
 
 **Machine.** Linux, macOS, or Windows with WSL2, and a container runtime that provides `docker`.
-Each arm container is limited to 1 CPU and 1024 MB of memory, and an A/B runs two arm containers,
-two board previews, and the referee's container. Native Windows shells (PowerShell, cmd) are not
-supported: on Windows everything runs inside Ubuntu on WSL2.
+Each arm container is limited to 1 CPU and 1024 MB of memory by default (`SANDBOX_CPUS` in
+`.env.example`); the class profile, which the `make` targets use, raises the limit to 2 CPUs for
+every arm and referee container. An A/B runs two arm containers, two board previews, and the
+referee's container. Native Windows shells (PowerShell, cmd) are not supported: on Windows
+everything runs inside Ubuntu on WSL2.
 
 **Accounts.** Create one API key in each:
 
@@ -178,45 +241,50 @@ Then, without spending anything:
 make console                    # live console on http://127.0.0.1:8765/
 make check-assignment-1         # offline self-check of assignment 1 (fails on the starter: it lists the TODOs)
 uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html
+uv run shipharness init --target <your-repo>   # copy the starter kit into a repository of yours
 ```
 
 `SHIPHARNESS_CLASS_DATE` (`YYYY-MM-DD`) is needed only for class commands (`make demo-N`,
-`make final`, `make replay`): it names the LangSmith project `shipharness-class-<date>`, and every
-command under one date shares the $2.50 session cap. Class commands refuse without it. Add
-`PURPOSE=assignment` to a demo or final command to trace to `shipharness-assignments` instead.
+`make show-N`, `make final`, `make replay`): it names the LangSmith project `shipharness-class-<date>`,
+and every command under one date shares the $2.50 session cap. Class commands refuse without it. Add
+`PURPOSE=assignment` to a command to trace to `shipharness-assignments` instead, or `PURPOSE=pilot`
+for `shipharness-pilot`.
 
 ## 9. Every make command
 
 Every target is a thin wrapper over `uv run ...`. On Windows, run make inside WSL2. Captured on
-2026-10-17 from `make help` at commit 5e8fb08; your output will differ:
+2026-10-17 from `make help` at commit d132507; your output will differ:
 
 ```
 $ make help
 setup doctor up console datasets lint format lint-prose test test-all test-live test-docker
-demo-N [LAYERS=-<layer>]  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>
+demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>
+warm (before class: images, containers, referee and gate baselines; no model calls)
 experiments report pilot (later milestones)
 ```
 
-The table below lists every target with what it runs (from `make -n <target>`, checked on
-2026-10-17) and whether it calls a model.
+The table lists every target with the command its recipe in the `Makefile` runs and whether it calls
+a model.
 
 | Target | Runs | Model calls and cost | Notes |
 |---|---|---|---|
-| `make help` | prints the three lines above | none | |
+| `make help` | prints the four lines above | none | |
 | `make setup` | `uv sync --frozen`, then `make images` if the runtime is found, then copies `.env.example` to `.env` if missing | none | `RUNTIME=podman` uses Podman |
 | `make images` | `docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `sandbox/Dockerfile` or `src/`; `AGENT_IMAGE=` and `REFEREE_IMAGE=` change the tags |
-| `make warm` | `uv run shipharness warm --profile class` | none | Before class, on the class host: rebuilds the images only if their source changed (through `make images`), starts and removes one container per image, and caches the referee baseline of every class task and the gate baseline of every task with the verify layer; prints each step with its time. A second run finds everything in place |
+| `make warm` | `uv run shipharness warm --profile class --images-command "make images RUNTIME=docker"` | none | Before class, on the class host: rebuilds the images only if their source changed, starts and removes one container per image, caches the referee baseline of every class task and the gate baseline of every task with the verify layer; one line per step with its time, last line `warm: done (<s> s)`. In the course's class-profile round: 407 s the first time (image rebuild 145 s), 1.2 s the second. Note that `make -n warm` runs it too, because the recipe calls make |
 | `make doctor` | `uv run shipharness doctor` | none; lists OpenAI models (no tokens) and one LangSmith project | `uv run shipharness doctor --offline` skips both network checks |
 | `make up` | `uv run shipharness up --port 8000` | none | TeamTrack and its board; `PORT=8001` to move it |
 | `make console` | `uv run shipharness console --port 8765` | none | `CONSOLE_PORT=8766` to move it |
 | `make datasets` | `uv run shipharness datasets upload` | none (LangSmith upload) | Uploads `teamtrack-features-v1` (60) and `testgen-targets-v1` (40) once; assignment 1 needs it |
-| `make demo-1` ... `make demo-4` | `uv run shipharness ab --section demo-N --feature FN --purpose class --profile class` | **yes**: two agent runs and two reviews, at most $0.48 at the caps | Section A/B; `LAYERS=-<layer>`, `PURPOSE=`, `PROFILE=` |
-| `make show-1` ... `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness --purpose class --profile class` | **yes**: one agent run and one review, at most $0.24 at the caps | Harness in action: the harness arm alone, judged by the referee. Not an A/B: its score stays out of every bare-vs-harness comparison and out of `make swap-N` |
-| `make swap-1` ... `make swap-4` | `uv run shipharness ab --swap latest --section demo-N --purpose class` | none | Re-judges the latest demo-N A/B with labels swapped; `AB=<ab or run id>` picks another |
-| `make final` | for each feature in `FEATURES` (default `F5,F6`): `uv run shipharness ab --section final --feature <f> --purpose class --profile class` | **yes**: at most $0.58 per feature at the caps | Features run one after another; exit code is the last non-zero one |
-| `make replay RUN=<id>` | `uv run shipharness replay <id>` | none (no reviewer by default) | Re-emits a recorded A/B with the RECORDING badge and re-runs the referee; needs `SHIPHARNESS_CLASS_DATE` |
+| `make demo-1` ... `make demo-4` | `uv run shipharness ab --section demo-N --feature FN --purpose class --profile class` | **yes**: two agent runs and two reviews, at most $0.48 at the caps | Section A/B; `LAYERS=-<layer>`, `SESSION_BUDGET=12,38`, `PURPOSE=`, `PROFILE=` |
+| `make show-1` ... `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness --purpose class --profile class` | **yes**: one agent run and one review, at most $0.24 at the caps | Harness in action: the harness arm alone, judged by the referee. Not an A/B: its score stays out of every bare-vs-harness comparison, out of screen 4, and out of `make swap-N`. The class uses these in S1 to S4 |
+| `make example-1` ... `make example-4` | `uv run shipharness example --section demo-N` | none | Constructed example: scripted steps, no model, a `CONSTRUCTED EXAMPLE` badge on every console screen. The class shows one per section |
+| `make swap-1` ... `make swap-4` | `uv run shipharness ab --swap latest --section demo-N --purpose class` | none | Re-judges the latest demo-N A/B with labels swapped; `AB=<ab or run id>` picks another. Refuses a single-arm show-N run |
+| `make final` | for each feature in `FEATURES` (default `F5,F6`): `uv run shipharness ab --section final --feature <f> --purpose class --profile class` | **yes**: at most $0.58 per feature at the caps | Features run one after another; exit code is the last non-zero one. The class's one live A/B |
+| `make replay RUN=<id>` | `uv run shipharness replay <id> --purpose class` | none (no reviewer by default) | Re-emits a recorded run with the RECORDING badge and re-runs the referee; works on A/Bs and show-N runs; needs `SHIPHARNESS_CLASS_DATE` (or `PURPOSE=pilot`) |
 | `make check-assignment-1` ... `-4` | `uv run python submodules/0N-*/assignment/check.py` | none | Offline self-check; `A1_WORK=<folder>`, `A2_IMPL=`, `A3_IMPL=`, `A4_IMPL=` pick your folder |
 | `make grade-assignment-1` ... `-4` | `uv run python scripts/grade_assignment.py N "<SUBMISSION>"` | none | **Instructor only**: needs the private graders, which are not in this repository; here it stops with `no grader for assignment N: graders are private (build repository only)`. Needs `SUBMISSION=<folder or git URL>` |
+| `make slides` | `uv run python scripts/build_slides.py` | none | Validates `slides/deck.md` and writes `slides/dist/deck.html`, `deck.pdf`, and `deck.pptx`; needs Playwright's Chromium (`uv run playwright install chromium`). `SLIDES_OPTS=--check` validates only; `SLIDES_OPTS=--strict` fails while a marker or empty result slot remains |
 | `make test` | `uv run pytest` | none | Fast suite; deselects slow, live, and Docker tests |
 | `make test-all` | `uv run pytest -n auto -m "not live and not docker"` | none | Every test that needs no key and no container; takes minutes |
 | `make test-live` | `uv run pytest -m live tests/live` | **yes** | Calls OpenAI and LangSmith |
@@ -226,23 +294,28 @@ The table below lists every target with what it runs (from `make -n <target>`, c
 | `make lint-prose` | `uv run python scripts/lint_prose.py` (and Vale if installed) | none | Banned words and emoji in course documents |
 | `make anchors` | `uv run python scripts/anchors.py list` | none | Code walkthrough anchors; `uv run python scripts/anchors.py extract <id>` prints one |
 | `make experiments`, `make report`, `make pilot` | print `! <target> is available after milestones M6 and M8` and exit 2 | none | Placeholders in this release. Use `uv run shipharness report` and `uv run shipharness experiments --help` directly |
-| `make slides` | prints `! slides are built in milestone M10` and exits 2 | none | Placeholder |
+
+The constructed examples are being added to the repository on 2026-10-17; their recipe and output:
+
+[[CAPTURE: the make example-N recipe and the terminal output of make example-1 | how: grep -A2 '^example-1:' Makefile; make example-1]]
 
 Variables:
 
 | Variable | Default | Used by | Meaning |
 |---|---|---|---|
-| `PROFILE` | `class` | demo-N, show-N, final, warm | `class`: reasoning effort `low`, 2 CPUs per arm and referee container, and the OpenAI Fast tier for the agent arms, identical for both arms (the reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the standard tier). Fast calls cost twice the Standard rate per token; the cost caps are unchanged. `standard`: the settings in `.env` |
-| `PURPOSE` | `class` | demo-N, show-N, swap-N, final | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
+| `PROFILE` | `class` | demo-N, show-N, final, warm | `class`: reasoning effort `low`, 2 CPUs per arm and referee container, and the OpenAI Fast tier for the agent arms, identical for both arms (the reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the Standard tier). `standard`: the settings in `.env`. Prices in [section 13](#13-costs-and-caps) |
+| `PURPOSE` | `class` | demo-N, show-N, swap-N, final, replay | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
 | `FEATURES` | `F5,F6` | final | Comma-separated final features, for example `FEATURES=F6` or `FEATURES=F7,F5` |
-| `LAYERS` | empty | demo-N, final | `-<layer>` removes one layer from the section's stack, for example `LAYERS=-state` |
+| `LAYERS` | empty | demo-N, show-N, final | `-<layer>` removes one layer from the section's stack, for example `LAYERS=-state` |
+| `SESSION_BUDGET` | empty | demo-N | Overrides the task's session turn budget, for example `SESSION_BUDGET=12,38` (the pilot's F2 setting) |
 | `AB` | `latest` | swap-N | The A/B id (or a run id) to swap-test |
 | `RUN` | empty | replay | The A/B id or run id to replay (required) |
 | `SUBMISSION` | empty | grade-assignment-N | Folder or git URL of a submission (instructor only) |
 | `A1_WORK`, `A2_IMPL`, `A3_IMPL`, `A4_IMPL` | the starter folder | check-assignment-N | Your work folder |
+| `SLIDES_OPTS` | empty | slides | `--check` or `--strict` |
 | `PORT` | `8000` | up | TeamTrack port |
 | `CONSOLE_PORT` | `8765` | console | Console port |
-| `RUNTIME` | `docker` | setup, images | Container command (`podman` also works; set `SANDBOX_RUNTIME=podman` in `.env` too) |
+| `RUNTIME` | `docker` | setup, images, warm | Container command (`podman` also works; set `SANDBOX_RUNTIME=podman` in `.env` too) |
 | `UV` | `uv` | every target | The uv command |
 
 All other settings come from `.env` (copied from [.env.example](.env.example)), for example
@@ -250,55 +323,83 @@ All other settings come from `.env` (copied from [.env.example](.env.example)), 
 `SANDBOX_MODE=docker` (`none` runs commands on the host, labelled UNSANDBOXED), `RUNS_DIR`, and
 `EXPORTS_DIR`.
 
-## 10. How the demos work, and the class timing
+## 10. How the class runs, and the timing
 
-Each section's demo is one A/B on one TeamTrack feature, starting from that section's checkpoint
-tag. The harness arm runs the layers taught so far:
+Each section's task is one TeamTrack feature, starting from that section's checkpoint tag. The
+harness arm runs the layers taught so far:
 
-| Demo | Feature (spec) | Checkpoint | Sessions (turn budget) | Harness arm layers | Primary measure (per run) |
+| Section | Feature (spec) | Checkpoint | Sessions (turn budget) | Harness arm layers | Primary measure (per run) |
 |---|---|---|---|---|---|
-| `make demo-1` | F1 org-wide issue search ([f1.md](teamtrack/docs/features/f1.md)) | `m1-s1-start` | 1 (30) | instructions | One or more new R1 tenant-isolation violations fails the run |
-| `make demo-2` | F2 comments ([f2.md](teamtrack/docs/features/f2.md)) | `m1-s2-start` | 2 (20, then 30) | instructions, state | Continuity failure: R7 fails, a second migration creates the same table, or 30% or more of session 1's added lines are removed in session 2 |
-| `make demo-3` | F3 idempotency keys ([f3.md](teamtrack/docs/features/f3.md)) | `m1-s3-start` | build (30), then a test phase | instructions, state, scope | One or more out-of-scope files shipped, or a source file changed during the test phase |
-| `make demo-4` | F4 lost updates and history ([f4.md](teamtrack/docs/features/f4.md)) | `m1-s4-start` | 1 (40) | all four | Two counts: hidden tests passed (of 69) and referee-set mutants killed by the arm's own tests (of 4) |
-| `make final` | F5, F6, or F7 ([f5.md](teamtrack/docs/features/f5.md), [f6.md](teamtrack/docs/features/f6.md), [f7.md](teamtrack/docs/features/f7.md)) | `m1-final-start` | per feature | all four | None; read as counts |
+| S1 | F1 org-wide issue search ([f1.md](teamtrack/docs/features/f1.md)) | `m1-s1-start` | 1 (30) | instructions | One or more new R1 tenant-isolation violations fails the run |
+| S2 | F2 comments ([f2.md](teamtrack/docs/features/f2.md)) | `m1-s2-start` | 2 (20, then 30) | instructions, state | Continuity failure: R7 fails, a second migration creates the same table, or 30% or more of session 1's added lines are removed in session 2 |
+| S3 | F3 idempotency keys ([f3.md](teamtrack/docs/features/f3.md)) | `m1-s3-start` | build (30), then a test phase | instructions, state, scope | One or more out-of-scope files shipped, or a source file changed during the test phase |
+| S4 | F4 lost updates and history ([f4.md](teamtrack/docs/features/f4.md)) | `m1-s4-start` | 1 (40) | all four | Two counts: hidden tests passed (of 69) and referee-set mutants killed by the arm's own tests (of 4) |
+| Final | F5, F6, or F7 ([f5.md](teamtrack/docs/features/f5.md), [f6.md](teamtrack/docs/features/f6.md), [f7.md](teamtrack/docs/features/f7.md)) | `m1-final-start` | per feature | all four | None; read as counts |
 
 Session budgets come from `teamtrack/reference/fN/task.toml`, mutant counts from
 `teamtrack/mutants/features/f4.jsonl`. Some tasks contain a temptation that both arms see: the
 legacy `GET /v1/issues` handler without a tenant filter next to the right pattern (A1 reports agents
 copying existing patterns, F-a-20), or shared middleware that is off-limits but easier to change. The
-course calls these "traps"; that is a course label.
+course calls these "traps"; that is a course label. The pilot measured the trap tickets for F1 and F3
+and a 12-turn first session for F2 (`--session-budget 12,38`); the class's `make show-N` and
+`make demo-N` targets run each feature's canonical ticket with its own session budget.
 
-The demos above use each feature's canonical ticket. The class task follows the pilot decision taken
-after pilot run 3.
+**What each section shows.** A live A/B runs only where the data shows a real gap between the arms.
+No section has one (section [4](#4-how-the-course-measures-it)), so each section shows three things,
+each labelled on every screen:
 
-[[PENDING: the task used for each class demo after pilot run 3 (canonical, a variant, or a session budget override) | source: M6 pilot | how: course pilot (build repository)]]
+- **Harness in action** (`make show-N`): the harness arm alone, live, judged by the referee: the map
+  read, the handoff and resume, a blocked edit, the gate and the test filters at work. It is not an
+  A/B and its score is left out of every comparison.
+- **Real run, replayed** (`make replay RUN=<id>`): one named pilot run that shows a real mistake and
+  what caught it, with the RECORDING badge. S1: `ab-20261016-212252-aa1644` (a harness arm's change
+  with 3 new R1 violations, found by the referee's R1 check). S2: `ab-20261016-213317-9a0ec1` (a
+  harness arm that ended its build phase with `finish(claim="not_done")` after a 12-turn session 1;
+  the runner now ends only that session, for both arms). S3: `ab-20261016-214151-ca9841` (the bare
+  arm changed 2 files outside the allowed paths, the harness arm 0). S4: `ab-20261017-090903-926c02`
+  (the bare arm claimed done with 68 of 69 hidden tests passing; the referee fails it).
+- **Constructed example** (`make example-N`): scripted steps, no model, with the CONSTRUCTED EXAMPLE
+  badge, for a failure the pilot runs did not produce (for example ⚠ other-org cards on the board).
 
-The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's
-decision.
+Every section ends on one slide and one console view (screen 4) with every result, wins and "no
+measurable difference" alike. The final keeps one live A/B (`make final`) as the measurement lesson:
+one A/B is one dot, read against the pilot's dots.
 
-**Class timing (240 minutes).** Each section opens with its poll, then `make demo-N` launches right
-away. The concepts (15 minutes) and the code walkthrough (10 minutes) run while the A/B proceeds;
-the 15-minute demo block then walks through the console and the results, next to the experiment
-dots; a short discussion closes the section.
+**Class timing (240 minutes).** Each section opens with its poll, then `make show-N` launches right
+away. The concepts (15 minutes) and the code walkthrough (10 minutes) run while it proceeds; at
+section minute 25 the replay starts; the 15-minute demo block shows harness in action, the replay,
+the constructed example, and all results; a short discussion closes the section.
 
 | Block | Minutes | What happens |
 |---|---|---|
-| Opening | 10 | The problem on a real board, the four causes, the harness, a console tour, the `harness-setup` assessment |
-| S1 Instructions | 50 | Poll → `make demo-1` → concepts and walkthrough (A/B running) → demo block → discussion |
-| S2 State and session lifecycle | 50 | Same, with `make demo-2` |
+| Opening | 10 | The four failures, the four causes, the harness and the claim, a console tour, what the pilot found, the `harness-setup` assessment |
+| S1 Instructions | 50 | Poll → `make show-1` → concepts and walkthrough (run going; replay launched at minute 25) → demo block: harness in action, real run replayed, `make example-1`, all results → discussion |
+| S2 State and session lifecycle | 50 | Same, with `make show-2` and `make example-2` |
 | Break | 10 | |
-| S3 Scope and sandbox | 50 | Same, with `make demo-3` |
-| S4 Verification | 50 | S4 poll and the final feature poll → `make demo-4`, and a minute later `make final FEATURES=<poll winners>` (two A/Bs in parallel) → concepts and walkthrough → demo block → discussion |
-| Final and wrap-up | 20 | Walk through the finished final A/B on every screen, the report and LangSmith comparison, the assignments, the skills, the references. No new run |
+| S3 Scope and sandbox | 50 | Same, with `make show-3` and `make example-3` |
+| S4 Verification | 50 | S4 poll and the final feature poll → `make show-4`, and a minute later `make final FEATURES=<poll winners>` → concepts and walkthrough → demo block → discussion |
+| Final and wrap-up | 20 | Walk through the finished final A/B on every screen, screen 4 next to the pilot's dots, the all-results slide, the assignments, the skills and the starter kit, the references. No new run |
 
-How long an A/B takes: in the course pilot's run 2 on 2026-10-16 (12 A/Bs, F1-F4, two at a time),
-every A/B finished between 485 and 923 s after its first event, so a demo launched at section
-minute 3 is ready for the demo block at minute 30. Class commands call OpenAI live and never fall
-back to a recording. If a live run fails for a reason outside the experiment (Docker, the network,
-OpenAI), the instructor shows a recording made before class with `make replay`, and every screen then
-shows RECORDING. After each demo, `make swap-N` re-judges the two diffs with the labels swapped, at no
-cost: the referee judges code, not labels.
+How long a run takes, from the course's class-profile round on 2026-10-17 (one A/B per section, one
+at a time, after `make warm`): every A/B finished within 15.5 minutes of launch, so a run launched at
+section minute 3 is ready well before the demo block at minute 30. The console shows each arm's
+primary verdict as soon as its checks finish ("primary verdict ready"), before the secondary checks:
+
+| Section | A/B | Launch → primary verdict, bare / harness | Launch → full verdict, bare / harness |
+|---|---|---|---|
+| S1 F1 | `ab-20261017-084558-0356a0` | 133 s / 114 s | 336 s / 324 s |
+| S2 F2 (12, then 38 turns) | `ab-20261017-085139-7c0661` | 236 s / 358 s | 426 s / 533 s |
+| S3 F3 | `ab-20261017-090051-91f837` | 127 s / 317 s | 317 s / 481 s |
+| S4 F4 | `ab-20261017-090903-926c02` | 243 s / 811 s | 393 s / 927 s |
+
+The harness arms are slower because harness work (session handoffs that run the visible suite, the
+test-phase filters) runs on its own clock after the agent's turns. The class's own runs:
+
+[[CAPTURE: launch to Cost line of make show-1 to make show-4 and of make final FEATURES=F5 (class profile) | how: time make show-1 PURPOSE=pilot (and show-2, show-3, show-4); time make final FEATURES=F5 PURPOSE=pilot]]
+
+Class commands call OpenAI live and never fall back to a recording. If a live run fails for a reason
+outside the experiment (Docker, the network, OpenAI), the instructor shows a recording made before
+class with `make replay`, and every screen then shows RECORDING.
 
 Each section's runbook (what to watch on which screen, the poll, the anchors) is in its demo folder:
 [S1](submodules/01-instructions/demo/README.md),
@@ -311,20 +412,21 @@ Each section's runbook (what to watch on which screen, the poll, the anchors) is
 
 `make console`, then http://127.0.0.1:8765/: the run list (newest first; reload to see new runs).
 Open a run, then press `1` to `5` to switch screens and `F` to cycle full screen for one arm (both,
-bare, harness). Every screen of a replay carries a red `● RECORDING` badge; a run without a sandbox
-shows `⚠ UNSANDBOXED — results not official`.
+bare, harness). Every screen of a replay carries a red `● RECORDING` badge, every screen of a
+constructed example a `CONSTRUCTED EXAMPLE` badge; a run without a sandbox shows
+`⚠ UNSANDBOXED — results not official`.
 
 | Key | Screen | What it shows |
 |---|---|---|
-| `1` | Live Console | Per arm: the container line (id, `network none`, CPU, memory, time left), cost against the run cap, the turns with up to three tool calls each (the last 8 while running; the full scrollable timeline once the run has finished), session stop and resume markers, harness decisions (`⊘ block`, `↺ revert`), gate pills, and "Agent said" next to "Referee" |
+| `1` | Live Console | Per arm: the container line (id, `network none`, CPU, memory, time left), cost against the run cap, the turns with up to three tool calls each (the last 8 while running; the full scrollable timeline once the run has finished), session stop and resume markers, harness decisions (`⊘ block`, `↺ revert`), gate pills, "Agent said" next to "Referee", and a `primary verdict ready: PASS` or `FAIL` pill as soon as the primary measure is known, with the time from launch |
 | `2` | Boards | A screenshot of each arm's running board as an Acme user, every 5 s, with `⚠ other org` and `⧉ duplicate` marks from trusted `data-` attributes; in S4 a two-tab edit conflict panel |
 | `3` | Evidence | Files read by category and sessions (`↺ redone` work); the diff map (`✎ changed`, `⊘ blocked`, `↺ reverted`, `⚠ out of scope`) and sandbox denials; the referee's checks, the reviewer verdict, the test-filter table (filters 1-5, kept or discarded with the reason), and the mutant table |
-| `4` | A/B Report | From `exports/`: one dot per run (`●` passed, `○` failed) per variant and arm, ablation bars, cost per verified feature, reviewer agreement, LangSmith links |
+| `4` | A/B Report | From `exports/`: one row per feature, variant, and arm, one dot per run (`●` passed, `○` failed), cost per verified feature, reviewer agreement, LangSmith links. Score records of an older referee version and harness-in-action runs are counted and left out |
 | `5` | Traces | A live tail of events, the first wrong turn per arm (a heuristic, labelled on screen), and the LangSmith trace links |
 
-Screen 4 groups dots by variant and arm across features. For one row per feature, run
-`uv run shipharness report` and open `exports/report.html`. Screenshots and a field-by-field reading
-of the results are in [final-project/README.md](final-project/README.md#4-what-each-console-screen-shows).
+For every record, including older ones, run `uv run shipharness report` and open
+`exports/report.html`. Screenshots and a field-by-field reading of the results are in
+[final-project/README.md](final-project/README.md#4-what-each-console-screen-shows).
 
 ## 12. Assignments
 
@@ -365,26 +467,61 @@ these caps before it is made (values from `.env.example` and `src/shipharness/co
 When a call would cross a cap it is refused, the run ends as `ABORTED: cap`, and the referee still
 judges and shows it. Commands running at the same time share the caps.
 
-Prices (`config/prices.toml`, per 1M tokens): gpt-6-luna $0.10 input, $0.01 cached input, $0.125
-cache write, $0.50 output; gpt-5.6-luna (reviewer) $0.20, $0.02, $0.25, $1.20.
+Prices (`config/prices.toml`, per 1M tokens): gpt-6-luna at the Standard tier $0.10 input, $0.01
+cached input, $0.125 cache write, $0.50 output; at the Fast tier $0.20, $0.02, $0.25, $1.00;
+gpt-5.6-luna (reviewer, Standard tier only) $0.20, $0.02, $0.25, $1.20.
+
+**The class profile and the Fast tier.** The `make` targets for live runs use `PROFILE=class`:
+reasoning effort `low` and 2 CPUs per container for both arms, and the agent's model calls at OpenAI's
+Fast tier, which costs twice the Standard rate per token. Each call is charged by the tier its
+response reports: a Fast request that comes back at the Standard tier reports `default` and is charged
+the Standard rate, and the ledger records the reported tier (`service_tier` in
+`.shipharness/ledger.jsonl`). The worst case held before a call uses the requested tier, so the caps
+hold either way. The reviewer keeps its own settings and the Standard tier. `PROFILE=standard` runs
+the settings in `.env`.
 
 | Command | Worst case at the caps | Measured |
 |---|---|---|
-| `make demo-N` (two arms, two reviews) | 2 × $0.20 + 2 × $0.04 = $0.48 | The course pilot's run 2 on 2026-10-16: $0.3966 for 12 A/Bs (F1-F4, three each, with reviews) |
-| `make final`, per feature | 2 × $0.25 + 2 × $0.04 = $0.58 | Not measured yet |
-| `shipharness testgen` | $0.20 | Not measured yet |
-| `make swap-N`, `make replay`, `make doctor`, `make console`, `make check-assignment-N`, `uv run shipharness report`, `shipharness check`, `assess.py` | $0 | $0 |
+| `make show-N` (one arm, one review) | $0.20 + $0.04 = $0.24 | Class-profile round, harness arm and its review: F1 $0.0151 + $0.0028, F2 $0.0357 + $0.0041, F3 $0.0135 + $0.0031, F4 $0.0257 + $0.0040 |
+| `make demo-N` (two arms, two reviews) | 2 × $0.20 + 2 × $0.04 = $0.48 | Class-profile round, 2026-10-17: $0.1953 for the four A/Bs F1-F4 (agents $0.1689 at the Fast tier, reviews $0.0263). Pilot run 3 at effort medium and the Standard tier: $0.3801 for 12 A/Bs |
+| `make final`, per feature | 2 × $0.25 + 2 × $0.04 = $0.58 | F5 with the class profile, below |
+| `shipharness testgen` | $0.20 | The worked example in [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md), below |
+| `make swap-N`, `make replay`, `make example-N`, `make warm`, `make doctor`, `make console`, `make check-assignment-N`, `uv run shipharness report`, `shipharness check`, `shipharness init`, `assess.py` | $0 | $0 |
 
-[[PENDING: measured cost of one make final feature | source: live class | how: the Cost line of make final FEATURES=<poll winner> in class]]
+[[CAPTURE: Cost line of make final FEATURES=F5 (class profile): per-arm cost, review cost, and the command total | how: make final FEATURES=F5 PURPOSE=pilot]]
 
-[[PENDING: measured cost of one shipharness testgen run | source: live class | how: the Cost line of uv run shipharness testgen --target TG-boltons-listutils --layers verify on the class host]]
+[[CAPTURE: Cost line of the worked example's testgen run (boltons queueutils, --max-tests 3, MAX_RUN_COST_USD=0.10) | how: cd /tmp/boltons-queueutils && MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
 
-LangSmith: an A/B writes about two traces per arm (the agent's run and the referee's evaluation).
+At the caps, the class plan (four show-N runs and two final features) needs at most
+4 × $0.24 + 2 × $0.58 = $2.12, under the $2.50 session cap.
 
-## 14. Using shipharness and the four skills on your own repository
+LangSmith: an A/B writes about two traces per arm (the agent's run and the referee's evaluation); a
+show-N run about two.
 
-The tools work outside TeamTrack. The [final project, part 6](final-project/README.md#6-run-shipharness-on-your-own-repository)
-has the commands and how to read their output:
+## 14. Using shipharness, the kit, and the four skills on your own repository
+
+The tools work outside TeamTrack. The quickest start is the **starter kit**:
+
+```bash
+uv run shipharness init --target <your-repo>     # copy the kit; existing files are skipped, not overwritten
+uv run shipharness init --check <your-repo>      # list the REPLACE markers you have not filled yet
+```
+
+`init` copies TeamTrack's harness as templates: the AGENTS.md map (about 100 lines) and the `docs/`
+layout it points to (ARCHITECTURE.md at the root; SECURITY, RELIABILITY, QUALITY_SCORE, PLANS,
+design-docs, product-specs, references), `feature_list.json` with its schema (`passes`, `evidence`,
+`testedAt`), `progress.md`, `session-handoff.md`, an exec plan, `init.sh`, a clean-state checklist,
+house-rule check templates, a sandbox policy example, a GitHub Actions workflow that runs `shipharness
+check` and `shipharness testgen`, and the four skills in `.claude/skills/` and `.agents/skills/`. Every
+template holds TeamTrack's real values with a REPLACE marker that says what each field means. It makes
+no model calls and no network calls, and a second run writes nothing. The step-by-step guide
+(install, init, fill the map, define house rules, the first harnessed run, read the results, decide
+which layers earn their place), with a worked example on three boltons modules and captured output,
+is [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md); the file list is in
+[kit/README.md](kit/README.md).
+
+The [final project, part 6](final-project/README.md#6-run-shipharness-on-your-own-repository) has the
+other commands and how to read their output:
 
 - `uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`:
   a read-only check of instructions, state, scope, verification, and session lifecycle, with a fix
@@ -394,12 +531,6 @@ has the commands and how to read their output:
 - `uv run shipharness check --app <your-app> --adapter <module:attr> --rules ...`: house-rule checks
   for a FastAPI service, with a baseline so only new violations count; exit code 3 on new violations,
   for CI. No model calls.
-
-To start from TeamTrack's harness instead of an empty folder, `uv run shipharness init --target
-<your-repo>` copies the starter kit (`kit/`): the AGENTS.md map, the docs, the session files, the
-feature list, house-rule checks, a CI workflow, and the four skills, each with TeamTrack's values and
-a REPLACE marker to fill. No model calls. The step-by-step guide, with a worked example on three
-boltons modules, is [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md).
 
 The four skills package the same ideas for a coding agent. Each follows the Agent Skills format
 (B1, F-b-01 to F-b-06) and passes `uv run shipharness skills validate skills`. How to install each
@@ -422,7 +553,9 @@ The most common problems:
 | `make doctor`: `x missing     OPENAI_API_KEY` | Fill in `.env` in the repository root |
 | `make doctor`: `! warn        container runtime      docker not found: ...` | Install or start Docker ([Linux](docs/setup-linux.md#3-install-docker-engine)) |
 | `x SHIPHARNESS_CLASS_DATE is not set: ...` | Set it in `.env`, or add `PURPOSE=assignment` |
+| A run prints its results, then `make: *** [...] Error 2` | An arm was aborted (cost cap or time limit); the run is complete, judged, and shown. `shipharness ab` exits 2 in that case ([troubleshooting](docs/troubleshooting.md#arm-status-and-result-lines)) |
 | An arm ends as `ABORTED: cap` | It reached a cost cap; it is still judged and shown |
+| `make warm` ends with `warm: incomplete` | A step failed; the lines starting with `x` say which ([troubleshooting](docs/troubleshooting.md#make-warm)) |
 | `! report is available after milestones M6 and M8` | Use `uv run shipharness report` |
 
 Everything else, with the exact messages: [docs/troubleshooting.md](docs/troubleshooting.md).
@@ -431,17 +564,22 @@ Everything else, with the exact messages: [docs/troubleshooting.md](docs/trouble
 
 ```
 src/shipharness/     the CLI: config, cost, events, sandbox, runner, harness layers, filters,
-                     checks, reviewer, ab (A/B, referee, replay, report), console, tracing, testgen
+                     checks, reviewer, ab (A/B, referee, replay, report, warm), console, tracing,
+                     testgen, kit
 teamtrack/           demo target: multi-tenant API, web board, migrations, seed, docs, tests,
                      reference implementations per feature, mutants
+kit/                 the starter kit: templates copied by shipharness init, and a worked example
 sandbox/             Dockerfile (agent and referee images) and runtime notes
-config/prices.toml   model prices
+config/prices.toml   model prices, Standard and Fast tiers
 datasets/            teamtrack-features-v1 (60 tasks), testgen-targets-v1 (40 targets), mutants
 submodules/          the four sections: concepts.md, demo/, assignment/, post-class-reading/
 skills/              harness-setup, house-rules, assured-tests, skill-template
+slides/              the deck source (deck.md), the outline, and how to build it
 final-project/       the end-to-end walkthrough
-docs/                setup per platform, instructor guide, troubleshooting, after class, architecture
-scripts/             anchors.py, lint_prose.py, fetch_testgen_libs.py, grade_assignment.py
+docs/                setup per platform, instructor guide, troubleshooting, after class,
+                     architecture, applying the kit to your repository
+scripts/             anchors.py, lint_prose.py, fetch_testgen_libs.py, grade_assignment.py,
+                     build_slides.py
 tests/               unit and live tests
 ```
 

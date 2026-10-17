@@ -45,7 +45,10 @@ when none are left; a kit file you deleted on purpose is listed as not present a
 Files the harness renders at run time (progress.md, session-handoff.md, init.sh, the exec plan,
 feature_list.json) were rendered with the harness's own functions for TeamTrack's feature F1. One
 value is the kit's own: the six `steps` of F1, shortened from the API section of
-`teamtrack/docs/features/f1.md`, because the course's A/B runs leave `steps` empty.
+`teamtrack/docs/features/f1.md`. In the course's A/B runs the dataset line has no `steps`, so the
+state and scope layers take them from the ticket's bullet lines or, failing that, its title
+(`src/shipharness/harness/scope/features.py`); the kit writes them out so you see the shape a good
+step list has.
 
 ## The REPLACE markers
 
