@@ -416,8 +416,9 @@ reviews $0.0263 Standard). Pilot total: 102 of 120 arm runs. Times are from the 
 Primary verdict within about 4 minutes (owner's target): met for both F1 arms and the F2, F3, and F4 bare
 arms (114-243 s); missed for the F2 harness (358 s), F3 harness (317 s), and F4 harness (811 s) arms. Why
 the harness arms are slower: harness work runs on its own clock after the agent's turns (session-end
-handoffs run the visible suite, about 31-34 s each on this host). In F4 the harness arm wrote tests in the
-test phase for the first time in any run, and the test-phase filters ran each of its 6 tests 5 times
+handoffs run the visible suite, about 31-34 s each on this host). In F4 the harness arm proposed 6 tests in the
+test phase (before this, only run 2's `ab-20261016-191626-6100f6` had proposed one, which the filters
+discarded; corrected 2026-10-17), and the test-phase filters ran each of the 6 tests 5 times
 (about 40 s per test, 387 s to 744 s after launch): harness time 433 s against 311 s of agent time. Every
 A/B finished within 15.5 minutes of launch, inside the class plan's 25-minute concepts-and-walkthrough
 window. `shipharness ab` exits 2 when an arm aborted (demo-4: the harness arm hit the agent time limit).
