@@ -1974,13 +1974,13 @@ Terminal C: `make final FEATURES=F6,F5`
 - Exact command, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up, for example `make final FEATURES=F6,F5`. Always pass `FEATURES`: the default is `F5,F6`.
 - Two features only if the Section 3 `Cost:` line showed a session figure of $1.10 or less; otherwise one feature. At the caps one feature costs at most $0.58.
 - Then open the newest run in browser tab 3 and go back to tab 2 (show-4). The features run one after another, so at most one A/B and one harness-in-action run are live at a time.
-- Timing: the timed bulk close (F5) run before class took 12 min 47 s to the cost line; bare verdicts at 3:27 and 6:50, harness at 9:48 and 12:32. Watchers (F6) was not timed as a final before class, so do not promise a finish time; it has two build sessions.
+- Timing: the captured bulk close (F5) run before class (2026-10-17, 420 s agent limit, a busy machine) took 12 min 9 s to the cost line; bare verdicts at 4:27 and 11:39, harness at 5:46 and 11:41. Watchers (F6) was not timed as a final before class, so do not promise a finish time; it has two build sessions.
 - What to say while waiting: "Both arms get the same ticket, model, tools, sandbox, turn budgets, and cost cap. One referee scores both. We come back to it at 3:40."
 - Point at the diagram: two arms, one referee. The referee works on a fresh copy plus each arm's diff, so neither arm can touch the scoring.
 - Analogy: an A/B test in production; same traffic, same metric, one variable changed.
 - If it fails: wrong feature started means Ctrl+C in terminal C and launch again; `Error 2` after the results means an arm was aborted on time or cost, and the run is judged.
 - Fallback: walk the captured final in `final-project/expected/` (screens 1 to 5 and the terminal lines in `final-project/README.md`).
-- Two features run one after another: launched at 3:00, at the F5 pace (12 min 47 s, up to 2 minutes more with the 420 s limit) the first finishes about 3:13-3:15 and the second about 3:26-3:30, before the final block at 3:40; F6 has two build sessions and may run longer, so read whatever has finished.
+- Two features run one after another: launched at 3:00, at the F5 pace (12 min 9 s with the 420 s limit) the first finishes about 3:12-3:15 and the second about 3:25-3:30, before the final block at 3:40; F6 has two build sessions and may run longer, so read whatever has finished.
 - Time: 1 minute, class 3:00-3:01. Transition: "While both run: the story of version checks (F4)."
 
 ## Slide 84: The problem: Done, but two edits still collide
@@ -2337,24 +2337,24 @@ No primary measure for the final tickets F5 to F7. Read per arm:
 - `mutants`: would its tests notice a bug?
 - `claim`: did the agent say done?
 - `passed=True` here means nothing
-**Visual:** Terminal C's real output from the course's F5 run, quoted from `final-project/README.md` with the run id left out, with callouts on `claim=done` / `claim=none`, on `hidden 46/46`, and on `mutants 2/3`:
+**Visual:** Terminal C's real output from the course's F5 run, quoted from `final-project/README.md` with the run id left out, with callouts on `claim=done` (both lines), on `hidden 46/46`, on `mutants 3/3` against `mutants 1/3`, and on `ABORTED: timeout`:
 ```text
 A/B (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
-  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
-  harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
+  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 3/3 reviewer=accept cost=$0.0196
+  harness  ABORTED: timeout  claim=done     primary={} passed=True hidden 46/46 mutants 1/3 reviewer=reject cost=$0.0139
 ```
 **Speaker notes:**
 - Switch to terminal C and read today's lines aloud, one feature at a time, then the session figure on the `Cost:` line.
 - Plain explanation: F5 to F7 set `primary_measure = ""`, so the referee marks every run passed; "primary verdict ready: PASS" says nothing about the feature. Compare the counts instead.
-- The course's bulk close (F5) run before class: both arms 46 of 46 hidden tests and 2 of 3 mutants; bare completed with `claim=done` in 37 turns, harness `ABORTED: timeout` with no claim in 42 turns. Reading: no measurable difference.
-- An earlier F5 run, on a loaded machine, split differently: mutants 1 of 3 (bare) and 3 of 3 (harness), hidden 46 of 46 in both. Same feature, same harness, a different split.
+- The course's captured bulk close (F5) run before class: both arms 46 of 46 hidden tests and both said done; mutants killed 3 of 3 (bare) against 1 of 3 (harness); the reviewer accepted bare and rejected harness. Bare completed in 42 turns. The harness arm said done after 20 turns, two gate commands timed out on a busy machine, and the 120 s harness limit ended the arm before a test phase. That limit ending an arm is a known open item. Reading: bare ahead on mutants, one dot, with a cause in machine time rather than in the layers.
+- An earlier F5 run (2026-10-17, quiet machine, 300 s agent limit) split differently: mutants 2 of 3 in each arm, hidden 46 of 46 in both. Same feature, same harness, a different split.
 - The command exits 2 when an arm was aborted on time or cost. The arm is still judged; it is a result.
 - Analogy: reading a canary deployment: you compare error rates, not the deploy tool's "success" message.
-- Question for the room: "The harness arm made no claim but has the same counts. Better or worse?" Expected answer: same work, slower, no false claim; one run cannot say more.
+- Question for the room: "Both arms said done, but the harness arm killed fewer mutants. Did the layers make it worse?" Expected answer: not on this evidence; the harness's own time limit ended it before a test phase could add tests; one run cannot say more.
 - Likely learner question: "Why no primary measure on the final?" Answer: the final was not part of the registered test runs; it is a teaching A/B, so we read counts, not a verdict.
 - Misconception: "The arm with `passed=True` won." Correction: both lines say `passed=True` because there is no primary measure.
 - If the final has not finished: walk its live screens 1 and 2 now, and come back to the lines at the end. Fallback: the captured lines above and `final-project/expected/`.
-- Point at `claim=done` against `claim=none`, then at the identical `hidden 46/46 mutants 2/3` on both lines.
+- Point at `claim=done` on both lines, then at the identical `hidden 46/46`, then at `mutants 3/3` against `mutants 1/3`.
 - Time: 2.5 minutes. Transition: "Now the same run on the console."
 
 ## Slide 99: Final A/B: what to read on screens 1, 3, 5
@@ -2366,18 +2366,18 @@ A/B (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
 **Visual:** Text only: the three lines. No screenshot; switch to the console, browser tab 3 (the final's run).
 **Speaker notes:**
 - Browser tab 3, the final's run. Press `1`: both arms side by side. Read for each arm: run status and turns, harness decisions (map placed, handoff written), the gate, "Agent said", and the referee line.
-- In the captured bulk close (F5) run: bare completed, primary verdict at 3:27, full at 6:50; harness hit its time limit in the test phase, primary at 9:48, full at 12:32. Its test phase started by reading the handoff from the build session.
-- On screen 1, point at three things: the bare arm's "Agent said done" and "claim supported"; the harness arm's "Agent said no claim"; both referee lines (hidden tests 46/46, mutants killed 2/3 in that run).
-- Press `3`, Evidence: files read, diff maps (any `⊘ blocked` or out-of-scope file?), referee checks per rule, the filter table, the mutant table. In the F5 run both arms changed only allowed files and one mutant survived in each.
+- In the captured bulk close (F5) run: bare completed after 42 turns, primary verdict at 4:27, full at 11:39; harness said done after 20 turns, its gate failed when two gate commands timed out, and the 120 s harness limit ended the arm before a test phase (`ABORTED: timeout`), primary at 5:46, full at 11:41.
+- On screen 1, point at three things: "Agent said done" and "claim supported" on both arms; the harness arm's gate pills, red on time limits rather than on the code; both referee lines (hidden tests 46/46 each, mutants killed 3/3 and 1/3 in that run).
+- Press `3`, Evidence: files read, diff maps (any `⊘ blocked` or out-of-scope file?), referee checks per rule, the filter table, the mutant table. In the F5 run both arms changed only allowed files; the harness arm's two sandbox denials are the gate's timed-out commands.
 - Press `5`, Traces: the first wrong turn per arm, the live tail of referee events, and LangSmith links. Open one link to show every model call.
 - For watchers (F6) or labels (F7) in class: look on screen 1 for "session stop" and the handoff, and on screen 3 for whether session 2 redid session 1's work.
 - Engineering example: the first wrong turn on screen 5 is where you start a debug session, exactly like the first failing span in a distributed trace.
 - Analogy: reading a flame graph: overview first, then the hot frame, then the source line.
 - Question for the room: "Where would you look first if the harness arm had shipped a file outside its paths?" Expected answer: screen 3's diff map, then screen 5's first wrong turn.
-- Likely learner question: "Why did the harness arm run out of time?" Answer: its extra phases (handoff, test phase, gate) cost turns and wall time; post hoc, harness arm wall time had a median of 302 s against 190 s for bare.
+- Likely learner question: "Why did the harness arm run out of time?" Answer: in the captured run, two gate commands hit their time limits on a busy machine and the 120 s harness limit then ended the arm; that limit is a known open item. In general its extra phases (handoff, test phase, gate) cost turns and wall time; post hoc, harness arm wall time had a median of 302 s against 190 s for bare.
 - Misconception: "The slower arm is the worse arm." Correction: time is a cost to weigh, not a quality measure; read the counts.
-- Point at callout 2, "Agent said no claim": the harness arm never claimed done, so its gate never ran.
-- If the final has not finished or broke: read whatever screen 1 shows, or walk `final-project/expected/` (screens 1, 3, 5). Those screenshots are from a later F5 capture: mutants killed 3 of 3 (bare) and 1 of 3 (harness), full verdicts at 11:39 and 11:41; read those counts from the screen, not the ones above.
+- Point at the harness arm's "Agent said done" above its red gate pills: the gate ran, and its items failed because two commands timed out, not because a check found a fault.
+- If the final has not finished or broke: read whatever screen 1 shows, or walk `final-project/expected/` (screens 1, 3, 5), the same captured F5 run as above.
 - Time: 2.5 minutes. Transition: "Screen 2, the boards."
 
 ## Slide 100: Final A/B: the two boards
@@ -2532,7 +2532,7 @@ Four Agent Skills:
 - Leave-one-out: `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm; this is Anthropic's method from Harness design, one feature at a time.
 - `uv run shipharness report` makes no model calls and writes `exports/report.html`: one dot per run, filled for passed, hollow for failed.
 - The portfolio for Assignment 4: the A/B's score records and trace links, the kit's check and testgen output on a repository you choose, a one-page case study, and a skill of your own.
-- Concrete example: the course ran bulk close (F5) twice before class and the two A/Bs split differently on mutants (2 of 3 each, then 1 of 3 against 3 of 3). That is the reason for "one dot".
+- Concrete example: the course ran bulk close (F5) more than once before class and the A/Bs split differently on mutants: 2 of 3 each in an earlier run, then 3 of 3 (bare) against 1 of 3 (harness) in the captured run. That is the reason for "one dot".
 - Analogy: a benchmark result you publish with its run count and variance, not a single best run.
 - Question for the room: "How many runs would you need before you believed a gap?" Expected answer: more than one per arm; the course planned 10 per arm for its larger batches.
 - Misconception: "My one A/B shows the harness works on my repo." Correction: it shows one dot; report it as counts and say what more runs would need to show.

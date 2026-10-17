@@ -44,10 +44,12 @@ Times and costs, measured on 2026-10-17, before class ([evidence](evidence.md#ca
 | `make show-2` | 6:46, 9:52 | $0.0295 | $0.24 |
 | `make demo-3` | bare 5:15, 8:06; harness 8:50, 11:18 | $0.0487 | $0.48 |
 | `make show-4` | 9:19, 10:55 | $0.0265 | $0.24 |
-| `make final`, one feature | bare 3:27, 6:50; harness 9:48, 12:32 | $0.0456 | $0.58 |
+| `make final`, one feature | bare 4:27, 11:39; harness 5:46, 11:41 | $0.0383 | $0.58 |
 
-Section 3 ran with the class agent time limit, 420 s. The others ran with the earlier 300 s, so a
-run that reaches the limit now takes up to 2 minutes longer. The session cap is $2.50: run two final
+Section 3 and the final ran with the class agent time limit, 420 s. The others ran with the earlier
+300 s, so a run that reaches the limit now takes up to 2 minutes longer. The final took 12 min 9 s
+to its `Cost:` line; its harness arm said done after 20 turns, two gate commands timed out, and the
+120 s harness limit ended the arm before a test phase, a known open item. The session cap is $2.50: run two final
 features only if the session figure on the Section 3 `Cost:` line is $1.10 or less.
 
 What to say at each verdict:
