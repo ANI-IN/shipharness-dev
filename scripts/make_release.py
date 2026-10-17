@@ -85,6 +85,7 @@ DOCS_FILES = tuple(
         "architecture",
         "after-class",
         "apply-to-your-repo",
+        "extras",
     )
 )
 SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")

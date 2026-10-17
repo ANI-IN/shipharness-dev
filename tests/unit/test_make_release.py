@@ -27,6 +27,7 @@ TRACKED = [
     "kit/templates/AGENTS.md",
     "kit/examples/boltons-queueutils/README.md",
     "docs/apply-to-your-repo.md",
+    "docs/extras.md",
     "scripts/build_slides.py",
     "slides/deck.md",
     ".github/dependabot.yml",
@@ -755,6 +756,7 @@ def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
         "kit/templates/AGENTS.md",
         "kit/examples/boltons-queueutils/README.md",
         "docs/apply-to-your-repo.md",
+        "docs/extras.md",
         "scripts/build_slides.py",
         "slides/deck.md",
     ]:

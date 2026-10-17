@@ -140,4 +140,5 @@ def test_the_tag_message_cites_no_private_build_document() -> None:
     from shipharness.freeze import _message
 
     message = _message({"content_hashes": {}})
-    assert "DESIGN" not in message and "VERIFICATION" not in message
+    # Private build documents, not included in the public release:
+    assert "DESIGN" not in message and "VERIFICATION" not in message  # not included in the release
