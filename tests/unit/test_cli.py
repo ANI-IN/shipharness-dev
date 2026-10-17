@@ -6,12 +6,30 @@ from typer.testing import CliRunner
 from shipharness import __version__, freeze
 from shipharness.cli import app
 from shipharness.config import Settings
+from tests.unit.cli_output import strip_ansi
+
+MODULE_TITLE = "Module 1: Harness Engineering for Coding Agents"
 
 
 def test_version_flag_prints_version() -> None:
     result = CliRunner().invoke(app, ["--version"])
     assert result.exit_code == 0
     assert __version__ in result.output
+
+
+def test_help_header_is_the_module_title() -> None:
+    # Owner message 12.1: Module 1 of a multi-module program; the CLI help header carries the title.
+    result = CliRunner().invoke(app, ["--help"])
+    assert result.exit_code == 0, result.output
+    lines = [line.strip(" │") for line in strip_ansi(result.output).splitlines()]
+    text = [line for line in lines if line and not line.startswith("Usage:")]
+    assert text[0] == MODULE_TITLE
+    assert "Harness engineering for coding agents." not in result.output
+
+
+def test_no_args_shows_the_module_title() -> None:
+    result = CliRunner().invoke(app, [])
+    assert MODULE_TITLE in strip_ansi(result.output)
 
 
 def _git(repo: Path, *args: str) -> None:

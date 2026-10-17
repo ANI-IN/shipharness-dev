@@ -204,6 +204,7 @@ def arm_specs(
         reasoning_effort=settings.openai_reasoning_effort,
         max_output_tokens=settings.max_output_tokens,
         service_tier=settings.openai_service_tier,
+        run_timeout_s=settings.run_timeout_s,
         profile=profile,
         single_arm=set(workspaces) == {"harness"},
         constructed=constructed,

@@ -231,7 +231,7 @@ git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharnes
 cd ~/shipharness
 make setup          # uv sync --frozen, build the two sandbox images, create .env
 # edit .env: OPENAI_API_KEY=..., LANGSMITH_API_KEY=... (and SHIPHARNESS_CLASS_DATE for class commands)
-make doctor         # must end with "result: + ready"
+make doctor         # must end with "result: + ready" (PURPOSE=class checks SHIPHARNESS_CLASS_DATE)
 make up             # TeamTrack board on http://127.0.0.1:8000/board (Ctrl+C to stop)
 ```
 
@@ -288,8 +288,8 @@ a model.
 | `make help` | prints the four lines above | none | |
 | `make setup` | `uv sync --frozen`, then `make images` if the runtime is found, then copies `.env.example` to `.env` if missing | none | `RUNTIME=podman` uses Podman |
 | `make images` | `docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `sandbox/Dockerfile` or `src/`; `AGENT_IMAGE=` and `REFEREE_IMAGE=` change the tags |
-| `make warm` | `uv run shipharness warm --profile class --images-command "make images RUNTIME=docker"` | none | Before class, on the class host: rebuilds the images only if their source changed, starts and removes one container per image, caches the referee baseline of every class task and the gate baseline of every task with the verify layer; one line per step with its time, last line `warm: done (<s> s)`. In the course's class-profile round: 407 s the first time (image rebuild 145 s), 1.2 s the second. `make -n warm` only prints the command |
-| `make doctor` | `uv run shipharness doctor` | none; lists OpenAI models (no tokens) and one LangSmith project | `uv run shipharness doctor --offline` skips both network checks |
+| `make warm` | `uv run shipharness warm --purpose class --profile class --images-command "make images RUNTIME=docker"` | none | Before class, on the class host: with `PURPOSE=class` it first checks `SHIPHARNESS_CLASS_DATE` (YYYY-MM-DD) and stops before any work without it; then it rebuilds the images only if their source changed, starts and removes one container per image, caches the referee baseline of every class task and the gate baseline of every task with the verify layer; one line per step with its time, last line `warm: done (<s> s)`. In the course's class-profile round: 407 s the first time (image rebuild 145 s), 1.2 s the second. `make -n warm` only prints the command |
+| `make doctor` | `uv run shipharness doctor --purpose class` | none; lists OpenAI models (no tokens) and one LangSmith project | `uv run shipharness doctor --offline` skips both network checks; with `PURPOSE=class` a missing or malformed `SHIPHARNESS_CLASS_DATE` is a failed item, `PURPOSE=pilot` or `PURPOSE=assignment` needs no date |
 | `make up` | `uv run shipharness up --port 8000` | none | TeamTrack and its board; `PORT=8001` to move it |
 | `make console` | `uv run shipharness console --port 8765` | none | `CONSOLE_PORT=8766` to move it |
 | `make datasets` | `uv run shipharness datasets upload` | none (LangSmith upload) | Uploads `teamtrack-features-v1` (60) and `testgen-targets-v1` (40) once; assignment 1 needs it |
@@ -318,8 +318,8 @@ Variables:
 
 | Variable | Default | Used by | Meaning |
 |---|---|---|---|
-| `PROFILE` | `class` | demo-N, show-N, final, warm | `class`: reasoning effort `low`, 2 CPUs per arm and referee container, and the OpenAI Fast tier for the agent arms, identical for both arms (the reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the Standard tier). `standard`: the settings in `.env`. Prices in [section 13](#13-costs-and-caps) |
-| `PURPOSE` | `class` | demo-N, show-N, swap-N, final, replay | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
+| `PROFILE` | `class` | demo-N, show-N, final, warm | `class`: reasoning effort `low`, 2 CPUs per arm and referee container, the OpenAI Fast tier for the agent arms, and a 420 s agent time limit (`RUN_TIMEOUT_S`), identical for both arms (the reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the Standard tier). `standard`: the settings in `.env`. Prices in [section 13](#13-costs-and-caps) |
+| `PURPOSE` | `class` | demo-N, show-N, swap-N, final, replay, doctor, warm | `class` (needs `SHIPHARNESS_CLASS_DATE`; LangSmith project `shipharness-class-<date>`), `pilot` (`shipharness-pilot`), or `assignment` (`shipharness-assignments`) |
 | `FEATURES` | `F5,F6` | final | Comma-separated final features, for example `FEATURES=F6` or `FEATURES=F7,F5` |
 | `LAYERS` | empty | demo-N, show-N, final | `-<layer>` removes one layer from the section's stack, for example `LAYERS=-state` |
 | `SESSION_BUDGET` | empty | demo-N, show-N | Overrides the task's session turn budget, for example `SESSION_BUDGET=12,38` (the pilot's F2 setting) |
@@ -479,7 +479,7 @@ these caps before it is made (values from `.env.example` and `src/shipharness/co
 | `MAX_BATCH_COST_USD` | $2.50 | Any single command |
 | `MAX_EXPERIMENT_TOTAL_USD` | $25.00 | All `shipharness experiments` batches |
 | `MAX_BUILD_TOTAL_USD` | $15.00 | Every model call in this machine's cost ledger; the cost line shows how much is left |
-| `RUN_TIMEOUT_S` / `HARNESS_TIMEOUT_S` | 300 s / 120 s | Agent time and harness work per arm per run |
+| `RUN_TIMEOUT_S` / `HARNESS_TIMEOUT_S` | 300 s / 120 s | Agent time and harness work per arm per run; the class profile sets the agent time to 420 s for both arms |
 
 When a call would cross a cap it is refused, the run ends as `ABORTED: cap`, and the referee still
 judges and shows it. Commands running at the same time share the caps.

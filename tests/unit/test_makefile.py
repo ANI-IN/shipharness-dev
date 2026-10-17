@@ -261,6 +261,18 @@ def test_warm_target_runs_the_warm_command_with_the_profile() -> None:
         assert f" {target} " in f" {phony} ", target
 
 
+def test_doctor_and_warm_pass_the_purpose() -> None:
+    # Owner message 9.4: make warm and make doctor check SHIPHARNESS_CLASS_DATE when PURPOSE=class
+    # (the default); PURPOSE=pilot or assignment needs no date.
+    assert _variables()["PURPOSE"] == "class"
+    for target in ("doctor", "warm"):
+        calls = _shipharness_calls(target)
+        assert len(calls) == 1, target
+        command, params = _parse(calls[0])
+        assert command == target
+        assert params["purpose"] == "pilot", target  # the sample value of $(PURPOSE)
+
+
 def test_images_target_tags_the_images_the_settings_name() -> None:
     # make warm rebuilds through `make images` with the image names it uses.
     variables = _variables()

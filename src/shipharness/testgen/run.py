@@ -390,6 +390,7 @@ def run_testgen(
                 reasoning_effort=settings.openai_reasoning_effort,
                 max_output_tokens=settings.max_output_tokens,
                 service_tier=settings.openai_service_tier,
+                run_timeout_s=settings.run_timeout_s,
                 cost_limit_usd=settings.max_run_cost_usd,
                 workspace=workspace,
                 visible_tests_dir=visible,

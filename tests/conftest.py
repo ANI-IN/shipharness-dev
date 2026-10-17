@@ -1,5 +1,14 @@
-"""Marks long validations as `slow`, so the default run (`uv run pytest`, `make test`) stays fast.
+"""Test-wide setup: plain CLI output, and the `slow` marker for long validations.
 
+Plain CLI output: on GitHub Actions typer and rich print ANSI colour codes (GITHUB_ACTIONS,
+FORCE_COLOR) and wrap help text at the runner's width, so `"--target" in result.output` failed
+there and passed locally. The session fixture below gives every test, and every subprocess a test
+starts, an environment without colour and with a fixed width: NO_COLOR=1, TERM=dumb, COLUMNS=200,
+TERMINAL_WIDTH=200 (typer's width), _TYPER_FORCE_DISABLE_TERMINAL=1 (typer ignores GITHUB_ACTIONS
+and FORCE_COLOR), and no FORCE_COLOR or PY_COLORS (rich and pytest would force colour). typer reads
+its settings once at import, so the fixture also sets them on typer.rich_utils.
+
+The `slow` marker keeps the default run (`uv run pytest`, `make test`) fast.
 pyproject addopts deselects `slow`; `make test-all` (`-m "not live and not docker"`) runs them.
 Each entry is a node id or node id prefix relative to the repository root. Keep the list explicit:
 add a test here only when it is a long validation (roughly > 10 s on its own), and say why.
@@ -13,7 +22,40 @@ Already marked `slow` in their own files (not repeated here):
 
 from __future__ import annotations
 
+from collections.abc import Iterator
+
 import pytest
+
+PLAIN_CLI_ENV: dict[str, str] = {
+    "NO_COLOR": "1",
+    "TERM": "dumb",
+    "COLUMNS": "200",
+    "TERMINAL_WIDTH": "200",
+    "_TYPER_FORCE_DISABLE_TERMINAL": "1",
+}
+COLOUR_FORCING_ENV = ("FORCE_COLOR", "PY_COLORS", "CLICOLOR_FORCE", "TTY_COMPATIBLE")
+
+
+def plain_cli_output(mp: pytest.MonkeyPatch) -> None:
+    """No colour codes and a fixed width for CLI output, whatever the host (CI included)."""
+    import typer.rich_utils
+
+    for key, value in PLAIN_CLI_ENV.items():
+        mp.setenv(key, value)
+    for key in COLOUR_FORCING_ENV:
+        mp.delenv(key, raising=False)
+    mp.setattr(typer.rich_utils, "FORCE_TERMINAL", False)
+    mp.setattr(typer.rich_utils, "MAX_WIDTH", int(PLAIN_CLI_ENV["TERMINAL_WIDTH"]))
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _plain_cli_output() -> Iterator[None]:
+    """Session-wide, so module and session fixtures that run a CLI see it too."""
+    mp = pytest.MonkeyPatch()
+    plain_cli_output(mp)
+    yield
+    mp.undo()
+
 
 SLOW_TESTS: tuple[str, ...] = (
     # Mutant kill check: the TeamTrack visible suite against every filter and referee mutant.

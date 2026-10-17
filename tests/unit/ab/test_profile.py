@@ -1,7 +1,8 @@
 """Run profiles (owner, 2026-10-17): `class` makes live class runs fast and is identical for both
 arms (reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
-arms; the reviewer keeps its own effort and the standard tier). `standard` keeps the settings as
-loaded and is the default everywhere except the class make targets."""
+arms, a 420 s agent time limit; the reviewer keeps its own effort and the standard tier).
+`standard` keeps the settings as loaded (300 s) and is the default everywhere except the class
+make targets."""
 
 from __future__ import annotations
 
@@ -40,6 +41,7 @@ def test_the_two_profiles_and_their_values() -> None:
         "openai_reasoning_effort": "low",
         "openai_service_tier": "fast",
         "sandbox_cpus": 2.0,
+        "run_timeout_s": 420,
     }
 
 
@@ -48,17 +50,24 @@ def test_standard_keeps_the_loaded_settings(tmp_path: Path) -> None:
     assert apply_profile(loaded, "standard") == loaded
 
 
-def test_class_sets_low_effort_fast_tier_and_two_cpus_and_nothing_else(tmp_path: Path) -> None:
+def test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else(tmp_path: Path) -> None:
     loaded = settings(tmp_path)
+    assert loaded.run_timeout_s == 300  # standard keeps 300 s
     applied = apply_profile(loaded, "class")
     assert applied.openai_reasoning_effort == "low"
     assert applied.openai_service_tier == "fast"
     assert applied.sandbox_cpus == 2.0
+    assert applied.run_timeout_s == 420  # owner message 9.2: fits the 25-minute class window
     # The reviewer's own settings and everything else stay as loaded.
     assert applied.openai_eval_reasoning_effort == loaded.openai_eval_reasoning_effort
     assert applied.openai_eval_model == loaded.openai_eval_model
     changed = {k for k in Settings.model_fields if getattr(applied, k) != getattr(loaded, k)}
-    assert changed == {"openai_reasoning_effort", "openai_service_tier", "sandbox_cpus"}
+    assert changed == {
+        "openai_reasoning_effort",
+        "openai_service_tier",
+        "sandbox_cpus",
+        "run_timeout_s",
+    }
 
 
 def test_an_unknown_profile_is_refused(tmp_path: Path) -> None:
@@ -116,7 +125,26 @@ def test_class_agent_arms_are_identical_and_the_reviewer_keeps_its_settings(
     )
     for spec in specs.values():
         assert (spec.reasoning_effort, spec.service_tier, spec.profile) == ("low", "fast", "class")
+        assert spec.run_timeout_s == 420
+        assert spec.public_dict()["run_timeout_s"] == 420  # ab.json arms.<arm>.spec records it
     outcome = rt.reviewer(ReviewInput(task="t", diff="d", grading_criteria="R1"))
     assert outcome.status == "ok"
     assert calls[0]["reasoning"] == {"effort": "medium"}  # OPENAI_EVAL_REASONING_EFFORT
     assert "service_tier" not in calls[0]
+
+
+@pytest.mark.parametrize(("profile", "limit"), [("standard", 300), ("class", 420)])
+def test_both_arm_specs_record_the_agent_time_limit(
+    tmp_path: Path, profile: str, limit: int
+) -> None:
+    applied = apply_profile(settings(tmp_path), profile)
+    specs = arm_specs(
+        ABTask("F1", "m1-s1-start", "Add pagination."),
+        applied,
+        ab_id="ab-1",
+        harness_layers=frozenset({"instructions"}),
+        workspaces={"bare": tmp_path / "b", "harness": tmp_path / "h"},
+        run_ids={"bare": "r-1", "harness": "r-2"},
+        profile=profile,
+    )
+    assert {spec.run_timeout_s for spec in specs.values()} == {limit}
