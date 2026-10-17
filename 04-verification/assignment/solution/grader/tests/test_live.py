@@ -9,6 +9,7 @@ from __future__ import annotations
 import inspect
 import json
 import shutil
+import subprocess
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -417,3 +418,20 @@ def test_the_ab_line_may_name_the_profile(root: Path) -> None:
     line = f"A/B {fx.AB_ID} (F4, layers={fx.HARNESS_LAYERS})"
     _edit_text(path, line, line[:-1] + ", profile=standard)")
     assert not _has(a4_live.ab_run_problems(root), "one A/B")
+
+
+def test_a_rebuilt_checkpoint_tag_with_the_same_teamtrack_tree_still_matches() -> None:
+    # The checkpoint tags were rebuilt (2026-10-17 restructure); the reference run's records name the
+    # previous m1-s4-start commit. Same TeamTrack tree -> the same checkpoint.
+    repo = Path(__file__).resolve().parents[5]
+    current = a4_live.course_checkpoint_sha(repo)
+    assert current is not None
+    old = "a9d6be25aca5"
+    full = subprocess.run(
+        ["git", "-C", str(repo), "rev-parse", old], capture_output=True, text=True
+    )
+    if full.returncode != 0:
+        pytest.skip("archived checkpoint commit not in this clone")
+    assert a4_live.same_checkpoint(repo, full.stdout.strip(), current)
+    other = a4_live.course_checkpoint_sha(repo, "m1-s1-start")
+    assert other is not None and not a4_live.same_checkpoint(repo, other, current)

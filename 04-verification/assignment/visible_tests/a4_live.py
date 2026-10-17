@@ -449,7 +449,11 @@ def score_record_problems(root: Path, expected_sha: str | None) -> list[str]:
                 f"{name}: checkpoint_sha {r.checkpoint_sha!r} is not a commit sha "
                 "(run from the checkpoint tag, not --from-working-tree)"
             )
-        elif expected_sha and r.checkpoint_sha != expected_sha:
+        elif (
+            expected_sha
+            and r.checkpoint_sha != expected_sha
+            and not same_checkpoint(_course_repo(), r.checkpoint_sha, expected_sha)
+        ):
             problems.append(
                 f"{name}: checkpoint_sha {r.checkpoint_sha[:12]} is not the commit "
                 f"{AB_CHECKPOINT} names ({expected_sha[:12]})"
@@ -511,6 +515,40 @@ def trace_link_problems(root: Path, page: str) -> list[str]:
         "portfolio/langsmith.md: link at least one trace of your A/B "
         f"(a `trace_url` in {SCORES}/*.json)"
     ]
+
+
+def _course_repo() -> Path | None:
+    """The course repository this file lives in (None outside a git checkout)."""
+    for parent in Path(__file__).resolve().parents:
+        if (parent / "pyproject.toml").is_file() and (parent / ".git").exists():
+            return parent
+    return None
+
+
+def _teamtrack_tree(repo: Path, sha: str) -> str | None:
+    """The TeamTrack tree of a checkpoint commit (platform/teamtrack, or teamtrack in older commits)."""
+    for sub in ("platform/teamtrack", "teamtrack"):
+        try:
+            run = subprocess.run(
+                ["git", "-C", str(repo), "rev-parse", "--verify", "--quiet", f"{sha}:{sub}"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except (OSError, subprocess.TimeoutExpired):
+            return None
+        if run.returncode == 0 and run.stdout.strip():
+            return run.stdout.strip()
+    return None
+
+
+def same_checkpoint(repo: Path | None, a: str, b: str) -> bool:
+    """Two checkpoint commits are the same checkpoint when their TeamTrack trees are identical
+    (checkpoint tags can be rebuilt; recorded runs keep the commit they ran on)."""
+    if repo is None:
+        return False
+    tree_a, tree_b = _teamtrack_tree(repo, a), _teamtrack_tree(repo, b)
+    return tree_a is not None and tree_a == tree_b
 
 
 def course_checkpoint_sha(repo: Path, tag: str = AB_CHECKPOINT) -> str | None:
