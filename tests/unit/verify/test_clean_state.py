@@ -119,3 +119,23 @@ def test_without_a_base_commit_only_status_and_heads_are_checked() -> None:
     item = clean_state_check(sandbox, "")
     assert item.status == "pass"
     assert not any(c.startswith("git diff") for c in sandbox.commands)
+
+
+# Gate bug (2026-10-17): ruff 0.17.1 in the agent image enables more rules by default (B008, I001)
+# than TeamTrack's code meets, and TeamTrack has no ruff config, so a change to any router file
+# (FastAPI's Depends(...) defaults) failed the clean-state item, even the course's reference code.
+# Without a repository config the gate now pins ruff's documented default rule set.
+
+
+def test_ruff_runs_the_pinned_default_rules_when_the_repository_has_no_config() -> None:
+    sandbox = FakeSandbox(scripted(names=ok("app/api/issues.py\n")))
+    clean_state_check(sandbox, BASE)
+    [ruff] = [c for c in sandbox.commands if c.startswith("ruff")]
+    assert "--select E4,E7,E9,F" in ruff
+
+
+def test_a_repository_ruff_config_is_used_as_it_is() -> None:
+    sandbox = FakeSandbox(scripted(names=ok("app/api/issues.py\n")))
+    clean_state_check(sandbox, BASE, ruff_select=None)
+    [ruff] = [c for c in sandbox.commands if c.startswith("ruff")]
+    assert "--select" not in ruff

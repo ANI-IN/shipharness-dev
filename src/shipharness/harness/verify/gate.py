@@ -24,7 +24,7 @@ from shipharness.harness.verify.checkrun import (
     runner_command,
     write_container_file,
 )
-from shipharness.harness.verify.clean_state import clean_state_check
+from shipharness.harness.verify.clean_state import DEFAULT_RUFF_SELECT, clean_state_check
 from shipharness.harness.verify.models import GateItem, GateResult
 from shipharness.runner.models import TEAMTRACK_VISIBLE_TESTS
 from shipharness.runner.tools import summarise_pytest
@@ -60,6 +60,8 @@ class GateConfig:
     visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
     # False when the repository has no migrations: the clean-state item skips the head check.
     migrations: bool = True
+    # None when the repository has its own ruff config: the clean-state item uses it as it is.
+    ruff_select: str | None = DEFAULT_RUFF_SELECT
 
     def limit(self, own_s: int) -> int:
         """A command's time limit: its own, capped by the harness time left (at least 1 s)."""
@@ -164,7 +166,13 @@ def run_gate(
         check_items, check_lines = _check_items(sandbox, cfg, root, on_progress)
         items += sorted(check_items, key=_order)
         lines += check_lines
-    clean = clean_state_check(sandbox, base_sha, cfg.limit(120), migrations=cfg.migrations)
+    clean = clean_state_check(
+        sandbox,
+        base_sha,
+        cfg.limit(120),
+        migrations=cfg.migrations,
+        ruff_select=cfg.ruff_select,
+    )
     items.append(clean)
     if clean.status == "fail":
         lines.append(f"FAIL clean state: {clean.detail}")

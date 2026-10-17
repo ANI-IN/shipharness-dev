@@ -54,11 +54,24 @@ def _debug_lines(diff: str) -> list[str]:
     return found
 
 
+# Ruff's documented default rule set. A repository without its own ruff config is checked against
+# it, so the gate does not depend on which rules the installed ruff version enables by default
+# (ruff 0.17.1 in the agent image also enables B008 and I001, which TeamTrack's FastAPI routers do
+# not meet).
+DEFAULT_RUFF_SELECT = "E4,E7,E9,F"
+
+
 def clean_state_check(
-    sandbox: Sandbox, base_sha: str, timeout_s: int = 120, *, migrations: bool = True
+    sandbox: Sandbox,
+    base_sha: str,
+    timeout_s: int = 120,
+    *,
+    migrations: bool = True,
+    ruff_select: str | None = DEFAULT_RUFF_SELECT,
 ) -> GateItem:
     """`migrations=False` (a repository without alembic.ini or migrations/versions) skips the
-    migration head check: `alembic heads` would fail there for a reason the agent cannot fix."""
+    migration head check: `alembic heads` would fail there for a reason the agent cannot fix.
+    `ruff_select=None` (the repository has its own ruff config) runs ruff with that config."""
     problems: list[str] = []
     status = sandbox.exec("git status --porcelain --untracked-files=all", timeout_s)
     if status.exit_code != 0:
@@ -74,8 +87,9 @@ def clean_state_check(
         changed = [n.strip() for n in names.output.splitlines() if n.strip().endswith(".py")]
         if changed:
             files = " ".join(shlex.quote(n) for n in changed[:200])
+            select = f"--select {ruff_select} " if ruff_select else ""
             ruff = sandbox.exec(
-                f"ruff check --no-cache --quiet --output-format=concise {files}", timeout_s
+                f"ruff check --no-cache --quiet --output-format=concise {select}{files}", timeout_s
             )
             if ruff.exit_code != 0:
                 lines = [ln for ln in ruff.output.splitlines() if ln.strip()]

@@ -226,3 +226,22 @@ def test_teamtrack_test_phase_still_looks_only_in_tests_visible(tmp_path: Path) 
     (ws / "tests" / "visible" / "test_new.py").write_text("def test_y():\n    assert 2\n")
     layer.on_phase_end(ctx)
     assert seen == ["tests/visible/test_new.py::test_y"]
+
+
+def test_ruff_config_is_detected_from_the_checkpoint_workspace(tmp_path: Path) -> None:
+    from shipharness.harness.verify.layer import has_ruff_config
+
+    bare = tmp_path / "bare"
+    bare.mkdir()
+    assert has_ruff_config(bare) is False
+    (tmp_path / "toml").mkdir()
+    (tmp_path / "toml" / "ruff.toml").write_text("line-length = 100\n", encoding="utf-8")
+    assert has_ruff_config(tmp_path / "toml") is True
+    (tmp_path / "py").mkdir()
+    (tmp_path / "py" / "pyproject.toml").write_text(
+        "[tool.ruff]\nline-length = 100\n", encoding="utf-8"
+    )
+    assert has_ruff_config(tmp_path / "py") is True
+    (tmp_path / "other").mkdir()
+    (tmp_path / "other" / "pyproject.toml").write_text("[project]\nname = 'x'\n", encoding="utf-8")
+    assert has_ruff_config(tmp_path / "other") is False

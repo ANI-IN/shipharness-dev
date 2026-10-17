@@ -20,6 +20,7 @@ from shipharness.harness.verify.checkrun import (
     write_container_file,
 )
 from shipharness.harness.verify.checkrun import runner_command as _runner_command
+from shipharness.harness.verify.clean_state import DEFAULT_RUFF_SELECT
 from shipharness.harness.verify.gate import GATE_CHECKS, GateConfig, run_gate
 from shipharness.harness.verify.models import GateResult
 from shipharness.runner import git
@@ -44,6 +45,21 @@ def has_migrations(workspace: Path) -> bool:
     return (ini.is_file() and not ini.is_symlink()) or (
         versions.is_dir() and not versions.is_symlink()
     )
+
+
+def has_ruff_config(workspace: Path) -> bool:
+    """Whether the repository configures ruff itself: ruff.toml or .ruff.toml at its root, or a
+    [tool.ruff] table in pyproject.toml. Links are not followed."""
+    root = Path(workspace)
+    for name in ("ruff.toml", ".ruff.toml"):
+        path = root / name
+        if path.is_file() and not path.is_symlink():
+            return True
+    pyproject = root / "pyproject.toml"
+    if not pyproject.is_file() or pyproject.is_symlink():
+        return False
+    text = pyproject.read_text(encoding="utf-8", errors="replace")
+    return any(line.strip().startswith("[tool.ruff") for line in text.splitlines())
 
 
 def default_seed(feature_id: str, checkpoint: str) -> int:
@@ -86,6 +102,7 @@ class VerifyLayer(BaseLayer):
         # deletes later cannot switch the migration head check on or off. None: not decided yet
         # (the check runs, as on TeamTrack).
         self.migrations: bool | None = None
+        self.ruff_config: bool | None = None  # decided the same way, from the checkpoint
         self.gate_count = 0
         self._phase_start: dict[str, tuple[dict[str, str], dict[str, str]]] = {}
 
@@ -117,6 +134,7 @@ class VerifyLayer(BaseLayer):
             time_left=ctx.time_left,
             visible_tests_dir=ctx.spec.visible_tests_dir,
             migrations=self.migrations is not False,
+            ruff_select=None if self.ruff_config else DEFAULT_RUFF_SELECT,
         )
 
     def _publish(self, ctx: LayerContext, type_: str, data: Any) -> None:
@@ -147,6 +165,7 @@ class VerifyLayer(BaseLayer):
     def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
         self.existing_tests = self._visible_tests(ctx.workspace, ctx.spec.visible_tests_dir)
         self.migrations = has_migrations(ctx.workspace)
+        self.ruff_config = has_ruff_config(ctx.workspace)
         if self.baseline_json is not None or not self.compute_baseline:
             return []
         if "build" not in ctx.spec.phases:
