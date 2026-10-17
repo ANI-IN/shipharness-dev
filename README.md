@@ -247,7 +247,7 @@ git fetch --tags
 uv run shipharness verify --tag class-v1
 ```
 
-Expected output: `your copy matches class-v1: 26 paths, 8 checkpoint trees`. Otherwise the command
+Expected output: `your copy matches class-v1: 27 paths, 8 checkpoint trees`. Otherwise the command
 prints one line per path or checkpoint that differs (exit 1), and a missing tag asks you to run
 `git fetch --tags` (exit 2). Your own edits under those paths, such as in `datasets/`, also count
 as differences.

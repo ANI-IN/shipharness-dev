@@ -6,7 +6,7 @@ All notable changes to this project are recorded here.
 
 ### Release tag class-v1, no freeze (2026-10-17)
 - No experiment freeze: the pilot gate did not pass, so the release carries no `harness-frozen` tag.
-  `scripts/make_release.py` writes the public `harness-frozen` tag only when the build repository
+  The release build writes the public `harness-frozen` tag only when the build repository
   has a freeze record, and otherwise says so in its report.
 - `class-v1` is the release tag: an annotated tag on the public commit whose message reads "Class
   version 1: the code, datasets, and settings used for the class. No experiment freeze; the pilot
