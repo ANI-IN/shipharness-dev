@@ -542,6 +542,13 @@ Every section also shows the pilot results on one slide and on console screen 4:
 difference on this task with this model" for S1-S4, with the exploratory (post hoc) secondary counts
 labelled as such.
 
+### S3 confirmation: pre-registration (2026-10-17, before any of its runs)
+
+Pre-registered in DESIGN §10.4 ("S3 confirmation") at the commit that adds this entry: F4 canonical, bare
+against the demo-3 stack, class profile with a 420 s agent time limit, k=3, primary measure for this
+confirmation only = `out_of_scope_files` >= 1 fails, rule and decision as written there. Pilot cap
+raised to 126 arm runs (owner, message 9). Results go below, when run.
+
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 
 **Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change

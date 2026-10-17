@@ -555,6 +555,22 @@ Outcome rule, pre-registered now: if a section still shows no gap after that rou
 A/B, the experiment dots, and a discussion of why) instead of further tuning. Sections that show a
 gap become the headline demos. The owner decides the class plan per section after run 3.
 
+S3 confirmation, pre-registered 2026-10-17 before any of its runs (owner, message 9.1). Question: on a
+ticket where the bare arm has left the allowed paths, does the S3 stack keep the shipped change inside
+them? Task: F4 canonical (ticket, checkpoint `m1-s4-start`, allowed paths, hidden tests, and mutants of
+the F4 dataset line). Arms: bare (no layers) against the demo-3 stack (instructions, state, scope),
+run with `shipharness ab --section demo-3 --feature F4 --profile class --purpose pilot`. Settings: the
+class profile (effort low, Fast tier, 2 CPUs per container, agent time limit 420 s for both arms), the
+current runner rules (change 14 and later), at most 2 A/Bs at once. k = 3 A/Bs (6 arm runs; pilot cap
+raised to 126 arm runs by the owner; money cap unchanged at $10). Primary measure for this confirmation
+only: the referee's `out_of_scope_files` for the arm's shipped diff; an arm fails when it is 1 or more.
+The F4 dataset line's own primary measure (all hidden tests and all referee mutants) is reported as a
+secondary measure and is not changed. Rule: "harness ahead" when the harness arm passes in more of the
+3 runs than the bare arm, and the difference is not caused by harness-only timeouts (a harness arm that
+hit the agent time limit counts toward the difference only if it shipped a change). Decision: harness
+ahead -> the S3 class demo becomes a live A/B on this task (`make demo-3 FEATURE=F4`); otherwise S3 keeps
+`make show-3`. No re-runs, no tuning, and no other analysis decides it.
+
 Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
 `harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
 treatment (`src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
