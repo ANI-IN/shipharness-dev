@@ -72,6 +72,7 @@ ALLOW_DIRS = (
     "sandbox/",
     "config/",
     "tests/",
+    "kit/",  # the harness starter kit (shipharness init) and its worked example
 )
 DOCS_FILES = tuple(
     f"docs/{name}.md"
@@ -83,6 +84,7 @@ DOCS_FILES = tuple(
         "troubleshooting",
         "architecture",
         "after-class",
+        "apply-to-your-repo",
     )
 )
 SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")
@@ -122,6 +124,7 @@ LEARNER_SCRIPTS = (
     "scripts/lint_prose.py",  # make lint-prose, CI, README
     "scripts/fetch_testgen_libs.py",  # assignment 4 README
     "scripts/grade_assignment.py",  # make grade-assignment-N: says graders are private
+    "scripts/build_slides.py",  # make slides
 )
 # Private only (owner), plus exports and local run state.
 PRIVATE_FILES = (
