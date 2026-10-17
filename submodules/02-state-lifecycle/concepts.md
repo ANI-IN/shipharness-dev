@@ -61,9 +61,14 @@ observation that fits A6, not a test of it. It also fits A3's point that resets 
 (A3, F-a-69).
 
 The harness arm failed the measure in all three runs, but only because of a measurement bug
-(section 6). The next pilot step for F2 is a 12-turn first session, so session 1 stops earlier.
+(section 6). The next pilot step for F2 was a 12-turn first session, so session 1 stopped earlier.
 
-[[PENDING: one bare-arm F2 run with the 12-turn first session (--session-budget 12,38): session timeline (screen 3), migration heads line from the referee, redone_lines_pct, run id | source: M6 pilot | how: course pilot (build repository)]]
+With that budget the bare arm still passed: measured in the course pilot, run 3, 2026-10-16, A/B
+`ab-20261016-213317-9a0ec1`, the bare arm (run `r-20261016-213317-97004c`) ran 3 sessions and 62
+turns, test phase included, with `continuity_failure` false, `redone_lines_pct` 5.3, and 56 of 56
+hidden tests passed. Section 6 has all F2 runs of runs 3 and 4.
+
+[[PENDING: session timeline (screen 3) and the referee's migration heads line for the bare arm of ab-20261016-213317-9a0ec1 (run r-20261016-213317-97004c) | source: M6 pilot | how: course pilot (build repository)]]
 
 ---
 
@@ -343,7 +348,33 @@ registered for pilot run 3 is a tighter session turn budget: F2 canonical with a
 and 38 turns after it, the same 50 in total, for both arms (`--session-budget 12,38`). The class task
 follows the pilot's decision after run 3.
 
-[[PENDING: pilot run 3 F2 rows (12-turn first session): continuity_failure per arm out of k=3, components, redone_lines_pct, and the class task decision | source: M6 pilot | how: course pilot (build repository)]]
+**Runs 3 and 4.** Measured in the course pilot, run 3, 2026-10-16 (effort medium), A/Bs
+`ab-20261016-211419-dfe06f`, `ab-20261016-213317-9a0ec1`, `ab-20261016-214959-de790f`; and run 4,
+effort low, 2026-10-16/17, A/Bs `ab-20261016-232842-ac03b2`, `ab-20261016-234027-226a76`,
+`ab-20261016-235211-ea59a9`. Per-A/B values are in A/B order:
+
+| Run | Arm | Primary passed | Agent time limit hit | Hidden tests passed (of 56) | `redone_lines_pct` |
+|---|---|---|---|---|---|
+| 3 | bare | 3/3 | 0/3 | 56, 56, 56 | 0.0, 5.3, 0.0 |
+| 3 | harness | 3/3 | 2/3 | 56, 3, 3 | 0.0, 0.0, 0.0 |
+| 4, effort low | bare | 3/3 | 0/3 | 3, 3, 3 | 0.0, 0.0, 0.0 |
+| 4, effort low | harness | 3/3 | 1/3 | 56, 3, 56 | 0.0, 0.0, 0.0 |
+
+On the primary measure: no measurable difference on this task with this model (course pilot, runs 3
+and 4). `continuity_failure` was false in all 12 arms, so none of parts (a), (b), (c) fired.
+
+That includes the arms that built nothing (hidden tests 3 of 56): the harness arms of
+`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, and in run 4 all three bare arms and the
+harness arm of `ab-20261016-234027-226a76`. The measure checks migrations and redone lines; it cannot
+fail when session 1 leaves no product lines to redo. A pass says no migration was broken or
+duplicated and nothing was redone, not that the feature was built. In run 3, in
+`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, the harness arm called
+`finish(claim="not_done")` at the end of the 12-turn first session, which ended the build phase: the
+38-turn session never ran. The run ids are in the [demo runbook](demo/README.md) §7.
+
+[[PENDING: the S2 class task decision | source: M6 pilot | how: course pilot (build repository)]]
+
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
 
 [[PENDING: S2 primary measure, continuity_failure runs out of k=10 per arm, with components (a), (b), (c) and redone_lines_pct per run, and run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 

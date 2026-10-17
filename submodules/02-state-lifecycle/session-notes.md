@@ -88,7 +88,27 @@ The dots per run, with run ids and per-run costs, are in the [demo runbook](demo
 With the bug fixed, F2 still had no gap in run 2, so the registered lever for run 3 is a tighter
 session turn budget: a 12-turn first session (`shipharness ab --session-budget 12,38`).
 
-[[PENDING: pilot run 3 F2 results with the 12-turn first session (continuity_failure per arm out of k=3, components, redone_lines_pct, run ids) and the class task decision | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16 (effort medium), A/Bs `ab-20261016-211419-dfe06f`,
+`ab-20261016-213317-9a0ec1`, `ab-20261016-214959-de790f`; and run 4, effort low, 2026-10-16/17, A/Bs
+`ab-20261016-232842-ac03b2`, `ab-20261016-234027-226a76`, `ab-20261016-235211-ea59a9`:
+
+| Run | Bare: primary passed | Harness: primary passed | Hidden tests 56 of 56, bare / harness |
+|---|---|---|---|
+| 3 | 3/3 | 3/3 | 3 of 3 / 1 of 3 |
+| 4, effort low | 3/3 | 3/3 | 0 of 3 / 2 of 3 |
+
+`continuity_failure` was false in all 12 arms, so none of parts (a), (b), (c) fired; the highest
+`redone_lines_pct` was 5.3 (bare arm, `ab-20261016-213317-9a0ec1`). On the primary measure: no
+measurable difference on this task with this model (course pilot, runs 3 and 4). The pass includes
+arms that built nothing (hidden tests 3 of 56: two harness arms in run 3, every bare arm and one
+harness arm in run 4): the measure cannot fail when session 1 leaves no product lines to redo. In
+run 3 the harness arm called `finish(claim="not_done")` at the end of the 12-turn first session in
+`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, which ended the build phase before the
+38-turn session. Run ids per arm are in the [demo runbook](demo/README.md) §7.
+
+[[PENDING: the S2 class task decision | source: M6 pilot | how: course pilot (build repository)]]
+
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
 
 [[PENDING: M8 batch 1 S2 dots: continuity_failure per arm out of k=10, components (a)/(b)/(c), redone_lines_pct, run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 
