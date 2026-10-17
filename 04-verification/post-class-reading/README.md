@@ -1,25 +1,30 @@
-# S4 post-class reading
+# Module 1: Harness Engineering for Coding Agents - Section 4 reading list
 
-Four short pieces that go further than class time allows. Each cites its primary source by the IDs
-in [docs/REFERENCES.md](../../docs/REFERENCES.md) and ends with "Why it matters for your own repo", which
-ties the source to a real case from the course pilot (run 2, 2026-10-16) and to a step you can take
-in your own repository. Read
-them in any order; together they take about 30 minutes.
+Four short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
+words and shows how to apply it to your own repository.
 
-| # | Piece | Reading time | Sources |
-|---|---|---|---|
-| 01 | [TestGen-LLM's filters and the course's five](01-testgen-llm-filters.md) | 8 min | B11 (F-b-16 to F-b-28), B12 (F-b-40), A2 (F-a-80) |
-| 02 | [Mutation-guided test generation (ACH) and the course's targeted mutants](02-mutation-guided-tests-ach.md) | 8 min | B12 (F-b-29 to F-b-41) |
-| 03 | [Separate evaluators: what A3 found and how the course reviewer uses it](03-separate-evaluator.md) | 7 min | A3 (F-a-14, F-a-15, F-a-110 to F-a-124, F-a-152), A2 (F-a-108, F-a-109) |
-| 04 | [Held-out tests: what SpecBench measures and how the course's hidden tests follow it](04-held-out-tests-specbench.md) | 6 min | B13, B14 (F-b-42 to F-b-52) |
+> **Terms on this page**
+>
+> - **Test filters**: Five checks a test from the test phase must pass to be kept.
+> - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
+> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
 
-The primary sources themselves:
+## Readings
 
-- B11 TestGen-LLM: https://arxiv.org/abs/2402.09171
-- B12 ACH: https://arxiv.org/abs/2501.12862
-- A3 Harness design for long-running application development:
-  https://www.anthropic.com/engineering/harness-design-long-running-apps
-- B13 SpecBench: https://arxiv.org/abs/2605.21384 (repository B14: https://github.com/WecoAI/SpecBench)
+| Reading | Reading time | Why read it |
+|---|---|---|
+| [01 TestGen-LLM's filters](01-testgen-llm-filters.md) | 5 minutes | Why most generated tests fail a filter, and what a kept test guarantees |
+| [02 Mutation-guided tests (ACH)](02-mutation-guided-tests-ach.md) | 5 minutes | How to test for the fault you fear, not for coverage |
+| [03 Separate evaluators](03-separate-evaluator.md) | 5 minutes | Why the agent should not judge its own work, and the limits of a model judge |
+| [04 Held-out tests (SpecBench)](04-held-out-tests-specbench.md) | 5 minutes | How far a green visible suite can mislead you |
 
-Back to the section: [concepts.md](../concepts.md) · [demo runbook](../demo/README.md) ·
-[session notes](../session-notes.md).
+## How to use these
+
+- Read 01 and 02 together: the filters, then the planted faults that filter 3 and the referee use.
+- Read 03 and 04 together: who judges the work, and with which tests.
+- After each reading, do the first step of its "Apply it to your repo" list on a repository you work
+  on. It takes a few minutes and makes the idea stick.
+- Then read the primary sources. Start with the section on the evaluator in
+  [Anthropic, Harness design](../../docs/evidence.md#src-anthropic-harness-design), then the filter
+  pipeline in [Meta, TestGen-LLM](../../docs/evidence.md#src-testgen-llm).
+- The class recap is in [session-notes.md](../session-notes.md).

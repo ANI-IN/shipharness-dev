@@ -1,14 +1,80 @@
-# S4 Verification
+# Module 1: Harness Engineering for Coding Agents - Section 4: Verification
 
-Course material for section S4: the verify gate, container checks, test filters, mutants, the blinded reviewer.
+What proves the work is done: checks the agent does not control, and tests it never sees.
 
-| Path | What goes there |
-|---|---|
-| [`concepts.md`](concepts.md) | The section's concepts, cited to the sources in [docs/REFERENCES.md](../docs/REFERENCES.md), and what the course pilot and the class-profile round measured on F4 |
-| [`demo/`](demo/README.md) | Class runbook: harness in action (`make show-4`, live) and the launch of the final A/B (`make final`) |
-| [`session-notes.md`](session-notes.md) | For learners after class: what was shown, key ideas, what the A/B showed, common questions |
-| [`assignment/`](assignment/README.md) | Assignment A4 instructions, grading criteria, starter files, `make check-assignment-4` |
-| [`post-class-reading/`](post-class-reading/README.md) | Four cited readings that go deeper than class time |
+## The problem
 
-The reference solution is in [`assignment/solution/`](assignment/solution/README.md); the grader
-stays private (instructor only).
+**Illustrative scenario.** You ask a coding agent to stop lost updates on issue edits, with an `ETag`
+and an `If-Match` header. The header is optional, so every existing test passes whether the check
+works or not. The agent tests the happy path, sees a green suite, and reports that it is done. Review
+approves a green build and a confident summary. After release, two people who edit one issue still
+overwrite each other.
+
+The cost is a shipped bug that every check approved, and a review that rested on the agent's word.
+
+> **Terms on this page**
+>
+> - **Harness**: The files and code around the agent that decide what it sees and may do.
+> - **Harness layer**: One part of the harness: instructions, state, scope, or verification.
+> - **Bare arm**: An agent run with the ticket and the repository, and no harness.
+> - **Harness arm**: The same run with the harness turned on.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Verify gate**: The checks that run in the agent's container when it claims done; a failure sends the claim back.
+> - **Test filters**: Five checks a test from the test phase must pass to be kept.
+> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
+
+## Why it happens
+
+- Agents grade their own work too kindly. Anthropic's harness team found that "agents reliably skew
+  positive when grading their own work."
+  ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+- A later session sees progress and stops early: "a later agent instance would look around, see that
+  progress had been made, and declare the job done."
+  ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running))
+- Green tests look like a finished job: "it is easy to see tests pass and assume the job is done,
+  when this is rarely the case." ([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+- Visible tests miss what held-out tests catch: "while every frontier agent saturates the visible
+  suite, reward hacking persists" ([SpecBench](../docs/evidence.md#src-specbench)).
+
+## How this section fixes it
+
+The verification layer stops trusting the claim. When the agent says done, a gate runs the visible
+tests, the existing tests, house rules R1 to R7, a board check, and a clean-state check, in the
+agent's own container. Tests the agent writes in a short test phase are kept only if they pass five
+filters. The referee then scores the work with hidden tests and planted faults the agent never sees.
+
+```mermaid
+flowchart LR
+  A["Agent"] -->|"finish done"| G["Verify gate"]
+  G -->|"refused: fix these"| A
+  G -->|"passed"| T["Test phase<br/>five filters"]
+  T --> R["Referee<br/>hidden tests, referee mutants"]
+```
+
+The course also measures whether the layer helps. On this ticket, with this model, it made no
+measurable difference: both arms failed every test run before class
+([evidence](../docs/evidence.md#section-4)). The concepts page explains why, and what the gate still
+catches.
+
+## How to work through this section
+
+In class the section takes 50 minutes. The live demo starts early and runs while the concepts are
+taught. The final A/B is also launched here and read in the final block.
+
+| Part | What it gives you | In class |
+|---|---|---|
+| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 6-20 |
+| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 4; review at 30-45 |
+| [demo/walkthrough.md](demo/walkthrough.md) | The gate's code, 38 lines explained | Minutes 20-30 |
+| [assignment/](assignment/README.md) | Assignment 4: a soft-delete check, a sixth filter, a live run, a portfolio | After class |
+| [post-class-reading/](post-class-reading/README.md) | Four short readings on filters, mutants, evaluators, held-out tests | After class |
+| [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |
+
+## Where next
+
+- First time here? Install everything with [setup/](../setup/README.md), then run the
+  [demo](demo/README.md).
+- Already set up? Start with [concepts.md](concepts.md).
+- Want a verify gate in your own repository? See [use-in-your-repo/](../use-in-your-repo/README.md).
+- After this section: the [final project](../final-project/README.md).

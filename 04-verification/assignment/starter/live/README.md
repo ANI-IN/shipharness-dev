@@ -1,7 +1,7 @@
 # live
 
-The files of your two live runs go here (instructions: `../../README.md`, "Live step" and steps
-6-8). The self-check and the grader validate them; nothing is re-run.
+The files of your two live runs go here (instructions: steps 6 to 8 of the
+[assignment](../../README.md), and [SPEC.md](../../SPEC.md#evidence-to-hand-in)). The self-check and the grader validate them; nothing is re-run.
 
 | File | What goes in it |
 |---|---|
