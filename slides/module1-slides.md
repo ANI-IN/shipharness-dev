@@ -1379,7 +1379,7 @@ A month later the cost shows up:
 - Explain: an illustrative scenario from the concepts page. The list of files was written down, but nothing checked it.
 - Example, real: before class, in the S3 confirmation, every bare arm on F4 changed `app/services/errors.py`, which is not in the build phase's allowed paths. In one run it added a `PreconditionFailed` error class with status 412 there.
 - Example: the handbook points to the shared errors module for every new error, so the agent is following a pattern. OpenAI: "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones."
-- Analogy: a pull request that touches a shared library in a monorepo without the library owners in CODEOWNERS review.
+- Analogy: a pull request that touches a shared library in a monorepo without review from the library's code owners.
 - Point at: "Edits a module every endpoint imports"; that is where a small edit reaches other features.
 - Ask the room: "Was adding the error class wrong?" Expected answer: not by itself; it was outside what the ticket allowed, so the owners of the shared module never reviewed it.
 - Likely question: "Did the stray edit break anything in your runs?" Answer: no; existing tests kept passing (190 of 190) in every arm. The count measures scope, not correctness.
@@ -1475,7 +1475,7 @@ The scope check, every tool call:
 - Example, real refusal text the harness arm read: "app/services/errors.py: outside the allowed paths for the build phase (...); patch not applied". The reason names the full list, so the agent learns where it may write.
 - Example: after the refusal, every harness arm defined its 412 error in `app/services/issues.py`, a file on the list.
 - Example: the test phase allows tests only, so the agent cannot make a failing test pass by changing the code.
-- Analogy: branch protection plus CODEOWNERS, applied per tool call instead of per merge.
+- Analogy: branch protection plus required code-owner review, applied per tool call instead of per merge.
 - Point at: the two "no" exits in the diagram.
 - Ask the room: "Why check commands after they run, not before?" Expected answer: the command's text does not say which files it will write; `sed -i` or a code generator only shows up in the result.
 - Likely question: "Did any run need a revert?" Answer: none of this demo's test runs; the agents changed files with `apply_patch`.
@@ -1660,7 +1660,7 @@ For the runtime:
 - Example: if the count is zero across several tasks, like F3, a guard adds little. If a shared module shows up again and again, like `errors.py` on F4, enforce it.
 - Example: enforce in two places: before a patch applies, and after each command with a snapshot. A check on patches alone misses `sed -i` and generated files.
 - Example: make the files that grade the agent (feature list, test fixtures for the referee) off limits in every phase, before any allow list is read.
-- Analogy: turn on CODEOWNERS in report mode before you make it required.
+- Analogy: turn on code-owner review as advisory before you make it required.
 - Point at: the red line in the terminal strip.
 - Ask the room: "What is the first shared file your agent would reach for?" Expected answer: a utils module, a shared config, the error types, the lockfile.
 - Likely question: "Where is a starter?" Answer: Assignment 3 (a diff-scope policy, a `passes` gate, a sandbox rule; run `make check-assignment-3` first) and `use-in-your-repo/`.
