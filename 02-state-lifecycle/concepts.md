@@ -1,7 +1,7 @@
 # S2 State and session lifecycle: what the agent remembers
 
 Reading time: about 15 minutes. Source ids (A1-A7) and finding ids (F-a-NN) point to
-[REFERENCES.md](../../REFERENCES.md). The section name S2, the word "layer", and the R-numbered house
+[docs/REFERENCES.md](../docs/REFERENCES.md). The section name S2, the word "layer", and the R-numbered house
 rules are course labels; the ideas inside them use the sources' own words.
 
 ---
@@ -9,12 +9,12 @@ rules are course labels; the ideas inside them use the sources' own words.
 ## 1. The problem
 
 The S2 task is F2, comments on issues
-([teamtrack/docs/features/f2.md](../../teamtrack/docs/features/f2.md)): three endpoints, a new
+([platform/teamtrack/docs/features/f2.md](../platform/teamtrack/docs/features/f2.md)): three endpoints, a new
 `comments` table "in exactly one new Alembic migration whose `down_revision` is the current head",
 seed comments, and a comments panel on the board's issue page. The ticket ends with "This task runs
 over two sessions."
 
-The task file ([teamtrack/reference/f2/task.toml](../../teamtrack/reference/f2/task.toml)) sets
+The task file ([platform/teamtrack/reference/f2/task.toml](../platform/teamtrack/reference/f2/task.toml)) sets
 `session_budget = [20, 30]`: the first session stops after 20 turns and a 30-turn session starts with
 an empty context (a course mechanism, section 2.3). The pilot's later runs and the class use a
 12-turn first session and 38 turns after it (`--session-budget 12,38`). Files and git history
@@ -147,9 +147,9 @@ The state layer never calls the model.
 
 ## 4. How shipharness implements it
 
-All code is in `src/shipharness/harness/state/`; the layer class is `StateLayer` in `layer.py`. The
+All code is in `platform/src/shipharness/harness/state/`; the layer class is `StateLayer` in `layer.py`. The
 three walkthrough anchors are `S2:init`, `S2:stop_resume`, and `S2:write`
-(`uv run python scripts/anchors.py extract S2:init`).
+(`uv run python platform/scripts/anchors.py extract S2:init`).
 
 ### 4.1 Initializer step (before session 1)
 
@@ -161,7 +161,7 @@ three walkthrough anchors are `S2:init`, `S2:stop_resume`, and `S2:write`
 `progress.md` has the sections `Current feature`, `Done`, `In progress`, `Next` (the agent's), and
 `Session log` (the harness's, one entry per session).
 
-The `init.sh` the agent gets (anchor `S2:init`, `src/shipharness/harness/state/assets/init.sh`,
+The `init.sh` the agent gets (anchor `S2:init`, `platform/src/shipharness/harness/state/assets/init.sh`,
 lines 16-21):
 
 ```bash
@@ -180,7 +180,7 @@ plan template (`assets/exec-plan.md`) has A7's sections plus `Purpose` and `Vali
 
 ### 4.2 Getting up to speed (every session)
 
-`lifecycle.getting_up_to_speed` (`src/shipharness/harness/state/lifecycle.py`) follows A2's list
+`lifecycle.getting_up_to_speed` (`platform/src/shipharness/harness/state/lifecycle.py`) follows A2's list
 (F-a-58 to F-a-62): `pwd`; `progress.md` and the git log; the handoff and the exec plan; the
 handoff's "Notes from the agent" before any other document; `bash init.sh`. It ends: "Spend the
 session on the ticket: update progress.md, the exec plan, and the handoff only when the harness asks
@@ -194,9 +194,9 @@ Turns left in this session: 3." (`runner/prompts.py`). Only the harness arm's me
 house rules and file locations from the documents you read that matter for this ticket"; then commit.
 
 When the session ends, `session_stop` (anchor `S2:stop_resume`,
-`src/shipharness/harness/state/lifecycle.py`, lines 96-120) writes the harness's part of the handoff
+`platform/src/shipharness/harness/state/lifecycle.py`, lines 96-120) writes the harness's part of the handoff
 and a progress log entry, whatever the agent did, and commits both. Print it with
-`uv run python scripts/anchors.py extract S2:stop_resume`.
+`uv run python platform/scripts/anchors.py extract S2:stop_resume`.
 
 The machine summary (`handoff.py`) lists commits, files changed, visible-test status, open TODO
 markers, migration heads (with "house rule R7 needs exactly one" when there is more than one), and
@@ -239,14 +239,14 @@ none of the files.*
 ## 5. What the A/B measures
 
 The S2 primary measure, `continuity_failure`, was registered before any run (course design). A run
-fails if any of these holds (`src/shipharness/checks/continuity.py`):
+fails if any of these holds (`platform/src/shipharness/checks/continuity.py`):
 
 - (a) R7 fails: migration heads are not exactly one, or a fresh `alembic upgrade head` fails;
 - (b) a second migration creates a table that another migration already creates;
 - (c) 30% or more of the lines added in session 1 are removed in session 2 (`REDONE_THRESHOLD_PCT`).
 
 Results are runs failing out of k, per arm, one dot per run; the components and `redone_lines_pct`
-(the share of session 1's added lines that session 2 removes) are secondary (`src/shipharness/ab/score.py`).
+(the share of session 1's added lines that session 2 removes) are secondary (`platform/src/shipharness/ab/score.py`).
 Session patches come from each session's working-tree snapshots, so an arm that never commits is
 measured like one that does; the referee strips the harness's files from them and runs the check in
 its own container (`ab/demo.py`, `ab/referee.py`).

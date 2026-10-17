@@ -2,7 +2,7 @@
 
 Reading time: about 15 minutes. Sources are cited by ID with finding IDs (for example "(A2, F-a-80)"):
 A1-A7 are the teaching sources, D21-D30 the official Codex and Docker docs. The full list is in
-[REFERENCES.md](../../REFERENCES.md) at the repository root. Anything the course designed itself is
+[docs/REFERENCES.md](../docs/REFERENCES.md) in the course repository. Anything the course designed itself is
 marked **course design**. Section names (S1-S4), house-rule numbers (R1-R7), "layer", and "trap
 variant" are course labels, not source terms.
 
@@ -44,14 +44,14 @@ the container every tool command runs in, identical for both arms and never an A
 
 ## 1. Problem: what the task tempts the agent to do
 
-The S3 task is F3, idempotency keys on issue creation (`teamtrack/docs/features/f3.md`): make
+The S3 task is F3, idempotency keys on issue creation (`platform/teamtrack/docs/features/f3.md`): make
 `POST /projects/{project_id}/issues` honour the `Idempotency-Key` header the way `POST /projects`
 already does. The ticket says what may change: the issue endpoint, its service, house rule R4 in
 `docs/HANDBOOK.md`, and tests. "House rules" is the course's label for the repository rules that A1
 calls "golden principles" (A1, F-a-99). Shared middleware is out of scope, and the test phase adds
 tests without changing application code.
 
-The allowed paths come from the dataset line `F3-canonical` (`datasets/teamtrack-features-v1.jsonl`):
+The allowed paths come from the dataset line `F3-canonical` (`platform/datasets/teamtrack-features-v1.jsonl`):
 
 | Phase | Allowed paths |
 |---|---|
@@ -74,7 +74,7 @@ this task in any valid run; section 7 has the results.
 The pilot's first run (2026-10-16, before the measurement fixes) has its own lesson. Every F3 arm
 "failed" with 4 out-of-scope files: the import linter's cache (`.import_linter_cache/`). A path check
 that knows nothing about generated files counts them, so a harness needs a list of generated paths
-next to its allowed paths (`src/shipharness/runner/tools.py` and `src/shipharness/ab/workspace.py`
+next to its allowed paths (`platform/src/shipharness/runner/tools.py` and `platform/src/shipharness/ab/workspace.py`
 now list `.import_linter_cache`).
 
 ---
@@ -137,7 +137,7 @@ A2's coding agent "was then asked to work on only one feature at a time." (A2, F
 reports that "The one-feature-at-a-time approach from the earlier harness worked well for scope
 management." (A3, F-a-102). The scope block in the harness arm's context prefix names the single
 feature and says to work only on it (`ScopeLayer.context_prefix` in
-`src/shipharness/harness/scope/layer.py`).
+`platform/src/shipharness/harness/scope/layer.py`).
 
 ### 3.3 Only the harness sets `passes`
 
@@ -189,7 +189,7 @@ Module 2 covers detailed sandbox design.
 
 ### 4.1 What the container allows
 
-All values are in `SandboxPolicy` (`src/shipharness/sandbox/policy.py`), printed at the start of
+All values are in `SandboxPolicy` (`platform/src/shipharness/sandbox/policy.py`), printed at the start of
 every run. Values and one container per arm are **course design**; flag behaviour is from the Docker
 docs.
 
@@ -200,7 +200,7 @@ docs.
 | Memory | `--memory 1024m --memory-swap 1024m` | Runaway memory; swap equal to memory means no swap | D25, D26 |
 | CPU and processes | `--cpus 1.0` (2.0 in the class profile, `make show-3`) `--pids-limit 256` | One arm starving the other; fork bombs | D24, D26 |
 | Non-root | `--user 1000:1000`, `--cap-drop ALL`, `--security-opt no-new-privileges` | Root inside the container; gaining privileges later | D24, D25, D30 |
-| Time | `TOOL_TIMEOUT_S` 120 s per command, `RUN_TIMEOUT_S` 300 s per run | Hung commands; endless runs | `src/shipharness/config/settings.py` |
+| Time | `TOOL_TIMEOUT_S` 120 s per command, `RUN_TIMEOUT_S` 300 s per run | Hung commands; endless runs | `platform/src/shipharness/config/settings.py` |
 
 The agent loop and the API keys stay on the host; only tool commands run in the container, and a
 variable named like KEY, TOKEN, or SECRET is refused (`docker_run_args`).
@@ -234,11 +234,11 @@ Read the reason code first: `network`, `write_outside_workspace`, `pids`, `memor
 
 ## 5. How shipharness implements it
 
-The class walkthrough opens five anchors with `uv run python scripts/anchors.py extract <id>`:
+The class walkthrough opens five anchors with `uv run python platform/scripts/anchors.py extract <id>`:
 `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, and `S3:dockerfile` (files and what to
 point at: [demo/README.md](demo/README.md#10-code-walkthrough)).
 
-**Allowed paths** (`src/shipharness/harness/scope/guard.py`, lines 60-78). The harness-only files are
+**Allowed paths** (`platform/src/shipharness/harness/scope/guard.py`, lines 60-78). The harness-only files are
 refused before anything else, so no allowed-path list can open them up.
 
 ```python
@@ -278,13 +278,13 @@ harness arm alone, live), because the pilot found no gap (section 7); the runboo
 
 **Primary measure** (registered before any run): `out_of_scope_files>=1 or
 test_phase_source_edits>=1` fails the run. The referee computes both on the host from the applied
-diff (`src/shipharness/ab/referee.py`):
+diff (`platform/src/shipharness/ab/referee.py`):
 
 - `out_of_scope_files`: files in the shipped diff, after harness artifacts such as `AGENTS.md` and
   `feature_list.json` are removed, that match neither the build list nor the test list.
 - `test_phase_source_edits`: non-artifact files outside the test list that differ between the
   working-tree snapshots at the start and the end of the test phase, so uncommitted build work is not
-  counted (`phase_changed_files` in `src/shipharness/ab/demo.py`).
+  counted (`phase_changed_files` in `platform/src/shipharness/ab/demo.py`).
 
 Results are runs failing out of k per arm, one dot per run.
 
@@ -296,7 +296,7 @@ secondary measures answer:
 |---|---|---|
 | Existing tests keep passing | `regression_passed` / `regression_total` | the checkpoint's visible suite |
 | Hidden tests passed | `hidden_passed` / `hidden_total` | 49 (dataset line `F3-canonical`) |
-| Referee mutants killed by shipped tests | `mutants_killed` / `mutants_total` | 4 (`teamtrack/mutants/features/f3.jsonl`, set `referee`) |
+| Referee mutants killed by shipped tests | `mutants_killed` / `mutants_total` | 4 (`platform/teamtrack/mutants/features/f3.jsonl`, set `referee`) |
 | Shipped tests | `shipped_tests` | count per run |
 | Agent said vs referee | `claim`, `passed_primary` | per run |
 

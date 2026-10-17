@@ -3,7 +3,7 @@
 Notes for learners after the S2 block. They summarise what was shown, the key ideas with their
 sources, what the pilot measured (every run, not only tonight's), the questions that usually come up,
 and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
-[REFERENCES.md](../../REFERENCES.md). The full material is in [concepts.md](concepts.md) and the
+[docs/REFERENCES.md](../docs/REFERENCES.md). The full material is in [concepts.md](concepts.md) and the
 [demo runbook](demo/README.md).
 
 ## What was shown
@@ -20,7 +20,7 @@ and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
    context reset, and the files that carry state across it.
 4. **Code walkthrough**: the anchors `S2:init` (`init.sh`), `S2:stop_resume` (`session_stop` and
    `resume_text`), and `S2:write` (the session-log line). Print any of them with
-   `uv run python scripts/anchors.py extract S2:stop_resume`.
+   `uv run python platform/scripts/anchors.py extract S2:stop_resume`.
 5. **Demo block**: the finished live run (screens 1, 3, 5): the initializer step, the wrap-up,
    "Session 1 stopped", the handoff written, "Session 2 resumed", and the referee's primary verdict.
 6. **Every result** on one slide and console screen 4, wins and "no measurable difference" alike.

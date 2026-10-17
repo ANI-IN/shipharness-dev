@@ -11,7 +11,7 @@ Why it matters: a coding agent sees only what is in the repository. A1 keeps the
 map, "we treat it as the table of contents", "roughly 100 lines" (A1, F-a-27, F-a-28), and A2 notes
 that "each new session begins with no memory of what came before" (A2, F-a-08). The kit gives your
 repository the same map, the same session files, and the same checks TeamTrack has in the course,
-starting from TeamTrack's real values. Source ids (A1, F-a-27, ...) are listed in `REFERENCES.md`
+starting from TeamTrack's real values. Source ids (A1, F-a-27, ...) are listed in `docs/REFERENCES.md`
 at the root of the course repository.
 
 What it costs: steps 1 to 4 make no model calls and print `Cost: $0.000000 (no model calls)`. Step 5
@@ -33,20 +33,20 @@ The example repository is three modules of boltons 26.2.0 (`typeutils`, `listuti
 `queueutils`) with their tests: a real, small, BSD-3-Clause library that the course already pins for
 `shipharness testgen`. It is not a FastAPI app, so it also shows what to do when most of TeamTrack's
 house rules do not apply. The end state of every file is in
-[kit/examples/boltons-queueutils/](../kit/examples/boltons-queueutils/README.md).
+[use-in-your-repo/kit/examples/boltons-queueutils/](kit/examples/boltons-queueutils/README.md).
 
 Build it from the shipharness checkout (the fetch uses git and the network, never a model):
 
 ```bash
-uv run python scripts/fetch_testgen_libs.py boltons
-bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
+uv run python platform/scripts/fetch_testgen_libs.py boltons
+bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
 ```
 
 Every capture in this guide was made on 2026-10-17 in a shipharness checkout, with the worked
 example at `/tmp/boltons-queueutils`. In the captured lines, the checkout's own path is written as
 `$SHIPHARNESS` (the only change made to them); yours show your own path.
 
-Captured on 2026-10-17 from `uv run python scripts/fetch_testgen_libs.py boltons`,
+Captured on 2026-10-17 from `uv run python platform/scripts/fetch_testgen_libs.py boltons`,
 on a checkout without the clone (the script cloned boltons and verified the pinned commit); your
 output will differ:
 
@@ -54,7 +54,7 @@ output will differ:
 ok boltons 26.2.0 4332b35a278d694f30c99881faa61cde695c7a96 -> $SHIPHARNESS/.shipharness/libs/boltons/src
 ```
 
-Captured on 2026-10-17 from `bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils`; your output will differ:
+Captured on 2026-10-17 from `bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils`; your output will differ:
 
 ```text
 created /tmp/boltons-queueutils from boltons 4332b35
@@ -64,8 +64,8 @@ boltons/__init__.py
 boltons/listutils.py
 boltons/queueutils.py
 boltons/typeutils.py
-tests/__init__.py
-tests/conftest.py
+platform/tests/__init__.py
+platform/tests/conftest.py
 tests/test_listutils.py
 tests/test_queueutils.py
 tests/test_typeutils.py
@@ -117,7 +117,7 @@ Common mistakes:
 
 What it is: `shipharness init` copies the kit's templates and the four course skills into your
 repository. Every template holds TeamTrack's real values with a REPLACE marker next to each value.
-The file list and where each file comes from are in [kit/README.md](../kit/README.md).
+The file list and where each file comes from are in [use-in-your-repo/kit/README.md](kit/README.md).
 
 Commit or stash your own changes first, so the kit's files show up as one change.
 
@@ -149,7 +149,7 @@ Cost: $0.000000 (no model calls)
 The 97 files are 27 templates plus the four skills twice: once in `.claude/skills/` (Claude Code,
 Cursor) and once in `.agents/skills/` (Codex, Cursor). `--skills claude` or `--skills agents`
 installs one copy only. Each skill's README says which tool reads which folder, for example
-[skills/harness-setup/README.md](../skills/harness-setup/README.md).
+[use-in-your-repo/skills/harness-setup/README.md](skills/harness-setup/README.md).
 
 How to check it worked:
 
@@ -204,7 +204,7 @@ Common mistakes:
   Cost: $0.000000 (no model calls)
   ```
 
-  Merge by hand: open `kit/templates/AGENTS.md` in the shipharness checkout next to your own file.
+  Merge by hand: open `use-in-your-repo/kit/templates/AGENTS.md` in the shipharness checkout next to your own file.
   Use `--force` only when you want the template to replace your file.
 
 ## Step 3: Fill in the map
@@ -224,7 +224,7 @@ What you should see first: one line per marker, `file:line: what to write`, then
 code 1. Captured on 2026-10-17 from `uv run shipharness init --check /tmp/boltons-queueutils`, first four and last three lines; your output will differ:
 
 ```text
-.github/workflows/shipharness.yml:1: CI for your repository's house rules. The values are TeamTrack's, as if teamtrack/ were its own repository: the app is at the repository root, the existing tests are in tests/visible, and the adapter is harness/shipharness_adapter.py.
+.github/workflows/shipharness.yml:1: CI for your repository's house rules. The values are TeamTrack's, as if platform/teamtrack/ were its own repository: the app is at the repository root, the existing tests are in tests/visible, and the adapter is harness/shipharness_adapter.py.
 .github/workflows/shipharness.yml:20: the module testgen writes tests for, relative to the repository root.
 .github/workflows/shipharness.yml:24: the existing tests of that module (filter 3 measures coverage over them).
 .github/workflows/shipharness.yml:41: the shipharness repository you cloned for the course (README, Quick start).
@@ -259,8 +259,8 @@ queue raises `KeyError`, and the code raises `IndexError`. Captured on 2026-10-1
 IndexError: pop on empty queue
 ```
 
-Compare [the filled map](../kit/examples/boltons-queueutils/filled/AGENTS.md) with
-[the template](../kit/templates/AGENTS.md) to see the edits.
+Compare [the filled map](kit/examples/boltons-queueutils/filled/AGENTS.md) with
+[the template](kit/templates/AGENTS.md) to see the edits.
 
 How to check it worked:
 
@@ -324,7 +324,7 @@ answers exactly like TeamTrack's built-in adapter, so it is a working starting p
 For a library, keep R6 as a layering rule for your packages and the check that existing tests keep
 passing. The worked example keeps `layering_contract()` with an import-linter layers contract
 (`queueutils` above `listutils` above `typeutils`) and `exemptions()`
-([its adapter](../kit/examples/boltons-queueutils/filled/harness/shipharness_adapter.py)).
+([its adapter](kit/examples/boltons-queueutils/filled/harness/shipharness_adapter.py)).
 
 Record today's violations once as the baseline, then check against it. Run from your repository:
 
@@ -415,9 +415,9 @@ changed no source file (the filters and their sources are in
 pytest suite, which makes it the first harnessed run for a repository that is not TeamTrack.
 
 It costs money. Set a cap below the default for a first try: `MAX_RUN_COST_USD` is $0.20 per run
-by default (`src/shipharness/config/settings.py`), and the cost tracker refuses a model call that
+by default (`platform/src/shipharness/config/settings.py`), and the cost tracker refuses a model call that
 would cross it (README, [Costs and caps](../README.md#13-costs-and-caps)). Prices per 1M tokens are
-in `config/prices.toml`: gpt-6-luna $0.10 input, $0.01 cached input, $0.50 output. The variable
+in `platform/config/prices.toml`: gpt-6-luna $0.10 input, $0.01 cached input, $0.50 output. The variable
 overrides the default for one command; captured on 2026-10-17 from
 `MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" python -c "from shipharness.config import Settings; print(Settings().max_run_cost_usd)"`:
 
@@ -441,12 +441,12 @@ MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo
 prints UNSANDBOXED; for code you do not trust, build an image and pass `--sandbox docker --image`.
 `--python` is an interpreter with your repository's dependencies, pytest, and coverage; the
 shipharness environment has all three for this example. With `--layers verify`, the visible tests the
-layer runs are the folder of `--tests` (here `tests/`), and the migration-head check runs only when the
+layer runs are the folder of `--tests` (here `platform/tests/`), and the migration-head check runs only when the
 repository has an Alembic configuration, so a library such as boltons needs neither TeamTrack's
 `tests/visible` folder nor a database (a bug fixed on 2026-10-17: before the fix, every gate on
 boltons failed on those two TeamTrack paths).
 
-What you should see (the format is in `src/shipharness/testgen/commands.py`): a `Baseline:` line,
+What you should see (the format is in `platform/src/shipharness/testgen/commands.py`): a `Baseline:` line,
 a summary `testgen <run id>: <status>; kept <n> of <m> proposed tests`, one line per proposed test
 (`+ <test id>` for a kept test, `- <test id>: filter <n>: <reason>` for a discarded one),
 `Kept tests and report: <folder>`, and the cost line.
@@ -504,7 +504,7 @@ The testgen output: a kept test asserts what the code does today, so it guards a
 regressions but cannot catch a fault that is already in the code (B12, F-b-41). Review each kept
 test as code before you commit it. A discarded test's line names the filter that rejected it;
 without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered module most
-proposed tests are discarded there (`skills/assured-tests/SKILL.md`).
+proposed tests are discarded there (`use-in-your-repo/skills/assured-tests/SKILL.md`).
 
 In the worked example, `testgen-report.json` lists the kept tests and one result per filter per
 test. Captured on 2026-10-17, run r-20261017-121823-aa1c4b, from
@@ -543,7 +543,7 @@ What it is: the course's harness has four layers: instructions (S1), state and s
 (S2), scope and sandbox (S3), and verification (S4). Not every repository needs all of them in full.
 A3's method is to remove "one component at a time" and review "what impact it had on the final
 result" (A3, F-a-125). On TeamTrack, `make demo-2 LAYERS=-state` does that for you
-([after-class.md](after-class.md), costs money). On your own repository there is no A/B runner, so
+([after-class.md](../docs/after-class.md), costs money). On your own repository there is no A/B runner, so
 decide per layer from what it prevents and what it costs to keep current.
 
 Each layer encodes an assumption about what the model cannot do on its own; A3 says "those
@@ -563,7 +563,7 @@ and cheap, or to measure it on your own failures, not a reason to keep it by def
 
 How to check your decision: write it down in `docs/PLANS.md` with the date, and revisit it when an
 agent makes a mistake the dropped layer would have caught. The failure each part prevents is listed
-in `skills/harness-setup/references/failure-modes.md`.
+in `use-in-your-repo/skills/harness-setup/references/failure-modes.md`.
 
 ## When something goes wrong
 
@@ -577,4 +577,4 @@ in `skills/harness-setup/references/failure-modes.md`.
 | `x OPENAI_API_KEY is missing` | Add the key to `.env` in the shipharness checkout |
 
 More on the commands: [final-project/README.md, part 9](../final-project/README.md#9-run-shipharness-on-your-own-repository).
-More on the kit itself: [kit/README.md](../kit/README.md).
+More on the kit itself: [use-in-your-repo/kit/README.md](kit/README.md).

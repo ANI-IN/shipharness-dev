@@ -4,7 +4,7 @@ Reading time: about 8 minutes.
 
 Source: B11, "Automated Unit Test Improvement using Large Language Models at Meta" (Alshahwan et al.,
 Meta, FSE '24), https://arxiv.org/abs/2402.09171. Quotes are verbatim, with finding IDs that
-resolve in [REFERENCES.md](../../../REFERENCES.md).
+resolve in [docs/REFERENCES.md](../../docs/REFERENCES.md).
 
 ## What TestGen-LLM does
 
@@ -72,18 +72,18 @@ filter would discard those tests. Reading 02 covers ACH.
 
 ## Where to see it in the repository
 
-- `src/shipharness/filters/filters.py`: the five filter classes; every result has a `reason`, for
+- `platform/src/shipharness/filters/filters.py`: the five filter classes; every result has a `reason`, for
   the formats `flaky: passed <n> of 5 runs, then <error>` and `adds no line coverage over the existing
   suite and kills no filter-set mutant that the existing tests miss (<n> checked)`.
-- `src/shipharness/filters/pipeline.py` (anchor `S4:filters`): a test stops at its first failing
+- `platform/src/shipharness/filters/pipeline.py` (anchor `S4:filters`): a test stops at its first failing
   filter, so the expensive filters never run on a test that fails a cheap one.
-- `skills/assured-tests/`: the course skill that runs `shipharness testgen` and explains every
+- `use-in-your-repo/skills/assured-tests/`: the course skill that runs `shipharness testgen` and explains every
   discard.
 
 One difference between the two entry points. `shipharness testgen --target <id>` passes the target
 module and its filter-set mutants, so filter 3's mutant branch and filter 4's mocking check both
-run (`src/shipharness/testgen/run.py`). The verify layer's test phase in an A/B builds the filter
-context without a mutant list or target module (`src/shipharness/harness/verify/testphase.py`), so
+run (`platform/src/shipharness/testgen/run.py`). The verify layer's test phase in an A/B builds the filter
+context without a mutant list or target module (`platform/src/shipharness/harness/verify/testphase.py`), so
 there filter 3 decides by coverage and filter 4 checks assertions only.
 
 ## Why it matters for your own repo

@@ -22,14 +22,14 @@ From `trace_url` (agent root) and `referee_trace_url` in each score record, Lang
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview
 ```
 
-The command runs the F4 ticket (example `F4-canonical` in `datasets/teamtrack-features-v1.jsonl`,
+The command runs the F4 ticket (example `F4-canonical` in `platform/datasets/teamtrack-features-v1.jsonl`,
 checkpoint `m1-s4-start`) in both arms: bare with no harness layer, harness with the demo-4 stack
-(instructions, state, scope, verify; `SECTION_STACKS` in `src/shipharness/ab/demo.py`). The
+(instructions, state, scope, verify; `SECTION_STACKS` in `platform/src/shipharness/ab/demo.py`). The
 referee judges both builds the same way and writes one score record per arm to
 `exports/scores/<run_id>.json`. `--no-preview` skips the board preview containers. The command
 prints the A/B id, one line per arm, and the cost line. `--purpose assignment` traces each run
 to the LangSmith project `shipharness-assignments` (agent root and referee) and counts its spend in
-the `assignment` cost session (`_trace_target` in `src/shipharness/ab/commands.py`).
+the `assignment` cost session (`_trace_target` in `platform/src/shipharness/ab/commands.py`).
 
 ## What the comparison shows
 
@@ -62,7 +62,7 @@ Cost: $0.042138 (this command: gpt-5.6-luna $0.007424, gpt-6-luna $0.034714; ses
 
 How to read it: F4's primary measure has two parts, hidden tests passed and mutants killed, each
 against its total (`primary_measure` in the F4 dataset line), and a run passes it only when both
-counts equal their totals (`evaluate_primary` in `src/shipharness/ab/score.py`). Neither arm
+counts equal their totals (`evaluate_primary` in `platform/src/shipharness/ab/score.py`). Neither arm
 passed. The bare arm missed by one hidden test and killed every referee mutant with its 34 shipped
 tests. The harness arm stopped with `ABORTED: timeout` after 43 turns, before it shipped a test, so
 no test of its own could kill a referee mutant, and 26 hidden tests failed on its unfinished

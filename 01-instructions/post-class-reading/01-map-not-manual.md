@@ -5,7 +5,7 @@ Reading time: about 8 minutes.
 Source: A1, Ryan Lopopolo (OpenAI), "Harness engineering: leveraging Codex in an agent-first world",
 2026-02-11, https://openai.com/index/harness-engineering/ , sections "Agent legibility is the goal" and
 "We made repository knowledge the system of record". Accessed 2026-10-16. Quotes are verbatim, with
-their finding IDs; [REFERENCES.md](../../../REFERENCES.md) (generated at release) lists every finding.
+their finding IDs; [docs/REFERENCES.md](../../docs/REFERENCES.md) (generated at release) lists every finding.
 
 Read the whole A1 section after this piece; it is short. The excerpts below follow its argument and
 place each step next to the TeamTrack file that applies it.
@@ -67,7 +67,7 @@ reaches it.
 
 Three properties: short (roughly 100 lines), injected (always in context, no decision needed to read
 it), and a map (it says where each fact lives, not the facts in full). TeamTrack's
-`teamtrack/harness/instructions/AGENTS.md` is 94 lines. Its opening says it is "a table of contents,
+`platform/teamtrack/harness/instructions/AGENTS.md` is 94 lines. Its opening says it is "a table of contents,
 not the manual", and its main table is keyed by what the agent is about to do ("add or change an
 endpoint", "decide who may see or change data"), each row naming one file.
 
@@ -106,7 +106,7 @@ format, so the course uses them as plain reference notes.
 "Small" and "stable" both matter for the implementation. Small keeps the context free for the task.
 Stable means the same text at the start of every session; in `shipharness` the prefix is built from
 the course checkout, so the agent cannot change it by editing its own copy of `AGENTS.md`
-(`src/shipharness/harness/instructions/router.py`). The Agent Skills specification applies the same
+(`platform/src/shipharness/harness/instructions/router.py`). The Agent Skills specification applies the same
 idea to skills; see [02-progressive-disclosure-in-agent-skills.md](02-progressive-disclosure-in-agent-skills.md).
 
 ## 7. Keeping the knowledge base true
@@ -150,6 +150,6 @@ S1 A/B. It does not take A1's productivity numbers as a prediction.
 
 ## Questions to take away
 
-1. Open `teamtrack/docs/HANDBOOK.md` and `teamtrack/harness/instructions/AGENTS.md` side by side. For
+1. Open `platform/teamtrack/docs/HANDBOOK.md` and `platform/teamtrack/harness/instructions/AGENTS.md` side by side. For
    R1, how many lines does an agent read before it reaches the rule in each?
 2. Which of the four failure modes in section 3 would a link checker catch, and which would it not?

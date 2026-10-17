@@ -1,7 +1,7 @@
 # post-class-reading
 
 Short pieces that go further than the 50 minutes of class allow. Each one quotes the primary sources
-verbatim, with finding IDs (listed in [REFERENCES.md](../../../REFERENCES.md), generated at release),
+verbatim, with finding IDs (listed in [docs/REFERENCES.md](../../docs/REFERENCES.md), generated at release),
 and ties them to TeamTrack and `shipharness` code. Read them in order; together they take about 21 minutes. Each ends with a
 section "Why it matters for your own repo".
 

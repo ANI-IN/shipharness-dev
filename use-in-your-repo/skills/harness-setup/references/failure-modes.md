@@ -1,7 +1,7 @@
 # Common failure modes and the harness part that addresses each
 
 Each row is a failure the sources report, in our words, with the finding ids listed in
-`REFERENCES.md` at the repository root. The last column names the part of the harness
+`docs/REFERENCES.md` in the course repository. The last column names the part of the harness
 and the template from this skill that address it.
 
 | Failure | What you see | Source | Harness part |

@@ -19,13 +19,13 @@ A/B). The testgen command runs without `--image`, so its tests ran on the host a
 UNSANDBOXED warning (first lines of `testgen.txt`).
 
 ```
-L=submodules/04-verification/solution/live
-export PYTHONPATH=submodules/04-verification/solution
+L=04-verification/assignment/solution/live
+export PYTHONPATH=04-verification/assignment/solution
 mkdir -p $L/scores
 echo '$ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen' > $L/testgen.txt
 uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 \
     --out .shipharness/a4/testgen 2>&1 | tee -a $L/testgen.txt
-uv run python -m a4_verification.apply_filter --repo teamtrack --kept .shipharness/a4/testgen \
+uv run python -m a4_verification.apply_filter --repo platform/teamtrack --kept .shipharness/a4/testgen \
     --existing tests/visible/test_tenant_isolation.py --existing tests/visible/test_issues.py \
     --existing tests/visible/test_legacy_and_schema.py --update-report
 cp .shipharness/a4/testgen/testgen-report.json $L/
@@ -33,7 +33,7 @@ echo '$ uv run shipharness ab --section demo-4 --feature F4 --purpose assignment
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview 2>&1 | tee -a $L/ab.txt
 AB=$(grep -o 'ab-[0-9]\{8\}-[0-9]\{6\}-[0-9a-f]\{6\}' $L/ab.txt | head -1)
 grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $L/scores/
-uv run python submodules/04-verification/solution/grader/grade.py
+uv run python 04-verification/assignment/solution/grader/grade.py
 ```
 
 What `apply_filter` printed is not kept here; its result is in the report (the filter-6 row and

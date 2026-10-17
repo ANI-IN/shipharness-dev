@@ -13,6 +13,9 @@ apply your own policy and status gate to what the two real arms changed.
   out of 100 comes from `make grade-assignment-3 SUBMISSION=<folder or git URL>`, which the
   instructor runs: the grader and its hidden cases are not in the learner repository.
 
+The reference solution sits next to the starter, in [`solution/`](./solution/). Try the
+assignment first, then compare; the grader stays private.
+
 ## Objective
 
 By the end you can:
@@ -39,7 +42,7 @@ close in a package that mirrors the real interfaces:
 - `passes` must change only with evidence. A "done" claim without a passing gate, a gate whose items
   contradict `passed: true`, or a test run whose output does not prove a pass must leave the feature
   list unchanged.
-- The scope guard's byte snapshot skips `.git` (`src/shipharness/harness/scope/snapshot.py`), so a
+- The scope guard's byte snapshot skips `.git` (`platform/src/shipharness/harness/scope/snapshot.py`), so a
   command that rewrites git history can never be reverted, and the evidence written with `passes`
   names a commit SHA that such a rewrite would orphan. You add a sandbox rule that refuses history
   rewrites before they run.
@@ -66,20 +69,20 @@ Read these before you start; each is short.
 - **Allowed paths per phase** are the course's application of two source statements: A5's security
   model has "File operations restricted to the project directory only" (A5, F-a-86), and A1 says to
   "enforce boundaries centrally, allow autonomy locally" (A1, F-a-98). The per-phase lists come from
-  each dataset example's `outputs.allowed_paths` (`datasets/teamtrack-features-v1.jsonl`). In the
-  real harness, `src/shipharness/harness/scope/guard.py` decides per path (`uv run python
-  scripts/anchors.py extract S3:allowed_paths`) and `src/shipharness/harness/scope/layer.py` blocks
+  each dataset example's `outputs.allowed_paths` (`platform/datasets/teamtrack-features-v1.jsonl`). In the
+  real harness, `platform/src/shipharness/harness/scope/guard.py` decides per path (`uv run python
+  platform/scripts/anchors.py extract S3:allowed_paths`) and `platform/src/shipharness/harness/scope/layer.py` blocks
   patches and reverts command changes.
 - **Only the harness sets `passes`.** A2 lets the agent mark a feature passing after "careful testing"
   (A2, F-a-108). The course moves that decision to the harness, citing A3: "Separating the agent doing
   the work from the agent judging it proves to be a strong lever" (A3, F-a-110). The `evidence` and
   `testedAt` fields and "only the harness sets `passes`" are course design, not source terms. Real
-  code: `src/shipharness/harness/scope/status.py` (anchor `S3:passes`).
+  code: `platform/src/shipharness/harness/scope/status.py` (anchor `S3:passes`).
 - **The sandbox** is identical for both arms and is not an A/B variable (course design). Sources: "for each
   agent, a Docker container is spun up" (A4, F-a-88); "Claude did not have internet access at any point
   during its development" (A4, F-a-90); A5's bash allowlist, where "Commands not in the allowlist are
   blocked by the security hook." (A5, F-a-87). The course policy refuses network commands before they
-  run (`DenyRule` and `check_command` in `src/shipharness/sandbox/policy.py`, anchor `S3:policy`).
+  run (`DenyRule` and `check_command` in `platform/src/shipharness/sandbox/policy.py`, anchor `S3:policy`).
 - **Why history matters.** A2's agent used git "to revert bad code changes" (A2, F-a-57). Your rule must
   keep that possible (`git revert`, `git checkout -- <path>`, `git restore`) while refusing the commands
   that rewrite or delete history. That split is course design.
@@ -217,7 +220,7 @@ close ways a claim could pass without proof.
 Fill `HISTORY_RULES` with `DenyRule` patterns (regex on the command, searched with `re.search` by the
 real `check_command`) that share `reason_code="write_outside_workspace"` and one `HISTORY_MESSAGE` of
 at least 20 characters saying what was refused and what to do instead. The reason codes are fixed by
-`ReasonCode` in `src/shipharness/sandbox/base.py`; `write_outside_workspace` is the closest, because
+`ReasonCode` in `platform/src/shipharness/sandbox/base.py`; `write_outside_workspace` is the closest, because
 `.git` is outside the files the scope guard can restore. `policy()` (given) puts the defaults first.
 
 Must be denied:
@@ -237,8 +240,8 @@ Must be denied:
 Must keep running (no false positives):
 
 - every git command the harness itself runs in the sandbox (the setup commit in
-  `src/shipharness/runner/loop.py`, `commit_command` in `src/shipharness/harness/state/commit.py`,
-  `git apply ... .git/shipharness-patch.diff` in `src/shipharness/runner/tools.py`, the verify layer's
+  `platform/src/shipharness/runner/loop.py`, `commit_command` in `platform/src/shipharness/harness/state/commit.py`,
+  `git apply ... .git/shipharness-patch.diff` in `platform/src/shipharness/runner/tools.py`, the verify layer's
   test commit, `git status`, `git diff <sha>`, `git log`)
 - append-only git: `git revert`, `git cherry-pick`, `git stash`, `git tag`, `git commit -m "..."` (a
   message may contain words such as "amend" or "reset"), `git checkout -- <path>`,
@@ -265,7 +268,7 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
   serves. You may import `shipharness.sandbox` (required for Part B and C) and the standard library.
 - Do not edit `visible_tests/`, `fixtures/`, `check.py`, or `live.py`.
 - The live step uses the class settings: `OPENAI_MODEL=gpt-6-luna`, `MAX_RUN_COST_USD=0.20` per arm,
-  `MAX_BATCH_COST_USD=2.50` per command (defaults in `src/shipharness/config/settings.py`, and
+  `MAX_BATCH_COST_USD=2.50` per command (defaults in `platform/src/shipharness/config/settings.py`, and
   `.env.example`). The grader rejects evidence
   from another model, a raised cap, a replay, a swap test, or an A/B from the working tree.
 - Keep the interfaces (names, fields, argument order) exactly as given; the tests call them.
@@ -284,7 +287,7 @@ code, exit code 126, and `inner.commands == []` (the command never reached the s
    test before you write a pattern; check every pattern against it.
 6. Write your denial test in `tests/test_a3_sandbox_rule.py`; run it once with your rule and once with
    `HISTORY_RULES = ()` to see it fail.
-7. Optional: `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/assignment/starter/tests`
+7. Optional: `uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/starter/tests`
    runs the rule in a real container.
 8. Run `make check-assignment-3` until it passes and add your own tricky cases.
 9. Live step (next section): one `demo-3` A/B, then `live.py collect` and `live.py verify`.
@@ -329,13 +332,13 @@ files you submit and re-runs your policy on them, offline.
    temp folder and are not kept forever):
 
    ```bash
-   uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl <your folder> \
+   uv run python 03-scope-sandbox/assignment/live.py collect --impl <your folder> \
        --ab-output ab-output.txt \
        --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
-   uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl <your folder>
+   uv run python 03-scope-sandbox/assignment/live.py verify --impl <your folder>
    ```
 
-   `<your folder>` is the folder that holds `a3scope/` (`submodules/03-scope-sandbox/assignment/starter`
+   `<your folder>` is the folder that holds `a3scope/` (`03-scope-sandbox/assignment/starter`
    if you work in place). `collect` reads the run folder (`RUNS_DIR`, default `.shipharness/runs/<ab_id>/`)
    and `exports/scores/`; `--runs`, `--exports`, and `--ab` override them.
 4. Commit `live/` with your code. `make check-assignment-3` shows a "live A/B evidence" row once it is
@@ -348,7 +351,7 @@ What `collect` writes to `<your folder>/live/`:
 | `command.txt` | the exact command you ran (`--command`) |
 | `ab-output.txt` | the A/B's terminal output, with the `A/B <ab_id> (F3, ...)` line and the `Cost: $...` line |
 | `ab-summary.json` | the fields of the run's `ab.json` the check needs: section, `checkpoint_sha`, per arm the run id, model, layers, cost cap, allowed paths, claims, phase commits, cost, and `test_phase_files` |
-| `scores/<run_id>.json` | both arms' ScoreRecords, copied unchanged from `exports/scores/` (fields: `src/shipharness/ab/score.py`) |
+| `scores/<run_id>.json` | both arms' ScoreRecords, copied unchanged from `exports/scores/` (fields: `platform/src/shipharness/ab/score.py`) |
 | `bare/diff.patch`, `harness/diff.patch` | each arm's recorded diff (`<runs>/<ab_id>/<arm>/diff.patch`) |
 | `<arm>/sandbox-log.json` | every command your status gate ran, with its output and exit code |
 | `verdict-bare.json`, `verdict-harness.json` | your verdict per arm (below) |
@@ -370,7 +373,7 @@ A verdict holds:
 
 Read the two verdicts against the referee's counts before the review. They need not agree: the referee
 counts out-of-scope files on the diff with harness-owned files removed (`strip_harness_artifacts` in
-`src/shipharness/ab/artifacts.py`), while your guard reads the whole diff. In the harness arm, for
+`platform/src/shipharness/ab/artifacts.py`), while your guard reads the whole diff. In the harness arm, for
 example, `feature_list.json` changes when the harness itself sets `passes`, and your rule 2 refuses it.
 Be ready to say, for each difference, which side is right for an agent patch and which for a whole-run
 diff.
@@ -401,7 +404,7 @@ strips it as a harness artifact.
 ## Expected project structure
 
 ```text
-submodules/03-scope-sandbox/assignment/
+03-scope-sandbox/assignment/
 ├── README.md                 this file
 ├── check.py                  self-check (make check-assignment-3)
 ├── live.py                   live step: collect the A/B evidence, verify it
@@ -417,7 +420,7 @@ submodules/03-scope-sandbox/assignment/
     │   ├── status.py         Part B (TODO)
     │   ├── policy.py         Part C (TODO)
     │   └── sandbox.py        PolicySandbox (given)
-    ├── tests/
+    ├── platform/tests/
     │   ├── test_a3_sandbox_rule.py   task 6 (TODO)
     │   └── test_a3_docker_rule.py    optional container check (given)
     └── live/                 written by live.py collect (live step; you commit it)
@@ -430,7 +433,7 @@ uv sync                      # or: make setup (also builds the sandbox images)
 git switch -c a3-<your-name> # work on your own branch
 ```
 
-Work in place in `assignment/starter/`, or copy it (`cp -r submodules/03-scope-sandbox/assignment/starter $HOME/a3`)
+Work in place in `assignment/starter/`, or copy it (`cp -r 03-scope-sandbox/assignment/starter $HOME/a3`)
 and pass `A3_IMPL=$HOME/a3` to `make check-assignment-3` (`--impl $HOME/a3` to the scripts).
 
 ## How to run
@@ -438,8 +441,8 @@ and pass `A3_IMPL=$HOME/a3` to `make check-assignment-3` (`--impl $HOME/a3` to t
 ```bash
 make check-assignment-3                     # visible tests + your denial test + live/ check + TODO list
 make check-assignment-3 A3_IMPL=$HOME/a3    # a copy elsewhere
-uv run python submodules/03-scope-sandbox/assignment/check.py --impl $HOME/a3   # without make
-uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl $HOME/a3  # live/ only
+uv run python 03-scope-sandbox/assignment/check.py --impl $HOME/a3   # without make
+uv run python 03-scope-sandbox/assignment/live.py verify --impl $HOME/a3  # live/ only
 ```
 
 `check.py` exits 1 when a row fails, so `make` reports `Error 1` and exits 2. Grading (instructor
@@ -450,11 +453,11 @@ live evidence, score out of 100.
 
 ```bash
 # the visible tests directly (A3_IMPL defaults to the starter)
-uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/assignment/visible_tests
+uv run python -m pytest -q -p no:cacheprovider 03-scope-sandbox/assignment/visible_tests
 # your own tests
-uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/assignment/starter/tests
+uv run python -m pytest -q -p no:cacheprovider 03-scope-sandbox/assignment/starter/tests
 # optional: the rule in a real container (needs the shipharness-agent:1 image)
-uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/assignment/starter/tests
+uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/starter/tests
 ```
 
 Add your own cases: `fixtures/make_fixtures.py` shows how to turn file operations into real
@@ -517,8 +520,8 @@ The self-check on the starter, cut to the table and the last lines (captured on 
 `make check-assignment-3` at commit 61ec849; offline, no model calls; your output will differ):
 
 ```text
-uv run python submodules/03-scope-sandbox/assignment/check.py 
-A3 self-check: submodules/03-scope-sandbox/assignment/starter
+uv run python 03-scope-sandbox/assignment/check.py 
+A3 self-check: 03-scope-sandbox/assignment/starter
   check                                              visible tests  status  where
   diff parsing and path matching                              0/28  FAIL    a3scope/diffparse.py, a3scope/scope.py (glob_matches)
   out-of-scope diffs rejected                                  0/8  FAIL    a3scope/scope.py (check_diff)
@@ -593,7 +596,7 @@ its criteria.
 Parts A to C call no model and write no traces. The live step is the only paid command: one
 `demo-3` A/B, two agent runs on `gpt-6-luna`. Its caps bound the cost: each arm stops at
 `MAX_RUN_COST_USD` ($0.20), each review at `MAX_REVIEW_COST_USD` ($0.04), and the command at
-`MAX_BATCH_COST_USD` ($2.50) (defaults in `src/shipharness/config/settings.py`). The review is
+`MAX_BATCH_COST_USD` ($2.50) (defaults in `platform/src/shipharness/config/settings.py`). The review is
 blinded: the reviewer does not see which arm wrote a diff ("blinded" is this course's A/B design, not
 a source term). It writes two traces per run, the agent root and the referee evaluator, so four
 traces per A/B (the course pilot's run 2 wrote 48 traces for its 12 A/Bs). `collect` and `verify`

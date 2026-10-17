@@ -6,7 +6,7 @@ Source: A3, "Harness design for long-running application development" (Prithvi R
 Anthropic, 2026-03-24),
 https://www.anthropic.com/engineering/harness-design-long-running-apps. Supporting: A2, "Effective
 harnesses for long-running agents". Quotes are verbatim, with finding IDs that resolve in
-[REFERENCES.md](../../../REFERENCES.md).
+[docs/REFERENCES.md](../../docs/REFERENCES.md).
 
 ## The problem A3 starts from
 
@@ -66,15 +66,15 @@ model: tests, R1-R7 probes, mutants. A3's point about leniency (F-a-112) is why 
 counts come from the referee, and the reviewer's verdict is a secondary measure.
 
 **A separate model as reviewer.** `shipharness review` and the referee's reviewer step
-(`src/shipharness/reviewer/`) follow A3 with these choices:
+(`platform/src/shipharness/reviewer/`) follow A3 with these choices:
 
 | A3 idea | Course choice | Where |
 |---|---|---|
-| Separate evaluator (F-a-110) | A different model from the agent: `OPENAI_EVAL_MODEL` = `gpt-5.6-luna`, a different generation from `gpt-6-luna` | `src/shipharness/config/settings.py` |
+| Separate evaluator (F-a-110) | A different model from the agent: `OPENAI_EVAL_MODEL` = `gpt-5.6-luna`, a different generation from `gpt-6-luna` | `platform/src/shipharness/config/settings.py` |
 | Grading criteria (F-a-114) | Built from `docs/SECURITY.md` and `ARCHITECTURE.md` of the harness instructions; the house rules when those are missing; the same bytes for every review | `reviewer/criteria.py` |
 | Hard threshold (F-a-119) | The prompt asks for findings first, then the verdict: reject on any blocker or if the ticket is not implemented | `reviewer/review.py` |
 | Few-shot calibration (F-a-115) | Not used; a candidate extension | — |
-| Clicking through the app (F-a-118) | Done by the referee's Playwright board check, not by the reviewer | `src/shipharness/checks/board.py` |
+| Clicking through the app (F-a-118) | Done by the referee's Playwright board check, not by the reviewer | `platform/src/shipharness/checks/board.py` |
 
 The course adds two things A3 did not need, because the course compares two arms:
 
@@ -85,7 +85,7 @@ The course adds two things A3 did not need, because the course compares two arms
   so the harness arm never receives reviewer feedback the bare arm cannot get (course design). Its
   agreement with the referee is recorded per run (`reviewer_agrees` in the score record).
 
-Each review is capped at `MAX_REVIEW_COST_USD` ($0.04, `src/shipharness/config/settings.py`). An incomplete or refused
+Each review is capped at `MAX_REVIEW_COST_USD` ($0.04, `platform/src/shipharness/config/settings.py`). An incomplete or refused
 response gives no verdict rather than a guessed one (`reviewer/review.py` docstring).
 
 ## Why it matters for your own repo

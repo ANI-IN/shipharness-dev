@@ -7,7 +7,7 @@ says what the skill does, how to install it in Claude Code, Codex, and Cursor, h
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
 Source ids (B11, B12, ...) and finding ids (F-b-16, ...) refer to the course reference list,
-`REFERENCES.md` at the repository root.
+`docs/REFERENCES.md` in the course repository.
 
 ## What it does and when to use it
 
@@ -101,8 +101,8 @@ the root of your shipharness checkout:
 SKILL=assured-tests
 TARGET=~/my-repo        # your repository; use TARGET=~ for a user-level install
 mkdir -p "$TARGET/.claude/skills" "$TARGET/.agents/skills"
-cp -r "skills/$SKILL" "$TARGET/.claude/skills/"
-cp -r "skills/$SKILL" "$TARGET/.agents/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.claude/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 ```
 
 ```powershell
@@ -124,12 +124,12 @@ identical.
 Run the course validator on the source folder and on each installed copy:
 
 ```bash
-uv run shipharness skills validate skills/assured-tests
+uv run shipharness skills validate use-in-your-repo/skills/assured-tests
 uv run shipharness skills validate ~/my-repo/.claude/skills/assured-tests
 uv run shipharness skills validate ~/my-repo/.agents/skills/assured-tests
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/assured-tests`;
+Captured on 2026-10-17 from `uv run shipharness skills validate use-in-your-repo/skills/assured-tests`;
 your output will differ:
 
 ```text
@@ -142,7 +142,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: skills/assured-tests`; your output will differ).
+`uv run agentskills validate use-in-your-repo/skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/assured-tests`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -168,12 +168,12 @@ and review the kept tests as code.
 The agent runs the script from the installed folder, for example
 `python .claude/skills/assured-tests/scripts/run_testgen.py --repo . --module <path> --max-tests 8 --dry-run`.
 Captured on 2026-10-17 against the course's TeamTrack app from
-`python3 skills/assured-tests/scripts/run_testgen.py --repo teamtrack --module app/services/members.py --max-tests 8 --dry-run`
+`python3 use-in-your-repo/skills/assured-tests/scripts/run_testgen.py --repo platform/teamtrack --module app/services/members.py --max-tests 8 --dry-run`
 (run from the checkout root, with no `shipharness` on the PATH, so the script falls back to
 `uv run shipharness`); your output will differ:
 
 ```text
-command: uv run shipharness testgen --repo teamtrack --module app/services/members.py --layers verify --max-tests 8
+command: uv run shipharness testgen --repo platform/teamtrack --module app/services/members.py --layers verify --max-tests 8
 note: UNSANDBOXED. Generated tests will run on this machine with your permissions. Use --sandbox docker --image <image> to run them in a container.
 note: this calls a model and costs money; the command prints a Cost: line at the end.
 ```
@@ -207,7 +207,7 @@ Two things cost money, and both are yours:
   how many tokens a run uses.
 - `shipharness testgen` calls the OpenAI API with your key. It prints `Cost: $X` when it ends and
   stops at the per-run cost cap, `MAX_RUN_COST_USD`, whose default is $0.20
-  (`src/shipharness/config/settings.py`). The run shown above, with 5 proposed tests, cost
+  (`platform/src/shipharness/config/settings.py`). The run shown above, with 5 proposed tests, cost
 $0.003287; that is one measured run, not a typical cost.
   When LangSmith tracing is on and `LANGSMITH_API_KEY` is set, the run is also traced to the
   `shipharness-testgen` project, which counts against your LangSmith trace allowance.

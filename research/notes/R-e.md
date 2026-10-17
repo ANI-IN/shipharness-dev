@@ -64,7 +64,7 @@ Module-size figures are from shallow clones of the default branch (survey) or th
 | test command (upstream tox) | `pytest --doctest-modules {site-packages}/boltons {repo}/tests` |
 | test command (as run) | `python -I -m pytest -q -p no:cacheprovider -c src/pyproject.toml --rootdir src --doctest-modules .venv/Lib/site-packages/boltons src/tests` |
 | measured runtime | wall 3.42 s and 3.43 s (pytest-reported 2.94 s / 2.96 s); first cold run 4.61 s; with `--cov` 5.87 s |
-| test count | 672 collected (518 test functions in `tests/` + 154 doctests): 671 passed, 1 failed |
+| test count | 672 collected (518 test functions in `platform/tests/` + 154 doctests): 671 passed, 1 failed |
 | coverage | 76% statements over the whole package (7319 stmts, 1731 missed), doctests included |
 | known failure | `tests/test_jsonutils.py::test_reverse_iter_lines` fails on Windows only: the test joins lines with `os.linesep` (`\r\n`) and compares against an LF data file. Platform issue, not a regression. Must be recorded as a known-failing baseline test (or the dataset must run on Linux/WSL). |
 

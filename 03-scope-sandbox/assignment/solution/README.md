@@ -20,10 +20,10 @@ live here, not in the starter; they are revealed at the Thursday review (brief Â
 Run (from the repository root):
 
 ```bash
-make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution    # self-check
-make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution # grader, score out of 100
-uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/solution/grader/tests
-uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests
+make check-assignment-3 A3_IMPL=03-scope-sandbox/assignment/solution    # self-check
+make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution # grader, score out of 100
+uv run python -m pytest -q -p no:cacheprovider 03-scope-sandbox/assignment/solution/grader/tests
+uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/solution/tests
 ```
 
 The first two were run again on 2026-10-17 after the live run was captured (output in
@@ -31,11 +31,11 @@ The first two were run again on 2026-10-17 after the live run was captured (outp
 docker line was not (no containers), and `captured/docker-solution.txt` holds the container check
 from 2026-10-16.
 
-Grade a learner submission (a folder, or a git URL that is cloned shallow; `scripts/grade_assignment.py`):
+Grade a learner submission (a folder, or a git URL that is cloned shallow; `platform/scripts/grade_assignment.py`):
 
 ```bash
 make grade-assignment-3 SUBMISSION=<folder or git URL>
-uv run python submodules/03-scope-sandbox/solution/grader/grade.py --impl <submission folder>  # the same, without make
+uv run python 03-scope-sandbox/assignment/solution/grader/grade.py --impl <submission folder>  # the same, without make
 ```
 
 `--live <dir>` points at live evidence kept elsewhere. The grader reads `<submission>/live/`, validates
@@ -48,8 +48,8 @@ The live step of the reference solution, run once with the class settings (`gpt-
 
 ```bash
 uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment 2>&1 | tee ab-output.txt
-uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl submodules/03-scope-sandbox/solution --ab-output ab-output.txt --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
-uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl submodules/03-scope-sandbox/solution
+uv run python 03-scope-sandbox/assignment/live.py collect --impl 03-scope-sandbox/assignment/solution --ab-output ab-output.txt --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"
+uv run python 03-scope-sandbox/assignment/live.py verify --impl 03-scope-sandbox/assignment/solution
 ```
 
 Captured on 2026-10-17, run `ab-20261017-092810-d5d31c` (both arms' score records:
@@ -77,5 +77,5 @@ is never a real run, and grade this folder as it is
 Rebuild the hidden diffs after changing a case (the slow grader test checks they are reproducible):
 
 ```bash
-uv run python submodules/03-scope-sandbox/solution/grader/hidden/make_hidden.py
+uv run python 03-scope-sandbox/assignment/solution/grader/hidden/make_hidden.py
 ```

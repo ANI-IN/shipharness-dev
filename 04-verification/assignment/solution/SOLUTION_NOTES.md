@@ -49,12 +49,12 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 - Issue parameters. `{issue_id}`, or a parameter without a `_id` resource name right after an
   `issues` segment. This matches how `fill_path` resolves `{id}` (`checks/payloads.py`).
 - Filter 6 as number 6, outside `DEFAULT_FILTERS`. The pipeline takes a `filters` sequence, so the
-  filter runs without changing `src/`. It reads source only, so it could run first (cheapest); it
+  filter runs without changing `platform/src/`. It reads source only, so it could run first (cheapest); it
   runs last in `apply_filter` because it is applied to testgen's kept tests after the fact.
   `--update-report` appends its rows to the testgen report, so one file shows all six filters.
 - Parameters are never renamed. Two tests that differ only in fixture names use different fixtures
   and so test different setups.
-- Grader in process. Seeded violations are text patches on a fresh copy of `teamtrack/app`, loaded
+- Grader in process. Seeded violations are text patches on a fresh copy of `platform/teamtrack/app`, loaded
   with `shipharness.checks.probe.load_app` on a temporary SQLite file: no Docker, a few seconds per
   build. A patch whose old text is missing fails loudly, so a TeamTrack change cannot turn a seeded
   violation into a silent pass.
@@ -71,7 +71,7 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 | A list of issue endpoints in the check | Misses endpoints the build adds (hidden tests for `/recent-issues`, `/columns`, `/issues/{id}/history`) |
 | Compare test source text or a hash of it | Comments and formatting change the text, not the test |
 | Token or embedding similarity for duplicates | Not exact: a threshold either keeps copies or drops near tests that check something different, and every discard needs a reason a reader can verify |
-| Add filter 6 to `DEFAULT_FILTERS` | Needs a change under `src/`; out of the assignment's scope |
+| Add filter 6 to `DEFAULT_FILTERS` | Needs a change under `platform/src/`; out of the assignment's scope |
 
 ## Trade-offs
 
@@ -157,12 +157,12 @@ touch what the starter scores).
 | File | Commit | Command | Result |
 |---|---|---|---|
 | `captured/self-check-starter.txt` | 155dc77 | `make check-assignment-4` | 2 of 23 visible tests pass, every failure names its TODO, 32 TODO markers listed; `check.py` exits 1, so `make` exits 2 |
-| `captured/self-check-solution.txt` | 65d70a0 | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23, the four live-evidence tests and the three portfolio tests on the captured run |
-| `captured/grade-solution.txt` | 65d70a0 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, every criterion on real work (no marker accepted) |
-| `captured/grade-starter.txt` | 155dc77 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
-| `captured/r8-teamtrack.json` | 155dc77 | `PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
+| `captured/self-check-solution.txt` | 65d70a0 | `make check-assignment-4 A4_IMPL=04-verification/assignment/solution` | exit 0, 23 of 23, the four live-evidence tests and the three portfolio tests on the captured run |
+| `captured/grade-solution.txt` | 65d70a0 | `make grade-assignment-4 SUBMISSION=04-verification/assignment/solution` | Score: 100/100, every criterion on real work (no marker accepted) |
+| `captured/grade-starter.txt` | 155dc77 | `make grade-assignment-4 SUBMISSION=04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
+| `captured/r8-teamtrack.json` | 155dc77 | `PYTHONPATH=04-verification/assignment/solution uv run python -m a4_verification.run_r8 --build platform/teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
 
-`make grade-assignment-4` runs `grade.py` through `scripts/grade_assignment.py`, which passes the
+`make grade-assignment-4` runs `grade.py` through `platform/scripts/grade_assignment.py`, which passes the
 absolute folder (hence `A4 grade for /home/ani/wt/<worktree>/...`) and adds a `grading assignment 4:
 <folder>` line.
 
@@ -175,7 +175,7 @@ arms' records in `live/scores/`). `live/README.md` lists the files and the comma
 them; the files are validated like any submission's.
 
 How the grader reads "filter 6 in the pipeline": `shipharness testgen` runs filters 1-5 and writes
-their rows to `testgen-report.json`; it has no option to add a filter (`src/shipharness/testgen/`).
+their rows to `testgen-report.json`; it has no option to add a filter (`platform/src/shipharness/testgen/`).
 `apply_filter --update-report` runs the learner's `NoDuplicateTest` through `run_pipeline` over
 the tests testgen kept and appends one row with `"filter": 6` per kept test, after the testgen
 rows, plus a `filter6` object (`kept`, `existing_tests`). The grader requires that shape: at least
@@ -211,7 +211,7 @@ profile, which the assignment's A/B does not use): both arms 68 of 69 hidden tes
 
 The live A/B command carries `--purpose assignment`. Without it `shipharness ab` uses the class
 purpose, which refuses to start unless `SHIPHARNESS_CLASS_DATE` is set and otherwise traces into
-the class project (`_trace_target` in `src/shipharness/ab/commands.py`). `ab_run_problems` in
+the class project (`_trace_target` in `platform/src/shipharness/ab/commands.py`). `ab_run_problems` in
 `a4_live.py` requires it, and parses the cost line in the form `cost_line` prints today (with the
 `; build $X of $15.00 ($Y left)` part, which the first version of the check rejected). The A/B
 line may end with `, profile=<name>`, which `shipharness ab` prints since 2026-10-17 and the real
@@ -223,10 +223,10 @@ Both targets are in the `Makefile` (9fd8273); `make -n` shows what they run:
 
 | Target | Command |
 |---|---|
-| `make check-assignment-4` | `uv run python submodules/04-verification/assignment/check.py` (with `A4_IMPL=<folder>`: `--impl <folder>`) |
-| `make grade-assignment-4 SUBMISSION=<folder or git URL>` | `uv run python scripts/grade_assignment.py 4 "<folder or git URL>"`, which runs `grade.py --impl <folder>` (instructor only) |
+| `make check-assignment-4` | `uv run python 04-verification/assignment/check.py` (with `A4_IMPL=<folder>`: `--impl <folder>`) |
+| `make grade-assignment-4 SUBMISSION=<folder or git URL>` | `uv run python platform/scripts/grade_assignment.py 4 "<folder or git URL>"`, which runs `grade.py --impl <folder>` (instructor only) |
 
 `SUBMISSION` is a folder (the learner's implementation folder with `live/`, or a checkout of the
 learner's course repo, in which case `grade.py` grades
-`submodules/04-verification/assignment/starter/` inside it, `resolve_impl`) or a git URL, which
-`scripts/grade_assignment.py` clones shallow into a temporary folder first.
+`04-verification/assignment/starter/` inside it, `resolve_impl`) or a git URL, which
+`platform/scripts/grade_assignment.py` clones shallow into a temporary folder first.

@@ -1,6 +1,6 @@
 # State checklist: what the agent remembers
 
-Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Source ids and finding ids are listed in `docs/REFERENCES.md` in the course repository.
 Assessment checks S1-S4 test the items marked with a check id.
 
 | Done | Item | Why | Source |
@@ -26,4 +26,4 @@ Assessment checks S1-S4 test the items marked with a check id.
 - A2 calls the two prompts "initializer agent" and "coding agent"; they differ only in "different
   initial user prompts" (F-a-52). The shipharness state layer does the initializer's file setup in
   deterministic code because the files are fixed by the ticket.
-- A6 is a living documentation page; cite it with the access date that `REFERENCES.md` records.
+- A6 is a living documentation page; cite it with the access date that `docs/REFERENCES.md` records.

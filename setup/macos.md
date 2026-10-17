@@ -2,11 +2,11 @@
 
 > **Not tested on macOS.** No command on this page was run on a Mac for the course. Every step
 > follows the official documentation cited next to it (each page read on 2026-10-17). The course's
-> tested platform is Ubuntu (inside WSL2 on the class host): see [setup-linux.md](setup-linux.md)
-> and [setup-windows.md](setup-windows.md). macOS stays a known open item for this release: no
+> tested platform is Ubuntu (inside WSL2 on the class host): see [linux.md](linux.md)
+> and [windows.md](windows.md). macOS stays a known open item for this release: no
 > `docker info` or `make doctor` output from a Mac is shown here because none was captured. If a
 > step fails on your Mac, bring the exact message to class, and see
-> [troubleshooting.md](troubleshooting.md).
+> [troubleshooting.md](../docs/troubleshooting.md).
 
 You need a container runtime that provides the `docker` command. Pick **one**:
 
@@ -107,7 +107,7 @@ Source: Colima, https://github.com/abiosoft/colima.
 
 ## 5. Clone, `make setup`, keys, `make doctor`, `make up`
 
-From here the commands are the same as on Linux: steps 4 to 7 of [setup-linux.md](setup-linux.md).
+From here the commands are the same as on Linux: steps 4 to 7 of [linux.md](linux.md).
 
 ```bash
 git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness

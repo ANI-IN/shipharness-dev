@@ -5,9 +5,9 @@ Reading time: about 15 minutes.
 This section follows one order: the problem the task sets, the cause (cited), the harness piece, how
 `shipharness` implements it, what the A/B measures, and, last, what the piece assumes about the model
 and what the course pilot measured. Source IDs (A1, B1, ...) and finding IDs (F-a-NN, F-b-NN) are
-listed in [REFERENCES.md](../../REFERENCES.md), which is generated when the course is released. Code
+listed in [docs/REFERENCES.md](../docs/REFERENCES.md), which is generated when the course is released. Code
 excerpts come from the walkthrough anchors `S1:agents_md`, `S1:progressive`, and `S1:prefix`; print
-one with `uv run python scripts/anchors.py extract S1:prefix`.
+one with `uv run python platform/scripts/anchors.py extract S1:prefix`.
 
 A note on labels. "S1", "layer", "trap", "blinded reviewer", and the house rules R1-R7 are course
 labels, not source terms. "House rules" is the course's name for what A1 calls "golden principles"
@@ -18,18 +18,18 @@ labels, not source terms. "House rules" is the course's name for what A1 calls "
 ## 1. The problem the task sets
 
 The S1 demo task is F1, org-wide issue search. `GET /issues` lists every live issue of the caller's
-org across its projects, with filters and cursor pagination (`teamtrack/docs/features/f1.md`). Both
+org across its projects, with filters and cursor pagination (`platform/teamtrack/docs/features/f1.md`). Both
 arms start from checkpoint `m1-s1-start` and get the same ticket, which ends with: "The full spec
 is in docs/features/f1.md. Follow the house rules in docs/HANDBOOK.md and add tests."
-(`datasets/teamtrack-features-v1.jsonl`, example `F1-canonical`).
+(`platform/datasets/teamtrack-features-v1.jsonl`, example `F1-canonical`).
 
 TeamTrack already has an endpoint that looks like most of the answer: the legacy `GET /v1/issues`
-(`teamtrack/app/api/legacy_v1.py`) returns issues with offset pagination and no org filter. Its query
+(`platform/teamtrack/app/api/legacy_v1.py`) returns issues with offset pagination and no org filter. Its query
 sits in the file the agent must edit for F1, a few lines below `list_for_project`, the tenant-scoped
 query it should copy:
 
 ```python
-# teamtrack/app/repositories/issues.py (lines 53-55): the legacy trap
+# platform/teamtrack/app/repositories/issues.py (lines 53-55): the legacy trap
 def list_all_legacy(session: Session, offset: int, limit: int) -> list[Issue]:
     """LEGACY (used only by /v1/issues). Not tenant-scoped: do not use or copy this function."""
     return list(session.scalars(select(Issue).order_by(Issue.id).offset(offset).limit(limit)))
@@ -41,7 +41,7 @@ suboptimal ones." (A1, F-a-20).
 
 What the failure looks like: an arm that starts from the legacy query, or forgets the org check on one
 filter, ships a `GET /issues` that answers an Acme user with Globex data. The referee's R1 check calls
-every endpoint as Acme with Globex IDs and expects 404 (`src/shipharness/checks/r1_tenant.py`). The
+every endpoint as Acme with Globex IDs and expects 404 (`platform/src/shipharness/checks/r1_tenant.py`). The
 existing `/v1/issues` leak is part of the checkpoint baseline; only new violations count.
 
 The bare arm is not missing the rule. It is in the "Legacy /v1 API" section of `docs/HANDBOOK.md`
@@ -119,7 +119,7 @@ The Agent Skills specification defines the same idea for skills, in three tiers 
 |---|---|---|---|
 | 1 Metadata | `name` and `description` from the frontmatter | At startup, for every skill | "~100 tokens" |
 | 2 Instructions | The full `SKILL.md` body | When the skill is activated | "< 5000 tokens recommended" |
-| 3 Resources | Files in `scripts/`, `references/`, `assets/` | "only when required" | Small files |
+| 3 Resources | Files in `platform/scripts/`, `references/`, `assets/` | "only when required" | Small files |
 
 B2 calls the three stages Discovery, Activation, and Execution (B2, F-b-05). A skill's `name` "Must
 match the parent directory name" (B1, F-b-02), and its `description` "Should describe both what the
@@ -127,7 +127,7 @@ skill does and when to use it" (B1, F-b-03). The description is the only text th
 decides whether to open the skill. TeamTrack's skill begins:
 
 ```yaml
-# teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md (lines 1-4)
+# platform/teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md (lines 1-4)
 ---
 name: add-endpoint
 description: Add or change a TeamTrack HTTP endpoint so it follows house rules R1-R7 (tenant scoping, roles, list and error envelopes, idempotent creates, one audit row per write, layering, migrations) and ships with tests. Use when a ticket adds a route, changes a route's behaviour, or adds a field that needs a schema change.
@@ -143,7 +143,7 @@ A1's "injected into context" (F-a-28) needs a concrete place. In `shipharness` i
 prefix: one stable block sent as the developer message of every session, holding the core system
 prompt (the same for both arms), the map, and the skills catalogue (tier 1). No source names this
 block. It is built from the course checkout, not the arm's workspace, so an agent that edits its own
-`AGENTS.md` does not change what it is told (`src/shipharness/harness/instructions/router.py`).
+`AGENTS.md` does not change what it is told (`platform/src/shipharness/harness/instructions/router.py`).
 
 ### 3.5 Docs that are checked
 
@@ -177,8 +177,8 @@ flowchart LR
   IL -- "prepare_workspace copies" --> Workspace
 ```
 
-The layer talks to the runner only through three hooks (`src/shipharness/harness/base.py`; section
-4.5 shows them in one run): `prepare_workspace` copies `teamtrack/harness/instructions/` into the
+The layer talks to the runner only through three hooks (`platform/src/shipharness/harness/base.py`; section
+4.5 shows them in one run): `prepare_workspace` copies `platform/teamtrack/harness/instructions/` into the
 workspace and never touches `docs/HANDBOOK.md` (`layer.py`); `context_prefix` returns the block from
 `build_prefix` (`router.py`); `after_tool` emits a `note` decision when the agent reads a placed doc
 or skill file. The layer never blocks a tool call and never calls the model; it enforces nothing.
@@ -187,7 +187,7 @@ Enforcement is S3 and S4.
 ### 4.2 The prefix (anchor `S1:prefix`)
 
 ```python
-# src/shipharness/harness/instructions/router.py (lines 29-47)
+# platform/src/shipharness/harness/instructions/router.py (lines 29-47)
 def build_prefix(source: Path) -> str:
     """One stable text block: the map, then tier 1 of every skill (name + description).
 
@@ -210,18 +210,18 @@ def build_prefix(source: Path) -> str:
 ```
 
 The runner sends the core system prompt plus this block as each session's developer message
-(`base_items` in `src/shipharness/runner/loop.py`); the bare arm gets the core prompt alone.
+(`base_items` in `platform/src/shipharness/runner/loop.py`); the bare arm gets the core prompt alone.
 
 ### 4.3 Progressive disclosure (anchor `S1:progressive`)
 
-`SkillsLoader.catalogue_block` (`src/shipharness/runner/skills_loader.py`) reads only each skill's
+`SkillsLoader.catalogue_block` (`platform/src/shipharness/runner/skills_loader.py`) reads only each skill's
 frontmatter and writes one line per skill. Tiers 2 and 3 are never pre-loaded: the agent opens them
 with `read_file`, and `skill_for_path` reports the tier a read touched, which drives the files-read map
 on console screen 3.
 
 ### 4.4 The map itself (anchor `S1:agents_md`)
 
-The anchor covers lines 1-38 of the 94-line `teamtrack/harness/instructions/AGENTS.md`: the opening,
+The anchor covers lines 1-38 of the 94-line `platform/teamtrack/harness/instructions/AGENTS.md`: the opening,
 the "Where to look" table, and the house rules at a glance. All 94 lines are in the prefix.
 
 ### 4.5 The layer's flow in one run
@@ -248,9 +248,9 @@ sequenceDiagram
 
 Course rule: the harness may reorganise knowledge, never add facts the bare arm cannot read. Every rule
 in the harness docs also appears in `docs/HANDBOOK.md`, which both arms have, and a unit test checks
-this (`tests/unit/harness_instructions/test_parity.py`). Both arms get the same ticket, model, effort,
+this (`platform/tests/unit/harness_instructions/test_parity.py`). Both arms get the same ticket, model, effort,
 tools, turn budget, cost cap, and sandbox. In demo-1 the harness arm runs the instructions layer alone
-(`section_layers` in `src/shipharness/ab/demo.py`).
+(`section_layers` in `platform/src/shipharness/ab/demo.py`).
 
 ---
 
@@ -260,13 +260,13 @@ tools, turn budget, cost cap, and sandbox. In demo-1 the harness arm runs the in
 
 The course registered one primary measure for S1 before any run: for F1, a run fails if it ships at
 least one new R1 violation. The dataset carries it as `primary_measure: r1_new_violations>=1` on every
-F1 task (`REGISTERED_PRIMARY` in `src/shipharness/datasets/features_checks.py`). Results are runs
+F1 task (`REGISTERED_PRIMARY` in `platform/src/shipharness/datasets/features_checks.py`). Results are runs
 failing out of k, per arm, one dot per run, never a percentage (a course rule). "New" means relative
 to the checkpoint baseline.
 
 ### 5.2 Secondary measures (reported, not primary)
 
-From each arm's score record (`ScoreRecord` in `src/shipharness/ab/score.py`):
+From each arm's score record (`ScoreRecord` in `platform/src/shipharness/ab/score.py`):
 
 | Field | Why it matters for S1 |
 |---|---|
@@ -274,7 +274,7 @@ From each arm's score record (`ScoreRecord` in `src/shipharness/ab/score.py`):
 | `r3_new_failures` | API conventions (list and error envelopes, status codes) |
 | `hidden_passed` / `hidden_total` | Did the feature work? `F1-canonical` lists 52 hidden test ids |
 | `regression_passed` / `regression_total` | Existing tests keep passing |
-| `reviewer_verdict` | The blinded reviewer (course design after A3's separate evaluator, F-a-110): a second model judges each diff with arm labels removed (`src/shipharness/reviewer/blind.py`) |
+| `reviewer_verdict` | The blinded reviewer (course design after A3's separate evaluator, F-a-110): a second model judges each diff with arm labels removed (`platform/src/shipharness/reviewer/blind.py`) |
 | `cost_usd`, `turns_total`, `wall_s` | What each arm spent |
 
 The files-read map on console screen 3 is not a score; it only shows what each arm opened with
@@ -283,7 +283,7 @@ The files-read map on console screen 3 is not a score; it only shows what each a
 ### 5.3 Checks on the comparison itself
 
 - Swap test (`make swap-1`): each arm's diff is judged again under the other arm's label, with no
-  model calls; every judged measure must come out the same (`src/shipharness/ab/recorded.py`).
+  model calls; every judged measure must come out the same (`platform/src/shipharness/ab/recorded.py`).
 - Layer switch (`make demo-1 LAYERS=-instructions`): both arms run bare, so any gap is run-to-run
   variation.
 - Ablation: A3 describes "removing one component at a time and reviewing what impact it had on the
@@ -330,10 +330,10 @@ was run, because the pre-registered pilot gate did not pass.
 
 On the canonical ticket the bare arm was pointed to the rule anyway. The ticket ends "Follow the house
 rules in docs/HANDBOOK.md"; every bare arm in run 2 opened the handbook with its third tool call; and
-`read_file` returns up to 400 lines (`src/shipharness/runner/tools.py`), so the whole 150-line
+`read_file` returns up to 400 lines (`platform/src/shipharness/runner/tools.py`), so the whole 150-line
 handbook was in context before any code was read. The trap ticket `F1-trap` names
 `app/api/legacy_v1.py` as the place where "a lot of the query code exists" and does not mention the
-handbook (`datasets/teamtrack-features-v1.jsonl`); still, no arm copied the legacy query into a leak. In the
+handbook (`platform/datasets/teamtrack-features-v1.jsonl`); still, no arm copied the legacy query into a leak. In the
 class-profile round the bare arm did not open the handbook in its first nine tool calls and wrote a
 scoped query all the same. For this model and these tickets, the map had nothing to fix.
 
@@ -375,4 +375,4 @@ the maintenance reasons above; say which.
 ## Sources
 
 A1, A3, B1, and B2, all accessed 2026-10-16. Titles, links, and every finding ID cited here
-are in [REFERENCES.md](../../REFERENCES.md).
+are in [docs/REFERENCES.md](../docs/REFERENCES.md).

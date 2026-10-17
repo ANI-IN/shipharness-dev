@@ -15,17 +15,17 @@ Two section shapes:
   available: rename or copy lines, then `---`/`+++`, then the header. The header is the only source for
   header-only sections (empty new file, mode change), so it is parsed carefully: quoted tokens are
   unquoted, and an unquoted `a/X b/X` is split where both halves are equal (as
-  `src/shipharness/ab/artifacts.py` does), falling back to the only ` b/` when there is one.
+  `platform/src/shipharness/ab/artifacts.py` does), falling back to the only ` b/` when there is one.
 - plain sections start at a `---` line followed by a `+++` line outside a hunk. Prefixes are stripped
   only when both sides use them (or one side is `/dev/null`), the rule `git apply` follows for `-p1`
-  versus `-p0` in `src/shipharness/runner/tools.py`.
+  versus `-p0` in `platform/src/shipharness/runner/tools.py`.
 
 Hunk counting is what makes `--- note` inside a hunk content rather than a header; the hidden cases
 `good-header-like-lines-in-hunk` (git output) and `good-hand-written-header-like-lines` (no git header)
 test it.
 
 **Part A2, scope (`a3scope/scope.py`).** `glob_matches` is the regex translation from
-`src/shipharness/harness/scope/guard.py` (`**/` becomes `(?:.*/)?`, `*` becomes `[^/]*`). `check_diff`
+`platform/src/shipharness/harness/scope/guard.py` (`**/` becomes `(?:.*/)?`, `*` becomes `[^/]*`). `check_diff`
 walks every path named by the diff in order. Escape detection runs on every name, copy sources
 included, because a patch that reads `../../home/agent/.netrc` leaks a file even though it changes
 nothing in the workspace. The remaining rules run on changed paths only, in the order of the README
@@ -62,7 +62,7 @@ from a neighbour.
   which is conservative for `apply_patch`; the assignment separates "named" (escape check) from
   "changed" (scope check) to make the learner think about what a diff does to each path.
 - **The rule's reason code** is `write_outside_workspace`, the closest of the six fixed codes in
-  `src/shipharness/sandbox/base.py`. A production change would add a dedicated code; the assignment does
+  `platform/src/shipharness/sandbox/base.py`. A production change would add a dedicated code; the assignment does
   not, so the learner's rule runs unchanged in `DockerSandbox` (the optional container test does this).
 - **Scoring multiplies both sides** of criteria 2 to 4 (bad × good, set × kept, denied × allowed), so a
   reject-everything or allow-everything implementation earns nothing there. The brief's zero-tolerance
@@ -82,7 +82,7 @@ from a neighbour.
   diff that does not apply. Kept as a production option: run both and refuse on disagreement.
 - **A shell parser (`shlex`, `bashlex`) for the history rule.** Splitting the command into words
   removes the quoting problem, but the real policy is `DenyRule(pattern=...)` and `check_command` uses
-  `re.search`. A word-level check would mean changing `src/shipharness/sandbox/policy.py`; the
+  `re.search`. A word-level check would mean changing `platform/src/shipharness/sandbox/policy.py`; the
   assignment keeps the real mechanism and accepts its limits (below).
 - **A different rule.** Candidates were more network refusals (`uvx`, `uv run --with`, `pip download`,
   `npx`), which only make an existing denial faster, and refusing writes outside `/work`, which the
@@ -203,10 +203,10 @@ commit it was captured at. `make` exits 2 whenever the script it runs exits non-
 | File | Command | Captured | Result |
 |---|---|---|---|
 | `check-starter.txt` | `make check-assignment-3` | 2026-10-17, 61ec849 | every part FAIL, script exit 1 |
-| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | every row ok, live row `ok`, exit 0 |
-| `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17, e7287f4 | 0.0 / 100, FAIL |
-| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | 100.0 / 100, PASS |
-| `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
+| `check-solution.txt` | `make check-assignment-3 A3_IMPL=03-scope-sandbox/assignment/solution` | 2026-10-17, 65d70a0 | every row ok, live row `ok`, exit 0 |
+| `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/starter` | 2026-10-17, e7287f4 | 0.0 / 100, FAIL |
+| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution` | 2026-10-17, 65d70a0 | 100.0 / 100, PASS |
+| `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
 
 The reference solution scores 100.0 / 100 with `Result: PASS` on its captured live run (A/B
 `ab-20261017-092810-d5d31c`, captured on 2026-10-17 into `solution/live/`): criterion 6 (live A/B
@@ -279,7 +279,7 @@ the canonical task (`--feature F3`), and the grader checks for that.
 
 - Make targets: `check-assignment-3` (`A3_IMPL=<folder>`) and `grade-assignment-3`
   (`SUBMISSION=<folder or git URL>`, passed to the grader as `--impl` by
-  `scripts/grade_assignment.py`).
+  `platform/scripts/grade_assignment.py`).
 - The live-step command now carries `--purpose assignment` (traces to `shipharness-assignments`,
   DESIGN §12). `assignment/live.py` accepts it (it bans only `--replay`, `--swap`, `--layers`, `--k`,
   `--example`, and `--from-working-tree`), its usage text shows the flag, and
@@ -287,5 +287,5 @@ the canonical task (`--feature F3`), and the grader checks for that.
 - `check.py`'s closing hint names the instructor grader (`make grade-assignment-3
   SUBMISSION=<folder>`); `test_check_points_to_the_instructor_grader` covers both branches.
 - `solution/grader/tests/` is not under the repository's `testpaths`
-  (`["tests/unit", "teamtrack/tests/visible"]` in `pyproject.toml`); run it on its own. Its last test
+  (`["platform/tests/unit", "platform/teamtrack/tests/visible"]` in `pyproject.toml`); run it on its own. Its last test
   is marked `slow`.

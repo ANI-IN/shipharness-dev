@@ -15,19 +15,19 @@ Reference solution and hidden grader for assignment A2 (brief: `../assignment/RE
 | `live/` | The command that records the reference solution's live run; that run is not captured (owner scope, 2026-10-17) |
 
 ```
-make check-assignment-2 A2_IMPL=submodules/02-state-lifecycle/solution
-make grade-assignment-2 SUBMISSION=submodules/02-state-lifecycle/solution
-uv run python -m pytest -q -p no:cacheprovider submodules/02-state-lifecycle
+make check-assignment-2 A2_IMPL=02-state-lifecycle/assignment/solution
+make grade-assignment-2 SUBMISSION=02-state-lifecycle/assignment/solution
+uv run python -m pytest -q -p no:cacheprovider 02-state-lifecycle
 ```
 
 The first two are what produced `captured/` (2026-10-17). Without make they run
-`assignment/check.py --impl <folder>` and `scripts/grade_assignment.py 2 <folder>`.
+`assignment/check.py --impl <folder>` and `platform/scripts/grade_assignment.py 2 <folder>`.
 
 Grading a learner's submission (the folder with `a2_state/` and `live/`, or a cloned repository
 with exactly one such folder):
 
 ```
-uv run python submodules/02-state-lifecycle/solution/grader/grade.py --impl <submission> [--json <file>]
+uv run python 02-state-lifecycle/assignment/solution/grader/grade.py --impl <submission> [--json <file>]
 ```
 
 The scenarios run the test stand-in agent (not a model). The `live_run` criterion checks the files
@@ -39,7 +39,7 @@ stays its recorded score.
 Recording the reference solution's live run (keys, Docker, checkpoints; `make doctor` passes):
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops
+uv run python 02-state-lifecycle/assignment/live/run_live.py --impl 02-state-lifecycle/assignment/solution --forced-stops
 ```
 
 Keep this folder out of the learners' copy until the Thursday review.

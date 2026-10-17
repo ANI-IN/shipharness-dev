@@ -10,7 +10,7 @@ or copy the folder and pass the copy as `A4_IMPL=<folder>` to the make targets.
 | `a4_verification/dedup_filter.py` | `normalized` and `evaluate` raise | A4-5, A4-6, A4-7 |
 | `a4_verification/run_r8.py`, `apply_filter.py` | complete | none |
 | `tests/` | two example tests, failing until you implement | A4-8, A4-9 |
-| `skill/` | empty: copy `skills/skill-template` here | see `skill/README.md` |
+| `skill/` | empty: copy `use-in-your-repo/skills/skill-template` here | see `skill/README.md` |
 | `portfolio/` | templates | every TODO line |
 | `live/` | empty: the files of your two live runs go here | see `live/README.md` |
 

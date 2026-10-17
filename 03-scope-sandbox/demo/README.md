@@ -4,7 +4,7 @@ Runbook for the S3 demo, in eight parts: what it shows, what to install, the che
 start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
 to do when it fails. Reference material (poll, code walkthrough, every pilot result, the emergency
 fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). Sources are cited by ID; the
-full list is in [REFERENCES.md](../../../REFERENCES.md). Captured output and screenshots are labelled
+full list is in [docs/REFERENCES.md](../../docs/REFERENCES.md). Captured output and screenshots are labelled
 "captured on <date>, run <id>; your output will differ".
 
 ---
@@ -12,7 +12,7 @@ full list is in [REFERENCES.md](../../../REFERENCES.md). Captured output and scr
 ## 1. What this demo shows and why
 
 `make show-3` runs the harness arm alone, live, on F3 (make `POST /projects/{project_id}/issues`
-honour `Idempotency-Key`, `teamtrack/docs/features/f3.md`) with the instructions, state, and scope
+honour `Idempotency-Key`, `platform/teamtrack/docs/features/f3.md`) with the instructions, state, and scope
 layers inside the container sandbox: the scope layer writes the feature list, refuses writes outside
 the phase's allowed paths, and sets `passes` only from evidence; the referee then counts files outside
 the allowed paths and source edits in the test phase. It is not an A/B because the course pilot found
@@ -54,14 +54,14 @@ flowchart LR
 ## 2. Prerequisites and dependencies
 
 The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
-step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
-[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
+step and say which ones were tested: [macOS](../../setup/macos.md) (not tested on a Mac),
+[Windows with WSL2](../../setup/windows.md), [Linux](../../setup/linux.md).
 
 | OS | Install (from the setup page) |
 |---|---|
 | macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
 | Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
-| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([linux.md](../../setup/linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
 
 Then, on every OS:
 
@@ -118,7 +118,7 @@ make: *** [Makefile:54: doctor] Error 1
 
 Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
 `container runtime` line starts with `+ ok`, and the last line is `result: + ready`
-(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+(`platform/src/shipharness/doctor.py`). The key check lists models and uses no tokens.
 
 **`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
 --images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
@@ -338,11 +338,11 @@ In class, a launch at section minute 3 at the quiet-machine pace gives the prima
 minute 8 and the full verdict near minute 11, well inside the 25-minute concepts-and-walkthrough
 window.
 
-Caps (`src/shipharness/config/settings.py`): $0.20 per arm per run, $0.04 per review, $2.50 per class
+Caps (`platform/src/shipharness/config/settings.py`): $0.20 per arm per run, $0.04 per review, $2.50 per class
 session; a 30-turn build session (F3 `session_budget` `[30]`) and a 12-turn test phase;
 `RUN_TIMEOUT_S` 300 s of agent time per arm, `HARNESS_TIMEOUT_S` 120 s of harness work per arm,
 `TOOL_TIMEOUT_S` 120 s per command. Fast-tier calls cost twice the Standard rate per token
-(`config/prices.toml`); the caps do not change.
+(`platform/config/prices.toml`); the caps do not change.
 
 ---
 
@@ -352,7 +352,7 @@ session; a 30-turn build session (F3 `session_budget` `[30]`) and a 12-turn test
 |---|---|---|
 | `x OpenAI refused the key: ...; no arm was started`, exit 2 | Key missing or rejected; class runs never fall back to a stand-in | Fix `OPENAI_API_KEY` in `.env`, rerun `make doctor` until `result: + ready`; if the API is down, section 12 |
 | The record line shows `ABORTED: timeout` (or `ABORTED: cap`) and the command exits 2 | The 300 s agent time limit or a cost cap was reached; the referee still judges what it shipped | Show the run as it is; one F3 harness arm in pilot run 3 and the `make show-3` under load hit the time limit and still passed |
-| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`) | Nothing to fix; start the demo block on the running page |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`platform/src/shipharness/cost/tracker.py`) | Nothing to fix; start the demo block on the running page |
 | Container start fails, or `make doctor` shows `container runtime ! warn` | Docker not running in WSL2, or images missing (`make doctor` checks only that the runtime is on PATH) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` builds missing images |
 | `make console` fails with `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
 | No `block` decision | The agent stayed inside the allowed paths (every F3 harness arm in the pilot did) | Expected. Show the `status_set` evidence, then the real `blocked` excerpt in section 11.4 |
@@ -387,17 +387,17 @@ How would you register that before the next run?"
 ## 10. Code walkthrough
 
 Ten minutes, while `make show-3` runs. Open each anchor with
-`uv run python scripts/anchors.py extract <id>`:
+`uv run python platform/scripts/anchors.py extract <id>`:
 
 | Order | Anchor | File | Point at |
 |---|---|---|---|
-| 1 | `S3:allowed_paths` | `src/shipharness/harness/scope/guard.py` | `PathRules.reason`: harness-only files first, then state files, then the phase list; the reason string the agent sees |
-| 2 | `S3:passes` | `src/shipharness/harness/scope/status.py` | `update_status`: no claim, no change; with verify off the evidence is a visible-test run; the commit `harness: F3 passes` |
-| 3 | `S3:policy` | `src/shipharness/sandbox/policy.py` | `SandboxPolicy`: network none, 1 CPU (2 in the class profile), 1024 MB, no swap, 256 pids, non-root, read-only root |
-| 4 | `S3:run_args` | `src/shipharness/sandbox/policy.py` | `docker_run_args`: each field becomes a flag; secret-like environment names are refused |
-| 5 | `S3:dockerfile` | `sandbox/Dockerfile` | `USER 1000:1000`, `/work` as the only writable mount besides `/tmp`, dependencies baked in |
+| 1 | `S3:allowed_paths` | `platform/src/shipharness/harness/scope/guard.py` | `PathRules.reason`: harness-only files first, then state files, then the phase list; the reason string the agent sees |
+| 2 | `S3:passes` | `platform/src/shipharness/harness/scope/status.py` | `update_status`: no claim, no change; with verify off the evidence is a visible-test run; the commit `harness: F3 passes` |
+| 3 | `S3:policy` | `platform/src/shipharness/sandbox/policy.py` | `SandboxPolicy`: network none, 1 CPU (2 in the class profile), 1024 MB, no swap, 256 pids, non-root, read-only root |
+| 4 | `S3:run_args` | `platform/src/shipharness/sandbox/policy.py` | `docker_run_args`: each field becomes a flag; secret-like environment names are refused |
+| 5 | `S3:dockerfile` | `platform/sandbox/Dockerfile` | `USER 1000:1000`, `/work` as the only writable mount besides `/tmp`, dependencies baked in |
 
-What the harness decisions on screen 1 look like when they fire (`src/shipharness/harness/scope/`):
+What the harness decisions on screen 1 look like when they fire (`platform/src/shipharness/harness/scope/`):
 a patch outside the phase list gives a `block` decision and the tool result
 `BLOCKED: <path>: outside the allowed paths for the <phase> phase (<list>); patch not applied`; a
 command that changed a file outside the list gives a `revert` decision and a tool result ending
@@ -513,7 +513,7 @@ A/B variable, so the pilot cannot say whether it earns its place; the course kee
 sources' advice (A4, F-a-88, F-a-90; A5, F-a-86). A refused command would show a "denied" turn flag
 with reason code `network` on screen 1, and the message the agent sees is `the sandbox has no
 network; dependencies are already installed in the image` (`_NO_NETWORK` in
-`src/shipharness/sandbox/policy.py`). The two words differ: `blocked` is the scope layer (harness arm
+`platform/src/shipharness/sandbox/policy.py`). The two words differ: `blocked` is the scope layer (harness arm
 only, the A/B variable); `sandbox_denied` is the container (both arms, never the variable).
 
 ## 12. Emergency fallback

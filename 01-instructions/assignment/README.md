@@ -2,8 +2,11 @@
 
 Section S1 Instructions. The A/B's cost caps and the pilot's per-run costs are under "Cost and
 trace budget". Source ids (A1,
-B1, F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../../REFERENCES.md), which is generated when the
+B1, F-a-NN, F-b-NN) are listed in [docs/REFERENCES.md](../../docs/REFERENCES.md), which is generated when the
 course is released.
+
+The reference solution sits next to the starter, in [`solution/`](./solution/). Try the
+assignment first, then compare; the grader stays private.
 
 ## Objective
 
@@ -45,7 +48,7 @@ Read the section S1 material first. The ideas this assignment exercises, with th
   system of record." (A1, F-a-29). The file names (`ARCHITECTURE.md` at the root; `SECURITY.md`,
   `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/` under `docs/`)
   come from A1's layout figure (F-a-30), as the course's instructions layer places them
-  (`teamtrack/harness/instructions/`).
+  (`platform/teamtrack/harness/instructions/`).
 - Progressive disclosure: "agents start with a small, stable entry point and are taught where to look
   next" (A1, F-a-36). For skills, B1 states the same idea: "The `name` and `description` fields are
   loaded at startup for all skills" (B1, F-b-05), and the body loads only when the skill is used.
@@ -74,7 +77,7 @@ the grading criteria below were designed for this course.
 1. **A restructured instructions tree** in `instructions/`: `AGENTS.md` (the map), `ARCHITECTURE.md`,
    and the `docs/` files listed under "Expected project structure". Every active tagged rule from the
    original is defined exactly once, in the document where an agent would look for it.
-2. **One skill** in `instructions/.agents/skills/<name>/`, built from `skills/skill-template`, that
+2. **One skill** in `instructions/.agents/skills/<name>/`, built from `use-in-your-repo/skills/skill-template`, that
    passes `uv run shipharness skills validate`.
 3. **A docs checker**, `checker/check_docs.py`, that reports broken links and rule-coverage problems,
    with your own tests next to it.
@@ -110,9 +113,9 @@ flowchart LR
 
 - The repository set up: `make setup` (or `uv sync --frozen`). Python 3.12 and uv.
 - Section S1 of the class, and the walkthrough anchors `S1:agents_md`, `S1:progressive`, and
-  `S1:prefix` (`uv run python scripts/anchors.py extract S1:agents_md`).
+  `S1:prefix` (`uv run python platform/scripts/anchors.py extract S1:agents_md`).
 - For the A/B only (task 6): a container runtime (`make doctor` passes), the two API keys in `.env`
-  (`setup/PRE-CLASS.md`), the datasets in your LangSmith account (`make datasets`), and the
+  (`setup/pre-class.md`), the datasets in your LangSmith account (`make datasets`), and the
   checkpoint tags (`git fetch --tags`). Everything else needs no keys and no Docker.
 
 ## Expected input and output
@@ -121,7 +124,7 @@ Input:
 
 - `starter/original/AGENTS.md`: the 899-line file. Read-only: the grader pins its SHA-256 and grades
   rule coverage only against the unchanged file.
-- `teamtrack/`: the product. Your tree is copied over the TeamTrack workspace root, so a link in your
+- `platform/teamtrack/`: the product. Your tree is copied over the TeamTrack workspace root, so a link in your
   tree may point to a TeamTrack file (for example `docs/features/f1.md`) as if both were one folder.
 
 Output (all inside your work folder, by default `assignment/starter/`):
@@ -150,19 +153,19 @@ Output (all inside your work folder, by default `assignment/starter/`):
   `docs/HANDBOOK.md` or `docs/features/f1.md`): the layer would overwrite it, and the bare arm reads
   `docs/HANDBOOK.md`.
 - R-T7. No new facts. Every inline code span in the tree either appears in the original (ignoring
-  case, backticks, and runs of whitespace) or is a path that exists in the tree or in `teamtrack/`.
+  case, backticks, and runs of whitespace) or is a path that exists in the tree or in `platform/teamtrack/`.
   The harness may change how knowledge is organised, never add facts the bare arm cannot read (a
   course rule). This is what keeps your A/B fair.
 - R-T8. Your checker exits 0 on your tree.
 
 ### The skill
 
-- R-S1. Exactly one folder in `instructions/.agents/skills/`, copied from `skills/skill-template`
+- R-S1. Exactly one folder in `instructions/.agents/skills/`, copied from `use-in-your-repo/skills/skill-template`
   and renamed; `name` equals the folder name and is not `skill-template` (B1, F-b-02).
 - R-S2. `uv run shipharness skills validate instructions/.agents/skills` reports no errors and no
   warnings (500 lines, references one level deep and present; B1, F-b-06, F-b-07).
 - R-S3. The description says what the skill does and contains "Use when" (B1, F-b-03;
-  `skills/skill-template/README.md`).
+  `use-in-your-repo/skills/skill-template/README.md`).
 - R-S4. The body keeps the template's sections `## When to use`, `## Steps`, and
   `## Checks before you finish`, and no `<Placeholder>` text is left.
 - R-S5. `AGENTS.md` points to `.agents/skills/<name>/SKILL.md`, and the steps cite the rule tags they
@@ -259,15 +262,15 @@ Overlap:
 The A/B is the required live step. You run it once, live, with the course agent model
 (`OPENAI_MODEL`, `gpt-6-luna`), through the real runner and the Docker sandbox, with the class caps
 (`MAX_RUN_COST_USD` $0.20 per arm per run, `MAX_BATCH_COST_USD` $2.50 per command;
-`src/shipharness/config/settings.py`). `live_evidence.py` copies what the run wrote into `live/` in
+`platform/src/shipharness/config/settings.py`). `live_evidence.py` copies what the run wrote into `live/` in
 your work folder:
 
 | Path | What it is | Written by the run to |
 |---|---|---|
 | `live/output.txt` | first line `$ <the exact command>`, then everything the command printed, ending with its `Cost: $...` line | your terminal (task 6 saves it) |
 | `live/experiments/<name>.json` | the two experiment exports, one per arm | `exports/experiments/` |
-| `live/scores/<run_id>.json` | the ScoreRecord of every run listed in the exports (`ScoreRecord` in `src/shipharness/ab/score.py`, with `checkpoint_sha`) | `exports/scores/` |
-| `live/runs/<run_id>/events.jsonl` | the run log of every harness-arm run (`Event` in `src/shipharness/events/models.py`) | `.shipharness/runs/` |
+| `live/scores/<run_id>.json` | the ScoreRecord of every run listed in the exports (`ScoreRecord` in `platform/src/shipharness/ab/score.py`, with `checkpoint_sha`) | `exports/scores/` |
+| `live/runs/<run_id>/events.jsonl` | the run log of every harness-arm run (`Event` in `platform/src/shipharness/events/models.py`) | `.shipharness/runs/` |
 
 The self-check and the grader read these files only: they never re-run a model and need no keys.
 
@@ -284,15 +287,15 @@ The self-check and the grader read these files only: they never re-run a model a
   above $0.04, and the command's cost line at most $2.50 and naming `gpt-6-luna`.
 - R-L4. The harness arm used your tree. When the instructions layer prepares a workspace, it writes
   a note to the run log, "placed N instruction files", with the list of files it copied from
-  `teamtrack/harness/instructions/` (`InstructionsLayer.prepare_workspace` in
-  `src/shipharness/harness/instructions/layer.py`). In every harness run log that list must equal
+  `platform/teamtrack/harness/instructions/` (`InstructionsLayer.prepare_workspace` in
+  `platform/src/shipharness/harness/instructions/layer.py`). In every harness run log that list must equal
   the files of the `instructions/` tree you submit. Finish the tree before the A/B: adding or
   removing a tree file afterwards breaks the match, and re-running is not allowed.
 - R-L5. `ab-report.md` agrees with the evidence (see "The A/B report").
 
 ## Constraints
 
-- Write only inside your work folder. Do not edit `original/AGENTS.md`, `teamtrack/`, or `src/`
+- Write only inside your work folder. Do not edit `original/AGENTS.md`, `platform/teamtrack/`, or `platform/src/`
   (except for the temporary copy in task 6, on a throwaway branch).
 - The self-check and the grader run with no keys and no Docker, and make no model calls. The A/B
   is graded from the report and the live evidence, checked as files, never by re-running models.
@@ -314,26 +317,26 @@ The self-check and the grader read these files only: they never re-run a model a
    and run your checker after every document. Leave out the retired rules.
 4. **Write the map**: roughly 100 lines, a "where to look" table, the house rules at a glance as
    references, the "do not copy" warning, commands, and a short "before you finish" list.
-5. **Build the skill** (TODO(A1-2)): copy `skills/skill-template` into
-   `instructions/.agents/skills/<name>/`, follow `skills/skill-template/README.md`, and validate it.
+5. **Build the skill** (TODO(A1-2)): copy `use-in-your-repo/skills/skill-template` into
+   `instructions/.agents/skills/<name>/`, follow `use-in-your-repo/skills/skill-template/README.md`, and validate it.
 6. **Run the A/B live and collect the evidence** (needs keys and Docker; within the budget
    below). Finish the tree first: the evidence must match the tree you submit (R-L4).
 
    ```bash
    git switch -c a1-ab-run                          # throwaway branch: never merge it
-   rm -rf teamtrack/harness/instructions
-   cp -r submodules/01-instructions/assignment/starter/instructions teamtrack/harness/instructions
-   git add teamtrack/harness/instructions && git commit -m "A1: my instructions tree for the A/B"
+   rm -rf platform/teamtrack/harness/instructions
+   cp -r 01-instructions/assignment/starter/instructions platform/teamtrack/harness/instructions
+   git add platform/teamtrack/harness/instructions && git commit -m "A1: my instructions tree for the A/B"
    git log -1 --format=%h                           # the "Instructions tree commit"
    CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-<name>"
    echo "\$ $CMD" > ~/a1-live-output.txt            # the exact command: first line of the evidence
    $CMD | tee -a ~/a1-live-output.txt               # the live run; its output ends with "Cost: $..."
    git switch -                                     # back to your work branch
-   uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt
-   uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name> --exports submodules/01-instructions/assignment/starter/live
+   uv run python 01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt
+   uv run python 01-instructions/assignment/ab_summary.py --batch a1-<name> --exports 01-instructions/assignment/starter/live
    ```
 
-   The instructions layer reads its tree from `teamtrack/harness/instructions/` on the host, so the
+   The instructions layer reads its tree from `platform/teamtrack/harness/instructions/` on the host, so the
    copy is what the harness arm gets; the bare arm reads `docs/HANDBOOK.md` as always. The course's
    own unit tests for that folder fail on the throwaway branch; that is expected. `exports/` and
    `.shipharness/` are not committed on the throwaway branch, so they are still there after
@@ -363,7 +366,7 @@ assignment/starter/                 your work folder (or a copy: pass A1_WORK=<d
       product-specs/index.md        product behaviour and pointers to docs/features/
       product-specs/<your docs>.md
     .agents/skills/<name>/
-      SKILL.md                      built from skills/skill-template
+      SKILL.md                      built from use-in-your-repo/skills/skill-template
       references/...                optional, one level deep
   checker/
     check_docs.py                   your checker
@@ -384,29 +387,29 @@ one home an agent would find from the map.
 
 ```bash
 make setup                         # uv sync, container images if a runtime is present, .env
-uv run python submodules/01-instructions/assignment/check.py   # see what fails on the starter
+uv run python 01-instructions/assignment/check.py   # see what fails on the starter
 ```
 
-On Windows, run everything inside WSL2 ([docs/setup-windows.md](../../../docs/setup-windows.md)). Work
+On Windows, run everything inside WSL2 ([setup/windows.md](../../setup/windows.md)). Work
 on your own branch; commit the work folder.
 
 ## How to run
 
 | What | Command |
 |---|---|
-| your checker | `uv run python submodules/01-instructions/assignment/starter/checker/check_docs.py --original submodules/01-instructions/assignment/starter/original/AGENTS.md --tree submodules/01-instructions/assignment/starter/instructions` |
-| the skill validator | `uv run shipharness skills validate submodules/01-instructions/assignment/starter/instructions/.agents/skills` |
+| your checker | `uv run python 01-instructions/assignment/starter/checker/check_docs.py --original 01-instructions/assignment/starter/original/AGENTS.md --tree 01-instructions/assignment/starter/instructions` |
+| the skill validator | `uv run shipharness skills validate 01-instructions/assignment/starter/instructions/.agents/skills` |
 | the self-check | `make check-assignment-1` (another folder: `make check-assignment-1 A1_WORK=<dir>`) |
-| collect the live evidence | `uv run python submodules/01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt` |
-| the A/B summary | `uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-<name> --exports submodules/01-instructions/assignment/starter/live` |
+| collect the live evidence | `uv run python 01-instructions/assignment/live_evidence.py --batch a1-<name> --output ~/a1-live-output.txt` |
+| the A/B summary | `uv run python 01-instructions/assignment/ab_summary.py --batch a1-<name> --exports 01-instructions/assignment/starter/live` |
 
-Without make, the self-check is `uv run python submodules/01-instructions/assignment/check.py
+Without make, the self-check is `uv run python 01-instructions/assignment/check.py
 --work <dir>`. The grader is not in your repository; the instructor runs it on your submission.
 
 ## How to test
 
 ```bash
-uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/assignment/starter/checker
+uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/starter/checker
 ```
 
 runs the visible tests and yours. The grader also runs an unchanged copy of the visible tests against
@@ -458,12 +461,12 @@ left out):
 
 ```
 $ make check-assignment-1
-uv run python submodules/01-instructions/assignment/check.py
-A1 self-check: submodules/01-instructions/assignment/starter
+uv run python 01-instructions/assignment/check.py
+A1 self-check: 01-instructions/assignment/starter
 FAIL layout: missing ARCHITECTURE.md, docs/SECURITY.md, docs/RELIABILITY.md, docs/QUALITY_SCORE.md, docs/PLANS.md, docs/design-docs/index.md, docs/product-specs/index.md; follow A1's layout (README, 'Expected project structure')
 FAIL map-length: AGENTS.md still holds the starter TODO stub
 ...
-FAIL checker-tests: pytest submodules/01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.72s
+FAIL checker-tests: pytest 01-instructions/assignment/starter/checker: 12 failed, 3 passed in 0.72s
 FAIL checker-clean: make the checker tests pass first: a checker that finds nothing proves nothing
 ...
 FAIL live-files: live evidence missing or malformed: no live/ folder in the work folder; collect it with live_evidence.py (README, task 6)
@@ -534,7 +537,7 @@ same score on every run.
   the product's files.
 - Leaving the skill as `skill-template`, or with a description that never says when to use it.
 - Reporting percentages, or re-running the A/B to get a nicer result.
-- Running the A/B with the course's own tree still in `teamtrack/harness/instructions/`, or adding
+- Running the A/B with the course's own tree still in `platform/teamtrack/harness/instructions/`, or adding
   a document to your tree after the run: `live-tree` fails because the placed files are not yours.
 - Typing the report's numbers by hand. `live-report` compares them with the score records; copy
   them from `ab_summary.py --exports <work>/live`.
@@ -546,7 +549,7 @@ same score on every run.
 |---|---|---|
 | Self-check, grader, checker, validator, `ab_summary.py`, `live_evidence.py` | $0 (no model calls) | 0 |
 | `make datasets` (upload, once) | $0 | 0 |
-| The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (the course budget); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `src/shipharness/config/settings.py`) | 2 per run (the agent run and the referee's evaluation): 96, within A1's 150 |
+| The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (the course budget); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `platform/src/shipharness/config/settings.py`) | 2 per run (the agent run and the referee's evaluation): 96, within A1's 150 |
 
 The course budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces.
 

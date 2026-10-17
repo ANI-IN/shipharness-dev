@@ -1,7 +1,7 @@
 # S1 session notes: what the agent knows
 
 For learners, after class. Reading time: about 8 minutes. Source IDs (A1, B1, ...) and finding IDs
-(F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../REFERENCES.md), which is generated when the course
+(F-a-NN, F-b-NN) are listed in [docs/REFERENCES.md](../docs/REFERENCES.md), which is generated when the course
 is released. "S1", "layer", "trap", "blinded reviewer", and the house rules R1-R7 are course labels,
 not source terms ([concepts.md](concepts.md), note on labels).
 
@@ -14,7 +14,7 @@ not source terms ([concepts.md](concepts.md), note on labels).
 | Poll | In how many of 10 runs does each arm add at least one new R1 violation while building F1? | [demo/README.md](demo/README.md), section 9 |
 | Launch | `make show-1`: the harness arm alone on F1 (org-wide issue search) with the instructions layer, live. "Harness in action", not an A/B: the pilot showed no gap to demonstrate | [demo/README.md](demo/README.md), parts 1, 4, 5 |
 | Concepts | Problem, cause, harness piece, implementation, measure, and what the map assumes | [concepts.md](concepts.md) |
-| Walkthrough | The legacy `/v1/issues` handler next to the scoped query; anchors `S1:agents_md`, `S1:progressive`, `S1:prefix` | `uv run python scripts/anchors.py extract S1:prefix` |
+| Walkthrough | The legacy `/v1/issues` handler next to the scoped query; anchors `S1:agents_md`, `S1:progressive`, `S1:prefix` | `uv run python platform/scripts/anchors.py extract S1:prefix` |
 | Demo block | The finished `make show-1` run (screens 1, 3, 2); screen 4 with every pilot result | [demo/README.md](demo/README.md), parts 5 and 6 |
 
 The class's `make show-1` run ran on the class host, so its record is not in this repository; in
@@ -47,10 +47,10 @@ class, its verdict was read off console screen 1. A captured `make show-1` run (
    required.
 7. **The context prefix** is the course's place for A1's "injected into context": the map plus the
    skills catalogue, sent as the developer message of every session, built from the course checkout
-   so the agent cannot rewrite it (`src/shipharness/harness/instructions/router.py`). This is course
+   so the agent cannot rewrite it (`platform/src/shipharness/harness/instructions/router.py`). This is course
    design, not a source term.
 8. **The harness may reorganise knowledge, never add it** (a course rule). Every rule in the harness
-   docs is also in `docs/HANDBOOK.md`, which both arms have (`tests/unit/harness_instructions/test_parity.py`).
+   docs is also in `docs/HANDBOOK.md`, which both arms have (`platform/tests/unit/harness_instructions/test_parity.py`).
 9. **Docs are checked like code.** "Dedicated linters and CI jobs validate that the knowledge base is
    up to date, cross-linked, and structured correctly." (A1, F-a-37). Assignment A1 asks you to build
    one such checker.
@@ -120,7 +120,7 @@ With no gap to demonstrate, S1 showed the harness arm alone at work (`make show-
 then the documents the ticket needs), live, judged by the referee. The map is a bet on what the model
 will miss, and only a measure such as the referee's R1 check tells you whether it paid off. Optional
 extras outside class (a replayed pilot run and a scripted example) are listed in
-[docs/extras.md](../../docs/extras.md).
+[docs/extras.md](../docs/extras.md).
 
 ---
 
@@ -138,7 +138,7 @@ shows it earns its place, or for the maintenance reasons, and say which.
 **Is the harness arm not just given more information?**
 No. By course rule the harness may change how knowledge is organised and delivered, not add facts
 the bare arm cannot read; a unit test checks that every rule in the harness docs is also in the
-handbook (`tests/unit/harness_instructions/test_parity.py`). Both arms always get the same ticket,
+handbook (`platform/tests/unit/harness_instructions/test_parity.py`). Both arms always get the same ticket,
 model, effort, tools, turn budget, cost cap, and sandbox.
 
 **Why not paste the whole handbook into the prompt?**
@@ -148,7 +148,7 @@ mechanically (F-a-26).
 
 **What does the agent see of a skill at the start?**
 One catalogue line per skill: name, description, and the path to `SKILL.md`
-(`catalogue_block` in `src/shipharness/runner/skills_loader.py`, anchor `S1:progressive`). The body
+(`catalogue_block` in `platform/src/shipharness/runner/skills_loader.py`, anchor `S1:progressive`). The body
 is tier 2 and loads only when the agent reads it (B1, F-b-05). In pilot run 2 every F1 harness arm
 read the body; none read the tier 3 file `references/tests.md`.
 
@@ -158,7 +158,7 @@ stays the same for the whole run (docstring of `router.py`).
 
 **The reviewer rejected both arms in one A/B, but the referee passed them. Which is right?**
 Both, on different questions. The referee's R1 check is the pre-registered primary measure
-(`REGISTERED_PRIMARY` in `src/shipharness/datasets/features_checks.py`). The blinded reviewer, a course
+(`REGISTERED_PRIMARY` in `platform/src/shipharness/datasets/features_checks.py`). The blinded reviewer, a course
 design after A3's separate evaluator (A3, F-a-110), is a secondary measure; in
 `ab-20261016-183644-0036f0` it objected to how both arms handled an archived project passed as
 `project_id`, said `tenant_isolation_risk: none`, and the hidden tests passed 52 of 52 in both arms
@@ -179,12 +179,12 @@ percentage hides how few runs there are.
 
 1. Start assignment A1: [assignment/README.md](assignment/README.md). Run `make check-assignment-1`
    first; on the unchanged starter it fails by design and every FAIL line says what to fix.
-2. Open `teamtrack/docs/HANDBOOK.md` and `teamtrack/harness/instructions/AGENTS.md` side by side. For
+2. Open `platform/teamtrack/docs/HANDBOOK.md` and `platform/teamtrack/harness/instructions/AGENTS.md` side by side. For
    R1, how many lines does an agent read before it reaches the rule in each?
-3. Compare the `F1-canonical` and `F1-trap` tickets in `datasets/teamtrack-features-v1.jsonl`. Which
+3. Compare the `F1-canonical` and `F1-trap` tickets in `platform/datasets/teamtrack-features-v1.jsonl`. Which
    sentence in each points the agent somewhere, and where?
 4. Validate the course skill and read it against the specification:
-   `uv run shipharness skills validate teamtrack/harness/instructions/.agents/skills`.
+   `uv run shipharness skills validate platform/teamtrack/harness/instructions/.agents/skills`.
 5. Read the post-class pieces, about 21 minutes in total:
    [post-class-reading/README.md](post-class-reading/README.md).
 6. In your own repository: count the lines of your agent instruction file, and list the three rules

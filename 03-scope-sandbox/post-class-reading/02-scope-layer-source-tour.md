@@ -9,7 +9,7 @@ file named above it.
 
 ## 1. What the agent is told
 
-`src/shipharness/harness/scope/layer.py`, lines 129-151. This block goes into the harness arm's
+`platform/src/shipharness/harness/scope/layer.py`, lines 129-151. This block goes into the harness arm's
 context prefix.
 
 ```python
@@ -50,7 +50,7 @@ Three things to notice:
 
 ## 2. How a tool call is checked
 
-`src/shipharness/harness/scope/layer.py`, lines 153-188.
+`platform/src/shipharness/harness/scope/layer.py`, lines 153-188.
 
 ```python
     def before_tool(self, ctx: LayerContext, call: ToolCall) -> HarnessDecision:
@@ -97,19 +97,19 @@ Three things to notice:
 - **All paths of a patch.** `patch_targets` collects every path a unified diff can touch, including
   `diff --git` lines, renames, and copies, so a rename into `app/api/middleware.py` is caught too.
 - **Restore, not git.** The revert uses the snapshot module, which reads bytes, never follows links,
-  and refuses paths that leave the workspace (`src/shipharness/harness/scope/snapshot.py`). A2 used git
+  and refuses paths that leave the workspace (`platform/src/shipharness/harness/scope/snapshot.py`). A2 used git
   so that the model could "revert bad code changes" (A2, F-a-57); here the harness reverts, and it does
   not depend on the agent's git state.
 - **The reasons are grouped.** `check_paths` groups refused paths by reason, so one patch that
   touches three out-of-scope files gives one decision that names all three.
 
 The harness turns each `block` or `revert` decision into a `blocked` event with `phase`, `paths`,
-`action`, and `reason` (`src/shipharness/harness/base.py`), which is what the console's diff map and
+`action`, and `reason` (`platform/src/shipharness/harness/base.py`), which is what the console's diff map and
 turn flags show.
 
 ## 3. What counts as evidence for `passes`
 
-`src/shipharness/harness/scope/status.py`, lines 67-81: the evidence when the verify layer is off,
+`platform/src/shipharness/harness/scope/status.py`, lines 67-81: the evidence when the verify layer is off,
 as in `make demo-3`.
 
 ```python
@@ -151,7 +151,7 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
 
 ## 4. How the referee counts the S3 measure
 
-`src/shipharness/ab/referee.py`, lines 584-597.
+`platform/src/shipharness/ab/referee.py`, lines 584-597.
 
 ```python
         product = strip(diff)  # harness artifacts are state, not product changes
@@ -170,7 +170,7 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
         ]
 ```
 
-The test-phase files come from `phase_changed_files` in `src/shipharness/ab/demo.py`, lines 500-511:
+The test-phase files come from `phase_changed_files` in `platform/src/shipharness/ab/demo.py`, lines 500-511:
 
 ```python
 def phase_changed_files(
@@ -190,7 +190,7 @@ def phase_changed_files(
 - The referee never uses the scope layer's decisions. It judges the shipped diff, the same way for
   both arms.
 - Harness artifacts (`AGENTS.md`, `progress.md`, `feature_list.json`, and the rest of the list in
-  `src/shipharness/ab/artifacts.py`) are stripped first, so the harness arm is not charged for its own
+  `platform/src/shipharness/ab/artifacts.py`) are stripped first, so the harness arm is not charged for its own
   state files.
 - A file is in scope if either phase allows it. The test-phase rule is separate: a file changed after
   the test phase started must match the test list.
@@ -207,10 +207,10 @@ def phase_changed_files(
 ## Try it without a model call
 
 ```bash
-uv run python scripts/anchors.py extract S3:allowed_paths
+uv run python platform/scripts/anchors.py extract S3:allowed_paths
 ```
 
-The unit tests in `tests/unit/harness_scope/` drive the guard, the snapshot revert, the status
+The unit tests in `platform/tests/unit/harness_scope/` drive the guard, the snapshot revert, the status
 writer, and the layer with a fake sandbox; reading `test_layer.py` next to this piece shows each rule
 as a test.
 

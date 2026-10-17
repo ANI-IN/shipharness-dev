@@ -1,6 +1,6 @@
 # Scope checklist: what the agent may change and reach
 
-Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Source ids and finding ids are listed in `docs/REFERENCES.md` in the course repository.
 Assessment checks C1-C5 test the items marked with a check id.
 
 | Done | Item | Why | Source |

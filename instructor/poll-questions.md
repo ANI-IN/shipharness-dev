@@ -131,7 +131,7 @@ taught here, never an A/B variable; A4 runs agents in a container, F-a-88.)
 ## S4 Verification (slide 49, 3 minutes)
 
 **Question (as on slide 49).** F4 optimistic concurrency; at stake: hidden tests (69, VERIFICATION.md,
-M5 counts) and referee mutants (4, `teamtrack/mutants/features/f4.jsonl`). A run passes only with all
+M5 counts) and referee mutants (4, `platform/teamtrack/mutants/features/f4.jsonl`). A run passes only with all
 69 hidden tests passing and all 4 mutants killed by the arm's shipped tests. In the pilot's 4 F4 A/Bs,
 which arm passed more often?
 
@@ -176,9 +176,9 @@ winner runs first; the runner-up runs after it.
 
 | Option | Feature | Spec | Sessions | What it stresses |
 |---|---|---|---|---|
-| A | F5 Bulk close: close all finished issues of a project in one request | `teamtrack/docs/features/f5.md` | One, budget 30 (`teamtrack/reference/f5/task.toml`) | Atomic 404 for any foreign or deleted id (R1), viewers get 403 (R2), one audit row per request (R5) |
-| B | F6 Watchers: follow issues and list the ones you watch | `teamtrack/docs/features/f6.md` | Two, budgets 20 and 30 | A session stop in the middle (S2), one new migration (R7), no-op writes add no audit row (R5) |
-| C | F7 Labels: tag issues and filter lists by label | `teamtrack/docs/features/f7.md` | Two, budgets 25 and 35 | A session stop (S2), idempotent label creation per org (R4) |
+| A | F5 Bulk close: close all finished issues of a project in one request | `platform/teamtrack/docs/features/f5.md` | One, budget 30 (`platform/teamtrack/reference/f5/task.toml`) | Atomic 404 for any foreign or deleted id (R1), viewers get 403 (R2), one audit row per request (R5) |
+| B | F6 Watchers: follow issues and list the ones you watch | `platform/teamtrack/docs/features/f6.md` | Two, budgets 20 and 30 | A session stop in the middle (S2), one new migration (R7), no-op writes add no audit row (R5) |
+| C | F7 Labels: tag issues and filter lists by label | `platform/teamtrack/docs/features/f7.md` | Two, budgets 25 and 35 | A session stop (S2), idempotent label creation per org (R4) |
 
 **After the vote.** Terminal C, one minute after `make show-4` (2:55):
 `make final FEATURES=<winner>,<runner-up>` when the session figure on show-3's `Cost:` line is at most

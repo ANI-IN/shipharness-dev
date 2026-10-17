@@ -1,7 +1,7 @@
 # Final project: shipharness end to end
 
 Source ids and finding ids such as (A3, F-a-65) are listed with links in
-[REFERENCES.md](../REFERENCES.md).
+[docs/REFERENCES.md](../docs/REFERENCES.md).
 
 Contents:
 
@@ -30,12 +30,12 @@ the install commands and the versions the course tested.
 
 | | Linux (Ubuntu) | Windows (WSL2) | macOS |
 |---|---|---|---|
-| Setup page | [setup-linux.md](../docs/setup-linux.md) | [setup-windows.md](../docs/setup-windows.md) | [setup-macos.md](../docs/setup-macos.md) (not tested for the course) |
+| Setup page | [linux.md](../setup/linux.md) | [windows.md](../setup/windows.md) | [macos.md](../setup/macos.md) (not tested for the course) |
 | First | | In PowerShell as administrator: `wsl --install`, restart, then open the Ubuntu terminal and run every later command there | |
 | git, make, curl | `sudo apt update && sudo apt install -y git make curl` | the Linux command, in Ubuntu | `xcode-select --install` |
 | uv | `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh` | the Linux command, in Ubuntu | the same command, or `brew install uv` |
 | Python | Nothing to install: uv fetches 3.12 (`.python-version`; `pyproject.toml` needs `>=3.12`) | the same | the same |
-| Container runtime | Docker Engine from Docker's apt repository ([step 3](../docs/setup-linux.md#3-install-docker-engine)) | Docker Engine inside Ubuntu, systemd on ([steps 2-3](../docs/setup-windows.md#2-check-that-systemd-is-on)) | Docker Desktop or Colima ([setup-macos.md](../docs/setup-macos.md)) |
+| Container runtime | Docker Engine from Docker's apt repository ([step 3](../setup/linux.md#3-install-docker-engine)) | Docker Engine inside Ubuntu, systemd on ([steps 2-3](../setup/windows.md#2-check-that-systemd-is-on)) | Docker Desktop or Colima ([macos.md](../setup/macos.md)) |
 | The repository | `git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness`, then `cd ~/shipharness && make setup` | the same, in `~` (never under `/mnt/c`) | the same |
 | Versions tested (class host, 2026-10-17) | `git version 2.53.0`, `GNU Make 4.4.1`, `uv 0.13.1`, Python 3.12.15, `Docker version 29.9.1` on Ubuntu 26.04.1 | the Linux versions, inside WSL 3.0.3.0 on Windows 11 Pro | none (no Mac was tested) |
 
@@ -117,19 +117,19 @@ model, tools, sandbox, turn budgets, and cost cap.
 
 | Feature | Spec | Sessions (turn budget each) | Hidden tests | Referee-set mutants |
 |---|---|---|---|---|
-| F5 Bulk close | [f5.md](../teamtrack/docs/features/f5.md) | 1 (30) | 46 | 3 |
-| F6 Watchers | [f6.md](../teamtrack/docs/features/f6.md) | 2 (20, then 30) | 54 | 3 |
-| F7 Labels | [f7.md](../teamtrack/docs/features/f7.md) | 2 (25, then 35) | 64 | 3 |
+| F5 Bulk close | [f5.md](../platform/teamtrack/docs/features/f5.md) | 1 (30) | 46 | 3 |
+| F6 Watchers | [f6.md](../platform/teamtrack/docs/features/f6.md) | 2 (20, then 30) | 54 | 3 |
+| F7 Labels | [f7.md](../platform/teamtrack/docs/features/f7.md) | 2 (25, then 35) | 64 | 3 |
 
-Sources: session budgets from `teamtrack/reference/f5/task.toml` (and `f6`, `f7`); hidden-test
-counts are the test functions in `teamtrack/tests/hidden/f5/` (3 files, 46 tests), `f6/` (3 files,
+Sources: session budgets from `platform/teamtrack/reference/f5/task.toml` (and `f6`, `f7`); hidden-test
+counts are the test functions in `platform/teamtrack/tests/hidden/f5/` (3 files, 46 tests), `f6/` (3 files,
 54) and `f7/` (4 files, 64), none of them parametrized; referee-set mutants from
-`teamtrack/mutants/features/f5.jsonl` (and `f6`, `f7`), which also hold two filter-set mutants each.
+`platform/teamtrack/mutants/features/f5.jsonl` (and `f6`, `f7`), which also hold two filter-set mutants each.
 F6 and F7 run over two sessions, so a session ends partway through the feature and the next session
 starts with an empty context: A3's "context reset", produced here by a session turn budget smaller
 than the feature (A3, F-a-65). "Session turn budget" is the course's name for the mechanism, not a
 source term. Some hidden tests combine the new feature with an earlier one (for example
-`tests/hidden/f7/test_f7_with_f1.py` in `teamtrack/`), as SpecBench's "held-out tests that compose
+`tests/hidden/f7/test_f7_with_f1.py` in `platform/teamtrack/`), as SpecBench's "held-out tests that compose
 those same features to simulate real-world usage" (B13, F-b-42). Neither arm ever sees the hidden
 tests or the referee-set mutants.
 
@@ -191,7 +191,7 @@ flowchart LR
 
 The per-arm line shows: the arm, run status, the agent's claim (`claim=done` or not), the primary
 values and `passed` flag, `hidden <passed>/<total>`, `mutants <killed>/<total>`, the reviewer's
-verdict, and the arm's cost (`_print_record` in `src/shipharness/ab/commands.py`). The last line is
+verdict, and the arm's cost (`_print_record` in `platform/src/shipharness/ab/commands.py`). The last line is
 `Cost: $<x> (this command: <costs per model>; session $<x> of $2.50; build $<x> of $15.00 (...))`.
 
 The course ran `make final FEATURES=F5 PURPOSE=pilot` with the class profile on a quiet machine,
@@ -361,7 +361,7 @@ Read from `exports/`, so it includes every scored run there, not only the runs o
 
 F5-F7 register no primary measure (`primary_measure = ""` in each `task.toml`). For such a task the
 referee records an empty `primary` and `passed_primary: true` for every run (`evaluate_primary` in
-`src/shipharness/ab/score.py`). That value shows up in three places, and for the final it does not
+`platform/src/shipharness/ab/score.py`). That value shows up in three places, and for the final it does not
 mean the feature works:
 
 - screen 1's Referee line shows `✓ pass`;
@@ -448,11 +448,11 @@ never depend on colour alone. The row label carries the count, in the form
 code is the walkthrough anchor `Final:dots`:
 
 ```bash
-uv run python scripts/anchors.py extract Final:dots
+uv run python platform/scripts/anchors.py extract Final:dots
 ```
 
-which prints the start of `render_dot_plot` in `src/shipharness/ab/report.py` (captured on
-2026-10-17 from `uv run python scripts/anchors.py extract Final:dots`; first lines;
+which prints the start of `render_dot_plot` in `platform/src/shipharness/ab/report.py` (captured on
+2026-10-17 from `uv run python platform/scripts/anchors.py extract Final:dots`; first lines;
 your output will differ):
 
 ```
@@ -511,7 +511,7 @@ and 3 of 3 harness: a different split from one run to the next, which is why one
 
 ## 7. Expected time and cost
 
-Caps (from `.env.example` and `src/shipharness/config/settings.py`; the cost tracker enforces them,
+Caps (from `.env.example` and `platform/src/shipharness/config/settings.py`; the cost tracker enforces them,
 and a run that hits one ends as `ABORTED: cap` and is still scored):
 
 | Cap | Value |
@@ -528,7 +528,7 @@ Worst case at the caps, per final feature: 2 arms × $0.25 + 2 reviews × $0.04 
 `FEATURES=F5,F6` is at most $1.16, and all three features at most $1.74, which fits a session in which
 you ran nothing else. In class, four `make show-N` runs (at most $0.24 each with the review) and two
 final features stay under the $2.50 session cap at the caps (at most $2.12). Prices are in
-`config/prices.toml`, per 1M tokens: gpt-6-luna at the Standard tier $0.10 input, $0.01 cached input,
+`platform/config/prices.toml`, per 1M tokens: gpt-6-luna at the Standard tier $0.10 input, $0.01 cached input,
 $0.125 cache write, $0.50 output, and at the Fast tier, which the class profile uses for the agent's
 calls, $0.20, $0.02, $0.25, $1.00; gpt-5.6-luna, the reviewer, $0.20, $0.02, $0.25, $1.20 (Standard
 tier only). Each call is charged by the tier its response reports.
@@ -575,25 +575,25 @@ More in [docs/troubleshooting.md](../docs/troubleshooting.md).
 Three tools work outside TeamTrack. Run them from the shipharness repository root and pass your
 repository's path. The four course skills package the same workflows for coding agents; their
 READMEs describe how to install them in Claude Code, Codex, and Cursor:
-[harness-setup](../skills/harness-setup/README.md), [house-rules](../skills/house-rules/README.md),
-[assured-tests](../skills/assured-tests/README.md),
-[skill-template](../skills/skill-template/README.md).
+[harness-setup](../use-in-your-repo/skills/harness-setup/README.md), [house-rules](../use-in-your-repo/skills/house-rules/README.md),
+[assured-tests](../use-in-your-repo/skills/assured-tests/README.md),
+[skill-template](../use-in-your-repo/skills/skill-template/README.md).
 
 ### 9.1 Assess the harness: the `harness-setup` skill
 
 ```bash
-uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html
+uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html
 ```
 
 The script reads files only: no network or model calls, no code from your repository is run, and the
-same files give the same report (`skills/harness-setup/SKILL.md`). It prints a summary per area and
+same files give the same report (`use-in-your-repo/skills/harness-setup/SKILL.md`). It prints a summary per area and
 one line per check, and writes an HTML table with each check's status (pass, partial, fail), the
 evidence, the fix, and the source. Add `--json` to also print the checks as JSON. The areas are
 instructions (I1-I6), state (S1-S4), scope (C1-C5), verification (V1-V5), and session lifecycle
 (L1-L5).
 
 Captured on 2026-10-17 on the bare TeamTrack from
-`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html`, first lines; your output will differ:
+`uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out harness-assessment.html`, first lines; your output will differ:
 
 ```
 Instructions       pass 0  partial 1  fail 5
@@ -604,7 +604,7 @@ Session lifecycle  pass 0  partial 0  fail 5
 FAIL     I1 AGENTS.md map at the repository root: no AGENTS.md at the repository root
 ```
 
-Then fill the gaps from the skill's templates (`skills/harness-setup/assets/templates/`), area by
+Then fill the gaps from the skill's templates (`use-in-your-repo/skills/harness-setup/assets/templates/`), area by
 area, and run the script again. The first rule of the skill is to keep AGENTS.md a map: "we treat it
 as the table of contents", "roughly 100 lines" (A1, F-a-27, F-a-28). The skill also says what it
 does not do: templates write rules down, and enforcement needs code (checks, tests, a gate).
@@ -638,10 +638,10 @@ Options that matter on your own code (`uv run shipharness testgen --help`):
   still decide what is kept. Comparing `none` with `verify` on the same module is a small A/B of
   your own.
 - Without mutants, filter 3 can only keep tests that add line coverage. On a well-covered module most
-  tests then fail filter 3; that is expected (`skills/assured-tests/SKILL.md`).
+  tests then fail filter 3; that is expected (`use-in-your-repo/skills/assured-tests/SKILL.md`).
 - `--out <dir>`: kept tests and `testgen-report.json` go there; the default is
   `.shipharness/runs/<run_id>/kept/`.
-- `--target <id>` runs one of the pinned course targets from `datasets/testgen-targets-v1.jsonl`
+- `--target <id>` runs one of the pinned course targets from `platform/datasets/testgen-targets-v1.jsonl`
   instead (for example `TG-boltons-listutils`).
 
 The command prints one line per test: `+ <test id>` for kept, `- <test id>: filter <n>: <reason>` for
@@ -660,16 +660,16 @@ uv run shipharness check --app <your-app-dir> --adapter mypackage.harness_adapte
 
 The checks are generic for FastAPI services and discover endpoints from the app's OpenAPI spec.
 Everything specific to your app goes through an adapter: an object implementing the
-`TenantAppAdapter` protocol in `src/shipharness/checks/adapter.py`. It builds a seeded app on a fresh
+`TenantAppAdapter` protocol in `platform/src/shipharness/checks/adapter.py`. It builds a seeded app on a fresh
 database, returns headers for a role in an org, names two orgs (probes run as the first against the
 second's data), gives the ids to probe with, counts audit rows, detects another org's data in a
 response, and lists exemptions. The built-in TeamTrack adapter in the same file is a worked example.
 
 Try it on TeamTrack first (no adapter needed). Captured on 2026-10-17 from
-`uv run shipharness check --app teamtrack --rules R6,R7`; your output will differ:
+`uv run shipharness check --app platform/teamtrack --rules R6,R7`; your output will differ:
 
 ```
-$ uv run shipharness check --app teamtrack --rules R6,R7
+$ uv run shipharness check --app platform/teamtrack --rules R6,R7
 UNSANDBOXED: the checks import and run this app's code on this machine.
   R6 import-linter
   R7 alembic upgrade head
@@ -686,7 +686,7 @@ can run in CI. `check` makes no model calls, and it runs your app's code in proc
 on code you trust. "House rules" is the course's label for what A1 calls "golden principles" and
 "taste invariants" enforced mechanically (A1, F-a-96, F-a-99). To turn one of your own conventions
 into a rule with a check and a test, use the `house-rules` skill
-(`skills/house-rules/scripts/new_rule.py --help`).
+(`use-in-your-repo/skills/house-rules/scripts/new_rule.py --help`).
 
 ## 10. Portfolio: how this feeds assignment 4
 
@@ -694,7 +694,7 @@ Assignment 4 (Verification and portfolio) asks for house rule R8 and one new fil
 testgen` on a repository you choose, one live F4 A/B, and the portfolio: an evidence report, a
 LangSmith page with the A/B's trace links, a one-page case study, and your own skill. The full brief
 and grading criteria are in
-[submodules/04-verification/assignment/README.md](../submodules/04-verification/assignment/README.md).
+[04-verification/assignment/README.md](../04-verification/assignment/README.md).
 This project gives you each piece:
 
 | Portfolio item | Where it comes from |
@@ -702,7 +702,7 @@ This project gives you each piece:
 | Evidence report | The testgen output from 9.2 (`testgen-report.json` and the kept tests), the assessment from 9.1, and the check results from 9.3; or your own A/B scores in `exports/scores/` with `exports/report.html` |
 | LangSmith links | The `trace_url` and `referee_trace_url` of each arm's score record, and the links on screens 4 and 5 |
 | One-page case study | The repository, what the assessment found, which harness parts you added, the counts before and after (kept tests of proposed, new violations, hidden tests and mutants), and what still fails |
-| Your own skill | Start from `skills/skill-template/` (walkthrough anchor `Final:skill_template`), then `uv run shipharness skills validate <your-skill-dir>` |
+| Your own skill | Start from `use-in-your-repo/skills/skill-template/` (walkthrough anchor `Final:skill_template`), then `uv run shipharness skills validate <your-skill-dir>` |
 
 Report counts the way the course does: one dot per run, as counts such as "3/3", not percentages.
 

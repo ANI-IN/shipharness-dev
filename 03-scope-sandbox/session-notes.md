@@ -3,7 +3,7 @@
 Notes for learners after the S3 class. The full concepts are in [concepts.md](concepts.md); the demo
 runbook is [demo/README.md](demo/README.md); the assignment is
 [assignment/README.md](assignment/README.md). Sources are cited by ID with finding IDs; the full list
-is in [REFERENCES.md](../../REFERENCES.md). Anything the course designed itself is marked **course
+is in [docs/REFERENCES.md](../docs/REFERENCES.md). Anything the course designed itself is marked **course
 design**.
 
 ## What was shown
@@ -16,7 +16,7 @@ the section showed the harness arm alone at work, live (`make show-3`; runbook:
    phase adds tests without changing application code. In 10 bare-arm runs on F3, how often does the
    bare arm change files outside the allowed paths anyway? The pilot's answer: 0 of 10.
 2. **Harness in action, `make show-3`.** The harness arm alone (instructions, state, scope), live,
-   on F3, idempotency keys on issue creation (`teamtrack/docs/features/f3.md`), judged by the
+   on F3, idempotency keys on issue creation (`platform/teamtrack/docs/features/f3.md`), judged by the
    referee. It is one run, not an A/B, and is never compared with a bare run.
 3. **Concepts and code walkthrough** while it ran: the five S3 anchors (`S3:allowed_paths`,
    `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`).
@@ -161,7 +161,7 @@ the clean-state check.
 
 **Did any command hit the sandbox in the pilot?** No. No run log of pilot runs 2 to 4 or the
 class-profile round has a `sandbox_denied` event, so no real run has shown a denial;
-[docs/extras.md](../../docs/extras.md) has a scripted one (optional, not part of class). The sandbox is never compared, so the pilot cannot say whether it earns its
+[docs/extras.md](../docs/extras.md) has a scripted one (optional, not part of class). The sandbox is never compared, so the pilot cannot say whether it earns its
 place; the course keeps it on the sources' advice (A4, F-a-88, F-a-90; A5, F-a-86).
 
 ## What to try next
@@ -172,8 +172,8 @@ place; the course keeps it on the sources' advice (A4, F-a-88, F-a-90; A5, F-a-8
 - Read the code behind the class excerpts, without a model call:
 
   ```bash
-  uv run python scripts/anchors.py extract S3:allowed_paths
-  uv run python scripts/anchors.py extract S3:passes
+  uv run python platform/scripts/anchors.py extract S3:allowed_paths
+  uv run python platform/scripts/anchors.py extract S3:passes
   uv run python -c "from shipharness.sandbox.policy import SandboxPolicy, render_policy; print(render_policy(SandboxPolicy()))"
   ```
 

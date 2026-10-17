@@ -4,7 +4,7 @@ For learners, after class. Reading time: about 7 minutes. Concepts in full:
 [concepts.md](concepts.md). Instructor runbook: [demo/README.md](demo/README.md).
 
 "S4 Verification" and "house rules" are course labels. Source IDs such as (A3, F-a-110) resolve in
-[REFERENCES.md](../../REFERENCES.md); quotes are verbatim.
+[docs/REFERENCES.md](../docs/REFERENCES.md); quotes are verbatim.
 
 ## What was shown
 
@@ -20,10 +20,10 @@ For learners, after class. Reading time: about 7 minutes. Concepts in full:
    tests miss what held-out tests catch), and the harness piece: the verify gate, R1-R7 checks,
    clean state, five test filters, targeted mutants in two disjoint sets, and the blinded reviewer
    ("blinded" is the course's A/B design, not a source term).
-4. **Code walkthrough.** Four anchors, each printed by `uv run python scripts/anchors.py extract
-   <id>`: `S4:filters` (`src/shipharness/filters/pipeline.py`), `S4:probe`
-   (`src/shipharness/checks/r1_tenant.py`), `S4:blind` (`src/shipharness/reviewer/blind.py`),
-   `S4:gate` (`src/shipharness/harness/verify/gate.py`).
+4. **Code walkthrough.** Four anchors, each printed by `uv run python platform/scripts/anchors.py extract
+   <id>`: `S4:filters` (`platform/src/shipharness/filters/pipeline.py`), `S4:probe`
+   (`platform/src/shipharness/checks/r1_tenant.py`), `S4:blind` (`platform/src/shipharness/reviewer/blind.py`),
+   `S4:gate` (`platform/src/shipharness/harness/verify/gate.py`).
 5. **Demo block.** Two parts:
    - harness in action: the `make show-4` run on screen 1 (session handoffs, the gate pills if the
      agent claimed done, the primary verdict pill), screen 3 (the test filter table with discard
@@ -173,7 +173,7 @@ decision rule), which is a statement about this model and this task, not about e
 judge only the tests the test phase proposes.
 
 **Why does a run need all 69 hidden tests and all 4 mutants?** That is the pre-registered primary
-measure (course design; `evaluate_primary` in `src/shipharness/ab/score.py`). The report also shows
+measure (course design; `evaluate_primary` in `platform/src/shipharness/ab/score.py`). The report also shows
 each count as a dot, so a near miss is visible.
 
 **Why doesn't the gate run the hidden tests or the referee mutants?** They would stop being held
@@ -185,7 +185,7 @@ design). The rules are documented for both arms, so a better R1-R7 result for th
 is partly expected by construction. The co-primary counts do not have this overlap.
 
 **Why does a broken test not count as a kill?** The referee counts a kill only with shipped tests
-that pass on the arm's unmutated build (`_passing_unmutated` in `src/shipharness/ab/referee.py`). A
+that pass on the arm's unmutated build (`_passing_unmutated` in `platform/src/shipharness/ab/referee.py`). A
 test that fails everywhere "kills" every mutant and proves nothing.
 
 **Did the referee changes after run 2 change any result?** No. Both are labelled "measurement
@@ -200,7 +200,7 @@ remove or edit tests" (F-a-80).
 - Assignment A4 ([assignment/README.md](assignment/README.md)): add house rule R8 (soft delete),
   a sixth test filter (no duplicate test), and one live F4 A/B. Start with `make
   check-assignment-4`; it makes no model calls.
-- Read the four anchors again with `uv run python scripts/anchors.py extract S4:gate` (and
+- Read the four anchors again with `uv run python platform/scripts/anchors.py extract S4:gate` (and
   `S4:filters`, `S4:probe`, `S4:blind`).
 - Look at the testgen options with `uv run shipharness testgen --help` before you spend a run on
   your own module (each run is capped at $0.20, `MAX_RUN_COST_USD`).

@@ -26,11 +26,11 @@ shipharness runs on Linux, macOS, or Windows through WSL2. Native Windows shells
 |---|---|---|
 | Linux | Docker Engine or Podman | |
 | macOS | Docker Desktop or Colima | |
-| Windows | WSL2 with Ubuntu, then Docker Engine inside Ubuntu | Work only inside the Ubuntu terminal. Keep the repository in the WSL2 filesystem (for example `~/shipharness`), not under `/mnt/c` ([setup-windows.md](../docs/setup-windows.md)) |
+| Windows | WSL2 with Ubuntu, then Docker Engine inside Ubuntu | Work only inside the Ubuntu terminal. Keep the repository in the WSL2 filesystem (for example `~/shipharness`), not under `/mnt/c` ([windows.md](windows.md)) |
 
 The class host is a Windows PC with Docker Engine inside the Ubuntu WSL2 distribution, systemd
 enabled, and nothing Docker-related installed on the Windows side
-([setup-windows.md](../docs/setup-windows.md)). That is the tested setup for Windows. Docker Desktop
+([windows.md](windows.md)). That is the tested setup for Windows. Docker Desktop
 with the WSL2 backend was not tested for the course. On Linux, Podman was not tested either.
 
 ## Steps
@@ -56,14 +56,14 @@ the repository pins Python 3.12 in `.python-version`, and uv fetches it when nee
 
 | Runtime | Install | Check |
 |---|---|---|
-| Docker Engine (Linux, WSL2) | Docker's apt repository, exactly as in [step 3 of setup-linux.md](../docs/setup-linux.md#3-install-docker-engine), then `sudo usermod -aG docker $USER` and open a new terminal (on WSL2, run `wsl --shutdown` from PowerShell first) | `docker info` |
-| Docker Desktop (macOS) | Install from docker.com ([setup-macos.md](../docs/setup-macos.md); not tested for the course) | `docker info` in the macOS terminal |
+| Docker Engine (Linux, WSL2) | Docker's apt repository, exactly as in [step 3 of setup-linux.md](linux.md#3-install-docker-engine), then `sudo usermod -aG docker $USER` and open a new terminal (on WSL2, run `wsl --shutdown` from PowerShell first) | `docker info` |
+| Docker Desktop (macOS) | Install from docker.com ([macos.md](macos.md); not tested for the course) | `docker info` in the macOS terminal |
 | Colima (macOS) | `brew install colima docker && colima start --cpu 2 --memory 4` (not tested for the course) | `docker info` |
 | Podman (Linux, macOS) | Install from podman.io; on macOS run `podman machine init && podman machine start` (not tested for the course) | `podman info` |
 
 Docker Engine on WSL2 needs systemd: `/etc/wsl.conf` should contain `[boot]` and `systemd=true`
-([setup-windows.md](../docs/setup-windows.md#2-check-that-systemd-is-on)). More detail:
-[sandbox/README.md](../sandbox/README.md).
+([windows.md](windows.md#2-check-that-systemd-is-on)). More detail:
+[platform/sandbox/README.md](../platform/sandbox/README.md).
 
 ### 4. Clone and run `make setup`
 
@@ -106,13 +106,13 @@ make doctor
 It checks Python, git, uv, the container runtime, both keys, the price table, and that `.env` is not
 tracked by git. Each key is reported on its own line as `ok`, `missing`, `invalid` (the provider
 rejected it), or `unreachable` (network error), with the next step to take; no part of a key is ever
-shown. It costs nothing: the OpenAI check lists models and uses no tokens (`src/shipharness/doctor.py`).
+shown. It costs nothing: the OpenAI check lists models and uses no tokens (`platform/src/shipharness/doctor.py`).
 
 You are done with this step when the last line reads `result: + ready` **and** the
 `container runtime` line shows `+ ok`. A container-runtime warning does not fail the doctor, but
 without a runtime only the UNSANDBOXED fallback can run, and class runs need the sandbox. A captured
 `make doctor` output, line by line, is in
-[step 6 of setup-linux.md](../docs/setup-linux.md#6-make-doctor).
+[step 6 of setup-linux.md](linux.md#6-make-doctor).
 
 ### 7. `make up`
 
@@ -121,10 +121,10 @@ make up
 ```
 
 It prints `TeamTrack: http://127.0.0.1:8000/board  (API docs: /docs)` and the server's log (captured
-output in [step 7 of setup-linux.md](../docs/setup-linux.md#7-make-up)). Open
+output in [step 7 of setup-linux.md](linux.md#7-make-up)). Open
 http://127.0.0.1:8000/board, pick a demo user on the sign-in page (for example `admin@acme.test`), and
 you should see the Acme project board. The demo data has two orgs, Acme and Globex
-(`teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken, run
+(`platform/teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken, run
 `make up PORT=8001`.
 
 ## If something fails

@@ -6,7 +6,7 @@ feature F2 (comments on issues) with a 12-turn first session. In class: the harn
 
 | Path | What goes there |
 |---|---|
-| [`concepts.md`](concepts.md) | The section's concepts, written from the primary sources ([REFERENCES.md](../../REFERENCES.md)), and what the pilot measured |
+| [`concepts.md`](concepts.md) | The section's concepts, written from the primary sources ([docs/REFERENCES.md](../docs/REFERENCES.md)), and what the pilot measured |
 | [`demo/`](demo/README.md) | Class runbook: prerequisites, checks, commands, what to watch minute by minute, how to read the result, time and cost, troubleshooting, every pilot result |
 | [`assignment/`](assignment/README.md) | Assignment A2: task, grading criteria, starter files, `make check-assignment-2` |
 | [`post-class-reading/`](post-class-reading/README.md) | Three cited reading notes for after class |

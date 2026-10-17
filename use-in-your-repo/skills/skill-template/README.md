@@ -7,7 +7,7 @@ skill, and installing it in Claude Code, Codex, or Cursor so the agent does the 
 The template itself is [SKILL.md](SKILL.md).
 
 Source ids (A4, B1, ...) and finding ids (F-b-02, ...) refer to the course reference list,
-`REFERENCES.md` at the repository root.
+`docs/REFERENCES.md` in the course repository.
 
 ## What it does and when to use it
 
@@ -32,7 +32,7 @@ Claude Code, Codex, and Cursor alike.
 Run from the root of your shipharness checkout:
 
 ```bash
-cp -r skills/skill-template skills/my-skill
+cp -r use-in-your-repo/skills/skill-template skills/my-skill
 ```
 
 ```powershell
@@ -96,7 +96,7 @@ uv run agentskills validate skills/my-skill
 ```
 
 For the template folder itself, captured on 2026-10-17 from
-`uv run shipharness skills validate skills/skill-template`; your output will differ:
+`uv run shipharness skills validate use-in-your-repo/skills/skill-template`; your output will differ:
 
 ```text
 + skill-template: valid (SKILL.md 46 lines)
@@ -104,12 +104,12 @@ For the template folder itself, captured on 2026-10-17 from
 Cost: $0.000000 (no model calls)
 ```
 
-`uv run agentskills validate skills/skill-template` printed `Valid skill: skills/skill-template`
+`uv run agentskills validate use-in-your-repo/skills/skill-template` printed `Valid skill: use-in-your-repo/skills/skill-template`
 (captured on 2026-10-17 from that command; your output will differ).
 
 - `shipharness skills validate` reports errors for everything the reference validator checks, and
   warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and referenced
-  files that do not exist. It exits 1 when there is an error. Point it at `skills/` to check every
+  files that do not exist. It exits 1 when there is an error. Point it at `use-in-your-repo/skills/` to check every
   skill at once.
 - `agentskills validate` is the reference validator, skills-ref 0.1.1 from PyPI (a dev dependency
   of this repository). Its README calls the command `skills-ref validate`; the PyPI package installs
@@ -164,8 +164,8 @@ the root of your shipharness checkout:
 SKILL=my-skill          # or skill-template
 TARGET=~/my-repo        # your repository; use TARGET=~ for a user-level install
 mkdir -p "$TARGET/.claude/skills" "$TARGET/.agents/skills"
-cp -r "skills/$SKILL" "$TARGET/.claude/skills/"
-cp -r "skills/$SKILL" "$TARGET/.agents/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.claude/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 ```
 
 ```powershell

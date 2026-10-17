@@ -7,7 +7,7 @@ says what the skill does, how to install it in Claude Code, Codex, and Cursor, h
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
 Source ids (A1, B1, ...) and finding ids (F-b-12, ...) refer to the course reference list,
-`REFERENCES.md` at the repository root.
+`docs/REFERENCES.md` in the course repository.
 
 ## What it does and when to use it
 
@@ -90,8 +90,8 @@ the root of your shipharness checkout:
 SKILL=harness-setup
 TARGET=~/my-repo        # your repository; use TARGET=~ for a user-level install
 mkdir -p "$TARGET/.claude/skills" "$TARGET/.agents/skills"
-cp -r "skills/$SKILL" "$TARGET/.claude/skills/"
-cp -r "skills/$SKILL" "$TARGET/.agents/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.claude/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 ```
 
 ```powershell
@@ -113,12 +113,12 @@ identical.
 Run the course validator on the source folder and on each installed copy:
 
 ```bash
-uv run shipharness skills validate skills/harness-setup
+uv run shipharness skills validate use-in-your-repo/skills/harness-setup
 uv run shipharness skills validate ~/my-repo/.claude/skills/harness-setup
 uv run shipharness skills validate ~/my-repo/.agents/skills/harness-setup
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/harness-setup`;
+Captured on 2026-10-17 from `uv run shipharness skills validate use-in-your-repo/skills/harness-setup`;
 your output will differ:
 
 ```text
@@ -131,7 +131,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: skills/harness-setup`; your output will differ).
+`uv run agentskills validate use-in-your-repo/skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/harness-setup`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -159,7 +159,7 @@ The agent runs the script from the installed folder, for example
 Code or `python .agents/skills/harness-setup/scripts/assess.py . --out harness-assessment.html` in
 Codex. You can run it yourself first. This is the summary it printed for the course's TeamTrack
 app, cut to the first lines; captured on 2026-10-17 from
-`uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html` (run
+`uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out harness-assessment.html` (run
 from the checkout root); your output will differ:
 
 ```text
@@ -173,7 +173,7 @@ FAIL     I1 AGENTS.md map at the repository root: no AGENTS.md at the repository
 
 TeamTrack has no harness files at its root on purpose: in the course A/B the bare arm works without
 them, and the harness arm has `AGENTS.md` placed at the workspace root from
-`teamtrack/harness/instructions/`. So most checks fail on the app folder itself.
+`platform/teamtrack/harness/instructions/`. So most checks fail on the app folder itself.
 
 ## What it costs
 

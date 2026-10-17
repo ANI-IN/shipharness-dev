@@ -72,7 +72,7 @@ walkthrough → live A/B result.
 Audience: software engineers in the US who are comfortable with Python, git, pytest, and REST APIs and
 new to building harnesses around coding agents.
 
-Accounts learners need (also in `setup/PRE-CLASS.md`):
+Accounts learners need (also in `setup/pre-class.md`):
 - A paid OpenAI API account on the Build tier or higher, with at least $5 of credit purchased. The
   gpt-6-luna model page lists rate limits only for Build, Launch, and Grow, not Free (RESEARCH §4.2).
 - A free LangSmith Developer account with no card on file, so the 5,000-traces-per-month hard cap
@@ -144,12 +144,12 @@ Rules that hold everywhere:
 
 ### 3.3 Components and boundaries
 
-| Package (`src/shipharness/`) | Purpose | Depends on |
+| Package (`platform/src/shipharness/`) | Purpose | Depends on |
 |---|---|---|
-| `config/` | pydantic-settings config, prices, caps | — |
+| `platform/config/` | pydantic-settings config, prices, caps | — |
 | `cost/` | CostTracker: usage × prices, cap enforcement | config |
 | `events/` | Typed events, bus, JSONL run log, replay reader | — |
-| `sandbox/` (repo root `sandbox/` holds Dockerfile and `policy.py`) | Container lifecycle, exec with timeout, usage sampling, denial detection, no-Docker fallback | events, config |
+| `platform/sandbox/` (repo root `platform/sandbox/` holds Dockerfile and `policy.py`) | Container lifecycle, exec with timeout, usage sampling, denial detection, no-Docker fallback | events, config |
 | `runner/` | Agent loop (Responses API), tools, skills loader, session control | cost, events, sandbox, tracing |
 | `harness/instructions/` | Places AGENTS.md map and skills; builds the stable context prefix | runner interfaces |
 | `harness/state/` | init.sh, progress.md, exec plans, structured handoff, forced session stop and resume | runner interfaces |
@@ -244,14 +244,14 @@ without relying on the arm's code.
 | `m1-alt-a` | Base + F5, F6 references | F1-F4 alternate-checkpoint tasks |
 | `m1-alt-b` | Base + F7 reference | F1-F4 alternate-checkpoint tasks |
 
-Reference implementations for F1-F7 live under `teamtrack/reference/` (instructor backup and checkpoint
+Reference implementations for F1-F7 live under `platform/teamtrack/reference/` (instructor backup and checkpoint
 builder). They are never exported into an arm workspace (§8.3).
 
 ---
 
 ## 5. House rules and generic checks
 
-House rules live in `teamtrack/docs/` for both arms. "House rules" is the course label for what A1 calls
+House rules live in `platform/teamtrack/docs/` for both arms. "House rules" is the course label for what A1 calls
 "golden principles" and "taste invariants" enforced mechanically (F-a-96, F-a-99; RESEARCH G-9).
 
 | Rule | Meaning | Check (discovers endpoints from the app's OpenAPI spec) |
@@ -277,7 +277,7 @@ worse.
 one from `all`.
 
 ### 6.1 What both arms always get (never a variable)
-Same exported repository (application code, migrations, visible tests, `teamtrack/docs/` content), same
+Same exported repository (application code, migrations, visible tests, `platform/teamtrack/docs/` content), same
 system prompt core, same seven tools (six working tools plus `finish`; CONTRACTS §6), same model and reasoning effort, same ticket text, same sandbox, same
 turn and session budgets, same cost cap, same session-stop schedule, same wrap-up turns at a session stop.
 Bare-arm content parity: every rule the harness documents (AGENTS.md map, ARCHITECTURE.md, SECURITY.md,
@@ -287,7 +287,7 @@ forms. The harness changes how knowledge, state, scope, and verification are org
 never adds facts the bare arm cannot read.
 
 ### 6.2 instructions (S1)
-- Places `AGENTS.md` at the workspace root (source: `teamtrack/harness/instructions/`): a map of
+- Places `AGENTS.md` at the workspace root (source: `platform/teamtrack/harness/instructions/`): a map of
   roughly 100 lines (A1, F-a-28) pointing to `ARCHITECTURE.md` (root) and `docs/` (`SECURITY.md`,
   `RELIABILITY.md`, `QUALITY_SCORE.md`, `PLANS.md`, `design-docs/`, `product-specs/`,
   `references/*-llms.txt`); the state layer adds its own prefix block for `exec-plans/` and progress
@@ -580,17 +580,17 @@ harness arm), the harness's own work took up to 433 s (F4 handoffs and test filt
 referee time is about 17.5 minutes for the slowest arm, inside the class plan's 25-minute window. The
 change applies to both arms identically ("class profile only"); no primary measure changes.
 
-Harness freeze. When the pilot gate passes, `scripts/freeze_harness.py` creates the annotated tag
+Harness freeze. When the pilot gate passes, `platform/scripts/freeze_harness.py` creates the annotated tag
 `harness-frozen` before M8. It pins everything that affects M8 results (`shipharness.freeze`):
-treatment (`src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
-`teamtrack/harness/`); measurement (`checks/` with the check runner, the referee and A/B code in
-`ab/`, `reviewer/` with its prompt and grading criteria); tasks (`datasets/`, hidden tests, mutant
-files, `teamtrack/reference/`, and the checkpoint tags with their commits, recorded in the tag
+treatment (`platform/src/shipharness/harness/`, `runner/` with prompts, tools, and the loop, `filters/`,
+`platform/teamtrack/harness/`); measurement (`checks/` with the check runner, the referee and A/B code in
+`ab/`, `reviewer/` with its prompt and grading criteria); tasks (`platform/datasets/`, hidden tests, mutant
+files, `platform/teamtrack/reference/`, and the checkpoint tags with their commits, recorded in the tag
 message); environment (sandbox policy and Dockerfile, cost caps, prices, the lock file, and the run
 settings by value: model, reasoning effort, turn limits, `RUN_TIMEOUT_S`, `HARNESS_TIMEOUT_S`, caps,
 concurrency, images, as code defaults and as effective values with `.env`). No change to any of it
 after the tag: a change would invalidate the M8 results and require re-running them.
-`tests/unit/test_harness_freeze.py` fails on any such change once the tag exists, and M8 commands run
+`platform/tests/unit/test_harness_freeze.py` fails on any such change once the tag exists, and M8 commands run
 only while it passes (not skipped). Console, report, replay tooling, docs, slides, and course content
 stay editable. VERIFICATION.md records the tag and its commit.
 
@@ -641,7 +641,7 @@ afterwards (released if the call fails), so concurrent arms cannot overshoot a s
 `HARNESS_TIMEOUT_S`, so both arms get equal agent time; every gate command fits inside the harness time
 left (owner decision, 2026-10-16).
 
-### 11.2 Prices (`config/prices.toml`, per 1M tokens, verified 2026-10-16)
+### 11.2 Prices (`platform/config/prices.toml`, per 1M tokens, verified 2026-10-16)
 
 | Model | Input | Cached input | Cache write | Output |
 |---|---|---|---|---|
@@ -750,19 +750,19 @@ the policy printout and the experiment denial log if none occurred.
 
 | Section | Anchors |
 |---|---|
-| Opening | `Opening:two_arms` in `src/shipharness/ab/demo.py`, `Opening:publish` in `src/shipharness/events/bus.py` (+ architecture diagram) |
-| S1 | `S1:agents_md` in `teamtrack/harness/instructions/AGENTS.md` (the map's core, 36 of 94 lines; the 40-line anchor limit), `S1:progressive` in `src/shipharness/runner/skills_loader.py`, `S1:prefix` in `src/shipharness/harness/instructions/router.py` |
-| S2 | `S2:init` in `src/shipharness/harness/state/assets/init.sh`, `S2:stop_resume` in `src/shipharness/harness/state/lifecycle.py`, `S2:write` in `src/shipharness/harness/state/progress.py` |
-| S3 | `S3:allowed_paths` in `src/shipharness/harness/scope/guard.py`, `S3:passes` in `src/shipharness/harness/scope/status.py`, `S3:policy` and `S3:run_args` in `src/shipharness/sandbox/policy.py`, `S3:dockerfile` in `sandbox/Dockerfile` |
-| S4 | `S4:filters` in `src/shipharness/filters/pipeline.py`, `S4:probe` in `src/shipharness/checks/r1_tenant.py`, `S4:blind` in `src/shipharness/reviewer/blind.py`, `S4:gate` in `src/shipharness/harness/verify/gate.py` |
-| Final | `Final:dots` in `src/shipharness/ab/report.py`, `Final:skill_template` in `skills/skill-template/SKILL.md` |
+| Opening | `Opening:two_arms` in `platform/src/shipharness/ab/demo.py`, `Opening:publish` in `platform/src/shipharness/events/bus.py` (+ architecture diagram) |
+| S1 | `S1:agents_md` in `platform/teamtrack/harness/instructions/AGENTS.md` (the map's core, 36 of 94 lines; the 40-line anchor limit), `S1:progressive` in `platform/src/shipharness/runner/skills_loader.py`, `S1:prefix` in `platform/src/shipharness/harness/instructions/router.py` |
+| S2 | `S2:init` in `platform/src/shipharness/harness/state/assets/init.sh`, `S2:stop_resume` in `platform/src/shipharness/harness/state/lifecycle.py`, `S2:write` in `platform/src/shipharness/harness/state/progress.py` |
+| S3 | `S3:allowed_paths` in `platform/src/shipharness/harness/scope/guard.py`, `S3:passes` in `platform/src/shipharness/harness/scope/status.py`, `S3:policy` and `S3:run_args` in `platform/src/shipharness/sandbox/policy.py`, `S3:dockerfile` in `platform/sandbox/Dockerfile` |
+| S4 | `S4:filters` in `platform/src/shipharness/filters/pipeline.py`, `S4:probe` in `platform/src/shipharness/checks/r1_tenant.py`, `S4:blind` in `platform/src/shipharness/reviewer/blind.py`, `S4:gate` in `platform/src/shipharness/harness/verify/gate.py` |
+| Final | `Final:dots` in `platform/src/shipharness/ab/report.py`, `Final:skill_template` in `use-in-your-repo/skills/skill-template/SKILL.md` |
 
 The S1 router module is named `router.py` per the brief; it builds the context prefix, and the docs call the
 AGENTS.md file a map (RESEARCH §4.1).
 
 ### 14.3 Assignments (detailed in M7)
 A1 Instructions: restructure a 900-line instruction file into an AGENTS.md map + docs + one skill built
-from `skills/skill-template`; link and
+from `use-in-your-repo/skills/skill-template`; link and
 rule-coverage checker; A/B on `section-1` (k=3). A2 State: three forced stops, no duplicate migration,
 consistent progress and exec-plan history. A3 Scope and sandbox: per-phase diff-scope policy,
 evidence-gated status, one sandbox policy rule with a denial test; hidden scripted diffs. A4 Verification +
@@ -786,18 +786,18 @@ LangSmith link, case study, own skill.
 | D-9 | Reviewer on the harness arm's gate | Reviewer runs on both arms' final diffs (blinded) as referee output | Class budget allows 2 reviews per demo; a reviewer in the gate would also give the harness arm reviewer feedback the bare arm cannot get |
 | D-10 | OPENAI_EVAL_MODEL unspecified | `gpt-5.6-luna` | Owner decision; different generation from the agent model |
 | D-11 | Initializer as an agent session | Deterministic initializer step in harness code | The initial files are fixed by the ticket; saves turns and cost; A2 footnote cited |
-| D-12 | Repository layout | Adds `research/notes/` (M1 per-stream notes) and `teamtrack/reference/` | Traceability; checkpoint building |
+| D-12 | Repository layout | Adds `research/notes/` (M1 per-stream notes) and `platform/teamtrack/reference/` | Traceability; checkpoint building |
 | D-13 | Runner tools: "six tools" (§2.6 of the brief) | Seven tools: the six working tools plus `finish(claim, summary)`, identical for both arms | Owner change at the M2 review: a structured claim replaces regex detection of "done" |
 | D-14 | Agent may set the status field | Agent may not edit `feature_list.json` at all; only `harness/scope/status.py` writes it | Owner change at the M2 review; A2 F-a-80 |
 | D-15 | HTMX + SSE extension | HTMX 2.0.11 (0BSD) for the board and console; live streaming uses the browser `EventSource` API with a small script instead of `htmx-ext-sse` | The htmx-extensions repository states no license (checked 2026-10-16; RESEARCH G-17), so the file is not redistributed |
-| D-17 | Blank learner skill `skills/_template` | `skills/skill-template` | The Agent Skills spec requires `name` to equal the folder name and allows only lowercase `a-z`, `0-9`, and hyphens; `_template` can never validate. Owner decision 2026-10-16 |
+| D-17 | Blank learner skill `skills/_template` | `use-in-your-repo/skills/skill-template` | The Agent Skills spec requires `name` to equal the folder name and allows only lowercase `a-z`, `0-9`, and hyphens; `_template` can never validate. Owner decision 2026-10-16 |
 | D-18 | Harness artifacts in the arm repository | After `prepare_workspace` the loop commits the placed artifacts inside the sandbox ("harness setup"); the harness arm's diff is taken against that commit, and one pattern list (`ab/artifacts.py`) marks harness-owned files for the referee, the blind reviewer, and `diff_scope` | Otherwise AGENTS.md, progress.md, feature_list.json, and similar files would count as shipped product changes and out-of-scope edits |
 | D-19 | Console screens built in the browser from events | The server folds events per arm and streams rendered HTML over SSE; the browser swaps screens in; no HTMX | Agent text never becomes markup in the browser; strict content security policy |
 | D-20 | Referee scores from container checks | Out-of-scope files, test-phase source edits, shipped-test count, and mutant results are computed by the referee on the host from the applied diff; container checks receive the diff too, so the `diff_scope` result shown on screen agrees | One authoritative source for the S3 primary measure |
 | D-21 | Missing mutant set | Logged and scored 0/0; the run continues | A dataset typo must not abort a live class demo; M5 dataset validation checks every mutant set exists |
 | D-22 | Class host runs Docker Desktop | Docker Engine (free, open source) inside the Ubuntu WSL2 distribution, systemd enabled; nothing Docker-related on the Windows side | Owner decision 2026-10-16: minimal Windows changes; same Linux engine CI uses |
-| D-23 | Checkpoints as states of the main branch | Main keeps the base product; each checkpoint is a commit built from `teamtrack/reference/checkpoints.toml` (base + ordered reference patches, parent the current main commit) and tagged | Hidden tests and references can be fixed on main and the tags rebuilt; arms only ever see the tagged state; once results exist, tags move only with the owner's approval (`--owner-approved-move`), and A/B records pin `checkpoint_sha`, so swap and replay judge the tree (and mutants) the arms started from |
-| D-16 | Sandbox policy file at `sandbox/policy.py` | Policy code in `src/shipharness/sandbox/policy.py`; repo-root `sandbox/` holds the Dockerfile and runtime notes | The policy is imported by the package; one source of truth |
+| D-23 | Checkpoints as states of the main branch | Main keeps the base product; each checkpoint is a commit built from `platform/teamtrack/reference/checkpoints.toml` (base + ordered reference patches, parent the current main commit) and tagged | Hidden tests and references can be fixed on main and the tags rebuilt; arms only ever see the tagged state; once results exist, tags move only with the owner's approval (`--owner-approved-move`), and A/B records pin `checkpoint_sha`, so swap and replay judge the tree (and mutants) the arms started from |
+| D-16 | Sandbox policy file at `sandbox/policy.py` | Policy code in `platform/src/shipharness/sandbox/policy.py`; repo-root `platform/sandbox/` holds the Dockerfile and runtime notes | The policy is imported by the package; one source of truth |
 
 ---
 

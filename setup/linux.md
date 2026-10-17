@@ -1,8 +1,8 @@
 # Setup on Linux (Ubuntu)
 
 Exact commands to go from a fresh Ubuntu machine to `make doctor` reporting `result: + ready`. For
-Windows, use [setup-windows.md](setup-windows.md) (it ends in the same Ubuntu commands, inside
-WSL2). For macOS, use [setup-macos.md](setup-macos.md).
+Windows, use [windows.md](windows.md) (it ends in the same Ubuntu commands, inside
+WSL2). For macOS, use [macos.md](macos.md).
 
 ## What was tested, and where
 
@@ -136,8 +136,8 @@ make setup
 
 ```
 uv sync --frozen
-docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .
-docker build -f sandbox/Dockerfile --target referee -t shipharness-referee:1 .
+docker build -f platform/sandbox/Dockerfile --target agent -t shipharness-agent:1 .
+docker build -f platform/sandbox/Dockerfile --target referee -t shipharness-referee:1 .
 ```
 
 and copies `.env.example` to `.env` if `.env` does not exist. If it prints
@@ -232,7 +232,7 @@ $ curl -s -o /dev/null -w '%{http_code} %{redirect_url}
 The board sends you to its sign-in page (`<title>Sign in · TeamTrack</title>`, with demo users such
 as `admin@acme.test`). Open http://127.0.0.1:8000/board in a browser, pick a demo user on the sign-in
 page (for example `admin@acme.test`), and you see the Acme project board. The demo data has two orgs, Acme and Globex
-(`teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken:
+(`platform/teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken:
 `make up PORT=8001`.
 
 ## When a step fails
@@ -245,4 +245,4 @@ page (for example `admin@acme.test`), and you see the Acme project board. The de
 | `make doctor`: `! warn        container runtime      docker not found: ...` | Start Docker (`sudo systemctl start docker`) or finish step 3 |
 
 Next: the [README](../README.md) for what to run, and
-[troubleshooting.md](troubleshooting.md) for every other message.
+[troubleshooting.md](../docs/troubleshooting.md) for every other message.

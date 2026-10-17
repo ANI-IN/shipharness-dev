@@ -9,7 +9,7 @@ measure itself was registered before any run (course design); nothing here chang
 
 ## The three parts
 
-`src/shipharness/checks/continuity.py` fails a run if any of:
+`platform/src/shipharness/checks/continuity.py` fails a run if any of:
 
 - (a) house rule R7 fails ("house rules" is the course's label for what A1 calls "golden
   principles", F-a-99): migration heads are not exactly one, or a fresh `alembic upgrade head`
@@ -38,7 +38,7 @@ session 2 removed with the same text.
 
 ## Where the session patches come from
 
-The patches are written on the host after the run (`src/shipharness/ab/demo.py`, lines 563-587):
+The patches are written on the host after the run (`platform/src/shipharness/ab/demo.py`, lines 563-587):
 
 ```python
 def session_patches(
@@ -75,7 +75,7 @@ every session of the run, build and test phases together, in order. The check us
 patches.
 
 Before the check, the referee hands it copies with harness artifacts removed
-(`src/shipharness/ab/referee.py`, lines 317-327):
+(`platform/src/shipharness/ab/referee.py`, lines 317-327):
 
 ```python
 def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
@@ -91,7 +91,7 @@ def _product_sessions(patches: list[Path], out_dir: Path) -> list[Path]:
     return copies
 ```
 
-`strip` is `strip_harness_artifacts` from `src/shipharness/ab/artifacts.py`; its pattern list includes
+`strip` is `strip_harness_artifacts` from `platform/src/shipharness/ab/artifacts.py`; its pattern list includes
 `init.sh`, `progress.md`, `session-handoff.md`, and `docs/exec-plans/**` for the state layer.
 
 ## A measurement bug the pilot found
@@ -134,7 +134,7 @@ primary measure.
 ## The console's "redone" marker is not part (c)
 
 Screen 3's session timeline marks a file "redone" when a session changes a file that an earlier
-session also changed (`src/shipharness/console/state.py`, `ArmState.sessions`, lines 315-332):
+session also changed (`platform/src/shipharness/console/state.py`, `ArmState.sessions`, lines 315-332):
 
 ```python
     def sessions(self) -> list[SessionSummary]:
@@ -165,7 +165,7 @@ the run.
 ## Other stop points
 
 The dataset has session-stop variants of F2 that move the stop
-(`datasets/teamtrack-features-v1.jsonl`, `metadata.group` `session_stop`):
+(`platform/datasets/teamtrack-features-v1.jsonl`, `metadata.group` `session_stop`):
 
 | Example | `session_budget` | First-session share |
 |---|---|---|
@@ -178,7 +178,7 @@ A stop after a quarter of the turns tests whether session 2 can start from very 
 three quarters tests whether a nearly finished feature survives. These variants belong to the
 course's full-dataset batch set (60 tasks, two arms, k=2), which was not run because the
 pre-registered pilot gate did not pass. `uv run shipharness report` groups dots by feature and measure
-(`src/shipharness/ab/report.py`), so runs of these variants would appear among the F2 dots; each score export
+(`platform/src/shipharness/ab/report.py`), so runs of these variants would appear among the F2 dots; each score export
 (`exports/scores/<run_id>.json`) carries its `variant`, which is how to separate them.
 
 Pilot runs 3 and 4 and the class-profile round use a fifth split that is not a dataset line: F2

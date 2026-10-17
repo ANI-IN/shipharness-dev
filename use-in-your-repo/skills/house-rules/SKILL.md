@@ -46,7 +46,7 @@ implementations, we let agents ship fast without undermining the foundation" (F-
    ```
 
    It writes `docs/rules/R8-<slug>.md` from `assets/rule-template.md`, a check stub in `checks/`,
-   and a test stub in `tests/`. Use `--docs-dir`, `--checks-dir`, `--tests-dir`, or `--slug` to
+   and a test stub in `platform/tests/`. Use `--docs-dir`, `--checks-dir`, `--tests-dir`, or `--slug` to
    change where files go, `--dry-run` to see the plan, `--force` to overwrite.
 2. Fill in the rule document. The Rule section is one sentence a reviewer can answer yes or no.
    Correct and Incorrect show the smallest examples, or point to the file to copy.
@@ -85,7 +85,7 @@ implementations, we let agents ship fast without undermining the foundation" (F-
 
 ## Sources
 
-Ids from the course reference list (REFERENCES.md in the shipharness repository).
+Ids from the course reference list (docs/REFERENCES.md in the shipharness repository).
 
 - A1: Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI,
   2026-02-11. https://openai.com/index/harness-engineering/

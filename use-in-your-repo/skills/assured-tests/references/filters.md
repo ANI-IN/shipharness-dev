@@ -1,6 +1,6 @@
 # Why each filter exists
 
-Source ids and finding ids are listed in `REFERENCES.md` at the repository root. B11 is TestGen-LLM,
+Source ids and finding ids are listed in `docs/REFERENCES.md` in the course repository. B11 is TestGen-LLM,
 B12 is ACH, A2 is Anthropic's long-running harness article. Filters 1-3 come from the papers;
 filters 4 and 5 are the course's own, with no direct source, and are presented as such.
 

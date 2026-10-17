@@ -3,7 +3,7 @@
 Reading time: about 7 minutes.
 
 Sources (all accessed 2026-10-16; titles, links, and finding IDs in
-[REFERENCES.md](../../../REFERENCES.md), generated at release):
+[docs/REFERENCES.md](../../docs/REFERENCES.md), generated at release):
 
 - B1, Agent Skills Specification, https://agentskills.io/specification
 - B2, What are skills?, https://agentskills.io/what-are-skills
@@ -37,10 +37,10 @@ The specification defines six frontmatter fields (B1, F-b-01 to F-b-04):
 | `metadata` | no | A map from string keys to string values |
 | `allowed-tools` | no | "Experimental. Support for this field may vary between agent implementations" (F-b-04) |
 
-The `name` rule is why the course's blank skill is `skills/skill-template`, not `skills/_template`:
+The `name` rule is why the course's blank skill is `use-in-your-repo/skills/skill-template`, not `skills/_template`:
 a name with an underscore can never pass (B1, F-b-02).
 
-Optional folders are `scripts/`, `references/`, and `assets/`. File references use relative paths
+Optional folders are `platform/scripts/`, `references/`, and `assets/`. File references use relative paths
 from the skill root, and B1 says: "Keep file references one level deep from `SKILL.md`. Avoid deeply
 nested reference chains." (F-b-07).
 
@@ -52,7 +52,7 @@ B1's section on progressive disclosure (F-b-05):
 |---|---|---|
 | Metadata | "**Metadata** (~100 tokens): The `name` and `description` fields are loaded at startup for all skills" | At startup |
 | Instructions | "**Instructions** (< 5000 tokens recommended): The full `SKILL.md` body is loaded when the skill is activated" | On activation |
-| Resources | "**Resources** (as needed): Files (e.g. those in `scripts/`, `references/`, or `assets/`) are loaded only when required" | When needed |
+| Resources | "**Resources** (as needed): Files (e.g. those in `platform/scripts/`, `references/`, or `assets/`) are loaded only when required" | When needed |
 
 B2 names the same stages Discovery, Activation, and Execution. Its Activation line states the trigger:
 "When a task matches a skill's description, the agent reads the full `SKILL.md`" (B2).
@@ -89,12 +89,12 @@ should follow B1; clients follow B3.
 
 | Specification | `shipharness` | File |
 |---|---|---|
-| Skills in `.agents/skills/` (B3 convention) | The instructions layer places skills at `.agents/skills/` in the harness arm's workspace | `src/shipharness/harness/instructions/layer.py` |
-| Scan for `*/SKILL.md` (B3) | `self.root.glob("*/SKILL.md")` | `src/shipharness/runner/skills_loader.py` |
+| Skills in `.agents/skills/` (B3 convention) | The instructions layer places skills at `.agents/skills/` in the harness arm's workspace | `platform/src/shipharness/harness/instructions/layer.py` |
+| Scan for `*/SKILL.md` (B3) | `self.root.glob("*/SKILL.md")` | `platform/src/shipharness/runner/skills_loader.py` |
 | Skip a skill with no description (B3) | `catalogue()` skips any skill whose frontmatter lacks `name` or `description` | same |
 | Tier 1 at startup (B1) | `catalogue_block()` writes one line per skill (name, description, path to `SKILL.md`) into the context prefix | same, anchor `S1:progressive` |
 | Tiers 2 and 3 on demand (B1) | Never pre-loaded; the agent uses `read_file`. `skill_for_path` reports tier 2 for `SKILL.md` and tier 3 for any other file in the skill folder | same |
-| Validation (B1 points to skills-ref) | `uv run shipharness skills validate <dir>`: the skills-ref checks as errors, plus warnings for over 500 lines and references deeper than one level | `src/shipharness/skills_cli/` |
+| Validation (B1 points to skills-ref) | `uv run shipharness skills validate <dir>`: the skills-ref checks as errors, plus warnings for over 500 lines and references deeper than one level | `platform/src/shipharness/skills_cli/` |
 
 The loader parses frontmatter with a small reader of top-level scalar fields, enough for `name` and
 `description`; it is not a full YAML parser (`parse_frontmatter` in `skills_loader.py`).
@@ -114,7 +114,7 @@ and package (B5, B6):
 The F-b-11 rule decides portability. Vendor extension fields (see
 [03-instructions-in-other-agents.md](03-instructions-in-other-agents.md)) fail the reference validator,
 so the course skills use only the six spec fields. You can check the four course skills yourself
-(captured on 2026-10-17 from `uv run shipharness skills validate skills` at commit 5e8fb08; your output
+(captured on 2026-10-17 from `uv run shipharness skills validate use-in-your-repo/skills` at commit 5e8fb08; your output
 will differ):
 
 ```text
@@ -128,7 +128,7 @@ Cost: $0.000000 (no model calls)
 
 ## 6. Read one skill against the specification
 
-Open `teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md` and check:
+Open `platform/teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md` and check:
 
 1. Does `name` match the folder?
 2. Does the description say what the skill does and when to use it? Which words would match the F1
@@ -136,9 +136,9 @@ Open `teamtrack/harness/instructions/.agents/skills/add-endpoint/SKILL.md` and c
 3. Is `SKILL.md` under 500 lines? (The validator reports 100.)
 4. Is `references/tests.md` one level deep, linked with a relative path?
 
-Then run `uv run shipharness skills validate teamtrack/harness/instructions/.agents/skills` and compare
+Then run `uv run shipharness skills validate platform/teamtrack/harness/instructions/.agents/skills` and compare
 its result with your answers (captured on 2026-10-17 from
-`uv run shipharness skills validate teamtrack/harness/instructions/.agents/skills` at commit 5e8fb08;
+`uv run shipharness skills validate platform/teamtrack/harness/instructions/.agents/skills` at commit 5e8fb08;
 your output will differ):
 
 ```text

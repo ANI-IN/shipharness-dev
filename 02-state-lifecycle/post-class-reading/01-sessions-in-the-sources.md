@@ -5,7 +5,7 @@ Reading time: about 9 minutes.
 Class time covers A2's initializer agent and A3's context reset. This piece puts five sources next to
 each other, so you can see which parts they agree on and which parts are one team's choice. Quotes
 are copied verbatim from the sources, cited by source id and finding id (see
-[REFERENCES.md](../../../REFERENCES.md)); all sources were accessed on 2026-10-16.
+[docs/REFERENCES.md](../../docs/REFERENCES.md)); all sources were accessed on 2026-10-16.
 
 ## A2: two prompts, one harness
 

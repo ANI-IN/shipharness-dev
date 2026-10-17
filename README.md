@@ -7,7 +7,7 @@ multi-tenant app for the agent to work on (TeamTrack), a live console, four cour
 assignments, four reusable skills, a starter kit for your own repository, and a final project.
 
 Source ids such as (A1, F-a-05) refer to the primary sources and finding ids listed with links in
-[REFERENCES.md](REFERENCES.md).
+[docs/REFERENCES.md](docs/REFERENCES.md).
 
 Contents:
 
@@ -157,14 +157,14 @@ the same measurement on your own model and repository.
 
 | Item | Where |
 |---|---|
-| `shipharness` CLI: run an agent with or without the harness, A/B it, judge it, check house rules, generate filtered tests, copy the starter kit, validate skills | `src/shipharness/`; `uv run shipharness --help` |
-| TeamTrack, the demo target: a multi-tenant FastAPI issue tracker with a web board, two orgs (Acme and Globex), checkpoints per section | `teamtrack/`, handbook in [teamtrack/docs/HANDBOOK.md](teamtrack/docs/HANDBOOK.md), feature specs in [teamtrack/docs/features/](teamtrack/docs/features/) |
+| `shipharness` CLI: run an agent with or without the harness, A/B it, judge it, check house rules, generate filtered tests, copy the starter kit, validate skills | `platform/src/shipharness/`; `uv run shipharness --help` |
+| TeamTrack, the demo target: a multi-tenant FastAPI issue tracker with a web board, two orgs (Acme and Globex), checkpoints per section | `platform/teamtrack/`, handbook in [platform/teamtrack/docs/HANDBOOK.md](platform/teamtrack/docs/HANDBOOK.md), feature specs in [platform/teamtrack/docs/features/](platform/teamtrack/docs/features/) |
 | A live console with five screens | `make console`, section [11](#11-the-five-console-screens) |
-| Four course sections, each with concepts, a demo runbook, an assignment, and post-class reading | [submodules/](submodules/) |
-| Four skills you can install into your own coding agent | [skills/](skills/), section [14](#14-using-shipharness-the-kit-and-the-four-skills-on-your-own-repository) |
-| A starter kit: TeamTrack's harness as templates for your repository, copied by `shipharness init` | [kit/](kit/README.md), guide in [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md) |
+| Four course sections, each with concepts, a demo runbook, an assignment with its reference solution, and post-class reading | [01-instructions/](01-instructions/), [02-state-lifecycle/](02-state-lifecycle/), [03-scope-sandbox/](03-scope-sandbox/), [04-verification/](04-verification/) |
+| Four skills you can install into your own coding agent | [use-in-your-repo/skills/](use-in-your-repo/skills/), section [14](#14-using-shipharness-the-kit-and-the-four-skills-on-your-own-repository) |
+| A starter kit: TeamTrack's harness as templates for your repository, copied by `shipharness init` | [use-in-your-repo/kit/](use-in-your-repo/kit/README.md), guide in [use-in-your-repo/apply-to-your-repo.md](use-in-your-repo/apply-to-your-repo.md) |
 | A final project: the whole run end to end, then your own repository | [final-project/README.md](final-project/README.md) |
-| Two datasets: 60 TeamTrack tasks and 40 test-generation targets | [datasets/README.md](datasets/README.md) |
+| Two datasets: 60 TeamTrack tasks and 40 test-generation targets | [platform/datasets/README.md](platform/datasets/README.md) |
 | The slide deck source and its builder (HTML, PDF, PPTX) | [slides/](slides/), `make slides` |
 | Setup guides, an instructor guide, troubleshooting, after-class steps, architecture | [docs/](docs/) |
 | Optional extras outside the class flow: replays of named pilot runs and scripted examples with no model | [docs/extras.md](docs/extras.md) |
@@ -221,8 +221,8 @@ assignments together.
 ## 8. Quick start
 
 Per-platform guides with every command and what was tested where:
-**[Linux](docs/setup-linux.md)** · **[Windows (WSL2 + Docker Engine in Ubuntu)](docs/setup-windows.md)**
-· **[macOS (Docker Desktop or Colima; not tested)](docs/setup-macos.md)**.
+**[Linux](setup/linux.md)** · **[Windows (WSL2 + Docker Engine in Ubuntu)](setup/windows.md)**
+· **[macOS (Docker Desktop or Colima; not tested)](setup/macos.md)**.
 
 Once git, make, uv, and Docker are installed:
 
@@ -238,7 +238,7 @@ make up             # TeamTrack board on http://127.0.0.1:8000/board (Ctrl+C to 
 On Windows, clone inside Ubuntu into `~/shipharness`, never under `/mnt/c`.
 
 **Verify your copy.** The release tag `class-v1` records the code, datasets, and settings used for
-the class: a content hash per path that shapes a run, and the `teamtrack/` tree of each checkpoint
+the class: a content hash per path that shapes a run, and the `platform/teamtrack/` tree of each checkpoint
 tag. It is not an experiment freeze; the pilot gate did not pass, so no `harness-frozen` tag exists.
 After `make setup`, check that your clone matches the tag:
 
@@ -249,7 +249,7 @@ uv run shipharness verify --tag class-v1
 
 Expected output: `your copy matches class-v1: 27 paths, 8 checkpoint trees`. Otherwise the command
 prints one line per path or checkpoint that differs (exit 1), and a missing tag asks you to run
-`git fetch --tags` (exit 2). Your own edits under those paths, such as in `datasets/`, also count
+`git fetch --tags` (exit 2). Your own edits under those paths, such as in `platform/datasets/`, also count
 as differences.
 
 Then, without spending anything:
@@ -257,7 +257,7 @@ Then, without spending anything:
 ```bash
 make console                    # live console on http://127.0.0.1:8765/
 make check-assignment-1         # offline self-check of assignment 1 (fails on the starter: it lists the TODOs)
-uv run python skills/harness-setup/scripts/assess.py teamtrack --out harness-assessment.html
+uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out harness-assessment.html
 uv run shipharness init --target <your-repo>   # copy the starter kit into a repository of yours
 ```
 
@@ -287,7 +287,7 @@ a model.
 |---|---|---|---|
 | `make help` | prints the four lines above | none | |
 | `make setup` | `uv sync --frozen`, then `make images` if the runtime is found, then copies `.env.example` to `.env` if missing | none | `RUNTIME=podman` uses Podman |
-| `make images` | `docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `sandbox/Dockerfile` or `src/`; `AGENT_IMAGE=` and `REFEREE_IMAGE=` change the tags |
+| `make images` | `docker build -f platform/sandbox/Dockerfile --target agent -t shipharness-agent:1 .` and the same with `--target referee -t shipharness-referee:1` | none | Rebuild after changing `platform/sandbox/Dockerfile` or `platform/src/`; `AGENT_IMAGE=` and `REFEREE_IMAGE=` change the tags |
 | `make warm` | `uv run shipharness warm --profile class --images-command "make images RUNTIME=docker"` | none | Before class, on the class host: rebuilds the images only if their source changed, starts and removes one container per image, caches the referee baseline of every class task and the gate baseline of every task with the verify layer; one line per step with its time, last line `warm: done (<s> s)`. In the course's class-profile round: 407 s the first time (image rebuild 145 s), 1.2 s the second. `make -n warm` only prints the command |
 | `make doctor` | `uv run shipharness doctor` | none; lists OpenAI models (no tokens) and one LangSmith project | `uv run shipharness doctor --offline` skips both network checks |
 | `make up` | `uv run shipharness up --port 8000` | none | TeamTrack and its board; `PORT=8001` to move it |
@@ -298,17 +298,17 @@ a model.
 | `make swap-1` ... `make swap-4` | `uv run shipharness ab --swap latest --section demo-N --purpose class` | none | Re-judges the latest demo-N A/B with labels swapped; `AB=<ab or run id>` picks another. Refuses a single-arm show-N run |
 | `make final` | for each feature in `FEATURES` (default `F5,F6`): `uv run shipharness ab --section final --feature <f> --purpose class --profile class` | **yes**: at most $0.58 per feature at the caps | Features run one after another; exit code is the last non-zero one. The class's one live A/B |
 | `make replay RUN=<id>` | `uv run shipharness replay <id> --purpose class` | none (no reviewer by default) | Re-emits a recorded run with the RECORDING badge and re-runs the referee; works on A/Bs and show-N runs; needs `SHIPHARNESS_CLASS_DATE` (or `PURPOSE=pilot`) |
-| `make check-assignment-1` ... `-4` | `uv run python submodules/0N-*/assignment/check.py` | none | Offline self-check; `A1_WORK=<folder>`, `A2_IMPL=`, `A3_IMPL=`, `A4_IMPL=` pick your folder |
-| `make grade-assignment-1` ... `-4` | `uv run python scripts/grade_assignment.py N "<SUBMISSION>"` | none | **Instructor only**: needs the private graders, which are not in this repository; here it stops with `no grader for assignment N: graders are private (build repository only)`. Needs `SUBMISSION=<folder or git URL>` |
-| `make slides` | `uv run python scripts/build_slides.py` | none | Validates `slides/deck.md` and writes `slides/dist/deck.html`, `deck.pdf`, and `deck.pptx`; needs Playwright's Chromium (`uv run playwright install chromium`). `SLIDES_OPTS=--check` validates only; `SLIDES_OPTS=--strict` fails while a marker or empty result slot remains |
+| `make check-assignment-1` ... `-4` | `uv run python 0N-*/assignment/check.py` | none | Offline self-check; `A1_WORK=<folder>`, `A2_IMPL=`, `A3_IMPL=`, `A4_IMPL=` pick your folder |
+| `make grade-assignment-1` ... `-4` | `uv run python platform/scripts/grade_assignment.py N "<SUBMISSION>"` | none | **Instructor only**: needs the private graders, which are not in this repository; here it stops with `no grader for assignment N: graders are private (build repository only)`. Needs `SUBMISSION=<folder or git URL>` |
+| `make slides` | `uv run python platform/scripts/build_slides.py` | none | Validates `slides/deck.md` and writes `slides/dist/deck.html`, `deck.pdf`, and `deck.pptx`; needs Playwright's Chromium (`uv run playwright install chromium`). `SLIDES_OPTS=--check` validates only; `SLIDES_OPTS=--strict` fails while a marker or empty result slot remains |
 | `make test` | `uv run pytest` | none | Fast suite; deselects slow, live, and Docker tests |
 | `make test-all` | `uv run pytest -n auto -m "not live and not docker"` | none | Every test that needs no key and no container; takes minutes |
-| `make test-live` | `uv run pytest -m live tests/live` | **yes** | Calls OpenAI and LangSmith |
-| `make test-docker` | `uv run pytest -m docker tests/unit/test_sandbox_docker.py` | none | Needs Docker |
-| `make lint` | `ruff check`, `ruff format --check`, the import contract, `scripts/anchors.py check`, `shipharness skills validate skills` | none | |
+| `make test-live` | `uv run pytest -m live platform/tests/live` | **yes** | Calls OpenAI and LangSmith |
+| `make test-docker` | `uv run pytest -m docker platform/tests/unit/test_sandbox_docker.py` | none | Needs Docker |
+| `make lint` | `ruff check`, `ruff format --check`, the import contract, `platform/scripts/anchors.py check`, `shipharness skills validate use-in-your-repo/skills` | none | |
 | `make format` | `ruff check --fix .` and `ruff format .` | none | Rewrites files |
-| `make lint-prose` | `uv run python scripts/lint_prose.py` (and Vale if installed) | none | Banned words and emoji in course documents |
-| `make anchors` | `uv run python scripts/anchors.py list` | none | Code walkthrough anchors; `uv run python scripts/anchors.py extract <id>` prints one |
+| `make lint-prose` | `uv run python platform/scripts/lint_prose.py` (and Vale if installed) | none | Banned words and emoji in course documents |
+| `make anchors` | `uv run python platform/scripts/anchors.py list` | none | Code walkthrough anchors; `uv run python platform/scripts/anchors.py extract <id>` prints one |
 | `make experiments`, `make report`, `make pilot` | print `! make <target> is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` and exit 2 | none | Not make targets in this release; use `uv run shipharness experiments --help` and `uv run shipharness report` directly |
 
 Optional extras that are not part of any class section (replays of named pilot runs and scripted
@@ -345,14 +345,14 @@ harness arm runs the layers taught so far:
 
 | Section | Feature (spec) | Checkpoint | Sessions (turn budget) | Harness arm layers | Primary measure (per run) |
 |---|---|---|---|---|---|
-| S1 | F1 org-wide issue search ([f1.md](teamtrack/docs/features/f1.md)) | `m1-s1-start` | 1 (30) | instructions | One or more new R1 tenant-isolation violations fails the run |
-| S2 | F2 comments ([f2.md](teamtrack/docs/features/f2.md)) | `m1-s2-start` | 2 (20, then 30) | instructions, state | Continuity failure: R7 fails, a second migration creates the same table, or 30% or more of session 1's added lines are removed in session 2 |
-| S3 | F3 idempotency keys ([f3.md](teamtrack/docs/features/f3.md)) | `m1-s3-start` | build (30), then a test phase | instructions, state, scope | One or more out-of-scope files shipped, or a source file changed during the test phase |
-| S4 | F4 lost updates and history ([f4.md](teamtrack/docs/features/f4.md)) | `m1-s4-start` | 1 (40) | all four | Two counts: hidden tests passed (of 69) and referee-set mutants killed by the arm's own tests (of 4) |
-| Final | F5, F6, or F7 ([f5.md](teamtrack/docs/features/f5.md), [f6.md](teamtrack/docs/features/f6.md), [f7.md](teamtrack/docs/features/f7.md)) | `m1-final-start` | per feature | all four | None; read as counts |
+| S1 | F1 org-wide issue search ([f1.md](platform/teamtrack/docs/features/f1.md)) | `m1-s1-start` | 1 (30) | instructions | One or more new R1 tenant-isolation violations fails the run |
+| S2 | F2 comments ([f2.md](platform/teamtrack/docs/features/f2.md)) | `m1-s2-start` | 2 (20, then 30) | instructions, state | Continuity failure: R7 fails, a second migration creates the same table, or 30% or more of session 1's added lines are removed in session 2 |
+| S3 | F3 idempotency keys ([f3.md](platform/teamtrack/docs/features/f3.md)) | `m1-s3-start` | build (30), then a test phase | instructions, state, scope | One or more out-of-scope files shipped, or a source file changed during the test phase |
+| S4 | F4 lost updates and history ([f4.md](platform/teamtrack/docs/features/f4.md)) | `m1-s4-start` | 1 (40) | all four | Two counts: hidden tests passed (of 69) and referee-set mutants killed by the arm's own tests (of 4) |
+| Final | F5, F6, or F7 ([f5.md](platform/teamtrack/docs/features/f5.md), [f6.md](platform/teamtrack/docs/features/f6.md), [f7.md](platform/teamtrack/docs/features/f7.md)) | `m1-final-start` | per feature | all four | None; read as counts |
 
 Session budgets come from `teamtrack/reference/fN/task.toml`, mutant counts from
-`teamtrack/mutants/features/f4.jsonl`. Some tasks contain a temptation that both arms see: the
+`platform/teamtrack/mutants/features/f4.jsonl`. Some tasks contain a temptation that both arms see: the
 legacy `GET /v1/issues` handler without a tenant filter next to the right pattern (A1 reports agents
 copying existing patterns, F-a-20), or shared middleware that is off-limits but easier to change. The
 course calls these "traps"; that is a course label. The pilot measured the trap tickets for F1 and F3
@@ -420,10 +420,10 @@ outside the experiment (Docker, the network, OpenAI), the instructor shows a rec
 class with `make replay`, and every screen then shows RECORDING.
 
 Each section's runbook (what to watch on which screen, the poll, the anchors) is in its demo folder:
-[S1](submodules/01-instructions/demo/README.md),
-[S2](submodules/02-state-lifecycle/demo/README.md),
-[S3](submodules/03-scope-sandbox/demo/README.md),
-[S4](submodules/04-verification/demo/README.md). The instructor's stage-by-stage plan is
+[S1](01-instructions/demo/README.md),
+[S2](02-state-lifecycle/demo/README.md),
+[S3](03-scope-sandbox/demo/README.md),
+[S4](04-verification/demo/README.md). The instructor's stage-by-stage plan is
 [docs/instructor-guide.md](docs/instructor-guide.md).
 
 ## 11. The five console screens
@@ -453,22 +453,22 @@ each.
 
 | Assignment | What you build | Self-check | Live step, bounded by the caps |
 |---|---|---|---|
-| [1 Instructions](submodules/01-instructions/assignment/README.md) | Turn an 899-line instruction file into an AGENTS.md map, a `docs/` folder, and one skill; write a link and rule-coverage checker; A/B on the `section-1` subset (k=3) | `make check-assignment-1` | At most $2.50 and 150 traces |
-| [2 State and session lifecycle](submodules/02-state-lifecycle/assignment/README.md) | A state layer that survives three forced stops with no duplicated migration and a progress log and exec plan that agree with git | `make check-assignment-2` | One A/B: at most $0.40, 4 traces |
-| [3 Scope and sandbox](submodules/03-scope-sandbox/assignment/README.md) | A per-phase diff-scope policy, an evidence-gated `passes` update, and one sandbox rule with a test that proves the denial; graded against hidden scripted diffs | `make check-assignment-3` | One `demo-3` A/B: 2 × $0.20 + 2 × $0.04, 4 traces |
-| [4 Verification and portfolio](submodules/04-verification/assignment/README.md) | House rule R8, a sixth test filter, `shipharness testgen` on a repository you choose, one F4 A/B, and a portfolio | `make check-assignment-4` | At most $0.68 |
+| [1 Instructions](01-instructions/assignment/README.md) | Turn an 899-line instruction file into an AGENTS.md map, a `docs/` folder, and one skill; write a link and rule-coverage checker; A/B on the `section-1` subset (k=3) | `make check-assignment-1` | At most $2.50 and 150 traces |
+| [2 State and session lifecycle](02-state-lifecycle/assignment/README.md) | A state layer that survives three forced stops with no duplicated migration and a progress log and exec plan that agree with git | `make check-assignment-2` | One A/B: at most $0.40, 4 traces |
+| [3 Scope and sandbox](03-scope-sandbox/assignment/README.md) | A per-phase diff-scope policy, an evidence-gated `passes` update, and one sandbox rule with a test that proves the denial; graded against hidden scripted diffs | `make check-assignment-3` | One `demo-3` A/B: 2 × $0.20 + 2 × $0.04, 4 traces |
+| [4 Verification and portfolio](04-verification/assignment/README.md) | House rule R8, a sixth test filter, `shipharness testgen` on a repository you choose, one F4 A/B, and a portfolio | `make check-assignment-4` | At most $0.68 |
 
 The learner budget for all four together is at most $6 of OpenAI usage and 400 LangSmith traces,
 and no single command may spend more than $2.50. Each assignment's "Cost and trace budget" section
 has the details. On a fresh clone every self-check fails and lists the TODOs to fix; that is the
 starting point. `make grade-assignment-N` is the instructor's grader and is not usable without the
-private graders. The reference solutions are released as a tagged release after the Thursday review
-session. What to do between class and the review: [docs/after-class.md](docs/after-class.md).
+private graders. Each reference solution ships next to its starter, in
+`0N-*/assignment/solution/`; the graders stay private. What to do between class and the review: [docs/after-class.md](docs/after-class.md).
 
 ## 13. Costs and caps
 
 Every command prints a cost line when it exits. The cost tracker checks every model call against
-these caps before it is made (values from `.env.example` and `src/shipharness/config/settings.py`):
+these caps before it is made (values from `.env.example` and `platform/src/shipharness/config/settings.py`):
 
 | Cap | Value | Scope |
 |---|---|---|
@@ -484,7 +484,7 @@ these caps before it is made (values from `.env.example` and `src/shipharness/co
 When a call would cross a cap it is refused, the run ends as `ABORTED: cap`, and the referee still
 judges and shows it. Commands running at the same time share the caps.
 
-Prices (`config/prices.toml`, per 1M tokens): gpt-6-luna at the Standard tier $0.10 input, $0.01
+Prices (`platform/config/prices.toml`, per 1M tokens): gpt-6-luna at the Standard tier $0.10 input, $0.01
 cached input, $0.125 cache write, $0.50 output; at the Fast tier $0.20, $0.02, $0.25, $1.00;
 gpt-5.6-luna (reviewer, Standard tier only) $0.20, $0.02, $0.25, $1.20.
 
@@ -502,7 +502,7 @@ the settings in `.env`.
 | `make show-N` (one arm, one review) | $0.20 + $0.04 = $0.24 | Class-profile round, harness arm and its review: F1 $0.0151 + $0.0028, F2 $0.0357 + $0.0041, F3 $0.0135 + $0.0031, F4 $0.0257 + $0.0040 |
 | `make demo-N` (two arms, two reviews) | 2 × $0.20 + 2 × $0.04 = $0.48 | Class-profile round, 2026-10-17: $0.1953 for the four A/Bs F1-F4 (agents $0.1689 at the Fast tier, reviews $0.0263). Pilot run 3 at effort medium and the Standard tier: $0.3801 for 12 A/Bs |
 | `make final`, per feature | 2 × $0.25 + 2 × $0.04 = $0.58 | F5 with the class profile, below |
-| `shipharness testgen` | $0.20 | One measured example run, captured on 2026-10-17, run `r-20261017-093940-52dde8` (TeamTrack's `app/repositories/issues.py`, 5 proposed tests, 1 kept): `Cost: $0.003287 (testgen, model gpt-6-luna)`. The worked example in [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md#step-5-the-first-harnessed-run) (boltons, 3 proposed tests, 3 kept, run `r-20261017-121823-aa1c4b`): `Cost: $0.002031 (testgen, model gpt-6-luna)`; your cost will differ |
+| `shipharness testgen` | $0.20 | One measured example run, captured on 2026-10-17, run `r-20261017-093940-52dde8` (TeamTrack's `app/repositories/issues.py`, 5 proposed tests, 1 kept): `Cost: $0.003287 (testgen, model gpt-6-luna)`. The worked example in [use-in-your-repo/apply-to-your-repo.md](use-in-your-repo/apply-to-your-repo.md#step-5-the-first-harnessed-run) (boltons, 3 proposed tests, 3 kept, run `r-20261017-121823-aa1c4b`): `Cost: $0.002031 (testgen, model gpt-6-luna)`; your cost will differ |
 | `make swap-N`, `make replay`, `make warm`, `make doctor`, `make console`, `make check-assignment-N`, `uv run shipharness report`, `shipharness check`, `shipharness init`, `assess.py` | $0 | $0 |
 
 Measured, `make final FEATURES=F5` with the class profile (captured on 2026-10-17, run ab-20261017-120323-c97138; your output will differ): bare arm $0.0177 and its
@@ -535,13 +535,13 @@ template holds TeamTrack's real values with a REPLACE marker that says what each
 no model calls and no network calls, and a second run writes nothing. The step-by-step guide
 (install, init, fill the map, define house rules, the first harnessed run, read the results, decide
 which layers earn their place), with a worked example on three boltons modules and captured output,
-is [docs/apply-to-your-repo.md](docs/apply-to-your-repo.md); the file list is in
-[kit/README.md](kit/README.md).
+is [use-in-your-repo/apply-to-your-repo.md](use-in-your-repo/apply-to-your-repo.md); the file list is in
+[use-in-your-repo/kit/README.md](use-in-your-repo/kit/README.md).
 
 The [final project, part 9](final-project/README.md#9-run-shipharness-on-your-own-repository) has the
 other commands and how to read their output:
 
-- `uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`:
+- `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`:
   a read-only check of instructions, state, scope, verification, and session lifecycle, with a fix
   and a source for each gap. No model calls.
 - `uv run shipharness testgen --repo <your-repo> --module <path> ...`: an agent proposes tests for one
@@ -551,15 +551,15 @@ other commands and how to read their output:
   for CI. No model calls.
 
 The four skills package the same ideas for a coding agent. Each follows the Agent Skills format
-(B1, F-b-01 to F-b-06) and passes `uv run shipharness skills validate skills`. How to install each
+(B1, F-b-01 to F-b-06) and passes `uv run shipharness skills validate use-in-your-repo/skills`. How to install each
 one in Claude Code, Codex, or Cursor is in its README:
 
 | Skill | What it does | README |
 |---|---|---|
-| `harness-setup` | Assesses a repository's harness with a deterministic script, then adds the missing parts from templates (AGENTS.md map, ARCHITECTURE.md, SECURITY.md, `feature_list.json` with a schema, `progress.md`, `session-handoff.md`, an exec plan, a clean-state checklist, `init.sh`) | [skills/harness-setup/README.md](skills/harness-setup/README.md) |
-| `house-rules` | Turns a team convention into a rule document, a mechanical check whose message says how to fix the problem, and a test with a seeded violation | [skills/house-rules/README.md](skills/house-rules/README.md) |
-| `assured-tests` | Runs `shipharness testgen` on one module and explains every discarded test; costs money | [skills/assured-tests/README.md](skills/assured-tests/README.md) |
-| `skill-template` | A starting point for your own skill, with the spec's frontmatter fields only | [skills/skill-template/README.md](skills/skill-template/README.md) |
+| `harness-setup` | Assesses a repository's harness with a deterministic script, then adds the missing parts from templates (AGENTS.md map, ARCHITECTURE.md, SECURITY.md, `feature_list.json` with a schema, `progress.md`, `session-handoff.md`, an exec plan, a clean-state checklist, `init.sh`) | [use-in-your-repo/skills/harness-setup/README.md](use-in-your-repo/skills/harness-setup/README.md) |
+| `house-rules` | Turns a team convention into a rule document, a mechanical check whose message says how to fix the problem, and a test with a seeded violation | [use-in-your-repo/skills/house-rules/README.md](use-in-your-repo/skills/house-rules/README.md) |
+| `assured-tests` | Runs `shipharness testgen` on one module and explains every discarded test; costs money | [use-in-your-repo/skills/assured-tests/README.md](use-in-your-repo/skills/assured-tests/README.md) |
+| `skill-template` | A starting point for your own skill, with the spec's frontmatter fields only | [use-in-your-repo/skills/skill-template/README.md](use-in-your-repo/skills/skill-template/README.md) |
 
 ## 15. Troubleshooting
 
@@ -569,7 +569,7 @@ The most common problems:
 |---|---|
 | `make: command not found` on Windows | You are in PowerShell; open the Ubuntu terminal |
 | `make doctor`: `x missing     OPENAI_API_KEY` | Fill in `.env` in the repository root |
-| `make doctor`: `! warn        container runtime      docker not found: ...` | Install or start Docker ([Linux](docs/setup-linux.md#3-install-docker-engine)) |
+| `make doctor`: `! warn        container runtime      docker not found: ...` | Install or start Docker ([Linux](setup/linux.md#3-install-docker-engine)) |
 | `x SHIPHARNESS_CLASS_DATE is not set: ...` | Set it in `.env`, or add `PURPOSE=assignment` |
 | A run prints its results, then `make: *** [...] Error 2` | An arm was aborted (cost cap or time limit); the run is complete, judged, and shown. `shipharness ab` exits 2 in that case ([troubleshooting](docs/troubleshooting.md#arm-status-and-result-lines)) |
 | An arm ends as `ABORTED: cap` | It reached a cost cap; it is still judged and shown |
@@ -581,31 +581,36 @@ Everything else, with the exact messages: [docs/troubleshooting.md](docs/trouble
 ## 16. Repository layout
 
 ```
-src/shipharness/     the CLI: config, cost, events, sandbox, runner, harness layers, filters,
-                     checks, reviewer, ab (A/B, referee, replay, report, warm), console, tracing,
-                     testgen, kit
-teamtrack/           demo target: multi-tenant API, web board, migrations, seed, docs, tests,
-                     reference implementations per feature, mutants
-kit/                 the starter kit: templates copied by shipharness init, and a worked example
-sandbox/             Dockerfile (agent and referee images) and runtime notes
-config/prices.toml   model prices, Standard and Fast tiers
-datasets/            teamtrack-features-v1 (60 tasks), testgen-targets-v1 (40 targets), mutants
-submodules/          the four sections: concepts.md, demo/, assignment/, post-class-reading/
-skills/              harness-setup, house-rules, assured-tests, skill-template
-slides/              the deck source (deck.md), the outline, and how to build it
-final-project/       the end-to-end walkthrough
-docs/                setup per platform, instructor guide, troubleshooting, after class,
-                     architecture, applying the kit to your repository, optional extras
-scripts/             anchors.py, lint_prose.py, fetch_testgen_libs.py, grade_assignment.py,
-                     build_slides.py
-tests/               unit and live tests
+setup/                 pre-class steps and setup per platform (Windows, macOS, Linux)
+01-instructions/       the four sections, each with concepts.md, session-notes.md, demo/,
+02-state-lifecycle/    assignment/ (starter/ and the reference solution/ side by side), and
+03-scope-sandbox/      post-class-reading/
+04-verification/
+final-project/         the end-to-end walkthrough
+slides/                the deck source (deck.md), the outline, and how to build it
+use-in-your-repo/      the starter kit (kit/), the four skills (skills/: harness-setup,
+                       house-rules, assured-tests, skill-template), and the guide
+docs/                  instructor guide, troubleshooting, architecture, after class, optional
+                       extras, changelog, references
+platform/              what the course runs on:
+  src/shipharness/     the CLI: config, cost, events, sandbox, runner, harness layers, filters,
+                       checks, reviewer, ab (A/B, referee, replay, report, warm), console,
+                       tracing, testgen, kit
+  teamtrack/           demo target: multi-tenant API, web board, migrations, seed, docs, tests,
+                       reference implementations per feature, mutants
+  sandbox/             Dockerfile (agent and referee images) and runtime notes
+  config/prices.toml   model prices, Standard and Fast tiers
+  datasets/            teamtrack-features-v1 (60 tasks), testgen-targets-v1 (40 targets), mutants
+  scripts/             anchors.py, lint_prose.py, fetch_testgen_libs.py, grade_assignment.py,
+                       build_slides.py
+  tests/               unit and live tests
 ```
 
 ## 17. References
 
 Every source id cited in this repository (A1 to A7, B1 to B13) and every finding id (F-a-NN,
 F-b-NN), with titles, authors, dates, links, and the quoted text, is listed in
-[REFERENCES.md](REFERENCES.md). The main teaching sources are A1 (OpenAI, harness engineering with
+[docs/REFERENCES.md](docs/REFERENCES.md). The main teaching sources are A1 (OpenAI, harness engineering with
 Codex), A2 and A3 (Anthropic, harnesses for long-running agents and application development), A4
 (Anthropic, a C compiler built by parallel agents), B1 (the Agent Skills specification), B11 and B12
 (Meta, TestGen-LLM and mutation-guided test generation), and B13 (SpecBench).

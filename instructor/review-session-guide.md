@@ -10,13 +10,13 @@ what the grader saw.
 
 | Assignment | Brief and grading criteria | Starter | Solution | Self-check | Grader |
 |---|---|---|---|---|---|
-| A1 Instructions | `submodules/01-instructions/assignment/README.md` | `submodules/01-instructions/assignment/starter/` | `submodules/01-instructions/solution/` | `make check-assignment-1` | `make grade-assignment-1` |
-| A2 State and session lifecycle | `submodules/02-state-lifecycle/assignment/README.md` | `submodules/02-state-lifecycle/assignment/starter/` | `submodules/02-state-lifecycle/solution/` | `make check-assignment-2` | `make grade-assignment-2` |
-| A3 Scope and sandbox | `submodules/03-scope-sandbox/assignment/README.md` | `submodules/03-scope-sandbox/assignment/starter/` | `submodules/03-scope-sandbox/solution/` | `make check-assignment-3` | `make grade-assignment-3` |
-| A4 Verification and portfolio | `submodules/04-verification/assignment/README.md` | `submodules/04-verification/assignment/starter/` | `submodules/04-verification/solution/` | `make check-assignment-4` | `make grade-assignment-4` |
+| A1 Instructions | `01-instructions/assignment/README.md` | `01-instructions/assignment/starter/` | `01-instructions/assignment/solution/` | `make check-assignment-1` | `make grade-assignment-1` |
+| A2 State and session lifecycle | `02-state-lifecycle/assignment/README.md` | `02-state-lifecycle/assignment/starter/` | `02-state-lifecycle/assignment/solution/` | `make check-assignment-2` | `make grade-assignment-2` |
+| A3 Scope and sandbox | `03-scope-sandbox/assignment/README.md` | `03-scope-sandbox/assignment/starter/` | `03-scope-sandbox/assignment/solution/` | `make check-assignment-3` | `make grade-assignment-3` |
+| A4 Verification and portfolio | `04-verification/assignment/README.md` | `04-verification/assignment/starter/` | `04-verification/assignment/solution/` | `make check-assignment-4` | `make grade-assignment-4` |
 
 `make check-assignment-N` is the learner's offline self-check. `make grade-assignment-N
-SUBMISSION=<folder or git URL>` runs the private grader in `submodules/0N-*/solution/grader/`; in the
+SUBMISSION=<folder or git URL>` runs the private grader in `0N-*/assignment/solution/grader/`; in the
 learner repository it stops with `no grader for assignment N: graders are private (build repository
 only)`. Reference scores (each solution's `captured/grade-solution.txt`, captured 2026-10-17): A1
 83/100, A2 90/100, A3 90/100 (FAIL: valid live evidence is a pass condition), A4 100/100 (20 of those
@@ -45,7 +45,7 @@ mistakes discussion uses those counts, not impressions. Bring the tally as one t
 ## A1 Instructions (0:00-0:25)
 
 **Task** (DESIGN §14.3). Restructure a 900-line instruction file into an AGENTS.md map plus docs plus
-one skill built from `skills/skill-template`; write a checker for broken links and rule coverage; run
+one skill built from `use-in-your-repo/skills/skill-template`; write a checker for broken links and rule coverage; run
 an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner budget ≤ $2.50 and
 ≤ 150 traces (DESIGN §11.5).
 
@@ -53,7 +53,7 @@ an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner 
 - Inventory every rule in the long file first, with an id each, before moving anything.
 - Keep the map short and pointing outward: A1's map is "roughly 100 lines" and "the table of contents"
   (A1, F-a-22, F-a-27, F-a-28); the docs folder is the system of record (A1, F-a-29, F-a-30).
-- Build the skill from `skills/skill-template` with the spec's fields only, `name` equal to the folder
+- Build the skill from `use-in-your-repo/skills/skill-template` with the spec's fields only, `name` equal to the folder
   name, and validate it with `uv run shipharness skills validate <folder>` (B1; RESEARCH §4.5).
 - The checker follows A1's mechanical checks: "Dedicated linters and CI jobs validate that the
   knowledge base is up to date, cross-linked, and structured correctly." (A1, F-a-37) Every link in
@@ -62,7 +62,7 @@ an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner 
 - The A/B keeps everything equal except the instructions layer and reports counts per arm, not
   percentages (DESIGN §8.3 rule 5).
 
-**Solution walkthrough (8 min).** Open `submodules/01-instructions/solution/` and walk, in this
+**Solution walkthrough (8 min).** Open `01-instructions/assignment/solution/` and walk, in this
 order: `work/instructions/AGENTS.md` (the map), `work/instructions/ARCHITECTURE.md`, one document
 under `work/instructions/docs/` (`SECURITY.md` holds R1), the `add-list-endpoint` skill (`work/instructions/.agents/skills/add-list-endpoint/SKILL.md`), and the
 checker `work/checker/check_docs.py` with its tests `work/checker/test_check_docs.py`. Then
@@ -106,11 +106,11 @@ heads, redone work, and progress-file integrity. Learner budget ≤ $1.50 and �
 - Before any migration, check `alembic heads`; one head is house rule R7 and the S2 measure (DESIGN
   §8.2).
 - The harness writes the machine part of the handoff itself, so a handoff exists even when the agent
-  writes none (DESIGN §6.3; `S2:stop_resume` in `src/shipharness/harness/state/lifecycle.py`).
+  writes none (DESIGN §6.3; `S2:stop_resume` in `platform/src/shipharness/harness/state/lifecycle.py`).
 - The exec plan moves from `active/` to `completed/` when the feature is done (A1, A7; F-a-45 to
   F-a-48).
 
-**Solution walkthrough (8 min).** Open `submodules/02-state-lifecycle/solution/a2_state/layer.py`
+**Solution walkthrough (8 min).** Open `02-state-lifecycle/assignment/solution/a2_state/layer.py`
 (the `ResumableStateLayer`), then `ledger.py` and `progress_log.py`, then `SOLUTION_NOTES.md`. The
 grader's hidden scenarios (`grader/a2_hidden.py`, four scenarios and a hidden four-step feature) run
 a scripted stand-in agent, not a model. On the reference solution every scenario criterion passes, among them
@@ -142,17 +142,17 @@ budget ≤ $0.25 and ≤ 30 traces, mostly deterministic (DESIGN §11.5).
 
 **Expected approach (5 min).**
 - Path rules are globs per phase, with segment-aware matching (`*` stays inside one path segment,
-  `**` spans segments), as in `S3:allowed_paths` (`src/shipharness/harness/scope/guard.py`).
+  `**` spans segments), as in `S3:allowed_paths` (`platform/src/shipharness/harness/scope/guard.py`).
 - Normalise paths before matching (leading `./`, backslashes); harness-only files such as
   `feature_list.json` are refused in every phase (A2, F-a-80; DESIGN D-14).
 - Status changes only with evidence; the agent's claim alone is never enough (`S3:passes` in
-  `src/shipharness/harness/scope/status.py`; course design: A2, F-a-108 and A3, F-a-110; RESEARCH G-6).
+  `platform/src/shipharness/harness/scope/status.py`; course design: A2, F-a-108 and A3, F-a-110; RESEARCH G-6).
 - The sandbox rule has a reason code and a message the agent can act on, and the test runs a command
   that the rule must refuse, then asserts the denial (`S3:policy` in
-  `src/shipharness/sandbox/policy.py`; CONTRACTS §9).
+  `platform/src/shipharness/sandbox/policy.py`; CONTRACTS §9).
 
 **Reveal: the hidden diffs (10 min).** The diffs live with the A3 grader:
-`submodules/03-scope-sandbox/solution/grader/hidden/diffs/` (43 diffs: 26 named `bad-*`, 17 named
+`03-scope-sandbox/assignment/solution/grader/hidden/diffs/` (43 diffs: 26 named `bad-*`, 17 named
 `good-*`), with the expected verdict, phase, allow lists, and refusal reason of each in
 `grader/hidden/cases.json` (built by `make_hidden.py`). The pass condition is every bad diff rejected
 and zero false positives. Pairs that show where a false positive or a miss comes from:
@@ -178,7 +178,7 @@ How to run the reveal:
 - Prefix matching with `startswith`, so an allow entry like `app/api` also allows `app/api_v2/...`.
 - Checking only the new path of a rename, or ignoring deleted files.
 - Refusing the state files (`progress.md`, `session-handoff.md`, `docs/exec-plans/**`) when the state
-  layer is on: a false positive (`STATE_FILES` in `src/shipharness/harness/scope/guard.py`).
+  layer is on: a false positive (`STATE_FILES` in `platform/src/shipharness/harness/scope/guard.py`).
 - A denial test that checks the regular expression but never runs the command through the sandbox.
 
 **Discussion (7 min).**
@@ -198,17 +198,17 @@ skill. Learner budget ≤ $1.75 and ≤ 120 traces (DESIGN §11.5).
 
 **Expected approach (5 min).**
 - R8 discovers endpoints from the OpenAPI schema like R1 does (`S4:probe` in
-  `src/shipharness/checks/r1_tenant.py`) and reports new violations against the checkpoint baseline
+  `platform/src/shipharness/checks/r1_tenant.py`) and reports new violations against the checkpoint baseline
   (DESIGN §5).
 - The new filter gives a reason for every discard, like the five course filters (`S4:filters` in
-  `src/shipharness/filters/pipeline.py`); say whether it has a source or is a course filter, as the
+  `platform/src/shipharness/filters/pipeline.py`); say whether it has a source or is a course filter, as the
   course does for filters 4 and 5 (RESEARCH G-7).
 - `shipharness testgen` on a repository whose existing suite passes first; kept tests are the ones
   that pass all filters (B11, F-b-16 to F-b-22).
 - The evidence report gives counts per run, not percentages, and links the LangSmith experiment.
 
 **Solution walkthrough (8 min).** Open, in order:
-`submodules/04-verification/solution/a4_verification/r8_soft_delete.py` (the R8 check) with its
+`04-verification/assignment/solution/a4_verification/r8_soft_delete.py` (the R8 check) with its
 adapter `adapter.py` and `captured/r8-teamtrack.json` (R8 on TeamTrack, real output, no model call);
 `dedup_filter.py` (filter 6) and `apply_filter.py`; `portfolio/evidence-report.md`,
 `portfolio/case-study.md`, and `portfolio/langsmith.md`; the example learner skill

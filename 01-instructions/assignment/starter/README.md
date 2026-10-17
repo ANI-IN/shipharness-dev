@@ -15,8 +15,8 @@ Your work folder for assignment A1. The task, the specification, and the grading
 Start with:
 
 ```bash
-uv run python submodules/01-instructions/assignment/check.py
-uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/assignment/starter/checker
+uv run python 01-instructions/assignment/check.py
+uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/starter/checker
 ```
 
 Both run without keys or Docker. The first prints one FAIL line per requirement still open; the

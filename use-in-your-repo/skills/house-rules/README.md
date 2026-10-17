@@ -9,7 +9,7 @@ and Cursor, how to call it, and how to check that it loaded. The instructions th
 are in [SKILL.md](SKILL.md).
 
 Source ids (A1, B1, ...) and finding ids (F-a-43, ...) refer to the course reference list,
-`REFERENCES.md` at the repository root.
+`docs/REFERENCES.md` in the course repository.
 
 ## What it does and when to use it
 
@@ -89,8 +89,8 @@ the root of your shipharness checkout:
 SKILL=house-rules
 TARGET=~/my-repo        # your repository; use TARGET=~ for a user-level install
 mkdir -p "$TARGET/.claude/skills" "$TARGET/.agents/skills"
-cp -r "skills/$SKILL" "$TARGET/.claude/skills/"
-cp -r "skills/$SKILL" "$TARGET/.agents/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.claude/skills/"
+cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 ```
 
 ```powershell
@@ -112,12 +112,12 @@ identical.
 Run the course validator on the source folder and on each installed copy:
 
 ```bash
-uv run shipharness skills validate skills/house-rules
+uv run shipharness skills validate use-in-your-repo/skills/house-rules
 uv run shipharness skills validate ~/my-repo/.claude/skills/house-rules
 uv run shipharness skills validate ~/my-repo/.agents/skills/house-rules
 ```
 
-Captured on 2026-10-17 from `uv run shipharness skills validate skills/house-rules`;
+Captured on 2026-10-17 from `uv run shipharness skills validate use-in-your-repo/skills/house-rules`;
 your output will differ:
 
 ```text
@@ -130,7 +130,7 @@ Cost: $0.000000 (no model calls)
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
 referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate skills/house-rules` (captured on 2026-10-17 from that command: `Valid skill: skills/house-rules`; your output will differ).
+`uv run agentskills validate use-in-your-repo/skills/house-rules` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/house-rules`; your output will differ).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -156,7 +156,7 @@ baseline, and add the rule to AGENTS.md and CI.
 The agent runs the script from the installed folder, for example
 `python .claude/skills/house-rules/scripts/new_rule.py --id R8 --title "..." --root .`. You can
 preview what it writes with `--dry-run`. Captured on 2026-10-17 against the course's TeamTrack app from
-`uv run python skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root teamtrack --dry-run`
+`uv run python use-in-your-repo/skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root platform/teamtrack --dry-run`
 (run from the checkout root); your output will differ:
 
 ```text

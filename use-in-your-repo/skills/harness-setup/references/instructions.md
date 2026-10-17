@@ -1,6 +1,6 @@
 # Instructions checklist: what the agent knows
 
-Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Source ids and finding ids are listed in `docs/REFERENCES.md` in the course repository.
 Assessment checks I1-I6 test the items marked with a check id.
 
 | Done | Item | Why | Source |

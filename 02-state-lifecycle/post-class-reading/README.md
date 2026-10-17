@@ -1,7 +1,7 @@
 # post-class-reading
 
 Three short pieces for after class, about 27 minutes in total. Each cites the primary sources in
-[REFERENCES.md](../../../REFERENCES.md) by source id and finding id, points at the `shipharness`
+[docs/REFERENCES.md](../../docs/REFERENCES.md) by source id and finding id, points at the `shipharness`
 code it describes, and ends with a section "Why it matters for your own repo".
 
 | Piece | Reading time | What it covers |

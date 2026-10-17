@@ -1,7 +1,7 @@
 # S4 post-class reading
 
 Four short pieces that go further than class time allows. Each cites its primary source by the IDs
-in [REFERENCES.md](../../../REFERENCES.md) and ends with "Why it matters for your own repo", which
+in [docs/REFERENCES.md](../../docs/REFERENCES.md) and ends with "Why it matters for your own repo", which
 ties the source to a real case from the course pilot (run 2, 2026-10-16) and to a step you can take
 in your own repository. Read
 them in any order; together they take about 30 minutes.

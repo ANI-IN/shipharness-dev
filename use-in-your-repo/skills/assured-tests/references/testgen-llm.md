@@ -5,7 +5,7 @@ Alshahwan, Chheda, Finegenova, Gokkaya, Harman, Harper, Marginean, Sengupta, Wan
 arXiv 2402.09171, 2024-02-14. https://arxiv.org/abs/2402.09171
 
 Summary in our own words; quotes are marked, and their finding ids (F-b-16 to F-b-28) are listed
-in `REFERENCES.md` at the repository root.
+in `docs/REFERENCES.md` in the course repository.
 
 ## What it does
 

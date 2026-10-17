@@ -3,7 +3,7 @@
 Both arms of every A/B run in identical containers. The sandbox is never an A/B variable; it is taught
 in S3 as scope enforced at the machine level. Detailed sandbox design is Module 2.
 
-Policy code: [src/shipharness/sandbox/policy.py](../src/shipharness/sandbox/policy.py). The policy is
+Policy code: [platform/src/shipharness/sandbox/policy.py](../src/shipharness/sandbox/policy.py). The policy is
 printed at the start of every run and sent in the `sandbox_start` event.
 
 | Limit | Value |
@@ -20,8 +20,8 @@ container. No host environment variable is passed in; names containing KEY, TOKE
 ## Build the images
 
 ```bash
-docker build -f sandbox/Dockerfile --target agent   -t shipharness-agent:1 .
-docker build -f sandbox/Dockerfile --target referee -t shipharness-referee:1 .
+docker build -f platform/sandbox/Dockerfile --target agent   -t shipharness-agent:1 .
+docker build -f platform/sandbox/Dockerfile --target referee -t shipharness-referee:1 .
 ```
 
 `make setup` runs both builds.

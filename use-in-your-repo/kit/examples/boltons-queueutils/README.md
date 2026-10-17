@@ -1,17 +1,17 @@
 # Worked example: the kit on three boltons modules
 
 This folder is the end state of the worked example in
-[docs/apply-to-your-repo.md](../../../docs/apply-to-your-repo.md): the kit installed with
+[use-in-your-repo/apply-to-your-repo.md](../../../apply-to-your-repo.md): the kit installed with
 `shipharness init` and filled in for a small real repository, three modules of boltons 26.2.0
 (`typeutils`, `listutils`, `queueutils`) with their tests. boltons is BSD-3-Clause; the course
-already pins it for `shipharness testgen` (`datasets/sources/testgen.toml`), and
-`scripts/fetch_testgen_libs.py` fetches it without a model call.
+already pins it for `shipharness testgen` (`platform/datasets/sources/testgen.toml`), and
+`platform/scripts/fetch_testgen_libs.py` fetches it without a model call.
 
 ## Rebuild the starting repository
 
 ```bash
-uv run python scripts/fetch_testgen_libs.py boltons
-bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
+uv run python platform/scripts/fetch_testgen_libs.py boltons
+bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
 ```
 
 `make_repo.sh` copies the three modules, their tests, `LICENSE`, and `.gitignore` from the pinned
@@ -22,7 +22,7 @@ It stops with `ERROR boltons clone not found at ...` when the fetch has not run,
 ## What is in `filled/`
 
 Every kit file as it reads after filling, in the same layout as the repository. Compare a file here
-with the same path in [`kit/templates/`](../../templates/) to see what changed.
+with the same path in [`use-in-your-repo/kit/templates/`](../../templates/) to see what changed.
 
 | Decision | Files |
 |---|---|
@@ -34,6 +34,6 @@ with the same path in [`kit/templates/`](../../templates/) to see what changed.
 The feature in `feature_list.json` is real: the docstrings of `peek` and `pop` say an empty queue
 raises `KeyError`, and the code raises `IndexError` (`docs/product-specs/f1.md` in `filled/`).
 
-`tests/unit/kit/test_example.py` keeps this folder honest: no REPLACE marker is left, the files
+`platform/tests/unit/kit/test_example.py` keeps this folder honest: no REPLACE marker is left, the files
 kept as copied still match the kit, and, when the boltons clone is present, the house-rule check
 passes on a rebuilt repository.

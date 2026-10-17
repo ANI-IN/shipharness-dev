@@ -4,7 +4,7 @@ Runbook for the S1 demo, in eight parts: what it shows, what to install, the che
 start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
 to do when it fails. Reference material (poll, code walkthrough, every pilot result, the emergency
 fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). Source and finding IDs are
-listed in [REFERENCES.md](../../../REFERENCES.md), which is generated when the course is released.
+listed in [docs/REFERENCES.md](../../docs/REFERENCES.md), which is generated when the course is released.
 Captured output and screenshots are labelled "captured on <date>, run <id>; your output will
 differ".
 
@@ -13,7 +13,7 @@ differ".
 ## 1. What this demo shows and why
 
 `make show-1` runs the harness arm alone, live, on F1 (`GET /issues`, org-wide issue search,
-`teamtrack/docs/features/f1.md`) with the instructions layer: an `AGENTS.md` map and an Agent Skill
+`platform/teamtrack/docs/features/f1.md`) with the instructions layer: an `AGENTS.md` map and an Agent Skill
 catalogue in its context, the focused docs on disk; the referee then checks tenant isolation (house
 rule R1) on what it shipped. It is not an A/B because the course pilot found no gap on F1 (no arm of
 either kind added an R1 violation in 10 runs each, section 11), so the section shows the map doing
@@ -38,14 +38,14 @@ flowchart LR
 ## 2. Prerequisites and dependencies
 
 The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
-step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
-[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
+step and say which ones were tested: [macOS](../../setup/macos.md) (not tested on a Mac),
+[Windows with WSL2](../../setup/windows.md), [Linux](../../setup/linux.md).
 
 | OS | Install (from the setup page) |
 |---|---|
 | macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
 | Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
-| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([linux.md](../../setup/linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
 
 Then, on every OS:
 
@@ -102,7 +102,7 @@ make: *** [Makefile:54: doctor] Error 1
 
 Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
 `container runtime` line starts with `+ ok`, and the last line is `result: + ready`
-(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+(`platform/src/shipharness/doctor.py`). The key check lists models and uses no tokens.
 
 **`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
 --images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
@@ -211,7 +211,7 @@ In class, read the pill and both times aloud, then switch screens:
   *Console screen 3 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
 
 - **Screen `2` (Boards)**: the board as an Acme user with "✓ only own-org cards, no duplicates". A
-  card is marked ⚠ when its `data-org` is not the viewer's org (`src/shipharness/console/board_capture.py`);
+  card is marked ⚠ when its `data-org` is not the viewer's org (`platform/src/shipharness/console/board_capture.py`);
   no arm of any real run leaked another org's cards, so the ⚠ marks never appeared (course pilot,
   class-profile round, 2026-10-17). F1 changes no board pixels, so there is one frame.
 
@@ -253,7 +253,7 @@ class session starts at $0.
 ## 6. What a result means
 
 **The verdict.** F1's primary measure fails a run when `r1_new_violations >= 1`: the referee calls
-every endpoint as an Acme user with Globex ids and expects 404 (`src/shipharness/checks/r1_tenant.py`).
+every endpoint as an Acme user with Globex ids and expects 404 (`platform/src/shipharness/checks/r1_tenant.py`).
 "primary verdict ready: PASS" means the shipped change added no new R1 violation; the existing
 `GET /v1/issues` leak is a baseline finding and does not count. The full verdict adds the secondary
 checks: hidden tests passed (of 52), referee mutants killed (of 4), the reviewer.
@@ -285,11 +285,11 @@ minute 7 and the full verdict near minute 13, well before the demo block at minu
 run the agent took 3 min 53 s (35 turns); the rest is the referee: R1 18 s after the run ended, the
 secondary checks 4 min 27 s more, the mutants and the review 1 min 22 s more.
 
-Caps (`.env.example`, `src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm,
+Caps (`.env.example`, `platform/src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm,
 `MAX_REVIEW_COST_USD` $0.04 per review, `MAX_SESSION_COST_USD` $2.50 for the class session,
 `RUN_TIMEOUT_S` 300 s of agent time, `HARNESS_TIMEOUT_S` 120 s of harness work, `TOOL_TIMEOUT_S`
 120 s per tool command. Fast-tier calls cost twice the Standard rate per token
-(`config/prices.toml`); the class profile changes effort, tier, and CPUs, not the caps.
+(`platform/config/prices.toml`); the class profile changes effort, tier, and CPUs, not the caps.
 
 ---
 
@@ -299,8 +299,8 @@ Caps (`.env.example`, `src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` 
 |---|---|---|
 | `make show-1` exits 2 before the arm starts: `x OpenAI refused the key: ...; no arm was started` | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY`, or a stand-in client; there is no fallback to a stand-in | Fix the key, rerun `make doctor` until `result: + ready`; if the API is down, section 12 |
 | The record line shows `ABORTED: timeout` (or `ABORTED: cap`) and the command exits 2 | The arm hit the 300 s agent time limit (`RUN_TIMEOUT_S`) or a cost cap | Keep it: aborted runs are judged and shown (a course rule). Read the primary verdict as usual |
-| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`), so it costs less and runs slower | Nothing to fix; start the demo block on the running page: the primary verdict pill comes before the full verdict |
-| The arm ends `ERROR` with `docker run failed: ...`, exit 1; or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` rebuilds missing images |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`platform/src/shipharness/cost/tracker.py`), so it costs less and runs slower | Nothing to fix; start the demo block on the running page: the primary verdict pill comes before the full verdict |
+| The arm ends `ERROR` with `docker run failed: ...`, exit 1; or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`platform/src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` rebuilds missing images |
 | `make console` fails with `address already in use` | Another console (or program) holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
 | `x SHIPHARNESS_CLASS_DATE is not set: ...`, exit 2 | `--purpose class` without the class day | Set it in `.env`; `make show-1 PURPOSE=pilot` traces to `shipharness-pilot` instead |
 
@@ -327,14 +327,14 @@ bare arm did as well (section 11 has the run logs).
 ## 10. Code walkthrough
 
 Ten minutes, while the run goes on. Print an anchor with
-`uv run python scripts/anchors.py extract <id>`:
+`uv run python platform/scripts/anchors.py extract <id>`:
 
 | Min | Open | Point at |
 |---|---|---|
-| 2 | `teamtrack/app/api/legacy_v1.py` (28 lines) and `teamtrack/app/repositories/issues.py` lines 19-26 and 53-55 | The legacy handler and its unscoped query, in the same file as the scoped `list_for_project` the agent should copy |
-| 3 | Anchor `S1:agents_md` (`teamtrack/harness/instructions/AGENTS.md`, lines 1-38 of 94) | The "Where to look" row for endpoints points to the skill; R1 "404, never 403"; below the anchor, "Do not copy" |
-| 2 | Anchor `S1:progressive` (`src/shipharness/runner/skills_loader.py`) | Tier 1 only (`catalogue_block`); tiers 2 and 3 load through `read_file`; `skill_for_path` reports the tier |
-| 3 | Anchor `S1:prefix` (`src/shipharness/harness/instructions/router.py`) | `build_prefix`: the map plus the catalogue, built from the course checkout, never from the workspace |
+| 2 | `platform/teamtrack/app/api/legacy_v1.py` (28 lines) and `platform/teamtrack/app/repositories/issues.py` lines 19-26 and 53-55 | The legacy handler and its unscoped query, in the same file as the scoped `list_for_project` the agent should copy |
+| 3 | Anchor `S1:agents_md` (`platform/teamtrack/harness/instructions/AGENTS.md`, lines 1-38 of 94) | The "Where to look" row for endpoints points to the skill; R1 "404, never 403"; below the anchor, "Do not copy" |
+| 2 | Anchor `S1:progressive` (`platform/src/shipharness/runner/skills_loader.py`) | Tier 1 only (`catalogue_block`); tiers 2 and 3 load through `read_file`; `skill_for_path` reports the tier |
+| 3 | Anchor `S1:prefix` (`platform/src/shipharness/harness/instructions/router.py`) | `build_prefix`: the map plus the catalogue, built from the course checkout, never from the workspace |
 
 ## 11. Pilot results
 

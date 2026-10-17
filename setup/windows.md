@@ -17,7 +17,7 @@ systemd on, Docker Engine 29.9.1 inside Ubuntu, the repository at `~/shipharness
 |---|---|
 | 1 WSL2 and Ubuntu | Installed; `wsl.exe -l -v` and `wsl.exe --version` ran on 2026-10-17 (output in step 1). `wsl --install` itself follows the official page |
 | 2 systemd | `/etc/wsl.conf` holds `[boot]` and `systemd=true`; `systemctl is-active docker` printed `active` (checked 2026-10-17) |
-| 3 to 7 | The Ubuntu commands of [setup-linux.md](setup-linux.md), with the status recorded there |
+| 3 to 7 | The Ubuntu commands of [linux.md](linux.md), with the status recorded there |
 
 ## 1. Install WSL2 with Ubuntu
 
@@ -88,7 +88,7 @@ https://learn.microsoft.com/en-us/windows/wsl/systemd (read 2026-10-17).
 
 ## 3. Tools, uv, and Docker Engine inside Ubuntu
 
-In the Ubuntu terminal, follow steps 1, 2, and 3 of [setup-linux.md](setup-linux.md) exactly: git,
+In the Ubuntu terminal, follow steps 1, 2, and 3 of [linux.md](linux.md) exactly: git,
 make, and curl from apt; uv from the official installer; Docker Engine from Docker's apt
 repository; then add your user to the `docker` group.
 
@@ -129,12 +129,12 @@ cross-filesystem path is felt on every run. The class host was tested only with 
 To open the folder in Windows Explorer, run `explorer.exe .` inside it; in the Explorer address bar,
 `\\wsl$` lists every distribution's files.
 
-What `make setup` does and how to check the tags: step 4 of [setup-linux.md](setup-linux.md).
+What `make setup` does and how to check the tags: step 4 of [linux.md](linux.md).
 
 ## 5. Keys in `.env`
 
 Edit `.env` from Ubuntu, for example with `nano .env`, and fill in `OPENAI_API_KEY` and
-`LANGSMITH_API_KEY` (step 5 of [setup-linux.md](setup-linux.md), including
+`LANGSMITH_API_KEY` (step 5 of [linux.md](linux.md), including
 `SHIPHARNESS_CLASS_DATE`). An editor on Windows can open the file through `\\wsl$`, but keep the file
 where it is.
 
@@ -145,7 +145,7 @@ make doctor
 ```
 
 Done when the last line is `result: + ready` and the `container runtime` line starts with `+ ok`.
-Example output and the meaning of each line: step 6 of [setup-linux.md](setup-linux.md).
+Example output and the meaning of each line: step 6 of [linux.md](linux.md).
 
 ## 7. `make up`, and the browser on Windows
 
@@ -169,4 +169,4 @@ The live console (`make console`) works the same way at http://127.0.0.1:8765/.
 | Everything is slow, or the repository path starts with `/mnt/c` | Clone again under `~` (step 4) |
 | The board does not open in the Windows browser | Make sure `make up` is still running in Ubuntu; try http://localhost:8000/board |
 
-More: [troubleshooting.md](troubleshooting.md).
+More: [troubleshooting.md](../docs/troubleshooting.md).

@@ -8,12 +8,15 @@ grader need no API key, network, or Docker, and the scores repeat. Then you run 
 live, with the course model (gpt-6-luna) through three forced stops, and submit that run's records.
 
 Planned effort (the course plan's estimate, not a measurement): 3 to 6 hours for a strong engineer,
-plus one live run. Source ids (A1-A7, F-a-NN) point to [REFERENCES.md](../../../REFERENCES.md).
+plus one live run. Source ids (A1-A7, F-a-NN) point to [docs/REFERENCES.md](../../docs/REFERENCES.md).
+
+The reference solution sits next to the starter, in [`solution/`](./solution/). Try the
+assignment first, then compare; the grader stays private.
 
 ## Objective
 
 Write `ResumableStateLayer`, a harness layer (a `BaseLayer` subclass,
-`src/shipharness/harness/base.py`) that writes, at every session stop, the state the next session
+`platform/src/shipharness/harness/base.py`) that writes, at every session stop, the state the next session
 needs, derived from evidence in the repository rather than from what the agent says it did. Then
 show that it works: `make check-assignment-2` passes on the visible scenarios, and one live run with
 gpt-6-luna (the required live step) goes through four sessions with your layer as the state layer.
@@ -60,12 +63,12 @@ already written, gives the next session that information without a search.
 - The S2 primary measure (registered before any run): a run fails continuity if R7 fails (heads ≠ 1
   or a fresh upgrade fails), a second migration creates the same table, or at least 30% of the lines
   session 1 added are removed in session 2 (`REDONE_THRESHOLD_PCT` in
-  `src/shipharness/checks/continuity.py`).
+  `platform/src/shipharness/checks/continuity.py`).
 
 Course design (not from a source): the step ledger, the rule that it is rebuilt from git at every
 stop, the test stand-in agent itself, and the four-session live task.
 
-The S2 code to read first, by walkthrough anchor (`uv run python scripts/anchors.py list`):
+The S2 code to read first, by walkthrough anchor (`uv run python platform/scripts/anchors.py list`):
 `S2:init` (init.sh), `S2:stop_resume` (session stop and resume), `S2:write` (session-log entry).
 
 ## The test stand-in agent
@@ -126,8 +129,8 @@ Then run the required live step once and keep its records in your folder (`live/
 - Section S2 in class (the state layer across a 12-turn session stop, [demo runbook](../demo/README.md))
   and the anchors above.
 - Python 3.12, uv, and git; `make setup` (or `uv sync --frozen`) done once.
-- Read all of `src/shipharness/harness/state/` and the layer hooks of `BaseLayer` in
-  `src/shipharness/harness/base.py`.
+- Read all of `platform/src/shipharness/harness/state/` and the layer hooks of `BaseLayer` in
+  `platform/src/shipharness/harness/base.py`.
 - For the live step only: both API keys in `.env`, Docker, and the checkpoints (`make doctor`
   passes).
 
@@ -149,7 +152,7 @@ Output, in the mini repository after the run:
 | working tree | clean: every harness write committed |
 
 The six `progress.md` sections, in this order (the initializer's template,
-`src/shipharness/harness/state/assets/progress.md`, has all six):
+`platform/src/shipharness/harness/state/assets/progress.md`, has all six):
 
 1. `# Progress`: the title, with one paragraph on how the file is used.
 2. `## Current feature`: the feature id and its description.
@@ -191,7 +194,7 @@ The six `progress.md` sections, in this order (the initializer's template,
 ## Constraints
 
 - Edit only `starter/a2_state/` (or a copy of it, passed with `A2_IMPL` / `--impl`). Do not edit
-  `a2_scenario/`, `check.py`, `live/`, or anything under `src/`.
+  `a2_scenario/`, `check.py`, `live/`, or anything under `platform/src/`.
 - Keep `context_prefix` byte-stable across sessions (it is part of the cached prompt prefix).
 - Run git in the sandbox; write workspace files with `shipharness.harness.state.files`.
 - No model calls and no network in the layer. The layer must work for any feature whose steps have
@@ -259,7 +262,7 @@ make check-assignment-2         # see the starter fail: "Self-check: 2 of 28 che
 ```
 
 To keep the starter untouched, copy it and point the commands at the copy:
-`cp -r submodules/02-state-lifecycle/assignment/starter my-a2`, then add `A2_IMPL=my-a2`.
+`cp -r 02-state-lifecycle/assignment/starter my-a2`, then add `A2_IMPL=my-a2`.
 
 ## How to run
 
@@ -267,7 +270,7 @@ To keep the starter untouched, copy it and point the commands at the copy:
 make check-assignment-2 [A2_IMPL=<folder>]   # visible scenarios and the live evidence status
 ```
 
-Without make: `uv run python submodules/02-state-lifecycle/assignment/check.py --impl <folder>`.
+Without make: `uv run python 02-state-lifecycle/assignment/check.py --impl <folder>`.
 `--keep` keeps the scenario repositories and prints their paths, so you can read the files your
 layer wrote. The required live step has its own command (section "Required live step").
 
@@ -277,7 +280,7 @@ layer wrote. The required live step has its own command (section "Required live 
 - Write unit tests for your ledger and progress helpers next to your code and run them with
   `uv run python -m pytest -q -p no:cacheprovider <your test folder>`.
 - Tests of the provided code: `uv run python -m pytest -q -p no:cacheprovider
-  submodules/02-state-lifecycle/assignment/tests`.
+  02-state-lifecycle/assignment/tests`.
 
 ## Expected behaviour
 
@@ -304,8 +307,8 @@ of `alembic heads`, so only three of the four heads appear after the count:
 
 ```
 $ make check-assignment-2
-uv run python submodules/02-state-lifecycle/assignment/check.py
-A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/assignment/starter
+uv run python 02-state-lifecycle/assignment/check.py
+A2 self-check: 2 visible scenarios against 02-state-lifecycle/assignment/starter
 ...
   session 2 (6 turns, ended by turn_budget): 3 reads, write S1 migrations/versions/c1a2_comments.py [REDO: S1 was committed in session 1], ...
 ...
@@ -314,7 +317,7 @@ A2 self-check: 2 visible scenarios against submodules/02-state-lifecycle/assignm
   FAIL no_duplicate_table: comments created by c1a1_comments.py, c1a2_comments.py, c1a3_comments.py, c1a4_comments.py
 ...
 Self-check: 2 of 28 checks pass.
-Live evidence (graded, 10 points): not found in submodules/02-state-lifecycle/assignment/starter/live.
+Live evidence (graded, 10 points): not found in 02-state-lifecycle/assignment/starter/live.
   Run the required live step once your layer is final (README).
 Fix the FAIL and HALF lines (the hints name the TODOs in a2_state), then run again.
 make: *** [Makefile:130: check-assignment-2] Error 1
@@ -358,7 +361,7 @@ redid less than 30% of earlier lines. `live_run` is all or nothing.
 The `live_run` checks read the files only; the grader never runs a model and needs no keys. It
 scores nothing from what the model did beyond these facts:
 
-- the files exist, each `scores/*.json` is a valid ScoreRecord (`src/shipharness/ab/score.py`,
+- the files exist, each `scores/*.json` is a valid ScoreRecord (`platform/src/shipharness/ab/score.py`,
   `checkpoint_sha` set), one per arm, named by its run id;
 - the run ids and the A/B id agree across `summary.json`, the score records, and `output.txt`, and
   `command.txt` names the live task (`--example F2-a2-four-sessions --layers instructions,state`);
@@ -367,7 +370,7 @@ scores nothing from what the model did beyond these facts:
 - `recorded` is false and `sandboxed` is true in both records;
 - each arm's `cost_usd` is at most the run cap ($0.20, `max_run_cost_usd`), and the command's
   `Cost: $...` line is at most $2.50 (`max_batch_cost_usd`), both in
-  `src/shipharness/config/settings.py`;
+  `platform/src/shipharness/config/settings.py`;
 - the harness record lists the `state` layer, and the layer that ran is your submitted
   `a2_state/`: `summary.json` holds a sha256 of its `.py` files, which must match the folder you
   submit.
@@ -400,14 +403,14 @@ task splits the same 50 build turns into [10, 10, 10, 20] (`LIVE_BUDGETS` in
 `a2_scenario/live_evidence.py`), and its ticket says "This task runs over four sessions." instead
 of two. Hidden tests, mutants, and the primary measure are unchanged. The runner starts the next
 build session when a session ends by its turn budget or by `finish(claim="not_done")`
-(`_next_session_runs` in `src/shipharness/runner/loop.py`) and emits a `session_stop` event after
+(`_next_session_runs` in `platform/src/shipharness/runner/loop.py`) and emits a `session_stop` event after
 each such session except the last. The live check counts a stop only when the session ended by its
 turn budget, so a valid run reaches session 4 after three forced stops.
 
 From the repository root, with keys, Docker, and the checkpoints (`make doctor` passes):
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 --forced-stops
+uv run python 02-state-lifecycle/assignment/live/run_live.py --impl my-a2 --forced-stops
 ```
 
 The wrapper writes `my-a2/live/task.jsonl`, registers your `ResumableStateLayer` as "state", and
@@ -426,7 +429,7 @@ again; each attempt costs up to $0.40 at the caps.
 
 This command calls OpenAI and LangSmith, so it was not run while this README was written (owner
 scope, 2026-10-17: the A2 reference live run is not captured); its
-options were checked with `uv run python submodules/02-state-lifecycle/assignment/live/run_live.py
+options were checked with `uv run python 02-state-lifecycle/assignment/live/run_live.py
 --help`. The course has no captured run of this step to show: the output format is the one
 described above, and your own run's output is saved in `my-a2/live/output.txt`.
 
@@ -447,7 +450,7 @@ The scenarios and the self-check make no model calls: $0 and 0 LangSmith traces.
 agent reports fixed token counts to the cost tracker, and nothing is sent anywhere.
 
 The required live step is one A/B: two arms, each capped at $0.20 (`max_run_cost_usd` in
-`src/shipharness/config/settings.py`), so at most $0.40, and 4 traces (2 per run: agent root and
+`platform/src/shipharness/config/settings.py`), so at most $0.40, and 4 traces (2 per run: agent root and
 referee evaluator). The optional variant below adds at most $0.80 and 8 traces, so A2 stays inside
 the course's learner budget for this assignment, $1.50 and 60 traces.
 
@@ -458,15 +461,15 @@ to see your progress file, plan, and handoff on other tickets. `live/run_live.py
 everything after `--` to the `shipharness` CLI:
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-reworded-pm --layers instructions,state --no-reviewer --purpose assignment
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-alt-a --layers instructions,state --no-reviewer --purpose assignment
+uv run python 02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-reworded-pm --layers instructions,state --no-reviewer --purpose assignment
+uv run python 02-state-lifecycle/assignment/live/run_live.py --impl my-a2 -- ab --example F2-alt-a --layers instructions,state --no-reviewer --purpose assignment
 ```
 
 At the caps each command costs at most $0.40. These commands call OpenAI and were not run while this
 README was written (owner scope, 2026-10-17: the A2 reference live run is not captured); `--example`, `--layers`, `--no-reviewer`, and `--purpose` are listed by `uv run
 shipharness ab --help`. A LangSmith experiment on the whole `section-2` split (`shipharness
 experiments --split section-2 --k 1`) runs 8 tasks in two arms, up to $3.20 at the caps, above the
-$2.50 limit per command (`max_batch_cost_usd` in `src/shipharness/config/settings.py`), so the
+$2.50 limit per command (`max_batch_cost_usd` in `platform/src/shipharness/config/settings.py`), so the
 variant uses `ab`.
 
 The live tickets have no step ids, so your ledger is empty there (also in the required live step):
@@ -505,6 +508,6 @@ change for tickets without step ids.
 ```
 
 "Continuity" is the S2 primary measure: the score record's `continuity_failure` and
-`redone_lines_pct` fields (`src/shipharness/ab/score.py`). It compares sessions 1 and 2 only
-(`src/shipharness/checks/continuity.py`); for sessions 3 and 4, read the session patches in
+`redone_lines_pct` fields (`platform/src/shipharness/ab/score.py`). It compares sessions 1 and 2 only
+(`platform/src/shipharness/checks/continuity.py`); for sessions 3 and 4, read the session patches in
 `.shipharness/runs/<ab id>/harness/sessions/`.

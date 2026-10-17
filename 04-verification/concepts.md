@@ -4,7 +4,7 @@ Reading time: about 15 minutes.
 
 "S4 Verification" is a course label. The ideas inside it come from published sources, cited by
 source ID and finding ID, for example (A3, F-a-110); every ID resolves in
-[REFERENCES.md](../../REFERENCES.md). Quotes are verbatim and short.
+[docs/REFERENCES.md](../docs/REFERENCES.md). Quotes are verbatim and short.
 
 Order: the problem in the bare run, its cause, the harness piece, how `shipharness` builds it, what
 the A/B measures, and what the course pilot measured.
@@ -16,7 +16,7 @@ the A/B measures, and what the course pilot measured.
 ### The task: F4, optimistic concurrency and issue history
 
 Both arms start from checkpoint `m1-s4-start` with the same F4 ticket (spec:
-`teamtrack/docs/features/f4.md`; allowed paths: `teamtrack/reference/f4/task.toml`).
+`platform/teamtrack/docs/features/f4.md`; allowed paths: `platform/teamtrack/reference/f4/task.toml`).
 `GET /issues/{issue_id}` returns `ETag: "<version>"`; writes accept an **optional**
 `If-Match: "<version>"` header, and a stale or malformed value gives 412 and changes nothing;
 `GET /issues/{issue_id}/history` lists the audit entries, oldest first; a stale save on the board
@@ -28,7 +28,7 @@ The header is optional, so a request without `If-Match` changes the issue exactl
 existing test keeps passing whether concurrency works or not, and so does a happy-path request. The
 bug shows only when two writers race on one issue. With previews on, the console shows that race:
 tab A saves, then tab B saves from its stale form (`capture_conflict` in
-`src/shipharness/console/board_capture.py`). If B wins, the board shows **✗ LOST UPDATE**; a 409,
+`platform/src/shipharness/console/board_capture.py`). If B wins, the board shows **✗ LOST UPDATE**; a 409,
 412, or 428 shows **✓ CONFLICT DETECTED**.
 
 ### What the bare arm does at the end
@@ -36,8 +36,8 @@ tab A saves, then tab B saves from its stale form (`capture_conflict` in
 The bare arm runs with `--layers none`. When it calls `finish(claim="done")`, nothing checks the
 claim and the phase ends on the agent's word (course design). The referee then judges the shipped
 diff in its own container against two counts the agent never saw: the 69 hidden tests in
-`teamtrack/tests/hidden/f4/` and the four referee-set mutants in
-`teamtrack/mutants/features/f4.jsonl`.
+`platform/teamtrack/tests/hidden/f4/` and the four referee-set mutants in
+`platform/teamtrack/mutants/features/f4.jsonl`.
 
 ### What the pilot showed on F4
 
@@ -120,7 +120,7 @@ container: visible tests, existing tests ("existing tests keep passing", interna
 A4, F-a-129), R1-R7, a board smoke check, and clean state. In the test phase it runs the visible
 tests and clean state only. A failure goes back to the agent as the `finish` result: a one-line
 summary, the first three failure lines, and "Fix these, commit your work, and call finish again."
-(`_feedback` in `src/shipharness/harness/verify/gate.py`), following A4's advice to put the reason
+(`_feedback` in `platform/src/shipharness/harness/verify/gate.py`), following A4's advice to put the reason
 on the same line as the error (A4, F-a-132) and keep the context small (A4, F-a-131).
 
 Only after the gate passes does the scope layer set `passes: true` (course design, explained in S3,
@@ -130,10 +130,10 @@ after A3, F-a-110).
 
 "House rules" is the course label for what A1 calls "golden principles" encoded "directly into the
 repository" (A1, F-a-99) and taste invariants enforced "with custom lints" (A1, F-a-96). Both arms
-can read the rules in `docs/HANDBOOK.md`. The checks in `src/shipharness/checks/` cover R1
+can read the rules in `docs/HANDBOOK.md`. The checks in `platform/src/shipharness/checks/` cover R1
 tenant isolation (foreign IDs get 404), R2 roles, R3 conventions, R4 idempotent creates, R5 one audit
 row per write, R6 layering, and R7 migrations, each counting **new** violations against the
-checkpoint baseline (`mark_baseline` in `src/shipharness/checks/base.py`).
+checkpoint baseline (`mark_baseline` in `platform/src/shipharness/checks/base.py`).
 
 ### 3.3 Five test filters
 
@@ -153,7 +153,7 @@ No source states filters 4 and 5. They guard against a test that asserts nothing
 code it claims to test, and a test phase that "fixes" the source until the new test passes.
 
 The filters judge only the tests proposed in the test phase
-(`src/shipharness/harness/verify/testphase.py`); tests written in the build phase ship without them.
+(`platform/src/shipharness/harness/verify/testphase.py`); tests written in the build phase ship without them.
 Every discard carries a reason: in A/B 3 of pilot run 2 the harness arm's one test-phase test stopped
 at filter 2 with `failed on run 1 of 5: assert None is not None` (captured on 2026-10-16, run
 ab-20261016-191626-6100f6, `test_filter_result` event; your output will differ). In `make demo-4`
@@ -169,11 +169,11 @@ line coverage." (B12, F-b-40).
 
 shipharness uses hand-written mutants applied one at a time (course design: mutmut cannot target
 chosen lines), split per file into a **filter set** (visible to filter 3) and a **referee set** (held
-out) that never share a mutation (`overlaps` in `src/shipharness/filters/mutant_sets.py`). F4's four
-referee mutants (`teamtrack/mutants/features/f4.jsonl`) target the risky lines:
+out) that never share a mutation (`overlaps` in `platform/src/shipharness/filters/mutant_sets.py`). F4's four
+referee mutants (`platform/teamtrack/mutants/features/f4.jsonl`) target the risky lines:
 `app.services.issues-m401` turns `issue.version += 1` into `+= 0`, so "stale If-Match values still
 match (lost update)". A kill counts only with shipped tests that pass on the arm's unmutated build
-(`_passing_unmutated` in `src/shipharness/ab/referee.py`), so a broken test cannot "kill" anything.
+(`_passing_unmutated` in `platform/src/shipharness/ab/referee.py`), so a broken test cannot "kill" anything.
 
 ### 3.5 The blinded reviewer with grading criteria
 
@@ -184,7 +184,7 @@ a secondary measure; the deterministic referee decides the primary counts.
 
 A3 grades against "grading criteria" (A3, F-a-114) with a hard threshold each (A3, F-a-119). The
 course reviewer takes its criteria from the harness's `docs/SECURITY.md` and `ARCHITECTURE.md`
-(`src/shipharness/reviewer/criteria.py`), the same for both arms. "Blinded" is A/B design, not a
+(`platform/src/shipharness/reviewer/criteria.py`), the same for both arms. "Blinded" is A/B design, not a
 source term: the reviewer sees the ticket and a diff with every arm-identifying trace removed, and
 runs on both final diffs, never inside the gate (course design).
 
@@ -234,14 +234,14 @@ sequenceDiagram
 
 ### Code to open (walkthrough anchors)
 
-`uv run python scripts/anchors.py extract <id>` prints each anchor.
+`uv run python platform/scripts/anchors.py extract <id>` prints each anchor.
 
 | Anchor | File and lines | What to point at |
 |---|---|---|
-| `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result has a reason |
-| `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | 404 expected for a foreign id; a 2xx with Globex data is a leak |
-| `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | Harness artifacts, commit metadata, workspace paths, run ids removed |
-| `S4:gate` | `src/shipharness/harness/verify/gate.py:143-184` | Pending pills first; items in the arm container; feedback only on failure |
+| `S4:filters` | `platform/src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result has a reason |
+| `S4:probe` | `platform/src/shipharness/checks/r1_tenant.py:65-104` | 404 expected for a foreign id; a 2xx with Globex data is a leak |
+| `S4:blind` | `platform/src/shipharness/reviewer/blind.py:15-39` | Harness artifacts, commit metadata, workspace paths, run ids removed |
+| `S4:gate` | `platform/src/shipharness/harness/verify/gate.py:143-184` | Pending pills first; items in the arm container; feedback only on failure |
 
 The gate's check list, `GATE_CHECKS` (`gate.py`, lines 33-43), names R1-R7, `regression`, and
 `board`: no hidden tests and no mutants.
@@ -259,7 +259,7 @@ For F4, two counts per run, each shown as one dot per run per arm:
 2. **Referee-set mutants killed by the shipped tests**, of 4 (`mutants_killed` of `mutants_total`).
 
 Results are counts, never percentages. A run passes the primary only when every hidden test passes
-and every referee mutant is killed (`evaluate_primary` in `src/shipharness/ab/score.py`). Secondary
+and every referee mutant is killed (`evaluate_primary` in `platform/src/shipharness/ab/score.py`). Secondary
 measures come from the same `ScoreRecord`: existing tests, new R1-R7 violations, board check,
 shipped and flaky tests, reviewer verdict and `reviewer_agrees`, "agent said" versus the referee,
 cost, turns, and wall time.
@@ -289,7 +289,7 @@ in the course's words: the agent's "done" and its own tests cannot be trusted. I
 
 After run 2 the course changed the harness arm only: state files are updated only in the wrap-up
 turns, and a test-phase session opens with "write the tests for the feature first"
-(`TEST_PHASE_FIRST` in `src/shipharness/harness/state/lifecycle.py`; course wording).
+(`TEST_PHASE_FIRST` in `platform/src/shipharness/harness/state/lifecycle.py`; course wording).
 
 ### 6.2 Run 3: the primary measure
 

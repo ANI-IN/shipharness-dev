@@ -15,11 +15,11 @@ Reference solution and hidden grader for assignment A4 (brief: `../assignment/RE
 | `grader/tests/` | Tests for the grader, the self-check, the live-evidence checks, and the portfolio checks (synthetic fixture in `live_fixture.py`, never a real run; the reference solution's own `live/` and `portfolio/` are graded as they are) |
 | `captured/` | Real output of the self-check, the grader, and R8 on TeamTrack (each file starts with its capture date, command, and commit) |
 
-Run the grader on this folder: `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution`
-(or `uv run python submodules/04-verification/solution/grader/grade.py`). It scores 100/100
+Run the grader on this folder: `make grade-assignment-4 SUBMISSION=04-verification/assignment/solution`
+(or `uv run python 04-verification/assignment/solution/grader/grade.py`). It scores 100/100
 (`captured/grade-solution.txt`), every criterion on real work: live-evidence (10) on the captured
 run in `live/`, and the three portfolio criteria (5 + 2 + 3) on pages filled from that run.
-Grade a submission: `uv run python submodules/04-verification/solution/grader/grade.py --impl
+Grade a submission: `uv run python 04-verification/assignment/solution/grader/grade.py --impl
 <submission folder>` (the implementation folder with its `live/`, or a checkout of the course repo).
 The grader treats this folder like any submission: a PENDING marker in `portfolio/` or a
 `live/` without evidence fails the portfolio and live-evidence criteria here too.

@@ -5,7 +5,7 @@ Test Generation at Meta". arXiv 2501.12862, 2025-01-22; submitted to the FSE 202
 https://arxiv.org/abs/2501.12862
 
 Summary in our own words; quotes are marked, and their finding ids (F-b-29 to F-b-41) are listed
-in `REFERENCES.md` at the repository root.
+in `docs/REFERENCES.md` in the course repository.
 
 ## What it does
 

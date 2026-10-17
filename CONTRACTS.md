@@ -1,7 +1,7 @@
 # CONTRACTS
 
 Interfaces between shipharness components. Builders in M4 code against these; a change to any contract
-needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
+needs a CONTRACTS.md edit in the same commit and a note in docs/CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
 Contract version: `1.7` (2026-10-17: §25 records the constructed examples; where §25 and an
@@ -76,7 +76,7 @@ brief; no prefix.
 
 ## 2. Prices
 
-`config/prices.toml`:
+`platform/config/prices.toml`:
 
 ```toml
 # USD per 1M tokens. verified = access date of the source page.
@@ -666,7 +666,7 @@ class Mutant(BaseModel):
 def run_mutant(m: Mutant, tests: list[str], workdir: Path, sandbox: Sandbox, timeout_s: int) -> Literal["killed", "survived", "timeout", "error"]: ...
 ```
 
-Mutant files: `teamtrack/mutants/<module>.jsonl` and `datasets/mutants/<library>/<module>.jsonl`, one
+Mutant files: `platform/teamtrack/mutants/<module>.jsonl` and `platform/datasets/mutants/<library>/<module>.jsonl`, one
 Mutant per line. A mutant whose `original` text does not match the line is an error at load time.
 
 ---
@@ -718,7 +718,7 @@ becomes true.
 
 ## 16. Datasets
 
-### 16.1 `datasets/teamtrack-features-v1.jsonl`
+### 16.1 `platform/datasets/teamtrack-features-v1.jsonl`
 
 ```json
 {
@@ -740,12 +740,12 @@ becomes true.
 }
 ```
 
-### 16.2 `datasets/testgen-targets-v1.jsonl`
+### 16.2 `platform/datasets/testgen-targets-v1.jsonl`
 
 ```json
 {
   "inputs": {"target_id": "TG-boltons-mathutils", "repo": "boltons", "pin": "26.2.0", "module": "boltons/mathutils.py", "existing_tests": ["tests/test_mathutils.py"]},
-  "outputs": {"filter_mutants": "datasets/mutants/boltons/mathutils.jsonl#filter", "referee_mutants": "datasets/mutants/boltons/mathutils.jsonl#referee", "known_failures": []},
+  "outputs": {"filter_mutants": "platform/datasets/mutants/boltons/mathutils.jsonl#filter", "referee_mutants": "platform/datasets/mutants/boltons/mathutils.jsonl#referee", "known_failures": []},
   "metadata": {"source": "library", "license": "BSD-3-Clause"},
   "split": ["testgen"]
 }
@@ -753,7 +753,7 @@ becomes true.
 
 Validation: `shipharness datasets validate` and `make datasets` check every line against these models,
 then against the course repository (`shipharness.datasets.check_file`): the checkpoint is in
-`teamtrack/reference/checkpoints.toml`; every hidden test id exists and is not parametrized; the mutant set
+`platform/teamtrack/reference/checkpoints.toml`; every hidden test id exists and is not parametrized; the mutant set
 resolves to a non-empty referee set; the primary measure parses against `ScoreRecord` and matches the
 registered one; group counts (7 + 21 + 8 + 9 + 7 + 8 = 60; 20 + 10 + 10 = 40), split sizes, and unique ids.
 Upload refuses to add examples to a LangSmith dataset that already has them (a new version gets a new
@@ -761,12 +761,12 @@ dataset name).
 
 Ids and names (M5): hidden test ids are relative to the TeamTrack root, as the referee mounts them
 (`tests/hidden/<task>/test_<task>_*.py::test_*`). `mutant_set` is a comma-separated list of names under
-`teamtrack/mutants/` (module files such as `app.services.issues`, or `features/<task>`). Library mutant
-files are `datasets/mutants/<library>/<module path below the package, dotted>.jsonl`; kills are recorded
-in `datasets/mutants/validation.json`. Splits: `smoke` (6), `section-1` to `section-4` (8 each),
+`platform/teamtrack/mutants/` (module files such as `app.services.issues`, or `features/<task>`). Library mutant
+files are `platform/datasets/mutants/<library>/<module path below the package, dotted>.jsonl`; kills are recorded
+in `platform/datasets/mutants/validation.json`. Splits: `smoke` (6), `section-1` to `section-4` (8 each),
 `extended` (the other 26), `testgen` (40). Feature metadata keys: `group`, `example_id`, `control`,
 `section`, `title`, `description`, `style`, `trap`, `trap_detail`, `stop`, `first_session_share`,
-`base_checkpoint`. Library targets need the pinned sources: `uv run python scripts/fetch_testgen_libs.py`
+`base_checkpoint`. Library targets need the pinned sources: `uv run python platform/scripts/fetch_testgen_libs.py`
 (network; clones into `.shipharness/libs/`).
 
 ---
@@ -830,7 +830,7 @@ Tags: `section-N` or `batch-N`, arm, `class` or `experiment` or `assignment`.
 ```
 
 Markdown and shell files use their comment syntax (`<!-- [walkthrough:S1:agents_md] start -->`).
-`scripts/anchors.py extract <id>` prints the lines; slides and docs include them by ID. A unit test fails
+`platform/scripts/anchors.py extract <id>` prints the lines; slides and docs include them by ID. A unit test fails
 if an anchor in DESIGN.md §14.2 is missing, unbalanced, or longer than 40 lines.
 
 ---
@@ -838,7 +838,7 @@ if an anchor in DESIGN.md §14.2 is missing, unbalanced, or longer than 40 lines
 ## 20. Secrets
 
 - Keys live only in `.env` at the repo root (created from `.env.example`) or in the process
-  environment. `.env` is in `.gitignore`; `tests/unit/test_secrets.py` fails if `.env` is tracked by git
+  environment. `.env` is in `.gitignore`; `platform/tests/unit/test_secrets.py` fails if `.env` is tracked by git
   and fails if any tracked file contains a string matching an OpenAI or LangSmith key pattern.
 - `Settings` holds keys as `pydantic.SecretStr`. `repr`, `str`, logs, events, run logs, exports, traces,
   and error messages never contain a key value. structlog has a processor that redacts any value of a
@@ -904,7 +904,7 @@ Built by the seven M4 builders against the builder contract
   target_module, python, timeout_s, runs)`.
 - `run_pipeline(cands, ctx, bus, *, filters, run_id, arm, phase)`; `run_mutant(..., python=)`.
 - `Mutant.target` is the dotted module (`app.services.issues`); ids `<target>-m<n>`; files
-  `teamtrack/mutants/<target>.jsonl`. The verify layer's test phase builds the context with the tests that
+  `platform/teamtrack/mutants/<target>.jsonl`. The verify layer's test phase builds the context with the tests that
   existed at phase start and phase-start fingerprints restricted to source files.
 - `shipharness testgen [--target <id>] --repo --module [--layers none|verify] [--max-tests N]
   [--sandbox local|docker] [--image] [--tests] [--python] [--out]` (`--repo` and `--module` are
@@ -915,9 +915,9 @@ Built by the seven M4 builders against the builder contract
   `DockerSandbox`; mounts inside `/work` must be `ro`, and nothing may cover `/work` itself.
 - `ab/artifacts.py: HARNESS_ARTIFACT_PATTERNS` (DESIGN D-18). Referee-set mutants load by
   `mutant_set` (`ab/mutants.py: referee_mutants`, used by the A/B, the swap test, replay, and
-  experiments; names resolve to `teamtrack/mutants/<name>.jsonl`; DESIGN D-21). Only shipped tests that
+  experiments; names resolve to `platform/teamtrack/mutants/<name>.jsonl`; DESIGN D-21). Only shipped tests that
   pass on the arm's unmutated build judge mutants.
-- Before judging, the referee restores the checkpoint's `conftest.py`, `tests/conftest.py`, `pytest.ini`,
+- Before judging, the referee restores the checkpoint's `conftest.py`, `platform/tests/conftest.py`, `pytest.ini`,
   `setup.cfg`, `tox.ini`, and `pyproject.toml`, and removes anything the arm put under `tests/hidden`.
   Regression covers the checkpoint's existing tests only: the referee sends `regression_targets` and
   `regression_expected` as the checkpoint's visible test ids (`file::name`, which runs every parameter).
@@ -952,27 +952,27 @@ Built against `instructor/engineering-notes/2026-10-16-m5-builder-contract.md` (
 are folded in here) and the owner's pre-M6 decisions.
 
 **Tasks and checkpoints**
-- Task manifest `teamtrack/reference/<task>/task.toml` (`f1`-`f7`, `c1`-`c8`): `id`, `title`, `section`,
+- Task manifest `platform/teamtrack/reference/<task>/task.toml` (`f1`-`f7`, `c1`-`c8`): `id`, `title`, `section`,
   `start_checkpoint`, `primary_measure`, `mutant_set`, `session_budget`, `canonical_ticket`,
   `[allowed_paths]` (`build`, `test`), `[hidden]` (hidden test files per checkpoint where the task runs).
   Reference code: `<task>.patch` against the start checkpoint, plus `<task>.<checkpoint>.patch` where the
   default does not apply. Never exported into an arm workspace.
-- `teamtrack/reference/checkpoints.toml`: each checkpoint is the base product plus an ordered list of
-  reference tasks. Main's `teamtrack/app` stays the base product. `scripts/build_checkpoints.py` creates one
+- `platform/teamtrack/reference/checkpoints.toml`: each checkpoint is the base product plus an ordered list of
+  reference tasks. Main's `platform/teamtrack/app` stays the base product. `platform/scripts/build_checkpoints.py` creates one
   commit per checkpoint (parent: the current main commit, on no branch) and tags it: `m1-s1-start`,
   `m1-s2-start` (+F1), `m1-s3-start` (+F1, F2), `m1-s4-start` (+F1-F3), `m1-final-start` (+F1-F4),
   `m1-complete` (+F1-F7), `m1-alt-a` (+F5, F6), `m1-alt-b` (+F7). `shipharness.ab.checkpoints`:
   `load_checkpoints`, `materialize`, `apply_reference`, `load_task`, `build_commits`.
-- Product specs: `teamtrack/docs/features/<task>.md` (both arms) and an identical copy in the harness map
+- Product specs: `platform/teamtrack/docs/features/<task>.md` (both arms) and an identical copy in the harness map
   (`docs/product-specs/<task>.md`); a parity test asserts byte equality.
-- Hidden tests use `teamtrack/tests/hidden/conftest.py` (`client`, `acme`, `globex`) and
+- Hidden tests use `platform/teamtrack/tests/hidden/conftest.py` (`client`, `acme`, `globex`) and
   `from hidden_support import auth, error_code`; never `conftest` or `tests/visible`. File names are unique
   across tasks (`test_<task>_*.py`); no parametrized hidden tests. At least 90% of a task's hidden tests
   fail on its start checkpoint (the rest live in `test_<task>_guards.py`); combined-feature tests
   (`test_<task>_with_<other>.py`) are listed only where the other feature exists.
 - Primary measures: F1 `r1_new_violations>=1`; F2 `continuity_failure`; F3
   `out_of_scope_files>=1 or test_phase_source_edits>=1`; F4 `hidden_passed,mutants_killed`; F5-F7 and
-  controls `""`. Feature mutant files `teamtrack/mutants/features/<task>.jsonl`: every referee mutant
+  controls `""`. Feature mutant files `platform/teamtrack/mutants/features/<task>.jsonl`: every referee mutant
   applies at the start checkpoint and is killed by the reference's visible tests.
 
 **Runner, cost, and time**
@@ -993,8 +993,8 @@ are folded in here) and the owner's pre-M6 decisions.
 - `continuity` counts only `params.run_id`'s `session_stop` events (the A/B log holds both arms).
 - Board preview containers mount the arm workspace read-only (`SandboxPolicy.workspace_read_only`).
 - Export inspection: an arm workspace holds only checkpoint product files and one checkpoint commit
-  (`tests/unit/ab/test_export_inspection.py`); files in `exports/` never carry keys or host paths
-  (`tests/unit/test_exports_no_secrets.py`).
+  (`platform/tests/unit/ab/test_export_inspection.py`); files in `exports/` never carry keys or host paths
+  (`platform/tests/unit/test_exports_no_secrets.py`).
 
 **A/B, console, testgen, Make**
 - `run_ab(..., section=...)`; `ab.json` records `section`. `shipharness ab --swap latest --section
@@ -1008,7 +1008,7 @@ are folded in here) and the owner's pre-M6 decisions.
   `RecordedDeps` has no `checkpoint_ref`. `Referee.judge(..., log_run_id=)` names the run whose events the
   run log holds; swap and replay pass the original run id. `ab --swap/--replay` and `replay` print one
   line and exit 2 when nothing matches or the record is unpinned.
-- `scripts/build_checkpoints.py`: `--force` moves existing tags only while no recorded result exists
+- `platform/scripts/build_checkpoints.py`: `--force` moves existing tags only while no recorded result exists
   (`<RUNS_DIR>/*/ab.json`, any `*.json` under `EXPORTS_DIR`); `--owner-approved-move` moves them and
   prints `moved <tag>: <old> -> <new>`; `--dry-run` reports would-move tags and recorded results.
 - `shipharness testgen --target <id> [--targets-file f]` fills repo, module, existing tests, the filter
@@ -1095,10 +1095,10 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   it; `Runtime.profile`, `ABDeps.profile`, `AgentRunSpec.profile` (default `"standard"`), and `ab.json`
   `profile` record it; every console screen header shows `profile: <name>`. `shipharness ab --profile
   standard|class` (default standard); the Makefile's `PROFILE ?= class` reaches demo-N, show-N, final,
-  and warm; `scripts/pilot.py --profile` (default standard) passes it to every A/B.
+  and warm; `platform/scripts/pilot.py --profile` (default standard) passes it to every A/B.
 - `Settings.sandbox_cpus: float = 1.0` (`SANDBOX_CPUS`, in `freeze.RUN_SETTINGS`); `default_policy`
   sets `SandboxPolicy.cpus` from it, so arm, referee, and preview containers get the same limit.
-- Fast tier: `OPENAI_SERVICE_TIER` accepts `fast`. `config/prices.toml` holds Fast rates in a
+- Fast tier: `OPENAI_SERVICE_TIER` accepts `fast`. `platform/config/prices.toml` holds Fast rates in a
   `[models."<model>".fast]` table (gpt-6-luna: 0.20 / 0.02 / 0.25 / 1.00 per 1M tokens, source
   https://developers.openai.com/api/docs/pricing, verified 2026-10-17). `Prices.get(model, tier=None)`
   returns Fast rates for `tier == "fast"` (UnknownModelPrice without a Fast table) and Standard rates
@@ -1121,7 +1121,7 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   first arm that runs. `make show-N`: `shipharness ab --section demo-N --feature FN --arms harness
   $(LAYERS_OPT) --purpose $(PURPOSE) --profile $(PROFILE)`.
 - Warm-up (`shipharness.ab.warm`, `shipharness warm`, `make warm`; no model calls):
-  `image_source_digest(root)` hashes `sandbox/Dockerfile`, `pyproject.toml`, `uv.lock`, and `src/`
+  `image_source_digest(root)` hashes `platform/sandbox/Dockerfile`, `pyproject.toml`, `uv.lock`, and `platform/src/`
   (without caches); `plan_images(images, digest, stamp, image_id)` builds an image that is missing,
   has no stamp, has a changed source, or was replaced since; the stamp is
   `<RUNS_DIR>/../cache/images.json` (`{image: {source, id}}`), and the build runs the existing
@@ -1143,7 +1143,7 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   what it demonstrates, and `SCENARIO: Scenario(section, feature, title, demonstrates, steps,
   session_budget=None)`; `SCENARIOS` maps demo-N to its scenario; `CONSTRUCTED_BADGE = "CONSTRUCTED
   EXAMPLE: scripted steps, no model"`. Steps are `ScriptedModelClient` steps with zero usage
-  (`examples.base.act`); in-scope code may come from `teamtrack/reference/<f>/<f>.patch`
+  (`examples.base.act`); in-scope code may come from `platform/teamtrack/reference/<f>/<f>.patch`
   (`reference_patch(feature, paths)`). demo-2 overrides the build-session budget to `(3, 4)`.
 - `examples.run.run_example(scenario, task, deps, *, cost=None, ab_id=None)` calls
   `run_ab(..., arms=("harness",), constructed=True)` with the section's layers

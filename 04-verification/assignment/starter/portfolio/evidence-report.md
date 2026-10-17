@@ -25,7 +25,7 @@ copies.
 
 ## R8 on TeamTrack
 
-TODO: the `run_r8` result on `teamtrack/` (probes, findings), and what happens with `--baseline`.
+TODO: the `run_r8` result on `platform/teamtrack/` (probes, findings), and what happens with `--baseline`.
 
 ## Limits
 

@@ -2,7 +2,7 @@
 
 The reference solution for assignment A1 and its grader. Learners do not need anything here to do
 the assignment, and this folder stays in the build repository until the review session; the brief
-is [../assignment/README.md](../assignment/README.md).
+is [../assignment/README.md](../../README.md).
 
 | Path | What it is |
 |---|---|
@@ -16,16 +16,16 @@ is [../assignment/README.md](../assignment/README.md).
 Commands (repository root):
 
 ```bash
-make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work
-make check-assignment-1 A1_WORK=submodules/01-instructions/solution/work
-uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/grader/tests
-uv run python -m pytest -q -p no:cacheprovider submodules/01-instructions/solution/work/checker
+make grade-assignment-1 SUBMISSION=01-instructions/assignment/solution/work
+make check-assignment-1 A1_WORK=01-instructions/assignment/solution/work
+uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/solution/grader/tests
+uv run python -m pytest -q -p no:cacheprovider 01-instructions/assignment/solution/work/checker
 ```
 
 Grading a submission: `make grade-assignment-1 SUBMISSION=<folder or git URL>` (instructor only).
 It runs `grader/grade.py --work <submission>`; the submission is the learner's work folder, or a
-checkout of their repository (the grader then uses `submodules/01-instructions/assignment/starter`
-inside it). A git URL is cloned shallow first (`scripts/grade_assignment.py`).
+checkout of their repository (the grader then uses `01-instructions/assignment/starter`
+inside it). A git URL is cloned shallow first (`platform/scripts/grade_assignment.py`).
 
 The reference scores 83.0/100 (`captured/grade-solution.txt`): the five points for the A/B values
 (criterion E) and the twelve points of criterion F (live run evidence) are not awarded, because the

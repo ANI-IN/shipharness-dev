@@ -4,7 +4,7 @@ Runbook for the S2 demo, in eight parts: what it shows, what to install, the che
 start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
 to do when it fails. Reference material (poll, code walkthrough, every pilot result, the emergency
 fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). Source ids (A1-A7, F-a-NN)
-point to [REFERENCES.md](../../../REFERENCES.md). Captured output and screenshots are labelled
+point to [docs/REFERENCES.md](../../docs/REFERENCES.md). Captured output and screenshots are labelled
 "captured on <date>, run <id>; your output will differ".
 
 ---
@@ -12,7 +12,7 @@ point to [REFERENCES.md](../../../REFERENCES.md). Captured output and screenshot
 ## 1. What this demo shows and why
 
 `make show-2 SESSION_BUDGET=12,38` runs the harness arm alone, live, on F2 (comments on issues,
-[teamtrack/docs/features/f2.md](../../../teamtrack/docs/features/f2.md)) with the instructions and
+[platform/teamtrack/docs/features/f2.md](../../platform/teamtrack/docs/features/f2.md)) with the instructions and
 state layers: the first session stops after 12 turns, the state layer writes the handoff, and a fresh
 38-turn session resumes from it; the referee then checks whether session 2 broke or redid session 1's
 work. It is not an A/B because the course pilot found no gap on this task (no continuity failure in
@@ -20,7 +20,7 @@ either arm in runs 3 and 4 or the class-profile round, section 11), so the secti
 layer doing its job, live, and leaves the comparison to the pilot results on screen 4.
 
 The task starts from checkpoint `m1-s2-start` (base + F1). Its session turn budget is `[20, 30]`
-([teamtrack/reference/f2/task.toml](../../../teamtrack/reference/f2/task.toml)); `SESSION_BUDGET=12,38`
+([platform/teamtrack/reference/f2/task.toml](../../platform/teamtrack/reference/f2/task.toml)); `SESSION_BUDGET=12,38`
 moves the stop to turn 12. The session turn budget is the course's mechanism, not a source term; it
 produces A3's context reset at a fixed point (A3, F-a-65). A session that "begins with no memory of
 what came before." (A2, F-a-08) has to work out what session 1 did. On F2 a wrong guess is visible: a
@@ -48,14 +48,14 @@ sequenceDiagram
 ## 2. Prerequisites and dependencies
 
 The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
-step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
-[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
+step and say which ones were tested: [macOS](../../setup/macos.md) (not tested on a Mac),
+[Windows with WSL2](../../setup/windows.md), [Linux](../../setup/linux.md).
 
 | OS | Install (from the setup page) |
 |---|---|
 | macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
 | Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
-| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([linux.md](../../setup/linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
 
 Then, on every OS:
 
@@ -112,7 +112,7 @@ make: *** [Makefile:54: doctor] Error 1
 
 Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
 `container runtime` line starts with `+ ok`, and the last line is `result: + ready`
-(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+(`platform/src/shipharness/doctor.py`). The key check lists models and uses no tokens.
 
 **`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
 --images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
@@ -311,12 +311,12 @@ In class, a launch at section minute 3 at the quiet-machine pace gives the prima
 minute 10 and the full verdict near minute 13, well before the demo block at minute 30. In the quiet
 run the agent's 43 turns hit the time limit, and the run ended at 6:35 after the session 2 handoff.
 
-Caps (`src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm, `MAX_REVIEW_COST_USD`
+Caps (`platform/src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm, `MAX_REVIEW_COST_USD`
 $0.04 per review, `MAX_SESSION_COST_USD` $2.50 for the class session, `RUN_TIMEOUT_S` 300 s of agent
 time, `HARNESS_TIMEOUT_S` 120 s of harness work, `TOOL_TIMEOUT_S` 120 s per tool command. Harness
 work runs on its own clock after the agent's turns: each session-end handoff runs the visible suite
 (about 31-34 s on the class host, class-profile round). Fast-tier calls cost twice the Standard rate
-per token (`config/prices.toml`); the caps do not change.
+per token (`platform/config/prices.toml`); the caps do not change.
 
 ---
 
@@ -324,12 +324,12 @@ per token (`config/prices.toml`); the caps do not change.
 
 | Symptom | Cause (from the code) | Fix |
 |---|---|---|
-| Exits 2 before the arm starts: `x OpenAI refused the key: ...; no arm was started` | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY`, or a stand-in client; there is no fallback to a recording (`tests/unit/ab/test_commands.py`) | Fix the key, rerun `make doctor` until `result: + ready`; if the API is down, section 12 |
+| Exits 2 before the arm starts: `x OpenAI refused the key: ...; no arm was started` | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY`, or a stand-in client; there is no fallback to a recording (`platform/tests/unit/ab/test_commands.py`) | Fix the key, rerun `make doctor` until `result: + ready`; if the API is down, section 12 |
 | The record line shows `ABORTED: timeout` (or `ABORTED: cap`) and the command exits 2 | The 300 s agent time limit (`RUN_TIMEOUT_S`), the harness time limit, or a cost cap | The referee still judges the run. In run 3, two of three F2 harness arms hit the agent time limit (section 11). Say so and go on |
 | No "Session 1 stopped" marker | The agent called `finish(claim="done")` in session 1, or the run hit a cap or the time limit | Say the arm never faced the reset; the pilot table in section 11 shows runs that did |
 | The first session runs 20 turns, not 12 | `SESSION_BUDGET=12,38` was left out | Let it run (the stop still happens, at turn 20); pass it next time |
-| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`) | Nothing to fix; start the demo block on the running page |
-| The arm ends `ERROR` with `docker run failed: ...`, exit 1; or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`platform/src/shipharness/cost/tracker.py`) | Nothing to fix; start the demo block on the running page |
+| The arm ends `ERROR` with `docker run failed: ...`, exit 1; or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`platform/src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` |
 | `make console` fails with `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
 | The session cap blocks the command | `MAX_SESSION_COST_USD` counted from `.shipharness/ledger.jsonl` | Stop live runs; the session cap is reached |
 
@@ -362,16 +362,16 @@ file would you keep for this model, and how would you measure it?"
 
 ## 10. Code walkthrough
 
-Minutes 20-30. Print each anchor with `uv run python scripts/anchors.py extract <id>`:
+Minutes 20-30. Print each anchor with `uv run python platform/scripts/anchors.py extract <id>`:
 
 | Anchor | File | Show |
 |---|---|---|
-| `S2:init` | `src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, one end-to-end test file with `-x` |
-| `S2:stop_resume` | `src/shipharness/harness/state/lifecycle.py` (lines 95-134) | `session_stop`: machine summary, handoff merge, progress entry, commit; `resume_text` |
-| `S2:write` | `src/shipharness/harness/state/progress.py` (lines 11-37) | `session_entry` and `append_session_entry` (restores the heading) |
+| `S2:init` | `platform/src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, one end-to-end test file with `-x` |
+| `S2:stop_resume` | `platform/src/shipharness/harness/state/lifecycle.py` (lines 95-134) | `session_stop`: machine summary, handoff merge, progress entry, commit; `resume_text` |
+| `S2:write` | `platform/src/shipharness/harness/state/progress.py` (lines 11-37) | `session_entry` and `append_session_entry` (restores the heading) |
 
 Also worth a glance: `getting_up_to_speed` and `wrapup_text` at the top of `lifecycle.py`, and
-`NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py` (the sentence both arms get). In the pilot's
+`NEUTRAL_RESUME` in `platform/src/shipharness/runner/prompts.py` (the sentence both arms get). In the pilot's
 A/Bs the bare arm got the same ticket, the same sentences at the stop ("This session is ending soon.
 Turns left in this session: 3." and "A previous session worked on this ticket and was stopped."),
 and the R7 rule in `docs/HANDBOOK.md`, with none of the state files.
@@ -456,7 +456,7 @@ arm of `ab-20261016-214959-de790f` (run 3), and in run 4 (effort low) in all thr
 harness arm of `ab-20261016-234027-226a76`, after 9 to 12 turns.
 
 The fix, for both arms: before the last build session, `finish(claim="not_done")` ends only that
-session; the next one starts as after a spent turn budget. From `src/shipharness/runner/loop.py`,
+session; the next one starts as after a spent turn budget. From `platform/src/shipharness/runner/loop.py`,
 lines 99-104:
 
 ```python
@@ -468,7 +468,7 @@ def _next_session_runs(phase: Phase, ended_by: str) -> bool:
     return ended_by == "turn_budget" or (phase == "build" and ended_by == "claim_not_done")
 ```
 
-Its tests are in `tests/unit/test_loop.py`
+Its tests are in `platform/tests/unit/test_loop.py`
 (`test_not_done_before_the_last_build_session_ends_only_that_session` and the two tests after it).
 If the live run's session 1 ends with `finish(claim="not_done")`, session 2 still starts and the stop
 marker shows `ended_by` `claim_not_done`: the fix working live. The lesson: the harness was not the
@@ -488,5 +488,5 @@ make replay RUN=ab-20261017-085139-7c0661
 
 If Docker is down, the replay cannot run: open `http://127.0.0.1:8765/run/ab-20261017-085139-7c0661`
 instead. Those are the original events, so there is no RECORDING badge; say it before you switch.
-The instructor guide's [replay procedure](../../../docs/instructor-guide.md#replay-procedure) has the
+The instructor guide's [replay procedure](../../docs/instructor-guide.md#replay-procedure) has the
 full steps.

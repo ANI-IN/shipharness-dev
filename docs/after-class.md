@@ -2,7 +2,7 @@
 
 What to do in the days between the live class and the Thursday review: read the results you saw,
 run things yourself, do the four assignments, read further, and point the tools at your own
-repository. Source ids such as (A3, F-a-126) point to [REFERENCES.md](../REFERENCES.md).
+repository. Source ids such as (A3, F-a-126) point to [docs/REFERENCES.md](REFERENCES.md).
 
 ## 1. Keep what you have
 
@@ -59,10 +59,10 @@ make demo-1
 
 Watch it with `make console` in a second terminal (http://127.0.0.1:8765/). The demos' layer
 stacks, features, and what to watch are in each section's runbook:
-[S1](../submodules/01-instructions/demo/README.md),
-[S2](../submodules/02-state-lifecycle/demo/README.md),
-[S3](../submodules/03-scope-sandbox/demo/README.md),
-[S4](../submodules/04-verification/demo/README.md).
+[S1](../01-instructions/demo/README.md),
+[S2](../02-state-lifecycle/demo/README.md),
+[S3](../03-scope-sandbox/demo/README.md),
+[S4](../04-verification/demo/README.md).
 
 To see what one layer contributes, remove it: `make demo-2 LAYERS=-state` runs the S2 A/B with the
 harness arm keeping only the instructions layer. This is A3's method of "removing one component at
@@ -81,10 +81,10 @@ self-check, and one required live step. Work in the order of the sections.
 
 | Assignment | Brief | Self-check | Live step, bounded by the caps |
 |---|---|---|---|
-| 1 Instructions | [README](../submodules/01-instructions/assignment/README.md) | `make check-assignment-1` | An A/B on the `section-1` subset, k=3: at most $2.50 and 150 traces |
-| 2 State and session lifecycle | [README](../submodules/02-state-lifecycle/assignment/README.md) | `make check-assignment-2` | One A/B with three forced stops: at most $0.40, 4 traces |
-| 3 Scope and sandbox | [README](../submodules/03-scope-sandbox/assignment/README.md) | `make check-assignment-3` | One `demo-3` A/B: 2 × $0.20 + 2 × $0.04, 4 traces |
-| 4 Verification and portfolio | [README](../submodules/04-verification/assignment/README.md) | `make check-assignment-4` | One `testgen` run and one F4 A/B: at most $0.68 |
+| 1 Instructions | [README](../01-instructions/assignment/README.md) | `make check-assignment-1` | An A/B on the `section-1` subset, k=3: at most $2.50 and 150 traces |
+| 2 State and session lifecycle | [README](../02-state-lifecycle/assignment/README.md) | `make check-assignment-2` | One A/B with three forced stops: at most $0.40, 4 traces |
+| 3 Scope and sandbox | [README](../03-scope-sandbox/assignment/README.md) | `make check-assignment-3` | One `demo-3` A/B: 2 × $0.20 + 2 × $0.04, 4 traces |
+| 4 Verification and portfolio | [README](../04-verification/assignment/README.md) | `make check-assignment-4` | One `testgen` run and one F4 A/B: at most $0.68 |
 
 The planned learner budget for all four is at most $6 of OpenAI usage and 400 LangSmith traces;
 no single command may spend more than $2.50 (`MAX_BATCH_COST_USD`). The budget figures come from
@@ -94,28 +94,28 @@ On a fresh clone every self-check fails with FAIL lines that name the TODOs to f
 starting point. `make grade-assignment-N` is the instructor's grader and needs private files that
 are not in this repository.
 
-The reference solutions are not in this repository. They are published as a tagged release after
-the Thursday review session.
+Each reference solution is in this repository, next to its starter, in
+`0N-*/assignment/solution/`: try the assignment first, then compare. The graders stay private.
 
 ## 5. Read further
 
 Start with each section's session notes (what was shown, the key ideas with their sources, what
 the A/B showed, common questions):
-[S1](../submodules/01-instructions/session-notes.md),
-[S2](../submodules/02-state-lifecycle/session-notes.md),
-[S3](../submodules/03-scope-sandbox/session-notes.md),
-[S4](../submodules/04-verification/session-notes.md).
+[S1](../01-instructions/session-notes.md),
+[S2](../02-state-lifecycle/session-notes.md),
+[S3](../03-scope-sandbox/session-notes.md),
+[S4](../04-verification/session-notes.md).
 
 Each section also has two to four reading notes that go deeper than class time, each with a reading
 time and a "why it matters for your own repo" part:
 
-- [S1 Instructions](../submodules/01-instructions/post-class-reading/README.md)
-- [S2 State and session lifecycle](../submodules/02-state-lifecycle/post-class-reading/README.md)
-- [S3 Scope and sandbox](../submodules/03-scope-sandbox/post-class-reading/README.md)
-- [S4 Verification](../submodules/04-verification/post-class-reading/README.md)
+- [S1 Instructions](../01-instructions/post-class-reading/README.md)
+- [S2 State and session lifecycle](../02-state-lifecycle/post-class-reading/README.md)
+- [S3 Scope and sandbox](../03-scope-sandbox/post-class-reading/README.md)
+- [S4 Verification](../04-verification/post-class-reading/README.md)
 
 The primary sources themselves (A1 to A7, B1 to B13) are listed with links in
-[REFERENCES.md](../REFERENCES.md). A3's advice to whoever builds a harness is to "read its traces on
+[docs/REFERENCES.md](REFERENCES.md). A3's advice to whoever builds a harness is to "read its traces on
 realistic problems" (A3, F-a-126); your LangSmith project from class is a good place to start.
 
 ## 6. Apply it to your own repository
@@ -124,21 +124,21 @@ The [final project](../final-project/README.md) walks through the whole run and 
 same tools at your own code:
 
 1. Assess your repository's harness (read-only, no model calls):
-   `uv run python skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`
+   `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py <your-repo> --out harness-assessment.html`
 2. Add the missing parts from the `harness-setup` templates, then assess again.
 3. Turn a rule your reviewers keep repeating into a check with the `house-rules` skill.
 4. Generate tests that must pass five filters with `shipharness testgen` (the `assured-tests`
    skill; costs money).
-5. Write your own skill from `skills/skill-template/` and validate it with
+5. Write your own skill from `use-in-your-repo/skills/skill-template/` and validate it with
    `uv run shipharness skills validate <your-skill-dir>`.
 
 Installing the skills into Claude Code, Codex, or Cursor is described in each skill's README:
-[harness-setup](../skills/harness-setup/README.md), [house-rules](../skills/house-rules/README.md),
-[assured-tests](../skills/assured-tests/README.md),
-[skill-template](../skills/skill-template/README.md).
+[harness-setup](../use-in-your-repo/skills/harness-setup/README.md), [house-rules](../use-in-your-repo/skills/house-rules/README.md),
+[assured-tests](../use-in-your-repo/skills/assured-tests/README.md),
+[skill-template](../use-in-your-repo/skills/skill-template/README.md).
 
 To copy TeamTrack's whole harness into your repository in one command and fill it step by step,
-follow [apply-to-your-repo.md](apply-to-your-repo.md): `uv run shipharness init --target <your-repo>`
+follow [apply-to-your-repo.md](../use-in-your-repo/apply-to-your-repo.md): `uv run shipharness init --target <your-repo>`
 copies the starter kit (no model calls), and the guide ends with deciding which layers earn their
 place in your repository.
 
@@ -146,5 +146,4 @@ place in your repository.
 
 The review session goes through the four assignments: the expected approach, a walkthrough of the
 reference solution, common mistakes, and discussion; the hidden scripted diffs of assignment 3 are
-shown there. Bring your self-check output and one question per assignment. The solutions are
-released as a tagged release after the session.
+shown there. Bring your self-check output and one question per assignment.

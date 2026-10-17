@@ -5,7 +5,7 @@ Reading time: about 6 minutes.
 Source: B13, "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents" (Zhao, Srikanth, Wu,
 Jiang, Weco AI; preprint, v2 2026-09-09), https://arxiv.org/abs/2605.21384, and its repository B14,
 https://github.com/WecoAI/SpecBench. Quotes are verbatim, with finding IDs that resolve in
-[REFERENCES.md](../../../REFERENCES.md). Do not confuse it with Spec-Bench (arXiv 2401.07851), an
+[docs/REFERENCES.md](../../docs/REFERENCES.md). Do not confuse it with Spec-Bench (arXiv 2401.07851), an
 unrelated benchmark.
 
 ## The design
@@ -48,13 +48,13 @@ checks are Module 2.
 
 | SpecBench | Course |
 |---|---|
-| Held-out tests never shown to the agent (F-b-43) | Hidden tests live in `teamtrack/tests/hidden/`; each arm works in a fresh repository exported without them, and the referee mounts them read-only in its own container (`src/shipharness/ab/referee.py`) |
-| Held-out tests compose features (F-b-42) | Some hidden test files combine features, for F4 `test_f4_with_f1.py` and `test_f4_with_f3.py` (`teamtrack/reference/f4/task.toml`) |
-| No requirements beyond the spec (F-b-44) | Hidden tests check what `teamtrack/docs/features/<task>.md` states; where the course's audit of the hidden tests found tests asserting more than the spec, the tests were relaxed or the spec now states the rule |
+| Held-out tests never shown to the agent (F-b-43) | Hidden tests live in `platform/teamtrack/tests/hidden/`; each arm works in a fresh repository exported without them, and the referee mounts them read-only in its own container (`platform/src/shipharness/ab/referee.py`) |
+| Held-out tests compose features (F-b-42) | Some hidden test files combine features, for F4 `test_f4_with_f1.py` and `test_f4_with_f3.py` (`platform/teamtrack/reference/f4/task.toml`) |
+| No requirements beyond the spec (F-b-44) | Hidden tests check what `platform/teamtrack/docs/features/<task>.md` states; where the course's audit of the hidden tests found tests asserting more than the spec, the tests were relaxed or the spec now states the rule |
 | Gap between validation and held-out pass rates | Hidden tests passed per run is an S4 co-primary count, shown next to "agent said" on screen 1 |
 
-Counts (test functions under `teamtrack/tests/hidden/`): 441 hidden tests in total, 69 for F4
-(`teamtrack/tests/hidden/f4/`). The course's validation of the hidden tests found that, for every
+Counts (test functions under `platform/teamtrack/tests/hidden/`): 441 hidden tests in total, 69 for F4
+(`platform/teamtrack/tests/hidden/f4/`). The course's validation of the hidden tests found that, for every
 task and checkpoint pair, 91-96% of them fail before the reference implementation is applied (the
 rest are guards that must keep passing), and all pass with it.
 

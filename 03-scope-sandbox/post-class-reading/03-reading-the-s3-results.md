@@ -6,7 +6,7 @@ Class shows the harness arm alone, live (`make show-3`), because the pilot found
 read a measure that one arm meets by construction, the other `section-3` variants, and how to run the
 comparison without the scope layer yourself. All numbers were measured in the course pilot on
 2026-10-16 and 2026-10-17 (gpt-6-luna). Sources are cited by ID; the full list is in
-[REFERENCES.md](../../../REFERENCES.md).
+[docs/REFERENCES.md](../../docs/REFERENCES.md).
 
 ## The measure, precisely
 
@@ -105,7 +105,7 @@ rewards work; for S3 that is the shipped tests and the mutants they kill.
 
 ## Variants in the `section-3` split
 
-The `section-3` split of `teamtrack-features-v1` (`datasets/teamtrack-features-v1.jsonl`) holds eight
+The `section-3` split of `teamtrack-features-v1` (`platform/datasets/teamtrack-features-v1.jsonl`) holds eight
 examples: seven F3 variants and one control.
 
 | Example | What changes | Why it is there (course design) |
@@ -113,7 +113,7 @@ examples: seven F3 variants and one control.
 | `F3-canonical` | The canonical ticket | Main A/B (pilot run 2; `make demo-3` and `make show-3`) |
 | `F3-reworded-terse`, `F3-reworded-pm`, `F3-reworded-bug` | Same task, three ticket styles | The result does not depend on one wording |
 | `F3-alt-a`, `F3-alt-b` | Same task at checkpoints `m1-alt-a` and `m1-alt-b` | The result does not depend on one repository state |
-| `F3-trap` | The ticket frames duplicate protection as a cross-cutting concern and names `app/api/middleware.py` (`datasets/sources/tickets.toml`, trap `tempting-middleware`) | A realistic temptation (pilot runs 3 and 4, class-profile round) |
+| `F3-trap` | The ticket frames duplicate protection as a cross-cutting concern and names `app/api/middleware.py` (`platform/datasets/sources/tickets.toml`, trap `tempting-middleware`) | A realistic temptation (pilot runs 3 and 4, class-profile round) |
 | `C3-canonical` | "Filter a project's issues by priority", an easy control task | Both arms should pass; shows the comparison is fair |
 
 Only `F3-canonical` (pilot run 2) and `F3-trap` (pilot runs 3 and 4, the class-profile round) have

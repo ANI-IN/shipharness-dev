@@ -1,6 +1,6 @@
 # Session lifecycle checklist: how sessions start, stop, and hand over
 
-Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Source ids and finding ids are listed in `docs/REFERENCES.md` in the course repository.
 Assessment checks L1-L5 test the items marked with a check id.
 
 | Done | Item | Why | Source |

@@ -6,11 +6,11 @@ solution's live run, captured on 2026-10-17 (testgen run `r-20261017-093940-52dd
 
 ## Target
 
-- Dataset target `TG-teamtrack-app-repositories-issues` from `datasets/testgen-targets-v1.jsonl`:
-  module `app/repositories/issues.py` in `teamtrack/` (pin `m1-base`).
+- Dataset target `TG-teamtrack-app-repositories-issues` from `platform/datasets/testgen-targets-v1.jsonl`:
+  module `app/repositories/issues.py` in `platform/teamtrack/` (pin `m1-base`).
 - Existing tests (from the target line): `tests/visible/test_tenant_isolation.py`,
   `tests/visible/test_issues.py`, `tests/visible/test_legacy_and_schema.py`.
-- Filter mutants: `teamtrack/mutants/app.repositories.issues.jsonl#filter` (2 of the file's 4
+- Filter mutants: `platform/teamtrack/mutants/app.repositories.issues.jsonl#filter` (2 of the file's 4
   mutants). One of them, `app.repositories.issues-m3`, is "soft-deleted issues still listed": the
   same fault R8 looks for, at the unit level.
 - Why this module: it holds the live-issue lookups (`get`, `list_for_project`) that every R8
@@ -21,13 +21,13 @@ solution's live run, captured on 2026-10-17 (testgen run `r-20261017-093940-52dd
 ```
 uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 \
     --out .shipharness/a4/testgen
-export PYTHONPATH=submodules/04-verification/solution
-uv run python -m a4_verification.apply_filter --repo teamtrack --kept .shipharness/a4/testgen \
+export PYTHONPATH=04-verification/assignment/solution
+uv run python -m a4_verification.apply_filter --repo platform/teamtrack --kept .shipharness/a4/testgen \
     --existing tests/visible/test_tenant_isolation.py --existing tests/visible/test_issues.py \
     --existing tests/visible/test_legacy_and_schema.py --update-report
-python submodules/04-verification/solution/skill/testgen-evidence/scripts/summarize_report.py \
+python 04-verification/assignment/solution/skill/testgen-evidence/scripts/summarize_report.py \
     .shipharness/a4/testgen/testgen-report.json
-uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4
+uv run python -m a4_verification.run_r8 --build platform/teamtrack --checkpoint m1-base --feature A4
 ```
 
 The testgen command runs without `--image`, so generated tests run on the host and the command
@@ -67,7 +67,7 @@ changed during the test phase". Two of the discarded tests name deleted rows
 (`..._soft_deleted_rows`, `..._including_deleted`). Filter 3 judges what a test adds over the
 existing suite, not its subject: those lines were covered already, and "0 checked" means the
 existing tests already kill both filter-set mutants, so none was left to try
-(`AddsCoverageOrKillsMutant` in `src/shipharness/filters/filters.py`).
+(`AddsCoverageOrKillsMutant` in `platform/src/shipharness/filters/filters.py`).
 
 The cost line the testgen command printed:
 
@@ -91,7 +91,7 @@ reference solution's own tests (`../tests/test_dedup_filter.py`).
 
 ## R8 on TeamTrack
 
-Real output of the last command above on `teamtrack/`; the full JSON document is in
+Real output of the last command above on `platform/teamtrack/`; the full JSON document is in
 `../captured/r8-teamtrack.json`.
 
 | Field | Value |

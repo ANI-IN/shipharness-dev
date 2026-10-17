@@ -1,6 +1,6 @@
 # Docs layout
 
-Where each harness file lives. Source ids refer to the course's REFERENCES.md. The tree
+Where each harness file lives. Source ids refer to the course's docs/REFERENCES.md. The tree
 follows A1's figure "In-repository knowledge store layout" (F-a-30) and adds the state and scope
 files from A2, A3, and A7.
 

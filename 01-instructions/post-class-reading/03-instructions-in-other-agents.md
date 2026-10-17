@@ -10,7 +10,7 @@ what the primary sources say about other harnesses: the two harnesses the teachi
 A note on wording: the vendor documentation pages (B7-B9) were read through a summarising fetch tool,
 so this piece quotes none of their sentences; it reports what they say in its own words and gives the
 directory paths exactly. Findings F-b-12 to F-b-15 are listed in
-[REFERENCES.md](../../../REFERENCES.md) (generated at release).
+[docs/REFERENCES.md](../../docs/REFERENCES.md) (generated at release).
 
 ---
 
@@ -63,7 +63,7 @@ F-b-11).
 
 The course's choice: skills use only `name`, `description`, `license`,
 `compatibility`, `metadata`, and `allowed-tools`, so they pass the reference validator and load in all
-three agents. Vendor-specific data can go under `metadata`. `uv run shipharness skills validate skills`
+three agents. Vendor-specific data can go under `metadata`. `uv run shipharness skills validate use-in-your-repo/skills`
 checks the four course skills (`harness-setup`, `assured-tests`, `house-rules`, `skill-template`).
 
 ## 5. What is the same everywhere

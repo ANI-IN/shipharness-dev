@@ -11,7 +11,7 @@ next to this README: `task.jsonl`, `command.txt`, `output.txt`, `summary.json`, 
 Command (from the repository root, with keys, Docker, and the checkpoints; `make doctor` passes):
 
 ```
-uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops
+uv run python 02-state-lifecycle/assignment/live/run_live.py --impl 02-state-lifecycle/assignment/solution --forced-stops
 ```
 
 Not captured: the A2 reference live run is not being recorded. The owner listed only the A3 and A4
@@ -19,6 +19,6 @@ reference live runs for capture (owner scope, 2026-10-17), so this folder holds 
 the reference solution's recorded grade stays 90/100.
 
 If the run is recorded later, capture the grader output again with
-`make grade-assignment-2 SUBMISSION=submodules/02-state-lifecycle/solution` and replace
+`make grade-assignment-2 SUBMISSION=02-state-lifecycle/assignment/solution` and replace
 `../captured/grade-solution.txt` with it, labelled with the date; 100/100 is the expected score when
 the evidence is valid.

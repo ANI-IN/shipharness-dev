@@ -1,6 +1,6 @@
 # A1 solution notes
 
-Reference solution for assignment A1 ([brief](../assignment/README.md)). Source ids refer to
+Reference solution for assignment A1 ([brief](../../README.md)). Source ids refer to
 `RESEARCH.md`. Everything marked "course design" was designed for this course and is not a claim of
 the sources.
 
@@ -34,7 +34,7 @@ the sources.
    you finish" list. It defines no rule.
 5. **The skill** `add-list-endpoint` targets the work the A/B measures: every section-1 task except
    the control task C1 is a variant of F1, an org-wide list endpoint (canonical, three rewordings, two
-   alternate checkpoints, and the trap variant; `datasets/teamtrack-features-v1.jsonl`), and the
+   alternate checkpoints, and the trap variant; `platform/datasets/teamtrack-features-v1.jsonl`), and the
    measures are R1 and R3. Its description is the only part loaded up front (B1, F-b-05); the steps
    and `references/tests.md` load when the skill is used.
 6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and the
@@ -53,11 +53,11 @@ the sources.
   without its second sentence keeps 41% of its content words). The stopword list is fixed in the
   starter so that the learner's checker and the grader's reference agree on every count.
 - **Workspace overlay for link resolution.** `InstructionsLayer.prepare_workspace` copies the tree
-  onto the arm's workspace root (`src/shipharness/harness/instructions/layer.py`), so a link from
-  `docs/product-specs/index.md` to `../features/` is correct when it resolves in `teamtrack/`. The
+  onto the arm's workspace root (`platform/src/shipharness/harness/instructions/layer.py`), so a link from
+  `docs/product-specs/index.md` to `../features/` is correct when it resolves in `platform/teamtrack/`. The
   checker resolves in the tree first, then at the same path in the product.
 - **Code-span paths are checked too.** The course's own map points with code spans
-  (`teamtrack/harness/instructions/AGENTS.md`), so a checker that reads only Markdown links would
+  (`platform/teamtrack/harness/instructions/AGENTS.md`), so a checker that reads only Markdown links would
   miss most pointers.
 - **No new facts** (DESIGN §6.1, applied to the learner's tree). The bare arm reads
   `docs/HANDBOOK.md` and the code; every fact in the original comes from one of the two. Requiring
@@ -83,13 +83,13 @@ the sources.
   them into `live/` and holds the checks, so the self-check and the grader (criterion F, 12 points)
   apply the same rules. The checks validate files only: the ScoreRecord schema with every field
   present, events against the event models, run ids and tasks against the command and the
-  `section-1` split of `datasets/teamtrack-features-v1.jsonl`, `gpt-6-luna` (export metadata, the
+  `section-1` split of `platform/datasets/teamtrack-features-v1.jsonl`, `gpt-6-luna` (export metadata, the
   run logs' `run_start` and `cost` events, the cost line), `recorded` false, `sandboxed` true, and
   the caps of CONTRACTS §1. Missing or malformed evidence zeroes all of F.
 - **Proof that the learner's tree was used.** `ScoreRecord` names the layers, not the tree, so the
   check reads the run log instead: `InstructionsLayer.prepare_workspace` writes one
   `harness_decision` note per harness run, "placed N instruction files", whose `paths` are the files
-  it copied from `teamtrack/harness/instructions/`. Every harness log must list exactly the files of
+  it copied from `platform/teamtrack/harness/instructions/`. Every harness log must list exactly the files of
   the submitted `instructions/` tree. The course's own tree (one skill, `add-endpoint`) fails this.
 - **The report checked against the evidence.** The report's command, runs per arm, R1 and R3 counts,
   and links must equal what the score records and exports say, so the numbers can no longer be typed
@@ -155,11 +155,11 @@ differ", then the command:
 | File | Command | Captured |
 |---|---|---|
 | `captured/self-check-starter.txt` | `make check-assignment-1` | 2026-10-17 |
-| `captured/self-check-solution.txt` | `make check-assignment-1 A1_WORK=submodules/01-instructions/solution/work` | 2026-10-17 |
-| `captured/grade-starter.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/assignment/starter` | 2026-10-17 |
-| `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work` | 2026-10-17 |
+| `captured/self-check-solution.txt` | `make check-assignment-1 A1_WORK=01-instructions/assignment/solution/work` | 2026-10-17 |
+| `captured/grade-starter.txt` | `make grade-assignment-1 SUBMISSION=01-instructions/assignment/starter` | 2026-10-17 |
+| `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=01-instructions/assignment/solution/work` | 2026-10-17 |
 | `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
-| `captured/grade-solution-allow-pending.txt` | `grade.py --work submodules/01-instructions/solution/work --allow-pending` | 2026-10-17 |
+| `captured/grade-solution-allow-pending.txt` | `grade.py --work 01-instructions/assignment/solution/work --allow-pending` | 2026-10-17 |
 | `captured/tests.txt` | the grader tests and the checker tests | 2026-10-17 |
 
 The starter files and the checker output were captured at commit d52d8c6; the solution's self-check,
@@ -181,9 +181,9 @@ Summary, as captured on 2026-10-17:
 - The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
   evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that
   is a test fixture, not a run. Its score records carry `referee_version` and `single_arm`, the two
-  fields `ScoreRecord` gained on 2026-10-17 (`src/shipharness/ab/score.py`); without them all 31
+  fields `ScoreRecord` gained on 2026-10-17 (`platform/src/shipharness/ab/score.py`); without them all 31
   synthetic-evidence tests failed.
 
-The grading criteria table in the brief ([../assignment/README.md](../assignment/README.md), "Grading
+The grading criteria table in the brief ([../assignment/README.md](../../README.md), "Grading
 criteria (100 points)") was checked against `grader/grade.py` (`CRITERIA`, `VISIBLE_POINTS`, and the
 hidden items) on 2026-10-17: every criterion total and every item weight agree, and they sum to 100.

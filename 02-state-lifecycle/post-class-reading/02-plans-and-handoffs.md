@@ -27,7 +27,7 @@ A7, the OpenAI Cookbook recipe that A1 links as "execution plans", is stricter. 
 - Discoverable: "We enable Codex to use these documents by first updating AGENTS.md to describe when
   to use PLANS.md" (F-a-45)
 
-The template the initializer step renders (`src/shipharness/harness/state/assets/exec-plan.md`, lines
+The template the initializer step renders (`platform/src/shipharness/harness/state/assets/exec-plan.md`, lines
 1-35; `{{...}}` fields are filled from the ticket):
 
 ```markdown
@@ -83,7 +83,7 @@ session 1 records it in the Decision Log, session 2 does not have to rediscover 
 
 A3 describes the context reset as a fresh agent "combined with a structured handoff that carries the
 previous agent's state and the next steps" (A3, F-a-65). The template
-(`src/shipharness/harness/state/assets/session-handoff.md`, lines 1-15):
+(`platform/src/shipharness/harness/state/assets/session-handoff.md`, lines 1-15):
 
 ```markdown
 # Session handoff
@@ -125,7 +125,7 @@ Having a machine part at all is course design: an agent that runs out of turns
 mid-edit may write no notes, and the next session should still start from something. A4's agents
 point at a further section worth adding in your own repository: a list of approaches that failed
 ("a running doc of failed approaches and remaining tasks", A4, F-a-73). The `harness-setup` skill's
-checklist (`skills/harness-setup/references/session-lifecycle.md`) includes that item.
+checklist (`use-in-your-repo/skills/harness-setup/references/session-lifecycle.md`) includes that item.
 
 ## Why it matters for your own repo
 

@@ -11,7 +11,7 @@ All notable changes to this project are recorded here.
 - `class-v1` is the release tag: an annotated tag on the public commit whose message reads "Class
   version 1: the code, datasets, and settings used for the class. No experiment freeze; the pilot
   gate did not pass (see the course notes)." followed by a record of the content hashes, the
-  checkpoint `teamtrack/` trees, and the run settings.
+  checkpoint `platform/teamtrack/` trees, and the run settings.
 - `shipharness verify --tag class-v1` compares a clone with that record and prints either "your
   copy matches class-v1" or one line per difference.
 
@@ -20,7 +20,7 @@ All notable changes to this project are recorded here.
   referee, and preview container, OpenAI Fast tier for the agent arms) is identical for both arms and
   used by `make demo-N`, `make show-N`, `make final`, and `make warm` (`PROFILE ?= class`); pilot and
   experiment runs keep standard. The reviewer keeps its own settings and the Standard tier.
-- Fast tier pricing: `config/prices.toml` has a `.fast` table for gpt-6-luna (twice the Standard
+- Fast tier pricing: `platform/config/prices.toml` has a `.fast` table for gpt-6-luna (twice the Standard
   token rates); each call is charged by the tier its response reports, so a downgraded request costs
   the Standard rate; the worst case held before a call uses the requested tier, and the ledger
   records the reported tier.
@@ -38,7 +38,7 @@ All notable changes to this project are recorded here.
 
 ### Constructed examples (2026-10-17)
 - `shipharness example --section demo-N` and `make example-1` .. `make example-4`, optional extras
-  that are not part of any demo section ([docs/extras.md](docs/extras.md)): the harness arm with
+  that are not part of any demo section ([docs/extras.md](extras.md)): the harness arm with
   section N's layer stack on its canonical task, in the real sandbox and judged by the real referee,
   driven by scripted steps that make the mistake the layer exists to catch (a cross-org query, a
   session that runs out of turns, an out-of-scope patch and a network command, a claim of done with
@@ -58,12 +58,12 @@ All notable changes to this project are recorded here.
   keeps one live A/B; recorded showcases and constructed examples are optional extras outside the
   demo flow, and `make replay` is the emergency fallback; one slide and console screen 4 show every
   result. Screen 4 groups dots by feature and leaves out records of an older referee version.
-- Starter kit: `kit/` and `shipharness init --target <repo>` (and `--check`) copy TeamTrack's harness
+- Starter kit: `use-in-your-repo/kit/` and `shipharness init --target <repo>` (and `--check`) copy TeamTrack's harness
   as templates with REPLACE markers, deterministically, with a worked example on three boltons
-  modules and the guide `docs/apply-to-your-repo.md`.
+  modules and the guide `use-in-your-repo/apply-to-your-repo.md`.
 - Feature steps: a dataset line without `steps` lets the state and scope layers take the ticket's
   bullet lines or its title (harness arm only).
-- `make slides`: `scripts/build_slides.py` validates `slides/deck.md` and writes HTML, PDF, and PPTX
+- `make slides`: `platform/scripts/build_slides.py` validates `slides/deck.md` and writes HTML, PDF, and PPTX
   with speaker notes; `SLIDES_OPTS=--check` or `--strict`.
 - Documentation: README, instructor guide and run sheet, troubleshooting, final project, and after
   class updated for the class plan, the pilot results, and the class-profile round.
@@ -85,14 +85,14 @@ All notable changes to this project are recorded here.
   commit; budgets stay identical for both arms and primary measures never change (pilot rules).
 - `shipharness.freeze`: the `harness-frozen` tag (only if the pilot gate passes) pins treatment,
   measurement, tasks (with checkpoint tag commits), and environment (with run settings by value);
-  `tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
+  `platform/tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
 - Freeze rules 1 and 2: content hash per frozen path and checkpoint trees in the tag record
   (history-independent, for the public release); accepted changes need a recorded freeze exception
   with a re-run or a recorded check that the change cannot affect any score.
 
 ### M5 Features, datasets, checkpoints (2026-10-16)
 - F1-F7 specs (both arms), reference patches, 392 hidden tests, feature mutants; C1-C8 control tasks
-  with 49 hidden tests; `teamtrack/reference/checkpoints.toml` and 8 checkpoint tags.
+  with 49 hidden tests; `platform/teamtrack/reference/checkpoints.toml` and 8 checkpoint tags.
 - `teamtrack-features-v1` (60: 7 canonical, 21 reworded, 8 alternate checkpoints, 9 session stops,
   7 traps, 8 controls) and `testgen-targets-v1` (40: 20 TeamTrack, 10 boltons, 10 WTForms), validated
   against the repository and uploaded to LangSmith.
@@ -118,7 +118,7 @@ All notable changes to this project are recorded here.
   and the checks, with a contract test; the verify test phase runs the real filter pipeline; referee
   mutants load by the task's mutant set (a missing set scores 0/0); one board preview container per arm
   when sandboxed; failing counts stay right when findings are capped.
-- `logging.py` renamed `log_setup.py`; learner skill folder `skills/skill-template` (a skill's
+- `logging.py` renamed `log_setup.py`; learner skill folder `use-in-your-repo/skills/skill-template` (a skill's
   `name` must equal its folder name and use only `a-z`, `0-9`, and hyphens, so `_template` cannot
   validate).
 - TeamTrack: ids bounded to 64-bit, field validation in the issue service, catch-all error envelope,
@@ -152,7 +152,7 @@ All notable changes to this project are recorded here.
 - Makefile, GitHub Actions CI (lint, unit, sandbox, live on manual dispatch), prose lint, walkthrough
   anchors.
 - Live streaming uses the browser `EventSource` API instead of `htmx-ext-sse`, whose repository
-  states no license; the sandbox policy code lives in `src/shipharness/sandbox/policy.py`.
+  states no license; the sandbox policy code lives in `platform/src/shipharness/sandbox/policy.py`.
 - Final review fixes: the arm workspace is treated as untrusted (host git never reads the
   agent's `.git/config`; host tools never follow links out of the workspace; bytes-safe output);
   run and tool exception safety; key masking in tool output and run logs; narrower redaction; board
@@ -165,5 +165,5 @@ All notable changes to this project are recorded here.
 
 ### M1 Research (2026-10-16)
 - Source research: the teaching sources and findings the course cites, listed in
-  [REFERENCES.md](REFERENCES.md).
+  [docs/REFERENCES.md](REFERENCES.md).
 - Product renamed from the working name `shipproof` to `shipharness` after a name-clash check.

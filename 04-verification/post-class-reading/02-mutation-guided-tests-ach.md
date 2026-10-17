@@ -4,7 +4,7 @@ Reading time: about 8 minutes.
 
 Source: B12, "Mutation-Guided LLM-based Test Generation at Meta" (Foster et al., Meta, submitted to
 FSE 2025 Industry Track), https://arxiv.org/abs/2501.12862. Quotes are verbatim, with finding IDs
-that resolve in [REFERENCES.md](../../../REFERENCES.md).
+that resolve in [docs/REFERENCES.md](../../docs/REFERENCES.md).
 
 ## The idea: start from the fault you fear
 
@@ -54,17 +54,17 @@ cannot detect existing faults residing in the code base." (F-b-41). The current 
 The course keeps ACH's concept (issue-specific faults on risky lines) and changes the machinery.
 
 **Hand-written mutants instead of generated ones.** Each mutant is one record: a file, the exact
-original text, a replacement, and a rationale (`Mutant` in `src/shipharness/filters/mutants.py`). A
+original text, a replacement, and a rationale (`Mutant` in `platform/src/shipharness/filters/mutants.py`). A
 small targeted runner applies one mutant at a time; mutmut is not used because it cannot target
 chosen lines (course design). Because every mutant is written and checked by hand, there is no
 equivalence detector: dataset validation (`uv run shipharness datasets validate
-datasets/teamtrack-features-v1.jsonl --kind features`) checks that every task's referee set is
+platform/datasets/teamtrack-features-v1.jsonl --kind features`) checks that every task's referee set is
 non-empty and that each mutant's original text matches exactly one line at the task's checkpoint,
 and the course checked that each referee mutant is killed by the reference implementation's
 visible tests.
 
 **The concern is TeamTrack's house rules and the feature's risk.** One record from
-`teamtrack/mutants/features/f4.jsonl`:
+`platform/teamtrack/mutants/features/f4.jsonl`:
 
 ```json
 {"id": "app.services.issues-m401", "target": "app.services.issues", "set": "referee", "file": "app/services/issues.py", "line": 54, "original": "    issue.version += 1", "replacement": "    issue.version += 0", "rationale": "writes do not move the version, so stale If-Match values still match (lost update)"}
@@ -76,16 +76,16 @@ checks one happy-path PATCH does not.
 **Two disjoint sets.** Every mutant file is split into a filter set (used by filter 3 while the
 agent works) and a referee set (held out; used only by the referee). If the same mutation sat in
 both, "a test written to kill the filter mutant also kills the referee mutant, and the referee no
-longer measures held-out behaviour" (module docstring of `src/shipharness/filters/mutant_sets.py`).
+longer measures held-out behaviour" (module docstring of `platform/src/shipharness/filters/mutant_sets.py`).
 `overlaps` fails on any shared mutation, and the docstring records the behaviourally equivalent
 pairs found by review and how each was resolved (course design).
 
 **Only real kills count.** The referee runs referee-set mutants against shipped tests that pass on
-the arm's unmutated build (`_passing_unmutated` in `src/shipharness/ab/referee.py`), so a broken
+the arm's unmutated build (`_passing_unmutated` in `platform/src/shipharness/ab/referee.py`), so a broken
 test does not count as a kill.
 
-Counts of records in the repository (`teamtrack/mutants/*.jsonl`, `teamtrack/mutants/features/`,
-`datasets/mutants/`):
+Counts of records in the repository (`platform/teamtrack/mutants/*.jsonl`, `platform/teamtrack/mutants/features/`,
+`platform/datasets/mutants/`):
 TeamTrack module files 41 filter / 40 referee; feature files 14 filter / 25 referee; boltons 22 / 27;
 WTForms 21 / 24.
 

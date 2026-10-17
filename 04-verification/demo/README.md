@@ -4,8 +4,8 @@ Runbook for the S4 demo, in eight parts: what it shows, what to install, the che
 start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
 to do when it fails. Reference material (poll, code walkthrough, every F4 result, the emergency
 fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). The final A/B launched here is
-read in the final block: [final-project/README.md](../../../final-project/README.md). Source IDs such
-as (A3, F-a-110) resolve in [REFERENCES.md](../../../REFERENCES.md). Captured output and screenshots
+read in the final block: [final-project/README.md](../../final-project/README.md). Source IDs such
+as (A3, F-a-110) resolve in [docs/REFERENCES.md](../../docs/REFERENCES.md). Captured output and screenshots
 are labelled "captured on <date>, run <id>; your output will differ".
 
 ---
@@ -13,7 +13,7 @@ are labelled "captured on <date>, run <id>; your output will differ".
 ## 1. What this demo shows and why
 
 `make show-4` runs the harness arm alone, live, on F4 (optimistic concurrency with `ETag` and
-`If-Match`, and issue history, `teamtrack/docs/features/f4.md`) with all four layers: handoffs between
+`If-Match`, and issue history, `platform/teamtrack/docs/features/f4.md`) with all four layers: handoffs between
 build sessions, the verify gate on a done claim, a 12-turn test phase whose proposed tests pass
 through five filters, and then the referee's two counts the agent never sees: hidden tests passed (of
 69) and referee mutants killed by the shipped tests (of 4). It is not an A/B because the course pilot
@@ -48,14 +48,14 @@ sequenceDiagram
 ## 2. Prerequisites and dependencies
 
 The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
-step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
-[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
+step and say which ones were tested: [macOS](../../setup/macos.md) (not tested on a Mac),
+[Windows with WSL2](../../setup/windows.md), [Linux](../../setup/linux.md).
 
 | OS | Install (from the setup page) |
 |---|---|
 | macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
 | Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
-| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([linux.md](../../setup/linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
 
 Then, on every OS:
 
@@ -112,7 +112,7 @@ make: *** [Makefile:54: doctor] Error 1
 
 Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
 `container runtime` line starts with `+ ok`, and the last line is `result: + ready`
-(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+(`platform/src/shipharness/doctor.py`). The key check lists models and uses no tokens.
 
 **`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
 --images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
@@ -309,7 +309,7 @@ real	12m46.782s
 
 F5-F7 have no pre-registered primary measure (`primary={}`), so `passed=True` only means nothing was
 registered to fail; read the scores (hidden tests, mutants, reviewer) as one dot each. How to read
-it is in the final block ([final-project/README.md](../../../final-project/README.md)).
+it is in the final block ([final-project/README.md](../../final-project/README.md)).
 
 ---
 
@@ -318,7 +318,7 @@ it is in the final block ([final-project/README.md](../../../final-project/READM
 **The verdict.** F4's primary measure needs both counts: every hidden test passed (69 of 69) and
 every referee mutant killed by the shipped tests (4 of 4). "primary verdict ready: FAIL" with
 `hidden_passed` and `mutants_killed` tells you which count failed; read both aloud. The gate does not
-run hidden tests or mutants (`GATE_CHECKS` in `src/shipharness/harness/verify/gate.py`), so a passed
+run hidden tests or mutants (`GATE_CHECKS` in `platform/src/shipharness/harness/verify/gate.py`), so a passed
 gate and a failed referee verdict can sit side by side: what separates the claim from the verdict is
 the referee's held-out check (B13, F-b-43).
 
@@ -355,11 +355,11 @@ beside it, allow more. If there is no full verdict at minute 30, open the demo b
 arm (screen 1 and the filter table fill in as it goes). In the quiet run the test filters ran from
 5:51 to 8:34, each proposed test up to 5 times.
 
-Caps (not measurements; `src/shipharness/config/settings.py`): agent time per arm `RUN_TIMEOUT_S`
+Caps (not measurements; `platform/src/shipharness/config/settings.py`): agent time per arm `RUN_TIMEOUT_S`
 300 s, harness work per arm `HARNESS_TIMEOUT_S` 120 s, tool command `TOOL_TIMEOUT_S` 120 s; $0.20
 per arm (`MAX_RUN_COST_USD`), $0.25 per final arm (`MAX_FINAL_RUN_COST_USD`), $0.04 per review
 (`MAX_REVIEW_COST_USD`), $2.50 per session (`MAX_SESSION_COST_USD`); F4 build session 40 turns
-(`teamtrack/reference/f4/task.toml`). By those caps `make show-4` costs at most $0.24 and one
+(`platform/teamtrack/reference/f4/task.toml`). By those caps `make show-4` costs at most $0.24 and one
 `make final` feature at most $0.58. Fast-tier calls cost twice the Standard rate per token; the caps
 do not change.
 
@@ -371,8 +371,8 @@ do not change.
 |---|---|---|
 | `make show-4` exits 2 with `ABORTED: timeout` on the record line | The harness arm hit the 300 s agent time limit (it did in the class-profile round and under load) | Nothing to fix: the referee still judges the shipped diff and the record is complete |
 | `x OpenAI refused the key: ...; no arm was started`, exit 2 | Live runs refuse a missing or rejected key and any stand-in client; there is no automatic fallback | Fix the key (`make doctor` until `result: + ready`), or section 12 |
-| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`) | Nothing to fix; open the demo block on the running arm: screen 1 and the filter table fill in as it goes |
-| The arm ends `ERROR` with `docker run failed: ...`, or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`platform/src/shipharness/cost/tracker.py`) | Nothing to fix; open the demo block on the running arm: screen 1 and the filter table fill in as it goes |
+| The arm ends `ERROR` with `docker run failed: ...`, or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`platform/src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` |
 | `make console` fails with `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
 | No gate pills by the end of the run | The agent never claimed done; the gate runs only on `finish(claim="done")` | Show the test-phase filter table and the referee counts; the gate's behaviour is in concepts §3.1; no F4 harness arm in the pilot runs reached it, the quiet run in part 5 did |
 | `make final` with no `FEATURES` runs F5, then F6 | The Makefile default is `FEATURES ?= F5,F6` | Always pass `FEATURES=`; press Ctrl+C at once if the default started |
@@ -392,8 +392,8 @@ incomplete or hit its cap; the primary counts are unaffected.
 Ask before the launch; the final feature poll follows it:
 
 > Building F4 (ETag, If-Match, issue history), both arms' visible tests pass at the end. The referee
-> then runs 69 hidden tests (`teamtrack/tests/hidden/f4/`) and 4 referee-set mutants
-> (`teamtrack/mutants/features/f4.jsonl`) against the tests each arm shipped. Which arm passes more
+> then runs 69 hidden tests (`platform/teamtrack/tests/hidden/f4/`) and 4 referee-set mutants
+> (`platform/teamtrack/mutants/features/f4.jsonl`) against the tests each arm shipped. Which arm passes more
 > hidden tests and kills more mutants?
 >
 > A. Harness arm on both counts
@@ -423,19 +423,19 @@ the bare arm. Say it plainly: on this task with this model, the harness arm did 
 
 ## 10. Code walkthrough
 
-Ten minutes, while the runs proceed. `uv run python scripts/anchors.py extract <id>` prints each
+Ten minutes, while the runs proceed. `uv run python platform/scripts/anchors.py extract <id>` prints each
 anchor.
 
 | Order | Anchor | File and lines | Point at |
 |---|---|---|---|
-| 1 | `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result is published with a reason |
-| 2 | `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | R1: a foreign id must give 404; a 2xx carrying Globex data is a leak |
-| 3 | `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | What the reviewer never sees: harness artifacts, commit metadata, workspace paths, run ids, the arm label |
-| 4 | `S4:gate` | `src/shipharness/harness/verify/gate.py:143-184` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 33-43) has no hidden tests or mutants |
+| 1 | `S4:filters` | `platform/src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result is published with a reason |
+| 2 | `S4:probe` | `platform/src/shipharness/checks/r1_tenant.py:65-104` | R1: a foreign id must give 404; a 2xx carrying Globex data is a leak |
+| 3 | `S4:blind` | `platform/src/shipharness/reviewer/blind.py:15-39` | What the reviewer never sees: harness artifacts, commit metadata, workspace paths, run ids, the arm label |
+| 4 | `S4:gate` | `platform/src/shipharness/harness/verify/gate.py:143-184` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 33-43) has no hidden tests or mutants |
 
 When the gate refuses a claim, the agent gets `Gate <id>: <n> of <m> items failed (<names>).`, up
 to three failure lines, and `Fix these, commit your work, and call finish again.` (`_feedback` in
-`src/shipharness/harness/verify/gate.py`).
+`platform/src/shipharness/harness/verify/gate.py`).
 
 ## 11. Results for this section
 

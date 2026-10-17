@@ -3,10 +3,10 @@
 Reading time: about 10 minutes.
 
 The S3 sandbox is one Docker container per arm with a fixed policy (`SandboxPolicy` in
-`src/shipharness/sandbox/policy.py`; the values are **course design**). This piece puts that policy
+`platform/src/shipharness/sandbox/policy.py`; the values are **course design**). This piece puts that policy
 next to the boundaries described in two teaching sources (A4, A5) and in the official docs of another
 coding agent, Codex (D21-D23). Everything about the other systems comes from the course's research
-record of those sources, cited by ID; the full list is in [REFERENCES.md](../../../REFERENCES.md).
+record of those sources, cited by ID; the full list is in [docs/REFERENCES.md](../../docs/REFERENCES.md).
 Where a cell says "not recorded", the course recorded nothing on it; that does not mean the source
 lacks it.
 
@@ -44,13 +44,13 @@ the whole of `/work` is writable, `.git` included, because both arms commit thei
 files are protected one level up, on the host: the scope layer refuses any change to
 `feature_list.json` in every phase, and the referee strips harness artifacts from the diff and
 restores the checkpoint's test configuration before judging (`strip` and `restore_judge_config` in
-`src/shipharness/ab/referee.py`). This keeps the
+`platform/src/shipharness/ab/referee.py`). This keeps the
 container identical for both arms; the protection that differs between arms lives in the harness.
 
 **4. Out of memory is not an exit code.** Exit code 137 is the SIGKILL convention (128 + 9), not a
 code the Docker pages document; Docker's documented out-of-memory signal is the
 `State.OOMKilled` field (D29). Because an arm container stays up for the whole run and runs many
-commands, `DockerSandbox.exec` in `src/shipharness/sandbox/docker.py` reads the container's cgroup v2
+commands, `DockerSandbox.exec` in `platform/src/shipharness/sandbox/docker.py` reads the container's cgroup v2
 `oom_kill` counter before and after each command. A quick exit 137 is reported as `memory` when the
 counter went up (or when it cannot be read), and a command that reached its limit as `timeout`.
 
@@ -66,7 +66,7 @@ In the course pilot's runs 2 to 4 (2026-10-16 to 2026-10-17) and the class-profi
 2026-10-17). The agent used what the image had and never tried the network. The container is
 never an A/B variable, so the pilot cannot say whether it earns its place; the course keeps it on the
 sources' advice, for the run that goes wrong, as in A4's "pkill -9 bash" incident (A4, F-a-19). No
-real run has shown a denial; a scripted one is in [docs/extras.md](../../../docs/extras.md)
+real run has shown a denial; a scripted one is in [docs/extras.md](../../docs/extras.md)
 (optional, not part of class).
 
 ## Why it matters for your own repo
@@ -74,7 +74,7 @@ real run has shown a denial; a scripted one is in [docs/extras.md](../../../docs
 - **Decide where the boundary lives before you pick the tool.** An allowlist (A5) needs upkeep per
   tool; a container with no network needs the dependencies baked into the image. If your agent must
   install packages, a no-network container will block it; build the image with them instead, as
-  `sandbox/Dockerfile` does.
+  `platform/sandbox/Dockerfile` does.
 - **Keep secrets out of the box.** The agent loop and the keys stay on the host; nothing named like a
   key, token, or secret is passed into the container (`docker_run_args`). Copy that split: it is
   what makes "the agent ran a bad command" a contained event.
