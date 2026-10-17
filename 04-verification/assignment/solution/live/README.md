@@ -1,7 +1,7 @@
 # live
 
-Live evidence of the reference solution, in the layout every submission uses (brief:
-`../../assignment/README.md`, "Live step"). Two runs, both captured on 2026-10-17: the testgen run
+Live evidence of the reference solution, in the layout every submission uses (see
+[SPEC.md](../../SPEC.md#evidence-to-hand-in)). Two runs, both captured on 2026-10-17: the testgen run
 `r-20261017-093940-52dde8` with filter 6 applied to its report, and the F4 A/B
 `ab-20261017-094339-3b29e3`. The grader validates these files the same way as a learner's
 (`assignment/visible_tests/a4_live.py`) and re-runs nothing; `../portfolio/` reports what they show.
