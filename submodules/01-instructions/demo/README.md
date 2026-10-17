@@ -220,7 +220,7 @@ In class, read the pill and both times aloud, then switch screens:
   *Console screen 2 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
 
 - **Screen `4` (A/B Report)**: the pilot's dots per feature, variant, and arm (F1 trap ticket: 8 of 8
-  passed in each arm on this host), and this run's verdict at the top. Say: "Tonight's run is not a
+  passed in each arm, from the score records on the class host), and this run's verdict at the top. Say: "Tonight's run is not a
   dot in the comparison."
 
   ![Screen 4: primary measures, one dot per run, per feature and arm](img/show-1-screen-4-final.png)
