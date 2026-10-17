@@ -241,9 +241,9 @@ sequenceDiagram
 | `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result has a reason |
 | `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | 404 expected for a foreign id; a 2xx with Globex data is a leak |
 | `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | Harness artifacts, commit metadata, workspace paths, run ids removed |
-| `S4:gate` | `src/shipharness/harness/verify/gate.py:133-172` | Pending pills first; items in the arm container; feedback only on failure |
+| `S4:gate` | `src/shipharness/harness/verify/gate.py:143-188` | Pending pills first; items in the arm container; feedback only on failure |
 
-The gate's check list, `GATE_CHECKS` (`gate.py`, lines 31-41), names R1-R7, `regression`, and
+The gate's check list, `GATE_CHECKS` (`gate.py`, lines 33-43), names R1-R7, `regression`, and
 `board`: no hidden tests and no mutants.
 
 ---
@@ -340,7 +340,7 @@ reliably solo." (A3, F-a-123). Here a "done" that the referee contradicts came u
 arms (the class-round claim, and ab-20261016-220010-c5b4bf: 69 of 69 hidden tests, one mutant
 alive), and the harness arm never reached its gate on F4. The planned 10-run experiment batch and the leave-one-out
 ablation were not run: the pilot did not pass its pre-registered decision rule. In class: `make
-show-4`, this A/B replayed, and a constructed example ([demo runbook](demo/README.md)).
+show-4`, live ([demo runbook](demo/README.md)).
 
 After class: [session-notes.md](session-notes.md). Further reading:
 [post-class-reading/](post-class-reading/README.md).

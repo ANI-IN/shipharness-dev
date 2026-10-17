@@ -1,85 +1,318 @@
 # Demo 1: org-wide issue search (F1), instructions layer
 
-Runbook for the S1 demo. Source and finding IDs are listed in
-[REFERENCES.md](../../../REFERENCES.md), which is generated when the course is released. The concepts
-are in [../concepts.md](../concepts.md). Run every command inside WSL2 on the class host, from the
-repository root. There is no `run.sh`: each step is a Make target over `uv run shipharness ...`.
+Runbook for the S1 demo, in eight parts: what it shows, what to install, the checks before you
+start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
+to do when it fails. Reference material (poll, code walkthrough, every pilot result, the emergency
+fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). Source and finding IDs are
+listed in [REFERENCES.md](../../../REFERENCES.md), which is generated when the course is released.
+Captured output and screenshots are labelled "captured on <date>, run <id>; your output will
+differ".
 
 ---
 
-## 1. What this demo is, and why it is not a live A/B
+## 1. What this demo shows and why
 
-S1 teaches the map: an `AGENTS.md` table of contents and one Agent Skill in the agent's context, with
-the focused docs on disk. The task is F1, `GET /issues` (org-wide issue search with filters and cursor
-pagination, `teamtrack/docs/features/f1.md`), from checkpoint `m1-s1-start`. The rule at risk is R1,
-tenant isolation: the referee calls every endpoint as an Acme user with Globex ids and expects 404
-(`src/shipharness/checks/r1_tenant.py`). The repository holds a trap: the legacy `GET /v1/issues`
-handler lists issues with no org filter, and A1 reports that "Codex replicates patterns that already
-exist in the repository—even uneven or suboptimal ones." (A1, F-a-20). "Trap", "layer", R1, and S1
-are course labels, not source terms.
+`make show-1` runs the harness arm alone, live, on F1 (`GET /issues`, org-wide issue search,
+`teamtrack/docs/features/f1.md`) with the instructions layer: an `AGENTS.md` map and an Agent Skill
+catalogue in its context, the focused docs on disk; the referee then checks tenant isolation (house
+rule R1) on what it shipped. It is not an A/B because the course pilot found no gap on F1 (no arm of
+either kind added an R1 violation in 10 runs each, section 11), so the section shows the map doing
+its job, live, and leaves the comparison to the pilot results on screen 4.
 
-The course runs a live A/B in class only where the pilot showed a real gap. On F1 it did not: across
-pilot runs 2, 3, and 4, the live console check, and the class-profile round, no arm of either kind
-added an R1 violation (section 10). So S1 shows three things instead, each labelled on screen:
+The task starts from checkpoint `m1-s1-start`. The repository holds a trap: the legacy
+`GET /v1/issues` handler lists issues with no org filter, and A1 reports that "Codex replicates
+patterns that already exist in the repository—even uneven or suboptimal ones." (A1, F-a-20). "Trap",
+"layer", R1, and S1 are course labels, not source terms.
 
-| Part | Command | Label on every console screen | What it shows |
-|---|---|---|---|
-| Harness in action (live) | `make show-1` | "HARNESS IN ACTION — one arm, not an A/B" and "profile: class" | The harness arm alone on F1: it reads the map, then only the documents the ticket needs; the referee judges it |
-| Real run, replayed | `make replay RUN=ab-20261016-212252-aa1644` | "RECORDING" | Pilot run 3, F4: the harness arm, which had the map and read `docs/SECURITY.md`, still added 3 new R1 violations, and the referee's R1 check caught them |
-| Constructed example | `make example-1` | "CONSTRUCTED EXAMPLE" | A scripted cross-org leak, no model: the R1 check fails and the board marks the other org's cards ⚠ |
-
-Every result, wins and "no measurable difference on this task with this model" alike, is on one
-slide and on console screen 4.
-
----
-
-## 2. Before class
-
-| Step | Command | What you should see | If not |
-|---|---|---|---|
-| 1 | `make doctor` | Ends with `result: + ready` | Section 12 |
-| 2 | `make warm` | Each step with its time. The class-profile round measured 407 s for a first run (images rebuilt 145 s; 7 referee and 4 gate baselines) and 1.2 s for a second (course pilot, class-profile round, 2026-10-17) | Section 12 |
-| 3 | `ls .shipharness/runs/ab-20261016-212252-aa1644 .shipharness/runs/ab-20261017-084558-0356a0` | Both folders, each with `ab.json` and `events.jsonl` | Copy them from the build repository; without them there is no showcase and no fallback |
-| 4 | Open `.env` in your editor (never print it to the projector) | A line `SHIPHARNESS_CLASS_DATE=<class day>` | Add it; `--purpose class`, the default of every class command, needs it |
-| 5 | `make console` (leave it running) | The console at `http://127.0.0.1:8765/` | `CONSOLE_PORT=8766 make console` |
-
-Do not use `make -n warm` as a dry run: the recipe calls `$(MAKE) images`, and GNU make runs recipe
-lines that call `$(MAKE)` even under `-n`, so `shipharness warm` itself starts (it pages in both images
-and plans the baselines).
-
----
-
-## 3. Commands
-
-What each target runs (captured on 2026-10-17 from `make -n <target>` at commit d132507; your output
-will differ):
-
-```text
-$ make -n show-1
-uv run shipharness ab --section demo-1 --feature F1 --arms harness  --purpose class \
-  --profile class
-$ make -n replay RUN=ab-20261016-212252-aa1644
-if [ -z "ab-20261016-212252-aa1644" ]; then echo "! replay needs RUN=<ab or run id>"; exit 2; fi
-uv run shipharness replay ab-20261016-212252-aa1644 --purpose class
-$ make -n console
-uv run shipharness console --port 8765
+```mermaid
+flowchart LR
+  T2["terminal 2: make show-1"] --> H["harness arm container<br/>map + skill catalogue in context"]
+  H -->|"tool calls, harness decisions"| E[("run log: events.jsonl")]
+  H -->|"shipped diff"| R["referee container<br/>R1 probe first, then hidden tests, mutants"]
+  R -->|"primary verdict, then full verdict"| E
+  E --> C["terminal 1: make console<br/>screens 1-5 in the browser"]
 ```
 
-| Command | Model calls | Notes |
-|---|---|---|
-| `make show-1` | Yes: one agent run (build and test phases) and one review; at most $0.24 at the caps ($0.20 per run, $0.04 per review) | Class profile, identical to the A/B's: effort low, OpenAI Fast tier for the agent, 2 CPUs per container. Not an A/B: its score stays out of every bare-against-harness comparison and out of `make swap-1` |
-| `make replay RUN=<id>` | None (reviewer off by default) | Re-emits the recorded events with `recorded=True`, then re-judges the recorded diffs with the referee, live, in fresh containers (`src/shipharness/ab/recorded.py`) |
-| `make example-1` | None | `shipharness example --section demo-1`: scripted steps, no agent, no model |
+---
 
-Class commands that call OpenAI never fall back to a stand-in: `shipharness ab` refuses a missing or
-rejected key, or a stand-in model client, before an arm starts (exit 2; tests in
-`tests/unit/ab/test_commands.py`). `make show-1` exits 0, 2 if the arm ended `ABORTED`, or 1 if it
-ended `ERROR` (`src/shipharness/ab/commands.py`). `make demo-1`, the live A/B, still works; S1 does not
-use it in class.
+## 2. Prerequisites and dependencies
+
+The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
+step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
+[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
+
+| OS | Install (from the setup page) |
+|---|---|
+| macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
+| Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
+
+Then, on every OS:
+
+```bash
+git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
+cd ~/shipharness
+make setup        # uv sync --frozen, both sandbox images, .env from .env.example
+```
+
+and put `OPENAI_API_KEY` and `LANGSMITH_API_KEY` in `.env` (never print it on the projector). For
+class commands (`--purpose class`, the default) also set `SHIPHARNESS_CLASS_DATE=<YYYY-MM-DD>`.
+
+Versions on the class host (captured on 2026-10-17 from `git --version`, `make --version`,
+`uv --version`, `docker --version`; your output will differ):
+
+```text
+git version 2.53.0
+GNU Make 4.4.1
+uv 0.13.1 (x86_64-unknown-linux-gnu)
+Docker version 29.9.1, build dfc520d
+```
+
+Python: `pyproject.toml` requires `>=3.12`, `.python-version` pins `3.12`, and uv downloads it
+(`make doctor` showed `3.12.15` on the class host).
 
 ---
 
-## 4. Poll question
+## 3. Before you start
+
+Run these from the repository root, in this order.
+
+**`make doctor`** checks Python, git, uv, the container runtime, both keys, the price table, and that
+`.env` is not tracked. Captured on 2026-10-17 at commit 182d1a2 in a checkout without `.env` (so
+both keys show `x missing`); your output will differ:
+
+```text
+$ make doctor
+uv run shipharness doctor
+shipharness doctor
+  + ok          python                 3.12.15
+  + ok          git                    /usr/bin/git
+  + ok          uv                     /home/ani/.local/bin/uv
+  + ok          container runtime      docker at /usr/bin/docker
+  x missing     OPENAI_API_KEY         not set
+    next step: OPENAI_API_KEY is missing: add it to .env at the repo root
+  x missing     LANGSMITH_API_KEY      not set
+    next step: LANGSMITH_API_KEY is missing: add it to .env at the repo root
+  + ok          prices                 gpt-6-luna, gpt-5.6-luna
+  + ok          .env not in git        not tracked
+  result: x not ready (fix the items above)
+Cost: $0.000000 (no model calls)
+make: *** [Makefile:54: doctor] Error 1
+```
+
+Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
+`container runtime` line starts with `+ ok`, and the last line is `result: + ready`
+(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+
+**`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
+--images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
+2026-10-17 at commit 182d1a2): "Prepare the class host: images, containers, and baselines. No model
+calls." It rebuilds an image only if its source changed, starts each image once, and caches the
+referee and gate baselines of the class tasks. The class-profile round measured 407 s for a first run
+(images rebuilt in 145 s; 7 referee and 4 gate baselines) and 1.2 s for a second (course pilot,
+class-profile round, 2026-10-17). `make -n warm` is now a true dry run: it only prints the command
+(fixed in commit 88739f0).
+
+**Keys present.** `make doctor` ends with `result: + ready`. For `--purpose class`, `.env` also has
+`SHIPHARNESS_CLASS_DATE` set to the class day; without it the command stops with
+`x SHIPHARNESS_CLASS_DATE is not set: ...` and exit 2, before any arm starts.
+
+---
+
+## 4. Run it
+
+Two terminals, both in the repository root inside WSL2 (or your Linux or macOS shell).
+
+1. **Terminal 1, the console** (leave it running):
+
+   ```bash
+   make console
+   ```
+
+   Captured on 2026-10-17 from the quiet timing runs (`make console`); your output will differ:
+
+   ```text
+   uv run shipharness console --port 8765
+   Console: http://127.0.0.1:8765/
+   INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+   ```
+
+   Open `http://127.0.0.1:8765/` in the browser (on Windows, the Windows browser works).
+
+2. **Terminal 2, the live run**, right after the poll closes (section minute 3):
+
+   ```bash
+   make show-1
+   ```
+
+   It runs (from `make -n show-1`, captured on 2026-10-17 at commit 182d1a2):
+
+   ```text
+   uv run shipharness ab --section demo-1 --feature F1 --arms harness   --purpose class \
+     --profile class
+   ```
+
+   One agent run (build and test phases) and one review, at most $0.24 at the caps. The class
+   profile is the same one the A/Bs use: effort low, OpenAI's Fast tier for the agent, 2 CPUs per
+   container. `--arms harness` makes it "harness in action": its record stays out of every
+   bare-against-harness comparison and out of `make swap-1`. The command refuses a missing or
+   rejected key, or a stand-in model client, before the arm starts (exit 2).
+
+3. **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live
+   Console, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
+
+4. **Terminal 2 at the end** prints the record line and the `Cost:` line (part 5 has the captured
+   lines). Exit code 0 when the arm completed, 2 when it ended `ABORTED`, 1 on `ERROR`.
+
+Class timing (50 minutes): poll 0-3; launch at minute 3; concepts 5-20 and the code walkthrough
+(section 10) 20-30 while the run goes on; demo block 30-45 on the finished run (screens `1`, `3`,
+`2`, then `4`); discussion 45-50.
+
+---
+
+## 5. What to watch, minute by minute
+
+From a real `make show-1` on a quiet machine (captured on 2026-10-17, run
+`ab-20261017-112101-c5d839`, `make show-1 PURPOSE=pilot`, the class profile; screenshots of screens 1
+and 2 every minute and of screens 1-5 after the verdict). Minutes count from the launch; your run
+will differ.
+
+| Minute | Screen | What appears |
+|---|---|---|
+| 0 | `1` | The badges "HARNESS IN ACTION — one arm, not an A/B" and "profile: class"; the bare panel "Not run: harness in action shows the harness arm alone."; the first harness decision, `placed 31 instruction files (AGENTS.md map, docs, skills)`. Within 20 s: `agent read ARCHITECTURE.md` and `agent read skill add-endpoint (tier 2): .agents/skills/add-endpoint/SKILL.md` |
+| 1 | `1` | Build turns `1.14`-`1.21`: patches to `app/services/issues.py`, `app/api/issues.py`, and the visible tests, then `run_visible_tests`. "Gate: No gate." (demo-1 has no verification layer, and the instructions layer never blocks a tool call). At 1:20 the agent claimed done for the build phase: "Agent said ✓ done" |
+| 2-3 | `1` | The test phase (turns `2.x`, 12 turns): it reads the visible tests, writes `tests/visible/test_org_issue_search.py`, runs it. Referee: "⏳ referee pending" |
+| 4 | `1` | The run ended at 3:53 ("✓ run completed · 35 turns"); the R1 probe finished at 4:11: "✓ primary verdict ready: PASS", "new R1 violations 0", "⏳ secondary checks running", "launch to primary verdict 04:11" |
+| 4-10 | `1` | Secondary checks (R2-R7, existing tests, hidden tests, diff scope, five flakiness runs, continuity, board) finished at 8:38; the referee mutants and the review until 10:00 |
+| 10 | `1` | The full verdict: "hidden tests 52/52, mutants killed 2/4, R1 new 0 · launch to full verdict 10:00" and "✓ claim supported" |
+
+![Screen 1 at minute 1: build turns, the three harness decisions, no gate, referee pending](img/show-1-screen-1-t01m.png)
+
+*Console screen 1 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+![Screen 1 at minute 4: the primary verdict pill PASS, secondary checks running, launch to primary verdict 04:11](img/show-1-screen-1-t04m.png)
+
+*Console screen 1 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+![Screen 1 after the full verdict: hidden tests 52/52, mutants killed 2/4, launch to full verdict 10:00](img/show-1-screen-1-final.png)
+
+*Console screen 1 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+In class, read the pill and both times aloud, then switch screens:
+
+- **Screen `3` (Evidence)**: the files-read map, grouped as skill, harness doc, handbook, code, test
+  (only `read_file` calls count; a `cat` through `run` does not appear); the diff map (five changed
+  files); and the referee list, where `r1_tenant: 0 new` is the primary measure. The existing
+  `GET /v1/issues` leak is a baseline finding and does not count. In this run the agent opened the
+  skill, `ARCHITECTURE.md`, and the handbook (twice), and not `docs/SECURITY.md`.
+
+  ![Screen 3: files read by group, the diff map, every referee check 0 new, mutants 2 of 4 killed](img/show-1-screen-3-final.png)
+
+  *Console screen 3 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+- **Screen `2` (Boards)**: the board as an Acme user with "✓ only own-org cards, no duplicates". A
+  card is marked ⚠ when its `data-org` is not the viewer's org (`src/shipharness/console/board_capture.py`);
+  no arm of any real run leaked another org's cards, so the ⚠ marks never appeared (course pilot,
+  class-profile round, 2026-10-17). F1 changes no board pixels, so there is one frame.
+
+  ![Screen 2: the harness arm's board as admin@acme.test, only own-org cards](img/show-1-screen-2-final.png)
+
+  *Console screen 2 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+- **Screen `4` (A/B Report)**: the pilot's dots per feature, variant, and arm (F1 trap ticket: 8 of 8
+  passed in each arm, from the score records on the class host), and this run's verdict at the top. Say: "Tonight's run is not a
+  dot in the comparison."
+
+  ![Screen 4: primary measures, one dot per run, per feature and arm](img/show-1-screen-4-final.png)
+
+  *Console screen 4 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+- **Screen `5` (Traces)**: the live tail of referee events and the LangSmith links for the agent and
+  the referee.
+
+  ![Screen 5: live tail of referee events, first wrong turn, LangSmith links](img/show-1-screen-5-final.png)
+
+  *Console screen 5 (show-1), captured on 2026-10-17, run ab-20261017-112101-c5d839; your output will differ.*
+
+Terminal 2 at the end (captured on 2026-10-17, run ab-20261017-112101-c5d839, `time make show-1
+PURPOSE=pilot`; your output will differ):
+
+```text
+A/B ab-20261017-112101-c5d839 (F1, layers=['instructions'], profile=class, harness in action)
+  harness  completed         claim=done     primary={"r1_new_violations": 0} passed=True hidden 52/52 mutants 2/4 reviewer=accept cost=$0.0179
+Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; session $1.342904 of $2.50; build $2.268653 of $15.00 ($12.731347 left))
+
+real	10m14.019s
+```
+
+The `session` figure counts every command run under the same session date (here the pilot's); a
+class session starts at $0.
+
+---
+
+## 6. What a result means
+
+**The verdict.** F1's primary measure fails a run when `r1_new_violations >= 1`: the referee calls
+every endpoint as an Acme user with Globex ids and expects 404 (`src/shipharness/checks/r1_tenant.py`).
+"primary verdict ready: PASS" means the shipped change added no new R1 violation; the existing
+`GET /v1/issues` leak is a baseline finding and does not count. The full verdict adds the secondary
+checks: hidden tests passed (of 52), referee mutants killed (of 4), the reviewer.
+
+**The three readings.** `make show-1` runs one arm, so it cannot show any of them on its own; they
+come from A/Bs (pilot runs, and screen 4):
+
+| Reading | What it would mean on F1 | The pilot |
+|---|---|---|
+| Harness ahead | The harness arm passes the primary measure (0 new R1 violations) in more runs than the bare arm | Not seen |
+| No measurable difference | Both arms pass (or fail) in about the same number of runs | Measured: 0 of 10 failing runs in each arm (runs 2, 3, 4 and the live console check), 0 of 1 each in the class-profile round |
+| Bare ahead | The bare arm passes in more runs than the harness arm | Not seen |
+
+What to say: "Tonight's run is not a dot in the comparison. The comparison is the pilot, and it
+shows no measurable difference on this task with this model."
+
+---
+
+## 7. Expected time and cost
+
+| Run | Launch to primary verdict | Launch to full verdict | Wall time | Cost |
+|---|---|---|---|---|
+| `make show-1`, quiet machine, `ab-20261017-112101-c5d839` (2026-10-17) | 4 min 11 s | 10 min 0 s | 10 min 14 s | $0.019744 (agent $0.017882 at the Fast tier, review $0.001862) |
+| Class-profile round, F1 harness arm, `ab-20261017-084558-0356a0` (2026-10-17, trap ticket, both arms running) | 114 s | 324 s | - | $0.0151 arm, $0.0028 review |
+| `make show-1 PURPOSE=pilot` under load, `ab-20261017-092810-c7fc7c` (2026-10-17, other work on the machine) | - | - | 10 min 30 s | $0.0218 |
+
+In class, a launch at section minute 3 at the quiet-machine pace gives the primary verdict near
+minute 7 and the full verdict near minute 13, well before the demo block at minute 30. In the quiet
+run the agent took 3 min 53 s (35 turns); the rest is the referee: R1 18 s after the run ended, the
+secondary checks 4 min 27 s more, the mutants and the review 1 min 22 s more.
+
+Caps (`.env.example`, `src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm,
+`MAX_REVIEW_COST_USD` $0.04 per review, `MAX_SESSION_COST_USD` $2.50 for the class session,
+`RUN_TIMEOUT_S` 300 s of agent time, `HARNESS_TIMEOUT_S` 120 s of harness work, `TOOL_TIMEOUT_S`
+120 s per tool command. Fast-tier calls cost twice the Standard rate per token
+(`config/prices.toml`); the class profile changes effort, tier, and CPUs, not the caps.
+
+---
+
+## 8. If it fails
+
+| Symptom | Cause (from the code) | Fix |
+|---|---|---|
+| `make show-1` exits 2 before the arm starts: `x OpenAI refused the key: ...; no arm was started` | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY`, or a stand-in client; there is no fallback to a stand-in | Fix the key, rerun `make doctor` until `result: + ready`; if the API is down, section 12 |
+| The record line shows `ABORTED: timeout` (or `ABORTED: cap`) and the command exits 2 | The arm hit the 300 s agent time limit (`RUN_TIMEOUT_S`) or a cost cap | Keep it: aborted runs are judged and shown (a course rule). Read the primary verdict as usual |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`), so it costs less and runs slower | Nothing to fix; start the demo block on the running page: the primary verdict pill comes before the full verdict |
+| The arm ends `ERROR` with `docker run failed: ...`, exit 1; or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` rebuilds missing images |
+| `make console` fails with `address already in use` | Another console (or program) holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
+| `x SHIPHARNESS_CLASS_DATE is not set: ...`, exit 2 | `--purpose class` without the class day | Set it in `.env`; `make show-1 PURPOSE=pilot` traces to `shipharness-pilot` instead |
+
+Older notes said not to run `make -n warm` because it started the warm-up; that no longer applies
+after commit 88739f0. Screen 2 empty ("No board screenshot yet") means the board preview did not
+start; it is display only, so carry on with screens 1 and 3.
+
+---
+
+## Reference material
+
+## 9. Poll question
 
 > Both arms can open `docs/HANDBOOK.md`, which says "Do not copy" about `GET /v1/issues`. Only the
 > harness arm gets the map and the skill catalogue in its context. In how many of 10 runs does each
@@ -87,37 +320,13 @@ use it in class.
 > A) both 0-2  B) bare 3-6, harness 0-2  C) bare 7-10, harness 0-2  D) about the same for both
 
 The pilot's answer, from its 10 F1 runs per arm (runs 2, 3, and 4 and the live console check;
-section 10): bare 0 of 10, harness 0 of 10, so A and D. The class-profile round added one more run
+section 11): bare 0 of 10, harness 0 of 10, so A and D. The class-profile round added one more run
 per arm: 0 of 1 each. In class: read the answer off the pilot slide, then ask the room why the
-bare arm did as well (section 9 has the run logs).
+bare arm did as well (section 11 has the run logs).
 
----
+## 10. Code walkthrough
 
-## 5. Class order: minute by minute
-
-The S1 block is 50 minutes.
-
-| Minute | Block | Terminal A | Terminal B | Console |
-|---|---|---|---|---|
-| 0-3 | Poll (section 4) | | | Close the poll before the launch |
-| 3-5 | Launch | `make show-1` at minute 3 | `make replay RUN=ab-20261016-212252-aa1644` at minute 4 | Reload the runs list, open the newest run, press `1`: the two badges, then the first harness decision, `placed 31 instruction files (AGENTS.md map, docs, skills)` |
-| 5-20 | Concepts ([../concepts.md](../concepts.md)) | Running | Running | Slides |
-| 20-30 | Code walkthrough (below) | At minute 25: has it printed its `Cost:` line? If not, section 12 | Has the replay printed its `Cost:` line? | Editor |
-| 30-37 | Demo block: harness in action (section 6) | | `make example-1` at minute 30 | The `show-1` run: screens `1`, `3`, then `4` |
-| 37-41 | Demo block: real run, replayed (section 7) | | | The replay run: screens `1` and `3` |
-| 41-45 | Demo block: constructed example (section 8) | | | The example run: screens `2` and `3` |
-| 45-50 | Discussion and transition | | | |
-
-Console keys: `1` Live Console, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one
-arm full screen. While a run is going, screen `1` shows its last 8 turns and last 3 harness
-decisions; once it ends, all turns and all decisions (`src/shipharness/console/templates/screens/live.html`).
-
-How long `make show-1` takes: the class-profile round's F1 harness arm (A/B
-`ab-20261017-084558-0356a0`, ticket `F1-trap`, both arms running) reached its primary verdict 114 s
-after launch and its full verdict 324 s after launch. `make show-1` runs `F1-canonical` with one arm;
-its captured time is in section 6.
-
-Code walkthrough (10 minutes, while both commands run). Print an anchor with
+Ten minutes, while the run goes on. Print an anchor with
 `uv run python scripts/anchors.py extract <id>`:
 
 | Min | Open | Point at |
@@ -127,112 +336,14 @@ Code walkthrough (10 minutes, while both commands run). Print an anchor with
 | 2 | Anchor `S1:progressive` (`src/shipharness/runner/skills_loader.py`) | Tier 1 only (`catalogue_block`); tiers 2 and 3 load through `read_file`; `skill_for_path` reports the tier |
 | 3 | Anchor `S1:prefix` (`src/shipharness/harness/instructions/router.py`) | `build_prefix`: the map plus the catalogue, built from the course checkout, never from the workspace |
 
----
+## 11. Pilot results
 
-## 6. Harness in action: `make show-1`
+All from the course pilot: gpt-6-luna, the same settings for both arms, reviewer on. The score
+records and run logs behind these tables are kept on the class host and are not part of the public
+repository; the run ids identify them. "Existing tests" is the `regression` check: existing tests
+keep passing.
 
-What it is: the harness arm alone on `F1-canonical` with the instructions layer, live, judged by the
-referee. It shows the layer doing its job; it does not compare anything.
-
-Screen `1` (Live Console):
-- Badges "HARNESS IN ACTION — one arm, not an A/B" and "profile: class". The bare panel reads "Not
-  run: harness in action shows the harness arm alone."
-- Harness decisions, in order: `placed 31 instruction files (AGENTS.md map, docs, skills)`, then one
-  note per document the agent opens, for example `agent read skill add-endpoint (tier 2):
-  .agents/skills/add-endpoint/SKILL.md` and `agent read docs/SECURITY.md`. The map is in context from
-  turn 1; the notes show which pointers the agent followed.
-- Gate: "No gate." The verification layer is not in the demo-1 stack, and the instructions layer
-  never blocks a tool call, so there are no BLOCKED lines.
-- Referee: first "referee pending", then the pill "primary verdict ready: PASS" (or FAIL) with
-  `r1_new_violations`, then "secondary checks running", then the full verdict. Under it: "launch to
-  primary verdict mm:ss · launch to full verdict mm:ss". In class: read the pill and both times aloud.
-
-Screen `3` (Evidence): the files-read map, grouped as map, skill, harness doc, handbook, code, test
-(only `read_file` calls count; a `cat` through `run` does not appear); then the referee list, where
-`r1_tenant: 0 new` is the primary measure. The existing `GET /v1/issues` leak is a baseline finding
-and does not count.
-
-Screen `4` (A/B Report): the pilot's F1 runs, grouped by feature, as counts per arm; the line "1
-single-arm run (harness in action) not compared: no bare run." Say: "Tonight's run is not a dot in
-the comparison. The comparison is the pilot, and it shows no measurable difference."
-
-What the layer did in a recorded run, for reference: the harness arm's decisions in the
-class-profile round (fields `ts`, `data.kind`, `data.message` of the `harness_decision` events):
-
-```text
-captured on 2026-10-17, run ab-20261017-084558-0356a0; your output will differ
-2026-10-17T08:46:10.354Z  note  placed 31 instruction files (AGENTS.md map, docs, skills)
-2026-10-17T08:46:16.409Z  note  agent read ARCHITECTURE.md
-2026-10-17T08:46:17.581Z  note  agent read skill add-endpoint (tier 2): .agents/skills/add-endpoint/SKILL.md
-2026-10-17T08:47:23.623Z  note  agent read docs/QUALITY_SCORE.md
-```
-
-The captured `make show-1` run:
-
-[[CAPTURE: make show-1 terminal output (record line and Cost line), and the launch to primary verdict and launch to full verdict times from screen 1 | how: make show-1]]
-
----
-
-## 7. Real run, replayed: pilot run 3, F4
-
-What it is: A/B `ab-20261016-212252-aa1644` from pilot run 3 (2026-10-16), ticket F4 canonical, the
-harness arm with all four layers (instructions, scope, state, verify). It is a real run, replayed:
-the events are the recorded ones and every screen shows RECORDING; the referee re-judges the
-recorded diffs live. It belongs in S1 because the harness arm had the map, read `docs/SECURITY.md`
-63 s after the instruction files were placed, and still shipped a change that broke tenant isolation on
-three routes. The map is a pointer, not a guarantee; the referee is what notices.
-
-Terminal B prints `RECORDING: replay <new ab id> of ab-20261016-212252-aa1644 (<n> events)`, one
-line per arm, and a `Cost:` line (`src/shipharness/ab/commands.py`).
-
-Screen `1`: badge RECORDING. Harness arm: the decisions from all four layers, including `agent read
-docs/SECURITY.md`; Referee "primary verdict ready: FAIL". Bare arm: FAIL as well (F4's primary
-measure needs every hidden test passed and every referee mutant killed; neither arm had both).
-
-Screen `3`: the referee list, `r1_tenant: 3 new` for the harness arm against `r1_tenant: 0 new` for
-the bare arm. The recorded verdicts and the R1 check (fields `data.summary` of the `verdict` events,
-and the harness arm's `check_result` event for `r1_tenant`, cut):
-
-```text
-captured on 2026-10-16, run ab-20261016-212252-aa1644; your output will differ
-harness  agent said none; referee: fails the primary measure; hidden tests 27/69, mutants killed 0/4, R1 new 3
-bare     agent said none; referee: fails the primary measure; hidden tests 66/69, mutants killed 4/4, R1 new 0
-{"check": "r1_tenant", "passed": false, "new_violations": 3, "baseline_violations": 1, "total_probes": 60,
- "findings": [{"rule": "R1", "severity": "violation", "endpoint": "POST /issues/{issue_id}/assign",
-   "detail": "foreign_path: POST /issues/21/assign -> 422 {\"error\":{\"code\":\"validation_error\", ...
-  {"rule": "R1", "severity": "violation", "endpoint": "POST /issues/{issue_id}/transition", ...
-  {"rule": "R1", "severity": "violation", "endpoint": "PATCH /issues/{issue_id}", ...
-```
-
-What to say: the referee sent another org's issue id to three issue routes and got 422 where R1
-requires 404. These are violations, not leaks: no response carried another org's data (`r1_leaks` 0
-in the score record, `exports/scores/r-20261016-212252-1623c9.json`). The same change failed 42 of 69
-hidden tests and broke 18 of 190 existing tests (score record). The course's referee determinism check
-(2026-10-16) judged this A/B 10 times and got identical scored fields every time; expect `R1 new 3`
-again from the live re-judge, and if it differs, say so.
-
-[[CAPTURE: make replay output (RECORDING line, both record lines, Cost line) and its wall time on the class host | how: time make replay RUN=ab-20261016-212252-aa1644]]
-
----
-
-## 8. Constructed example: `make example-1`
-
-What it is: `shipharness example --section demo-1`, a constructed example, not a run of any agent:
-scripted steps apply a change that leaks another org's issues, with no model call. Every console
-screen shows "CONSTRUCTED EXAMPLE". It exists because no real run in the pilot leaked another org's
-cards on the board, so the ⚠ marks never appeared in a real run (course pilot, class-profile round, 2026-10-17).
-
-Screen `2` (Boards): the board as an Acme user. A card is marked ⚠ when its `data-org` is not the
-viewer's org (`src/shipharness/console/board_capture.py`); a clean board reads "only own-org cards, no
-duplicates". Screen `3`: the referee list with `r1_tenant: <n> new`. Say: "This is the failure the
-referee looks for in every run. The pilot never produced it on F1." If `make example-1` fails, show
-the captured output below instead.
-
-[[CAPTURE: make example-1 terminal output, the board marks on screen 2, and its wall time | how: make example-1]]
-
----
-
-## 9. What each arm read in the pilot
+### 11.1 What each arm read
 
 The map's job is to put the rule in context before the agent writes the query (A1, F-a-05). The first
 eight tool calls of each arm in one run 2 A/B (fields `name` and `target` of the `tool_call` events):
@@ -296,13 +407,7 @@ harness (list_for_org):
 +        )
 ```
 
----
-
-## 10. Pilot results per run
-
-All from the course pilot: gpt-6-luna, the same settings for both arms, reviewer on. One row per run,
-copied from the score records (`exports/scores/<run id>.json`). "Existing tests" is the `regression`
-check: existing tests keep passing.
+### 11.2 Per-run results
 
 Run 2 (2026-10-16, `F1-canonical`, effort medium) and the live console check (2026-10-16, one A/B with
 board previews on, `make demo-1 PURPOSE=pilot`):
@@ -353,54 +458,19 @@ console check): claimed done, harness 5 of 10, bare 9 of 10, no false claim in e
 cost per arm $0.0122 against $0.0103; median arm wall time 168 s against 177 s; agent time limit hit
 0 of 10 in both arms.
 
----
-
-## 11. Measured time and cost
-
-The limits are fixed in configuration (`.env.example`, `src/shipharness/config/settings.py`):
-`MAX_RUN_COST_USD` $0.20 per arm per run, `MAX_REVIEW_COST_USD` $0.04 per review,
-`MAX_SESSION_COST_USD` $2.50 for the class session, `RUN_TIMEOUT_S` 300 s of agent time per arm,
-`HARNESS_TIMEOUT_S` 120 s of harness work per arm, `TOOL_TIMEOUT_S` 120 s per tool command. The class
-profile changes effort, tier, and CPUs, not the caps.
-
 Class-profile round, F1 (A/B `ab-20261017-084558-0356a0`, 2026-10-17, both arms running; times from
-the launch):
+the launch): bare 133 s to the primary verdict and 336 s to the full verdict, arm $0.0122, review
+$0.0028; harness 114 s and 324 s, arm $0.0151, review $0.0028. The round's agent cost was $0.1689
+for 8 arms, every call reported `fast`. The live console check took 9 min 10 s for its whole A/B and
+$0.027821 (both arms and both reviews, cost ledger).
 
-| Arm | Launch to primary verdict | Launch to full verdict | Arm cost | Review cost |
-|---|---|---|---|---|
-| bare | 133 s | 336 s | $0.0122 | $0.0028 |
-| harness | 114 s | 324 s | $0.0151 | $0.0028 |
+## 12. Emergency fallback
 
-Agent calls in the class profile run at OpenAI's Fast tier, which costs twice the Standard rate per
-token (`config/prices.toml`); the round's agent cost was $0.1689 for 8 arms, every call reported
-`fast`. For the earlier F1 runs, per-arm cost and agent time are in section 10; the live console
-check took 9 min 10 s for its whole A/B and $0.027821 (both arms and both reviews, cost ledger).
-
-`make show-1`, `make example-1`, and the replay: their captured times are in sections 6, 7, and 8.
-
----
-
-## 12. Troubleshooting and the fallback
-
-| Symptom | Cause (from the code) | Fix |
-|---|---|---|
-| `make doctor` marks `OPENAI_API_KEY` (or `LANGSMITH_API_KEY`) `x missing` | Key not set (`src/shipharness/doctor.py`) | Add it to `.env`; rerun `make doctor` until `result: + ready` |
-| `make doctor` marks a key `x invalid` | The service answered 401 or 403 | Create a new key, update `.env` |
-| `make doctor` marks `container runtime` `! warn`, `docker not found` | No `docker` on PATH | Install Docker Engine in WSL2 ([docs/setup-windows.md](../../../docs/setup-windows.md)). Do not run the class demo unsandboxed: every screen would show "UNSANDBOXED — results not official" |
-| `make warm` stops with `RunLogLocked: run log already open: /tmp/shipharness-ws/warm/warm-events.jsonl` | Another `shipharness warm` holds the warm-up log's lock (`src/shipharness/events/bus.py`) | Wait for the other warm-up to finish, then rerun; a lock left by a process that no longer runs is reclaimed on the next try |
-| `make show-1` exits 2 before the arm starts | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY` or a stand-in client; there is no fallback to a stand-in | Fix the key with `make doctor`; if the API is down, use the fallback below |
-| The arm ends `ERROR` with `docker run failed: ...`, exit 1 | Daemon stopped, or image `shipharness-agent:1` / `shipharness-referee:1` missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu; `make warm` rebuilds images whose source changed. Then the fallback |
-| The arm ends `ABORTED: cap` or `ABORTED: timeout`, exit 2 | The cost tracker refused the next call, or `RUN_TIMEOUT_S` was reached | Keep it: aborted runs are judged and shown (a course rule) |
-| Not finished at minute 25 | Slow host or a slow model response | Start the demo block on the running `show-1` page; its primary verdict pill appears before the full verdict |
-| `make replay`: `! replay needs RUN=<ab or run id>` | `RUN` not given | `make replay RUN=ab-20261016-212252-aa1644` |
-| `make replay`: `x ...; check the A/B or run id` | The run folder is not in `.shipharness/runs/` on this host | Before-class step 3; in class, show the captured blocks in section 7 |
-| `make replay` with `--purpose class` fails on the class date | `SHIPHARNESS_CLASS_DATE` not set | Before-class step 4, or `make replay RUN=<id> PURPOSE=pilot` |
-| Screen 2 shows no board | The board preview is display only; a preview that fails to start is skipped (`src/shipharness/ab/demo.py`) | Continue with screens 1 and 3 |
-
-### Fallback: replay
-
-If `make show-1` fails on stage (API outage, rate limit, Docker failure), replay the class-profile
-round's F1 A/B, which shows the same map reads with a RECORDING badge on every screen:
+Only if `make show-1` fails on stage (API outage, rate limit, Docker failure) and part 8 cannot fix
+it in a minute: replay the class-profile round's F1 A/B, which shows the same map reads with a
+RECORDING badge on every screen. It needs the run folder on the class host
+(`.shipharness/runs/ab-20261017-084558-0356a0`, not part of the public repository) and Docker for the
+referee, and makes no model calls:
 
 ```bash
 make replay RUN=ab-20261017-084558-0356a0

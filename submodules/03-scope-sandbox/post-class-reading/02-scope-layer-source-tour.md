@@ -151,7 +151,7 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
 
 ## 4. How the referee counts the S3 measure
 
-`src/shipharness/ab/referee.py`, lines 513-526.
+`src/shipharness/ab/referee.py`, lines 584-597.
 
 ```python
         product = strip(diff)  # harness artifacts are state, not product changes
@@ -170,7 +170,7 @@ judging it proves to be a strong lever to address this issue." (A3, F-a-110).
         ]
 ```
 
-The test-phase files come from `phase_changed_files` in `src/shipharness/ab/demo.py`, lines 441-452:
+The test-phase files come from `phase_changed_files` in `src/shipharness/ab/demo.py`, lines 500-511:
 
 ```python
 def phase_changed_files(

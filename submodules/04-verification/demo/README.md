@@ -1,131 +1,395 @@
 # S4 demo: harness in action (`make show-4`), and the launch of the final A/B
 
-Runbook for the S4 block in class. It covers the poll, the two launches (`make show-4` and `make
-final`), what runs while the concepts and the code walkthrough are on screen, and the 15-minute demo
-block: the harness arm at work on F4, a real run replayed, a constructed example, and the honest
-results. Concepts: [../concepts.md](../concepts.md).
-
-Every captured block in this file is labelled "captured on <date>, run <id>; your output will
-differ". Source IDs such as (A3, F-a-110) resolve in [REFERENCES.md](../../../REFERENCES.md).
+Runbook for the S4 demo, in eight parts: what it shows, what to install, the checks before you
+start, the commands, what to watch minute by minute, how to read the result, time and cost, and what
+to do when it fails. Reference material (poll, code walkthrough, every F4 result, the emergency
+fallback) follows part 8. Concepts: [../concepts.md](../concepts.md). The final A/B launched here is
+read in the final block: [final-project/README.md](../../../final-project/README.md). Source IDs such
+as (A3, F-a-110) resolve in [REFERENCES.md](../../../REFERENCES.md). Captured output and screenshots
+are labelled "captured on <date>, run <id>; your output will differ".
 
 ---
 
-## 1. What this section shows, and why
+## 1. What this demo shows and why
 
-**The problem.** F4 (`teamtrack/docs/features/f4.md`) adds optimistic concurrency and issue history
-from checkpoint `m1-s4-start`. The `If-Match` header is optional, so every existing test keeps
-passing whether or not concurrency works. An agent can test the happy path, call
-`finish(claim="done")`, and ship a board where two people editing one issue overwrite each other.
-The referee judges every run on two counts the agent never sees: hidden tests passed (of 69) and
-referee-set mutants killed by the shipped tests (of 4).
+`make show-4` runs the harness arm alone, live, on F4 (optimistic concurrency with `ETag` and
+`If-Match`, and issue history, `teamtrack/docs/features/f4.md`) with all four layers: handoffs between
+build sessions, the verify gate on a done claim, a 12-turn test phase whose proposed tests pass
+through five filters, and then the referee's two counts the agent never sees: hidden tests passed (of
+69) and referee mutants killed by the shipped tests (of 4). It is not an A/B because the course pilot
+found no gap on F4 (both arms failed the primary measure in every A/B, section 11); the measurement
+lesson goes to the final, `make final`, the class's one live A/B, launched in this section and read
+in the final block.
 
-**Why no live A/B in S4.** The class plan (course design) keeps a live bare-against-harness A/B
-only where the course's pilot data shows a gap. On F4 it does not: both arms failed the primary
-measure in 3 of 3 A/Bs of pilot run 3 and in the one A/B of the class-profile round (section 12).
-That is "no measurable difference on this task with this model". So S4 shows the verification layer
-doing its job instead, in three labelled parts, and leaves the measurement lesson to the final:
+The problem: the `If-Match` header is optional, so every existing test keeps passing whether or not
+concurrency works. An agent can test the happy path, call `finish(claim="done")`, and ship a board
+where two people editing one issue overwrite each other. The verification layer's assumption, in the
+course's words: the agent's "done" and its own tests cannot be trusted (after A3, F-a-124; cause 4:
+A3, F-a-15; A4, F-a-17).
 
-| Part | Command | Label on screen | Model calls |
-|---|---|---|---|
-| Harness in action: the harness arm alone on F4, live (handoffs between sessions, the test phase, the five test filters) | `make show-4` | `▶ HARNESS IN ACTION — one arm, not an A/B` | yes |
-| Real run, replayed: the class-profile round's F4 A/B, where the bare arm claimed done with 68 of 69 hidden tests passing and the referee failed it | `make replay RUN=ab-20261017-090903-926c02` | `● RECORDING` | no |
-| Constructed example: a scripted done claim with a failing test, refused by the gate, then accepted after the fix | `make example-4` | `CONSTRUCTED EXAMPLE` | no |
-| The final: one live A/B on the feature the room picks, launched in S4 and read in the final block | `make final FEATURES=<poll winner>` | none (a live A/B) | yes |
-
-The verification layer's assumption, in the course's words: the agent's "done" and its own tests
-cannot be trusted (after A3, F-a-124; cause 4: A3, F-a-15; A4, F-a-17). The three parts show what
-the layer does about that; the results slide shows what the pilot measured, wins and "no measurable
-difference" alike.
-
-## 2. Before class
-
-Run everything inside WSL2 from the repository root (`~/shipharness`).
-
-| Step | Command | What you should see | If it fails |
-|---|---|---|---|
-| 1. Keys, Docker, versions | `make doctor` | every line ok (it lists OpenAI models and one LangSmith project; no tokens) | fix the line it names; `SANDBOX_MODE=docker` must be set in `.env` |
-| 2. Class date | set `SHIPHARNESS_CLASS_DATE=<YYYY-MM-DD>` in `.env` | class commands start | without it every class command stops with `x SHIPHARNESS_CLASS_DATE is not set: ...` and exit 2 |
-| 3. Warm the host | `make warm` | one line per step with its time; a second run finds everything in place | read the step it names; rerunning is safe (no model calls) |
-| 4. Console | `make console` (terminal A) | the console at `http://localhost:8765/` | `CONSOLE_PORT=8766 make console` if the port is taken |
-| 5. The recorded A/B is on the host | `ls .shipharness/runs/ab-20261017-090903-926c02` | `ab.json`, `events.jsonl`, `bare/`, `harness/`, `screenshots/` | copy the run folder from the build host, or use another recorded F4 A/B (section 15) |
-
-`make warm` was measured on the class host before the class-profile round (2026-10-17): the first
-run took 407 s (images rebuilt in 145 s, 7 referee baselines and 4 gate baselines), the second 1.2
-s. Without it the first launch pays that cost.
-
-## 3. Commands
-
-| Command | Terminal | When | What it runs (`make -n`, checked on 2026-10-17, except `make example-4`) |
-|---|---|---|---|
-| `make show-4` | B | section minute 4 | `uv run shipharness ab --section demo-4 --feature F4 --arms harness --purpose class --profile class` |
-| `make final FEATURES=<poll winner>` | C | section minute 5 | for each feature: `uv run shipharness ab --section final --feature <f> --purpose class --profile class` |
-| `make replay RUN=ab-20261017-090903-926c02` | B | minute 25, after `make show-4` has printed its `Cost:` line | `uv run shipharness replay ab-20261017-090903-926c02 --purpose class` |
-| `make example-4` | B | demo block | `shipharness example --section demo-4`: scripted steps, no model |
-| `make swap-4 AB=ab-20261017-090903-926c02` | B | optional, demo block | `uv run shipharness ab --swap ab-20261017-090903-926c02 --section demo-4 --purpose class` |
-
-`uv run shipharness ab --help` lists the two options the class runs add: `--profile` ("standard
-(settings as loaded) or class (live class runs: low effort, Fast, 2 CPUs)") and `--arms` ("both
-(A/B, default) or harness (the harness arm alone: harness in action)"). The class profile is the
-same for every arm: reasoning effort low, 2 CPUs per arm and referee container, and OpenAI's Fast
-tier for the agent; the reviewer keeps its own settings.
-
-What each command prints when it ends (formats from `src/shipharness/ab/commands.py`):
-
-```text
-A/B <ab_id> (<feature>, layers=[...], profile=class, harness in action)
-  <arm> <status> claim=<claim> primary=<values> passed=<bool> hidden <x>/<n> mutants <y>/<m> reviewer=<verdict> cost=$<usd>
-Cost: $<this command> (this command: <model> $<usd>, ...; session $<spent> of $2.50; build $<spent> of $15.00 ($<left> left))
+```mermaid
+sequenceDiagram
+  participant T2 as terminal 2: make show-4
+  participant H as harness arm (four layers)
+  participant G as verify gate
+  participant R as referee
+  participant T3 as terminal 3: make final
+  T2->>H: build sessions (40 turns), handoff between sessions
+  H->>G: finish(done) starts the gate
+  G-->>H: refuses with feedback, or accepts
+  H->>H: test phase (12 turns): proposed tests through filters 1-5
+  H->>R: shipped diff and kept tests
+  R-->>T2: primary verdict (hidden of 69, mutants of 4), then full verdict
+  T3->>R: the final A/B (both arms) runs beside it, read in the final block
 ```
 
-`, harness in action` appears only for `make show-4`, which prints one record line (the harness
-arm); `make final` prints two record lines per feature;
-`make replay` starts with `RECORDING: replay <new id> of ab-20261017-090903-926c02 (<n> events)`.
-Exit codes: 0 when every arm completed, 2 when an arm was aborted (agent time limit or cost cap), 1
-on an error.
+---
 
-Captured output of `make show-4`:
+## 2. Prerequisites and dependencies
 
-[[CAPTURE: terminal output of make show-4 (A/B line, the harness record line, the Cost line) with its date and ab id | how: make show-4]]
+The course's tested platform is Ubuntu inside WSL2 on the class host. The setup pages hold every
+step and say which ones were tested: [macOS](../../../docs/setup-macos.md) (not tested on a Mac),
+[Windows with WSL2](../../../docs/setup-windows.md), [Linux](../../../docs/setup-linux.md).
 
-The swap test works on an A/B only: on the `make show-4` id it stops with `x <id> is a single-arm
-run (harness in action): the swap test needs both arms; pass the id of an A/B`. On
-ab-20261017-090903-926c02 it re-judges both recorded diffs with the labels swapped, with no model
-calls, and prints `Swap test on <ab_id>: judged measures identical` (exit 0) or each difference
-(exit 1). The layer switch (`make demo-4 LAYERS=-verify`) would be a new A/B and is not part of the
-class plan.
+| OS | Install (from the setup page) |
+|---|---|
+| macOS | `xcode-select --install` (git, make); `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Desktop, or `brew install colima docker` then `colima start --cpu 2 --memory 4` |
+| Windows | In PowerShell as administrator: `wsl --install`; restart; then every command below runs in the Ubuntu terminal, with Docker Engine inside Ubuntu (no Docker Desktop) and the repository under `~`, never `/mnt/c` |
+| Linux (Ubuntu) | `sudo apt update && sudo apt install -y git make curl`; `curl -LsSf https://astral.sh/uv/0.13.1/install.sh \| sh`; Docker Engine from Docker's apt repository ([setup-linux.md](../../../docs/setup-linux.md), step 3); `sudo usermod -aG docker $USER`, then a new login |
 
-## 4. The section, minute by minute
+Then, on every OS:
 
-| Section minutes | Block | Terminals and console |
+```bash
+git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
+cd ~/shipharness
+make setup        # uv sync --frozen, both sandbox images, .env from .env.example
+```
+
+and put `OPENAI_API_KEY` and `LANGSMITH_API_KEY` in `.env` (never print it on the projector). For
+class commands (`--purpose class`, the default) also set `SHIPHARNESS_CLASS_DATE=<YYYY-MM-DD>`.
+
+Versions on the class host (captured on 2026-10-17 from `git --version`, `make --version`,
+`uv --version`, `docker --version`; your output will differ):
+
+```text
+git version 2.53.0
+GNU Make 4.4.1
+uv 0.13.1 (x86_64-unknown-linux-gnu)
+Docker version 29.9.1, build dfc520d
+```
+
+Python: `pyproject.toml` requires `>=3.12`, `.python-version` pins `3.12`, and uv downloads it
+(`make doctor` showed `3.12.15` on the class host).
+
+---
+
+## 3. Before you start
+
+Run these from the repository root, in this order.
+
+**`make doctor`** checks Python, git, uv, the container runtime, both keys, the price table, and that
+`.env` is not tracked. Captured on 2026-10-17 at commit 182d1a2 in a checkout without `.env` (so
+both keys show `x missing`); your output will differ:
+
+```text
+$ make doctor
+uv run shipharness doctor
+shipharness doctor
+  + ok          python                 3.12.15
+  + ok          git                    /usr/bin/git
+  + ok          uv                     /home/ani/.local/bin/uv
+  + ok          container runtime      docker at /usr/bin/docker
+  x missing     OPENAI_API_KEY         not set
+    next step: OPENAI_API_KEY is missing: add it to .env at the repo root
+  x missing     LANGSMITH_API_KEY      not set
+    next step: LANGSMITH_API_KEY is missing: add it to .env at the repo root
+  + ok          prices                 gpt-6-luna, gpt-5.6-luna
+  + ok          .env not in git        not tracked
+  result: x not ready (fix the items above)
+Cost: $0.000000 (no model calls)
+make: *** [Makefile:54: doctor] Error 1
+```
+
+Ready means: each key line reads `+ ok ... accepted by OpenAI` (or `accepted by LangSmith`), the
+`container runtime` line starts with `+ ok`, and the last line is `result: + ready`
+(`src/shipharness/doctor.py`). The key check lists models and uses no tokens.
+
+**`make warm`** (no model calls, safe to rerun) runs `uv run shipharness warm --profile class
+--images-command "make images RUNTIME=docker"`. From `uv run shipharness warm --help` (captured on
+2026-10-17 at commit 182d1a2): "Prepare the class host: images, containers, and baselines. No model
+calls." It rebuilds an image only if its source changed, starts each image once, and caches the
+referee and gate baselines of the class tasks. The class-profile round measured 407 s for a first run
+(images rebuilt in 145 s; 7 referee and 4 gate baselines) and 1.2 s for a second (course pilot,
+class-profile round, 2026-10-17). `make -n warm` is now a true dry run: it only prints the command
+(fixed in commit 88739f0).
+
+**Keys present.** `make doctor` ends with `result: + ready`. For `--purpose class`, `.env` also has
+`SHIPHARNESS_CLASS_DATE` set to the class day; without it every class command stops with
+`x SHIPHARNESS_CLASS_DATE is not set: ...` and exit 2, before any arm starts. `SANDBOX_MODE=docker`
+must be set (the default in `.env.example`).
+
+---
+
+## 4. Run it
+
+Three terminals, all in the repository root inside WSL2 (or your Linux or macOS shell).
+
+1. **Terminal 1, the console** (leave it running):
+
+   ```bash
+   make console
+   ```
+
+   Captured on 2026-10-17 from the quiet timing runs (`make console`); your output will differ:
+
+   ```text
+   uv run shipharness console --port 8765
+   Console: http://127.0.0.1:8765/
+   INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+   ```
+
+   Open `http://127.0.0.1:8765/` in the browser (on Windows, the Windows browser works).
+
+2. **Terminal 2, the live run**, at section minute 4, after the S4 poll and the final feature poll:
+
+   ```bash
+   make show-4
+   ```
+
+   It runs (from `make -n show-4`, captured on 2026-10-17 at commit 182d1a2):
+
+   ```text
+   uv run shipharness ab --section demo-4 --feature F4 --arms harness   --purpose class \
+     --profile class
+   ```
+
+   One agent run and one review, at most $0.24 at the caps. Open its run on the console right away
+   (screen `1`), before `make final` starts, so the two do not get mixed up.
+
+3. **Terminal 3, the final A/B**, at section minute 5, with the poll winner (F5 here as the example):
+
+   ```bash
+   make final FEATURES=F5
+   ```
+
+   It runs, for each feature (from `make -n final FEATURES=F5`, captured on 2026-10-17 at commit
+   182d1a2):
+
+   ```text
+   rc=0; for f in $(echo "F5" | tr ',' ' '); do \
+     uv run shipharness ab --section final --feature $f  --purpose class \
+       --profile class || rc=$?; \
+   done; exit $rc
+   ```
+
+   Always pass `FEATURES=`: the Makefile default is `F5,F6`. Each arm is capped at
+   `MAX_FINAL_RUN_COST_USD` ($0.25) and each review at `MAX_REVIEW_COST_USD` ($0.04), so one feature
+   costs at most $0.58. Open it in a second browser tab and leave it for the final block.
+
+4. **In the browser**, keys `1` Live Console, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces;
+   `F` shows one arm full screen. After a run, `http://127.0.0.1:8765/run/<ab_id>` opens it directly.
+
+5. **At the end** each terminal prints its record lines and a `Cost:` line (part 5 has the captured
+   lines). Exit codes: 0 when every arm completed, 2 when an arm ended `ABORTED`, 1 on `ERROR`.
+
+Class timing (50 minutes): S4 poll 0-3; final feature poll 3-4; launches at minutes 4 and 5;
+concepts 6-20 and the code walkthrough (section 10) 20-30 while both runs proceed; demo block 30-45 on
+the finished `make show-4` (screens `1`, `3`, `2`, then the results slide and screen `4`); discussion
+45-50. The final A/B is read in the final block.
+
+---
+
+## 5. What to watch, minute by minute
+
+From a real `make show-4` on a quiet machine (captured on 2026-10-17, run `ab-20261017-115138-c45d9d`,
+with `PURPOSE=pilot`, the class profile, and no `make final` running beside it; screenshots of
+screens 1 and 2 every minute and of screens 1-5 after the verdict). Minutes count from the launch;
+your run will differ. In class `make final` runs at the same time, so expect it to be slower.
+
+Every screen shows the badges "▶ HARNESS IN ACTION — one arm, not an A/B" and "profile: class". On
+screen `1` the bare panel reads "Not run: harness in action shows the harness arm alone. The
+bare-vs-harness comparison comes from the A/B runs (make demo-N)." While the run is live, screen `1`
+keeps the last 8 turn rows and the last 3 harness decisions; afterwards it lists all of them.
+
+| Minute | Screen | What appears |
 |---|---|---|
-| 0-3 | S4 poll (section 5) | |
-| 3-4 | Final feature poll (F5, F6, or F7) | Close it before the launch |
-| 4-6 | Launch | Minute 4: `make show-4` in terminal B, open its run on the console (screen `1`). Minute 5: `make final FEATURES=<winner>` in terminal C, open its run in a second browser tab and leave it for the final block |
-| 6-20 | Concepts ([../concepts.md](../concepts.md)) | Both runs proceed |
-| 20-30 | Code walkthrough (section 11) | Minute 25: check terminal B for the `Cost:` line of `make show-4` and terminal C for the final's; then start `make replay RUN=ab-20261017-090903-926c02` in terminal B |
-| 30-45 | Demo block | `make show-4` on screens 1, 3, 2 (section 6); the replay on screens 1 and 3 (section 7); `make example-4` (section 8); the results slide and screen 4 (section 9) |
-| 45-50 | Discussion and transition | The final A/B is read in the final block (section 10) |
+| 0 | `1` | Harness decisions: `placed 31 instruction files (AGENTS.md map, docs, skills)`, the initializer step, `feature_list.json written with F4 (passes: false)`, and `gate baseline reused (same checkpoint commit)` (the effect of `make warm`); at 0:18 `agent read ARCHITECTURE.md` |
+| 1 | `1` | At 0:55 turn `1.15`, `apply_patch app/services/errors.py`, gets "✗ apply_patch" and "⊘ blocked (reject_patch)": the scope layer refused a write to the shared errors file, outside the build list; decisions `block` and `blocked`. The agent then works inside the list |
+| 2-3 | `1` | Turn `1.31` is `finish done` at 2:18. The gate pills appear at once, all ⏳: `visible tests`, `existing tests`, `R1` to `R7`, `board`, `clean state` |
+| 3-4 | `1` | At 3:24 every pill turns ✓ (visible tests 190 passed) and the decision `gate ... passed`; then the session 1 handoff, `status_set` "F4 passes: r-20261017-115138-94d8ac-g1 at 19d994d", and the exec plan moved to `completed/`. The test phase starts (turns `2.x`): getting up to speed, `bash init.sh`, the visible tests, one new test file |
+| 5-8 | `3` | The test filters run on the 4 proposed tests, each up to 5 times (5:51 to 8:34): the Verification panel fills one row per test with ✓/✗ per filter and `kept` or `discarded`; screen 1 then shows `test filters: kept 1, discarded 3` |
+| 8-9 | `1` | At 8:34 the run ends `✗ run ABORTED: timeout · 43 turns`. At 9:19: "✗ primary verdict ready: FAIL", "hidden tests passed 68 · mutants killed 0" |
+| 9-11 | `1` | Secondary checks finished at 10:38; the full verdict at 10:55: "hidden tests 68/69, mutants killed 0/4, R1 new 0 · launch to full verdict 10:55" and "✗ claim not supported" |
 
-The console's runs list shows ids only, newest first. Open the `make show-4` run right after the
-launch, before `make final` starts, so the two do not get mixed up; after a run,
-`http://localhost:8765/run/<ab_id>` opens it directly. Keys `1` to `5` switch screens; `F` shows
-one arm full screen.
+The point of the section is on one screen: the gate passed every item and the harness set `passes`,
+yet the referee fails the run. The gate checks visible tests, existing tests, R1-R7, the board, and
+clean state, not the hidden tests or the referee mutants. No F4 harness arm in the pilot runs had
+claimed done, so this is the first real run where the gate ran on F4.
 
-**Will it be ready by minute 25?** In the class-profile round (one A/B at a time, 2026-10-17) the
-F4 harness arm reached its primary verdict 811 s and its full verdict 927 s after the launch
-(ab-20261017-090903-926c02). Its harness time was 433 s against 311 s of agent time, mostly the test
-filters running each of its 6 test-phase tests up to 5 times. Every A/B of that round finished
-within 15.5 minutes of its launch. A launch at minute 4 that takes as long ends near minute 20.
-The time of `make show-4` itself, with `make final` running beside it:
+![Screen 1 at minute 1: turn 1.15 apply_patch app/services/errors.py blocked by the scope layer](img/show-4-screen-1-t01m.png)
 
-[[CAPTURE: launch to primary verdict and launch to full verdict of make show-4 (class profile), with its ab id | how: make show-4]]
+*Console screen 1 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
 
-If `make show-4` has no full verdict at minute 30, open the demo block on the running arm (screen
-1 and the filter table fill in as it goes) and show the replay first (section 7).
+![Screen 1 at minute 3: finish done, the gate pills pending: visible tests, existing tests, R1-R7, board, clean state](img/show-4-screen-1-t03m.png)
 
-## 5. Poll question and answer pattern
+*Console screen 1 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
 
-Ask before the launch; the final feature poll follows it (S4, slide 49):
+![Screen 1 at minute 4: every gate pill passed, status set F4 passes, the test phase begins](img/show-4-screen-1-t04m.png)
+
+*Console screen 1 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+![Screen 1 after the full verdict: gate all passed, primary verdict FAIL, hidden 68 of 69, mutants 0 of 4, claim not supported](img/show-4-screen-1-final.png)
+
+*Console screen 1 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+Then the other screens:
+
+- **Screen `3` (Evidence)**: the diff map with `app/services/errors.py` marked "⊘ blocked"; the
+  Verification panel's "Test filters (1-5)" table: two tests discarded at filter 3 ("adds no line
+  coverage over the existing suite and kills no filter-set mutant that the existing tests miss"),
+  one at filter 2 ("failed on run 1 of 5: assert 422 == 412"), one kept after all five; the
+  referee mutants below it.
+
+  ![Screen 3: the diff map with one blocked file, the test filter table with one kept and three discarded tests and their reasons](img/show-4-screen-3-final.png)
+
+  *Console screen 3 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+- **Screen `2` (Boards)**: the board with "✓ only own-org cards, no duplicates" and, after the run,
+  the "Two-tab edit conflict" panel: "✓ CONFLICT DETECTED: tab B got HTTP 409", tab B showing "This
+  issue was changed by someone else". The board stops the two-tab lost update, yet one hidden test
+  fails and no shipped test kills a referee mutant.
+
+  ![Screen 2: the board and the two-tab edit conflict, conflict detected, tab B got HTTP 409](img/show-4-screen-2-final.png)
+
+  *Console screen 2 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+- **Screen `5` (Traces)**: "First wrong turn: turn 1.15 blocked, apply_patch app/services/errors.py",
+  the live tail, and the LangSmith links.
+
+  ![Screen 5: first wrong turn 1.15 blocked, live tail, LangSmith links](img/show-4-screen-5-final.png)
+
+  *Console screen 5 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+- **Screen `4` (A/B Report)** and the results slide: one dot per run per feature and arm; single-arm
+  runs are counted separately and never compared. Say the record is not an A/B, then read section 11.
+
+  ![Screen 4: primary measures, one dot per run, per feature and arm](img/show-4-screen-4-final.png)
+
+  *Console screen 4 (show-4), captured on 2026-10-17, run ab-20261017-115138-c45d9d; your output will differ.*
+
+Terminal 2 at the end (captured on 2026-10-17, run ab-20261017-115138-c45d9d, `time make show-4
+PURPOSE=pilot`; your output will differ):
+
+```text
+A/B ab-20261017-115138-c45d9d (F4, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
+  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0233
+Cost: $0.026511 (this command: gpt-5.6-luna $0.003201, gpt-6-luna $0.023310; session $1.416157 of $2.50; build $2.341905 of $15.00 ($12.658095 left))
+make: *** [Makefile:129: show-4] Error 2
+
+real	11m5.912s
+```
+
+`Error 2` is `shipharness ab`'s exit code 2 for an aborted arm; the run is judged and complete. The
+`session` figure counts every command run under the same session date (here the pilot's); a class
+session starts at $0.
+
+Terminal 3, the final A/B, at its end (captured on 2026-10-17, run ab-20261017-120323-c97138,
+`time make final FEATURES=F5 PURPOSE=pilot` on the quiet machine, after `make show-4` had finished;
+your output will differ):
+
+```text
+A/B ab-20261017-120323-c97138 (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
+  harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
+Cost: $0.045597 (this command: gpt-5.6-luna $0.005302, gpt-6-luna $0.040295; session $1.461754 of $2.50; build $2.387502 of $15.00 ($12.612498 left))
+make: *** [Makefile:163: final] Error 2
+
+real	12m46.782s
+```
+
+F5-F7 have no pre-registered primary measure (`primary={}`), so `passed=True` only means nothing was
+registered to fail; read the scores (hidden tests, mutants, reviewer) as one dot each. How to read
+it is in the final block ([final-project/README.md](../../../final-project/README.md)).
+
+---
+
+## 6. What a result means
+
+**The verdict.** F4's primary measure needs both counts: every hidden test passed (69 of 69) and
+every referee mutant killed by the shipped tests (4 of 4). "primary verdict ready: FAIL" with
+`hidden_passed` and `mutants_killed` tells you which count failed; read both aloud. The gate does not
+run hidden tests or mutants (`GATE_CHECKS` in `src/shipharness/harness/verify/gate.py`), so a passed
+gate and a failed referee verdict can sit side by side: what separates the claim from the verdict is
+the referee's held-out check (B13, F-b-43).
+
+**The three readings.** `make show-4` runs one arm, so it cannot show any of them on its own; they
+come from A/Bs (pilot runs, and screen 4):
+
+| Reading | What it would mean on F4 | The pilot |
+|---|---|---|
+| Harness ahead | The harness arm passes both counts in more runs than the bare arm | Not seen |
+| No measurable difference | Both arms pass (or fail) in about the same number of runs | Measured: both arms failed in all 7 F4 A/Bs (pilot runs 2 and 3, class-profile round) |
+| Bare ahead | The bare arm passes both counts in more runs than the harness arm | Not seen |
+
+On the counts themselves: the harness arm never killed more referee mutants than the bare arm in
+those 7 A/Bs, and passed more hidden tests in one (section 9). What to say: "on this task with this
+model, the harness arm did not get ahead".
+
+---
+
+## 7. Expected time and cost
+
+| Run | Launch to primary verdict | Launch to full verdict | Wall time | Cost |
+|---|---|---|---|---|
+| `make show-4`, quiet machine, `ab-20261017-115138-c45d9d` (2026-10-17, alone on the machine, agent time limit hit) | 9 min 19 s | 10 min 55 s | 11 min 6 s | $0.026511 (agent $0.023310 at the Fast tier, review $0.003201) |
+| Class-profile round, F4 harness arm, `ab-20261017-090903-926c02` (2026-10-17, both arms running) | 811 s | 927 s | - | $0.0257 arm, $0.0040 review |
+| `make show-4 PURPOSE=pilot` under load, `ab-20261017-100107-4c2be8` (2026-10-17, agent time limit hit) | - | - | 9 min 30 s | $0.0251 |
+
+The final A/B on the quiet machine (`make final FEATURES=F5`, `ab-20261017-120323-c97138`, run
+alone): the bare arm's full verdict 6 min 54 s after launch, the harness arm's 12 min 36 s (it hit
+the agent time limit at 9:50); wall time 12 min 47 s; cost $0.045597 for both arms and both reviews.
+
+In class, a launch at section minute 4 at the quiet-machine pace gives the primary verdict near
+minute 13 and the full verdict near minute 15, before the code walkthrough ends; with `make final`
+beside it, allow more. If there is no full verdict at minute 30, open the demo block on the running
+arm (screen 1 and the filter table fill in as it goes). In the quiet run the test filters ran from
+5:51 to 8:34, each proposed test up to 5 times.
+
+Caps (not measurements; `src/shipharness/config/settings.py`): agent time per arm `RUN_TIMEOUT_S`
+300 s, harness work per arm `HARNESS_TIMEOUT_S` 120 s, tool command `TOOL_TIMEOUT_S` 120 s; $0.20
+per arm (`MAX_RUN_COST_USD`), $0.25 per final arm (`MAX_FINAL_RUN_COST_USD`), $0.04 per review
+(`MAX_REVIEW_COST_USD`), $2.50 per session (`MAX_SESSION_COST_USD`); F4 build session 40 turns
+(`teamtrack/reference/f4/task.toml`). By those caps `make show-4` costs at most $0.24 and one
+`make final` feature at most $0.58. Fast-tier calls cost twice the Standard rate per token; the caps
+do not change.
+
+---
+
+## 8. If it fails
+
+| Symptom | Cause (from the code) | Fix |
+|---|---|---|
+| `make show-4` exits 2 with `ABORTED: timeout` on the record line | The harness arm hit the 300 s agent time limit (it did in the class-profile round and under load) | Nothing to fix: the referee still judges the shipped diff and the record is complete |
+| `x OpenAI refused the key: ...; no arm was started`, exit 2 | Live runs refuse a missing or rejected key and any stand-in client; there is no automatic fallback | Fix the key (`make doctor` until `result: + ready`), or section 12 |
+| The run is slower than part 7 and the ledger shows `"service_tier": "default"` | OpenAI served a Fast request at the Standard tier; each call is priced by the tier the response reports (`src/shipharness/cost/tracker.py`) | Nothing to fix; open the demo block on the running arm: screen 1 and the filter table fill in as it goes |
+| The arm ends `ERROR` with `docker run failed: ...`, or `make doctor` shows `container runtime ! warn` | Docker is not running, or an image is missing (`src/shipharness/sandbox/docker.py`) | `docker info`; `sudo systemctl start docker` inside Ubuntu (Colima: `colima start`); `make warm` |
+| `make console` fails with `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766`, then open `http://127.0.0.1:8766/` |
+| No gate pills by the end of the run | The agent never claimed done; the gate runs only on `finish(claim="done")` | Show the test-phase filter table and the referee counts; the gate's behaviour is in concepts §3.1; no F4 harness arm in the pilot runs reached it, the quiet run in part 5 did |
+| `make final` with no `FEATURES` runs F5, then F6 | The Makefile default is `FEATURES ?= F5,F6` | Always pass `FEATURES=`; press Ctrl+C at once if the default started |
+
+Older notes said not to run `make -n warm` because it started the warm-up; that no longer applies
+after commit 88739f0. Every gate pill ✗ with `could not write the check inputs in the container` or
+`check runner failed (exit <n>)` means the harness time limit ran out (each gate command is capped
+by the harness time left): keep the run and say what happened. `reviewer=None` means the review was
+incomplete or hit its cap; the primary counts are unaffected.
+
+---
+
+## Reference material
+
+## 9. Poll question and answer pattern
+
+Ask before the launch; the final feature poll follows it:
 
 > Building F4 (ETag, If-Match, issue history), both arms' visible tests pass at the end. The referee
 > then runs 69 hidden tests (`teamtrack/tests/hidden/f4/`) and 4 referee-set mutants
@@ -142,7 +406,7 @@ Hint for the room after the vote: one referee mutant makes writes stop moving th
 only if it checks that a write moves the ETag, or that a save with the old version gets 412.
 
 Answer pattern from the course's seven F4 A/Bs (hidden of 69 and mutants of 4, bare against
-harness; A/B ids in section 12):
+harness; A/B ids in section 11):
 
 | A/B | Hidden, bare / harness | Mutants, bare / harness | Which of A-C held |
 |---|---|---|---|
@@ -157,160 +421,29 @@ harness; A/B ids in section 12):
 A held in none of the seven, B in one, C in none; the harness arm never killed more mutants than
 the bare arm. Say it plainly: on this task with this model, the harness arm did not get ahead.
 
-## 6. What to watch: `make show-4` (harness in action)
+## 10. Code walkthrough
 
-Every screen shows the badge `▶ HARNESS IN ACTION — one arm, not an A/B` and `profile: class`.
-The bare panel on screen 1 reads "Not run: harness in action shows the harness arm alone. The
-bare-vs-harness comparison comes from the A/B runs (make demo-N)."
-
-While the run is live, screen `1` keeps the last 8 turn rows and the last 3 harness decisions;
-after the run it lists all of them in scrollable lists. Point at these, in order:
-
-| Moment | Where | What appears |
-|---|---|---|
-| Start | Screen 1, harness decisions | `placed 31 instruction files (AGENTS.md map, docs, skills)`, the initializer step, `feature_list.json written with F4 (passes: false)`, the gate baseline |
-| A write outside the ticket | Screen 1 | `BLOCKED reject_patch: <path>`: the scope layer refused the patch (only if the agent tries one) |
-| End of a build session | Screen 1, turn list | "Session 1 stopped" with `session 1 handoff written to session-handoff.md`; the next session resumes from it |
-| A done claim | Screen 1 | Gate pills `visible tests`, `existing tests`, `R1` to `R7`, `board`, `clean state`: ⏳, then ✓ or ✗. On ✗ the agent gets `Gate <id>: <n> of <m> items failed (<names>).`, up to three failure lines, and `Fix these, commit your work, and call finish again.` (`_feedback` in `src/shipharness/harness/verify/gate.py`) |
-| Test phase (12 turns) | Screen 3, Verification panel | One row per proposed test, ✓/✗ per filter 1-5, `kept` or `discarded`, and the reason under the row; then `test filters: kept <n>, discarded <m>` on screen 1 |
-| Referee | Screen 1, bottom of the panel | `referee pending`, then `primary verdict ready: PASS` or `FAIL` with the two counts, `secondary checks running`, and "launch to primary verdict mm:ss · launch to full verdict mm:ss" |
-| After the run | Screen 2, Boards | The "Two-tab edit conflict" panel: `✓ CONFLICT DETECTED: tab B got HTTP <status>` or `✗ LOST UPDATE: tab B overwrote tab A without a conflict` |
-
-If no gate pills appear, the agent never claimed done; the gate runs only on `finish(claim="done")`.
-That happened in every F4 harness arm of the pilot and the class-profile round (section 12). Say so:
-the referee still judges the shipped diff, and the constructed example (section 8) shows the gate
-refusing a claim.
-
-What the same harness arm did in the class-profile round, as screen 1 and screen 3 showed it
-(events cut to their key fields, "..." marks a cut; captured on 2026-10-17, run
-ab-20261017-090903-926c02; your output will differ):
-
-```text
-{..."arm":"harness","seq":10,..."type":"harness_decision","data":{"kind":"note","layer":"scope","message":"feature_list.json written with F4 (passes: false)",...
-{..."arm":"harness","seq":160,..."type":"harness_decision","data":{"kind":"block","layer":"scope","message":"app/services/errors.py: outside the allowed paths for the build phase (...); patch not applied",...
-{..."arm":"harness","seq":324,..."type":"claim","data":{"phase":"build","claim":"not_done","summary":"Committed partial F4 implementation as 39b59d5. ... Work is incomplete: Ruff check reports errors, and feature regression tests have not been added.","gate_id":null},...
-{..."arm":"harness","seq":329,..."type":"harness_decision","data":{"kind":"session_stop","layer":"state","message":"session 1 handoff written to session-handoff.md",...
-{..."arm":"harness","seq":396,..."type":"test_filter_result","data":{...,"filter":3,"passed":false,"reason":"adds no line coverage over the existing suite and kills no filter-set mutant that the existing tests miss (0 checked)"},...
-{..."arm":"harness","seq":400,..."type":"test_filter_result","data":{...,"filter":3,"passed":true,"reason":"adds 3 covered lines: app/api/issues.py:32,34; app/services/issues.py:105"},...
-{..."arm":"harness","seq":411,..."type":"test_filter_result","data":{...,"filter":2,"passed":false,"reason":"failed on run 1 of 5: AssertionError: assert 412 == 404"},...
-{..."arm":"harness","seq":424,..."type":"harness_decision","data":{"kind":"note","layer":"verify","message":"test filters: kept 4, discarded 2",...
-{..."arm":"harness","seq":425,..."type":"run_end","data":{"status":"ABORTED: timeout","claim":"not_done","cost_usd":0.025744,"turns_total":43,"wall_s":744.581},...
-```
-
-Read it aloud: the arm stopped its build with `not_done`, so no gate ran; the scope layer refused
-one write; the test phase proposed 6 tests, filter 2 caught one that failed on its first run, filter
-3 caught one that added nothing, and 4 shipped. "(0 checked)" means the test-phase context has no
-filter-set mutant list, so filter 3 decided by coverage alone.
-
-In class: read the `primary verdict ready` pill and the two counts off screen 1, and say which count
-failed. Then say the record is not an A/B: screen 4 leaves single-arm runs out of the comparison
-("<n> single-arm run (harness in action) not compared: no bare run.").
-
-[[CAPTURE: screen 1 and screen 3 of make show-4 after the referee (gate pills or "No gate", the filter table with a discard reason, the primary verdict pill) | how: make show-4 with make console open, keys 1 and 3]]
-
-## 7. What to watch: the replay (real run, replayed)
-
-`make replay RUN=ab-20261017-090903-926c02` re-emits the recorded events of the class-profile
-round's F4 A/B with `recorded=True`, so every screen shows `● RECORDING`, and then re-runs the
-referee live on the recorded diffs, one arm after the other (`replay_ab` in
-`src/shipharness/ab/recorded.py`). The reviewer is off and no model is called. The recorded
-verdicts appear with the events; the live referee adds its own afterwards.
-
-What to point at, on screen 1 and screen 3:
-
-- Bare arm, "Agent said" `done`; "Referee" fail. Its claim: "Verified the complete visible suite
-  (191 passing)". The referee: hidden tests 68 of 69, mutants 4 of 4, so it fails the primary
-  measure. Nothing in the bare arm checked the claim: it has no layers.
-- Screen 1 shows the two counts under each referee pill. The name of the one failing hidden test,
-  the same in both arms, is in the run log (`check_result` for `hidden_tests`, below); screen 3's
-  `hidden_tests` row counts only new failures against the checkpoint, so do not point at it for this.
-- Screen 3, bare arm: `diff_scope: 1 new`. The bare arm changed `app/services/errors.py`, the file
-  the harness arm's scope layer refused in section 6.
-- Harness arm: "Agent said" `not_done`, no gate pills, the filter table from section 6.
-- Screen 2: both arms show `✓ CONFLICT DETECTED`: the board stops the two-tab lost update in both,
-  yet both fail the hidden test.
-
-The recorded lines (captured on 2026-10-17, run ab-20261017-090903-926c02; your output will differ):
-
-```text
-{..."arm":"bare","seq":222,..."type":"claim","data":{"phase":"build","claim":"done","summary":"... Added regression coverage for ETags, stale writes, and history. Verified the complete visible suite (191 passing) and committed as e1bb6d4.","gate_id":null},...
-{..."arm":"bare","seq":311,..."type":"check_result","data":{"check":"hidden_tests",...,"total_probes":69,"findings":[{"rule":"hidden","severity":"violation",...,"detail":"tests/hidden/f4/test_f4_concurrency.py::test_invalid_body_with_a_stale_version_is_412: failed",...
-{..."arm":"bare","seq":328,..."type":"primary_verdict","data":{...,"passed":false,"values":{"hidden_passed":68,"mutants_killed":4},"elapsed_s":79.017},...
-{..."arm":"bare","seq":392,..."type":"verdict","data":{...,"summary":"agent said done; referee: fails the primary measure; hidden tests 68/69, mutants killed 4/4, R1 new 0"},...
-{..."arm":"harness","seq":459,..."type":"verdict","data":{...,"summary":"agent said not_done; referee: fails the primary measure; hidden tests 68/69, mutants killed 1/4, R1 new 0"},...
-```
-
-Why it matters: it is the case the verification layer is built for, a "done" the referee
-contradicts (A3, F-a-15; A4, F-a-17). Be exact about what the gate would have done: it runs visible
-tests, existing tests, R1-R7, the board check, and clean state, not the hidden tests (`GATE_CHECKS`
-in `gate.py`), so it does not run this hidden test. What separates the claim from the verdict here
-is the referee's held-out check (B13, F-b-43).
-
-[[CAPTURE: terminal output of make replay RUN=ab-20261017-090903-926c02 (the RECORDING line, both record lines, the Cost line) | how: make replay RUN=ab-20261017-090903-926c02]]
-
-## 8. What to watch: the constructed example
-
-`make example-4` runs `shipharness example --section demo-4`: scripted steps, no model, and a
-`CONSTRUCTED EXAMPLE` badge on every console screen. The script makes a done claim while one test
-fails; the gate refuses it and sends back its feedback; the script fixes the test and claims done
-again; the gate accepts the claim. It is labelled "constructed example" in class, never presented as
-a run of the agent.
-
-Point at: the gate pills on screen 1 going ⏳ then ✗ on the first claim; the feedback line `Gate
-<id>: <n> of <m> items failed (<names>).` with the failure lines and `Fix these, commit your work,
-and call finish again.`; then all pills ✓ on the second claim.
-
-[[CAPTURE: terminal output of make example-4 and screen 1 with the refused claim (gate pills, feedback) and the accepted claim | how: make example-4 with make console open, key 1]]
-
-## 9. The results slide and screen 4
-
-One slide and one console view show every result, wins and "no measurable difference" alike.
-
-Screen 4 (A/B Report) reads the score records in `exports/scores/` and shows one dot per run for
-each feature, variant, and arm: ● passed the primary measure, ○ failed, with the count passed of
-runs. It leaves out records scored under an older referee version, and lists replays ("<n> runs
-are replays (recorded).") and single-arm runs separately (`src/shipharness/console/report.py`). The
-dots on the class host depend on the records it holds.
-
-What to say, from the course's data (section 12): F4 failed the primary measure in both arms in
-every A/B of pilot runs 2 and 3 and of the class-profile round, so S4 is "no measurable difference
-on this task with this model". S1-S3 passed in both arms in runs 3 and 4 and the class-profile
-round: the same verdict. Post hoc (measures chosen after the results; descriptive), over runs 2-4
-and the live console check: harness arms changed files outside the allowed paths in 0 of 34 runs,
-bare arms in 9 of 34; harness arms shipped a median of 2.5 tests against 7.5; no done claim came
-with failing hidden tests in either arm; the class-profile round's bare F4 claim did.
-
-## 10. The final A/B (launched here, read in the final block)
-
-`make final FEATURES=<poll winner>` is the course's one live A/B: both arms with all four layers on
-the harness side, from checkpoint `m1-final-start`. F5-F7 have no pre-registered primary measure
-(the dataset's `primary_measure` is empty), so the referee reports every score. Each arm is capped at
-`MAX_FINAL_RUN_COST_USD` ($0.25) and each review at `MAX_REVIEW_COST_USD` ($0.04)
-(`src/shipharness/config/settings.py`). `make final` runs its features one after another, so at most
-two runs proceed at once in S4: the final A/B and `make show-4`.
-
-The lesson for the final block: one A/B is one dot. A difference in one A/B is not a result, and
-neither is no difference. The F4 rows in section 12 show how far one arm moves between A/Bs of the
-same ticket: the bare arm killed 3, 4, 3 referee mutants in run 2 and 4, 0, 3 in run 3.
-
-[[CAPTURE: terminal output of make final FEATURES=F5 (A/B line, both record lines, Cost line), its launch to full verdict time, and its ab id | how: make final FEATURES=F5]]
-
-## 11. Code walkthrough (10 minutes, while the runs proceed)
-
-`uv run python scripts/anchors.py extract <id>` prints each anchor.
+Ten minutes, while the runs proceed. `uv run python scripts/anchors.py extract <id>` prints each
+anchor.
 
 | Order | Anchor | File and lines | Point at |
 |---|---|---|---|
 | 1 | `S4:filters` | `src/shipharness/filters/pipeline.py:34-74` | A test stops at its first failing filter; every result is published with a reason |
 | 2 | `S4:probe` | `src/shipharness/checks/r1_tenant.py:65-104` | R1: a foreign id must give 404; a 2xx carrying Globex data is a leak |
 | 3 | `S4:blind` | `src/shipharness/reviewer/blind.py:15-39` | What the reviewer never sees: harness artifacts, commit metadata, workspace paths, run ids, the arm label |
-| 4 | `S4:gate` | `src/shipharness/harness/verify/gate.py:133-172` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 31-41) has no hidden tests or mutants |
+| 4 | `S4:gate` | `src/shipharness/harness/verify/gate.py:143-188` | Pending pills first, checks in the arm container, feedback only on failure; `GATE_CHECKS` (lines 33-43) has no hidden tests or mutants |
 
-## 12. Results for this section
+When the gate refuses a claim, the agent gets `Gate <id>: <n> of <m> items failed (<names>).`, up
+to three failure lines, and `Fix these, commit your work, and call finish again.` (`_feedback` in
+`src/shipharness/harness/verify/gate.py`).
 
-Every F4 A/B the course ran, from the score records (captured on 2026-10-16 and 2026-10-17, runs as
-listed; your output will differ). Pilot runs 2 and 3 used effort medium; the class-profile round
-used the class profile (effort low, Fast tier, 2 CPUs per container, five flakiness re-runs).
+## 11. Results for this section
+
+Every F4 A/B the course ran (captured on 2026-10-16 and 2026-10-17, runs as listed; your output will
+differ). The score records and run logs behind this table are kept on the class host and are not
+part of the public repository; the run ids identify them. Pilot runs 2 and 3 used effort medium; the
+class-profile round used the class profile (effort low, Fast tier, 2 CPUs per container, five
+flakiness re-runs).
 
 | Run | A/B | Arm | Run id | Status | Claim | Hidden of 69 | Referee mutants of 4 | Tests shipped |
 |---|---|---|---|---|---|---|---|---|
@@ -339,7 +472,9 @@ What else the records show:
   in runs 2 and 3 (every build used its 40 turns) and `not_done` in the class-profile round.
 - **Two bare done claims, both failed by the referee.** In ab-20261016-220010-c5b4bf the build
   passed 69 of 69 hidden tests and one referee mutant survived its shipped tests; in
-  ab-20261017-090903-926c02 one hidden test failed.
+  ab-20261017-090903-926c02 one hidden test failed
+  (`test_invalid_body_with_a_stale_version_is_412`), after the claim "Verified the complete visible
+  suite (191 passing)".
 - **The harness test phase.** In run 2 it kept no test (in ab-20261016-191626-6100f6 the 3 shipped
   tests came from build session 1, and the one test-phase test failed filter 2). In run 3 it
   proposed none: in ab-20261016-214151-ca9841 and ab-20261016-220010-c5b4bf the agent time limit
@@ -350,26 +485,17 @@ What else the records show:
 - **The reviewer** rejected all 14 arms in the table and agreed with the referee each time
   (`reviewer_agrees`).
 
-The course's planned 10-run experiment batch and the leave-one-out ablation (`--layers=-verify`)
-were not run: the pilot did not pass its pre-registered decision rule, so the A/Bs above are all the
-F4 data the course has.
+Post hoc (measures chosen after the results; descriptive), over runs 2-4 and the live console check:
+harness arms changed files outside the allowed paths in 0 of 34 runs, bare arms in 9 of 34; harness
+arms shipped a median of 2.5 tests against 7.5. The course's planned 10-run experiment batch and the
+leave-one-out ablation (`--layers=-verify`) were not run: the pilot did not pass its pre-registered
+decision rule, so the A/Bs above are all the F4 data the course has.
 
-## 13. Time and cost
-
-Limits (not measurements; `src/shipharness/config/settings.py`): agent time per arm `RUN_TIMEOUT_S`
-300 s, harness work per arm `HARNESS_TIMEOUT_S` 120 s, tool command `TOOL_TIMEOUT_S` 120 s; $0.20
-per arm (`MAX_RUN_COST_USD`), $0.25 per final arm (`MAX_FINAL_RUN_COST_USD`), $0.04 per review
-(`MAX_REVIEW_COST_USD`), $2.50 per session (`MAX_SESSION_COST_USD`); F4 build session 40 turns
-(`teamtrack/reference/f4/task.toml`). By those caps `make show-4` costs at most $0.24 and one
-`make final` feature at most $0.58. Fast-tier calls cost twice the Standard rate per token; the caps
-do not change.
-
-Measured in the class-profile round, 2026-10-17 (ab-20261017-090903-926c02, from the launch):
-
-| Arm | Agent s | Launch to primary verdict | Launch to full verdict | Arm cost $ | Review $ |
-|---|---|---|---|---|---|
-| bare | 152 | 243 s | 393 s | 0.0217 | 0.0038 |
-| harness | 311 | 811 s | 927 s | 0.0257 | 0.0040 |
+Measured in the class-profile round, 2026-10-17 (ab-20261017-090903-926c02, one A/B at a time, from
+the launch): bare 152 s of agent time, primary verdict 243 s, full verdict 393 s, arm $0.0217, review
+$0.0038; harness 311 s of agent time, primary verdict 811 s, full verdict 927 s, arm $0.0257, review
+$0.0040. The harness arm's harness time was 433 s, mostly the test filters running each of its 6
+test-phase tests up to 5 times.
 
 Measured in pilot run 2, 2026-10-16 (effort medium, two A/Bs in parallel), per arm from the score
 records (captured on 2026-10-16, runs as listed; your output will differ):
@@ -383,43 +509,26 @@ records (captured on 2026-10-16, runs as listed; your output will differ):
 | r-20261016-191626-e55f2f | bare | 281.933 | 0.019123 | 0.004327 |
 | r-20261016-191626-7aebe4 | harness | 409.127 | 0.018463 | 0.004193 |
 
-Every arm stayed below its cap. Time and cost of tonight's `make show-4` and `make final` run: read
-them off the `Cost:` lines and the console's "launch to full verdict" when they finish.
+The swap test works on an A/B only: on a `make show-4` id it stops with `x <id> is a single-arm run
+(harness in action): the swap test needs both arms; pass the id of an A/B`.
 
-## 14. Troubleshooting
+## 12. Emergency fallback
 
-| Symptom | Cause (from the code) | What to do |
-|---|---|---|
-| `x SHIPHARNESS_CLASS_DATE is not set: ...`, exit 2 | Class purpose without the class day (`_trace_target` in `src/shipharness/ab/commands.py`) | Set it in `.env`; `PURPOSE=pilot` traces to `shipharness-pilot` instead |
-| `x OpenAI refused the key: ...; no arm was started` | Live runs refuse a missing or rejected key and any stand-in client; there is no automatic fallback | Fix the key (`make doctor`), or go to the fallback (section 15) |
-| `make show-4` exits 2 | The harness arm was aborted (agent time limit or cost cap); it happened in the class-profile round (`ABORTED: timeout`) | Nothing to fix: the referee still judges the shipped diff and the record is complete |
-| No gate pills by the end of the run | The agent never claimed done; the gate runs only on `finish(claim="done")` | Show the test-phase filter table and the referee counts; the constructed example shows the gate |
-| Every gate pill ✗ with `could not write the check inputs in the container` or `check runner failed (exit <n>)` | The harness time limit (`HARNESS_TIMEOUT_S`) ran out; each gate command is capped by the harness time left | Keep the run (every run is scored); say what happened |
-| `make swap-4` on the show-4 id stops with `... is a single-arm run (harness in action) ...` | The swap test needs both arms | Pass an A/B id, for example `AB=ab-20261017-090903-926c02` |
-| `make replay` prints `x ...; check the A/B or run id`, exit 2 | The run folder is not in `.shipharness/runs/` on this host | Copy the folder (section 2, step 5) or replay another recorded A/B |
-| `make replay` prints `x ...` about an unpinned record, exit 2 | The record has no `checkpoint_sha` (`UnpinnedRecord` in `src/shipharness/ab/recorded.py`) | Use an A/B recorded after SHA pinning; ab-20261017-090903-926c02 is pinned |
-| No "Two-tab edit conflict" panel; boards say "No board screenshot yet" | The preview container failed to start and was skipped | Use screen 3 (board check) and the hidden board tests counted in `hidden <x>/69` |
-| `mutants 0/0` in the record | The mutant set could not be loaded (`src/shipharness/ab/mutants.py`) | Run `uv run shipharness datasets validate datasets/teamtrack-features-v1.jsonl --kind features`; the run still counts |
-| `reviewer=None` | The review was incomplete, refused, failed, or hit `MAX_REVIEW_COST_USD` | Primary counts are unaffected; say so |
-| Verdict text `referee could not judge the build: ...` | The referee container failed to start (`src/shipharness/ab/referee.py`) | Check Docker (`make doctor`) |
-| Red badge `UNSANDBOXED — results not official` | `SANDBOX_MODE` is not `docker` | Set `SANDBOX_MODE=docker` in `.env`, start Docker Engine in WSL2, `make doctor` |
-| `make final` with no `FEATURES` runs F5, then F6 | The Makefile default is `FEATURES ?= F5,F6` | Always pass `FEATURES=` with the poll result; press Ctrl+C at once if the default started |
+Class commands call OpenAI live and never fall back on their own. Only if a live run fails on stage
+and part 8 cannot fix it in a minute:
 
-## 15. Fallback
+- **`make show-4` fails:** replay the quiet-machine `make show-4` run of part 5, which shows the
+  blocked write, the gate passing, the filter table, and the referee failing the claim:
 
-Class commands call OpenAI live and never fall back on their own. If a live run fails on stage:
+  ```bash
+  make replay RUN=ab-20261017-115138-c45d9d
+  ```
 
-- **`make show-4` fails:** replay a recorded `make show-4` run (`make replay RUN=<id>`, id below; the
-  RECORDING badge is shown on every screen), or go straight to the replay of
-  ab-20261017-090903-926c02, which covers the filter table and the referee.
+- **`make final` fails:** replay the quiet-machine final A/B of part 5 and read it as one dot:
+  `make replay RUN=ab-20261017-120323-c97138`.
+- **The replay fails** (for example the run folder is missing): read part 5 and section 11 from this
+  page.
 
-[[CAPTURE: ab id of the recorded make show-4 run to replay as the fallback, with its capture date | how: make show-4]]
-
-- **`make final` fails:** replay a recorded final A/B (id below) and read it as one dot.
-
-[[CAPTURE: ab id of the recorded make final FEATURES=F5 A/B to replay as the fallback, with its capture date | how: make final FEATURES=F5]]
-
-- **The replay fails** (for example the run folder is missing): read the captured lines in section 7
-  and the table in section 12.
-
-A replay makes no model calls; it re-runs the referee in containers, so Docker must be up.
+A replay makes no model calls; it re-runs the referee in containers, so Docker must be up, and it
+needs the run folder on the class host (`.shipharness/runs/`, not part of the public repository).
+Every screen shows RECORDING; say that it is a recording.

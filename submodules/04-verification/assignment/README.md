@@ -213,7 +213,7 @@ Checked for presence and structure, not for run results:
   `## Command` (mentions `shipharness ab`), `## What the comparison shows`.
 - `portfolio/case-study.md`: sections `## Problem`, `## What I built`, `## Evidence`,
   `## What I learned`, `## Next steps`; 250 to 700 words.
-- No `TODO` and no `[[PENDING` marker left in any portfolio file.
+- No `TODO` and no PENDING marker left in any portfolio file.
 - `skill/`: exactly one folder with a `SKILL.md` that passes `shipharness skills validate`, is not
   named `skill-template`, has no template placeholder left, and has content under "When to use"
   and "Steps".
@@ -266,10 +266,10 @@ Checked for presence and structure, not for run results:
    <tests/test_module.py>` in place of `--target`. Without `--image` the generated tests run on
    your machine and the command prints an UNSANDBOXED warning; with a prepared image add
    `--sandbox docker --image <image>`. If testgen keeps no test, filter 6 has nothing to show: run
-   it once more on another module, inside the budget. These commands call OpenAI (testgen) or the
-   network (the library fetch), so they were not run for this page; the course integrator verifies
-   the live step, and its measured cost is PENDING under "Cost and trace budget". The options
-   shown are the ones `uv run shipharness testgen --help` lists.
+   it once more on another module, inside the budget. The course ran these commands on the reference
+   solution on 2026-10-17 (testgen on the pinned target `TG-teamtrack-app-repositories-issues`);
+   see "Cost and trace budget". The options shown are the ones `uv run shipharness testgen --help`
+   lists.
 7. Run filter 6 over the kept tests and write its rows into the report (no model call;
    `PYTHONPATH` as in step 3), then copy the report:
 
@@ -518,6 +518,12 @@ points evenly over its tests. It makes no model calls and needs no keys.
 
 For scale, not a promise: in the course pilot's run 2 (2026-10-16) each of the six F4 arm runs
 cost less than $0.02 and each review less than $0.005 (score records listed in
-[the demo runbook](../demo/README.md), section 13).
+[the demo runbook](../demo/README.md), section 11).
 
-[[PENDING: measured cost of one testgen run and of the F4 A/B (k=1), and the LangSmith trace count of the live step | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview]]
+Measured on the reference solution (captured on 2026-10-17, runs r-20261017-093940-52dde8 and
+ab-20261017-094339-3b29e3; your output will differ). The testgen run printed
+`Cost: $0.003287 (testgen, model gpt-6-luna)`. The F4 A/B printed `Cost: $0.042138 (this command:
+gpt-5.6-luna $0.007424, gpt-6-luna $0.034714; ...)`: $0.034714 for the two agent runs and $0.007424
+for the two reviews. Together: $0.045425. The A/B's two score records carry 4 LangSmith trace links
+(`trace_url` and `referee_trace_url` per arm), and testgen traces its one agent run, so the live step
+writes 5 traces by design.

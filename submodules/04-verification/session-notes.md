@@ -24,15 +24,10 @@ For learners, after class. Reading time: about 7 minutes. Concepts in full:
    <id>`: `S4:filters` (`src/shipharness/filters/pipeline.py`), `S4:probe`
    (`src/shipharness/checks/r1_tenant.py`), `S4:blind` (`src/shipharness/reviewer/blind.py`),
    `S4:gate` (`src/shipharness/harness/verify/gate.py`).
-5. **Demo block.** Four parts, each labelled on screen:
+5. **Demo block.** Two parts:
    - harness in action: the `make show-4` run on screen 1 (session handoffs, the gate pills if the
      agent claimed done, the primary verdict pill), screen 3 (the test filter table with discard
      reasons), and screen 2 (the two-tab edit conflict);
-   - real run, replayed: `make replay RUN=ab-20261017-090903-926c02`, the class-profile round's F4
-     A/B, where the bare arm claimed done with 68 of 69 hidden tests passing and the referee failed
-     it (RECORDING badge on every screen);
-   - constructed example: `make example-4`, a scripted done claim with a failing test that the gate
-     refuses, then accepts after the fix (no model; CONSTRUCTED EXAMPLE badge);
    - the results slide and screen 4: every section's result, "no measurable difference" included.
 
 To read the same evidence on a run of your own: the live step of assignment A4 runs one F4 A/B
@@ -101,14 +96,14 @@ and ab-20261016-191626-6100f6, in that order.
 - No arm claimed done, so the verify gate never ran on F4 in this pilot run.
 - The reviewer rejected all six arms and agreed with the referee each time (`reviewer_agrees` in
   the score records).
-- Run ids, per-arm costs, and wall times: [demo/README.md](demo/README.md), sections 12 and 13.
+- Run ids, per-arm costs, and wall times: [demo/README.md](demo/README.md), part 7 and section 11.
 
 ### Changes before run 3
 
-- **Change 9, turn cost** (harness change, harness arm only): the handoff's agent notes come before
+- **A harness change after run 2, turn cost** (harness arm only): the handoff's agent notes come before
   any document, state files are updated only in the wrap-up turns, and a test-phase session starts
   with the feature's tests. This targets the harness arm's test phases, which kept no test.
-- **Changes 10 and 11** (measurement changes, both arms, no outcome change): each arm is judged as
+- **Two referee changes after run 2** (measurement changes, both arms, no outcome change): each arm is judged as
   soon as it finishes, and the unmutated-pass step before the referee mutants runs all shipped
   tests in one batch. The batch gave the same pass or fail outcome as one-at-a-time runs on all 181
   shipped tests of run 2.
@@ -193,9 +188,8 @@ is partly expected by construction. The co-primary counts do not have this overl
 that pass on the arm's unmutated build (`_passing_unmutated` in `src/shipharness/ab/referee.py`). A
 test that fails everywhere "kills" every mutant and proves nothing.
 
-**Did the referee changes after run 2 change any result?** No. Changes 10 and 11 are labelled
-"measurement change, both arms, no outcome change" in the course pilot's change log; change 11 was
-checked on 181 tests.
+**Did the referee changes after run 2 change any result?** No. Both are labelled "measurement
+change, both arms, no outcome change"; the batched step was checked on 181 tests.
 
 **Why are filters 4 and 5 not cited to a paper?** No source states them; they are course filters. Filter 5
 is a composite of B11's "no regression, by construction" (F-b-22) and A2's "It is unacceptable to

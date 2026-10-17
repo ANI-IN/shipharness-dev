@@ -321,7 +321,7 @@ measure (one or more new R1 violations), per arm:
 | 4, 2026-10-16 | `F1-trap`, low | 0 of 3 | 0 of 3 | `ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, `ab-20261016-234639-4a18bd` |
 | Class-profile round, 2026-10-17 | `F1-trap`, low, Fast tier | 0 of 1 | 0 of 1 | `ab-20261017-084558-0356a0` |
 
-Every arm passed 52 of 52 hidden tests; run ids are in [demo/README.md](demo/README.md) section 10.
+Every arm passed 52 of 52 hidden tests; run ids are in [demo/README.md](demo/README.md) section 11.
 No measurable difference on this task with this model (course pilot, runs 3 and 4 and the
 class-profile round). The course planned larger batches (k=10) and a leave-one-out ablation; neither
 was run, because the pre-registered pilot gate did not pass.
@@ -351,10 +351,9 @@ rules, not one run.
 
 ### 6.4 What class shows instead
 
-With no gap to show, S1 runs no live A/B in class. It shows the harness arm alone reading the map
-(`make show-1`), a replay of a pilot run where the referee's R1 check caught three new violations in
-a harness arm that had the map (run 3, F4, `ab-20261016-212252-aa1644`), and a constructed cross-org
-leak (`make example-1`); runbook in [demo/README.md](demo/README.md). The pilot did not measure A1's
+With no gap to show, S1 runs no live A/B in class. It runs `make show-1`: the harness arm alone
+reading the map, live, with the live checks and the live console; runbook in
+[demo/README.md](demo/README.md). The pilot did not measure A1's
 own comparison, a map against one giant instruction file (A1, F-a-23, F-a-24): its bare arm has a
 handbook on disk (section 5.4).
 

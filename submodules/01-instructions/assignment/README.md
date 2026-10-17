@@ -1,6 +1,7 @@
 # Assignment A1: from an 899-line instruction file to a map, docs, and a skill
 
-Section S1 Instructions. The A/B run time and cost are under "Cost and trace budget". Source ids (A1,
+Section S1 Instructions. The A/B's cost caps and the pilot's per-run costs are under "Cost and
+trace budget". Source ids (A1,
 B1, F-a-NN, F-b-NN) are listed in [REFERENCES.md](../../../REFERENCES.md), which is generated when the
 course is released.
 
@@ -549,11 +550,12 @@ same score on every run.
 
 The course budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces.
 
-The course has not run this command end to end: the reference solution's live run was not captured.
+The course has not run this command end to end: the reference solution's live run was not captured
+(owner scope, 2026-10-17).
 So there is no measured total cost or wall time for it; your own `Cost:` line is the first. What the course did
 measure, in its pilot: 22 F1 arm runs of `shipharness ab` (11 A/Bs: runs 2, 3, and 4, the live
 console check, and the class-profile round) cost between $0.0051 and $0.0151 per run (score
-records; run ids in [../demo/README.md](../demo/README.md), section 10). The class-profile round used
+records; run ids in [../demo/README.md](../demo/README.md), section 11). The class-profile round used
 the Fast tier, which costs twice the Standard rate per token. Those were runs of one task with
 `shipharness ab`, not the `experiments` command over eight tasks.
 

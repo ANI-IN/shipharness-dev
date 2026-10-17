@@ -424,7 +424,8 @@ sessions 1-3, even `finish(claim="not_done")`, which now starts the next session
 at a cap before session 4: the check reports the build sessions it found. Move `live/` away and run
 again; each attempt costs up to $0.40 at the caps.
 
-This command calls OpenAI and LangSmith, so it was not run while this README was written; its
+This command calls OpenAI and LangSmith, so it was not run while this README was written (owner
+scope, 2026-10-17: the A2 reference live run is not captured); its
 options were checked with `uv run python submodules/02-state-lifecycle/assignment/live/run_live.py
 --help`. The course has no captured run of this step to show: the output format is the one
 described above, and your own run's output is saved in `my-a2/live/output.txt`.
@@ -462,7 +463,7 @@ uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl m
 ```
 
 At the caps each command costs at most $0.40. These commands call OpenAI and were not run while this
-README was written; `--example`, `--layers`, `--no-reviewer`, and `--purpose` are listed by `uv run
+README was written (owner scope, 2026-10-17: the A2 reference live run is not captured); `--example`, `--layers`, `--no-reviewer`, and `--purpose` are listed by `uv run
 shipharness ab --help`. A LangSmith experiment on the whole `section-2` split (`shipharness
 experiments --split section-2 --k 1`) runs 8 tasks in two arms, up to $3.20 at the caps, above the
 $2.50 limit per command (`max_batch_cost_usd` in `src/shipharness/config/settings.py`), so the
