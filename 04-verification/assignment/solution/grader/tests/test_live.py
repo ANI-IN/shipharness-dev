@@ -421,8 +421,8 @@ def test_the_ab_line_may_name_the_profile(root: Path) -> None:
 
 
 def test_a_rebuilt_checkpoint_tag_with_the_same_teamtrack_tree_still_matches() -> None:
-    # The checkpoint tags were rebuilt (2026-10-17 restructure); the reference run's records name the
-    # previous m1-s4-start commit. Same TeamTrack tree -> the same checkpoint.
+    # The checkpoint tags were rebuilt (2026-10-17 restructure); the reference run's records
+    # name the previous m1-s4-start commit. Same TeamTrack tree -> the same checkpoint.
     repo = Path(__file__).resolve().parents[5]
     current = a4_live.course_checkpoint_sha(repo)
     assert current is not None

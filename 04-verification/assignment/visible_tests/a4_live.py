@@ -526,7 +526,7 @@ def _course_repo() -> Path | None:
 
 
 def _teamtrack_tree(repo: Path, sha: str) -> str | None:
-    """The TeamTrack tree of a checkpoint commit (platform/teamtrack, or teamtrack in older commits)."""
+    """The TeamTrack tree of a checkpoint commit: platform/teamtrack, or teamtrack in older ones."""
     for sub in ("platform/teamtrack", "teamtrack"):
         try:
             run = subprocess.run(
