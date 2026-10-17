@@ -1,4 +1,4 @@
-"""Screen 4 reads ScoreRecords and experiments from exports/ (CONTRACTS §11)."""
+"""Screen 4 reads ScoreRecords and experiments from exports/."""
 
 from __future__ import annotations
 

@@ -6,18 +6,18 @@ UV ?= uv
 RUNTIME ?= docker
 PORT ?= 8000
 CONSOLE_PORT ?= 8765
-# demo-N and final: LAYERS=-<layer> removes one layer from the section's stack (DESIGN §6.6).
+# demo-N and final: LAYERS=-<layer> removes one layer from the section's stack.
 LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # demo-N: SESSION_BUDGET=12,38 overrides the task's session turn budget (pre-registered levers).
 SESSION_BUDGET ?=
 SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
-# final: comma-separated feature ids picked by the class poll (DESIGN §14.1), e.g. FEATURES=F5,F6.
+# final: comma-separated feature ids picked by the class poll, e.g. FEATURES=F5,F6.
 FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
-# demo-N, swap-N, final: LangSmith project (DESIGN §12). class needs SHIPHARNESS_CLASS_DATE (the
-# class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
+# demo-N, swap-N, final: PURPOSE picks the LangSmith project. class needs
+# SHIPHARNESS_CLASS_DATE (the class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
 PURPOSE ?= class
 RUN ?=
 
@@ -85,7 +85,7 @@ test-live:
 test-docker:
 	$(UV) run pytest -m docker tests/unit/test_sandbox_docker.py
 
-# Section demos: section N's canonical task is feature FN, canonical variant (DESIGN §10.1).
+# Section demos: section N's canonical task is feature FN, canonical variant.
 demo-1:
 	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
 

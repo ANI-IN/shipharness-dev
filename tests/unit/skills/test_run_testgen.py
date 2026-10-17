@@ -1,4 +1,4 @@
-"""assured-tests/scripts/run_testgen.py: builds and runs `shipharness testgen` (CONTRACTS §18)."""
+"""assured-tests/scripts/run_testgen.py: builds and runs `shipharness testgen`."""
 
 from __future__ import annotations
 

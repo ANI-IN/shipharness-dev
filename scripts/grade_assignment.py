@@ -4,7 +4,8 @@
     uv run python scripts/grade_assignment.py N <folder or git URL>
 
 A git URL is cloned shallow into a temporary folder; a folder is graded in place. The grader for
-assignment N is `submodules/0N-*/solution/grader/grade.py`; its exit code is passed through.
+assignment N sits in the submodule's private solution folder, which is not shipped in the public
+release; its exit code is passed through.
 """
 
 from __future__ import annotations
@@ -45,7 +46,7 @@ def resolve_submission(value: str, clone_dir: Path) -> Path:
 
 
 def grader_command(n: int, submission: Path) -> list[str]:
-    found = sorted(REPO.glob(f"submodules/0{n}-*/solution/grader/grade.py"))
+    found = sorted(REPO.glob(f"submodules/0{n}-*/solution/grader/grade.py"))  # private, not shipped
     if not found:
         raise SubmissionError(
             f"no grader for assignment {n}: graders are private (build repository only)"

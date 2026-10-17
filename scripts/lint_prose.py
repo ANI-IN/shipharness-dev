@@ -15,10 +15,10 @@ REPO = Path(__file__).resolve().parents[1]
 
 DEFAULT_TARGETS = [
     "README.md",
-    "DESIGN.md",
-    "RESEARCH.md",
-    "CONTRACTS.md",
-    "VERIFICATION.md",
+    "DESIGN.md",  # build repository only, not included in the public release
+    "RESEARCH.md",  # build repository only, not included in the public release
+    "CONTRACTS.md",  # build repository only, not included in the public release
+    "VERIFICATION.md",  # build repository only, not included in the public release
     "CHANGELOG.md",
     "setup",
     "docs",

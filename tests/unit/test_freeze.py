@@ -1,4 +1,4 @@
-"""shipharness.freeze: what the `harness-frozen` tag pins, and how drift is found (DESIGN §10.4)."""
+"""shipharness.freeze: what the `harness-frozen` tag pins, and how drift is found."""
 
 from __future__ import annotations
 

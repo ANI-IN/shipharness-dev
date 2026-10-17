@@ -1,4 +1,4 @@
-"""Evidence-gated `passes` (DESIGN §6.4): only the harness sets it, and only with evidence."""
+"""Evidence-gated `passes`: only the harness sets it, and only with evidence."""
 
 from __future__ import annotations
 

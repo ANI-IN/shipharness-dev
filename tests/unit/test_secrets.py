@@ -1,4 +1,4 @@
-"""Secrets hygiene: .env is never tracked; no tracked file contains an API key (CONTRACTS §20)."""
+"""Secrets hygiene: .env is never tracked; no tracked file contains an API key."""
 
 from __future__ import annotations
 

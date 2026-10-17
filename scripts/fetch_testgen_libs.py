@@ -1,4 +1,4 @@
-"""Fetch the two testgen-targets-v1 libraries at their pinned commits (RESEARCH §4.8).
+"""Fetch the two testgen-targets-v1 libraries at their pinned commits.
 
 Each library is cloned into `.shipharness/libs/<name>/src` (git-ignored), its commit is verified,
 and `.shipharness/libs/<name>/.venv` is created with uv and the library's test dependencies. The

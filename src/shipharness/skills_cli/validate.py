@@ -1,8 +1,8 @@
 """Agent Skills validation.
 
 Errors are the checks the reference validator skills-ref 0.1.1 runs (B5): frontmatter present and
-parseable, only the six spec fields, `name` rules (read with the ASCII charset `a-z0-9-`, RESEARCH
-§4.5), `description` and `compatibility` lengths, and `metadata` as a string map. Warnings are the
+parseable, only the six spec fields, `name` rules (read with the ASCII charset `a-z0-9-`),
+`description` and `compatibility` lengths, and `metadata` as a string map. Warnings are the
 spec's recommendations that skills-ref does not check (B1): SKILL.md under 500 lines, file
 references one level deep, and referenced files that do not exist.
 

@@ -4,8 +4,8 @@ Foster, Gulati, Harman, Harper, Mao, Ritchey, Robert, Sengupta (Meta). "Mutation
 Test Generation at Meta". arXiv 2501.12862, 2025-01-22; submitted to the FSE 2025 Industry Track.
 https://arxiv.org/abs/2501.12862
 
-Summary in our own words; quotes are marked and come from the research notes (R-b, finding ids
-F-b-29 to F-b-41).
+Summary in our own words; quotes are marked, and their finding ids (F-b-29 to F-b-41) are listed
+in `REFERENCES.md` at the repository root.
 
 ## What it does
 
@@ -38,6 +38,6 @@ code base" (F-b-41). It protects against future regressions of the concern.
 - Filter 3's second branch: a test that kills a mutant no existing test kills is kept even when it
   adds no coverage, because coverage alone would discard about half of such tests (F-b-40).
 - Targeted mutants on risky lines, written by hand for the course rather than by a model, and
-  validated so each one is killed by at least one existing test (RESEARCH §4.7).
+  validated so each one is killed by at least one existing test.
 - Mutants split into a filter set and a referee set, so the tests are never judged with the
   mutants that selected them.

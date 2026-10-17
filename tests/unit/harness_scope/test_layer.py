@@ -1,4 +1,4 @@
-"""ScopeLayer: feature_list.json, blocked patches, reverted run changes (DESIGN §6.4)."""
+"""ScopeLayer: feature_list.json, blocked patches, reverted run changes."""
 
 from __future__ import annotations
 

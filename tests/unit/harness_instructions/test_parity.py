@@ -1,4 +1,4 @@
-"""Bare-arm content parity (DESIGN §6.1).
+"""Bare-arm content parity.
 
 Every house rule (R1-R7) and every convention must appear both in docs/HANDBOOK.md (which both
 arms read) and in the harness instruction docs. The harness changes how knowledge is organised,

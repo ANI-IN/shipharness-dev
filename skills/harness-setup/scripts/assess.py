@@ -5,7 +5,8 @@ Usage:
     python assess.py <repo> [--out harness-assessment.html] [--json]
 
 Five areas: instructions, state, scope, verification, session lifecycle. Every check names the
-source it comes from (ids from the shipharness RESEARCH.md register) and the template that fixes it.
+source it comes from (ids from the course reference list, REFERENCES.md) and the template that
+fixes it.
 
 The assessment is deterministic and read-only: it reads files, never runs code from the repository,
 never calls a network or a model, never follows a link that leaves the repository, and writes no
@@ -405,7 +406,7 @@ def scope(repo: Repo) -> list[Check]:
             status = "partial"
             evidence = (
                 f"passes on every feature ({passing} true); evidence and testedAt missing"
-                " (shipharness additions, RESEARCH G-6)"
+                " (shipharness additions, course design)"
             )
         else:
             status = "pass"
@@ -728,7 +729,7 @@ def render_html(root: Path, checks: list[Check]) -> str:
         "<h1>Harness assessment</h1>",
         f'<p class="meta">Repository: <code>{esc(Path(root).resolve().name)}</code>. '
         "Read-only, deterministic file checks; keyword checks are heuristics. Sources are ids "
-        "from the shipharness RESEARCH.md register.</p>",
+        "from the course reference list, REFERENCES.md.</p>",
         '<div class="wrap"><table><tr><th>Area</th><th>Pass</th><th>Partial</th><th>Fail</th></tr>',
     ]
     for area in AREAS:

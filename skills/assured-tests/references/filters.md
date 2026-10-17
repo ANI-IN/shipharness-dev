@@ -1,8 +1,8 @@
 # Why each filter exists
 
-Finding ids refer to the shipharness research register (research/notes/R-b.md and R-a.md). B11 is
-TestGen-LLM, B12 is ACH, A2 is Anthropic's long-running harness article. Filters 1-3 come from the
-papers; filters 4 and 5 are the course's own (RESEARCH G-7) and are presented as such.
+Source ids and finding ids are listed in `REFERENCES.md` at the repository root. B11 is TestGen-LLM,
+B12 is ACH, A2 is Anthropic's long-running harness article. Filters 1-3 come from the papers;
+filters 4 and 5 are the course's own, with no direct source, and are presented as such.
 
 ## Filter 1: imports and runs
 
@@ -45,7 +45,7 @@ papers; filters 4 and 5 are the course's own (RESEARCH G-7) and are presented as
 
 - Rule: the test contains at least one assertion that can fail, and it does not replace the
   function or class it tests with a mock. Checked on the test's syntax tree.
-- Source: none in B11 or B12. This is a course filter (RESEARCH G-7). It exists because a test
+- Source: none in B11 or B12. This is a course filter. It exists because a test
   with `assert True`, or one that mocks the code it claims to test, can pass filters 1-3: it runs,
   passes reliably, and executes new lines.
 - Misses: weak assertions that are technically able to fail.
@@ -53,7 +53,7 @@ papers; filters 4 and 5 are the course's own (RESEARCH G-7) and are presented as
 ## Filter 5: no source file changed during the test phase
 
 - Rule: the hash of every source file at the end of the test phase equals its hash at the start.
-- Source: a composite of two statements (RESEARCH G-7). B11 keeps every existing test and only adds,
+- Source: a composite of two statements. B11 keeps every existing test and only adds,
   "guaranteeing there will be no regression, by construction" (F-b-22). A2 tells agents "It is
   unacceptable to remove or edit tests because this could lead to missing or buggy functionality"
   (F-a-80). The course applies the same protection in the other direction: in the test phase the

@@ -1,13 +1,13 @@
 # Scope checklist: what the agent may change and reach
 
-Source ids and finding ids refer to the shipharness research register (RESEARCH.md and
-research/notes/R-a.md). Assessment checks C1-C5 test the items marked with a check id.
+Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Assessment checks C1-C5 test the items marked with a check id.
 
 | Done | Item | Why | Source |
 |---|---|---|---|
 | [ ] | (C1) feature_list.json lists every feature, each starting with `"passes": false`. | A2's features "were all initially marked as “failing” so that later coding agents would have a clear outline of what full functionality looked like." A5 labels the file "source of truth". | A2, F-a-78; A5, F-a-85 |
 | [ ] | The list is JSON, not Markdown. | "the model is less likely to inappropriately change or overwrite JSON files compared to Markdown files." | A2, F-a-81 |
-| [ ] | (C2) Each entry has `id`, `category`, `description`, `steps`, `passes`; shipharness adds `evidence` and `testedAt`. | A2's sample entry has category, description, steps, passes. The two extra fields are course design (RESEARCH G-6). | A2, F-a-82 |
+| [ ] | (C2) Each entry has `id`, `category`, `description`, `steps`, `passes`; shipharness adds `evidence` and `testedAt`. | A2's sample entry has category, description, steps, passes. The two extra fields are course design. | A2, F-a-82 |
 | [ ] | Agents may change only `passes`, and AGENTS.md says so in strong words. | "We prompt coding agents to edit this file only by changing the status of a passes field"; "It is unacceptable to remove or edit tests because this could lead to missing or buggy functionality." | A2, F-a-79, F-a-80 |
 | [ ] | Decide who sets `passes`. | In A2 the agent sets it after careful testing (F-a-108). shipharness moves the decision to the harness after a gate, citing A3: "Separating the agent doing the work from the agent judging it proves to be a strong lever". | A2, F-a-108; A3, F-a-110 |
 | [ ] | (C3) A JSON schema describes the file, so a script can reject a malformed edit. | Structured formats for state data. | A6, F-a-77 |
