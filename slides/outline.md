@@ -251,7 +251,12 @@ Speaker notes for slides 9, 23, 37, 51 (launch) and 17, 30, 44, 59 (the check at
 the A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
 running in parallel on the class host, before the approved referee speed-ups) every A/B finished
 within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (VERIFICATION.md, M6 pilot
-run 2). The class-host time per section, one A/B at a time in S1 to S3 and two in S4:
+run 2). Measured in the course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the pilot's task
+variants, effort medium, two A/Bs in parallel on the class host): wall time per A/B min 384 s, median
+512 s, max 620 s; run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, two in parallel): min
+309 s, median 414 s, max 565 s. Neither run timed one A/B on its own or `make demo-4` with
+`make final` in parallel. The class-host time per section, one A/B at a time in S1 to S3 and two in
+S4:
 
 [[PENDING: wall time of make demo-1 to demo-3 on the class host, one A/B at a time, and of make demo-4 with make final running in parallel | source: M6 pilot | how: time make demo-N on the class host (pilot run 3), demo-4 with make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 

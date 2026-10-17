@@ -143,6 +143,9 @@ of F1, the tempting-middleware variant of F3, and F2 with a 12-turn first sessio
 
 [[PENDING: the task and command used for each class demo after pilot run 3 (canonical, variant, or session budget override) | source: M6 pilot | how: course pilot (build repository)]]
 
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's
+decision.
+
 ## Stage 1: T-1 day
 
 | | |

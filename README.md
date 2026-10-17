@@ -271,6 +271,9 @@ after pilot run 3.
 
 [[PENDING: the task used for each class demo after pilot run 3 (canonical, a variant, or a session budget override) | source: M6 pilot | how: course pilot (build repository)]]
 
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's
+decision.
+
 **Class timing (240 minutes).** Each section opens with its poll, then `make demo-N` launches right
 away. The concepts (15 minutes) and the code walkthrough (10 minutes) run while the A/B proceeds;
 the 15-minute demo block then walks through the console and the results, next to the experiment
