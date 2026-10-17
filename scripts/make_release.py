@@ -74,6 +74,7 @@ ALLOW_DIRS = (
     "config/",
     "tests/",
     "kit/",  # the harness starter kit (shipharness init) and its worked example
+    "slides/img/",  # screenshots the deck embeds (make slides)
 )
 DOCS_FILES = tuple(
     f"docs/{name}.md"

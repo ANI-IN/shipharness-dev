@@ -30,6 +30,7 @@ TRACKED = [
     "docs/extras.md",
     "scripts/build_slides.py",
     "slides/deck.md",
+    "slides/img/show-1-screen-1.png",
     ".github/dependabot.yml",
     ".vale/styles/Shipharness/Banned.yml",
     ".vale.ini",
@@ -831,3 +832,8 @@ def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
     }
     found = mr.find_excluded_tests(sources, ["scripts/pilot.py"], [])
     assert "tests/unit/ab/test_user.py" in found
+
+
+def test_the_slide_screenshots_ship_with_the_deck() -> None:
+    # slides/deck.md embeds slides/img/*.png; without them `make slides` fails in the public repo.
+    assert "slides/img/show-1-screen-1.png" in mr.select(TRACKED).included
