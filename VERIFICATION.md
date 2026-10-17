@@ -433,6 +433,26 @@ in the class plan).
 Result: no section shows the harness arm ahead (F1-F3 both arms pass, F4 both fail), the same as runs 3
 and 4.
 
+### Live command check under load (2026-10-17 09:28-10:26 UTC)
+
+Every new class command was run once live (`--purpose pilot`, class profile) to prove it works, while
+other work shared the machine: the A3 and A4 reference live runs, the kit's testgen run, eight stray
+`make warm` referee baselines started by `make -n warm` (09:31-09:51; `make -n warm` ran warm because the
+recipe line named `$(MAKE)`, fixed in 88739f0), and the subagents' docker tests. All five commands
+completed and were judged; under that load most arms hit the 300 s agent time limit, so these times are
+not class timings (the class-profile round above is; the class commands are re-timed on a quiet machine
+before release, below).
+
+| Command | A/B | Arms | Result | Wall |
+|---|---|---|---|---|
+| `make show-1 PURPOSE=pilot` | `ab-20261017-092810-c7fc7c` | harness | completed, primary pass, hidden 52/52, $0.0218 | 10 min 30 s |
+| `make show-2 PURPOSE=pilot` | `ab-20261017-093841-16d332` | harness | agent time limit, primary pass, hidden 56/56, $0.0343 (canonical 20/30 sessions: `show-N` did not pass SESSION_BUDGET yet, fixed in fd9726c) | 11 min 44 s |
+| `make show-3 PURPOSE=pilot` | `ab-20261017-095024-99bb7e` | harness | agent time limit in the test phase, primary pass, hidden 49/49, $0.0169 | 10 min 41 s |
+| `make show-4 PURPOSE=pilot` | `ab-20261017-100107-4c2be8` | harness | agent time limit, primary fail, hidden 65/69, $0.0251 | 9 min 30 s |
+| `make final FEATURES=F5 PURPOSE=pilot` | `ab-20261017-101037-8e6924` | both | both arms hit the agent time limit; F5 has no pre-registered primary measure (`primary={}`), hidden 46/46 both, mutants 1/3 bare and 3/3 harness, $0.0329 | 15 min 16 s |
+
+`shipharness ab` exits 2 when an arm aborted, so `make show-N` and `make final` exited 2 here.
+
 ### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
 
 Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
