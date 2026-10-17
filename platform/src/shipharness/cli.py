@@ -184,7 +184,7 @@ def datasets_upload() -> None:
     )
     for kind, (name, path, expected) in STANDARD_DATASETS.items():
         if not path.exists():
-            typer.echo(f"x {path} not found (datasets are built in milestone M5)")
+            typer.echo(f"x {path} not found (it ships with the repository: restore it with git)")
             raise typer.Exit(1)
         problems = check_file(path, kind)
         if problems:

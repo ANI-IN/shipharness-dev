@@ -466,7 +466,7 @@ def register(app: typer.Typer) -> None:
         jobs: int = typer.Option(4, min=1, help="Baselines computed at the same time."),
         dataset: Path = typer.Option(FEATURES_FILE, help="Features JSONL (class tasks)."),
     ) -> None:
-        """Prepare the class host: images, containers, and baselines. No model calls."""
+        """Prepare the class machine: images, containers, and baselines. No model calls."""
         from shipharness.ab import warm
         from shipharness.ab.runtime import cost_line
         from shipharness.ab.workspace import workspace_base

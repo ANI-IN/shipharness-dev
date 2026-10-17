@@ -69,7 +69,7 @@ class BaseLayer:
 
 
 def register_layer(cls: type[BaseLayer]) -> type[BaseLayer]:
-    """Class decorator used by layer modules (M4) to make a layer available by name."""
+    """Class decorator used by layer modules to make a layer available by name."""
     _REGISTRY[cls.name] = cls
     return cls
 

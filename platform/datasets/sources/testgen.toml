@@ -1,5 +1,5 @@
 # Sources for datasets/testgen-targets-v1.jsonl.
-# Regenerate with: uv run python the course build repository's dataset builder
+# The course's dataset script (not part of this repository) builds the dataset from this file.
 #
 # Each target's mutant file is <mutants_dir>/<dotted module without package_prefix>.jsonl; its
 # `#filter` set feeds filter 3 and its `#referee` set is held out for the referee.

@@ -308,11 +308,17 @@ def test_example_target_runs_the_section_constructed_example(n: int) -> None:
     assert f" example-{n} " in f" {phony} "
 
 
-def test_no_target_mentions_build_milestones() -> None:
-    # The public release has no milestones: `make experiments` names the real command.
-    text = MAKEFILE.read_text(encoding="utf-8")
-    assert "milestone" not in text.lower()
-    assert any("uv run shipharness experiments" in line for line in _rules()["experiments"])
+def test_no_target_mentions_build_milestones_or_internal_words() -> None:
+    text = MAKEFILE.read_text(encoding="utf-8").lower()
+    for phrase in ("milestone", "this release", "class host", "build repository", "owner"):
+        assert phrase not in text, phrase
+
+
+def test_experiments_and_report_show_the_command_help() -> None:
+    # Both commands take many options, so the make targets show the options and exit 0.
+    assert _shipharness_calls("experiments") == [["experiments", "--help"]]
+    assert _shipharness_calls("report") == [["report", "--help"]]
+    assert "pilot" not in _rules()  # the pilot script is not part of the course
 
 
 def test_testpaths_hold_the_platform_and_the_section_assignment_tests() -> None:

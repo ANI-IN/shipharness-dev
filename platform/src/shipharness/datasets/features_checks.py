@@ -1,4 +1,4 @@
-"""Checks for `teamtrack-features-v1` beyond the line schema (M5 builder contract §5).
+"""Checks for `teamtrack-features-v1` beyond the line schema.
 
 `check_features_line(line, repo)` checks one line against the course repository: the checkpoint is
 defined in TeamTrack's `reference/checkpoints.toml`, every hidden test id exists in its file, the

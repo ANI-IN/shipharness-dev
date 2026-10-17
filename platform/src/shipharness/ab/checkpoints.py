@@ -1,4 +1,4 @@
-"""Checkpoints: the base product plus an ordered list of reference tasks (M5 ruling R-3).
+"""Checkpoints: the base product plus an ordered list of reference tasks.
 
 `platform/teamtrack/reference/checkpoints.toml` names each checkpoint and its tasks. Main's
 TeamTrack stays the base product; reference code lives only in its `reference/<task>/` as
@@ -210,8 +210,8 @@ def tag_commits(repo: Path, names: list[str]) -> dict[str, str]:
 
 def recorded_results(runs_dir: Path, exports_dir: Path) -> list[Path]:
     """Recorded results that name checkpoints by tag: every `<runs>/*/ab.json` and every JSON
-    export under `<exports>` (scores, experiments). Tags must not move under them without the
-    owner's approval."""
+    export under `<exports>` (scores, experiments). Tags must not move under them without an
+    explicit approval."""
     found = sorted(Path(runs_dir).glob("*/ab.json")) if Path(runs_dir).is_dir() else []
     if Path(exports_dir).is_dir():
         found += sorted(p for p in Path(exports_dir).rglob("*.json") if p.is_file())

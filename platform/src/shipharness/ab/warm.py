@@ -1,4 +1,4 @@
-"""`make warm`: prepare the class host so a class launch pays no start-up cost. No model calls.
+"""`make warm`: prepare the class machine so a class launch pays no start-up cost. No model calls.
 
 Steps, each timed: build the sandbox images only when their source changed (through the existing
 `make images` target), start and remove one container per image so its layers are paged in, and
@@ -33,7 +33,7 @@ from shipharness.harness.base import Harness, LayerContext
 # (section, feature): the tasks class runs use (make show-N, make final with the poll's features).
 # S3 is the live A/B `make demo-3 FEATURE=F4`: its referee baseline is the same file as demo-4 F4's
 # and the demo-3 stack has no verify layer, so it adds nothing to compute. F3 is left out: no class
-# step runs it, and its referee baseline would be one more container run on the class host.
+# step runs it, and its referee baseline would be one more container run on the class machine.
 CLASS_TASKS: tuple[tuple[str, str], ...] = (
     ("demo-1", "F1"),
     ("demo-2", "F2"),

@@ -66,7 +66,7 @@ def referee_mutants(
 ) -> list[Any]:
     """Mutants that judge one task, for every path that runs the referee (A/B, swap test, replay,
     experiments). `given` wins when set. A missing set is logged and scored 0/0 instead of
-    aborting a live run; dataset validation (M5) checks that every mutant set exists."""
+    aborting a live run; dataset validation checks that every mutant set exists."""
     if given:
         return list(given)
     try:

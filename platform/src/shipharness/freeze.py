@@ -1,7 +1,7 @@
-"""Harness freeze: what the `harness-frozen` tag pins before M8.
+"""Harness freeze: what the `harness-frozen` tag pins before the experiments.
 
-When the pilot gate passes, a build-repository freeze script creates an annotated tag at HEAD. M8
-results are valid only for that state. The tag pins four things:
+When the pilot passes its pre-registered test, a freeze script creates an annotated tag at HEAD.
+The experiments' results are valid only for that state. The tag pins four things:
 
 - treatment, measurement, tasks, and environment files (`FROZEN_PATHS`): any change, or new file,
   under them after the tag is drift;
@@ -11,7 +11,7 @@ results are valid only for that state. The tag pins four things:
   values (with `.env`); secrets are never recorded.
 
 Rule 1: after the tag, a change to a frozen path passes only with an entry in the private
-`FREEZE-EXCEPTIONS.toml` (its content hash, and either the M8 experiments re-run or a recorded
+`FREEZE-EXCEPTIONS.toml` (its content hash, and either the experiments re-run or a recorded
 check that it cannot change any score). No silent changes.
 
 Console, report, replay tooling, docs, slides, and course content stay editable.
@@ -258,8 +258,8 @@ def expected_record(repo: Path) -> dict[str, Any] | None:
 
 def _message(record: dict[str, Any]) -> str:
     return (
-        "Harness freeze before M8 (course freeze rules 1 and 2). "
-        "M8 results are valid only for this content.\n\n"
+        "Harness freeze before the experiments (course freeze rules 1 and 2). "
+        "Their results are valid only for this content.\n\n"
         f"{_MARKER}\n{json.dumps(record, indent=2, sort_keys=True)}\n"
     )
 
@@ -297,7 +297,7 @@ def _dirty(repo: Path, paths: list[str]) -> list[str]:
 def create_tag(repo: Path, effective: Settings, *, identity: tuple[str, str]) -> str:
     """Annotated `harness-frozen` tag at HEAD with the record in its message; returns the commit."""
     if _git(repo, "rev-parse", "-q", "--verify", f"refs/tags/{TAG}").returncode == 0:
-        raise FreezeError(f"{TAG} exists; a new freeze needs the owner's decision and an M8 re-run")
+        raise FreezeError(f"{TAG} exists; a new freeze needs a new decision and a re-run")
     dirty = _dirty(repo, list(FROZEN_PATHS))
     if dirty:
         raise FreezeError("uncommitted changes under frozen paths: " + ", ".join(dirty[:20]))

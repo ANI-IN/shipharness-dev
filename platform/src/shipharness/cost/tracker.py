@@ -16,7 +16,7 @@ from pydantic import BaseModel, ConfigDict
 
 from shipharness.config import ModelPrice, Prices, Settings
 
-try:  # POSIX file locks; the class host and CI are Linux
+try:  # POSIX file locks; the class machine and CI are Linux
     import fcntl
 except ImportError:  # pragma: no cover - Windows without WSL
     fcntl = None  # type: ignore[assignment]

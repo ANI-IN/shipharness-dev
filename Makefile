@@ -35,7 +35,7 @@ RUN ?=
 	test-live \
 	test-docker demo-1 demo-2 demo-3 demo-4 show-1 show-2 show-3 show-4 swap-1 swap-2 swap-3 swap-4 \
 	final replay warm experiments \
-	report pilot check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
+	report check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
 	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4 slides
 
 help:
@@ -79,7 +79,7 @@ format:
 
 lint-prose:
 	$(UV) run python platform/scripts/lint_prose.py
-	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # DESIGN.md, RESEARCH.md: build repository only, not included in the public release
+	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # vale is optional; DESIGN.md and RESEARCH.md only where they exist
 
 # check-style: the mechanical rules of docs/STYLE.md on the public course pages. Errors fail;
 # CHECK_STYLE_OPTS=--strict fails on warnings too, --warn-only reports and never fails.
@@ -179,13 +179,17 @@ replay:
 	@if [ -z "$(RUN)" ]; then echo "! replay needs RUN=<ab or run id>"; exit 2; fi
 	$(UV) run shipharness replay $(RUN) --purpose $(PURPOSE)
 
-# Before class, on the class host: build the images only if their source changed, page each image
+# Before class, on the class machine: build the images only if their source changed, page each image
 # in, and cache the referee and gate baselines of the class tasks. No model calls; safe to rerun.
 warm:
 	$(UV) run shipharness warm --purpose $(PURPOSE) --profile $(PROFILE) --images-command "make images RUNTIME=$(RUNTIME)"
 
-experiments report pilot:
-	@echo "! make $@ is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help"; exit 2
+# experiments, report: both take many options, so make shows them; run the command with uv run.
+experiments:
+	$(UV) run shipharness experiments --help
+
+report:
+	$(UV) run shipharness report --help
 
 # check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
 check-assignment-1:

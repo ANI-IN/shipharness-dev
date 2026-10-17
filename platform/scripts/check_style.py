@@ -889,7 +889,7 @@ def _check_glossary(page: Page, c: _Collector) -> None:
             j += 1
 
 
-# The root README tells its story without the label (owner edit, 2026-10-18).
+# The root README tells its story without the label (STYLE, 2026-10-18).
 _SCENARIO_TYPES = {"section-readme", "concepts", "demo-readme", "assignment-readme"}
 
 
