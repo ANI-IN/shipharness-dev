@@ -160,24 +160,29 @@ differ", then the command:
 | `captured/grade-solution.txt` | `make grade-assignment-1 SUBMISSION=submodules/01-instructions/solution/work` | 2026-10-17 |
 | `captured/checker-solution.txt` | the reference checker on the reference tree | 2026-10-17 |
 | `captured/grade-solution-allow-pending.txt` | `grade.py --work submodules/01-instructions/solution/work --allow-pending` | 2026-10-17 |
-| `captured/tests.txt` | the grader tests (run with `-n 2`) and the checker tests | 2026-10-16 (not re-run while the live pilot runs) |
+| `captured/tests.txt` | the grader tests and the checker tests | 2026-10-17 |
+
+The starter files and the checker output were captured at commit d52d8c6; the solution's self-check,
+both solution grades, and the tests at commit 0c3387d, after the reference's markers were replaced.
 
 Summary, as captured on 2026-10-17:
 
 - The self-check passes 0 of 24 checks on the starter (exit 1; `make` exits 2) and 15 of 24 on the
   solution. The nine that fail on the solution are the four A/B value checks of the report
   (`report-command`, `report-results`, `report-links`, `report-cost`) and the five live-evidence
-  checks: the report holds pending markers and `work/live/` holds a marker instead of a captured run.
+  checks: the reference live run was not captured (owner scope, 2026-10-17: real captured live runs
+  were required for A3 and A4 only), so the report has no values and `work/live/` has no evidence.
 - The grader gives the starter 1.8/100 and the solution 83.0/100. The solution loses exactly the
   live-step points: 5 of the 10 points of criterion E (the A/B values the live run supplies) and all
-  12 points of criterion F (live run evidence). This is expected until the reference live run is
-  captured (VERIFICATION.md, overnight Phase 0, records "A1 83/100").
-- `--allow-pending` makes the grader accept the markers in place of the A/B values and the evidence
-  (100.0/100 on the solution, `captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes it, and
-  learners are graded without it.
+  12 points of criterion F (live run evidence).
+- The reference holds no pending markers, so `--allow-pending` also gives it 83.0/100
+  (`captured/grade-solution-allow-pending.txt`); `make grade-assignment-1` never passes the flag,
+  and learners are graded without it.
 - The grader tests also grade a SYNTHETIC submission (the reference work folder plus invented live
   evidence from `grader/tests/synthetic_live.py`), which scores 100 without `--allow-pending`; that
-  is a test fixture, not a run.
+  is a test fixture, not a run. Its score records carry `referee_version` and `single_arm`, the two
+  fields `ScoreRecord` gained on 2026-10-17 (`src/shipharness/ab/score.py`); without them all 31
+  synthetic-evidence tests failed.
 
 The grading criteria table in the brief ([../assignment/README.md](../assignment/README.md), "Grading
 criteria (100 points)") was checked against `grader/grade.py` (`CRITERIA`, `VISIBLE_POINTS`, and the

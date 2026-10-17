@@ -366,10 +366,10 @@ profile changes effort, tier, and CPUs, not the caps.
 Class-profile round, F1 (A/B `ab-20261017-084558-0356a0`, 2026-10-17, both arms running; times from
 the launch):
 
-| Arm | Launch to primary verdict | Launch to full verdict | Agent time | Arm cost | Review cost |
-|---|---|---|---|---|---|
-| bare | 133 s | 336 s | 111 s | $0.0122 | $0.0028 |
-| harness | 114 s | 324 s | 91 s | $0.0151 | $0.0028 |
+| Arm | Launch to primary verdict | Launch to full verdict | Arm cost | Review cost |
+|---|---|---|---|---|
+| bare | 133 s | 336 s | $0.0122 | $0.0028 |
+| harness | 114 s | 324 s | $0.0151 | $0.0028 |
 
 Agent calls in the class profile run at OpenAI's Fast tier, which costs twice the Standard rate per
 token (`config/prices.toml`); the round's agent cost was $0.1689 for 8 arms, every call reported
