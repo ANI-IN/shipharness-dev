@@ -1,10 +1,17 @@
-"""Docker (or Podman) sandbox: one long-lived container per arm; tool commands via `exec`."""
+"""Docker (or Podman) sandbox: one long-lived container per arm; tool commands via `exec`.
+
+Every container this process starts is removed: by `stop()`, after a failed `start()`, and at
+interpreter exit for any container whose owner never reached its own `stop()` (a daemon thread,
+such as a board preview still capturing, is killed at exit without running its `finally`)."""
 
 from __future__ import annotations
 
+import atexit
+import contextlib
 import json
 import re
 import subprocess
+import threading
 import time
 import uuid
 from collections.abc import Callable
@@ -35,6 +42,29 @@ _UNITS_MB = {
     "gb": 1000.0,
     "tib": 1024.0**2,
 }
+
+
+# Containers started by this process and not yet removed, by name.
+_LIVE: dict[str, DockerSandbox] = {}
+_LIVE_LOCK = threading.Lock()
+
+
+def live_containers() -> list[str]:
+    """Names of the containers this process started and has not removed yet."""
+    with _LIVE_LOCK:
+        return list(_LIVE)
+
+
+def stop_all() -> None:
+    """Remove every container still in `live_containers()`. Runs at interpreter exit."""
+    with _LIVE_LOCK:
+        boxes = list(_LIVE.values())
+    for box in boxes:
+        with contextlib.suppress(Exception):  # best effort: the process is ending
+            box.stop()
+
+
+atexit.register(stop_all)
 
 
 def _to_mb(text: str) -> float:
@@ -96,9 +126,16 @@ class DockerSandbox:
             self.env,
             extra_mounts=self.extra_mounts,
         )
-        result = self._run(argv, timeout=120)
-        if result.returncode != 0:
-            raise RuntimeError(f"{self.runtime} run failed: {result.stderr.strip()[:500]}")
+        with _LIVE_LOCK:  # before `run`: a timed-out `run` can still leave a container behind
+            _LIVE[self.name] = self
+        try:
+            result = self._run(argv, timeout=120)
+            if result.returncode != 0:
+                raise RuntimeError(f"{self.runtime} run failed: {result.stderr.strip()[:500]}")
+        except BaseException:
+            with contextlib.suppress(Exception):  # the start already failed; report that
+                self.stop()
+            raise
         self.container_id = result.stdout.strip()[:64]
         if self.bus is not None:
             self.bus.publish(
@@ -207,7 +244,10 @@ class DockerSandbox:
         }
 
     def stop(self) -> None:
+        """Remove the container (safe to call more than once)."""
         self._run([self.runtime, "rm", "-f", self.name], timeout=60)
+        with _LIVE_LOCK:
+            _LIVE.pop(self.name, None)
 
 
 def _decode(data: bytes | str | None) -> str:
