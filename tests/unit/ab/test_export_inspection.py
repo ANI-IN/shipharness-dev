@@ -1,4 +1,4 @@
-"""Export inspection (1): an arm workspace holds the checkpoint only (DESIGN §8.3 rule 6).
+"""Export inspection (1): an arm workspace holds the checkpoint only.
 
 A miniature course repository carries everything an arm must never reach: reference solutions,
 hidden tests, referee mutants, harness instruction sources, course files outside `teamtrack/`, a

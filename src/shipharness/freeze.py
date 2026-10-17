@@ -1,6 +1,6 @@
 """Harness freeze: what the `harness-frozen` tag pins before M8.
 
-When the pilot gate passes, `scripts/freeze_harness.py` creates an annotated tag at HEAD. M8
+When the pilot gate passes, a build-repository freeze script creates an annotated tag at HEAD. M8
 results are valid only for that state. The tag pins four things:
 
 - treatment, measurement, tasks, and environment files (`FROZEN_PATHS`): any change, or new file,

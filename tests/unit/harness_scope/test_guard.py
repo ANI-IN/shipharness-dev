@@ -1,4 +1,4 @@
-"""Allowed-path globs and apply_patch target parsing (DESIGN §6.4)."""
+"""Allowed-path globs and apply_patch target parsing."""
 
 from __future__ import annotations
 

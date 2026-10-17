@@ -30,7 +30,7 @@ APP_DIR = "teamtrack"
 CHECKPOINTS_FILE = Path(APP_DIR) / "reference" / "checkpoints.toml"
 HIDDEN_PREFIX = "tests/hidden/"
 
-# Design §10.1 and the contract: 7 + 21 + 8 + 9 + 7 + 8 = 60 lines.
+# Dataset groups (course design): 7 + 21 + 8 + 9 + 7 + 8 = 60 lines.
 GROUP_COUNTS: dict[str, int] = {
     "canonical": 7,
     "reworded": 21,

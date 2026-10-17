@@ -4,8 +4,8 @@ Alshahwan, Chheda, Finegenova, Gokkaya, Harman, Harper, Marginean, Sengupta, Wan
 "Automated Unit Test Improvement using Large Language Models at Meta". FSE '24.
 arXiv 2402.09171, 2024-02-14. https://arxiv.org/abs/2402.09171
 
-Summary in our own words; quotes are marked and come from the research notes (R-b, finding ids
-F-b-16 to F-b-28).
+Summary in our own words; quotes are marked, and their finding ids (F-b-16 to F-b-28) are listed
+in `REFERENCES.md` at the repository root.
 
 ## What it does
 
@@ -32,7 +32,7 @@ first per test class and were extended to each test case after engineers asked f
 | Deployment | about 10% of the test classes it was applied to were improved (the abstract says 11.5%); 73% of improvements were accepted by engineers | B11 §4 (F-b-24) |
 | Success rate per trial | about 4-5%; a trial succeeds only if the test builds, passes, and adds coverage | B11 §4, Table 3 (F-b-25) |
 
-The 75/57/25% figures are per test class, not per generated test (RESEARCH §5, correction 6).
+The 75/57/25% figures are per test class, not per generated test (B11 §3.3, F-b-23).
 
 ## What the course takes from it
 

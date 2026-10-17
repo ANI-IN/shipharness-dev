@@ -1,4 +1,4 @@
-"""Doctests in the baseline suite (RESEARCH G-19): with `doctest_modules`, the baseline coverage run
+"""Doctests in the baseline suite: with `doctest_modules`, the baseline coverage run
 and every existing-suite run pass `--doctest-modules`, so a doctest counts like an existing test.
 Generated candidate tests still run as ordinary test ids."""
 

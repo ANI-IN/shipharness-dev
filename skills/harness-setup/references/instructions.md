@@ -1,7 +1,7 @@
 # Instructions checklist: what the agent knows
 
-Source ids and finding ids refer to the shipharness research register (RESEARCH.md and
-research/notes/R-a.md, R-b.md). Assessment checks I1-I6 test the items marked with a check id.
+Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Assessment checks I1-I6 test the items marked with a check id.
 
 | Done | Item | Why | Source |
 |---|---|---|---|
@@ -10,7 +10,7 @@ research/notes/R-a.md, R-b.md). Assessment checks I1-I6 test the items marked wi
 | [ ] | (I3) Every pointer in AGENTS.md resolves to a file or folder. | A1 checks that the knowledge base is "up to date, cross-linked, and structured correctly" with linters and CI jobs. | A1, F-a-37 |
 | [ ] | (I4) ARCHITECTURE.md at the root maps domains and package layering. | "Architecture documentation provides a top-level map of domains and package layering." | A1, F-a-30, F-a-32 |
 | [ ] | (I5) docs/ holds the detail: SECURITY.md, RELIABILITY.md, QUALITY_SCORE.md, PLANS.md, design-docs/, product-specs/, references/, exec-plans/. | "structured docs/ directory treated as the system of record". A1 gives these names in its layout figure. | A1, F-a-29, F-a-30 |
-| [ ] | (I6) Skills sit in both `.claude/skills/` and `.agents/skills/` and pass the spec's validator. | No single folder is read by Claude Code, Codex, and Cursor. | B1, B7, B8, B9; RESEARCH §4.5 |
+| [ ] | (I6) Skills sit in both `.claude/skills/` and `.agents/skills/` and pass the spec's validator. | No single folder is read by Claude Code, Codex, and Cursor. | B1, B7, B8, B9 |
 | [ ] | Rules that live in chat threads, wikis, or people's heads are moved into the repository. | "Knowledge that lives in Google Docs, chat threads, or people’s heads are not accessible to the system." | A1, F-a-06 |
 | [ ] | Code that must not be copied is marked as legacy, next to the pattern to copy instead. | "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones." | A1, F-a-20 |
 | [ ] | Error messages from custom checks say how to fix the problem. | "we write the error messages to inject remediation instructions into agent context." | A1, F-a-97 |

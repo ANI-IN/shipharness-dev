@@ -1,7 +1,7 @@
 # Verification checklist: what proves the work is done
 
-Source ids and finding ids refer to the shipharness research register (RESEARCH.md and
-research/notes/R-a.md, R-b.md). Assessment checks V1-V5 test the items marked with a check id.
+Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Assessment checks V1-V5 test the items marked with a check id.
 
 | Done | Item | Why | Source |
 |---|---|---|---|

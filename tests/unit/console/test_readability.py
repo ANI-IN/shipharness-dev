@@ -1,4 +1,4 @@
-"""Readability rules (DESIGN §13) checked on the stylesheet and the rendered screens."""
+"""Console readability rules checked on the stylesheet and the rendered screens."""
 
 from __future__ import annotations
 

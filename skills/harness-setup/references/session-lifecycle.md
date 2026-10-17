@@ -1,7 +1,7 @@
 # Session lifecycle checklist: how sessions start, stop, and hand over
 
-Source ids and finding ids refer to the shipharness research register (RESEARCH.md and
-research/notes/R-a.md). Assessment checks L1-L5 test the items marked with a check id.
+Source ids and finding ids are listed in `REFERENCES.md` at the repository root.
+Assessment checks L1-L5 test the items marked with a check id.
 
 | Done | Item | Why | Source |
 |---|---|---|---|
@@ -10,7 +10,7 @@ research/notes/R-a.md). Assessment checks L1-L5 test the items marked with a che
 | [ ] | (L3) AGENTS.md says to work on one feature per session. | "the next iteration of the coding agent was then asked to work on only one feature at a time." | A2, F-a-83 |
 | [ ] | (L5) AGENTS.md has an end-of-session routine: clean state, progress update, commit. | "End the session by writing a git commit and progress update." | A2, F-a-63, F-a-84 |
 | [ ] | (L2) A session-handoff.md carries the state and the next steps when a session stops before the feature is done. | A3's context reset: "clearing the context window entirely and starting a fresh agent, combined with a structured handoff that carries the previous agent's state and the next steps". | A3, F-a-65 |
-| [ ] | The handoff has a part written by a script (files changed, test status, last commits, open TODOs), so it exists even if the agent writes nothing. | A design choice of the course, so the next session never starts from nothing. | shipharness DESIGN §6.3 |
+| [ ] | The handoff has a part written by a script (files changed, test status, last commits, open TODOs), so it exists even if the agent writes nothing. | A design choice of the course, so the next session never starts from nothing. | Course design |
 | [ ] | The handoff lists approaches that failed. | A4's agents "maintain a running doc of failed approaches and remaining tasks." | A4, F-a-73 |
 | [ ] | Do not rely on compaction alone to carry a long task across context windows. | "However, compaction isn’t sufficient." | A2, F-a-54, F-a-55 |
 

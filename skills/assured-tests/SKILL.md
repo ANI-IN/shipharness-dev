@@ -31,8 +31,8 @@ A proposed test is kept only if it passes all five, checked in this order, cheap
 | 1 | Imports and runs: pytest collects it with no errors | B11, "buildable" (F-b-17) |
 | 2 | Passes on every one of five runs | B11 (F-b-18, F-b-19) |
 | 3 | Adds line coverage over the existing suite, or kills a filter-set mutant that no existing test kills | B11 coverage (F-b-20); B12 hardening (F-b-29, F-b-32) |
-| 4 | Has real assertions and does not mock the unit under test | Course filter (RESEARCH G-7) |
-| 5 | No source file changed during the test phase | Course filter, built on B11 F-b-22 and A2 F-a-80 (RESEARCH G-7) |
+| 4 | Has real assertions and does not mock the unit under test | Course filter (no direct source) |
+| 5 | No source file changed during the test phase | Course filter, built on B11 F-b-22 and A2 F-a-80 |
 
 Why each filter exists, and what it cannot catch: [filters](references/filters.md). The two papers
 in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
