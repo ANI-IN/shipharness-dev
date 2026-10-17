@@ -1,4 +1,4 @@
-# Assignment 2 solution: Three forced stops, one consistent history
+# Assignment 2: State and sessions. Solution: three forced stops, one consistent history
 
 This folder is the reference solution for [Assignment 2](../README.md): a finished
 `ResumableStateLayer`, its unit tests, the captured checks, and the live run's evidence. This page
@@ -94,7 +94,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
 - **Evidence over claims.** The ledger comes from commits and the working tree, never from the files
   the agent edits. An agent that ticks a step early does no harm: the next stop rebuilds Progress
   from git. Anthropic's harness pairs the progress file with "the git history"
-  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)); taking
+  ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)); taking
   the status from git alone is this course's choice.
 - **The harness owns the plan's Progress section.** The agent's own words go to Surprises &
   Discoveries and the Decision Log, and the wrap-up message says so.
@@ -103,7 +103,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
   the agent's own `S<n>:` commit, so each step is committed once.
 - **Session history in two places.** `progress.md` keeps the session log; the plan keeps one line per
   session too. The plan alone is then enough to restart from, as OpenAI's recipe asks
-  ([OpenAI, PLANS.md](https://cookbook.openai.com/articles/codex_exec_plans)).
+  ([Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans)).
 - **Entries kept in memory.** The session log is rebuilt from the layer's own list, so an agent that
   rewrites `progress.md` cannot delete history.
 
@@ -118,8 +118,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
   agent that rewrote the file before the stop.
 - **A JSON state file.** Anthropic's team found the model "is less likely to inappropriately change
   or overwrite JSON files compared to Markdown files"
-  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)). The
-  course keeps Markdown files as the workspace state, so the harness owns the parts that matter
+  (Source 1). The course keeps Markdown files as the workspace state, so the harness owns the parts that matter
   instead.
 
 ## Common mistakes this avoids
@@ -196,5 +195,5 @@ criterion gives 0. Dates and run ids are on the
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI Cookbook, Aaron Friel, 2025-10-07)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Using PLANS.md for multi-hour problem solving, <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07

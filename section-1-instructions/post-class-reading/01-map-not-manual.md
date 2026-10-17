@@ -1,4 +1,4 @@
-# Harness engineering: leveraging Codex in an agent-first world
+# [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)
 
 Reading time: about 15 minutes.
 Source: Ryan Lopopolo (OpenAI), [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/), 2026-02-11 ([evidence](../../docs/evidence/s1.md#src-openai-harness)).
@@ -43,8 +43,8 @@ structure, then measures it.
    line where each starts.
 2. Write a map keyed by task, not by topic: "add or change an endpoint" leads to one file.
 3. Move each rule to one focused document, and leave a pointer in the map.
-4. Before you split anything, add one check for dead links and missing rules. Assignment 1 builds
-   exactly this.
+4. Before you split anything, add one check for dead links and missing rules. [Assignment 1: Instructions](../assignment/)
+   builds exactly this.
 5. Read your tickets. If they all say "see the handbook", people are doing the map's job, and it
    stops the day someone forgets the line.
 6. Compare `platform/teamtrack/docs/HANDBOOK.md` with `platform/teamtrack/harness/instructions/AGENTS.md`.
@@ -52,4 +52,4 @@ structure, then measures it.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

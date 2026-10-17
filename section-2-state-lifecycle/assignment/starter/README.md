@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 2 starter
+# Module 1: Harness Engineering for Coding Agents - Starter for Assignment 2: State and sessions
 
 Your starting point for [Assignment 2](../README.md). The requirements are in [SPEC.md](../SPEC.md).
 

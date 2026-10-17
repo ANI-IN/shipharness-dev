@@ -15,7 +15,7 @@ is captured, this folder holds no evidence, and the grader gives the reference 0
 points of criterion F, with or without `--allow-pending` (`captured/grade-solution.txt`).
 
 If the run is captured later, these are the commands (repository root; needs keys and Docker;
-within the Assignment 1 budget of $2.50):
+within the $2.50 budget of Assignment 1: Instructions):
 
 ```bash
 git switch -c a1-reference-run                     # throwaway branch: never merge it

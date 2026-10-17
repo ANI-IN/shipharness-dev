@@ -1,4 +1,4 @@
-# Section 1 concepts: what the agent knows
+# Section 1: Instructions. Concepts: what the agent knows
 
 Reading time: about 15 minutes.
 
@@ -28,8 +28,8 @@ query.
 > - **Progressive disclosure**: A small entry point first; the details only when the task needs them.
 > - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **House rules**: TeamTrack's seven rules for every endpoint, such as the tenant isolation rule.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **House rules**: TeamTrack's seven rules for every endpoint, such as House rule 1: Tenant isolation.
+> - **Tenant isolation rule**: House rule 1. Another org's resource answers 404, never 403.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 
 ## The idea in one sentence
@@ -43,7 +43,7 @@ OpenAI's harness team states the problem: "From the agent’s point of view, any
 in-context while running effectively doesn’t exist." Then the fix: "give Codex a map, not a 1,000-page
 instruction manual." The map is "a short AGENTS.md (roughly 100 lines)" that "is injected into context
 and serves primarily as a map, with pointers to deeper sources of truth elsewhere."
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
+([Harness engineering](https://openai.com/index/harness-engineering/))
 
 Why not paste every rule into the prompt? The same source answers: "Context is a scarce resource. A
 giant instruction file crowds out the task, the code, and the relevant docs." And: "Too much guidance
@@ -72,7 +72,7 @@ Skills follow the same pattern, in three tiers
 
 ### Before and after
 
-**Before: one instruction dump.** Assignment 1 starts from a real example: an 899-line `AGENTS.md`
+**Before: one instruction dump.** [Assignment 1: Instructions](assignment/) starts from a real example: an 899-line `AGENTS.md`
 for a TeamTrack variant. These are some of its headings, with the line where each starts:
 
 | Line | Heading |
@@ -168,7 +168,7 @@ It helps when:
 - The rules are many, long, or far from the code that breaks them.
 - A rule is about something the code cannot show, such as "404, never 403".
 - Several people maintain the rules. Small focused files have owners and can be checked by a script,
-  while one big file "rots instantly" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+  while one big file "rots instantly" ([Harness engineering](https://openai.com/index/harness-engineering/)).
 - The same task comes up again and again. A skill turns it into steps the agent loads only then.
 
 It does not help, or helps less, when:
@@ -181,7 +181,8 @@ It does not help, or helps less, when:
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an assumption
 about what the model can't do on its own, and those assumptions are worth stress testing."
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)) The map assumes the
+([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps))
+The map assumes the
 model will not apply a rule it has not been pointed to. Measure that on your model.
 
 ## Key takeaways
@@ -250,3 +251,9 @@ model will not apply a rule it has not been pointed to. Measure that on your mod
 - [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
 - [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
   (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+
+## Sources
+
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.
+- Source 3: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

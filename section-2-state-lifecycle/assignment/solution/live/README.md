@@ -1,7 +1,8 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 2 reference live step
+# Module 1: Harness Engineering for Coding Agents - Reference live step for Assignment 2: State and sessions
 
 This folder holds the files of the reference solution's live step: one A/B on the four-session comments
-task (`F2-a2-four-sessions`, session budget [10, 10, 10, 20]), with the reference
+task (task id `F2-a2-four-sessions`, built on Feature 2: Comments on issues; session budget
+[10, 10, 10, 20]), with the reference
 `ResumableStateLayer` as the harness arm's state layer and gpt-6-luna as the agent model.
 
 Command (from the repository root, with keys, Docker, and the checkpoints; `make doctor` passes):

@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 1: From one long instruction file to a map
+# Module 1: Harness Engineering for Coding Agents - Assignment 1: Instructions, from one long instruction file to a map
 
 Try it yourself first. The full solution is in [./solution/](./solution/) with a step-by-step walkthrough.
 
@@ -13,7 +13,7 @@ and nobody can say whether a rule would be lost on the way.
 Your starting point is that kind of file: `starter/original/AGENTS.md`, 899 lines, 70 tagged rules.
 OpenAI's harness team names the cost of such a file: "A giant instruction file crowds out the task,
 the code, and the relevant docs." Their fix is a short map, focused documents, and checks that run by
-machine ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+machine ([Harness engineering](https://openai.com/index/harness-engineering/)).
 
 > **Terms on this page**
 >
@@ -24,8 +24,8 @@ machine ([OpenAI, Harness engineering](https://openai.com/index/harness-engineer
 > - **Bare arm**: An agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: The same run with the harness turned on.
 > - **A/B**: Bare arm and harness arm on the same ticket, scored the same way.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
-> - **API conventions rule**: House rule 3: list and error envelopes, status codes.
+> - **Tenant isolation rule**: House rule 1: Tenant isolation. Another org's resource answers 404, never 403.
+> - **API conventions rule**: House rule 3: API conventions. List and error envelopes, status codes.
 > - **Live evidence**: The files your real A/B run wrote, collected into `live/`.
 > - **Score record**: The file the referee writes for each run, with every measured result.
 > - **Experiment export**: The JSON file the run writes for each arm, listing that arm's runs.
@@ -71,8 +71,8 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
    `ARCHITECTURE.md`. History and review notes are background, not rules.
    Check: every active tag has exactly one planned home.
 
-3. **Write the checker first.** Fill the two stubs marked `TODO(A1-3)` and `TODO(A1-4)` in
-   `starter/checker/check_docs.py`, then add your own tests. Check: the visible tests pass, and the
+3. **Write the checker first.** Fill the two stubs marked `TODO(A1-3)` and `TODO(A1-4)` (the
+   markers for steps 3 and 4) in `starter/checker/check_docs.py`, then add your own tests. Check: the visible tests pass, and the
    checker reports 69 problems on the starter tree (66 missing rules, 3 broken paths).
 
 4. **Split the file.** Create the documents and move each active tag into exactly one of them. Leave
@@ -140,4 +140,4 @@ Read it after your own attempt, and compare your choices with its alternatives.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

@@ -1,4 +1,4 @@
-# Assignment 1 A/B report: the instructions layer on section-1 (reference tree)
+# Assignment 1: Instructions. A/B report: the instructions layer on section-1 (reference tree)
 
 This is the reference solution's report. Its structure is what a learner's report must have. The
 reference live run was not captured: the course plan of 2026-10-17 required a real
@@ -19,8 +19,8 @@ re-run).
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new violation of the tenant isolation rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
-| R3: runs with at least one new failure of the API conventions rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R1: runs with at least one new violation of the tenant isolation rule | not captured | not captured | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
+| R3: runs with at least one new failure of the API conventions rule | not captured | not captured | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
 
 No counts: the reference live run was not captured (it is being re-run).
 
@@ -36,7 +36,7 @@ Budget for this command: at most $2.50 and 150 traces (the course budget); the r
 
 ## Reading the result
 
-The primary measure for Section 1 is registered by the course: a run fails when it has at least one
+The primary measure for Section 1: Instructions is registered by the course: a run fails when it has at least one
 new violation of the tenant isolation rule (`R1`), and results are counts of failing runs out of k
 per task, summed over the eight tasks. The API conventions rule (`R3`) is the secondary measure this
 assignment adds: runs with at least one new failure of it. With counts from a captured run, compare

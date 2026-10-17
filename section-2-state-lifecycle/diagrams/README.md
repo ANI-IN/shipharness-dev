@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Section 2 diagrams
+# Module 1: Harness Engineering for Coding Agents - Diagrams for Section 2: State and sessions
 
 The diagrams for Section 2, the state and lifecycle layer. Each one has an `.excalidraw` source, a
 `.png` at 2x for slides, and an `.svg` with the font embedded for pages. Colours, step frames,
@@ -10,7 +10,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 > - **Harness arm**: The same run with the harness turned on.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
-> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
+> - **Migrations rule**: House rule 7: Migrations. Exactly one Alembic head, and a fresh upgrade works.
 
 ## The diagrams
 
@@ -71,7 +71,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **What it teaches**: how a stop without a handoff leads to a second migration and two heads.
 - **Slide**: "Problem statement: The second session redoes the first".
 - **Files**: `failure-story-s2`.
-- **Source**: the slide's notes; the migrations rule (house rule 7) in `platform/teamtrack/docs/HANDBOOK.md`.
+- **Source**: the slide's notes; the migrations rule (House rule 7) in `platform/teamtrack/docs/HANDBOOK.md`.
 - **How to edit**: change `failure-story-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: why redo work already on disk?

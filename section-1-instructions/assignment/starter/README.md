@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 1 starter
+# Module 1: Harness Engineering for Coding Agents - Starter for Assignment 1: Instructions
 
 Your work folder for [Assignment 1](../README.md). The steps are in the assignment README, and the
 detailed requirements in [SPEC.md](../SPEC.md).

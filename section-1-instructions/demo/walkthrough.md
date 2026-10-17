@@ -39,16 +39,16 @@ sequenceDiagram
 
 The layer reads `platform/teamtrack/harness/instructions/`. Its tree mirrors the workspace, following
 the layout OpenAI's harness team describes: `AGENTS.md` and `ARCHITECTURE.md` at the root, the rest in
-`docs/` ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)). The
+`docs/` ([Harness engineering](https://openai.com/index/harness-engineering/)). The
 [harness/](harness/) folder next to this page holds the same 31 files, exactly as the agent gets them.
 
 | Path | What it holds | How the agent gets it |
 |---|---|---|
 | `AGENTS.md` | The map: where to look, the house rules, "Do not copy", commands | In its context, every session |
-| `ARCHITECTURE.md` | Layers `api → services → repositories → db` (the layering rule) | Opens it when the map points there |
-| `docs/SECURITY.md` | The tenant isolation rule and the roles rule | Opens it when needed |
-| `docs/design-docs/api-conventions.md` | The API conventions rule: list and error envelopes, status codes | Opens it when needed |
-| `docs/RELIABILITY.md` | The idempotent creates, audit log, and migrations rules | Opens it when needed |
+| `ARCHITECTURE.md` | Layers `api → services → repositories → db` (House rule 6: Layering) | Opens it when the map points there |
+| `docs/SECURITY.md` | House rule 1: Tenant isolation and House rule 2: Roles | Opens it when needed |
+| `docs/design-docs/api-conventions.md` | House rule 3: API conventions: list and error envelopes, status codes | Opens it when needed |
+| `docs/RELIABILITY.md` | House rules 4, 5, and 7: safe retries, audit log, migrations | Opens it when needed |
 | `docs/QUALITY_SCORE.md` | Testing, known gaps, the legacy endpoint | Opens it when needed |
 | `docs/PLANS.md` | Roadmap and scope | Opens it when needed |
 | `docs/design-docs/` | Index, core beliefs, cursor pagination | Opens it when needed |
@@ -136,7 +136,7 @@ The `context_prefix` hook builds the prefix once and reuses it.
 ```
 
 - Every session of the run gets the same text: the "small, stable entry point" that OpenAI's harness
-  team describes ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+  team describes ([Harness engineering](https://openai.com/index/harness-engineering/)).
 - The runner joins the core system prompt and this prefix into the first message of every session
   (`platform/src/shipharness/runner/loop.py`, line 364). The bare arm gets the core prompt alone.
 
@@ -181,4 +181,4 @@ through a shell command, such as `cat`, is not a `read_file` call, so it does no
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

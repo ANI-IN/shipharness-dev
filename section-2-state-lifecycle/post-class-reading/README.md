@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Section 2 reading list
+# Module 1: Harness Engineering for Coding Agents - Reading list for Section 2: State and sessions
 
 Three short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
 words and shows how to apply it to your own repository. Each page takes about five minutes; the
@@ -15,7 +15,7 @@ reading time in the table is for the full source, at 200 words a minute.
 
 | Reading | Reading time | Why read it |
 |---|---|---|
-| [01 Effective harnesses for long-running agents](01-effective-harnesses-for-long-running-agents.md) | 10 minutes | The files and routines that carry work from one session to the next |
+| [01 Working in shifts](01-effective-harnesses-for-long-running-agents.md) | 10 minutes | The files and routines that carry work from one session to the next |
 | [02 Harness design: context resets](02-harness-design-context-resets.md) | 25 minutes | Resets against compaction, and why the choice depends on the model |
 | [03 Using PLANS.md](03-exec-plans.md) | 15 minutes | A plan the next session can restart from |
 
@@ -26,11 +26,12 @@ reading time in the table is for the full source, at 200 words a minute.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the "Getting up to speed" part of
-  [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), then the
-  context reset part of [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps).
+  [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents),
+  then the context reset part of
+  [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps).
 - The class recap is in [session-notes.md](../session-notes.md).
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

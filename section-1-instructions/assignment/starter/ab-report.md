@@ -1,4 +1,4 @@
-# Assignment 1 A/B report: the instructions layer on section-1
+# Assignment 1: Instructions. A/B report: the instructions layer on section-1
 
 <!-- Fill every TODO. Copy the numbers from the output of ab_summary.py; do not type them by hand.
      Counts, not percentages: "3/24", never "12.5%". The self-check compares the command, the runs
@@ -15,8 +15,8 @@
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new violation of the tenant isolation rule | TODO | TODO | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
-| R3: runs with at least one new failure of the API conventions rule | TODO | TODO | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R1: runs with at least one new violation of the tenant isolation rule | TODO | TODO | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
+| R3: runs with at least one new failure of the API conventions rule | TODO | TODO | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
 
 Secondary (optional, not graded; you may delete this line): tenant isolation leaks summed over runs,
 and the number of runs aborted or errored, copied from the ab_summary.py output.
