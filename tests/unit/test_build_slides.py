@@ -242,6 +242,52 @@ def test_check_mode_prints_counts_and_strict_fails_on_open_items(
     assert bs.main([*argv, "--strict"]) == 0
 
 
+CAPTURE_LINE = "[[CAPTURE: wall time of make show-1 | how: time make show-1]]"
+
+
+def test_capture_markers_in_body_and_notes_are_open_items_like_pending() -> None:
+    text = (
+        f"## 1. A\nsection: Opening\n\n- a\n\n{CAPTURE_LINE}\n\nnotes:\nSay it.\n{CAPTURE_LINE}\n"
+    )
+    slide = parse(text).slides[0]
+    assert [(p.kind, p.what, p.how) for p in slide.pending] == [
+        ("CAPTURE", "wall time of make show-1", "time make show-1")
+    ]
+    assert [p.kind for p in slide.notes_pending] == ["CAPTURE"]
+    pending, _ = bs.open_items(parse(text))
+    assert [(n, where, p.kind) for n, where, p in pending] == [
+        (1, "slide", "CAPTURE"),
+        (1, "notes", "CAPTURE"),
+    ]
+    assert parse().slides[1].pending[0].kind == "PENDING"
+
+
+def test_capture_markers_are_reported_and_fail_strict(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    deck_md = tmp_path / "deck.md"
+    deck_md.write_text(_deck_text([1, 2], extra=f"\n{CAPTURE_LINE}\n"), encoding="utf-8")
+    argv = ["--deck", str(deck_md), "--expect", "2", "--check"]
+    assert bs.main(argv) == 0
+    out = capsys.readouterr().out
+    assert "slide  1 CAPTURE (slide): wall time of make show-1" in out
+    assert "0 PENDING markers" in out and "2 CAPTURE markers" in out
+    assert bs.main([*argv, "--strict"]) == 1
+
+
+def test_capture_box_is_labelled_capture_in_html_and_pptx(tmp_path: Path) -> None:
+    from pptx import Presentation
+
+    deck = parse(f"## 1. A\nsection: Opening\n\n- a\n\n{CAPTURE_LINE}\n")
+    slides = bs.prepare(deck, tmp_path, REPO, {})
+    assert "CAPTURE: wall time of make show-1" in bs.render_html(slides)
+    out = tmp_path / "c.pptx"
+    bs.write_pptx(slides, out)
+    shapes = Presentation(str(out)).slides[0].shapes
+    text = " ".join(sh.text_frame.text for sh in shapes if sh.has_text_frame)
+    assert "CAPTURE: wall time of make show-1" in text and "PENDING" not in text
+
+
 def test_check_mode_exits_2_on_validation_errors(tmp_path: Path) -> None:
     deck_md = tmp_path / "deck.md"
     deck_md.write_text(_deck_text([1, 3]), encoding="utf-8")

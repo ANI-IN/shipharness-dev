@@ -3,8 +3,8 @@
 Usage:
   uv run python scripts/build_slides.py            validate, then write slides/dist/deck.*
   uv run python scripts/build_slides.py --check    validate and list open items (no browser)
-  uv run python scripts/build_slides.py --strict   exit 1 while a PENDING marker or empty slot
-                                                   remains
+  uv run python scripts/build_slides.py --strict   exit 1 while a PENDING or CAPTURE marker or an
+                                                   empty slot remains
 
 The deck format is described in slides/README.md and in the comment at the top of slides/deck.md.
 Mermaid diagrams are rendered to PNG once with Playwright Chromium (mermaid loaded from a pinned CDN
@@ -52,7 +52,9 @@ WIDTH, HEIGHT = 1280, 720  # px; 16:9, 13.333 x 7.5 in at 96 px per inch
 
 _SLIDE = re.compile(r"^## (\d+)\.\s+(\S.*?)\s*$")
 _FIELD = re.compile(r"^(section|minutes|layout|subtitle|diagram|image|code|slot|live):\s*(.*?)\s*$")
-_PENDING = re.compile(r"^\s*\[\[PENDING:\s*(.+?)\s*\]\]\s*$")
+# [[PENDING: ...]] marks an open item; [[CAPTURE: ...]] marks output still to be copied in from a
+# real run. Both are open items: listed in the report and failing --strict.
+_PENDING = re.compile(r"^\s*\[\[(PENDING|CAPTURE):\s*(.+?)\s*\]\]\s*$")
 _DIAGRAM_DEF = re.compile(r"^::: diagram ([A-Za-z0-9_-]+)\s*$")
 _SLOT = re.compile(r"^([A-Za-z0-9_-]+)\s*(?:=\s*(.*))?$")
 _RANGE = re.compile(r"^(\d+)(?:-(\d+))?$")
@@ -72,6 +74,7 @@ class Pending:
     source: str
     how: str
     raw: str
+    kind: str = "PENDING"  # or "CAPTURE"
 
 
 @dataclass
@@ -128,13 +131,15 @@ def parse_pending(raw: str) -> Pending | None:
     match = _PENDING.match(raw)
     if not match:
         return None
-    parts = [p.strip() for p in match.group(1).split(" | ")]
+    parts = [p.strip() for p in match.group(2).split(" | ")]
     info = {"source": "", "how": ""}
     for part in parts[1:]:
         key, _, value = part.partition(":")
         if key.strip() in info:
             info[key.strip()] = value.strip()
-    return Pending(what=parts[0], source=info["source"], how=info["how"], raw=raw.strip())
+    return Pending(
+        what=parts[0], source=info["source"], how=info["how"], raw=raw.strip(), kind=match.group(1)
+    )
 
 
 def _parse_ranges(spec: str, number: int) -> list[tuple[int, int]]:
@@ -399,7 +404,7 @@ def validate(deck: Deck, base_dir: Path, expected: int = EXPECTED, repo: Path = 
 
 
 def open_items(deck: Deck) -> tuple[list[tuple[int, str, Pending]], list[tuple[int, str]]]:
-    """Every PENDING marker (on the slide or in the notes) and every empty result slot."""
+    """Every PENDING or CAPTURE marker (on the slide or in the notes) and every empty slot."""
     pending: list[tuple[int, str, Pending]] = []
     empty: list[tuple[int, str]] = []
     for s in deck.slides:
@@ -676,7 +681,7 @@ def _boxes_html(s: Slide) -> str:
     for p in s.pending:
         small = _pending_small(p)
         parts.append(
-            f'<div class="pending"><strong>PENDING: {html.escape(p.what)}</strong>'
+            f'<div class="pending"><strong>{p.kind}: {html.escape(p.what)}</strong>'
             + (f"<small>{html.escape(small)}</small>" if small else "")
             + "</div>"
         )
@@ -884,7 +889,7 @@ def _box_layout(
     placed: list[tuple[str, list[str], float, float, float, float]] = []
     y = 0.0
     pend = [
-        ([f"PENDING: {p.what}"] + ([_pending_small(p)] if _pending_small(p) else []))
+        ([f"{p.kind}: {p.what}"] + ([_pending_small(p)] if _pending_small(p) else []))
         for p in s.pending
     ]
     for i in range(0, len(pend), 2):
@@ -1099,15 +1104,18 @@ def _print_report(deck: Deck) -> int:
     pending, empty = open_items(deck)
     for number, where, p in pending:
         print(
-            f"  slide {number:>2} PENDING ({where}): {p.what}"
+            f"  slide {number:>2} {p.kind} ({where}): {p.what}"
             + (f" [{p.source}]" if p.source else "")
         )
     for number, name in empty:
         print(f"  slide {number:>2} empty result slot: {name}")
-    on_slides = sum(1 for _, where, _ in pending if where == "slide")
+    marked = [(where, p) for _, where, p in pending if p.kind == "PENDING"]
+    on_slides = sum(1 for where, _ in marked if where == "slide")
+    captures = len(pending) - len(marked)
     print(
-        f"open items: {len(pending)} PENDING markers ({on_slides} on slides, "
-        f"{len(pending) - on_slides} in speaker notes), {len(empty)} empty result slots"
+        f"open items: {len(marked)} PENDING markers ({on_slides} on slides, "
+        f"{len(marked) - on_slides} in speaker notes), {captures} CAPTURE markers, "
+        f"{len(empty)} empty result slots"
     )
     return len(pending) + len(empty)
 
