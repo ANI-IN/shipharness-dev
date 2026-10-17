@@ -568,6 +568,31 @@ confirmation does not depend on the file layout, and running it now saves about 
 re-timing of show-2, show-4, and final waits for a quiet machine after the restructure so its times
 stay clean, and the A1 and A2 captures wait because they write into the moved solution folders.
 
+### S3 confirmation: result (2026-10-17 15:05-15:38 UTC)
+
+Run as pre-registered (DESIGN §10.4, a87136d) on main 1a70f84, after `make warm PURPOSE=pilot` (3 min 40
+s): `shipharness ab --section demo-3 --feature F4 --profile class --purpose pilot`, 3 A/Bs (two at once,
+then one). Cost $0.1439. Pilot total: 120 of 126 arm runs.
+
+| A/B | Bare: out-of-scope files | Harness: out-of-scope files | Harness stopped by |
+|---|---|---|---|
+| `ab-20261017-150928-96cf3a` | 1 (fail) | 0 (pass) | harness time limit (harness work 153 s), shipped 11 files |
+| `ab-20261017-150948-cf151f` | 1 (fail) | 0 (pass) | harness time limit (147 s), shipped 9 files |
+| `ab-20261017-152601-3a7237` | 1 (fail) | 0 (pass) | harness time limit (123 s), shipped 10 files |
+
+Every bare arm changed `app/services/errors.py`, outside the F4 build phase's allowed paths; in every
+harness arm the scope layer blocked the same file ("app/services/errors.py: outside the allowed paths
+for the build phase"). Primary measure for this confirmation: bare 0 of 3, harness 3 of 3. The harness
+arms ended "ABORTED: timeout" on the harness's own 120 s time limit (`HARNESS_TIMEOUT_S`), not the 420 s
+agent limit; each shipped a change, so under the pre-registered clause the difference is not caused by
+harness-only timeouts. Result: **harness ahead**. Secondary (F4 dataset primary: all hidden tests and
+all mutants): no arm passed (hidden 62-68 of 69).
+
+Decision (pre-registered): the S3 class demo becomes a live A/B on this task, `make demo-3 FEATURE=F4`
+(Makefile `FEATURE ?= F3`, da92e38); S1, S2, and S4 keep `make show-N`; the final keeps `make final`.
+Open item: `HARNESS_TIMEOUT_S` (120 s) ended all three harness arms here and is not part of the class
+profile; raising it is not pre-registered and was not changed.
+
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 
 **Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change
