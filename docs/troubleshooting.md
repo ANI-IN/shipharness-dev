@@ -115,7 +115,7 @@ charged by the tier its response reports.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| A class run is slower than usual, or costs less than the Fast rates predict | OpenAI answered some Fast requests at the Standard tier; `tail -n 20 .shipharness/ledger.jsonl` shows `"service_tier": "default"` on those calls | Nothing to fix: the run is valid and priced right, and the caps hold at either tier |
+| A class run is slower than usual, or costs less than the Fast rates predict | OpenAI answered some Fast requests at the Standard tier (`"service_tier": "default"` in `.shipharness/ledger.jsonl`) | Nothing to fix: the run is valid, priced right, and within the caps |
 | Startup error naming `OPENAI_SERVICE_TIER` and a missing `[models."<model>".fast]` table | A model with no Fast prices in `platform/config/prices.toml` | Use the course model, or add `PROFILE=standard` |
 | You want the settings from `.env` (for example effort `medium`) | The class profile overrides them | Add `PROFILE=standard` to the make command |
 
@@ -171,6 +171,6 @@ from `platform/scripts/build_slides.py`:
 | Symptom | Fix |
 |---|---|
 | `UNSANDBOXED: the checks import and run this app's code on this machine.` from `shipharness check` | Expected: `check` runs the app in process; run it only on code you trust |
-| `shipharness testgen` keeps no tests on a well-covered module | A test is kept only if it adds line coverage or kills a mutant no other test kills; pick a less covered module (`use-in-your-repo/skills/assured-tests/SKILL.md`) |
-| `testgen` prints UNSANDBOXED | Without `--image` it runs generated tests with your permissions; pass `--sandbox docker --image <image>` for code you do not trust |
+| `shipharness testgen` keeps no tests on a well-covered module | Kept tests must add coverage or kill a new mutant; pick a less covered module |
+| `testgen` prints UNSANDBOXED | It runs generated tests with your permissions; for untrusted code add `--sandbox docker --image` |
 | `shipharness skills validate` reports a `name` error | `name` must equal the folder name: lowercase letters, digits, and hyphens |

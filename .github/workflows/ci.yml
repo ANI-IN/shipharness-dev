@@ -29,7 +29,7 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run python platform/scripts/lint_prose.py
       - name: course style check (warn-only while the pages are rewritten)
-        run: uv run python platform/scripts/check_style.py --warn-only
+        run: uv run python platform/scripts/check_style.py --strict
       - run: uv run python platform/scripts/anchors.py check
       - name: import-linter (house rule R6)
         working-directory: platform/teamtrack

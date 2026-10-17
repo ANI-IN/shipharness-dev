@@ -20,7 +20,8 @@ errors. Everything else on this page is checked by a reviewer who reads the page
 engineer.
 
 If a line must break a rule, for example to quote real output, end it with
-`<!-- check-style: allow SC08 quoted terminal output -->`: the check id, then the reason.
+`<!-- check-style: allow SC08 quoted terminal output -->`: the check id, then the reason. A marker on its own
+line, right before a fenced block, covers the whole block.
 
 Public course files are: `README.md`, `setup/`, the section folders `01-*` to `04-*`,
 `final-project/`, `slides/README.md`, `use-in-your-repo/`, and `docs/` (except
@@ -363,6 +364,22 @@ Where and when each was captured is listed in the section's evidence page.
 ## If it fails
 ```
 
+### Final project README (`final-project/README.md`)
+
+The demo README skeleton, with one more section at the end:
+
+```markdown skeleton:final-project
+# Module 1: Harness Engineering for Coding Agents - Demo <N>: <name>
+## The problem
+## What you'll see
+## Run it
+## What to watch
+## What the result means
+## If it fails
+
+## Use it on your own repository
+```
+
 - **What you'll see**: two or three sentences and one screenshot.
 - **Run it**: the commands, each followed by its real captured output.
 - **What to watch**: a short table (minute, screen, what appears) and the screenshots.
@@ -620,8 +637,8 @@ Good example (a Results row):
 
 ### Other pages
 
-`final-project/README.md` follows the assignment template, without the "Try it yourself first"
-line. `use-in-your-repo/README.md` follows the section README template. The kit templates, the
+`final-project/README.md` follows the demo README template, then ends with
+`## Use it on your own repository`. There is no grader for the final project. `use-in-your-repo/README.md` follows the section README template. The kit templates, the
 filled examples, and the skills under `use-in-your-repo/` are agent files (see the top of this page)
 and follow the agent file format, not this guide.
 

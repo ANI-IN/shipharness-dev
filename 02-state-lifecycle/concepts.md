@@ -103,7 +103,7 @@ marked `...`:
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-```markdown
+```text
 ## Notes from the agent
 
 - What I was doing: Started F2 comments. Read `docs/features/f2.md`, relevant handbook rules in `docs/HANDBOOK.md`, and `.agents/skills/add-endpoint/SKILL.md`. `bash init.sh` passed (one head `0001_initial`, 16 tests).

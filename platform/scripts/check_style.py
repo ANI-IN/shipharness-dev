@@ -101,6 +101,15 @@ TEMPLATES: dict[str, list[str]] = {
         "What the result means",
         "If it fails",
     ],
+    "final-project": [
+        "The problem",
+        "What you'll see",
+        "Run it",
+        "What to watch",
+        "What the result means",
+        "If it fails",
+        "Use it on your own repository",
+    ],
     "assignment-readme": [
         "The problem",
         "What you'll build",
@@ -203,7 +212,7 @@ _TYPES = [
     (r"docs/instructor-guide\.md", "instructor-guide"),
     (r"docs/reference\.md", "reference"),
     (r"docs/evidence/[^/]+\.md", "evidence"),
-    (r"final-project/README\.md", "assignment-readme"),
+    (r"final-project/README\.md", "final-project"),
     (r"use-in-your-repo/README\.md", "section-readme"),
 ]
 _DEFAULT_DIRS = ("setup", "final-project", "use-in-your-repo", "docs")
@@ -396,7 +405,10 @@ class Problem:
 
 _ALLOW = re.compile(r"<!--\s*check-style:\s*allow\s+(SC\d\d)\b(.*?)-->\s*$")
 
-_MARKERS = re.compile(r"\b(TODO|TBD|FIXME|XXX)\b|\[\[\s*(?i:PENDING|CAPTURE)\b")
+# "TODO 1a" names a numbered gap in starter code and "TODO markers" a handoff field: not leftovers.
+_MARKERS = re.compile(
+    r"\b(?:TODO(?!\s*\d|\s+markers?\b)|TBD|FIXME|XXX)\b|\[\[\s*(?i:PENDING|CAPTURE)\b"
+)
 _BRACES_PROSE = re.compile(r"(?<!\$)\{\{[^{}\n]*\}\}")
 # In code, Go templates such as {{.Names}} or {{json .}} are real commands, not leftovers.
 _BRACES_CODE = re.compile(r"(?<!\$)\{\{(?!\s*(?:\.|json\b))[^{}\n]*\}\}")
@@ -467,6 +479,7 @@ _LINE_LIMITS = {
     "demo-readme": 250,
     "section-readme": 120,
     "assignment-readme": 250,
+    "final-project": 250,
     "session-notes": 150,
     "reading": 80,
 }
@@ -728,7 +741,10 @@ def _check_output_note(page: Page, c: _Collector) -> None:
     captured = [f.start for f in page.fences if f.lang == "text"]
     for ln in page.lines:
         if ln.kind == "prose" and any(
-            "expected/" in src or "docs/images/" in src or src.startswith("images/")
+            "expected/" in src
+            or "docs/images/" in src
+            or src.startswith("images/")
+            or ("/" not in src and not src.startswith(("http:", "https:")))
             for src, _, _ in _images(ln)
         ):
             captured.append(ln.no)
@@ -905,6 +921,11 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
             allowed.setdefault(ln.no, set()).add(match.group(1))
             if not match.group(2).strip():
                 c.add(ln.no, "SC00", f"allow marker for {match.group(1)} needs a reason")
+            if ln.text.lstrip().startswith("<!--"):
+                fence = next((f for f in page.fences if f.start == ln.no + 1), None)
+                if fence is not None:
+                    for no in range(fence.start, (fence.end or fence.start) + 1):
+                        allowed.setdefault(no, set()).add(match.group(1))
     exempt = exemptions(rel)
     return sorted(
         p for p in set(c.items) if p.check not in exempt and p.check not in allowed.get(p.line, ())

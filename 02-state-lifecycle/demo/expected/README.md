@@ -1,4 +1,4 @@
-# What one real run looked like
+# Module 1: Harness Engineering for Coding Agents - Demo 2: What one real run looked like
 
 This folder holds the output and the screenshots of one real `make show-2 SESSION_BUDGET=12,38`
 run, on a quiet machine, with the class settings. Nothing here is staged or edited, except where a

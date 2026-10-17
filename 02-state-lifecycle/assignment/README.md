@@ -4,10 +4,10 @@ Try it yourself first. The full solution is in [./solution/](solution/) with a s
 
 ## The problem
 
-**Illustrative scenario.** A three-step change, a table, a service, and an index with tests, is too
-big for one agent session. Each session ends at its turn limit. The progress note says only
+**Illustrative scenario.** A change in several steps, a table, a service, and an index with tests, is too
+big for a single agent session. Each session ends at its turn limit. The progress note says only
 "comments in progress", which does not say which steps are finished or which files exist. Each new
-session cannot tell what is done, so it starts step 1 again: a second migration for a table that
+session cannot tell what is done, so it starts the first step again: a second migration for a table that
 already exists, files rewritten, and the last step never reached.
 
 The cost is a migration history that no longer applies, a progress log that disagrees with git, and

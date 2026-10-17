@@ -498,7 +498,7 @@ def test_doc_type() -> None:
         "docs/evidence/s1.md": "evidence",
         "docs/evidence/final.md": "evidence",
         "docs/evidence/general.md": "evidence",
-        "final-project/README.md": "assignment-readme",
+        "final-project/README.md": "final-project",
         "use-in-your-repo/README.md": "section-readme",
         "docs/troubleshooting.md": "other",
         "setup/pre-class.md": "other",
@@ -687,13 +687,50 @@ def test_cli(tmp_path: Path) -> None:
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
 
-def test_ci_runs_the_style_check_in_warn_mode() -> None:
+def test_ci_runs_the_style_check_strictly() -> None:
     ci = (REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
     lint_job = ci.split("\n  lint:\n", 1)[1].split("\n  fast:\n", 1)[0]
-    assert "uv run python platform/scripts/check_style.py --warn-only" in lint_job
+    assert "uv run python platform/scripts/check_style.py --strict" in lint_job
 
 
-@pytest.mark.xfail(strict=True, reason="Section 1 rewrite to docs/STYLE.md has not landed yet")
-def test_repo_section_1() -> None:
-    found = cs.check_paths(REPO, ["01-instructions"])
-    assert not [p for p in found if p.severity == "error"]
+def test_every_public_page_passes_the_style_check_strictly() -> None:
+    found = cs.check_paths(REPO, [])
+    assert [f"{p.path}:{p.line}: {p.check} {p.message}" for p in found] == []
+
+
+def test_numbered_starter_gaps_are_not_leftover_markers(tmp_path: Path) -> None:
+    # A2's starter code marks the gaps learners fill as TODO 1 to TODO 7; pages name them.
+    text = "# Module 1: Harness Engineering for Coding Agents - X\n\nFill TODO 1a, then TODO 6.\n"
+    text += "The summary lists open TODO markers.\nA real TODO here.\n"
+    found = [p for p in problems(tmp_path, "docs/a.md", text) if p.check == "SC01"]
+    assert [p.line for p in found] == [5]
+
+
+def test_a_marker_on_its_own_line_covers_the_code_block_after_it(tmp_path: Path) -> None:
+    text = (
+        "# Module 1: Harness Engineering for Coding Agents - X\n\n"
+        "<!-- check-style: allow SC10 the ledger format names the commit -->\n"
+        "```text\n- [x] S1 Comments table: done in commit 615f2d2\n```\n\n"
+        "Then commit 615f2d2 again.\n"
+    )
+    found = [p for p in problems(tmp_path, "docs/a.md", text) if p.check == "SC10"]
+    assert [p.line for p in found] == [8]
+
+
+def test_screenshots_next_to_an_expected_page_count_as_captured_output(tmp_path: Path) -> None:
+    extra = {"01-instructions/demo/expected/shot.png": PNG}
+    text = (
+        "# Module 1: Harness Engineering for Coding Agents - Demo 1: One run\n\n"
+        "> Your output will differ: run times, ids, and the agent's wording change on every"
+        " run.\n\n"
+        "![Console screen 1 at minute 4](shot.png)\n\n*Console screen 1 at minute 4.*\n"
+    )
+    found = problems(tmp_path, "01-instructions/demo/expected/README.md", text, extra)
+    assert [p for p in found if p.check == "SC13"] == []
+
+
+def test_the_final_project_page_follows_the_demo_template_plus_the_take_home_step() -> None:
+    assert cs.TEMPLATES["final-project"] == cs.TEMPLATES["demo-readme"] + [
+        "Use it on your own repository"
+    ]
+    assert cs.doc_type("final-project/README.md") == "final-project"

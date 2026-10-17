@@ -108,6 +108,7 @@ The six `progress.md` sections, in order: `# Progress`, `## Current feature`, `#
 
 Ledger lines that work with the stand-in agent:
 
+<!-- check-style: allow SC10 the ledger format names the commit that finished a step -->
 ```text
 - [x] S1 Comments table: done in commit 615f2d2
 - [ ] S2 Comment service: in progress; written but not committed: app/comments/service.py
