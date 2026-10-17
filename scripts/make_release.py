@@ -16,10 +16,15 @@ written only when the build repository has a freeze record. The report covers, i
 4. REFERENCES.md (sources and findings from RESEARCH.md and its notes that public files cite);
 5. each checkpoint tag's tree against the build repository's tag tree;
 6. the frozen-content check (shipharness.freeze) per frozen path, and the tags written;
-7. the target repository and the push commands the owner's release step would run.
+7. the target repository and the push commands the owner's release step would run;
+8. contributors: every commit of the built repository by ANI-IN (author and committer) with no
+   co-author or generated-with trailer (scripts/check_contributors.py), and no public file with
+   a Co-authored-by line, a "Generated with Claude" attribution, an AUTHORS, CONTRIBUTORS, or
+   CODEOWNERS file listing anyone else, or a Dependabot configuration.
 
-The dry run exits 1 on a leak or a frozen path that differs; broken references, unresolved
-finding ids, and checkpoint trees are reported. --build also refuses on those. Nothing is ever
+The dry run exits 1 on a leak, a frozen path that differs, or a contributor problem; broken
+references, unresolved finding ids, and checkpoint trees are reported. --build also refuses on
+those. Nothing is ever
 pushed: the script prints the push commands and never talks to GitHub. It creates tags only in
 the new repository, never in the build repository.
 
@@ -42,6 +47,7 @@ from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 REPO = Path(__file__).resolve().parents[1]
 
@@ -149,6 +155,7 @@ INTERNAL_SCRIPTS = (
     "scripts/freeze_harness.py",
     "scripts/make_release.py",
     "scripts/publish_solutions.py",
+    "scripts/check_contributors.py",
 )
 
 TEACHING = tuple(f"A{n}" for n in range(1, 8)) + tuple(f"B{n}" for n in range(1, 14))
@@ -748,6 +755,19 @@ def _prose_lint() -> tuple[Callable[[str], list[tuple[int, str]]], str]:
     return module.lint_text, module.ALLOW_MARKER
 
 
+def _contributors() -> Any:
+    """scripts/check_contributors.py: the commit check (author, committer, trailers)."""
+    spec = importlib.util.spec_from_file_location(
+        "check_contributors", Path(__file__).with_name("check_contributors.py")
+    )
+    if not spec or not spec.loader:  # pragma: no cover
+        raise ReleaseError("scripts/check_contributors.py not found")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules["check_contributors"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def _cell(text: str) -> str:
     return text.replace("|", "\\|").strip()
 
@@ -1038,11 +1058,16 @@ class Release:
     class_tag: ClassTagResult
     missing: list[str]
     push: list[str]
+    contributors: list[str] = field(default_factory=list)  # owner rule: ANI-IN only
 
     def failures(self) -> list[str]:
-        """What fails the dry run: leaks, frozen content that differs, and a tag record that does
-        not match the public repository."""
+        """What fails the dry run: leaks, frozen content that differs, a tag record that does
+        not match the public repository, and any contributor other than ANI-IN."""
         out = self.report.dry_run_failures()
+        if self.contributors:
+            out.append(
+                f"contributors: {len(self.contributors)} problem(s), first: {self.contributors[0]}"
+            )
         if self.tree_leaks:
             out.append(f"{len(self.tree_leaks)} private path(s) in the public repository")
         differs = [p for p, ok in self.frozen.paths.items() if not ok]
@@ -1185,6 +1210,67 @@ def push_commands(public: Path, tags: Iterable[str], *, harness_frozen: bool = F
     ]
 
 
+# -- contributors (owner rule: ANI-IN is the only contributor) ------------------------------------
+
+_COAUTHOR_LINE = re.compile(r"co-authored-by\s*:", re.I)
+_GENERATED_LINE = re.compile(r"generated with \[?claude", re.I)
+_PEOPLE_FILES = ("AUTHORS", "CONTRIBUTORS", "CODEOWNERS")
+_OWNERS = {f"@{AUTHOR_NAME}".lower(), AUTHOR_EMAIL.lower()}
+DEPENDABOT = (".github/dependabot.yml", ".github/dependabot.yaml")
+
+
+def _people_file_problems(path: str, text: str) -> list[str]:
+    """An AUTHORS, CONTRIBUTORS, or CODEOWNERS file that lists anyone but ANI-IN."""
+    codeowners = posixpath.basename(path).split(".")[0].upper() == "CODEOWNERS"
+    out = []
+    for number, raw in enumerate(text.splitlines(), 1):
+        line = raw.strip().lstrip("-*").strip()
+        if not line or line.startswith("#"):
+            continue
+        if codeowners:
+            others = [o for o in line.split()[1:] if o.lower() not in _OWNERS]
+            if others:
+                out.append(f"{path}:{number}: lists {' '.join(others)}")
+        elif AUTHOR_NAME not in line:
+            out.append(f"{path}:{number}: lists {line[:60]}")
+    return out
+
+
+def contributor_file_problems(files: Mapping[str, str]) -> list[str]:
+    """Public files that credit anyone but ANI-IN, or that would open pull requests as another
+    author: Co-authored-by lines, "Generated with Claude" attributions, AUTHORS, CONTRIBUTORS, or
+    CODEOWNERS files listing anyone else, and a Dependabot configuration."""
+    out: list[str] = []
+    for path in sorted(files):
+        text = files[path]
+        if path in DEPENDABOT:
+            out.append(f"{path}: Dependabot would open pull requests as another author")
+        if posixpath.basename(path).split(".")[0].upper() in _PEOPLE_FILES:
+            out += _people_file_problems(path, text)
+        for number, line in enumerate(text.splitlines(), 1):
+            if _COAUTHOR_LINE.search(line):
+                out.append(f"{path}:{number}: Co-authored-by line")
+            if _GENERATED_LINE.search(line):
+                out.append(f"{path}:{number}: Generated with Claude attribution")
+    return out
+
+
+def contributor_problems(public: Path, public_files: Iterable[str]) -> list[str]:
+    """Every commit of the built repository (author, committer, trailers; the same check as
+    scripts/check_contributors.py) and every public file."""
+    out = [f"commit {c.line()}" for c in _contributors().commit_problems(public)]
+    texts: dict[str, str] = {}
+    for path in public_files:
+        target = public / path
+        if target.is_symlink() or not target.is_file():
+            continue
+        try:
+            texts[path] = target.read_bytes().decode("utf-8")
+        except UnicodeDecodeError:
+            continue
+    return out + contributor_file_problems(texts)
+
+
 def write_tree(repo: Path, entries: Mapping[str, Entry], dest: Path) -> None:
     blobs = read_blobs(repo, entries)
     for path, data in blobs.items():
@@ -1250,6 +1336,7 @@ def assemble(repo: Path, report: Report, dest: Path) -> Release:
         class_tag=release_tag,
         missing=missing_expected(public_files),
         push=push_commands(dest, tags, harness_frozen=frozen.record_commit is not None),
+        contributors=contributor_problems(dest, public_files),
     )
 
 
@@ -1360,6 +1447,15 @@ def render(rel: Release, list_file: str, references_file: str) -> str:
     w("   push commands for the owner's release step (printed, never executed):")
     for line in rel.push:
         w(f"   $ {line}")
+    w("")
+    w(
+        "== 8. Contributors: "
+        + ("PASS" if not rel.contributors else f"FAIL ({len(rel.contributors)} problem(s))")
+        + f": every commit by {AUTHOR_NAME} <{AUTHOR_EMAIL}>, no co-author or generated-with"
+        " line, no other AUTHORS/CONTRIBUTORS/CODEOWNERS entry, no Dependabot configuration"
+    )
+    for problem in rel.contributors:
+        w(f"   {problem}")
     w("")
     failures, blockers = rel.failures(), rel.build_failures()
     w("== Dry run: " + ("PASS" if not failures else "FAIL: " + "; ".join(failures)))

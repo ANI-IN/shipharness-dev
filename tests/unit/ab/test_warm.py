@@ -233,3 +233,76 @@ def test_a_second_warm_up_builds_nothing_and_computes_nothing(setup, tmp_path: P
     text = "\n".join(lines)
     assert "nothing built" in text and "cached" in text
     assert lines and all(line.endswith(" s)") for line in lines)  # every step with its timing
+
+
+# -- class date (owner message 9.4) --------------------------------------------------------------
+
+
+def _warm_app(monkeypatch: pytest.MonkeyPatch, day: str | None):  # type: ignore[no-untyped-def]
+    """`shipharness warm` with settings carrying `day`; any work it starts exits with code 7."""
+    import typer
+
+    from shipharness.ab import commands
+    from shipharness.config import Settings
+
+    if day is None:
+        monkeypatch.delenv("SHIPHARNESS_CLASS_DATE", raising=False)
+    else:
+        monkeypatch.setenv("SHIPHARNESS_CLASS_DATE", day)
+    monkeypatch.setattr(commands, "_settings", lambda: Settings(_env_file=None))
+
+    def started(*_a: object, **_k: object) -> None:
+        raise typer.Exit(7)
+
+    monkeypatch.setattr(commands, "_runtime", started)
+    monkeypatch.setattr(warm, "warm_up", started)
+    app = typer.Typer()
+
+    @app.callback()
+    def main() -> None:
+        """test app"""
+
+    commands.register(app)
+    return app
+
+
+@pytest.mark.parametrize("day", [None, "", "20-10-2026", "2026-02-30"])
+def test_warm_for_class_refuses_without_a_valid_class_date_before_any_work(
+    monkeypatch: pytest.MonkeyPatch, day: str | None
+) -> None:
+    from typer.testing import CliRunner
+
+    app = _warm_app(monkeypatch, day)
+    for argv in (["warm"], ["warm", "--purpose", "class"]):
+        result = CliRunner().invoke(app, argv)
+        assert result.exit_code == 2, result.output  # never 7: no image, container, or baseline
+        assert "SHIPHARNESS_CLASS_DATE" in result.output
+        assert "SHIPHARNESS_CLASS_DATE=YYYY-MM-DD" in result.output  # the .env line
+        assert "export SHIPHARNESS_CLASS_DATE=YYYY-MM-DD" in result.output
+        assert "shipharness-class-<date>" in result.output
+        assert "--purpose pilot" in result.output or "PURPOSE=pilot" in result.output
+
+
+@pytest.mark.parametrize("purpose", ["pilot", "assignment"])
+def test_warm_for_pilot_or_assignment_needs_no_class_date(
+    monkeypatch: pytest.MonkeyPatch, purpose: str
+) -> None:
+    from typer.testing import CliRunner
+
+    result = CliRunner().invoke(_warm_app(monkeypatch, None), ["warm", "--purpose", purpose])
+    assert result.exit_code == 7, result.output  # past the date check: the work starts
+
+
+def test_warm_with_a_class_date_starts_the_work(monkeypatch: pytest.MonkeyPatch) -> None:
+    from typer.testing import CliRunner
+
+    result = CliRunner().invoke(_warm_app(monkeypatch, "2026-10-20"), ["warm"])
+    assert result.exit_code == 7, result.output
+
+
+def test_warm_refuses_an_unknown_purpose(monkeypatch: pytest.MonkeyPatch) -> None:
+    from typer.testing import CliRunner
+
+    result = CliRunner().invoke(_warm_app(monkeypatch, "2026-10-20"), ["warm", "--purpose", "x"])
+    assert result.exit_code == 2
+    assert "class, pilot, or assignment" in result.output

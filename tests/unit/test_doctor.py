@@ -195,3 +195,106 @@ def test_real_langsmith_probe_maps_connection_failure_to_unreachable(
         settings_with_keys(monkeypatch), offline=False, probes=probes, which=which_all
     )
     assert next(c for c in report.checks if c.name == "LANGSMITH_API_KEY").status == "unreachable"
+
+
+# -- class date (owner message 9.4) --------------------------------------------------------------
+
+
+def _date_check(report: DoctorReport):  # type: ignore[no-untyped-def]
+    return next(c for c in report.checks if c.name == "SHIPHARNESS_CLASS_DATE")
+
+
+def _with_date(monkeypatch: pytest.MonkeyPatch, day: str | None) -> Settings:
+    settings_with_keys(monkeypatch)
+    if day is None:
+        monkeypatch.delenv("SHIPHARNESS_CLASS_DATE", raising=False)
+    else:
+        monkeypatch.setenv("SHIPHARNESS_CLASS_DATE", day)
+    return Settings(_env_file=None)
+
+
+def test_class_purpose_without_a_class_date_is_a_failed_item(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    report = run_doctor(
+        _with_date(monkeypatch, None), offline=True, purpose="class", probes=Probes(),
+        which=which_all,
+    )  # fmt: skip
+    check = _date_check(report)
+    assert check.status == "missing"
+    assert report.ok is False
+    text = report.render()
+    assert "SHIPHARNESS_CLASS_DATE=YYYY-MM-DD" in text  # the line to add to .env
+    assert ".env" in text
+    assert "export SHIPHARNESS_CLASS_DATE=YYYY-MM-DD" in text
+    assert "shipharness-class-<date>" in text
+
+
+@pytest.mark.parametrize("day", ["20-10-2026", "2026-13-40", "2026/10/20", "tomorrow"])
+def test_a_malformed_class_date_is_a_failed_item(monkeypatch: pytest.MonkeyPatch, day: str) -> None:
+    report = run_doctor(
+        _with_date(monkeypatch, day), offline=True, purpose="class", probes=Probes(),
+        which=which_all,
+    )  # fmt: skip
+    check = _date_check(report)
+    assert check.status == "invalid"
+    assert "YYYY-MM-DD" in check.detail and day in check.detail
+    assert report.ok is False
+
+
+def test_a_valid_class_date_names_the_class_project(monkeypatch: pytest.MonkeyPatch) -> None:
+    report = run_doctor(
+        _with_date(monkeypatch, "2026-10-20"), offline=True, purpose="class", probes=Probes(),
+        which=which_all,
+    )  # fmt: skip
+    check = _date_check(report)
+    assert check.status == "ok"
+    assert "shipharness-class-2026-10-20" in check.detail
+
+
+@pytest.mark.parametrize("purpose", ["pilot", "assignment"])
+def test_pilot_and_assignment_need_no_class_date(
+    monkeypatch: pytest.MonkeyPatch, purpose: str
+) -> None:
+    report = run_doctor(
+        _with_date(monkeypatch, None), offline=True, purpose=purpose, probes=Probes(),
+        which=which_all,
+    )  # fmt: skip
+    assert _date_check(report).status == "ok"
+    assert all(c.status == "ok" or c.name != "SHIPHARNESS_CLASS_DATE" for c in report.checks)
+
+
+def test_cli_doctor_purpose_class_fails_without_a_date(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from shipharness import cli
+
+    _with_date(monkeypatch, None)
+    monkeypatch.setattr(cli, "load_settings", lambda: Settings(_env_file=None))
+    result = CliRunner().invoke(cli.app, ["doctor", "--offline", "--purpose", "class"])
+    assert result.exit_code == 1
+    assert "SHIPHARNESS_CLASS_DATE" in result.output
+    assert "export SHIPHARNESS_CLASS_DATE=YYYY-MM-DD" in result.output
+    default = CliRunner().invoke(cli.app, ["doctor", "--offline"])
+    assert "SHIPHARNESS_CLASS_DATE" in default.output  # make doctor's default purpose is class
+
+
+def test_cli_doctor_purpose_pilot_reports_no_date_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from shipharness import cli
+
+    _with_date(monkeypatch, None)
+    monkeypatch.setattr(cli, "load_settings", lambda: Settings(_env_file=None))
+    result = CliRunner().invoke(cli.app, ["doctor", "--offline", "--purpose", "pilot"])
+    failing = [line for line in result.output.splitlines() if line.lstrip().startswith("x ")]
+    assert not [line for line in failing if "SHIPHARNESS_CLASS_DATE" in line]
+
+
+def test_cli_doctor_refuses_an_unknown_purpose(monkeypatch: pytest.MonkeyPatch) -> None:
+    from shipharness import cli
+
+    monkeypatch.setattr(cli, "load_settings", lambda: Settings(_env_file=None))
+    result = CliRunner().invoke(cli.app, ["doctor", "--offline", "--purpose", "demo"])
+    assert result.exit_code == 2
+    assert "class, pilot, or assignment" in result.output

@@ -9,9 +9,15 @@ import typer
 from shipharness import __version__
 from shipharness.config import Settings
 
+HELP_HEADER = "Module 1: Harness Engineering for Coding Agents"
+HELP = (
+    f"{HELP_HEADER}\n\n"
+    "Run a coding agent with and without a harness, judge both runs, and check your own repository."
+)
+
 app = typer.Typer(
     name="shipharness",
-    help="Harness engineering for coding agents.",
+    help=HELP,
     no_args_is_help=True,
     add_completion=False,
 )
@@ -57,17 +63,24 @@ def main(
         False, "--version", callback=_version_callback, is_eager=True, help="Show the version."
     ),
 ) -> None:
-    """Harness engineering for coding agents."""
+    """Module 1: Harness Engineering for Coding Agents."""
 
 
 @app.command()
 def doctor(
     offline: bool = typer.Option(False, "--offline", help="Do not contact OpenAI or LangSmith."),
+    purpose: str = typer.Option(
+        "class", help="class (also checks SHIPHARNESS_CLASS_DATE), pilot, or assignment."
+    ),
 ) -> None:
-    """Check Python, tools, the container runtime, both API keys, and prices."""
+    """Check Python, tools, the container runtime, both API keys, prices, and the class date."""
+    from shipharness.config.class_date import PURPOSE_CHOICES, PURPOSES
     from shipharness.doctor import run_doctor
 
-    report = run_doctor(load_settings(), offline=offline)
+    if purpose not in PURPOSES:
+        typer.echo(f"x unknown --purpose {purpose!r}: {PURPOSE_CHOICES}")
+        raise typer.Exit(2)
+    report = run_doctor(load_settings(), offline=offline, purpose=purpose)
     typer.echo(report.render())
     print_cost_summary()
     raise typer.Exit(0 if report.ok else 1)
