@@ -25,8 +25,14 @@ The colours mean the same thing in every diagram:
 |---|---|
 | Grey `#78909C` | The bare arm |
 | Blue `#3896D2` | The harness arm, and the parts of the harness |
-| Amber `#FFAB40` | What to notice: a done claim, a block, a failure |
-| Dark `#212121` | Everything else |
+| Amber `#FFAB40` | What to notice: a done claim, a question |
+| Red `#E46962` | A "no": a block, a revert, a failure |
+| Dark `#212121` | Every label, and everything else |
+
+Every diagram sits on a light rounded panel (`#F0F3F6`), so it reads on the navy slide
+background (`#324158`) and on GitHub in light or dark mode. Each panel is a fixed canvas: 1920 by
+1080 for the 16:9 diagrams, placed at 80% of the slide width (1440 by 1080 for 4:3, placed at
+60%). At that size every label shows at 20 px or more on a 1080p slide.
 
 In the results charts, each dot is one run: a filled dot passed, a hollow dot failed.
 
@@ -146,20 +152,80 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 - **Files**: `results-final`.
 - **Source**: [the final evidence page](../evidence/final.md).
 
+### House rules R1 to R7
+
+![Seven boxes, one per TeamTrack house rule, each with an example](./house-rules.svg)
+
+*Each rule with one TeamTrack example.*
+
+- **What it teaches**: the seven house rules the referee checks, in plain words.
+- **Slide**: "House rules R1-R7", right after the data model.
+- **Files**: `house-rules`.
+- **Source**: `platform/teamtrack/docs/HANDBOOK.md`.
+- **How to edit**: change `house-rules` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+
+### Glossary
+
+![Eight boxes: arm, referee, primary measure, hidden tests, mutant, allowed paths, gate, harness in action](./glossary-terms.svg)
+
+*One plain line per term.*
+
+- **What it teaches**: the eight words the course uses all session.
+- **Slide**: the glossary slide, right before "How we'll measure".
+- **Files**: `glossary-terms`.
+- **Source**: the glossaries in the section `concepts.md` pages and `docs/STYLE.md`.
+- **How to edit**: change `glossary-terms` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+
+### Module 1 summary
+
+![Four layer boxes and two result boxes](./module-summary.svg)
+
+*One line per layer, then what the A/B measured.*
+
+- **What it teaches**: the four layers and the one measured gap, as a closing picture.
+- **Slide**: "Module 1 Summary: Key takeaways".
+- **Files**: `module-summary`.
+- **Source**: the four `concepts.md` pages and [the final evidence page](../evidence/final.md).
+- **How to edit**: change `module-summary` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+
+
 ## How to edit a diagram
 
-1. Open [excalidraw.com](https://excalidraw.com) and open the `.excalidraw` file from its menu, or
-   drag the file onto the canvas.
-2. Edit it. Keep the four colours above, the hand-drawn font (Excalifont), and text of 20 px or
-   more.
-3. Save it from the menu with "Save to disk", under the same name.
-4. Export a PNG: turn on the background, set the scale to 2x, and save it under the same name.
-5. Export an SVG under the same name. Excalidraw embeds the fonts it uses in the SVG, so GitHub
-   shows the hand-drawn text.
+The diagrams are drawn by code, so the style stays the same everywhere:
 
-For a diagram with step frames, make the change in every step file that shows the element, then
-export each one. Each frame holds an invisible rectangle around the full diagram. Keep it: it gives
-every frame the same size.
+- `platform/scripts/diagrams/style.py` holds every style value in one place: the font
+  (Excalifont), stroke width, roughness, arrowheads, corner roundness, the palette, the panel,
+  the text sizes (28 for labels, 36 for titles, 26 at the smallest), and the canvas sizes.
+- `diagrams_a.py` to `diagrams_e.py` hold one function per diagram, with the source of each label
+  in a comment above it. `layouts.py` holds the shared layouts (story strip, Socratic build-up,
+  timeline, cheat sheet) and the cheat-sheet icons.
+
+To change a diagram:
+
+1. Edit its function (or a value in `style.py` to change every diagram).
+2. Build the `.excalidraw` files. The build stops with an error if a label overflows its shape,
+   would show smaller than 20 px on the slide, or has more than 5 words (a title may have 8, and
+   one small footnote line is allowed). Explanations belong in the slide notes, not the diagram.
+   Each drawing is scaled to fill its panel with even margins, and centred:
+
+   ```bash
+   cd platform/scripts/diagrams
+   uv run --no-project --with fonttools --with brotli python build.py ../../.. [STEM ...]
+   ```
+
+3. Render the PNG (2x) and SVG (font embedded) with Excalidraw's own export:
+
+   ```bash
+   uv run --no-project --with playwright python render.py ../../../docs/diagrams ../../../section-*/diagrams
+   ```
+
+4. Look at the PNG on the navy slide background before you commit it.
+
+You can also open an `.excalidraw` file at [excalidraw.com](https://excalidraw.com) for a quick
+look. A change made there is lost at the next build, so make lasting changes in the code.
+
+For a diagram with step frames, each frame adds one element, and every frame keeps the full panel,
+so the picture does not move between slides.
 
 Every label comes from a file in this repository. If you change a number or a file name, check it
 against that file first.

@@ -1,8 +1,13 @@
-"""The five step-by-step diagrams: each `s.stage = N` starts the element that frame N adds."""
+"""The five step-by-step diagrams: each `s.stage = N` starts the element that frame N adds.
+
+Coordinates are canvas units of a "wide" canvas (1920x1080); style comes from style.py. Labels
+are 5 words at most; the slide notes carry the explanation.
+"""
 
 from __future__ import annotations
 
-from exlib import AMBER, BLUE, GREY, INK, Scene, tint
+from exlib import BLUE, GREY, INK, Scene
+from style import STROKE_WIDTH_BOLD as BOLD
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
@@ -11,108 +16,51 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(DOCS, "agent-loop", steps=True)
     def agent_loop(s: Scene) -> None:
         s.stage = 1
-        ticket = s.box(40, 290, 220, 110, "Ticket", fill=tint(INK, "10"))
-        model = s.box(
-            440, 260, 280, 170, "Model\nreads the context,\npicks the next step", shape="ellipse"
-        )
+        ticket = s.box(60, 380, 260, 140, "Ticket", role="neutral")
+        model = s.box(500, 330, 440, 240, "Model\npicks next step", shape="ellipse")
         s.arrow(ticket, model, "context", start="right", end="left")
         s.stage = 2
-        tools = s.box(
-            960,
-            260,
-            400,
-            170,
-            "Tools\nlist_dir, read_file, search,\napply_patch, run,\nrun_visible_tests, finish",
-        )
-        s.arrow(model, tools, "tool call", start="right", end="left", start_off=-40, end_off=-40)
+        tools = s.box(1240, 330, 560, 240, "Tools\nread, search, patch, run", role="plain")
+        s.arrow(model, tools, "tool call", start="right", end="left", start_off=-50, end_off=-50)
         s.stage = 3
-        s.arrow(tools, model, "result", start="left", end="right", start_off=40, end_off=40)
-        s.text(840, 450, "one turn = one model call; repeat", 20, INK, "center")
+        s.arrow(tools, model, "result", start="left", end="right", start_off=50, end_off=50)
+        s.text(1090, 600, "one turn, one model call", 28, INK, "center")
         s.stage = 4
-        repo = s.box(960, 560, 400, 110, "Repository\nthe agent's workspace")
-        s.arrow(tools, repo, "reads and changes files", start="bottom", end="top", both=True)
+        repo = s.box(1240, 790, 560, 150, "Repository\nthe agent's workspace", role="plain")
+        s.arrow(tools, repo, "reads, changes files", start="bottom", end="top", both=True)
         s.stage = 5
         done = s.box(
-            380,
-            560,
-            400,
-            130,
-            "The phase ends\non the agent's own word",
-            stroke=AMBER,
-            fill=tint(AMBER, "33"),
-            stroke_width=3,
+            440, 790, 560, 150, "Phase ends on\nits word", role="accent", stroke_width=BOLD
         )
-        s.arrow(
-            model,
-            done,
-            'finish(claim="done")',
-            start="bottom",
-            end="top",
-            color=INK,
-            label_color=INK,
-        )
+        s.arrow(model, done, 'finish(claim="done")', start="bottom", end="top")
 
     # Sources: harness/decisions.py (layers: instructions, state, scope, verify);
     # docs/STYLE.md (layer names); platform/sandbox/README.md (both arms, identical).
     @diagram(DOCS, "harness-around-loop", steps=True)
     def harness_around_loop(s: Scene) -> None:
         s.stage = 1
-        model = s.box(560, 330, 230, 120, "Model", shape="ellipse")
-        tools = s.box(960, 330, 230, 120, "Tools")
-        s.arrow(model, tools, "tool call", start="right", end="left", start_off=-25, end_off=-25)
-        s.arrow(tools, model, "result", start="left", end="right", start_off=25, end_off=25)
-        done = s.box(
-            560, 600, 230, 90, 'finish(claim="done")', stroke=AMBER, fill=tint(AMBER, "33")
-        )
+        model = s.box(560, 420, 280, 160, "Model", shape="ellipse")
+        tools = s.box(1030, 420, 260, 160, "Tools", role="plain")
+        s.arrow(model, tools, "tool call", start="right", end="left", start_off=-35, end_off=-35)
+        s.arrow(tools, model, "result", start="left", end="right", start_off=35, end_off=35)
+        done = s.box(530, 820, 340, 110, 'finish(claim="done")', role="accent")
         s.arrow(model, done, start="bottom", end="top")
         s.stage = 2
-        ins = s.box(
-            60,
-            90,
-            400,
-            140,
-            "Instructions\nwhat the agent knows:\nmap, docs, skills",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
-        s.arrow(ins, model, "in the context", start="bottom", end="left", end_off=-30, color=BLUE)
+        ins = s.box(60, 70, 460, 200, "Instructions\nwhat it knows", role="harness")
+        s.arrow(ins, model, "in the context", start="bottom", end="left", end_off=-40, color=BLUE)
         s.stage = 3
-        st = s.box(
-            60,
-            560,
-            400,
-            140,
-            "State and lifecycle\nwhat it remembers:\nprogress, handoff, git",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
-        s.arrow(st, model, "at session start", start="top", end="left", end_off=30, color=BLUE)
+        st = s.box(60, 780, 460, 200, "State\nwhat it remembers", role="harness")
+        s.arrow(st, model, "at session start", start="top", end="left", end_off=40, color=BLUE)
         s.stage = 4
-        sc = s.box(
-            1290,
-            90,
-            400,
-            140,
-            "Scope\nwhat it may change:\nallowed paths per phase",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
+        sc = s.box(1400, 70, 460, 200, "Scope\nwhat it may change", role="harness")
         s.arrow(sc, tools, "checks each call", start="bottom", end="right", color=BLUE)
         s.stage = 5
-        ve = s.box(
-            1290,
-            560,
-            400,
-            140,
-            "Verification\nwhat proves done:\ngate, test filters",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
+        ve = s.box(1400, 780, 460, 200, "Verification\nwhat proves done", role="harness")
         s.arrow(ve, done, "checks the claim", start="left", end="right", color=BLUE)
         s.stage = 6
-        s.box(920, 250, 310, 250, dashed=True, stroke=INK)
-        s.text(1075, 262, "Sandbox", 22, INK, "center")
-        s.text(1075, 520, "the same container\nfor both arms", 20, INK, "center")
+        s.box(980, 320, 360, 400, dashed=True)
+        s.text(1160, 336, "Sandbox", 28, INK, "center")
+        s.text(1160, 630, "same for both arms", 28, INK, "center")
 
     # Sources: section-2-state-lifecycle/concepts.md; harness/state/lifecycle.py (wrap-up text,
     # getting up to speed, the harness commit); harness/state/handoff.py (the two parts);
@@ -120,45 +68,25 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(S2, "session-lifecycle", steps=True)
     def session_lifecycle(s: Scene) -> None:
         s.stage = 1
-        s1 = s.box(40, 200, 360, 200, "Session 1\nempty context\nget up to speed,\nwork, commit")
+        s1 = s.box(60, 140, 440, 240, "Session 1:\nget going, work", role="plain")
         s.stage = 2
-        stop = s.box(
-            520,
-            220,
-            300,
-            160,
-            "Turn budget reached\n(12 turns)\nthe runner stops\nthe session",
-            stroke=AMBER,
-            fill=tint(AMBER, "33"),
-            stroke_width=3,
-        )
+        stop = s.box(640, 140, 420, 240, "Stopped at\n12 turns", role="accent", stroke_width=BOLD)
         s.arrow(s1, stop, start="right", end="left")
-        s.text(
-            220,
-            430,
-            'Near the end: "This session\nis ending soon." The agent\nwrites notes and commits.',
-            20,
-            INK,
-            "center",
-        )
+        s.text(280, 440, "warned: notes,\nthen commit", 28, INK, "center")
         s.stage = 3
         ho = s.box(
-            1010,
-            160,
-            400,
-            280,
-            "session-handoff.md\n\nMachine summary\n(the harness, at the stop)\n\n"
-            "Notes from the agent\n(its wrap-up turns)",
-            stroke=BLUE,
-            fill=tint(BLUE),
+            1320,
+            100,
+            540,
+            320,
+            "session-handoff.md\nharness summary,\nagent notes",
+            role="harness",
         )
         s.arrow(stop, ho, "harness writes\nand commits", start="right", end="left", color=BLUE)
-        s.text(1210, 460, "also progress.md, the exec plan,\nand the git log", 20, INK, "center")
+        s.text(1250, 560, "also progress.md,\nplan, git log", 28, INK, "right")
         s.stage = 4
-        s2 = s.box(
-            1560, 200, 360, 200, "Session 2\nempty context\nreads the handoff,\nthen continues"
-        )
-        s.arrow(ho, s2, "read first", start="right", end="left", color=BLUE)
+        s2 = s.box(1320, 700, 540, 240, "Session 2:\nreads handoff first", role="plain")
+        s.arrow(ho, s2, "read first", start="bottom", end="top", color=BLUE)
 
     # Sources: section-4-verification/concepts.md (the flow and the five filters);
     # harness/verify/gate.py and verify/layer.py (gate items, "first three failures").
@@ -166,79 +94,45 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def verification_pipeline(s: Scene) -> None:
         s.stage = 1
         agent = s.box(
-            40,
-            170,
-            360,
-            150,
-            'Agent, build phase\nsays done:\nfinish(claim="done")',
-            stroke=AMBER,
-            fill=tint(AMBER, "33"),
-            stroke_width=3,
+            60,
+            210,
+            440,
+            200,
+            'Build phase:\nfinish(claim="done")',
+            role="accent",
+            stroke_width=BOLD,
         )
         s.stage = 2
-        gate = s.box(
-            540,
-            150,
-            420,
-            190,
-            "Verify gate\nin the arm's container:\nvisible tests, existing tests,\n"
-            "R1-R7, board, clean state",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
+        gate = s.box(680, 180, 520, 260, "Verify gate:\ntests, rules, state", role="harness")
         s.arrow(agent, gate, start="right", end="left")
         s.arrow(
             gate,
             agent,
-            "refused: first 3 failures,\nthe phase continues",
+            "refused: first 3 failures",
             start="top",
             end="top",
-            via=[(750, 60), (220, 60)],
+            via=[(940, 90), (280, 90)],
             color=BLUE,
         )
         s.stage = 3
-        test = s.box(
-            1240,
-            170,
-            360,
-            150,
-            "Agent, test phase\nwrites tests\nfor the feature",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
+        test = s.box(1420, 210, 440, 200, "Test phase\nwrites tests", role="harness")
         s.arrow(gate, test, "passed", start="right", end="left")
         s.stage = 4
-        filt = s.box(
-            1180,
-            470,
-            480,
-            210,
-            "Five test filters\n1 collects  2 passes 5 runs\n"
-            "3 adds coverage or kills a mutant\n4 real assertions\n"
-            "5 no source file changed",
-            stroke=BLUE,
-            fill=tint(BLUE),
-        )
+        filt = s.box(1360, 640, 500, 300, "Five test filters", role="harness")
         s.arrow(test, filt, "proposed tests", start="bottom", end="top")
         s.stage = 5
-        ref = s.box(
-            540,
-            480,
-            420,
-            190,
-            "Referee\nits own container,\nafter the agent stops:\nhidden tests, referee mutants",
-        )
+        ref = s.box(680, 640, 460, 300, "Referee: hidden tests,\nreferee mutants", role="plain")
         s.arrow(filt, ref, "kept tests", start="left", end="right")
         s.stage = 6
         verdict = s.box(
-            40,
-            505,
-            360,
-            140,
+            60,
+            700,
+            420,
+            180,
             "Primary verdict\nPASS or FAIL",
+            role="accent",
             stroke=INK,
-            fill=tint(AMBER, "33"),
-            stroke_width=3,
+            stroke_width=BOLD,
         )
         s.arrow(ref, verdict, start="left", end="right")
 
@@ -247,43 +141,25 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(DOCS, "ab-referee", steps=True)
     def ab_referee(s: Scene) -> None:
         s.stage = 1
-        ticket = s.box(610, 40, 380, 100, "One ticket", fill=tint(INK, "10"))
+        ticket = s.box(710, 60, 500, 110, "One ticket", role="neutral")
         s.stage = 2
-        bare = s.box(
-            120,
-            260,
-            460,
-            170,
-            "Bare arm\nticket + repository,\nno harness",
-            stroke=GREY,
-            fill=tint(GREY, "33"),
-            stroke_width=3,
-        )
-        s.arrow(ticket, bare, start="left", end="top", via=[(350, 90)], color=GREY)
+        bare = s.box(100, 290, 520, 210, "Bare arm\nno harness", role="bare", stroke_width=BOLD)
+        s.arrow(ticket, bare, start="left", end="top", via=[(360, 115)], color=GREY)
         s.stage = 3
         harn = s.box(
-            1020,
-            260,
-            460,
-            170,
-            "Harness arm\nthe same run,\nharness turned on",
-            stroke=BLUE,
-            fill=tint(BLUE),
-            stroke_width=3,
+            1300, 290, 520, 210, "Harness arm\nharness on", role="harness", stroke_width=BOLD
         )
-        s.arrow(ticket, harn, start="right", end="top", via=[(1250, 90)], color=BLUE)
+        s.arrow(ticket, harn, start="right", end="top", via=[(1560, 115)], color=BLUE)
         s.stage = 4
-        s.box(620, 240, 360, 210, "The same for both:\nmodel, tools,\nsandbox, caps", dashed=True)
+        s.box(720, 280, 480, 230, "Same model, tools,\nsandbox, caps", dashed=True)
         s.stage = 5
-        ref = s.box(
-            560, 560, 480, 150, "One referee\nscores both arms the same way\nafter the agents stop"
-        )
-        s.arrow(bare, ref, "shipped diff", start="bottom", end="left", via=[(350, 635)], color=GREY)
+        ref = s.box(640, 620, 640, 180, "One referee\nscores both arms", role="plain")
+        s.arrow(bare, ref, "shipped diff", start="bottom", end="left", via=[(360, 710)], color=GREY)
         s.arrow(
-            harn, ref, "shipped diff", start="bottom", end="right", via=[(1250, 635)], color=BLUE
+            harn, ref, "shipped diff", start="bottom", end="right", via=[(1560, 710)], color=BLUE
         )
         s.stage = 6
-        vb = s.box(400, 800, 300, 90, "Bare: one dot", stroke=GREY, fill=tint(GREY, "33"))
-        vh = s.box(900, 800, 300, 90, "Harness: one dot", stroke=BLUE, fill=tint(BLUE))
-        s.arrow(ref, vb, start="bottom", end="top", start_off=-80, color=GREY)
-        s.arrow(ref, vh, start="bottom", end="top", start_off=80, color=BLUE)
+        vb = s.box(430, 900, 360, 110, "Bare: one dot", role="bare")
+        vh = s.box(1130, 900, 360, 110, "Harness: one dot", role="harness")
+        s.arrow(ref, vb, start="bottom", end="top", start_off=-100, color=GREY)
+        s.arrow(ref, vh, start="bottom", end="top", start_off=100, color=BLUE)

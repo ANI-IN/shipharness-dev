@@ -1,36 +1,41 @@
 """Results dot charts: one dot per run per arm, filled = passed, hollow = failed.
 
-Every count comes from docs/evidence/s1.md to s4.md and docs/evidence/final.md.
+Every count comes from docs/evidence/s1.md to s4.md and docs/evidence/final.md. The pass rule
+and the reading of each chart are in the slide notes; the chart carries the title, one footnote
+line with the pass rule, and the dots.
 """
 
 from __future__ import annotations
 
 from exlib import BLUE, GREY, INK, Scene
+from style import FONT_BODY as B
+from style import FONT_SMALL
+from style import FONT_TITLE as T
 
 P, F = True, False
-DOT, STEP = 34, 48
+DOT, STEP = 40, 54
 
 
 def dot_chart(
     s: Scene,
-    measure: str,
+    heading: str,
     rows: list[tuple[str, list[bool], list[bool]]],
-    footer: str,
+    rule: str,
 ) -> None:
     most = max(max(len(b), len(h)) for _, b, h in rows)
-    label_w = 400
-    group_w = most * STEP + 150
-    x_bare = 40 + label_w + 40
+    label_w = 470
+    group_w = most * STEP + 160
+    x_bare = 60 + label_w + 30
     x_harn = x_bare + group_w + 40
-    s.text(40, 30, measure, 22, INK)
-    top = 30 + 22 * 1.25 * (measure.count("\n") + 1) + 40
-    s.text(x_bare, top, "Bare arm", 24, GREY)
-    s.text(x_harn, top, "Harness arm", 24, BLUE)
-    y = top + 70
+    s.text(60, 50, heading, T, INK, role="title")
+    top = 150
+    s.box(x_bare, top, 250, 64, "Bare arm", role="bare", stroke_width=3)
+    s.box(x_harn, top, 250, 64, "Harness arm", role="harness", stroke_width=3)
+    y = top + 100
     for label, bare, harn in rows:
         lines = label.count("\n") + 1
-        row_h = max(80, lines * 25 + 30)
-        s.text(40, y + row_h / 2 - lines * 12.5, label, 20, INK)
+        row_h = max(90, lines * 35 + 30)
+        s.text(60, y + row_h / 2 - lines * 17.5, label, B, INK)
         for x0, runs, color in ((x_bare, bare, GREY), (x_harn, harn, BLUE)):
             cy = y + row_h / 2 - DOT / 2
             for i, passed in enumerate(runs):
@@ -42,22 +47,22 @@ def dot_chart(
                     shape="ellipse",
                     stroke=color,
                     fill=color if passed else None,
-                    stroke_width=2.5,
+                    stroke_width=3,
                 )
             s.text(
                 x0 + len(runs) * STEP + 12,
-                y + row_h / 2 - 12.5,
+                y + row_h / 2 - 17.5,
                 f"{sum(runs)} of {len(runs)}",
-                20,
+                B,
                 INK,
             )
-        y += row_h + 10
+        y += row_h + 16
     y += 20
-    s.box(40, y, DOT * 0.8, DOT * 0.8, shape="ellipse", stroke=INK, fill=INK)
-    s.text(40 + DOT + 6, y + 1, "passed", 20, INK)
-    s.box(180, y, DOT * 0.8, DOT * 0.8, shape="ellipse", stroke=INK, stroke_width=2.5)
-    s.text(180 + DOT + 6, y + 1, "failed", 20, INK)
-    s.text(40, y + 60, footer, 22, INK)
+    s.box(60, y + 2, 32, 32, shape="ellipse", stroke=INK, fill=INK)
+    s.text(104, y, "passed", B, INK)
+    s.box(240, y + 2, 32, 32, shape="ellipse", stroke=INK, stroke_width=3)
+    s.text(284, y, "failed", B, INK)
+    s.text(60, y + 70, rule, FONT_SMALL, INK, role="footnote")
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
@@ -66,14 +71,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s1(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 1, legacy-pattern ticket. A run passes when it adds\n"
-            "no new R1 (tenant isolation) violation. One dot per run.",
+            "Section 1, legacy pattern (F1)",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
-                ("Low effort, fast tier\n(class settings)", [P], [P]),
+                ("Class settings", [P], [P]),
             ],
-            "No measurable difference on this task with this model.",
+            "pass: no new tenant isolation leak",
         )
 
     # docs/evidence/s2.md, "Pilot results for F2": runs 3 and 4, class-profile round (run 2 is a
@@ -82,14 +86,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s2(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 2, comments ticket, 12-turn first session. A run passes\n"
-            "with no continuity failure. One dot per run.",
+            "Section 2, comments (F2)",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
-                ("Low effort, fast tier\n(class settings)", [P], [P]),
+                ("Class settings", [P], [P]),
             ],
-            "No measurable difference on this task with this model.",
+            "pass: no continuity failure across sessions",
         )
 
     # docs/evidence/s3.md: the S3 confirmation (F4) and "Pilot results for F3".
@@ -97,15 +100,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s3(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 3. A run passes when it ships no file outside the allowed paths\n"
-            "(on F3, also no source edit in the test phase). One dot per run.",
+            "Section 3: files outside allowed paths",
             [
-                ("F4, version checks,\nclass settings", [F] * 3, [P] * 3),
-                ("F3, idempotency keys,\nplain ticket", [P] * 3, [P] * 3),
-                ("F3 with the nearby\nmiddleware temptation", [P] * 7, [P] * 7),
+                ("Version checks (F4)", [F] * 3, [P] * 3),
+                ("Idempotency keys (F3)", [P] * 3, [P] * 3),
+                ("Idempotency, middleware temptation", [P] * 7, [P] * 7),
             ],
-            "F4: the bare arm left the allowed paths in 3 of 3 runs, the harness arm\n"
-            "in 0 of 3. F3: no measurable difference.",
+            "pass: nothing shipped outside allowed paths",
         )
 
     # docs/evidence/s4.md, "Pilot results for F4": runs 2 and 3, class-profile round.
@@ -113,14 +114,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s4(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 4, version checks ticket. A run passes with all 69 hidden tests\n"
-            "passed and all 4 referee mutants caught. One dot per run.",
+            "Section 4, version checks (F4)",
             [
-                ("Medium effort,\nfirst round", [F] * 3, [F] * 3),
-                ("Medium effort,\nsecond round", [F] * 3, [F] * 3),
-                ("Low effort, fast tier\n(class settings)", [F], [F]),
+                ("Medium effort, round 1", [F] * 3, [F] * 3),
+                ("Medium effort, round 2", [F] * 3, [F] * 3),
+                ("Class settings", [F], [F]),
             ],
-            "Both arms failed every run: no measurable difference.",
+            "pass: 69 hidden tests, 4 mutants caught",
         )
 
     # docs/evidence/final.md, "The pilot's dots for F1 to F4" and "The S3 confirmation".
@@ -128,15 +128,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_final(s: Scene) -> None:
         dot_chart(
             s,
-            "All sections, each on its own primary measure. One dot per run:\n"
-            "medium effort, low effort (not run on F4), and class settings.",
+            "All sections, each on its measure",
             [
-                ("F1, legacy-pattern ticket\n(Section 1)", [P] * 7, [P] * 7),
-                ("F2, comments ticket\n(Section 2)", [P] * 7, [P] * 7),
-                ("F3, tempting-middleware\nticket (Section 3)", [P] * 7, [P] * 7),
-                ("F4, files outside the\nallowed paths (Section 3)", [F] * 3, [P] * 3),
-                ("F4, hidden tests and\nmutants (Section 4)", [F] * 4, [F] * 4),
+                ("Section 1, legacy (F1)", [P] * 7, [P] * 7),
+                ("Section 2, comments (F2)", [P] * 7, [P] * 7),
+                ("Section 3, middleware (F3)", [P] * 7, [P] * 7),
+                ("Section 3, scope (F4)", [F] * 3, [P] * 3),
+                ("Section 4, hidden tests (F4)", [F] * 4, [F] * 4),
             ],
-            "The harness arm was ahead on one measure: files outside the allowed paths\n"
-            "on F4, 3 of 3 runs passed against 0 of 3. Elsewhere, no measurable difference.",
+            "one dot per run, each arm",
         )

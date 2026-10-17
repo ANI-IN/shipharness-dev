@@ -3,7 +3,8 @@
 Usage: uv run --with playwright python render.py FILE_OR_DIR [...]
 
 It loads @excalidraw/excalidraw (pinned) from esm.sh in headless Chromium and calls exportToSvg
-and exportToBlob. Each `name.excalidraw` gets `name.svg` and `name.png` beside it.
+and exportToBlob. Each `name.excalidraw` gets `name.svg` and `name.png` beside it, cropped to the
+diagram's light panel (transparent outside its rounded corners).
 """
 
 from __future__ import annotations
@@ -15,18 +16,19 @@ import sys
 from pathlib import Path
 
 from playwright.async_api import async_playwright
+from style import PNG_SCALE
 
 EXCALIDRAW = "0.18.0"
 REACT = "18.3.1"
-PADDING = 32
-SCALE = 2
+PADDING = 0  # the panel is the canvas: crop tight to it
+SCALE = PNG_SCALE
 
 HTML = f"""<!doctype html><html><head><meta charset="utf-8">
 <script>window.EXCALIDRAW_ASSET_PATH =
   "https://unpkg.com/@excalidraw/excalidraw@{EXCALIDRAW}/dist/prod/";</script>
 <script type="module">
 import * as EX from "https://esm.sh/@excalidraw/excalidraw@{EXCALIDRAW}?deps=react@{REACT},react-dom@{REACT}";
-const appState = {{ exportBackground: true, viewBackgroundColor: "#ffffff",
+const appState = {{ exportBackground: false, viewBackgroundColor: "#ffffff",
                     exportWithDarkMode: false }};
 window.renderScene = async (scene) => {{
   const elements = scene.elements;
