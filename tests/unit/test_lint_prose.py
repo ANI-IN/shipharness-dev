@@ -73,5 +73,6 @@ def test_verbatim_owner_notes_are_not_linted(tmp_path: Path) -> None:
     notes.mkdir(parents=True)
     (notes / "owner.md").write_text("a seamless journey\n", encoding="utf-8")
     (tmp_path / "instructor" / "guide.md").write_text("plain text\n", encoding="utf-8")
-    files = lint_prose._documents([str(tmp_path / "instructor")])
-    assert [p.name for p in files] == ["guide.md"]
+    result = lint(tmp_path / "instructor")
+    assert result.returncode == 0, result.stdout
+    assert "1 files checked" in result.stdout
