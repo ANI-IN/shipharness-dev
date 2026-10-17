@@ -151,7 +151,15 @@ speed-ups) every A/B finished within 923 s (15.4 min); the median was 641 s (10.
 A/Bs would have been complete by about section minute 19. S1 to S3 run one A/B at a time, so class
 times are expected to be at or below these. S4 runs two A/Bs at a time (demo-4 and one final
 feature), the same load as pilot run 2. The class-host time per section comes from pilot run 3 and
-from the class itself:
+from the class itself.
+
+Measured in the course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the run-3 tasks: F1
+`trap-legacy-pattern`, F2 canonical with `--session-budget 12,38`, F3 `trap-tempting-middleware`, F4
+canonical; effort medium; two A/Bs in parallel on the class host, after the referee speed-ups): wall
+time per A/B min 384 s, median 512 s, max 620 s; 10 of 12 over 480 s. Run 4, effort low, 2026-10-16
+to 2026-10-17 (9 A/Bs, F1-F3 with the same tasks, two in parallel): min 309 s, median 414 s, max
+565 s; 2 of 9 over 480 s (VERIFICATION.md, M6 pilot, "Run 3" and "Run 4"). Neither run timed one A/B
+on its own or `make demo-4` with `make final` in parallel; those times are still open:
 
 [[PENDING: wall time of make demo-1 to demo-3 on the class host, one A/B at a time, and of make demo-4 with make final running in parallel | source: M6 pilot | how: time make demo-N on the class host (pilot run 3), demo-4 with make final FEATURES=F5 started one minute later; VERIFICATION.md]]
 
@@ -479,7 +487,11 @@ so the $2.50 session cap holds across both commands (CONTRACTS §23). At the cap
 2 × $0.20 + 2 × $0.04 = $0.48 and a final feature 2 × $0.25 + 2 × $0.04 = $0.58; if the class ever
 reached $2.50, the tracker would refuse the next call (`ABORTED: cap`) and the referee would still
 judge the run. Measured: pilot run 2 spent $0.3966 on 12 A/Bs with reviews, about $0.03 each
-(VERIFICATION.md, M6).
+(VERIFICATION.md, M6). Measured in the course pilot, run 3, 2026-10-16: $0.3801 for 12 A/Bs with
+reviews; the per-arm and per-review costs of its three F4 A/Bs (the demo-4 task, canonical, effort
+medium), `ab-20261016-212252-aa1644`, `ab-20261016-214151-ca9841`, and
+`ab-20261016-220010-c5b4bf`, are in the table under [Layer switch](#layer-switch-optional)
+(VERIFICATION.md, M6 pilot, "Run 3"). No final feature A/B has been measured:
 
 [[PENDING: measured cost of one make demo-4 A/B and of one make final feature A/B (both arms plus reviews) on the class host | source: M6 pilot | how: cost lines of make demo-4 and make final FEATURES=F5 on the class host; VERIFICATION.md]]
 
@@ -572,7 +584,41 @@ one A/B at a time), and only if the cost line of `make demo-2` leaves room for t
 - At the caps, the four demos and one final feature already reach the $2.50 session cap. Measured
   per-run costs decide whether a layer switch fits:
 
-[[PENDING: measured cost per arm per demo and per review | source: M6 pilot | how: make demo-N cost lines; VERIFICATION.md per-command cost]]
+Measured in the course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4, effort medium, $0.3801 in total),
+and run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, $0.1734 in total), two A/Bs in
+parallel on the class host. Each A/B ran `shipharness ab --section demo-N --feature FN --no-preview`
+with `--purpose pilot`, the command `make demo-N` runs (VERIFICATION.md, M6 pilot, "Run 3" and
+"Run 4"). Tasks: F1 `trap-legacy-pattern`, F2 canonical with `--session-budget 12,38`, F3
+`trap-tempting-middleware`, F4 canonical. Agent cost and review cost per arm in dollars
+(`cost_usd` and `review_cost_usd` in the score records, rounded):
+
+| Run (effort) | Section | A/B | Bare arm $ | Bare review $ | Harness arm $ | Harness review $ |
+|---|---|---|---|---|---|---|
+| 3 (medium) | F1 | `ab-20261016-211419-07937b` | 0.0086 | 0.0023 | 0.0124 | 0.0019 |
+| 3 (medium) | F1 | `ab-20261016-212745-2c14fb` | 0.0110 | 0.0029 | 0.0121 | 0.0028 |
+| 3 (medium) | F1 | `ab-20261016-214636-c8b3c4` | 0.0102 | 0.0025 | 0.0115 | 0.0023 |
+| 3 (medium) | F2 | `ab-20261016-211419-dfe06f` | 0.0186 | 0.0037 | 0.0186 | 0.0035 |
+| 3 (medium) | F2 | `ab-20261016-213317-9a0ec1` | 0.0171 | 0.0037 | 0.0054 | 0.0007 |
+| 3 (medium) | F2 | `ab-20261016-214959-de790f` | 0.0185 | 0.0048 | 0.0032 | 0.0003 |
+| 3 (medium) | F3 | `ab-20261016-212115-a361f5` | 0.0091 | 0.0028 | 0.0124 | 0.0026 |
+| 3 (medium) | F3 | `ab-20261016-213624-d7eb13` | 0.0093 | 0.0028 | 0.0123 | 0.0030 |
+| 3 (medium) | F3 | `ab-20261016-215443-f2c188` | 0.0095 | 0.0026 | 0.0120 | 0.0025 |
+| 3 (medium) | F4 | `ab-20261016-212252-aa1644` | 0.0166 | 0.0043 | 0.0187 | 0.0032 |
+| 3 (medium) | F4 | `ab-20261016-214151-ca9841` | 0.0136 | 0.0043 | 0.0149 | 0.0023 |
+| 3 (medium) | F4 | `ab-20261016-220010-c5b4bf` | 0.0170 | 0.0046 | 0.0169 | 0.0041 |
+| 4 (low) | F1 | `ab-20261016-232842-b372c2` | 0.0051 | 0.0025 | 0.0087 | 0.0022 |
+| 4 (low) | F1 | `ab-20261016-233807-3f34fa` | 0.0068 | 0.0035 | 0.0086 | 0.0025 |
+| 4 (low) | F1 | `ab-20261016-234639-4a18bd` | 0.0058 | 0.0018 | 0.0084 | 0.0026 |
+| 4 (low) | F2 | `ab-20261016-232842-ac03b2` | 0.0050 | 0.0015 | 0.0132 | 0.0040 |
+| 4 (low) | F2 | `ab-20261016-234027-226a76` | 0.0058 | 0.0014 | 0.0064 | 0.0016 |
+| 4 (low) | F2 | `ab-20261016-235211-ea59a9` | 0.0056 | 0.0019 | 0.0183 | 0.0036 |
+| 4 (low) | F3 | `ab-20261016-233517-2c9ea4` | 0.0060 | 0.0026 | 0.0056 | 0.0018 |
+| 4 (low) | F3 | `ab-20261016-234509-8b9bfa` | 0.0056 | 0.0017 | 0.0057 | 0.0025 |
+| 4 (low) | F3 | `ab-20261016-235305-723a0f` | 0.0059 | 0.0022 | 0.0054 | 0.0015 |
+
+The two low F2 harness costs in run 3 (`ab-20261016-213317-9a0ec1`, `ab-20261016-214959-de790f`) are
+the arms that called `finish(claim="not_done")` at the end of the 12-turn first session, which ended
+the build phase before the 38-turn session ran (VERIFICATION.md, M6 pilot, "Run 3").
 
 When a model call would exceed a cap, the run ends as `ABORTED: cap`, is still judged, and is shown
 (DESIGN §8.3 rule 9). A cap hit during the final would cost the final run, so when in doubt, skip the
