@@ -1,0 +1,178 @@
+# Module 1: Harness Engineering for Coding Agents - Diagrams
+
+This folder holds the diagrams for the opening and the close of the course: the agent loop, the
+harness around it, the A/B, and the results. Each section has its own `diagrams/` folder for the
+diagrams that only it uses.
+
+## How to read these files
+
+Every diagram has three files with the same name:
+
+| File | What it is for |
+|---|---|
+| `.excalidraw` | The source. Open it at excalidraw.com to edit it |
+| `.png` | A render at 2x scale, for slides |
+| `.svg` | A render with the font embedded, for pages on GitHub |
+
+Some diagrams are built up on slides one step at a time. They also have step frames, named
+`-step-1`, `-step-2`, and so on. Each frame adds one element, and every frame has the same size, so
+the picture does not jump between slides. The file without a step number is the full diagram, the
+same as the last step.
+
+The colours mean the same thing in every diagram:
+
+| Colour | Meaning |
+|---|---|
+| Grey `#78909C` | The bare arm |
+| Blue `#3896D2` | The harness arm, and the parts of the harness |
+| Amber `#FFAB40` | What to notice: a done claim, a block, a failure |
+| Dark `#212121` | Everything else |
+
+In the results charts, each dot is one run: a filled dot passed, a hollow dot failed.
+
+> **Terms on this page**
+>
+> - **Harness**: The files and code around the agent that decide what it sees and may do.
+> - **Harness layer**: One part of the harness: instructions, state, scope, or verification.
+> - **Bare arm**: An agent run with the ticket and the repository, and no harness.
+> - **Harness arm**: The same run with the harness turned on.
+> - **A/B**: Bare arm and harness arm on the same ticket, scored the same way.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Primary verdict**: The referee's answer to the one question the section asks.
+> - **Ticket**: The task the agent gets, written like a work ticket.
+
+## The diagrams
+
+### The agent loop
+
+![The agent loop: ticket, model, tool call, result, repository, and the done claim](./agent-loop.svg)
+
+*The loop has no check of its own: the phase ends when the agent calls finish with claim done.*
+
+- **What it teaches**: an agent is a model that calls tools in a loop, one model call per turn,
+  until it says it is done.
+- **Slide topic**: the agent loop, in the opening.
+- **Files**: `agent-loop`, with step frames `agent-loop-step-1` to `agent-loop-step-5`.
+- **Source**: the tools and `finish` in `platform/src/shipharness/runner/prompts.py`.
+
+### The harness around the loop
+
+![The loop in the centre, with instructions, state, scope, verification, and the sandbox around it](./harness-around-loop.svg)
+
+*Each layer acts at one point of the loop; the sandbox is the same for both arms.*
+
+- **What it teaches**: the four harness layers and the sandbox, and where each one acts on the loop.
+- **Slide topic**: the harness, in the opening.
+- **Files**: `harness-around-loop`, with step frames `harness-around-loop-step-1` to
+  `harness-around-loop-step-6`.
+- **Source**: the layer names in `platform/src/shipharness/harness/decisions.py` and
+  `platform/sandbox/README.md`.
+
+### Four stories, four causes, four layers
+
+![Three columns: four failure stories, their causes, and the harness layer for each](./stories-causes-layers.svg)
+
+*Each section starts from one failure story and ends with the layer that answers it.*
+
+- **What it teaches**: the plan of the course, one row per section.
+- **Slide topic**: the class plan, in the opening.
+- **Files**: `stories-causes-layers`.
+- **Source**: the failure table in `docs/STYLE.md` and the four `concepts.md` pages.
+
+### The TeamTrack data model
+
+![TeamTrack tables inside a dashed tenant boundary, with orgs above it](./teamtrack-data-model.svg)
+
+*Every table inside the dashed box carries org_id; R1 says another org's row answers 404.*
+
+- **What it teaches**: the app every ticket changes, and the tenant rule the agent must keep.
+- **Slide topic**: meet TeamTrack, in the opening.
+- **Files**: `teamtrack-data-model`.
+- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for F2, F6, and F7
+  under `platform/teamtrack/reference/`.
+
+### One ticket, two arms, one referee
+
+![One ticket split into a bare arm and a harness arm, both scored by one referee](./ab-referee.svg)
+
+*Only the harness differs between the arms; one A/B gives one dot per arm.*
+
+- **What it teaches**: how the course measures a layer.
+- **Slide topic**: how we measure, in the opening.
+- **Files**: `ab-referee`, with step frames `ab-referee-step-1` to `ab-referee-step-6`.
+- **Source**: the A/B and referee definitions in `docs/STYLE.md`.
+
+### Optimistic concurrency
+
+![Two tabs read ETag 1; the first save gets ETag 2, the second save with If-Match 1 gets 412](./optimistic-concurrency.svg)
+
+*The second save names a version that is no longer current, so it gets 412 and changes nothing.*
+
+- **What it teaches**: the F4 ticket, which Section 3 and Section 4 both run.
+- **Slide topic**: the version checks ticket, in Sections 3 and 4.
+- **Files**: `optimistic-concurrency`.
+- **Source**: `platform/teamtrack/docs/features/f4.md`.
+
+### The harness in one picture
+
+![The loop in the centre, the four layers with their files, the sandbox, and the referee](./harness-one-picture.svg)
+
+*Each layer names the files it uses; the referee scores the shipped diff after the stop.*
+
+- **What it teaches**: the whole harness on one page, as a summary.
+- **Slide topic**: the summary, at the close.
+- **Files**: `harness-one-picture`.
+- **Source**: the four `concepts.md` pages.
+
+### Which layer when
+
+![A decision chart from four symptoms to the four harness layers](./which-layer-when.svg)
+
+*Start from what went wrong, pick the layer, then measure it with an A/B.*
+
+- **What it teaches**: how to choose a layer for your own repository.
+- **Slide topic**: use it in your repo, at the close.
+- **Files**: `which-layer-when`.
+- **Source**: the four `concepts.md` pages.
+
+### The results
+
+![Dot chart: one dot per run per arm for F1 to F4, filled for passed, hollow for failed](./results-final.svg)
+
+*The harness arm was ahead only on F4's out-of-scope files: 3 of 3 runs passed against 0 of 3.*
+
+- **What it teaches**: what the course measured, as counts, with every run shown.
+- **Slide topic**: what we measured, at the close.
+- **Files**: `results-final`.
+- **Source**: [the final evidence page](../evidence/final.md).
+
+## How to edit a diagram
+
+1. Open [excalidraw.com](https://excalidraw.com) and open the `.excalidraw` file from its menu, or
+   drag the file onto the canvas.
+2. Edit it. Keep the four colours above, the hand-drawn font (Excalifont), and text of 20 px or
+   more.
+3. Save it from the menu with "Save to disk", under the same name.
+4. Export a PNG: turn on the background, set the scale to 2x, and save it under the same name.
+5. Export an SVG under the same name. Excalidraw embeds the fonts it uses in the SVG, so GitHub
+   shows the hand-drawn text.
+
+For a diagram with step frames, make the change in every step file that shows the element, then
+export each one. Each frame holds an invisible rectangle around the full diagram. Keep it: it gives
+every frame the same size.
+
+Every label comes from a file in this repository. If you change a number or a file name, check it
+against that file first.
+
+## Licences
+
+| Part | Licence | Used for |
+|---|---|---|
+| Excalidraw (`@excalidraw/excalidraw` 0.18.0) | MIT | The editor and the export to PNG and SVG |
+| Excalifont, the hand-drawn font | SIL Open Font License 1.1 | All text; each SVG embeds a subset |
+| React 18.3.1 | MIT | Loaded by the Excalidraw export |
+| Playwright for Python and Chromium | Apache-2.0 and BSD-3-Clause | Running the export without a screen |
+| fontTools and Brotli | MIT | Measuring text in Excalifont |
+
+The Open Font License allows a font to be embedded in documents. The embedded font keeps its own
+licence.
