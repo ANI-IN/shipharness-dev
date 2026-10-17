@@ -104,7 +104,9 @@ class ABTask:
         return {
             "feature_category": self.metadata.get("category", "feature"),
             "feature_description": self.metadata.get("description", self.ticket_text[:200]),
-            "feature_steps": list(self.metadata.get("steps", [])),
+            # None (no steps in the dataset line) lets the layers take the ticket's bullet lines or
+            # its title; an empty list would give a feature list and exec plan with no steps.
+            "feature_steps": list(steps) if (steps := self.metadata.get("steps")) else None,
         }
 
     def referee_task(self) -> RefereeTask:

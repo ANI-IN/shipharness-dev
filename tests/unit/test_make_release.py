@@ -23,6 +23,12 @@ _spec.loader.exec_module(mr)
 A1 = "submodules/01-instructions"
 TRACKED = [
     ".github/workflows/ci.yml",
+    "kit/README.md",
+    "kit/templates/AGENTS.md",
+    "kit/examples/boltons-queueutils/README.md",
+    "docs/apply-to-your-repo.md",
+    "scripts/build_slides.py",
+    "slides/deck.md",
     ".github/dependabot.yml",
     ".vale/styles/Shipharness/Banned.yml",
     ".vale.ini",
@@ -738,3 +744,18 @@ def test_dry_run_cli_reports_broken_references_without_failing(
     assert "git push origin main" in out
     assert "harness-frozen" in out
     assert "REFERENCES.md" in listing.read_text(encoding="utf-8").split()
+
+
+def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
+    # Learners apply the kit to their own repositories (docs/apply-to-your-repo.md), and the public
+    # Makefile's `make slides` runs scripts/build_slides.py on slides/deck.md.
+    sel = mr.select(TRACKED)
+    for path in [
+        "kit/README.md",
+        "kit/templates/AGENTS.md",
+        "kit/examples/boltons-queueutils/README.md",
+        "docs/apply-to-your-repo.md",
+        "scripts/build_slides.py",
+        "slides/deck.md",
+    ]:
+        assert path in sel.included, path
