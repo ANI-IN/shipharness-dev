@@ -337,7 +337,8 @@ harness 154 s; harness overhead 67 s on harness arms.
 
 F2 across runs 3 and 4 (secondary, hidden tests 56 of 56): run 3 bare 3 of 3, harness 1 of 3; run 4 bare
 0 of 3, harness 2 of 3. The primary measure (`continuity_failure`) passed in all 12 F2 arms, including the
-7 that built nothing: it cannot fail when session 1 leaves no product lines to redo. Primary measures are
+6 that built nothing (hidden 3 of 56: run 3 harness `ab-20261016-213317-9a0ec1`, `-214959-de790f`; run 4
+bare in all three A/Bs, harness `ab-20261016-234027-226a76`): it cannot fail when session 1 leaves no product lines to redo. Primary measures are
 not changed under the pilot rules; this goes to the owner's options note.
 
 ### Gate decision (overnight rules, applied mechanically)
