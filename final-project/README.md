@@ -57,8 +57,7 @@ flowchart LR
 
 ![Console screen 1 after the full verdict of the course's own run](expected/screen-1-final.png)
 
-*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 3/3 (bare)
-and 1/3 (harness), whose run ended on its time limit inside the gate.*
+*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 3/3 (bare) and 1/3 (harness), whose run ended on its time limit inside the gate.*
 
 | Path | What it holds |
 |---|---|

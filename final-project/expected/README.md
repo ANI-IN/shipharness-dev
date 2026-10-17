@@ -17,7 +17,7 @@ to the panels. When and how it was captured is on the
 
 | File | What it holds |
 |---|---|
-| `terminal.txt` | Terminal 2: `run.sh`'s checks, the make command, both arm lines, the cost line, the wall time |
+| `terminal.txt` | Terminal 2: the checks, both arm lines, the cost line, the wall time |
 
 Read the two arm lines column by column: status, claim, hidden tests, mutants killed, the
 reviewer's verdict, and the arm's cost. `Error 2` at the end means an arm was aborted on time; both
@@ -34,18 +34,15 @@ same checkout.
 
 ![Screen 1 at minute 5: bare arm judged](screen-1-minute-5.png)
 
-*Minute 5: the bare arm completed after 42 turns, primary verdict PASS; F5 has no primary measure,
-so PASS says nothing about the feature.*
+*Minute 5: the bare arm completed after 42 turns, primary verdict PASS; F5 has no primary measure, so PASS says nothing about the feature.*
 
 ![Screen 1 at minute 7: harness gate failed and run aborted](screen-1-minute-7.png)
 
-*Minute 7: the harness arm said done after 20 turns; its gate items failed on time limits, and the
-run ended `ABORTED: timeout`.*
+*Minute 7: the harness arm said done after 20 turns; its gate items failed on time limits, and the run ended `ABORTED: timeout`.*
 
 ![Screen 1 after both full verdicts](screen-1-final.png)
 
-*The end: hidden tests 46/46 in both arms, mutants killed 3/3 (bare) and 1/3 (harness), full
-verdicts at 11:39 and 11:41 after launch.*
+*The end: hidden tests 46/46 in both arms, mutants killed 3/3 (bare) and 1/3 (harness), full verdicts at 11:39 and 11:41 after launch.*
 
 ![Screen 2: both boards as an Acme user](screen-2-final.png)
 
@@ -53,18 +50,15 @@ verdicts at 11:39 and 11:41 after launch.*
 
 ![Screen 3: files read, diff maps, sandbox denials, referee checks](screen-3-final.png)
 
-*Screen 3, Evidence: both arms changed only allowed files; the harness arm's two sandbox denials are
-the gate's timed-out commands.*
+*Screen 3, Evidence: both arms changed only allowed files; the harness arm's two sandbox denials are the gate's timed-out commands.*
 
 ![Screen 4: primary measures, one dot per run](screen-4-final.png)
 
-*Screen 4, A/B Report: one dot per scored run in this checkout's `exports/`, here this run and the
-run before it.*
+*Screen 4, A/B Report: one dot per scored run in this checkout's `exports/`, here this run and the run before it.*
 
 ![Screen 5: referee events and LangSmith links](screen-5-final.png)
 
-*Screen 5, Traces: the live tail, the first wrong turn (the harness arm's turn 1.20, where its gate
-failed), and the LangSmith links of each arm.*
+*Screen 5, Traces: the live tail, the first wrong turn (the harness arm's turn 1.20, where its gate failed), and the LangSmith links of each arm.*
 
 ## How to read each screen
 
