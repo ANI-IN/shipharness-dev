@@ -7,7 +7,7 @@ Three short pieces that go further than class time allows. Read them after
 |---|---|---|
 | [01-sandboxes-compared.md](01-sandboxes-compared.md) | about 10 min | The shipharness container policy next to A4's per-agent containers, A5's three-layer security model, and Codex's sandbox modes and approval policies (official docs, including bwrap plus seccomp on Linux); why the pilot saw no denials |
 | [02-scope-layer-source-tour.md](02-scope-layer-source-tour.md) | about 12 min | The scope layer's source with commentary: what the agent is told, how patches and commands are checked and reverted, the evidence behind `passes`, how the referee counts the S3 measure, and the two measurement fixes from the course pilot |
-| [03-reading-the-s3-results.md](03-reading-the-s3-results.md) | about 8 min | What the course pilot found on F3, how to read a measure one arm meets by construction, the `section-3` variants, the ablation without the scope layer, and the experiment results |
+| [03-reading-the-s3-results.md](03-reading-the-s3-results.md) | about 8 min | What the course pilot found on F3 and, post hoc, on F4; how to read a measure one arm meets by construction; the `section-3` variants; how to run the comparison without the scope layer yourself |
 
 Primary sources behind these pieces, in the order they matter for S3:
 

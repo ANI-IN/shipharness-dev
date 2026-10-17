@@ -210,8 +210,10 @@ commit it was captured at. `make` exits 2 whenever the script it runs exits non-
 
 The 90.0 / 100 and `Result: FAIL` on the reference solution are expected until its live run is
 captured: criterion 6 (live A/B evidence, 10 points) scores 0 without `solution/live/`, and valid
-live evidence is a pass condition. The capture and the regrade are one step for the integrator,
-under the single PENDING marker in [README.md](README.md), "Captured live run of this solution".
+live evidence is a pass condition. The capture and the regrade are one step, recorded in
+[README.md](README.md), "Captured live run of this solution".
+
+[[CAPTURE: make grade-assignment-3 result on the reference solution after its live run is captured (score and Result line), to replace the 90.0 / 100 FAIL row above | how: make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution]]
 
 ## Live step: design choices
 
