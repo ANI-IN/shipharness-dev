@@ -38,7 +38,7 @@ help:
 	@echo "setup doctor up console datasets lint format lint-prose test test-all test-live test-docker"
 	@echo "demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
 	@echo "warm (before class: images, containers, referee and gate baselines; no model calls)"
-	@echo "experiments report pilot (later milestones)"
+	@echo "experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help"
 
 setup:
 	$(UV) sync --frozen
@@ -175,7 +175,7 @@ warm:
 	$(UV) run shipharness warm --profile $(PROFILE) --images-command "make images RUNTIME=$(RUNTIME)"
 
 experiments report pilot:
-	@echo "! $@ is available after milestones M6 and M8"; exit 2
+	@echo "! make $@ is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help"; exit 2
 
 # check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
 check-assignment-1:

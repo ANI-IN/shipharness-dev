@@ -292,3 +292,10 @@ def test_example_target_runs_the_section_constructed_example(n: int) -> None:
         if line.startswith(".PHONY")
     )  # fmt: skip
     assert f" example-{n} " in f" {phony} "
+
+
+def test_no_target_mentions_build_milestones() -> None:
+    # The public release has no milestones; a learner typing `make experiments` gets the real command.
+    text = MAKEFILE.read_text(encoding="utf-8")
+    assert "milestone" not in text.lower()
+    assert any("uv run shipharness experiments" in line for line in _rules()["experiments"])
