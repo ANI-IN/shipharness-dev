@@ -92,10 +92,12 @@ def _run(script: Path, impl: Path) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_grade_reference_solution_scores_100() -> None:
+def test_grade_reference_solution_scores_100_on_its_captured_run() -> None:
+    # No criterion rests on a [[PENDING]] marker: live/ and portfolio/ hold the real run.
     run = _run(GRADER / "grade.py", SOLUTION)
     assert run.returncode == 0, run.stdout[-3000:] + run.stderr[-3000:]
     assert "Score: 100/100" in run.stdout, run.stdout[-3000:]
+    assert "FAIL" not in run.stdout, run.stdout[-3000:]
 
 
 def test_grade_starter_scores_low() -> None:
@@ -117,3 +119,4 @@ def test_self_check_passes_on_the_solution() -> None:
     run = _run(ASSIGNMENT / "check.py", SOLUTION)
     assert run.returncode == 0, run.stdout[-3000:] + run.stderr[-3000:]
     assert "self-check: PASSED" in run.stdout
+    assert "FAIL" not in run.stdout, run.stdout[-3000:]

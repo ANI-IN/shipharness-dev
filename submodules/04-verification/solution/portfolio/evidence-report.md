@@ -1,7 +1,8 @@
 # Evidence report: generated tests for TeamTrack's issue repository, and R8
 
-Reference version. Sections that need a model run hold a `[[PENDING]]` marker until the
-instructor's run fills them; everything under "R8 on TeamTrack" is real output (no model call).
+Reference version. "Results" and "Filter 6 on the kept tests" come from the reference
+solution's live run, captured on 2026-10-17 (testgen run `r-20261017-093940-52dde8`, files in
+`../live/`); everything under "R8 on TeamTrack" is real output with no model call.
 
 ## Target
 
@@ -36,13 +37,57 @@ the command's transcript and the report are the live evidence in `../live/`.
 
 ## Results
 
-[[PENDING: summary table of the testgen run (proposed, kept, discarded per filter) and its discard reasons | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; then summarize_report.py .shipharness/a4/testgen/testgen-report.json]]
+Testgen run `r-20261017-093940-52dde8` (`../live/testgen.txt`): status `completed`, "kept 1 of 5
+proposed tests". The table is the output of `summarize_report.py` on `../live/testgen-report.json`,
+the report after `apply_filter --update-report`:
 
-[[PENDING: cost line printed by the testgen command | source: M6 pilot | how: last line of the testgen command above]]
+| Measure | Value |
+|---|---|
+| Run id | r-20261017-093940-52dde8 |
+| Status | completed |
+| Proposed tests (evaluated) | 5 |
+| Kept by testgen (filters 1-5) | 1 |
+| Not evaluated (over --max-tests) | 0 |
+| Kept after filter 6 | 1 |
+| Discarded by filter 3 | 4 |
+
+All five proposed tests passed filter 1 ("collected 1 test") and filter 2 ("passed 5 of 5 runs").
+Filter 3 discarded four of them, each with the same reason: "adds no line coverage over the
+existing suite and kills no filter-set mutant that the existing tests miss (0 checked)":
+
+- `test_add_flushes_issue_with_requested_fields_and_database_defaults`
+- `test_get_returns_only_live_issues_for_the_requested_organization`
+- `test_list_for_project_filters_tenant_project_and_soft_deleted_rows`
+- `test_list_all_legacy_orders_and_pages_across_tenants_including_deleted`
+
+The kept test, `tests/visible/test_issue_repository.py::test_list_for_project_uses_ascending_keyset_pages`,
+passed filter 3 with "adds 3 covered lines: app/repositories/common.py:11,17-18", filter 4 with
+"has real assertions and does not mock app.repositories.issues", and filter 5 with "no source file
+changed during the test phase". Two of the discarded tests name deleted rows
+(`..._soft_deleted_rows`, `..._including_deleted`). Filter 3 judges what a test adds over the
+existing suite, not its subject: those lines were covered already, and "0 checked" means the
+existing tests already kill both filter-set mutants, so none was left to try
+(`AddsCoverageOrKillsMutant` in `src/shipharness/filters/filters.py`).
+
+The cost line the testgen command printed:
+
+```
+Cost: $0.003287 (testgen, model gpt-6-luna)
+```
 
 ## Filter 6 on the kept tests
 
-[[PENDING: output of filter 6 over the kept tests (kept N of M, each duplicate with the test it copies) | source: M6 pilot | how: uv run python -m a4_verification.apply_filter --repo teamtrack --kept .shipharness/a4/testgen --existing <the three files above> --update-report]]
+`apply_filter --update-report` added one filter-6 row to the report, after the 17 rows of filters
+1-5, for the one kept test:
+
+| Test | Filter 6 | Reason |
+|---|---|---|
+| `test_list_for_project_uses_ascending_keyset_pages` | passed | no duplicate among 23 existing tests and 0 earlier kept candidates |
+
+Filter 6 kept 1 of 1 (`filter6.kept` lists that test, `filter6.existing_tests` is 23) and removed
+no test as a duplicate. With one kept test there was no earlier kept candidate to compare it with,
+so this run shows the filter against the existing suite only; the duplicate cases are in the
+reference solution's own tests (`../tests/test_dedup_filter.py`).
 
 ## R8 on TeamTrack
 

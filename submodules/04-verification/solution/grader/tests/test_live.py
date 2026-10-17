@@ -6,6 +6,7 @@ run. Each test breaks one thing and checks that the matching problem is reported
 
 from __future__ import annotations
 
+import inspect
 import json
 import shutil
 import sys
@@ -24,6 +25,7 @@ REPO = SOLUTION.parents[2]
 sys.path[:0] = [str(TESTS), str(VISIBLE)]
 
 import a4_live  # noqa: E402
+import a4_support  # noqa: E402
 import live_fixture as fx  # noqa: E402
 from a4_runner import run_tests  # noqa: E402
 
@@ -344,23 +346,39 @@ def test_record_status_must_match_the_printed_line(root: Path) -> None:
     assert _has(a4_live.score_record_problems(root, SHA), "status")
 
 
-# --- reference mode and the LangSmith page -------------------------------------------------------
+# --- no placeholder acceptance, and the LangSmith page -------------------------------------------
+
+MARKER = "[[PENDING: captured live run | source: M6 pilot | how: x]]"
 
 
-def test_pending_marker_alone_counts_as_pending(tmp_path: Path) -> None:
-    (tmp_path / "live").mkdir()
-    marker = (
-        "[[PENDING: captured live run of the reference solution | source: M8 batch 1 | how: x]]"
-    )
-    (tmp_path / "live" / "README.md").write_text(marker + "\n", encoding="utf-8")
-    assert a4_live.pending_only(tmp_path)
-    assert not a4_live.pending_only(fx.write_live(tmp_path / "other", SHA))
+def test_a_pending_marker_alone_fails_live_evidence(tmp_path: Path) -> None:
+    impl = tmp_path / "impl"
+    (impl / "live").mkdir(parents=True)
+    (impl / "live" / "README.md").write_text(MARKER + "\n", encoding="utf-8")
+    outcomes, output = run_tests(impl, [VISIBLE / "test_live_visible.py"], timeout_s=300)
+    live = [o for o in outcomes if o.criterion == "live-evidence"]
+    assert len(live) == 4, output[-2000:]
+    assert not any(o.passed for o in live), [(o.name, o.message) for o in live]
 
 
-def test_reference_solution_holds_the_pending_marker() -> None:
-    text = (SOLUTION / "live" / "README.md").read_text(encoding="utf-8")
-    assert "source: M6 pilot" in text
-    assert a4_live.pending_only(SOLUTION)
+def test_no_visible_check_can_tell_the_reference_folder_apart() -> None:
+    # The reference solution is graded like any submission: no visible test or self-check code
+    # names the solution folder, so none can accept a marker there and nowhere else.
+    assert not hasattr(a4_live, "pending_only")
+    assert not hasattr(a4_support, "reference_mode")
+    assert list(inspect.signature(a4_support.doc_problems).parameters) == ["root", "spec"]
+    for path in [*VISIBLE.glob("*.py"), ASSIGNMENT / "check.py"]:
+        text = path.read_text(encoding="utf-8").lower()
+        assert "solution" not in text, f"{path.name} names the solution folder"
+
+
+def test_reference_solution_passes_live_evidence_on_its_captured_run() -> None:
+    assert a4_support.PENDING not in (SOLUTION / "live" / "README.md").read_text(encoding="utf-8")
+    assert _all_problems(SOLUTION) == []
+    outcomes, output = run_tests(SOLUTION, [VISIBLE / "test_live_visible.py"], timeout_s=300)
+    live = [o for o in outcomes if o.criterion == "live-evidence"]
+    assert len(live) == 4, output[-2000:]
+    assert all(o.passed for o in live), [(o.name, o.message) for o in live]
 
 
 def test_langsmith_page_must_link_a_trace_of_the_records(root: Path) -> None:

@@ -14,7 +14,7 @@ live here, not in the starter; they are revealed at the Thursday review (brief Â
 | `grader/tests/test_a3_grader.py` | Tests for the self-check and the grader |
 | `grader/tests/test_a3_live.py` | Tests for the live step tool (`assignment/live.py`) |
 | `grader/tests/synthetic_live.py` | SYNTHETIC A/B for those tests, written by hand: never a real run |
-| `live/` | Captured live step of this solution (pending, below) |
+| `live/` | Captured live step of this solution (A/B `ab-20261017-092810-d5d31c`, below) |
 | `captured/` | Captured output of the self-check and the grader on the starter and on this solution |
 
 Run (from the repository root):
@@ -26,10 +26,9 @@ uv run python -m pytest -q -p no:cacheprovider submodules/03-scope-sandbox/solut
 uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests
 ```
 
-The first two were run on 2026-10-17 (output in `captured/`). The two pytest lines were not re-run
-then (no test suites and no containers while the pilot runs); VERIFICATION.md records the grader and
-solution tests passing at the assignment merge (A3: 48 tests), and `captured/docker-solution.txt`
-holds the container check from 2026-10-16.
+The first two were run again on 2026-10-17 after the live run was captured (output in
+`captured/`). The grader tests were run the same day (N_A3); the docker line was not (no
+containers), and `captured/docker-solution.txt` holds the container check from 2026-10-16.
 
 Grade a learner submission (a folder, or a git URL that is cloned shallow; `scripts/grade_assignment.py`):
 
@@ -52,17 +51,27 @@ uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl subm
 uv run python submodules/03-scope-sandbox/assignment/live.py verify --impl submodules/03-scope-sandbox/solution
 ```
 
-These call OpenAI and start containers, so they were not run while this page was written; the
-integrator runs them. The files go to `solution/live/` (`command.txt`, `ab-output.txt` with the cost
-line, `ab-summary.json`, `scores/<run_id>.json` for both arms, `<arm>/diff.patch`,
-`<arm>/sandbox-log.json`, `verdict-<arm>.json`):
+Captured on 2026-10-17, run `ab-20261017-092810-d5d31c` (both arms' score records:
+`r-20261017-092810-03baf8` bare, `r-20261017-092810-1551e0` harness). `live.py collect` wrote the
+files in `solution/live/`: `command.txt`, `ab-output.txt` with the cost line, `ab-summary.json`,
+`scores/<run_id>.json` for both arms, `<arm>/diff.patch`, `<arm>/sandbox-log.json`, and
+`verdict-<arm>.json`. `live.py verify` prints `evidence ok` and `verdicts ok` for them. The cost
+line of the A/B (`live/ab-output.txt`):
 
-[[PENDING: captured live run of the reference solution (solution/live/ written by live.py collect, live.py verify output, then make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution captured again into captured/grade-solution.txt) | source: M6 pilot | how: uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment, output saved as ab-output.txt; uv run python submodules/03-scope-sandbox/assignment/live.py collect --impl submodules/03-scope-sandbox/solution --ab-output ab-output.txt --command "uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment"]]
+```
+Cost: $0.021708 (this command: gpt-5.6-luna $0.005858, gpt-6-luna $0.015850; session $0.021708 of $2.50; build $2.091206 of $15.00 ($12.908794 left))
+```
 
-Until then the grader loses the live-step points on this reference solution, as expected: grading
-this folder scores 90.0 / 100 with `Result: FAIL` (criterion 6 is 0 / 10, and valid live evidence is
-a pass condition), as `captured/grade-solution.txt` shows. The grader's own tests grade a copy with
-the synthetic evidence in `grader/tests/synthetic_live.py`, which is never a real run.
+In that A/B both arms passed the S3 primary measure (0 out-of-scope files, 0 test-phase source
+edits) and 49 of 49 hidden tests. The harness arm's status is `ABORTED: timeout` (its build
+claimed done) and it killed 0 of 4 referee mutants against the bare arm's 4 of 4. One run per arm
+is an example, not a rate.
+
+Grading this folder now scores 100.0 / 100 with `Result: PASS`: criterion 6 is 10 / 10 on the
+captured run, graded like any submission's `live/` (`captured/grade-solution.txt`). The grader's
+own tests also grade a copy with the synthetic evidence in `grader/tests/synthetic_live.py`, which
+is never a real run, and grade this folder as it is
+(`test_reference_solution_passes_on_its_captured_live_run`).
 
 Rebuild the hidden diffs after changing a case (the slow grader test checks they are reproducible):
 

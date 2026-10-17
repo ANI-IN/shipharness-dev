@@ -10,13 +10,12 @@ import sys
 from pathlib import Path
 
 import pytest
-from a4_live import pending_only, trace_link_problems
+from a4_live import trace_link_problems
 from a4_support import (
     CASE_STUDY,
     EVIDENCE,
     LANGSMITH,
     doc_problems,
-    reference_mode,
     skill_problems,
 )
 
@@ -68,20 +67,20 @@ def test_own_skill_is_valid_and_not_the_template(impl_path: Path) -> None:
 
 @pytest.mark.criterion("portfolio-evidence")
 def test_evidence_report_structure(impl_path: Path) -> None:
-    problems = doc_problems(impl_path, EVIDENCE, reference_mode())
+    problems = doc_problems(impl_path, EVIDENCE)
     assert not problems, "\n".join(problems)
 
 
 @pytest.mark.criterion("portfolio-langsmith")
 def test_langsmith_page_structure(impl_path: Path) -> None:
-    problems = doc_problems(impl_path, LANGSMITH, reference_mode())
+    problems = doc_problems(impl_path, LANGSMITH)
     page = impl_path / LANGSMITH.file
-    if page.is_file() and not (reference_mode() and pending_only(impl_path)):
+    if page.is_file():
         problems += trace_link_problems(impl_path, page.read_text(encoding="utf-8"))
     assert not problems, "\n".join(problems)
 
 
 @pytest.mark.criterion("portfolio-case-study")
 def test_case_study_structure(impl_path: Path) -> None:
-    problems = doc_problems(impl_path, CASE_STUDY, reference_mode())
+    problems = doc_problems(impl_path, CASE_STUDY)
     assert not problems, "\n".join(problems)

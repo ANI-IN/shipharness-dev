@@ -40,7 +40,6 @@ TESTGEN_TXT = f"{LIVE}/testgen.txt"
 TESTGEN_REPORT = f"{LIVE}/testgen-report.json"
 AB_TXT = f"{LIVE}/ab.txt"
 SCORES = f"{LIVE}/scores"
-PENDING = "[[PENDING:"
 
 
 def _default(name: str) -> Any:
@@ -499,18 +498,7 @@ def score_record_problems(root: Path, expected_sha: str | None) -> list[str]:
     return problems
 
 
-# --- reference mode, LangSmith page, checkpoint --------------------------------------------------
-
-
-def pending_only(root: Path) -> bool:
-    """True when `live/` holds no evidence yet, only a [[PENDING]] marker in a Markdown file."""
-    live = root / LIVE
-    if not live.is_dir():
-        return False
-    evidence = [root / TESTGEN_TXT, root / TESTGEN_REPORT, root / AB_TXT]
-    if any(p.exists() for p in evidence) or list((root / SCORES).glob("*.json")):
-        return False
-    return any(PENDING in p.read_text(encoding="utf-8") for p in live.glob("*.md"))
+# --- LangSmith page, checkpoint ------------------------------------------------------------------
 
 
 def trace_link_problems(root: Path, page: str) -> list[str]:
