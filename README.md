@@ -78,10 +78,11 @@ model run, watched on the console.
 |---|---|---|---|
 | Opening | The four failures, the harness, a console tour | none | 10 |
 | Section 1 | The agent reads the map, then only the documents it needs | `make show-1` | 50 |
-| Section 2 | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` | 50 |
 | Break | | | 10 |
+| Section 2 | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` | 50 |
 | Section 3 | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=F4` | 50 |
-| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=F6,F5` (the poll's winner first) | 50 |
+| Break | | | 5 |
+| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=F6,F5` (the poll's winner first) | 45 |
 | Final | The final A/B on every screen, then all results | none | 20 |
 
 Each section opens with a poll and launches its run at once. The concepts and the code walkthrough
