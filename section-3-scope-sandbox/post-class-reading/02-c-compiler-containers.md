@@ -1,7 +1,7 @@
-# Building a C compiler with a team of parallel Claudes
+# [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler)
 
 Reading time: about 15 minutes.
-Source: Nicholas Carlini (Anthropic), "Building a C compiler with a team of parallel Claudes", 2026-02-05, <https://www.anthropic.com/engineering/building-c-compiler> ([evidence](../../docs/evidence/s3.md#src-anthropic-c-compiler)).
+Source: [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler), Nicholas Carlini (Anthropic), 2026-02-05 ([evidence](../../docs/evidence/s3.md#src-anthropic-c-compiler)).
 
 > **Terms on this page**
 >
@@ -49,4 +49,4 @@ reach, not which files in its own workspace it changes. That second limit is the
 
 ## Sources
 
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
+- Source 1: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05

@@ -22,8 +22,9 @@ From `trace_url` (agent root) and `referee_trace_url` in each score record, Lang
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview
 ```
 
-The command runs the version checks ticket (`F4` in the command; example `F4-canonical` in
-`platform/datasets/teamtrack-features-v1.jsonl`, checkpoint `m1-s4-start`) in both arms: bare with no harness layer, harness with the demo-4 stack
+The command runs the ticket for Feature 4: Version checks on issue edits (`F4` in the command; its
+main example is the `F4-canonical` line of `platform/datasets/teamtrack-features-v1.jsonl`, on the
+checkpoint tag `m1-s4-start`, the repository state at the start of Section 4: Verification) in both arms: bare with no harness layer, harness with the demo-4 stack
 (instructions, state, scope, verify; `SECTION_STACKS` in `platform/src/shipharness/ab/demo.py`). The
 referee, the program that scores each run after the agent stops, judges both builds the same way and writes one score record per arm to
 `exports/scores/<run_id>.json`. `--no-preview` skips the board preview containers. The command

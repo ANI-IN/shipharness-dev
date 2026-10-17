@@ -1,4 +1,4 @@
-# Assignment 4 specification: Verification and portfolio
+# Assignment 4: Verification. Specification: verification and portfolio
 
 The full requirements for [Assignment 4](README.md). The README gives the story and the steps; this
 page is the reference you check your work against.
@@ -25,13 +25,14 @@ page is the reference you check your work against.
   `deleted_at`, and deleted issues behave as if they do not exist (404 on read, hidden from lists)".
 - The code you extend. Print the two walkthrough excerpts with
   `uv run python platform/scripts/anchors.py extract S4:probe` (how the tenant isolation check plans
-  probes and judges one response) and `... extract S4:filters` (the filter pipeline).
+  probes and judges one response) and `... extract S4:filters` (the filter pipeline); `S4:probe` and
+  `S4:filters` are the names of those marked excerpts.
 - The framework files: `platform/src/shipharness/checks/base.py` (`Finding`, `CheckContext`, the
   registry, `mark_baseline`), `checks/_http.py` (`open_target`, `apply_exemptions`),
   `checks/payloads.py` (`fill_path`, generated bodies), `checks/adapter.py` (the TeamTrack adapter),
   and `filters/models.py` (the filter protocol).
 - For the live step: your keys in `.env`, Docker for the A/B, and the checkpoint tag `m1-s4-start`
-  in your clone (`git tag` lists it).
+  (the repository state at the start of Section 4: Verification) in your clone (`git tag` lists it).
 
 ## Files you must produce
 
@@ -52,7 +53,7 @@ section-4-verification/assignment/starter/   your implementation folder
 
 ## Requirements
 
-### R8 check
+### The check for House rule 8: Deleted issues stay hidden
 
 Registered as `r8_soft_delete` with `rule = "R8"` through `shipharness.checks.register_check`.
 
@@ -78,7 +79,7 @@ Registered as `r8_soft_delete` with `rule = "R8"` through `shipharness.checks.re
    progress goes through `ctx.progress`. The check never calls a model.
 8. On TeamTrack as shipped, the only counted finding is `GET /v1/issues` with `deleted_list`.
 
-Example: R8 on TeamTrack with the reference solution, 15 probes, one finding (the JSON document cut
+Example: the check on TeamTrack with the reference solution, 15 probes, one finding (the JSON document cut
 to the finding, `...` marks the cut; exit code 3):
 
 ```text
@@ -88,12 +89,12 @@ to the finding, `...` marks the cut; exit code 3):
 With that output as `--baseline`, the same finding shows `"baseline": true`, `"new_violations": 0`,
 and the command exits 0.
 
-### Filter 6
+### Filter 6: No duplicate tests
 
 The class is `NoDuplicateTest`, with `number = 6`, a `name`, and `evaluate(cand, ctx) -> FilterResult`.
-It follows TestGen-LLM's later filter that removes "previously seen test cases"
-([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)); ignoring renamed local variables is the
-course's addition.
+It follows a later filter of Meta's test generator that removes "previously seen test cases"
+([Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171));
+ignoring renamed local variables is the course's addition.
 
 1. The constructor takes the existing suite's tests as candidate tests (for example from
    `shipharness.filters.collect_candidates`). `evaluate` reads source only; it never runs a test.
@@ -156,7 +157,7 @@ The grader checks these files without a model call:
    `"filter": 6` and a reason per kept test, after all rows of filters 1 to 5, plus a `filter6`
    object whose `kept` lists the tests those rows passed.
 3. **A/B command and cost.** The command is `shipharness ab --section demo-4 --feature F4 --purpose
-   assignment --no-preview`, where `F4` is the version checks feature (`--k 1`, `--reviewer`, or
+   assignment --no-preview`, where `F4` is Feature 4: Version checks on issue edits (`--k 1`, `--reviewer`, or
    `--no-reviewer` may be added). The output has
    one `A/B` line with the four layers of demo-4, and one `Cost:` line of at most $2.50 that names
    `gpt-6-luna` and no model other than it and the reviewer's `gpt-5.6-luna`.
@@ -170,7 +171,7 @@ The live runs are not graded on their results. An arm that fails its primary mea
 ### Portfolio and skill
 
 - `portfolio/evidence-report.md`: sections `## Target`, `## Commands`, `## Results` (with a table),
-  `## Filter 6 on the kept tests`, `## R8 on TeamTrack`, `## Limits`; it mentions
+  `## Filter 6 on the kept tests`, `## House rule 8 on TeamTrack`, `## Limits`; it mentions
   `shipharness testgen` and `run_r8`.
 - `portfolio/langsmith.md`: sections `## Trace links` (a `https://smith.langchain.com/` link that is
   the `trace_url` or `referee_trace_url` of one of your two score records), `## Command` (mentions
@@ -190,7 +191,7 @@ The live runs are not graded on their results. An arm that fails its primary mea
 | Without make | `uv run python section-4-verification/assignment/check.py --impl <dir>` |
 | Your tests | `PYTHONPATH=<dir> uv run python -m pytest -q -p no:cacheprovider <dir>/tests` |
 | The visible tests, full output | `A4_IMPL=<dir> uv run python -m pytest -q -p no:cacheprovider section-4-verification/assignment/visible_tests` |
-| R8 on TeamTrack | `PYTHONPATH=<dir> uv run python -m a4_verification.run_r8 --build platform/teamtrack --checkpoint m1-base --feature A4` |
+| The House rule 8 check on TeamTrack | `PYTHONPATH=<dir> uv run python -m a4_verification.run_r8 --build platform/teamtrack --checkpoint m1-base --feature A4` |
 | The skill validator | `uv run shipharness skills validate <dir>/skill` |
 
 On a finished folder the self-check prints `self-check: PASSED (23/23 visible tests pass)` and exits
@@ -227,7 +228,7 @@ grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $IMPL/live
 
 Without `--image`, testgen runs the generated tests on your machine and prints an UNSANDBOXED
 warning. Keep `--purpose assignment` on the A/B: without it the command uses the class purpose, which
-refuses to start unless `SHIPHARNESS_CLASS_DATE` is set. If testgen keeps no test, filter 6 has
+refuses to start unless `SHIPHARNESS_CLASS_DATE` is set. If testgen keeps no test, Filter 6 has
 nothing to show; run it once more on another module, inside the budget.
 
 ## Limits
@@ -236,7 +237,7 @@ nothing to show; run it once more on another module, inside the budget.
   `platform/teamtrack/`, or the visible tests.
 - Keep the check name `r8_soft_delete`, the class name `NoDuplicateTest`, and the package name
   `a4_verification`.
-- R8 runs in process on a TeamTrack copy: no Docker, no network, no model calls.
+- The House rule 8 check runs in process on a TeamTrack copy: no Docker, no network, no model calls.
 - One testgen run and one A/B. Every run counts: never re-run for a nicer result, and paste only real
   output into the portfolio.
 
@@ -244,9 +245,9 @@ nothing to show; run it once more on another module, inside the budget.
 
 | Step | OpenAI | LangSmith traces |
 |---|---|---|
-| R8, filter 6, the self-check, the grader | $0 | 0 |
+| The House rule 8 check, Filter 6, the self-check, the grader | $0 | 0 |
 | `shipharness testgen` | At most $0.20 (the per-run cap) | 1 |
-| The version checks A/B: 2 arms, 2 reviews | At most $0.48 (two arm caps and two review caps) | 4 |
+| The A/B on Feature 4: 2 arms, 2 reviews | At most $0.48 (two arm caps and two review caps) | 4 |
 
 The caps are in `platform/src/shipharness/config/settings.py` and `.env.example`. The reference
 solution's live step cost $0.045425 in all; its output is in [solution/SOLUTION.md](solution/SOLUTION.md#evidence).
@@ -261,7 +262,7 @@ solution's live step cost $0.045425 in all; its output is in [solution/SOLUTION.
 - Putting a random value or response text in `detail_key`. Findings then never match the baseline,
   and the legacy finding counts against every arm.
 - Comparing tests as text. Formatting and comments change the text, not the test.
-- Renaming fixture parameters in filter 6. `client` and `admin_client` are different fixtures.
+- Renaming fixture parameters in Filter 6. `client` and `admin_client` are different fixtures.
 - Running `apply_filter` without `--update-report`, or copying the report before running it.
 - Copying score records from another A/B or from a replay. The grader matches them to the `ab_id` in
   `live/ab.txt`.
@@ -269,5 +270,6 @@ solution's live step cost $0.045425 in all; its output is in [solution/SOLUTION.
 
 ## Sources
 
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
-- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills)
+- Source 1: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>,
+  Alshahwan et al. (Meta), 2024-02-14
+- Source 2: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.

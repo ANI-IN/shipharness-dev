@@ -63,7 +63,7 @@ GATE_CHECKS: tuple[str, ...] = (
 - What is missing matters most: no hidden tests and no referee mutants. Those stay with the referee,
   so they are still held out when it scores the run.
 - The referee runs the same seven house rule checks. That overlap is disclosed: a harness arm is
-  expected to do better on those rules by construction, so Section 4 scores hidden tests and mutants
+  expected to do better on those rules by construction, so Section 4: Verification scores hidden tests and mutants
   instead.
 
 ### gate.py, lines 155-162
@@ -116,7 +116,7 @@ Each item runs inside the arm's container.
 - The clean-state item runs on the workspace itself, against `base_sha`, the commit before the
   agent's first change. It follows Anthropic's definition: code "that would be appropriate for
   merging to a main branch"
-  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
+  ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 - `lines` collects one failure line per problem, each with its reason on the same line.
 
 ### gate.py, lines 176-181
@@ -135,7 +135,7 @@ The verdict.
 
 - One failed item fails the gate. Anthropic's compiler team says why the bar is that high: "it’s
   important that the task verifier is nearly perfect, otherwise Claude will solve the wrong
-  problem." ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler))
+  problem." ([Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler))
 - `_feedback` (lines 191-200) writes `Gate <id>: <n> of <m> items failed (<names>).`, the first three
   failure lines, and "Fix these, commit your work, and call finish again." The same team asks for a
   few lines of output, with the reason "on the same line" as the error.
@@ -160,5 +160,5 @@ does not include the held-out checks.
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05

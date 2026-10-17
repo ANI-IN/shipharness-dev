@@ -8,7 +8,8 @@ TODO: the failure you set out to catch, in your own repository's or TeamTrack's 
 
 ## What I built
 
-TODO: R8, filter 6, and your skill, in a few sentences each.
+TODO: your check for House rule 8: Deleted issues stay hidden, Filter 6: No duplicate tests, and your
+skill, in a few sentences each.
 
 ## Evidence
 

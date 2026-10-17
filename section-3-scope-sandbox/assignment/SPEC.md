@@ -1,4 +1,4 @@
-# Assignment 3 specification: Scope you can check
+# Assignment 3: Scope and sandbox. Specification: scope you can check
 
 The full requirements for [Assignment 3](README.md). The README gives the story and the steps; this
 page is the reference you check your work against.
@@ -29,8 +29,10 @@ page is the reference you check your work against.
 - The real code your package mirrors: `platform/src/shipharness/harness/scope/guard.py` (allowed
   paths), `platform/src/shipharness/harness/scope/status.py` (`passes`), and
   `platform/src/shipharness/sandbox/policy.py` (deny rules). Read them with
-  `uv run python platform/scripts/anchors.py extract S3:allowed_paths` (also `S3:passes`, `S3:policy`).
-- For the live step: the `F3-canonical` line of `platform/datasets/teamtrack-features-v1.jsonl`.
+  `uv run python platform/scripts/anchors.py extract S3:allowed_paths` (also `S3:passes`, `S3:policy`;
+  these are the names of the marked excerpts in that code).
+- For the live step: the `F3-canonical` line of `platform/datasets/teamtrack-features-v1.jsonl`, the
+  dataset's main ticket for Feature 3: Safe retries for issue creation.
 
 ## Files you must produce
 
@@ -213,7 +215,7 @@ decision.evidence  # {"gate_id": "visible-tests", "commit": "c0ffee...", "visibl
 | The live evidence only | `uv run python section-3-scope-sandbox/assignment/live.py verify --impl <dir>` |
 
 `check.py` exits 1 when a row fails, so `make` reports `Error 1` and exits 2. The self-check on the
-starter (real output, cut where marked `...`; the full capture is in
+starter (real output, cut where marked `...`; `A3` in it is Assignment 3; the full capture is in
 [solution/captured/check-starter.txt](solution/captured/check-starter.txt)):
 
 ```text
@@ -256,8 +258,9 @@ valid live evidence. A module that imports the reference implementation scores 0
 
 ## Evidence to hand in
 
-You run one A/B live on the idempotent-creation ticket (`F3`: retried creates never duplicate), the
-Section 3 task, through the real runner and the Docker sandbox, with
+You run one A/B live on the ticket for Feature 3 (`F3` in commands and records: retried creates
+never duplicate), the task of Section 3: Scope and sandbox, through the real runner and the Docker
+sandbox, with
 the class model (`gpt-6-luna`) and caps. Run it after Parts A to C are done, then collect right away:
 the arm workspaces live in a temporary folder and do not last.
 
@@ -312,7 +315,7 @@ counts. `collect` writes these files to `<dir>/live/`:
 Your verdicts and the referee's need not agree. The referee removes harness files before it counts
 (`strip_harness_artifacts` in `platform/src/shipharness/ab/artifacts.py`); your policy reads the
 whole diff. When the harness sets `passes`, the harness arm's diff includes `feature_list.json`: your
-rule 2 refuses it, while the referee does not count it. In the course's test runs on idempotent creation, every arm had
+rule 2 refuses it, while the referee does not count it. In the course's test runs on Feature 3, every arm had
 0 out-of-scope files and 0 test-phase source edits.
 
 ## Limits

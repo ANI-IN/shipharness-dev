@@ -1,7 +1,7 @@
-# Effective harnesses for long-running agents
+# [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 
 Reading time: about 10 minutes.
-Source: Justin Young (Anthropic), "Effective harnesses for long-running agents", 2025-11-26, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents> ([evidence](../../docs/evidence/s1.md#src-anthropic-long-running)).
+Source: [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), Justin Young (Anthropic), 2025-11-26 ([evidence](../../docs/evidence/s1.md#src-anthropic-long-running)).
 
 > **Terms on this page**
 >
@@ -14,7 +14,7 @@ Source: Justin Young (Anthropic), "Effective harnesses for long-running agents",
 Anthropic's team ran a coding agent over many sessions to build a whole web app. Two failures came
 up again and again: the agent tried to do everything at once, and a later session saw progress and
 declared the job done. Their fix gave each session a small, fixed scope: one feature from a list, and
-a field that says whether it works. Section 3 starts from that list. This page sums up the post's
+a field that says whether it works. Section 3: Scope and sandbox starts from that list. This page sums up the post's
 "Feature list" and "Incremental progress" parts.
 
 ## Three key ideas
@@ -55,4 +55,4 @@ which still leaves the judgement with the agent.
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

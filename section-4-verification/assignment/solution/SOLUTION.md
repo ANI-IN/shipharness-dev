@@ -1,12 +1,13 @@
-# Assignment 4 solution: Verification and portfolio
+# Assignment 4: Verification. Solution: verification and portfolio
 
-This folder is a finished implementation folder for [Assignment 4](../README.md): the R8 check, filter
-6, the tests, a skill, the live evidence, the portfolio, and the captured checks. This page explains
+This folder is a finished implementation folder for [Assignment 4](../README.md): the check for
+House rule 8: Deleted issues stay hidden, Filter 6: No duplicate tests, the tests, a skill, the live
+evidence, the portfolio, and the captured checks. This page explains
 how it was built and why.
 
 > **Terms on this page**
 >
-> - **R8**: The house rule you add: a soft-deleted issue answers 404 and never appears in a list.
+> - **House rule 8**: The house rule you add: a soft-deleted issue answers 404 and never appears in a list.
 > - **Check**: A shipharness program that probes every endpoint for one rule and reports findings.
 > - **Finding**: One violation a check reports, with a rule, an endpoint, a severity, and a detail key.
 > - **Baseline**: The findings on the unchanged checkpoint; a check counts only new ones.
@@ -20,12 +21,12 @@ What is in this folder:
 
 | Path | What it is |
 |---|---|
-| `a4_verification/` | The R8 check, the soft-delete adapter, filter 6, and the two command-line tools |
+| `a4_verification/` | The check, the soft-delete adapter, Filter 6, and two command-line tools |
 | `tests/` | The solution's own tests |
 | `skill/testgen-evidence/` | A skill that turns a testgen report into a short summary |
 | `live/` | The live evidence: testgen output and report, A/B output, two score records |
 | `portfolio/` | Evidence report, LangSmith page, and case study, filled from `live/` |
-| `captured/` | Real output of the self-check, the grade, and R8 on TeamTrack |
+| `captured/` | Real output of the self-check, the grade, and the check on TeamTrack |
 
 ## The approach, step by step
 
@@ -52,8 +53,8 @@ What is in this folder:
    same run is discarded too.
 
 6. **Run the live step once.** One testgen run on the pinned target
-   `TG-teamtrack-app-repositories-issues`, filter 6 over its kept tests, and one A/B on the version
-   checks feature. The portfolio was then written from those files.
+   `TG-teamtrack-app-repositories-issues`, Filter 6 over its kept tests, and one A/B on Feature 4:
+   Version checks on issue edits. The portfolio was then written from those files.
 
 ## Design choices and why
 
@@ -62,8 +63,8 @@ What is in this folder:
   correct build. A marker only the deleted row can contain makes every list finding a real
   appearance, at any depth and in any response shape. The brackets stop `[r8-deleted:1]` from
   matching inside `[r8-deleted:11]`.
-- **Database soft delete.** If R8 deleted through `DELETE /issues/{id}`, a build with a broken delete
-  endpoint would fail R8 for the wrong reason. The tenant isolation, roles, and audit log rules
+- **Database soft delete.** If the check deleted through `DELETE /issues/{id}`, a build with a broken
+  delete endpoint would fail it for the wrong reason. The tenant isolation, roles, and audit log rules
   already probe that endpoint. The cost
   is that the adapter knows one table and one column; that knowledge stays in the adapter.
 - **Lists before writes.** A write probe that wrongly succeeds, such as a PATCH that renames the
@@ -74,8 +75,8 @@ What is in this folder:
 - **Remediation in the message.** Each `detail` says what to change, such as "add `deleted_at IS
   NULL` to the query". OpenAI's harness team writes its lint messages "to inject remediation
   instructions into agent context"
-  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
-- **Filter 6 outside the default list.** The pipeline takes a list of filters, so filter 6 runs
+  ([Harness engineering](https://openai.com/index/harness-engineering/)).
+- **Filter 6 outside the default list.** The pipeline takes a list of filters, so Filter 6 runs
   without a change under `platform/src/`. `apply_filter --update-report` adds its rows to the testgen
   report, so one file shows all six filters.
 - **Parameters are never renamed.** Two tests that differ only in fixture names use different
@@ -91,7 +92,7 @@ What is in this folder:
   may filter the deleted rows out. A next step is a probe that sends the marker as the search text.
 - Only the first page of each list is read. The deleted rows have the lowest ids, so they are on the
   first page of every list ordered by id.
-- R8 covers issues only. The handbook says archived projects also "behave as if they do not exist".
+- The check covers issues only. The handbook says archived projects also "behave as if they do not exist".
 - Filter 6 is exact and explainable, but it misses tests that check the same rule through different
   calls.
 
@@ -100,19 +101,19 @@ What is in this folder:
 | Alternative | Why not |
 |---|---|
 | Find deleted issues by id in response bodies | False findings on every resource that shares the number |
-| Soft-delete through `DELETE /issues/{id}` | Couples R8 to the delete endpoint working |
+| Soft-delete through `DELETE /issues/{id}` | Couples the check to the delete endpoint working |
 | Probe only GET endpoints | Misses writes that resolve a deleted issue |
 | A fixed list of issue endpoints in the check | Misses endpoints the build adds |
 | Compare test text, or a hash of it | Comments and layout change the text, not the test |
 | Token or embedding similarity for duplicates | Not exact, and a discard needs a reason a reader can check |
-| Add filter 6 to the default filter list | Needs a change under `platform/src/`, outside the assignment |
+| Add Filter 6 to the default filter list | Needs a change under `platform/src/`, outside the assignment |
 
 ## Common mistakes this avoids
 
 - No id-based evidence, so project, user, and org lists stay clean on a correct build.
 - No hand-written endpoint list: a new endpoint gets probed because the schema lists it.
 - No response text in `detail_key`, so the legacy finding stays in the baseline.
-- No renamed fixtures in filter 6.
+- No renamed fixtures in Filter 6.
 - No number typed by hand in the portfolio: every count and cost comes from the files in `live/`.
 - One testgen run and one A/B, each kept as it came out.
 
@@ -144,13 +145,13 @@ Next: submit this folder with its live/; the grader adds the hidden tests.
 Cost: $0.000000 (no model calls)
 ```
 
-R8 on TeamTrack finds one counted problem, `GET /v1/issues` (`deleted_list`, severity `leak`), in 15
+The House rule 8 check on TeamTrack finds one counted problem, `GET /v1/issues` (`deleted_list`, severity `leak`), in 15
 probes. The full JSON is in `captured/r8-teamtrack.json`.
 
 ## Evidence
 
 The live testgen run, from `live/testgen.txt` (the run id is cut to `<run id>`; three of the four
-filter 3 lines are cut where `...` shows):
+lines for Filter 3: Adds coverage or catches a mutant are cut where `...` shows):
 
 ```text
 $ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen
@@ -168,7 +169,7 @@ Cost: $0.003287 (testgen, model gpt-6-luna)
 Filter 6 then kept that one test: it repeats none of the 23 existing tests it was compared with
 (`filter6` in `live/testgen-report.json`).
 
-The live A/B on the version checks feature (`F4` in the output), from `live/ab.txt` (the A/B id is
+The live A/B on Feature 4 (`F4` in the output), from `live/ab.txt` (the A/B id is
 cut to `<run id>`, the running totals to `...`):
 
 ```text
@@ -184,7 +185,8 @@ won, so this run is an example of evidence, not a result about the harness.
 
 The instructor's grade of this folder, from `make grade-assignment-4
 SUBMISSION=section-4-verification/assignment/solution` (the grader is not in this repository; the full
-output is in `captured/grade-solution.txt`):
+output is in `captured/grade-solution.txt`; the `R8-` criteria grade the House rule 8 check, the
+`F6-` ones Filter 6):
 
 ```text
 Criterion                     Points  Tests
@@ -211,4 +213,4 @@ Dates, run ids, and the capture details for all of the above are on the
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
