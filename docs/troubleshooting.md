@@ -69,7 +69,7 @@ fall back to a recorded or scripted run (source: `src/shipharness/ab/commands.py
 | `x OpenAI refused the key: <reason>; no arm was started` | The key is invalid, has no access to the model, or OpenAI is unreachable | `make doctor` names the problem; the reason `no access to gpt-6-luna (NotFoundError)` means the account cannot use the course model |
 | `x no task for feature=<id> example=None variant=canonical` | The feature id is not in `datasets/teamtrack-features-v1.jsonl` | Use F1 to F7 (`make final` takes F5, F6, F7) |
 | `! replay needs RUN=<ab or run id>` | `make replay` without `RUN` | `make replay RUN=<id>` (source: `Makefile`) |
-| `! experiments is available after milestones M6 and M8` (same for `report`, `pilot`) | These Make targets are placeholders in this release; the milestones named are the course's own build steps, and no later release of these targets is planned | Use the `uv run shipharness ...` command directly, for example `uv run shipharness report` |
+| `! make experiments is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` (same for `report`, `pilot`) | These are not make targets in this release | Use the `uv run shipharness ...` command directly, for example `uv run shipharness report` |
 | `x unknown --arms '<value>': both or harness` | `--arms` takes `both` (an A/B) or `harness` (the harness arm alone, what `make show-N` runs) | Use one of the two |
 | `x unknown --profile '<value>': standard, class` | `--profile` takes `standard` or `class` | Use one of the two; `make` targets pass `PROFILE=class` by default |
 

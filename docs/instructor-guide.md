@@ -484,7 +484,7 @@ limit). Launched at 2:55, one feature like this one is finished by about 3:08; t
 after another by about 3:21, before the final block at 3:40.
 
 `make report` is a placeholder target in this release (it prints
-`! report is available after milestones M6 and M8`); use `uv run shipharness report` after class. Its
+`! make report is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help`); use `uv run shipharness report` after class. Its
 dot plots cover F1-F4 (features with a primary measure); it draws none for F5-F7.
 
 Close the results with A1's caveat about its own results, which applies to the pilot as well: they

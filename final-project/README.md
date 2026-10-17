@@ -438,7 +438,7 @@ uv run shipharness report
 ```
 
 (`make report` is a placeholder target in this release and prints
-`! report is available after milestones M6 and M8`.) The report reads only `exports/` and writes
+`! make report is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help`.) The report reads only `exports/` and writes
 `exports/report.json` and `exports/report.html`. It makes no model calls and prints
 `Cost: $0.000000 (no model calls; runs in exports $...)`, with the total spend of the runs it read.
 For each feature that has a primary measure (F1-F4), the HTML report draws one row per arm and

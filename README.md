@@ -262,7 +262,7 @@ $ make help
 setup doctor up console datasets lint format lint-prose test test-all test-live test-docker
 demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>
 warm (before class: images, containers, referee and gate baselines; no model calls)
-experiments report pilot (later milestones)
+experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help
 ```
 
 The table lists every target with the command its recipe in the `Makefile` runs and whether it calls
@@ -294,7 +294,7 @@ a model.
 | `make format` | `ruff check --fix .` and `ruff format .` | none | Rewrites files |
 | `make lint-prose` | `uv run python scripts/lint_prose.py` (and Vale if installed) | none | Banned words and emoji in course documents |
 | `make anchors` | `uv run python scripts/anchors.py list` | none | Code walkthrough anchors; `uv run python scripts/anchors.py extract <id>` prints one |
-| `make experiments`, `make report`, `make pilot` | print `! <target> is available after milestones M6 and M8` and exit 2 | none | Placeholders in this release: the message names milestones of the course's own build, and no later release of these targets is planned. Use `uv run shipharness report` and `uv run shipharness experiments --help` directly |
+| `make experiments`, `make report`, `make pilot` | print `! make <target> is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` and exit 2 | none | Not make targets in this release; use `uv run shipharness experiments --help` and `uv run shipharness report` directly |
 
 Optional extras that are not part of any class section (replays of named pilot runs and scripted
 examples with no model) have their own page: [docs/extras.md](docs/extras.md).
@@ -559,7 +559,7 @@ The most common problems:
 | A run prints its results, then `make: *** [...] Error 2` | An arm was aborted (cost cap or time limit); the run is complete, judged, and shown. `shipharness ab` exits 2 in that case ([troubleshooting](docs/troubleshooting.md#arm-status-and-result-lines)) |
 | An arm ends as `ABORTED: cap` | It reached a cost cap; it is still judged and shown |
 | `make warm` ends with `warm: incomplete` | A step failed; the lines starting with `x` say which ([troubleshooting](docs/troubleshooting.md#make-warm)) |
-| `! report is available after milestones M6 and M8` | A placeholder target in this release (the milestones are the course's own build steps); use `uv run shipharness report` |
+| `! make report is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help` | `report` is not a make target in this release; run `uv run shipharness report` |
 
 Everything else, with the exact messages: [docs/troubleshooting.md](docs/troubleshooting.md).
 
