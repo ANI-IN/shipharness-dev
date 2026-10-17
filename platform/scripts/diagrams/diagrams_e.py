@@ -7,6 +7,8 @@ from exlib import Scene
 from layouts import CENTRE, cheat_sheet, socratic, story_strip, timeline, title
 from style import FONT_BODY, FONT_SMALL, FONT_TITLE, INK
 
+from shipharness.datasets.names import RULE_NAMES
+
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # Source: slides "Problem statement: A tidy diff in a shared file" (illustrative); every bare
@@ -171,7 +173,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             note="If-Match is optional; no test sends one",
         )
 
-    # Source: slides "Verification: The suite is green. Is F4 done?" (builds 1-2);
+    # Source: slides "Verification: The suite is green. Is it done?" (builds 1-2);
     # docs/evidence/s4.md (68 of 69 hidden tests; test_invalid_body_with_a_stale_version_is_412).
     @diagram(S4, "socratic-s4", steps=True)
     def socratic_s4(s: Scene) -> None:
@@ -230,30 +232,31 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             tags=["feedback to the agent", "feedback to the agent", "held out", "held out"],
         )
 
-    # Source: platform/teamtrack/docs/HANDBOOK.md, "House rules" R1 to R7.
+    # Source: platform/teamtrack/docs/HANDBOOK.md, "House rules", House rules 1 to 7.
     @diagram(DOCS, "house-rules")
     def house_rules(s: Scene) -> None:
         title(s, "TeamTrack's seven house rules")
-        rules = [
-            ("tenant isolation rule", "other org:\n404, not 403"),
-            ("roles rule", "a viewer's write:\n403 forbidden"),
-            ("API conventions rule", "cursor lists,\nerror envelope"),
-            ("idempotent creates rule", "same Idempotency-Key:\none record"),
-            ("audit log rule", "one audit row\nper write"),
-            ("layering rule", "app/api never\nimports app/db"),
-            ("migrations rule", "exactly one\nAlembic head"),
+        examples = [
+            "other org:\n404, not 403",
+            "a viewer's write:\n403 forbidden",
+            "cursor lists,\nerror envelope",
+            "same Idempotency-Key:\none record",
+            "one audit row\nper write",
+            "app/api never\nimports app/db",
+            "exactly one\nAlembic head",
         ]
         w, gap = 420, 40
-        for i, (name, example) in enumerate(rules):
+        for i, example in enumerate(examples):
             row, col = divmod(i, 4)
             n = 4 if row == 0 else 3
             x0 = CENTRE - (n * w + (n - 1) * gap) / 2
             x = x0 + col * (w + gap)
             y = 170 + row * 420
+            name = f"House rule {i + 1}:\n{RULE_NAMES[f'R{i + 1}']}"
             s.box(x, y, w, 340, role="plain", stroke="#3896D2", stroke_width=3)
-            s.text(x + w / 2, y + 40, name, FONT_BODY, INK, "center")
-            s.line([(x + 30, y + 110), (x + w - 30, y + 110)], color="#3896D2")
-            s.text(x + w / 2, y + 160, example, FONT_BODY, INK, "center")
+            s.text(x + w / 2, y + 26, name, FONT_BODY, INK, "center")
+            s.line([(x + 30, y + 122), (x + w - 30, y + 122)], color="#3896D2")
+            s.text(x + w / 2, y + 168, example, FONT_BODY, INK, "center")
 
     # Sources: section-1/3/4 concepts.md glossaries; docs/STYLE.md; instructor/run-sheet.md.
     @diagram(DOCS, "glossary-terms")

@@ -221,7 +221,7 @@ To change a diagram:
 
 4. Look at the PNG on the navy slide background before you commit it.
 
-You can also open an `.excalidraw` file at [excalidraw.com](https://excalidraw.com) for a quick
+You can also open an `.excalidraw` file at [Excalidraw](https://excalidraw.com) for a quick
 look. A change made there is lost at the next build, so make lasting changes in the code.
 
 For a diagram with step frames, each frame adds one element, and every frame keeps the full panel,
@@ -242,3 +242,7 @@ against that file first.
 
 The Open Font License allows a font to be embedded in documents. The embedded font keeps its own
 licence.
+
+## Sources
+
+- Source 1: Excalidraw, <https://excalidraw.com>, Excalidraw project, undated, read 2026-10-17

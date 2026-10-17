@@ -66,12 +66,12 @@ def dot_chart(
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
-    # docs/evidence/s1.md, "Pilot results for F1": runs 3 and 4, class-profile round.
+    # docs/evidence/s1.md, "Pilot results" for Feature 1: runs 3 and 4, class-profile round.
     @diagram(S1, "results-s1")
     def results_s1(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 1: legacy pattern",
+            "Section 1: Instructions, legacy pattern",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
@@ -80,13 +80,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "pass: no new tenant isolation leak",
         )
 
-    # docs/evidence/s2.md, "Pilot results for F2": runs 3 and 4, class-profile round (run 2 is a
-    # measurement bug and is not shown).
+    # docs/evidence/s2.md, "Pilot results" for Feature 2: runs 3 and 4, class-profile round (run 2
+    # is a measurement bug and is not shown).
     @diagram(S2, "results-s2")
     def results_s2(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 2: comments",
+            "Section 2: State and sessions, Feature 2",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
@@ -95,26 +95,27 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "pass: no continuity failure across sessions",
         )
 
-    # docs/evidence/s3.md: the S3 confirmation (F4) and "Pilot results for F3".
+    # docs/evidence/s3.md: the Section 3 confirmation (Feature 4) and the
+    # Feature 3 pilot results.
     @diagram(S3, "results-s3")
     def results_s3(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 3: files outside allowed paths",
+            "Section 3: Scope and sandbox, allowed paths",
             [
-                ("Version checks", [F] * 3, [P] * 3),
-                ("Idempotency keys", [P] * 3, [P] * 3),
-                ("Idempotency, middleware temptation", [P] * 7, [P] * 7),
+                ("Feature 4", [F] * 3, [P] * 3),
+                ("Feature 3", [P] * 3, [P] * 3),
+                ("Feature 3, middleware temptation", [P] * 7, [P] * 7),
             ],
             "pass: nothing shipped outside allowed paths",
         )
 
-    # docs/evidence/s4.md, "Pilot results for F4": runs 2 and 3, class-profile round.
+    # docs/evidence/s4.md, "Pilot results" for Feature 4: runs 2 and 3, class-profile round.
     @diagram(S4, "results-s4")
     def results_s4(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 4: version checks",
+            "Section 4: Verification, Feature 4",
             [
                 ("Medium effort, round 1", [F] * 3, [F] * 3),
                 ("Medium effort, round 2", [F] * 3, [F] * 3),
@@ -123,18 +124,19 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "pass: 69 hidden tests, 4 mutants caught",
         )
 
-    # docs/evidence/final.md, "The pilot's dots for F1 to F4" and "The S3 confirmation".
+    # docs/evidence/final.md, the pilot's dots for Features 1 to 4 and the
+    # Section 3 confirmation.
     @diagram(DOCS, "results-final")
     def results_final(s: Scene) -> None:
         dot_chart(
             s,
             "All sections, each on its measure",
             [
-                ("Section 1: legacy", [P] * 7, [P] * 7),
-                ("Section 2: comments", [P] * 7, [P] * 7),
-                ("Section 3: middleware", [P] * 7, [P] * 7),
-                ("Section 3: scope", [F] * 3, [P] * 3),
-                ("Section 4: hidden tests", [F] * 4, [F] * 4),
+                ("Section 1: Instructions", [P] * 7, [P] * 7),
+                ("Section 2: State and sessions", [P] * 7, [P] * 7),
+                ("Section 3, Feature 3", [P] * 7, [P] * 7),
+                ("Section 3, Feature 4", [F] * 3, [P] * 3),
+                ("Section 4: Verification", [F] * 4, [F] * 4),
             ],
             "one dot per run, each arm",
         )
