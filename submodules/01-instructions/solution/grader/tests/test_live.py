@@ -373,23 +373,41 @@ def test_report_values_that_differ_from_the_evidence_lose_report_points(
     assert needle in result["live-report"][1]
 
 
-# -- the reference solution: pending until the integrator captures the real run -------------------
+# -- pending markers, and the reference solution's uncaptured run ----------------------------------
+
+SYNTHETIC_PENDING = (
+    "[[PENDING: captured live run (SYNTHETIC test marker) | source: M6 pilot | how: "
+    + syn.COMMAND
+    + "]]"
+)
 
 
 def test_a_pending_marker_stands_in_for_the_evidence_only_when_allowed(tmp_path: Path) -> None:
     work = fresh_work(tmp_path)
-    shutil.copytree(SOLUTION_WORK / "live", work / "live")
+    (work / "live").mkdir()
+    (work / "live" / "README.md").write_text(SYNTHETIC_PENDING + "\n", encoding="utf-8")
     assert all(score == 1 for score, _ in scores(work, allow_pending=True).values())
     result = scores(work)
     assert all(score == 0 for score, _ in result.values())
     assert "pending" in result["live-files"][1]
 
 
-def test_the_reference_live_folder_holds_the_pending_marker_and_the_command() -> None:
+def test_the_reference_live_folder_says_the_run_was_not_captured_and_keeps_the_command() -> None:
     text = (SOLUTION_WORK / "live" / "README.md").read_text(encoding="utf-8")
-    assert live.PENDING.search(text)
-    assert "source: M6 pilot" in text
+    assert not live.PENDING.search(text)
+    assert "was not captured" in text
     assert syn.COMMAND.replace(syn.BATCH, "a1-reference") in text
+
+
+def test_the_reference_live_folder_earns_no_live_points_even_with_allow_pending(
+    tmp_path: Path,
+) -> None:
+    work = fresh_work(tmp_path)
+    shutil.copytree(SOLUTION_WORK / "live", work / "live")
+    for allow in (False, True):
+        result = scores(work, allow_pending=allow)
+        assert all(score == 0 for score, _ in result.values())
+        assert "missing or malformed" in result["live-files"][1]
 
 
 # -- collecting the evidence ----------------------------------------------------------------------

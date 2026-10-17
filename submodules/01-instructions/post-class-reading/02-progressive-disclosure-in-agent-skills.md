@@ -154,7 +154,7 @@ Cost: $0.000000 (no model calls)
   whose description never matches a ticket is never read, however good its body is.
 - Opening a skill is observable. In the course's pilot run 2, every harness arm on F1 opened the
   `add-endpoint` body (tier 2) on its fourth tool call and none opened `references/tests.md` (tier
-  3) ([../demo/README.md](../demo/README.md) section 6). Log which tier your agent reads; if tier 3
+  3) ([../demo/README.md](../demo/README.md) section 9). Log which tier your agent reads; if tier 3
   is never read, either the body already says enough or the pointer to the reference is too weak.
 - Stay inside the six specification fields so one skill folder loads in every agent that follows
   the standard (F-b-11; [03-instructions-in-other-agents.md](03-instructions-in-other-agents.md)).

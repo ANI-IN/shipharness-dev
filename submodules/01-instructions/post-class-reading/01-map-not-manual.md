@@ -142,7 +142,7 @@ S1 A/B. It does not take A1's productivity numbers as a prediction.
   table-of-contents idea (F-a-27) in a form an agent can act on at the moment it starts a change.
 - Look at what your tickets say. Measured in the course pilot, run 2, 2026-10-16: the canonical F1
   ticket told the agent to follow the handbook, every bare arm opened it, and the two arms showed no
-  difference ([../demo/README.md](../demo/README.md) sections 6 and 7 list the A/B ids). If your team
+  difference ([../demo/README.md](../demo/README.md) sections 9 and 10 list the A/B ids). If your team
   writes "see the handbook" in every ticket, part of the map's work is already done by people, and
   it stops being done the day someone forgets the line.
 - Add one mechanical check before you split anything: dead links and missing rules (F-a-26, F-a-37).

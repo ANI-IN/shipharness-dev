@@ -1,7 +1,9 @@
 # A1 A/B report: the instructions layer on section-1 (reference tree)
 
-This is the reference solution's report. The A/B has not been run yet, so every value that needs a
-run is a pending marker; the structure is what a learner's report must have.
+This is the reference solution's report. Its structure is what a learner's report must have. The
+reference live run was not captured: the owner's FOCUS instructions of 2026-10-17 required a real
+captured live run for assignments A3 and A4 only, so the A1 reference A/B was left out of scope.
+Every value below that needs the run says so instead of giving a number.
 
 ## Setup
 
@@ -10,34 +12,34 @@ run is a pending marker; the structure is what a learner's report must have.
 - Model and reasoning effort: `OPENAI_MODEL` and `OPENAI_REASONING_EFFORT` from the settings
   (CONTRACTS §1), recorded in each experiment's metadata
 
-[[PENDING: commit of the reference tree copied into teamtrack/harness/instructions for the run | source: M6 pilot | how: git log -1 --format=%h]]
+Instructions tree commit: none, because the reference live run was not captured (owner scope,
+2026-10-17).
 
 ## Results
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new R1 violation | pending | pending |
-| R3: runs with at least one new R3 failure | pending | pending |
+| R1: runs with at least one new R1 violation | not captured | not captured |
+| R3: runs with at least one new R3 failure | not captured | not captured |
 
-[[PENDING: R1 and R3 runs-failing counts per arm for the reference tree | source: M6 pilot | how: uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-reference]]
+No counts: the reference live run was not captured (owner scope, 2026-10-17).
 
 ## Links
 
-[[PENDING: bare and harness LangSmith experiment URLs and the comparison URL | source: M6 pilot | how: uv run python submodules/01-instructions/assignment/ab_summary.py --batch a1-reference]]
+No LangSmith experiment links: the reference live run was not captured (owner scope, 2026-10-17).
 
 ## Cost and traces
 
 Budget for this command: at most $2.50 and 150 traces (DESIGN §11.5); the run stops cleanly at
-`MAX_BATCH_COST_USD`.
-
-[[PENDING: measured cost and LangSmith trace count of the a1-reference A/B | source: M6 pilot | how: cost line printed by uv run shipharness experiments; LangSmith usage page]]
+`MAX_BATCH_COST_USD`. No measured cost or trace count: the reference live run was not captured
+(owner scope, 2026-10-17).
 
 ## Reading the result
 
 The primary measure for section 1 is registered in DESIGN §8.2: a run fails when it has at least one
 new R1 violation, and results are counts of failing runs out of k per task, summed over the eight
-tasks. R3 is the secondary measure this assignment adds: runs with at least one new R3 failure. When
-the counts arrive, compare the arms on R1 first, then on R3, and look task by task at F1-trap
+tasks. R3 is the secondary measure this assignment adds: runs with at least one new R3 failure. With
+counts from a captured run, compare the arms on R1 first, then on R3, and look task by task at F1-trap
 (the legacy handler next to the right pattern) and at the control task C1, where both arms should
 pass. Check in the run logs that harness runs opened the map's targets and the skill; a harness run
 that never read `docs/SECURITY.md` or the skill did not test the restructuring.

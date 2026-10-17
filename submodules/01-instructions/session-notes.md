@@ -11,15 +11,15 @@ not source terms ([concepts.md](concepts.md), note on labels).
 
 | Block | What happened | Where to read it again |
 |---|---|---|
-| Poll | How many of 10 bare-arm runs of F1 ship `GET /issues` with a new R1 violation? | [demo/README.md](demo/README.md), section 4 |
-| Launch | `make demo-1`: one A/B on F1 (org-wide issue search), bare arm against the harness arm with the instructions layer only | [demo/README.md](demo/README.md), sections 1-2 |
-| Concepts | Problem, cause, harness piece, implementation, measure | [concepts.md](concepts.md) |
+| Poll | In how many of 10 runs does each arm add at least one new R1 violation while building F1? | [demo/README.md](demo/README.md), section 4 |
+| Launch | `make show-1`: the harness arm alone on F1 (org-wide issue search) with the instructions layer, live. "Harness in action", not an A/B: the pilot showed no gap to demonstrate | [demo/README.md](demo/README.md), sections 1, 3, 5 |
+| Concepts | Problem, cause, harness piece, implementation, measure, and what the map assumes | [concepts.md](concepts.md) |
 | Walkthrough | The legacy `/v1/issues` handler next to the scoped query; anchors `S1:agents_md`, `S1:progressive`, `S1:prefix` | `uv run python scripts/anchors.py extract S1:prefix` |
-| Demo block | Screens 1, 2, 3 (and 5) of the finished A/B; the verdicts; screen 4 with the dots; `make swap-1` | [demo/README.md](demo/README.md), sections 3, 5-8 |
+| Demo block | The finished `make show-1` run (screens 1 and 3); a real run, replayed: pilot run 3's F4 A/B `ab-20261016-212252-aa1644`, where the referee's R1 check found 3 new violations in the harness arm; a constructed example, `make example-1`, a scripted cross-org leak with ⚠ marks on the board; screen 4 with every pilot result | [demo/README.md](demo/README.md), sections 6-8 |
 
-Tonight's class run:
-
-[[PENDING: tonight's demo-1 result, one line per arm (primary measure, R1 new, hidden tests, reviewer verdict, cost), with the ab id and run ids | source: live class | how: make demo-1]]
+The class's `make show-1` run ran on the class host, so its record is not in this repository; in
+class, its verdict was read off console screen 1. A captured `make show-1` run is in
+[demo/README.md](demo/README.md), section 6.
 
 ---
 
@@ -53,82 +53,88 @@ Tonight's class run:
 9. **Docs are checked like code.** "Dedicated linters and CI jobs validate that the knowledge base is
    up to date, cross-linked, and structured correctly." (A1, F-a-37). Assignment A1 asks you to build
    one such checker.
+10. **Every harness piece encodes an assumption about the model.** "every component in a harness
+    encodes an assumption about what the model can't do on its own, and those assumptions are worth
+    stress testing" (A3, F-a-124). The map's assumption, in the course's words: the model will not
+    apply a rule it has not been pointed to. For this model on these tickets it did not hold
+    (section 3).
 
 ---
 
 ## 3. What the A/B showed
 
-Read every live result next to the experiment dots, never alone; results are counts of failing runs,
-never percentages (a course rule).
+Results are counts of failing runs, never percentages (a course rule). Every number below is from
+the course pilot, gpt-6-luna with the same settings for both arms; the per-run records with run ids
+are in [demo/README.md](demo/README.md), section 10.
 
-### Pilot run 2 (2026-10-16)
+### The primary measure on F1
 
-Measured in the course pilot, run 2, 2026-10-16: twelve A/Bs, F1-F4 canonical, k=3 per section,
-gpt-6-luna at effort medium for both arms, two A/Bs in parallel. Primary measure passed, per section
-and arm (the F1 run ids are in [demo/README.md](demo/README.md), section 7):
+Runs failing the primary measure (`r1_new_violations >= 1`), per arm:
 
-| Section | Bare arm | Harness arm | Why runs failed |
-|---|---|---|---|
-| F1 (S1) | 3/3 | 3/3 | none failed: no new R1 violation |
-| F2 (S2) | 3/3 | 0/3 | harness arms failed on a measurement bug, fixed after run 2 |
-| F3 (S3) | 3/3 | 3/3 | none failed |
-| F4 (S4) | 0/3 | 0/3 | the measure needs every hidden test passed and every mutant killed; no run had both |
+| Run | Ticket, effort | Bare arm | Harness arm | A/Bs |
+|---|---|---|---|---|
+| 2, 2026-10-16 | `F1-canonical`, medium | 0 of 3 | 0 of 3 | `ab-20261016-181736-a07558`, `ab-20261016-183644-0036f0`, `ab-20261016-185628-37483b` |
+| Live console check, 2026-10-16 | `F1-canonical`, medium | 0 of 1 | 0 of 1 | `ab-20261016-210339-909651` |
+| 3, 2026-10-16 | `F1-trap`, medium | 0 of 3 | 0 of 3 | `ab-20261016-211419-07937b`, `ab-20261016-212745-2c14fb`, `ab-20261016-214636-c8b3c4` |
+| 4, 2026-10-16 | `F1-trap`, low | 0 of 3 | 0 of 3 | `ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, `ab-20261016-234639-4a18bd` |
+| Class-profile round, 2026-10-17 | `F1-trap`, low, Fast tier | 0 of 1 | 0 of 1 | `ab-20261017-084558-0356a0` |
 
-For S1 that means no gap: three bare and three harness runs, each with 0 new R1 violations and 52
-of 52 hidden tests. The run logs explain it. The canonical ticket ends with "Follow the house rules
-in docs/HANDBOOK.md", every bare arm opened the handbook with its third tool call, and `read_file`
-returns the whole 150-line file, so the bare arm had every rule in context. The harness arm read the
-handbook too, then the `add-endpoint` skill and the focused docs. No arm opened the legacy handler.
-Both arms wrote the same org-scoped query. Per-run records with run ids, and what each arm read, are
-in [demo/README.md](demo/README.md), sections 6 and 7.
+Every arm had 0 new R1 violations and 52 of 52 hidden tests. No measurable difference on this task
+with this model (course pilot, runs 3 and 4 and the class-profile round).
 
-The live console check on 2026-10-16 (A/B `ab-20261016-210339-909651`, `make demo-1 PURPOSE=pilot`,
-F1 canonical) adds one more pair of dots: both arms passed, 0 new R1 violations and 52 of 52 hidden
-tests each, 9 min 10 s and $0.027821 for the whole A/B (run ids in
-[demo/README.md](demo/README.md), section 7).
+Why: the canonical ticket ends with "Follow the house rules in docs/HANDBOOK.md", every bare arm in
+run 2 opened the handbook with its third tool call, and `read_file` returns the whole 150-line file,
+so the bare arm had every rule in context. The trap ticket `F1-trap` names the legacy code as the
+place where the query code exists and does not point to the handbook; no arm copied the legacy query
+into a leak. In the class-profile round the bare arm did not open the handbook in its first nine tool
+calls and still wrote a scoped query. What each arm read is in [demo/README.md](demo/README.md),
+section 9.
 
-What changed because of it: the course's pre-registered next step for a section with no gap is its
-trap variant. `F1-trap` names the legacy code as the place where the query code exists and does not
-point to the handbook.
+### All four sections, and what was not run
 
-### Pilot runs 3 and 4, and the experiments
+Runs that passed the primary measure, bare arm first, then harness arm, for every section:
 
-Measured in the course pilot, run 3, 2026-10-16, A/Bs `ab-20261016-211419-07937b`,
-`ab-20261016-212745-2c14fb`, and `ab-20261016-214636-c8b3c4` (ticket `F1-trap`, effort medium), and
-run 4, effort low, 2026-10-16, A/Bs `ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, and
-`ab-20261016-234639-4a18bd`. Runs failing the primary measure (`r1_new_violations >= 1`), per arm (the
-run ids are in [demo/README.md](demo/README.md), section 7):
+| Section | Run 3 (medium) | Run 4 (low) | Class-profile round (low, Fast) | Result |
+|---|---|---|---|---|
+| F1 (S1) | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference |
+| F2 (S2) | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference |
+| F3 (S3) | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 | no measurable difference |
+| F4 (S4) | 0/3, 0/3 | not run | 0/1, 0/1 | no measurable difference (both arms fail) |
 
-| Run | Bare arm | Harness arm |
-|---|---|---|
-| 3 | 0 of 3 | 0 of 3 |
-| 4, effort low | 0 of 3 | 0 of 3 |
+The course pre-registered a gate: the harness arm ahead in at least three of four sections. It
+passed in none, so the planned experiments (batches of 10 runs per arm and a leave-one-out ablation)
+were not run, and every section is reported as no measurable difference on this task with this
+model.
 
-Every arm had 0 new R1 violations and 52 of 52 hidden tests; the legacy `/v1` handler was not copied
-into a leak. No measurable difference on this task with this model (course pilot, runs 3 and 4).
+### Post hoc: what else the F1 arms did
 
-[[PENDING: class decision for S1 (class task as decided after pilot run 3) | source: M6 pilot | how: course pilot (build repository)]]
+Chosen after the results were known, so descriptive only, over 10 runs per arm (runs 2, 3, and 4 and
+the console check): harness arms claimed done in 5, bare arms in 9, and no claim was false in either
+arm; median cost per arm $0.0122 against $0.0103; median arm wall time 168 s against 177 s; neither
+arm hit the agent time limit.
 
-The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
+### What class showed instead
 
-[[PENDING: batch 1 dots for F1 canonical, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: uv run shipharness report]]
-
-[[PENDING: ablation result for the leave-out-instructions configuration (all minus instructions) | source: M8 ablation | how: uv run shipharness report]]
-
-Pilot runs 3 and 4 showed no gap on S1. The course pre-registered how such a result is reported: as
-no measurable difference on this task with this model, shown with the live A/B, the dots, and a
-discussion of why.
+With no gap to demonstrate, S1 showed the harness arm alone at work (`make show-1`: it reads the map,
+then the documents the ticket needs), a real run, replayed (pilot run 3, F4, A/B
+`ab-20261016-212252-aa1644`: the harness arm, which had the map, added 3 new R1 violations, and the
+referee caught them), and a constructed example (`make example-1`: a scripted cross-org leak that the
+R1 check and the board's ⚠ marks show). The replay makes the section's point: the map is a bet on
+what the model will miss, and only a measure such as the referee's R1 check tells you whether it paid
+off.
 
 ---
 
 ## 4. Common questions
 
-**The bare arm passed without a map. Does the map do nothing?**
-On the canonical ticket the ticket itself pointed to the handbook, so both arms had the rules in
-context (section 3). The A/B measures the map only on tickets that do not do that work for it. That
-is why the pre-registered next task was the trap variant, and why "what did each arm read before it
-wrote the query?" is the question for the discussion. On the trap variant both arms also passed 3 of
-3, in pilot runs 3 and 4 (section 3).
+**The harness did not win. Was it useless?**
+On this model and these tickets the map changed nothing the referee measures: no measurable
+difference (section 3). That is a result about one assumption, not a verdict on maps. A3 asks for
+exactly this test, "those assumptions are worth stress testing" (A3, F-a-124), and dropped one of its
+own pieces, context resets, once its model no longer needed them (A3, F-a-69). The pilot also did
+not measure A1's maintenance reasons for a map: one large file goes stale and cannot be checked
+mechanically (A1, F-a-25, F-a-26). On your own repository, keep the map where a measure on your model
+shows it earns its place, or for the maintenance reasons, and say which.
 
 **Is the harness arm not just given more information?**
 No. By course rule the harness may change how knowledge is organised and delivered, not add facts
@@ -157,7 +163,7 @@ Both, on different questions. The referee's R1 check is the pre-registered prima
 design after A3's separate evaluator (A3, F-a-110), is a secondary measure; in
 `ab-20261016-183644-0036f0` it objected to how both arms handled an archived project passed as
 `project_id`, said `tenant_isolation_risk: none`, and the hidden tests passed 52 of 52 in both arms
-([demo/README.md](demo/README.md), section 7).
+([demo/README.md](demo/README.md), section 10).
 
 **Does the files-read map on screen 3 prove the harness worked?**
 No. It shows which documents each arm opened with `read_file`, which helps explain a result. The
@@ -165,7 +171,7 @@ score is what the referee finds in the shipped code. Reads through `run` (for ex
 appear.
 
 **Why counts and not percentages?**
-It is a course rule: every run is a dot, and results are counts such as 9/10. With k=3 or k=10, a
+It is a course rule: every run is a dot, and results are counts such as 3/3. With k=1 or k=3, a
 percentage hides how few runs there are.
 
 ---

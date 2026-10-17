@@ -548,18 +548,16 @@ same score on every run.
 | The A/B (the live step): 8 tasks x 2 arms x k=3 = 48 runs | at most $2.50 for A1 (the course budget); the command stops cleanly at `MAX_BATCH_COST_USD` ($2.50, `src/shipharness/config/settings.py`) | 2 per run (the agent run and the referee's evaluation): 96, within A1's 150 |
 
 The course budget for all four assignments is at most $6 of OpenAI usage and 400 LangSmith traces.
-The course has not yet run this command end to end; the reference solution's run will give the
-measured values:
 
-[[PENDING: measured cost per run and total cost of the A1 A/B on section-1, k=3 | source: M6 pilot | how: uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
+The course has not run this command end to end: the reference solution's live run was not captured.
+So there is no measured total cost or wall time for it; your own `Cost:` line is the first. What the course did
+measure, in its pilot: 22 F1 arm runs of `shipharness ab` (11 A/Bs: runs 2, 3, and 4, the live
+console check, and the class-profile round) cost between $0.0051 and $0.0151 per run (score
+records; run ids in [../demo/README.md](../demo/README.md), section 10). The class-profile round used
+the Fast tier, which costs twice the Standard rate per token. Those were runs of one task with
+`shipharness ab`, not the `experiments` command over eight tasks.
 
-[[PENDING: wall time of the A1 A/B command | source: M8 batch 1 | how: time uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference]]
-
-The course plans a fallback: if the pilot measures more than $0.05 per run, the assignment subset
-drops to 4 tasks, and the course publishes the replacement command here. A first data point, measured
-in the course pilot, run 2, 2026-10-16: each of the six F1 canonical arm runs cost between $0.011580
-and $0.013504 (score records; run ids in [../demo/README.md](../demo/README.md), section 7). Those
-were `shipharness ab` runs, not the `experiments` command, so the decision waits for the measurement
-above.
-
-[[PENDING: whether the measured per-run cost triggers the 4-task fallback, and the replacement command | source: M6 pilot | how: course pilot (build repository)]]
+The course's fallback rule was: if the pilot measured more than $0.05 per run, the subset would drop
+to 4 tasks. No F1 arm run came near that, so the subset stays at 8 tasks and the command in this
+brief is the one to run. Whatever a run costs, the command stops cleanly at `MAX_BATCH_COST_USD`
+($2.50).

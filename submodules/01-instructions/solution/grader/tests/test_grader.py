@@ -45,14 +45,11 @@ def test_the_criteria_total_100_points() -> None:
         assert sum(i.points for i in items if i.criterion == criterion) == pytest.approx(total)
 
 
-def test_the_reference_solution_scores_100_when_pending_markers_are_allowed() -> None:
-    items = grade.grade(SOLUTION_WORK, allow_pending=True)
-    assert [(i.name, i.note) for i in items if i.earned < i.points] == []
-    assert points(items) == 100
-
-
-def test_without_pending_markers_the_reference_loses_only_ab_and_live_points() -> None:
-    items = grade.grade(SOLUTION_WORK)
+@pytest.mark.parametrize("allow_pending", [False, True])
+def test_the_uncaptured_reference_loses_only_ab_and_live_points(allow_pending: bool) -> None:
+    # The reference live run was not captured (owner scope, 2026-10-17), and the reference holds no
+    # pending markers, so --allow-pending changes nothing.
+    items = grade.grade(SOLUTION_WORK, allow_pending=allow_pending)
     lost = {i.name for i in items if i.earned < i.points}
     live = {"live-files", "live-command", "live-caps", "live-tree", "live-report"}
     assert lost == {"report-command", "report-results", "report-links", "report-cost"} | live
@@ -100,7 +97,7 @@ def test_main_prints_each_criterion_and_the_score(capsys: pytest.CaptureFixture[
     out = capsys.readouterr().out
     for criterion in grade.CRITERIA:
         assert criterion in out
-    assert out.strip().splitlines()[-1] == "Score: 100.0/100"
+    assert out.strip().splitlines()[-1] == "Score: 83.0/100"
 
 
 def test_min_score_turns_a_low_score_into_exit_1() -> None:

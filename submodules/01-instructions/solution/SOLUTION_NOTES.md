@@ -37,10 +37,10 @@ the sources.
    alternate checkpoints, and the trap variant; `datasets/teamtrack-features-v1.jsonl`), and the
    measures are R1 and R3. Its description is the only part loaded up front (B1, F-b-05); the steps
    and `references/tests.md` load when the skill is used.
-6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and it
-   has not been captured yet: the report (`work/ab-report.md`) carries pending markers for its
-   values, and `work/live/README.md` holds the exact commands and the pending marker where the
-   captured files go.
+6. **The A/B** is the command in the brief with `--batch a1-reference`. It is the live step, and the
+   reference live run was not captured: the owner's FOCUS instructions of 2026-10-17 required a real
+   captured live run for A3 and A4 only. The report (`work/ab-report.md`) says so in place of each
+   value, and `work/live/README.md` says why and keeps the exact commands.
 
 ## Design choices
 
@@ -74,8 +74,9 @@ the sources.
   fault, so an empty tree or a checker that reports nothing scores near zero (the starter scores 1.8).
 - **Report graded by structure.** The brief forbids re-running models in grading. The structure
   checks enforce what DESIGN §8.3 asks of every A/B: counts, not percentages, one primary measure
-  (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` exists only so the reference can
-  reach 100 before its live run is captured; learners are graded without it.
+  (R1, DESIGN §8.2) reported per arm, the budget. `--allow-pending` accepts well-formed pending markers in
+  place of A/B values and live evidence; the reference holds none (its live run was not captured), so
+  the flag does not change its score, and learners are graded without it.
 - **The A/B is the required live step** (course design, owner decision). The learner submits what
   the run wrote: the experiment exports, the ScoreRecord of every run (`exports/scores/`), the
   harness arm's run logs, and the command with its output. `assignment/live_evidence.py` collects
@@ -140,10 +141,10 @@ the sources.
   `[text][label]` with no definition is not reported.
 - The hidden-case outcome lists failing case names in the grader output, which hints at the area of
   a bug without showing the fixture.
-- The reference A/B (the live step) has not been run yet. The integrator captures it tonight; the
-  one pending marker for it, with the exact commands, is in
-  [work/live/README.md](work/live/README.md). Its R1 and R3 counts, cost, wall time, and trace count
-  then go into `work/ab-report.md` from `ab_summary.py`.
+- The reference A/B (the live step) was not run: the owner's FOCUS instructions of 2026-10-17
+  required a real captured live run for A3 and A4 only. So the reference has no measured R1 and R3
+  counts, cost, wall time, or trace count, and scores 83 of 100. The commands that would capture it
+  are in [work/live/README.md](work/live/README.md).
 
 ## Captured output
 
