@@ -1,4 +1,4 @@
-# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` at commit e7287f4 (offline: no model calls, no containers); your output will differ
+# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` at commit 65d70a0 (offline: no model calls, no containers); your output will differ
 $ make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution
 uv run python scripts/grade_assignment.py 3 "submodules/03-scope-sandbox/solution"
 A3 grade: submodules/03-scope-sandbox/solution
@@ -18,13 +18,11 @@ A3 grade: submodules/03-scope-sandbox/solution
       passes with the rule (4)                             yes
       fails with the rule removed (4)                      yes
       uses check_command or PolicySandbox (2)              yes
-  6 Live A/B evidence (live/)                                     0.0 / 10
-      evidence valid (6)                                    no
-      verdicts reproduced by your policy (4)                no
-        - no live/ folder at submodules/03-scope-sandbox/solution/live
-  Total                                                          90.0 / 100
-  Every out-of-scope diff rejected: yes; zero false positives: yes; live evidence valid: no
-Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
+  6 Live A/B evidence (live/)                                    10.0 / 10
+      evidence valid (6)                                   yes
+      verdicts reproduced by your policy (4)               yes
+  Total                                                         100.0 / 100
+  Every out-of-scope diff rejected: yes; zero false positives: yes; live evidence valid: yes
+Result: PASS (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
 grading assignment 3: submodules/03-scope-sandbox/solution
-make: *** [Makefile:141: grade-assignment-3] Error 1
-(exit code 2)
+(exit code 0)

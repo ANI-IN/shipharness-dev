@@ -1,6 +1,7 @@
 # Case study: making "deleted means gone" a checked rule
 
-Reference version. Numbers from model runs are `[[PENDING]]` until the instructor's run.
+Reference version. The run numbers come from the reference solution's live run, captured on
+2026-10-17 (`../live/`).
 
 ## Problem
 
@@ -34,13 +35,14 @@ legacy `/v1/issues` handler already shows the failure: it lists deleted issues t
   (`../captured/grade-solution.txt`).
 - On TeamTrack itself R8 makes 15 probes and finds one violation, the legacy list
   (`evidence-report.md`, "R8 on TeamTrack").
-- Testgen on `app/repositories/issues.py`:
-
-[[PENDING: kept and discarded counts from the testgen run, and how many kept tests filter 6 removed | source: M6 pilot | how: commands in evidence-report.md, "Commands"]]
-
-- The live A/B on F4, bare against the demo-4 layers (`langsmith.md`):
-
-[[PENDING: per-arm hidden tests passed and mutants killed from the two score records of the F4 A/B | source: M6 pilot | how: uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview]]
+- Testgen on `app/repositories/issues.py` (run `r-20261017-093940-52dde8`, $0.003287) proposed 5
+  tests and kept 1; filter 3 discarded the other 4: no new coverage and no mutant kill over the
+  existing suite. Filter 6 removed none: the kept test copies none of the 23 existing tests
+  (`evidence-report.md`, "Results" and "Filter 6 on the kept tests").
+- The live A/B on F4 (`ab-20261017-094339-3b29e3`, `langsmith.md`): the bare arm passed 68 of 69
+  hidden tests and killed 4 of 4 referee mutants; the harness arm (demo-4 layers) stopped on a
+  timeout with 43 of 69 and 0 of 4. Neither passed the primary measure, and one run per arm is an
+  example, not a rate.
 
 ## What I learned
 

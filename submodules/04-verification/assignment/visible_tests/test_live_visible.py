@@ -10,12 +10,7 @@ from pathlib import Path
 
 import a4_live as live  # a module import: pytest must not collect `testgen_*` names as tests
 import pytest
-from a4_support import REPO, reference_mode
-
-
-def _pending(impl: Path) -> bool:
-    """The reference solution holds a [[PENDING]] marker until its live run is captured."""
-    return reference_mode() and live.pending_only(impl)
+from a4_support import REPO
 
 
 def _check(problems: list[str]) -> None:
@@ -24,26 +19,21 @@ def _check(problems: list[str]) -> None:
 
 @pytest.mark.criterion("live-evidence")
 def test_live_testgen_run(impl_path: Path) -> None:
-    if not _pending(impl_path):
-        _check(live.testgen_run_problems(impl_path))
+    _check(live.testgen_run_problems(impl_path))
 
 
 @pytest.mark.criterion("live-evidence")
 def test_live_testgen_report_shows_filter_6(impl_path: Path) -> None:
-    if not _pending(impl_path):
-        _check(live.filter6_problems(impl_path))
+    _check(live.filter6_problems(impl_path))
 
 
 @pytest.mark.criterion("live-evidence")
 def test_live_ab_command_and_cost(impl_path: Path) -> None:
-    if not _pending(impl_path):
-        _check(live.ab_run_problems(impl_path))
+    _check(live.ab_run_problems(impl_path))
 
 
 @pytest.mark.criterion("live-evidence")
 def test_live_ab_score_records(impl_path: Path) -> None:
-    if _pending(impl_path):
-        return
     sha = live.course_checkpoint_sha(REPO)
     missing = [] if sha else [f"the course repo has no {live.AB_CHECKPOINT} tag: git fetch --tags"]
     _check(missing + live.score_record_problems(impl_path, sha))

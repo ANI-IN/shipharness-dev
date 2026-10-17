@@ -1,23 +1,22 @@
 # live
 
 Live evidence of the reference solution, in the layout every submission uses (brief:
-`../../assignment/README.md`, "Live step"). The captured files replace the marker below. Until
-then the grader accepts the marker for this folder only (`pending_only` in
-`assignment/visible_tests/a4_live.py`); for any other folder a missing file fails the
-`live-evidence` criterion. The portfolio files that report this run hold markers too, which the
-grader also accepts for this folder only. So 20 of the reference solution's 100 points rest on
-markers, not on real evidence: live-evidence (10) and the three portfolio criteria (5 + 2 + 3; see
-`../SOLUTION_NOTES.md`, "Known limits"). The integrator records the run and then removes that
-special case.
+`../../assignment/README.md`, "Live step"). Two runs, both captured on 2026-10-17: the testgen run
+`r-20261017-093940-52dde8` with filter 6 applied to its report, and the F4 A/B
+`ab-20261017-094339-3b29e3`. The grader validates these files the same way as a learner's
+(`assignment/visible_tests/a4_live.py`) and re-runs nothing; `../portfolio/` reports what they show.
 
-| File | What goes in it |
+| File | What it holds |
 |---|---|
-| `testgen.txt` | `$ <testgen command>`, then everything the command printed, `Cost:` line included |
-| `testgen-report.json` | `.shipharness/a4/testgen/testgen-report.json` after `apply_filter --update-report` |
-| `ab.txt` | `$ <ab command>`, then everything the command printed, `Cost:` line included |
-| `scores/<run_id>.json` | The two ScoreRecords of that A/B, copied from `exports/scores/` |
+| `testgen.txt` | captured on 2026-10-17, run `r-20261017-093940-52dde8`: `$ <testgen command>`, then everything the command printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests" |
+| `testgen-report.json` | captured on 2026-10-17, run `r-20261017-093940-52dde8`: `.shipharness/a4/testgen/testgen-report.json` after `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept test, 23 existing tests) |
+| `ab.txt` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: `$ <ab command>`, then everything the command printed (the A/B line, one line per arm, the `Cost:` line) |
+| `scores/r-20261017-094339-1abebd.json` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: the bare arm's ScoreRecord, copied from `exports/scores/` |
+| `scores/r-20261017-094339-f5e6af.json` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: the harness arm's ScoreRecord, copied from `exports/scores/` |
 
-Commands (from the repository root; keys in `.env`; Docker running for the A/B):
+The commands that produced them (from the repository root; keys in `.env`; Docker running for the
+A/B). The testgen command runs without `--image`, so its tests ran on the host and it printed an
+UNSANDBOXED warning (first lines of `testgen.txt`).
 
 ```
 L=submodules/04-verification/solution/live
@@ -37,7 +36,6 @@ grep -l "\"ab_id\": \"$AB\"" exports/scores/*.json | xargs -I{} cp {} $L/scores/
 uv run python submodules/04-verification/solution/grader/grade.py
 ```
 
-Then remove the marker, fill the `[[PENDING]]` sections of `../portfolio/` from these files, and
-recapture `../captured/grade-solution.txt`.
-
-[[PENDING: captured live run of the reference solution (testgen with filter 6, then the F4 A/B) | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; apply_filter --update-report as above; uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview; files to live/testgen.txt, live/testgen-report.json, live/ab.txt, live/scores/<run_id>.json]]
+What `apply_filter` printed is not kept here; its result is in the report (the filter-6 row and
+`filter6`). A new capture replaces all five files at once, then the run sections of
+`../portfolio/` and `../captured/grade-solution.txt` are updated from them.

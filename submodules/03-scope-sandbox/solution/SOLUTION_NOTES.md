@@ -203,17 +203,16 @@ commit it was captured at. `make` exits 2 whenever the script it runs exits non-
 | File | Command | Captured | Result |
 |---|---|---|---|
 | `check-starter.txt` | `make check-assignment-3` | 2026-10-17, 61ec849 | every part FAIL, script exit 1 |
-| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, 61ec849 | every row ok, live row `missing`, exit 0 |
+| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | every row ok, live row `ok`, exit 0 |
 | `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17, e7287f4 | 0.0 / 100, FAIL |
-| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, e7287f4 | 90.0 / 100, FAIL |
+| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | 100.0 / 100, PASS |
 | `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
 
-The 90.0 / 100 and `Result: FAIL` on the reference solution are expected until its live run is
-captured: criterion 6 (live A/B evidence, 10 points) scores 0 without `solution/live/`, and valid
-live evidence is a pass condition. The capture and the regrade are one step, recorded in
-[README.md](README.md), "Captured live run of this solution".
-
-[[CAPTURE: make grade-assignment-3 result on the reference solution after its live run is captured (score and Result line), to replace the 90.0 / 100 FAIL row above | how: make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution]]
+The reference solution scores 100.0 / 100 with `Result: PASS` on its captured live run (A/B
+`ab-20261017-092810-d5d31c`, captured on 2026-10-17 into `solution/live/`): criterion 6 (live A/B
+evidence, 10 points) is 10 / 10, graded like any submission's `live/`. Before that capture it
+scored 90.0 / 100 with `Result: FAIL`, because valid live evidence is a pass condition. The run is
+described in [README.md](README.md), "Captured live run of this solution".
 
 ## Live step: design choices
 

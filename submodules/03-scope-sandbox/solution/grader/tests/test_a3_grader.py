@@ -79,6 +79,17 @@ def test_solution_grade_scores_the_live_evidence(solution_grade) -> None:  # typ
     assert "6 Live A/B evidence" in done.stdout
 
 
+def test_reference_solution_passes_on_its_captured_live_run(tmp_path: Path) -> None:
+    """The committed solution/live/ is a real A/B captured on 2026-10-17, graded as it is."""
+    done, result = grade(SOLUTION, tmp_path)
+    assert done.returncode == 0, done.stdout + done.stderr
+    assert result["total"] == 100.0
+    assert result["passed"] is True
+    assert result["live"]["evidence_problems"] == []
+    assert result["criteria"]["live"]["checks"] == {"evidence": True, "verdicts": True}
+    assert "Result: PASS" in done.stdout
+
+
 def test_missing_live_evidence_fails_the_named_criterion(tmp_path: Path) -> None:
     done, result = grade(copy_solution(tmp_path, live=False), tmp_path)
     assert done.returncode == 1

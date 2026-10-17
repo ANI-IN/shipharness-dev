@@ -8,19 +8,18 @@ Reference solution and hidden grader for assignment A4 (brief: `../assignment/RE
 | `a4_verification/` | Reference R8 check, soft-delete adapter, filter 6, and the two CLIs |
 | `tests/` | The reference solution's own tests (27 collected test cases) |
 | `skill/testgen-evidence/` | Example learner skill with a report-summary script |
-| `portfolio/` | Example evidence report, LangSmith page, and case study (model-run output is `[[PENDING]]`) |
-| `live/` | Live evidence of the reference solution: exact commands and one `[[PENDING]]` marker until the integrator captures the run (M6 pilot) |
+| `portfolio/` | Example evidence report, LangSmith page, and case study, filled from the live run in `live/` |
+| `live/` | Live evidence of the reference solution, captured on 2026-10-17 (testgen run `r-20261017-093940-52dde8`, F4 A/B `ab-20261017-094339-3b29e3`), and the commands that produced it |
 | `grader/grade.py` | `make grade-assignment-4`: visible + hidden tests, score out of 100 |
 | `grader/hidden_tests/` | Hidden seeded violations and hidden candidate tests (never in the starter) |
-| `grader/tests/` | Tests for the grader, the self-check, and the live-evidence checks (synthetic fixture in `live_fixture.py`, never a real run) |
+| `grader/tests/` | Tests for the grader, the self-check, the live-evidence checks, and the portfolio checks (synthetic fixture in `live_fixture.py`, never a real run; the reference solution's own `live/` and `portfolio/` are graded as they are) |
 | `captured/` | Real output of the self-check, the grader, and R8 on TeamTrack (each file starts with its capture date, command, and commit) |
 
 Run the grader on this folder: `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution`
-(or `uv run python submodules/04-verification/solution/grader/grade.py`). Its 100/100 includes 20
-points that pass on `[[PENDING]]` markers, not on a real run: live-evidence (10) on the `live/`
-marker, and portfolio-evidence (5), portfolio-langsmith (2), and portfolio-case-study (3) on the
-portfolio markers (SOLUTION_NOTES.md, "Known limits").
+(or `uv run python submodules/04-verification/solution/grader/grade.py`). It scores 100/100
+(`captured/grade-solution.txt`), every criterion on real work: live-evidence (10) on the captured
+run in `live/`, and the three portfolio criteria (5 + 2 + 3) on pages filled from that run.
 Grade a submission: `uv run python submodules/04-verification/solution/grader/grade.py --impl
 <submission folder>` (the implementation folder with its `live/`, or a checkout of the course repo).
-When `--impl` is this folder, `[[PENDING]]` markers in `portfolio/` and `live/` are accepted in
-place of run output; for any other folder they fail the portfolio and live-evidence criteria.
+The grader treats this folder like any submission: a `[[PENDING]]` marker in `portfolio/` or a
+`live/` without evidence fails the portfolio and live-evidence criteria here too.

@@ -197,15 +197,9 @@ def dedup_filter(existing: list[Any] | None = None) -> Any:
 
 # --- portfolio and skill structure ---------------------------------------------------------------
 
-SOLUTION = ASSIGNMENT.parent / "solution"
 PENDING = "[[PENDING:"
 SMITH_LINK = re.compile(r"https://(?:eu\.)?smith\.langchain\.com/\S+")
 TEMPLATE_PLACEHOLDER = re.compile(r"^\s*(?:#+|-|\d+\.)?\s*<[A-Z][^>]*>")
-
-
-def reference_mode() -> bool:
-    """The reference solution may keep [[PENDING]] markers where a model run's output goes."""
-    return impl_dir() == SOLUTION.resolve()
 
 
 @dataclass(frozen=True)
@@ -256,7 +250,8 @@ def sections(text: str) -> dict[str, list[str]]:
     return out
 
 
-def doc_problems(root: Path, spec: DocSpec, reference: bool) -> list[str]:
+def doc_problems(root: Path, spec: DocSpec) -> list[str]:
+    """Structure problems of one portfolio page; a [[PENDING]] marker is one, in every folder."""
     path = root / spec.file
     if not path.is_file():
         return [f"{spec.file}: missing"]
@@ -271,18 +266,14 @@ def doc_problems(root: Path, spec: DocSpec, reference: bool) -> list[str]:
             problems.append(f"{spec.file}: section '## {heading}' is empty")
     if re.search(r"\bTODO\b", text):
         problems.append(f"{spec.file}: still contains TODO")
-    if PENDING in text and not reference:
+    if PENDING in text:
         problems.append(f"{spec.file}: replace the [[PENDING ...]] markers with your run's output")
     for needle in spec.must_contain:
         if needle not in text:
             problems.append(f"{spec.file}: does not mention `{needle}`")
-    pending_ok = reference and PENDING in text
 
     def section_has(name: str, test: re.Pattern[str]) -> bool:
-        lines = found.get(name.lower(), [])
-        return any(test.search(line) for line in lines) or (
-            pending_ok and any(PENDING in line for line in lines)
-        )
+        return any(test.search(line) for line in found.get(name.lower(), []))
 
     if spec.table_in and not section_has(spec.table_in, re.compile(r"^\|.*\|$")):
         problems.append(f"{spec.file}: section '## {spec.table_in}' has no Markdown table")

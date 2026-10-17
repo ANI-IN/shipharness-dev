@@ -94,21 +94,18 @@ the live step (testgen with filter 6, and an A/B on F4), the portfolio, and the 
 - Body probes look for a top-level `issue_id` key; a nested or differently named reference
   (`parent_issue_id`) is not probed.
 - Filter 6 renames names inside nested functions in a test body along with the test's own locals.
-- The reference solution's live evidence is not captured yet, and the grader hides that. Its
-  100/100 rests on `[[PENDING]]` markers for every point the live step carries, 20 of 100 by the
-  `CRITERIA` table in `grader/grade.py`:
-  - live-evidence, 10 points (4 tests): with `--impl` set to this folder, the four tests skip their
-    checks because `live/` holds only the marker in `live/README.md` (`pending_only` in
-    `assignment/visible_tests/a4_live.py`, `_pending` in `test_live_visible.py`);
-  - portfolio-evidence (5), portfolio-langsmith (2), portfolio-case-study (3): in reference mode
-    (`reference_mode` in `assignment/visible_tests/a4_support.py`) a marker line stands in for the
-    results table and the LangSmith link, the "replace the markers" problem is not raised, and the
-    trace-link check against the score records is skipped.
-
-  So `captured/grade-solution.txt` shows 100/100, but only 80 points are earned on real work. This
-  special case applies to the reference folder only; for any other folder a missing file or a left
-  marker fails. The grader code stays as it is until the integrator captures the real live run; the
-  integrator then removes the special case and recaptures the grade.
+- The reference solution's live evidence is one testgen run and one F4 A/B at k=1, captured on
+  2026-10-17 (`live/README.md`). In that A/B the harness arm stopped with `ABORTED: timeout` (43 of
+  69 hidden tests, 0 of 4 referee mutants, no shipped test) and neither arm passed the primary
+  measure (`portfolio/langsmith.md`). The live-evidence criterion grades the files, not the
+  outcome, so the reference earns its 10 points on them; the run is an example of the evidence,
+  not a result about the harness.
+- No criterion rests on a `[[PENDING]]` marker. Until 2026-10-17 the grader accepted markers for
+  this folder only (`pending_only` in `a4_live.py`, `reference_mode` in `a4_support.py`), so 20
+  of its 100 points were not earned on real work. That special case is removed: the visible tests
+  and the self-check no longer name this folder, and `grader/tests/test_live.py` and
+  `grader/tests/test_portfolio.py` check that a marker fails the live-evidence and portfolio
+  criteria for every folder, and that this folder passes them on its captured run.
 
 ## Hidden tests (reveal in the Thursday review)
 
@@ -150,30 +147,32 @@ a committed mutation check of the grader is an open item.
 
 ## Captured output
 
-Real output, no model calls, captured on 2026-10-17 at commit 155dc77, each command run once.
-Each text file starts with the label "captured on 2026-10-17 from `<command>` at commit 155dc77
-(no model calls); your output will differ", then `$ <command>`, then everything `make` printed and
-the exit code. The integrator re-runs these commands once the live run is in `live/`:
+Real output, no model calls, each command run once. Each text file starts with the label
+"captured on 2026-10-17 from `<command>` at commit <sha> (no model calls); your output will
+differ", then `$ <command>`, then everything `make` printed and the exit code. The two solution
+files were captured again at commit 65d70a0, after the live run went into `live/` and the
+marker special case was removed; the starter files are from commit 155dc77 (that change does not
+touch what the starter scores).
 
-| File | Command | Result |
-|---|---|---|
-| `captured/self-check-starter.txt` | `make check-assignment-4` | 2 of 23 visible tests pass, every failure names its TODO, 32 TODO markers listed; `check.py` exits 1, so `make` exits 2 |
-| `captured/self-check-solution.txt` | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23; the four live-evidence tests and the three portfolio tests pass on `[[PENDING]]` markers (see "Known limits") |
-| `captured/grade-solution.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, of which 20 points (live-evidence 10, portfolio 5 + 2 + 3) pass on markers, not on a real run (see "Known limits") |
-| `captured/grade-starter.txt` | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
-| `captured/r8-teamtrack.json` | `PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
+| File | Commit | Command | Result |
+|---|---|---|---|
+| `captured/self-check-starter.txt` | 155dc77 | `make check-assignment-4` | 2 of 23 visible tests pass, every failure names its TODO, 32 TODO markers listed; `check.py` exits 1, so `make` exits 2 |
+| `captured/self-check-solution.txt` | 65d70a0 | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23, the four live-evidence tests and the three portfolio tests on the captured run |
+| `captured/grade-solution.txt` | 65d70a0 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, every criterion on real work (no marker accepted) |
+| `captured/grade-starter.txt` | 155dc77 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
+| `captured/r8-teamtrack.json` | 155dc77 | `PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
 
 `make grade-assignment-4` runs `grade.py` through `scripts/grade_assignment.py`, which passes the
-absolute folder (hence `A4 grade for /home/ani/wt/f04/...`) and adds a `grading assignment 4:
+absolute folder (hence `A4 grade for /home/ani/wt/<worktree>/...`) and adds a `grading assignment 4:
 <folder>` line.
 
-## Live step and model-run parts (pending)
+## Live step and model-run parts
 
-The live step of the brief applies to this folder too. `live/README.md` lists the exact commands
-and holds the one marker where the captured files go; the integrator records the run after the
-pilot (no date set yet). Until then the live-evidence tests accept the marker for this folder only
-(`pending_only` in `assignment/visible_tests/a4_live.py`, the same rule as the portfolio markers).
-Once the files are there, they are validated like any submission's.
+The live step of the brief applies to this folder too. The run was captured on 2026-10-17:
+testgen run `r-20261017-093940-52dde8` ("kept 1 of 5 proposed tests", `Cost: $0.003287 (testgen,
+model gpt-6-luna)`) and the F4 A/B `ab-20261017-094339-3b29e3` (cost line `Cost: $0.042138`, both
+arms' records in `live/scores/`). `live/README.md` lists the files and the commands that produced
+them; the files are validated like any submission's.
 
 How the grader reads "filter 6 in the pipeline": `shipharness testgen` runs filters 1-5 and writes
 their rows to `testgen-report.json`; it has no option to add a filter (`src/shipharness/testgen/`).
@@ -189,9 +188,11 @@ Why the F4 A/B replaces the section-4 experiment: by the caps, the A/B (two runs
 reviews at $0.04) costs at most $0.48 and the live step at most $0.68, inside the A4 plan of $1.75
 (DESIGN §11.5); the experiment's per-command cap alone ($2.50) was above that plan.
 
-Model-run output is still pending in `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
-`portfolio/case-study.md`; each holds its own marker and is filled from the files of the live run
-above (marker in `live/README.md`).
+The run sections of `portfolio/evidence-report.md`, `portfolio/langsmith.md`, and
+`portfolio/case-study.md` are filled from those files: counts, run ids, `trace_url` values, and
+cost lines as the files hold them. What the A/B shows: the bare arm passed 68 of 69 hidden tests
+and killed 4 of 4 referee mutants; the harness arm stopped with `ABORTED: timeout` after 43 turns
+with 43 of 69 and 0 of 4 and no shipped test; neither passed the primary measure.
 
 What pilot run 2 says about the F4 A/B in the live step (VERIFICATION.md, M6 pilot run 2): both
 arms failed the primary measure in all three F4 A/Bs. The bare arm killed 3, 4, 3 of 4 referee
@@ -212,8 +213,9 @@ The live A/B command carries `--purpose assignment`. Without it `shipharness ab`
 purpose, which refuses to start unless `SHIPHARNESS_CLASS_DATE` is set and otherwise traces into
 the class project (`_trace_target` in `src/shipharness/ab/commands.py`). `ab_run_problems` in
 `a4_live.py` requires it, and parses the cost line in the form `cost_line` prints today (with the
-`; build $X of $15.00 ($Y left)` part, which the first version of the check rejected); both are
-covered in `grader/tests/test_live.py`.
+`; build $X of $15.00 ($Y left)` part, which the first version of the check rejected). The A/B
+line may end with `, profile=<name>`, which `shipharness ab` prints since 2026-10-17 and the real
+capture has (78df3f5). All three are covered in `grader/tests/test_live.py`.
 
 ## Make targets
 
