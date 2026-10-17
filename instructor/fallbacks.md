@@ -95,7 +95,18 @@ On the machine that ran the pilot, each class command was first run once under l
 complete run of the exact class command. The under-load `make show-2` ran the task's 20/30 budget,
 not the class command `make show-2 SESSION_BUDGET=12,38`, so it cannot be the S2 fallback.
 
-FALLBACK_TABLE
+| Command | Fallback (first complete run of the exact command) | Quiet run (class timings) |
+|---|---|---|
+| `make show-1 PURPOSE=pilot` | `ab-20261017-092810-c7fc7c` (under load: completed, primary pass, hidden 52/52, $0.0218) | `ab-20261017-112101-c5d839`: completed, primary pass, hidden 52/52, mutants 2/4; $0.0179 + $0.0019 review; exit 0 |
+| `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot` | `ab-20261017-113213-fe89a3` (the quiet run; the under-load `ab-20261017-093841-16d332` ran 20/30) | the same run: agent time limit in session 2, primary pass, hidden 56/56, mutants 0/4; $0.0268 + $0.0027 review; exit 2 |
+| `make show-3 PURPOSE=pilot` | `ab-20261017-095024-99bb7e` (under load: agent time limit in the test phase, primary pass, hidden 49/49, $0.0169) | `ab-20261017-114259-b64f54`: completed, primary pass, hidden 49/49, mutants 4/4; $0.0142 + $0.0030 review; exit 0 |
+| `make show-4 PURPOSE=pilot` | `ab-20261017-100107-4c2be8` (under load: agent time limit, primary fail, hidden 65/69, $0.0251) | `ab-20261017-115138-c45d9d`: claimed done, gate passed, agent time limit in the test phase, primary fail, hidden 68/69, mutants 0/4; $0.0233 + $0.0032 review; exit 2 |
+| `make final FEATURES=F5 PURPOSE=pilot` | `ab-20261017-101037-8e6924` (under load: both arms hit the agent time limit; hidden 46/46 both; mutants 1/3 bare, 3/3 harness; $0.0329) | `ab-20261017-120323-c97138`: bare completed, harness agent time limit; hidden 46/46 and mutants 2/3 in both; $0.0456 for the command; exit 2 |
+| `make final FEATURES=F6 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+| `make final FEATURES=F7 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+
+Under-load figures are from VERIFICATION.md, "Live command check under load"; quiet-run figures are
+from the runs' own result lines (captured on 2026-10-17).
 
 On another class host, record its own fallbacks on T-1 with the steps above; these ids are this
 machine's.

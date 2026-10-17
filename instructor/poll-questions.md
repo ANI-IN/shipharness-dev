@@ -189,5 +189,5 @@ features one after another. The final has no pre-registered primary measure; eve
 **What to compare it with.** The pilot ran no F5-F7 A/B, and the experiment batch that would have
 covered them (M8) was not run because the pre-registered gate did not pass. Tonight's final is one dot
 per arm: read its hidden-test and mutant counts against the section results on the all-results slide,
-never as a verdict on its own. The course's one earlier F5 A/B is the class-profile recording listed in
-[fallbacks.md](fallbacks.md).
+never as a verdict on its own. The course's earlier F5 A/Bs (the check under load and the quiet run on 2026-10-17)
+are listed in [fallbacks.md](fallbacks.md).

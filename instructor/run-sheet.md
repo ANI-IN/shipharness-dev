@@ -133,7 +133,7 @@ ran on T-1 (instructor guide, stage 1); run it again here, it takes seconds when
 | Step | Command | Expect |
 |---|---|---|
 | 1. Environment | `make doctor` | Every line `+ ok`, last line `result: + ready`. Fix anything marked `x` (see failure modes below) |
-| 2. Warm-up | `make warm` | Last line `warm: done (<seconds> s)`. In the class-profile round the second run took 1.2 s (the first, with an image rebuild, 407 s; VERIFICATION.md, "Class-profile round"). A line starting with `x` is a failed step |
+| 2. Warm-up | `make warm` | Last line `warm: done (<seconds> s)`. In the class-profile round the second run took 1.2 s (the first, with an image rebuild, 407 s; VERIFICATION.md, "Class-profile round"); before the quiet runs on 2026-10-17 it ended `warm: done (140.6 s)`, again with an image rebuild. A line starting with `x` is a failed step |
 | 3. Console | `make console` in terminal A (leave it running) | `Console: http://127.0.0.1:8765/` |
 | 4. Browser | Open `http://127.0.0.1:8765/` | The runs list and the key legend |
 | 5. Fallbacks present | `ls .shipharness/runs/<id>/ab.json` for each fallback in [fallbacks.md](fallbacks.md) | One file per id |
@@ -259,7 +259,19 @@ The class commands themselves were timed on 2026-10-17 on a quiet machine, one c
 after `make warm`, with `PURPOSE=pilot` and the class profile (the quiet runs; `real` is the shell's
 `time` of the whole command; the console captured screens 1 and 2 every minute):
 
-QUIET_TABLE
+| Command | Run | Launch to primary verdict | Launch to full verdict | Whole command (`real`) | Exit | Result | Cost: arm + review |
+|---|---|---|---|---|---|---|---|
+| `make show-1` | `ab-20261017-112101-c5d839` | 4:11 | 10:00 | 10 min 14 s | 0 | completed, claimed done; primary pass (0 new R1); hidden 52/52, mutants 2/4 | $0.0179 + $0.0019 |
+| `make show-2 SESSION_BUDGET=12,38` | `ab-20261017-113213-fe89a3` | 6:46 | 9:52 | 10 min 7 s | 2 | agent time limit in session 2; primary pass (no continuity failure); hidden 56/56, mutants 0/4 | $0.0268 + $0.0027 |
+| `make show-3` | `ab-20261017-114259-b64f54` | 4:25 | 7:31 | 7 min 43 s | 0 | completed, claimed done; primary pass (0, 0); hidden 49/49, mutants 4/4 | $0.0142 + $0.0030 |
+| `make show-4` | `ab-20261017-115138-c45d9d` | 9:19 | 10:55 | 11 min 6 s | 2 | claimed done, gate passed, then the agent time limit in the test phase; primary fail; hidden 68/69, mutants 0/4 | $0.0233 + $0.0032 |
+| `make final FEATURES=F5` | `ab-20261017-120323-c97138` | bare 3:27, harness 9:48 | bare 6:50, harness 12:32 | 12 min 47 s | 2 | bare completed, claimed done; harness agent time limit, no claim; no primary measure; hidden 46/46 and mutants 2/3 in both arms | bare $0.0177, harness $0.0226; reviews $0.0053; command $0.0456 |
+
+Exit 2 means an arm was aborted at a time limit, not that the command broke. Every show run
+finished within 11 min 6 s of launch, so a run launched at section minute 3 (S4: minute 4) is
+finished before the check at minute 25. The quiet runs were slower than the class-profile round's
+harness arms on the same tasks (S1 full verdict 10:00 against 324 s); both are real, so plan for
+the slower figure.
 
 The final runs during S4, next to show-4. Launched at 2:55, it must be finished by 3:40, when the
 final block starts ([Final results and wrap-up](#final-results-and-wrap-up-340-400)). `make final`
@@ -579,7 +591,9 @@ lock and reads the calls the other command appended to the shared cost ledger (V
 change 12). Measured in the class-profile round (agents at the Fast tier, every call reported
 `fast`; reviews Standard): harness arm and review per section, F1 $0.0151 + $0.0028, F2 $0.0357 +
 $0.0041, F3 $0.0135 + $0.0031, F4 $0.0257 + $0.0040; the round's four A/Bs cost $0.1953 in total.
-The final's measured cost: FINAL_COST
+The final's measured cost: the quiet run of `make final FEATURES=F5` (2026-10-17, run
+`ab-20261017-120323-c97138`) cost $0.0456 for the command: bare arm $0.0177, harness arm $0.0226,
+both reviews $0.0053.
 
 **Check at 3:15** (during slide 59), two terminals:
 - Terminal B: the show-4 `Cost:` line. If show-4 is still running, open the demo block on its live
@@ -593,11 +607,22 @@ The final's measured cost: FINAL_COST
 |---|---|---|---|
 | Harness in action | `1` | Gate pills of the last gate: ✓ or ✗ for visible tests, existing tests, R1-R7, board, clean state, if the arm claimed done; otherwise the test phase and the "primary verdict ready" pill | "The harness runs checks the agent does not control; a failure goes back to the agent with the first three reasons." |
 | Harness in action | `3` | Filter table (tests × filters 1-5, kept or discarded with reason), mutant table, referee counters, reviewer verdict | "Filters 1 to 3 are TestGen-LLM's (B11); 4 and 5 are course filters (RESEARCH G-7). Filter 2 now re-runs each test 5 times, TestGen-LLM's 'five executions' (B11, F-b-19)." |
-| Harness in action | `2` | The board and the two-tab conflict panel: "✓ conflict detected" | "Two tabs save the same issue; the second save must get 412. The board check runs on every arm." |
+| Harness in action | `2` | The board and the two-tab conflict panel: "✓ conflict detected" | "Two tabs edit the same issue; the second save is refused with 'This issue was changed by someone else'. The board check runs on every arm." |
 | Reading the result | `1`, `3` | "Agent said" against the referee: hidden tests of 69, mutants killed of 4 | "A run passes only with all 69 hidden tests and all 4 mutants. The referee-set mutants were never visible to the filters." |
-| All results | slide 62, screen `4` | S4 row: run 3 0/3, 0/3; class round 0/1, 0/1 | "No measurable difference on this task with this model: both arms fail. In the class-profile round the bare arm claimed done with 68 of 69 hidden tests, the first such claim in any recorded run." |
+| All results | slide 62, screen `4` | S4 row: run 3 0/3, 0/3; class round 0/1, 0/1 | "No measurable difference on this task with this model: both arms fail. In the class-profile round the bare arm claimed done with 68 of 69 hidden tests, the first such claim in the pilot's records." |
 
-S4_QUIET
+What the quiet run of `make show-4` showed (captured on 2026-10-17, run `ab-20261017-115138-c45d9d`;
+your output will differ): minute 1, turn 1.15 tried to patch `app/services/errors.py` and screen 1
+showed ⊘ blocked ("outside the allowed paths"); minute 3, turn 1.31 called `finish done` and the gate
+ran with every pill ✓ (visible tests, existing tests, R1-R7, board, clean state); the harness set F4
+`passes` with its evidence and moved the exec plan to completed; minutes 4-8, the test phase wrote one
+test file and the filters ran (4 tests proposed, 1 kept: two discarded by filter 3, one by filter 2,
+"failed on run 1 of 5: assert 422 == 412"); minute 9, the agent time limit ended the run
+(`ABORTED: timeout`, exit 2) and "primary verdict ready: FAIL" came 9:19 after launch; the full
+verdict 10:55 after launch: hidden tests 68/69, mutants 0/4, reviewer reject. Screen 2: "✓ only
+own-org cards, no duplicates" and "CONFLICT DETECTED: tab B got HTTP 409". The gate passed while a
+hidden test failed: the gate never sees the hidden tests. Cost: $0.0233 for the arm, $0.0032 for the
+review.
 
 Post hoc for S4 (VERIFICATION.md, exploratory rows "All bare" and "All harness", 34 runs per arm):
 no done claim came with failing hidden tests in either arm (0 of 19 bare, 0 of 10 harness), and

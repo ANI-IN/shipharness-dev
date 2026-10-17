@@ -260,7 +260,16 @@ at its caps, record the final features first.
 The course's own runs of these commands on a quiet machine, with the class profile (2026-10-17;
 your ids will differ):
 
-GUIDE_QUIET
+| Command | Run | Launch to primary verdict | Launch to full verdict | Whole command (`real`) | Exit | Result | Cost: arm + review |
+|---|---|---|---|---|---|---|---|
+| `make show-1` | `ab-20261017-112101-c5d839` | 4:11 | 10:00 | 10 min 14 s | 0 | completed, claimed done; primary pass (0 new R1); hidden 52/52, mutants 2/4 | $0.0179 + $0.0019 |
+| `make show-2 SESSION_BUDGET=12,38` | `ab-20261017-113213-fe89a3` | 6:46 | 9:52 | 10 min 7 s | 2 | agent time limit in session 2; primary pass (no continuity failure); hidden 56/56, mutants 0/4 | $0.0268 + $0.0027 |
+| `make show-3` | `ab-20261017-114259-b64f54` | 4:25 | 7:31 | 7 min 43 s | 0 | completed, claimed done; primary pass (0, 0); hidden 49/49, mutants 4/4 | $0.0142 + $0.0030 |
+| `make show-4` | `ab-20261017-115138-c45d9d` | 9:19 | 10:55 | 11 min 6 s | 2 | claimed done, gate passed, then the agent time limit in the test phase; primary fail; hidden 68/69, mutants 0/4 | $0.0233 + $0.0032 |
+| `make final FEATURES=F5` | `ab-20261017-120323-c97138` | bare 3:27, harness 9:48 | bare 6:50, harness 12:32 | 12 min 47 s | 2 | bare completed, claimed done; harness agent time limit, no claim; no primary measure; hidden 46/46 and mutants 2/3 in both arms | bare $0.0177, harness $0.0226; reviews $0.0053; command $0.0456 |
+
+Exit 2 means an arm was aborted at a time limit, not that the command broke. Use your own run ids
+in your notes.
 
 Rules for recordings: the fallback for a section is the first complete run recorded, whatever its
 result; re-running until a result looks better is forbidden. For each recording, note the id (first
@@ -428,7 +437,7 @@ diff.
 | **Commands** | 2:50 S4 poll; 2:53 final feature poll (F5 bulk close, F6 watchers, F7 labels); 2:54 terminal B `make show-4`, opened in browser tab 2; 2:55 terminal C `make final FEATURES=<winner>,<runner-up>`, opened in browser tab 4; 3:10-3:20 anchors `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; 3:15 check terminals B and C for their `Cost:` lines; 3:20-3:33 demo block on the finished show-4 |
 | **What to check** | Always pass `FEATURES`: the Makefile default is `F5,F6`. At 3:15: show-4's `Cost:` line in terminal B; in terminal C the first final feature's lines, or nothing yet (both are fine). Demo block: screen `1` gate pills or the test phase, and the `primary verdict ready` pill; screen `3` filter table, mutant table, referee counters, reviewer verdict; screen `2` the board and the two-tab conflict panel |
 | **Pass criteria** | show-4 finished before 3:20; at most two runs at once (show-4 and the final) |
-| **Expected time and cost** | S4_TIME |
+| **Expected time and cost** | Quiet run of `make show-4` (2026-10-17, run `ab-20261017-115138-c45d9d`): primary verdict 9:19 and full verdict 10:55 after launch, 11 min 6 s for the whole command, exit 2 (the agent time limit ended the test phase); $0.0233 for the arm plus $0.0032 for the review. Class-profile round, harness arm of `ab-20261017-090903-926c02`: 811 s and 927 s, the slowest of the round (its test-phase filters ran 6 tests 5 times each); $0.0257 plus $0.0040. At most $0.24 at the caps; each final feature at most $0.58 |
 | **If it fails** | show-4 as S1, with the S4 fallback recording. If show-4 is not finished at 3:15, open the demo block on its live screens. Wrong `FEATURES` started: Ctrl+C in terminal C at once and launch again. A final arm `ERROR` for an infrastructure reason: note it and use the final's fallback recording in stage 8 |
 
 **Both final features fit.** `make final` runs its features one after another, so a second feature
@@ -460,7 +469,19 @@ the class's one live A/B: one A/B is one dot, read against the pilot's results, 
 | **Expected time and cost** | 20 minutes; no new model calls. The final's own time and cost, measured with the class profile, are below the table |
 | **If it fails** | Final not finished at 3:40: walk through its live screens `1` and `2` (screen 1 shows `primary verdict ready` per arm as soon as it is known), then the all-results slide; return to its screen `4` at the end. An arm `ERROR` outside the experiment: [Replay procedure](#replay-procedure) with the recorded final |
 
-GUIDE_FINAL
+The final's quiet run, `make final FEATURES=F5` (captured on 2026-10-17, run
+`ab-20261017-120323-c97138`; your output will differ):
+
+```
+A/B ab-20261017-120323-c97138 (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
+  harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
+```
+
+Screen 1 showed the bare arm's primary verdict 3:27 and full verdict 6:50 after launch, the harness
+arm's 9:48 and 12:32; the command took 12 min 47 s and exited 2 (the harness arm hit the agent time
+limit). Launched at 2:55, one feature like this one is finished by about 3:08; two features one
+after another by about 3:21, before the final block at 3:40.
 
 `make report` is a placeholder target in this release (it prints
 `! report is available after milestones M6 and M8`); use `uv run shipharness report` after class. Its
