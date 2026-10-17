@@ -1,6 +1,6 @@
 # {{RULE_ID}} {{TITLE}}
 
-<!-- One rule per file. A house rule is the course's name for what A1 calls "golden principles" and
+<!-- One rule per file. A house rule is the course's name for what OpenAI, Harness engineering calls "golden principles" and
 "taste invariants": a rule written down in the repository and enforced by a check. Replace every
 <placeholder>; keep each section short. -->
 

@@ -52,11 +52,14 @@ def test_scripts_are_python_only(name: str) -> None:
 
 
 @pytest.mark.parametrize("name", ["assured-tests", "harness-setup", "house-rules"])
-def test_skill_and_references_cite_sources(name: str) -> None:
+def test_skill_and_references_cite_sources_by_name(name: str) -> None:
+    # The skills are copied into learners' repositories: sources by short name with a link, listed
+    # in full under "## Sources"; never the course's source ids.
     folder = SKILLS / name
-    assert SOURCE_ID.search((folder / "SKILL.md").read_text(encoding="utf-8"))
-    for ref in sorted((folder / "references").glob("*.md")):
-        assert SOURCE_ID.search(ref.read_text(encoding="utf-8")), ref
+    for page in [folder / "SKILL.md", *sorted((folder / "references").glob("*.md"))]:
+        text = page.read_text(encoding="utf-8")
+        assert re.search(r"^## Sources\n\n- \[[^\]]+\]\(https://", text, re.M), page
+        assert not SOURCE_ID.search(text), page
 
 
 def test_descriptions_say_what_and_when() -> None:

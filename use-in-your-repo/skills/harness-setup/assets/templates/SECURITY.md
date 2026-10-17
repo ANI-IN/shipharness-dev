@@ -1,8 +1,8 @@
 # Security
 
-<!-- Place this file at docs/SECURITY.md (A1's layout). A1 names the file but does not describe its
+<!-- Place this file at docs/SECURITY.md (the layout in OpenAI, Harness engineering, https://openai.com/index/harness-engineering/). That article names the file but does not describe its
 contents; the structure below is the course's: every rule says why it exists, how it is checked, and
-which code shows the correct pattern. Reviewers use these rules as grading criteria (A3's term), and
+which code shows the correct pattern. Reviewers use these rules as grading criteria (the term in Anthropic, Harness design, https://www.anthropic.com/engineering/harness-design-long-running-apps), and
 any violation fails the review. Replace every <placeholder>; delete rules that do not apply. -->
 
 ## How to read this file

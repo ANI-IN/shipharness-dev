@@ -11,6 +11,7 @@ and fail when the source changes. Print one rendering to recopy a template:
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,39 @@ F1_STEPS = (
     "An invalid value gives 422 validation_error.",
     "Any role may read (admin, member, viewer). Without a token: 401.",
 )
+
+# The kit is copied into a learner's repository, so it names sources instead of using the course's
+# source ids, and writes "Section 1" for a section code. The frozen TeamTrack files keep their ids;
+# `plain_labels` turns one into the other, and the drift tests compare after it.
+SOURCE_NAMES: dict[str, tuple[str, str]] = {
+    "A1": ("OpenAI, Harness engineering", "https://openai.com/index/harness-engineering/"),
+    "A2": (
+        "Anthropic, Effective harnesses",
+        "https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents",
+    ),
+    "A3": (
+        "Anthropic, Harness design",
+        "https://www.anthropic.com/engineering/harness-design-long-running-apps",
+    ),
+    "A4": ("Anthropic, C compiler", "https://www.anthropic.com/engineering/building-c-compiler"),
+    "A7": ("OpenAI, Exec plans", "https://cookbook.openai.com/articles/codex_exec_plans"),
+}
+_SOURCE_ID = re.compile(r"\b(A[1-7])\b")
+_SECTION_CODE = re.compile(r"\bSection S([1-4])\b")
+
+
+def plain_labels(text: str, markdown: bool) -> str:
+    """`text` with source ids as short source names (linked in Markdown) and "Section S1" as
+    "Section 1"."""
+
+    def name(match: re.Match[str]) -> str:
+        if match.group(1) not in SOURCE_NAMES:
+            return match.group(0)
+        label, url = SOURCE_NAMES[match.group(1)]
+        return f"[{label}]({url})" if markdown else label
+
+    return _SECTION_CODE.sub(r"Section \1", _SOURCE_ID.sub(name, text))
+
 
 # kit template -> TeamTrack instructions file it is copied from (marker lines added, walkthrough
 # marker lines left out). "subset" files keep only some of the source lines, in order.
@@ -97,7 +131,7 @@ def rendered(asset: str) -> str:
     from shipharness.harness.state.templates import fields, render
 
     values = fields(example_spec(), example_description(), list(F1_STEPS))
-    return render(asset, values).decode("utf-8")
+    return plain_labels(render(asset, values).decode("utf-8"), asset.endswith(".md"))
 
 
 def feature_document() -> dict[str, Any]:
@@ -126,7 +160,8 @@ def session_steps() -> tuple[str, str]:
 def source_text(rel: str) -> str:
     """The TeamTrack instructions file `rel`, without walkthrough marker lines."""
     text = (INSTRUCTIONS / rel).read_text(encoding="utf-8")
-    return "".join(ln for ln in text.splitlines(keepends=True) if "[walkthrough:" not in ln)
+    kept = "".join(ln for ln in text.splitlines(keepends=True) if "[walkthrough:" not in ln)
+    return plain_labels(kept, rel.endswith(".md"))
 
 
 def main(argv: list[str]) -> int:

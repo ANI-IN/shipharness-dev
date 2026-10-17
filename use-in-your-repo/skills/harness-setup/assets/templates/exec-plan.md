@@ -1,9 +1,9 @@
 # Exec plan: <feature id> <short title>
 
 <!-- A living plan for one feature, kept in docs/exec-plans/active/ and moved to
-docs/exec-plans/completed/ when the feature passes (A1: plans "with progress and decision logs that
-are checked into the repository"). Section names follow A7's ExecPlan; the wording is ours. Write it
-so a new session with no memory can restart from this file alone (A7). Update it as you work, not at
+docs/exec-plans/completed/ when the feature passes (OpenAI, Harness engineering: plans "with progress and decision logs that
+are checked into the repository"). Section names follow the ExecPlan in OpenAI, Exec plans (https://cookbook.openai.com/articles/codex_exec_plans); the wording is ours. Write it
+so a new session with no memory can restart from this file alone (OpenAI, Exec plans). Update it as you work, not at
 the end. -->
 
 ## Purpose
