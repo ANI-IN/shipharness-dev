@@ -268,3 +268,9 @@ def test_images_target_tags_the_images_the_settings_name() -> None:
     assert variables["REFEREE_IMAGE"] == "shipharness-referee:1"
     recipe = " ".join(_rules()["images"])
     assert "-t $(AGENT_IMAGE)" in recipe and "-t $(REFEREE_IMAGE)" in recipe
+
+
+def test_make_n_warm_is_a_dry_run() -> None:
+    # GNU make runs a recipe line that references $(MAKE) even under -n, so `make -n warm` used to
+    # start `shipharness warm` (content audit, 2026-10-17).
+    assert not any("$(MAKE)" in line or "${MAKE}" in line for line in _rules()["warm"])

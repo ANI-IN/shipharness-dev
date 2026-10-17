@@ -157,7 +157,7 @@ replay:
 # Before class, on the class host: build the images only if their source changed, page each image
 # in, and cache the referee and gate baselines of the class tasks. No model calls; safe to rerun.
 warm:
-	$(UV) run shipharness warm --profile $(PROFILE) --images-command "$(MAKE) images RUNTIME=$(RUNTIME)"
+	$(UV) run shipharness warm --profile $(PROFILE) --images-command "make images RUNTIME=$(RUNTIME)"
 
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2
