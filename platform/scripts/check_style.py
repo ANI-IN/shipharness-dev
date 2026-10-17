@@ -191,6 +191,7 @@ _PUBLIC = re.compile(
 _NOT_PUBLIC = {"docs/CHANGELOG.md", "docs/REFERENCES.md"}
 _AGENT = re.compile(
     rf"^(?:{_SECTION}/demo/harness/.+"
+    r"|final-project/harness/(?!README\.md$).+"
     rf"|{_SECTION}/assignment/starter/(?!README\.md$).+"
     rf"|{_SECTION}/assignment/solution/(?!(?:README|SOLUTION|SOLUTION_NOTES)\.md$).+"
     r"|use-in-your-repo/(?:templates|skills|kit/templates)/.+"

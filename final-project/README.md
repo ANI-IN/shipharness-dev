@@ -1,17 +1,19 @@
-# Module 1: Harness Engineering for Coding Agents - Final project: one live A/B
+# Module 1: Harness Engineering for Coding Agents - Final project: ship a feature with the whole harness
 
 ## The problem
 
-**Illustrative scenario.** After a bad week with a coding agent, your team adds a harness and runs
-one feature with it and without it. The harness run looks better, so the harness becomes mandatory
-for every task. A second comparison might have split the other way, but nobody runs one.
+**Illustrative scenario.** You have a real feature to ship with an agent. Use the whole harness,
+measure it, and decide which layers earn their place. The easy path is to switch every layer on,
+run the feature once, and keep whatever looked better. A second run might have split the other way,
+and nobody runs one.
 
-The cost: every task now pays the harness's extra time and money on the strength of one data point.
-Or the opposite happens, and a piece that helps is dropped after one bad run.
+The cost: every task pays the harness's extra time and money on the strength of one data point. Or a
+layer that helps is dropped after one bad run.
 
 > **Terms on this page**
 >
 > - **Harness**: the files and code around the agent that decide what it sees and may do.
+> - **Harness layer**: one part of the harness: instructions, state, scope, or verification.
 > - **Bare arm**: an agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: the same run with the harness turned on.
 > - **A/B**: bare arm and harness arm on the same ticket, scored the same way.
@@ -28,133 +30,141 @@ Why it happens:
   ([Anthropic, Harness design](../docs/evidence/final.md#quotes-used-on-these-pages)).
 - The way to find out is "removing one component at a time and reviewing what impact it had on the
   final result" (the same source). One run removes nothing and compares nothing.
-- Model output changes from run to run. The course ran `make final` twice on the same feature, and
-  the two A/Bs split differently ([evidence](../docs/evidence/final.md#final-project)).
+- Model output changes from run to run. The course ran `make final` on the same feature several
+  times, and the A/Bs split differently ([evidence](../docs/evidence/final.md#final-project)).
 
-The final project runs one live A/B and teaches you to read it as one dot among many. The course
-measures whether the harness helps, and reports every result as measured.
+The final project runs one live A/B with all four layers and teaches you to read it as one dot among
+many. Then you put the same harness on your own repository. The course measures whether the harness
+helps, and reports every result as measured.
 
 ## What you'll see
 
-`make final FEATURES=F5` runs the bare arm against the harness arm with all four layers:
-instructions, state, scope, and verification. Without `FEATURES` it runs F5 and then F6: two A/Bs,
-at most $0.58 each. Both arms get the same ticket, model, tools, sandbox, turn budgets, and
-cost cap, and one referee scores both. You watch both arms work side by side on console screen 1.
-
-> Your output will differ: run times, ids, and the agent's wording change on every run.
-
-![Console screen 1 after the full verdict: both arms at hidden tests 46/46 and mutants killed 2/3](expected/screen-1-final.png)
-
-*The end of a real run: the same counts in both arms, but only the bare arm claimed done.*
+You pick one feature, F5, F6, or F7, and run both arms on it at the same time. The harness arm gets
+all four layers; everything else is the same: ticket, model, tools, sandbox, turn budgets, and cost
+cap. One referee scores both arms, and you watch them side by side on console screen 1.
 
 ```mermaid
 flowchart LR
-  T["Checkpoint m1-final-start"] --> B["Bare arm<br/>own repo and container"]
-  T --> H["Harness arm<br/>own repo and container<br/>4 layers"]
+  T["Pick a feature<br/>tasks/"] --> B["Bare arm<br/>own container"]
+  T --> H["Harness arm<br/>4 layers, harness/"]
   B --> R["Referee<br/>fresh copy + the arm's diff"]
   H --> R
-  R --> P["Primary verdict<br/>(screen 1)"]
-  R --> F["Full verdict: hidden tests,<br/>mutants, house rules, review"]
-  P --> C["Console screens 1-5"]
-  F --> C
+  R --> V["Verdict per arm<br/>terminal 2, screens 1-5"]
+  V --> D["Your decision:<br/>which layers earn their place"]
 ```
+
+> Your output will differ: run times, ids, and the agent's wording change on every run.
+
+![Console screen 1 after the full verdict of the course's own run](expected/screen-1-final.png)
+
+*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 3/3 (bare)
+and 1/3 (harness), whose run ended on its time limit inside the gate.*
+
+| Path | What it holds |
+|---|---|
+| [run.sh](run.sh) | The live run: checks, then `make final` |
+| [tasks/](tasks/f5-bulk-close.md) | F5, F6, and F7: the ask, the rules at risk, what the referee checks |
+| [harness/](harness/README.md) | Every file the harness arm gets, all four layers |
+| [walkthrough.md](walkthrough.md) | One run through the code, step by step |
+| [expected/](expected/README.md) | Real terminal output and all five screens from one run |
+| [your-repo/](your-repo/README.md) | Part 2: the harness on your own repository |
+| [CHECKLIST.md](CHECKLIST.md) | What to show when you are done |
 
 ## Run it
 
+### Step 1: Get ready
+
 First time on this machine? Follow [setup/](../setup/README.md) until `make doctor` ends with
-`result: + ready`. Then run `make warm` once; it builds the images and caches baselines with no model
-calls. In class, `.env` holds `SHIPHARNESS_CLASS_DATE` with the class day. Practising alone, add
-`PURPOSE=pilot` to the commands instead.
+`result: + ready`. Then run `make warm` once: it builds the images and caches the referee and gate
+baselines, with no model calls. In class, `.env` holds `SHIPHARNESS_CLASS_DATE` with the class day.
+Practising alone, put `PURPOSE=pilot` in front of the command instead.
 
-**Pick the feature.** In class, a poll picks from F5 to F7. Each feature is a separate A/B.
+### Step 2: Pick the feature
 
-| Feature | Spec | Build sessions (turns each) | Hidden tests |
+In class, a poll picks one. Each feature is a separate A/B. The task pages say what each asks for,
+which house rules it puts at risk, and what the referee checks.
+
+| Feature | Task page | Build sessions (turns each) | Hidden tests |
 |---|---|---|---|
-| F5 Bulk close | [f5.md](../platform/teamtrack/docs/features/f5.md) | 1 (30) | 46 |
-| F6 Watchers | [f6.md](../platform/teamtrack/docs/features/f6.md) | 2 (20, then 30) | 54 |
-| F7 Labels | [f7.md](../platform/teamtrack/docs/features/f7.md) | 2 (25, then 35) | 64 |
+| F5 Bulk close | [f5-bulk-close.md](tasks/f5-bulk-close.md) | 1 (30) | 46 |
+| F6 Watchers | [f6-watchers.md](tasks/f6-watchers.md) | 2 (20, then 30) | 54 |
+| F7 Labels | [f7-labels.md](tasks/f7-labels.md) | 2 (25, then 35) | 64 |
 
-Each feature has 3 referee-set mutants. Session budgets come from
-`platform/teamtrack/reference/f5/task.toml` (and `f6`, `f7`). F6 and F7 end a session partway
-through the feature, so the next session starts with an empty context.
+### Step 3: Start the console
 
-**Terminal 1, the console.** Leave it running, then open `http://127.0.0.1:8765/`:
+In terminal 1, leave it running, then open `http://127.0.0.1:8765/`:
 
 ```bash
 make console
 ```
 
-**Terminal 2, the A/B.** In class, use the poll's winners, for example `FEATURES=F5,F6`:
+### Step 4: Run the A/B
+
+In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console, then runs
+`make final FEATURES=F5`; `FEATURES=F6` or `F7` picks another feature:
 
 ```bash
-make final FEATURES=F5
+PURPOSE=pilot ./final-project/run.sh
 ```
 
 In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
-line per arm and a cost line. The course's own run, with the A/B id replaced:
+line per arm and a cost line. The course's own run, with the A/B id cut (the full output is in
+[expected/terminal.txt](expected/terminal.txt)):
 
 ```text
-A/B <A/B id> (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
-  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0177
-  harness  ABORTED: timeout  claim=none     primary={} passed=True hidden 46/46 mutants 2/3 reviewer=accept cost=$0.0226
-Cost: $0.045597 (this command: gpt-5.6-luna $0.005302, gpt-6-luna $0.040295; session $1.461754 of $2.50; build $2.387502 of $15.00 ($12.612498 left))
-make: *** [Makefile:163: final] Error 2
+A/B ... (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 3/3 reviewer=accept cost=$0.0196
+  harness  ABORTED: timeout  claim=done     primary={} passed=True hidden 46/46 mutants 1/3 reviewer=reject cost=$0.0139
+Cost: $0.038253 (this command: gpt-5.6-luna $0.004675, gpt-6-luna $0.033578; session $0.060114 of $2.50; build $0.060114 of $15.00 ($14.939886 left))
+make: *** [Makefile:173: final] Error 2
 ```
 
-The harness arm used up its agent time in its test phase, so the command exited 2. An aborted arm is
-still judged and shown; it is a result, not a failure of the command.
+The harness arm said done after 20 turns. Its gate then ran the house-rule checks in the arm's
+container, and on a busy machine two gate commands hit their time limits. The gate failed on
+those timeouts, the harness's own time ran out, and the arm ended `ABORTED: timeout` before a test
+phase. An aborted arm is still judged and shown, so the command exits 2: a result, not a failure
+of the command.
 
 `make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm. That is the
-leave-one-out idea from the problem above, one feature at a time.
+leave-one-out idea from the problem above, one layer and one feature at a time.
 
 ### Time and cost
 
 The caps come from `.env.example` and `platform/src/shipharness/config/settings.py`: at most $0.25
 per arm and $0.04 per review, so at most $0.58 per feature. The class profile gives each arm an
-agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`). Prices are in
-`platform/config/prices.toml`.
+agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 120 s for the
+harness's own work (`HARNESS_TIMEOUT_S`). Prices are in `platform/config/prices.toml`.
 
-The course's own F5 run on 2026-10-17 took 12 min 47 s from launch to the cost line and cost $0.045597. It ran
-with the earlier 300 s agent time limit ([evidence](../docs/evidence/final.md#final-project)).
+The course's own F5 run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and cost
+$0.038253, with one other live batch running on the same machine. After the A/B's launch, the
+primary verdicts came at 4 min 27 s (bare) and 5 min 46 s (harness), and the full verdicts at
+11 min 39 s and 11 min 41 s ([evidence](../docs/evidence/final.md#final-project)).
 
 ## What to watch
 
-Minutes count from the launch of the course's own F5 run.
+Minutes count from the launch of the course's own run.
 
 | Minute | Screen | What appears |
 |---|---|---|
-| 1 | 1 | Both arms build; harness notes: map placed, feature list written |
-| 3 | 1 | Harness: "session stop", handoff written; its test phase reads the handoff |
-| 4 | 1 | Bare: run completed, then "primary verdict ready: PASS" |
-| 7 | 1 | Bare: full verdict, hidden tests 46/46, mutants killed 2/3 |
-| 10 | 1 | Harness: "run ABORTED: timeout", then its primary verdict |
-| 13 | 1 to 5 | Harness: full verdict; terminal 2 prints both lines |
+| 1 | 1 | Both arms at work; the harness arm shows its layer notes |
+| 5 | 1 | Bare: run completed after 42 turns, then "primary verdict ready: PASS" |
+| 7 | 1 | Harness: said done after 20 turns; gate items fail; "run ABORTED: timeout" |
+| 12 | 1 to 5 | Both full verdicts; terminal 2 prints both lines |
 
-![Screen 1 at minute 4: bare arm done with primary verdict PASS, harness arm still writing tests](expected/screen-1-minute-4.png)
+Then switch screens with the keys `1` to `5`. Each screen of this run, and what to notice on it, is
+in [expected/](expected/README.md).
 
-*Minute 4. The bare arm is judged while the harness arm writes its tests after a handoff.*
+![Screen 1 at minute 1: both arms at work, harness notes for the placed files](expected/screen-1-minute-1.png)
 
-![Screen 1 at minute 10: harness arm aborted on time, primary verdict ready, secondary checks running](expected/screen-1-minute-10.png)
+*Minute 1. The harness arm's notes show the map, the state files, and the feature list in place.*
 
-*Minute 10. The harness arm hit its time limit; the referee still judges what it shipped.*
+![Screen 1 at minute 5: bare arm completed with primary verdict PASS, harness arm still building](expected/screen-1-minute-5.png)
 
-Then switch screens with the keys `1` to `5`.
+*Minute 5. The bare arm is judged; its secondary checks still run.*
 
-![Screen 2: both boards as an Acme user, each marked only own-org cards, no duplicates](expected/screen-2-final.png)
+![Screen 1 at minute 7: harness arm said done, gate items failed, run aborted on time](expected/screen-1-minute-7.png)
 
-*Screen 2, Boards. F5 changes no board pixels, so both boards stay clean and unchanged.*
-
-![Screen 3: files read, diff maps, and every referee check at 0 new in both arms](expected/screen-3-final.png)
-
-*Screen 3, Evidence. Both arms changed only allowed files; one mutant survived in each arm.*
-
-![Screen 4: primary measures, one dot per run, for every feature and arm](expected/screen-4-final.png)
-
-*Screen 4, A/B Report. Tonight's A/B is one dot; the rows pool every scored run in `exports/`.*
-
-![Screen 5: live tail of referee events and LangSmith links per arm](expected/screen-5-final.png)
-
-*Screen 5, Traces. Open a LangSmith link to see every model call of an arm.*
+*Minute 7. The harness arm's gate failed on time limits, and the arm ended on its own time limit.*
 
 ## What the result means
 
@@ -169,8 +179,8 @@ feature. Compare the counts instead:
 | Claim | `claim=done` | Did the agent say it was done? |
 | Out-of-scope files | Screen 3 diff map | Did it change files it should not? |
 
-Each arm's full record is in `exports/scores/<run_id>.json`. "It is easy to see tests pass and
-assume the job is done, when this is rarely the case"
+Each arm's full record is in `exports/scores/`, one JSON file per run. "It is easy to see tests pass
+and assume the job is done, when this is rarely the case"
 ([Anthropic, C compiler](../docs/evidence/final.md#quotes-used-on-these-pages)). So compare the claim
 with the counts, not with the agent's summary.
 
@@ -180,9 +190,11 @@ with the counts, not with the agent's summary.
 - **No measurable difference**: the counts are equal, or differ in a way one run can produce.
 - **Bare ahead**: the same as harness ahead, the other way round.
 
-The course's own F5 run reads as no measurable difference: both arms passed 46 of 46 hidden tests
-and killed 2 of 3 mutants. An earlier F5 run killed 1 of 3 (bare) and 3 of 3 (harness). Same feature,
-same harness, a different split.
+The course's own run: both arms passed 46 of 46 hidden tests. The bare arm's tests killed 3 of 3
+mutants and the harness arm's 1 of 3, and the blinded reviewer rejected the harness arm's change
+over its audit row. The harness arm never reached its test phase, because its gate ran out of time
+on a busy machine. As one dot it reads bare ahead on mutants, for a reason that is about time, not
+about the layers. An earlier F5 run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
 arm, plus a confirmation on a second Section 3 ticket
@@ -208,21 +220,23 @@ uv run shipharness report
 | What you see | Why | What to do |
 |---|---|---|
 | Results printed, then `Error 2` | An arm was aborted on time or cost | Nothing: the run is judged and shown |
-| `x OpenAI refused the key`, no arm started | The key is missing or rejected | Fix `.env`, then `make doctor` |
-| `x SHIPHARNESS_CLASS_DATE is not set` | Class runs need the class day | Set it in `.env`, or add `PURPOSE=pilot` |
-| An arm ends `ERROR` with `docker run failed` | Docker is down or an image is missing | `sudo systemctl start docker`, then `make warm` |
-| `make console` says the port is in use | Another program holds 8765 | `make console CONSOLE_PORT=8766` |
+| Harness arm `ABORTED: timeout` with 0 turns | Gate baseline not cached: setup used the 120 s | `make warm`, then run again |
+| `x OPENAI_API_KEY is not set` | The key is missing from `.env` | Add it, then `make doctor` |
+| `x SHIPHARNESS_CLASS_DATE is not set` | Class runs need the class day | Set it in `.env`, or use `PURPOSE=pilot` |
+| `x FEATURES=F4: the final project runs F5, F6, or F7` | F1 to F4 belong to the sections | Pick F5, F6, or F7 |
+| `x Docker is not running` | The Docker service is stopped | `sudo systemctl start docker`, then `make warm` |
+| `! console not reachable` | The console is not started | `make console` in another terminal |
 
 The command never falls back to a recording. If Docker, the network, or OpenAI fails in class, the
-instructor can show a recorded A/B with `make replay RUN=<id>`; every screen then says RECORDING.
-More fixes: [docs/troubleshooting.md](../docs/troubleshooting.md).
+instructor can show a recorded A/B with `make replay RUN=` and the A/B id; every screen then says
+RECORDING. More fixes: [docs/troubleshooting.md](../docs/troubleshooting.md).
 
 ## Use it on your own repository
 
-The harness pieces work outside TeamTrack. The guide
-[use-in-your-repo/apply-to-your-repo.md](../use-in-your-repo/apply-to-your-repo.md) takes you from
-install to a first harnessed run on your own code, with a worked example on a small library. It
-uses three tools, two of them with no model calls:
+The harness pieces work outside TeamTrack. [your-repo/](your-repo/README.md) takes you step by step
+from `shipharness init` to filling the map, setting house rules, a first harnessed run, reading the
+results, and deciding which layers to keep. Every step shows its command and the real output it
+printed on a worked example, a small library, in [your-repo/example/](your-repo/example/README.md).
 
 | Tool | What it does | Model calls |
 |---|---|---|
@@ -231,9 +245,5 @@ uses three tools, two of them with no model calls:
 | `shipharness testgen` | Writes tests and keeps only those that pass five filters | Yes, capped |
 
 The four course skills package the same work for Claude Code, Codex, and Cursor; start at
-[use-in-your-repo/](../use-in-your-repo/README.md).
-
-**Your portfolio.** [Assignment 4](../04-verification/assignment/README.md) asks for one live A/B, a
-testgen run on a repository you choose, a one-page case study, and a skill of your own. This project
-gives you each piece: the A/B's score records and trace links, the kit's check and testgen output,
-and the skill template. Report results the way this page does: as counts, one dot per run.
+[use-in-your-repo/](../use-in-your-repo/README.md). When you are done, show the items in
+[CHECKLIST.md](CHECKLIST.md). Report results the way this page does: as counts, one dot per run.

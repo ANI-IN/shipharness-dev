@@ -28,7 +28,8 @@ Public course files are: `README.md`, `setup/`, the section folders `01-*` to `0
 `docs/CHANGELOG.md`). The assignment graders and hidden test cases are not part of the course text.
 Files outside that list are not part of the course text either.
 
-Agent files are the files an agent reads, not a learner: `0N-*/demo/harness/`, the files in
+Agent files are the files an agent reads, not a learner: `0N-*/demo/harness/`,
+`final-project/harness/` (except its `README.md`), the files in
 `0N-*/assignment/starter/` and `0N-*/assignment/solution/` other than their `README.md` and
 `SOLUTION.md`, `use-in-your-repo/kit/templates/`, `use-in-your-repo/kit/examples/*/filled/`, and
 `use-in-your-repo/skills/`. They follow their own format; only the image rules apply to them.

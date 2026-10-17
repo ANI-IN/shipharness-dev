@@ -515,8 +515,13 @@ def test_agent_files() -> None:
         "use-in-your-repo/kit/templates/AGENTS.md",
         "use-in-your-repo/kit/examples/boltons-queueutils/filled/progress.md",
         "use-in-your-repo/skills/house-rules/SKILL.md",
+        "final-project/harness/AGENTS.md",
+        "final-project/harness/docs/exec-plans/active/F5.md",
     ]
     course = [
+        "final-project/harness/README.md",
+        "final-project/README.md",
+        "final-project/your-repo/README.md",
         "01-instructions/assignment/starter/README.md",
         "01-instructions/assignment/solution/README.md",
         "01-instructions/assignment/solution/SOLUTION.md",
