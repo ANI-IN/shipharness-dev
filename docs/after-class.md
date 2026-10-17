@@ -22,12 +22,12 @@ own repository.
 
 ## Read the results again, slowly
 
-In class, Sections 1, 2, and 4 showed the harness arm alone, live (`make show-N`). Section 3 and the
-final each ran a live A/B. One run is one result: read it next to the course's test runs, never
-alone, because model output varies between runs. The test runs found no measurable difference on
-this model in any section's primary measure, except the Section 3 confirmation, where the harness arm
-kept inside its allowed paths in 3 of 3 runs and the bare arm in 0 of 3
-([evidence](evidence/general.md#s3-confirmation)).
+In class, Sections 1, 2, and 4 of Module 1 showed the harness arm alone, live (`make show-N`).
+Section 3 of Module 1 and the final each ran a live A/B. One run is one result: read it next to the
+course's test runs, never alone, because model output varies between runs. The test runs found no
+measurable difference on this model in any section's primary measure, except the Section 3
+confirmation, where the harness arm kept inside its allowed paths in 3 of 3 runs and the bare arm in
+0 of 3 ([evidence](evidence/general.md#s3-confirmation)).
 
 Write every recorded run into one report:
 
@@ -55,8 +55,8 @@ money, within the caps in `.env.example`:
 command runs as a class command and needs `SHIPHARNESS_CLASS_DATE` in `.env`. The make targets use the
 class profile; add `PROFILE=standard` to use the settings in your `.env` instead. Watch the run with
 `make console` in a second terminal. What to watch for each section is in its demo page:
-[Section 1](../01-instructions/demo/README.md), [Section 2](../02-state-lifecycle/demo/README.md),
-[Section 3](../03-scope-sandbox/demo/README.md), [Section 4](../04-verification/demo/README.md).
+[Section 1](../section-1-instructions/demo/README.md), [Section 2](../section-2-state-lifecycle/demo/README.md),
+[Section 3](../section-3-scope-sandbox/demo/README.md), [Section 4](../section-4-verification/demo/README.md).
 
 To see what one layer adds, remove it. `make demo-2 LAYERS=-state` runs the Section 2 A/B with the
 harness arm keeping only the instructions layer. This is the method Anthropic describes: "removing
@@ -76,10 +76,10 @@ live step. Work in the order of the sections.
 
 | Assignment | Page | Self-check |
 |---|---|---|
-| 1 Instructions | [README](../01-instructions/assignment/README.md) | `make check-assignment-1` |
-| 2 State and session lifecycle | [README](../02-state-lifecycle/assignment/README.md) | `make check-assignment-2` |
-| 3 Scope and sandbox | [README](../03-scope-sandbox/assignment/README.md) | `make check-assignment-3` |
-| 4 Verification | [README](../04-verification/assignment/README.md) | `make check-assignment-4` |
+| 1 Instructions | [README](../section-1-instructions/assignment/README.md) | `make check-assignment-1` |
+| 2 State and session lifecycle | [README](../section-2-state-lifecycle/assignment/README.md) | `make check-assignment-2` |
+| 3 Scope and sandbox | [README](../section-3-scope-sandbox/assignment/README.md) | `make check-assignment-3` |
+| 4 Verification | [README](../section-4-verification/assignment/README.md) | `make check-assignment-4` |
 
 The four together are planned at no more than $6 of OpenAI usage and 400 LangSmith traces, and no
 single command may spend more than $2.50 (`MAX_BATCH_COST_USD` in `.env.example`). Each assignment
@@ -95,10 +95,10 @@ Start with each section's session notes, then its reading list:
 
 | Section | Session notes | Reading list |
 |---|---|---|
-| 1 Instructions | [notes](../01-instructions/session-notes.md) | [reading](../01-instructions/post-class-reading/README.md) |
-| 2 State and session lifecycle | [notes](../02-state-lifecycle/session-notes.md) | [reading](../02-state-lifecycle/post-class-reading/README.md) |
-| 3 Scope and sandbox | [notes](../03-scope-sandbox/session-notes.md) | [reading](../03-scope-sandbox/post-class-reading/README.md) |
-| 4 Verification | [notes](../04-verification/session-notes.md) | [reading](../04-verification/post-class-reading/README.md) |
+| 1 Instructions | [notes](../section-1-instructions/session-notes.md) | [reading](../section-1-instructions/post-class-reading/README.md) |
+| 2 State and session lifecycle | [notes](../section-2-state-lifecycle/session-notes.md) | [reading](../section-2-state-lifecycle/post-class-reading/README.md) |
+| 3 Scope and sandbox | [notes](../section-3-scope-sandbox/session-notes.md) | [reading](../section-3-scope-sandbox/post-class-reading/README.md) |
+| 4 Verification | [notes](../section-4-verification/session-notes.md) | [reading](../section-4-verification/post-class-reading/README.md) |
 
 Every source, with its link, is in [REFERENCES.md](REFERENCES.md). Anthropic's advice to anyone who
 builds a harness is to "read its traces on realistic problems"; your LangSmith project from class is

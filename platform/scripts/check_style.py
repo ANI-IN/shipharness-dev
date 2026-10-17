@@ -182,7 +182,7 @@ def exemptions(rel: str) -> set[str]:
 
 # -- which files are checked ----------------------------------------------------------------------
 
-_SECTION = r"0[1-9]-[a-z0-9-]+"
+_SECTION = r"section-[1-9]-[a-z0-9-]+"
 _PUBLIC = re.compile(
     rf"^(?:README\.md|setup/.+|{_SECTION}/.+|final-project/.+|use-in-your-repo/.+|docs/.+"
     r"|slides/README\.md)$"

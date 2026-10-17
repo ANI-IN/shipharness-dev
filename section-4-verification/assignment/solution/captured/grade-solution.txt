@@ -1,0 +1,25 @@
+# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/section-4-verification/solution` at commit 65d70a0 (no model calls); your output will differ.
+$ make grade-assignment-4 SUBMISSION=submodules/section-4-verification/solution
+uv run python scripts/grade_assignment.py 4 "submodules/section-4-verification/solution"
+A4 grade for /home/ani/wt/assign/submodules/section-4-verification/solution
+
+Criterion                     Points  Tests
+R8-interface                     5/5  5/5
+R8-visible                       9/9  2/2
+R8-hidden                      17/17  6/6
+R8-no-false-positives            8/8  4/4
+R8-baseline                      7/7  4/4
+F6-interface                     4/4  2/2
+F6-visible                       6/6  3/3
+F6-hidden                      13/13  12/12
+own-tests                        5/5  2/2
+skill                            6/6  1/1
+portfolio-evidence               5/5  1/1
+portfolio-langsmith              2/2  1/1
+portfolio-case-study             3/3  1/1
+live-evidence                  10/10  4/4
+
+Score: 100/100
+Cost: $0.000000 (no model calls)
+grading assignment 4: submodules/section-4-verification/solution
+[exit code 0]

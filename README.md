@@ -61,14 +61,14 @@ flowchart LR
   V --> R["Referee<br/>scores what shipped"]
 ```
 
-- **Instructions** ([Section 1](01-instructions/README.md)). A short AGENTS.md acts as a map that
+- **Instructions** ([Section 1 of Module 1](section-1-instructions/README.md)). A short AGENTS.md acts as a map that
   points to one document per topic. The agent reads only what the ticket needs.
-- **State and session lifecycle** ([Section 2](02-state-lifecycle/README.md)). A progress file, an
+- **State and session lifecycle** ([Section 2 of Module 1](section-2-state-lifecycle/README.md)). A progress file, an
   execution plan, and a handoff carry the work across a session stop. The next session reads them
   before it touches code.
-- **Scope and sandbox** ([Section 3](03-scope-sandbox/README.md)). The harness lists the files each
+- **Scope and sandbox** ([Section 3 of Module 1](section-3-scope-sandbox/README.md)). The harness lists the files each
   phase may change and blocks the rest. Every run sits in a container with no network.
-- **Verification** ([Section 4](04-verification/README.md)). The agent's own tests must pass five
+- **Verification** ([Section 4 of Module 1](section-4-verification/README.md)). The agent's own tests must pass five
   filters, and a gate checks the work before "done" counts. The harness, not the agent, marks a
   feature as passing.
 
@@ -167,7 +167,7 @@ an empty machine, including both accounts.
 ## Where next
 
 - [Setup](setup/README.md): install everything and run your first live demo.
-- [Section 1: Instructions](01-instructions/README.md): the first layer, with its demo and
+- [Section 1: Instructions](section-1-instructions/README.md): the first layer, with its demo and
   assignment.
 - [Use it in your repo](use-in-your-repo/README.md): the starter kit, four skills, and a guide for
   your own code.

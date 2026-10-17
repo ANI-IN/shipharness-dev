@@ -14,7 +14,7 @@ report covers, in order:
    owner-listed files that do not exist yet;
 2. the leak check: no private file, grader (`grader/`), hidden grader case (`hidden/` under a
    section's solution or grader), or internal script; the reference solutions themselves
-   (`0N-*/assignment/solution/`) are public (owner message 14);
+   (`section-N-*/assignment/solution/`) are public (owner message 14);
 3. the broken-reference check: public files that link to or name a private or excluded file;
 4. docs/REFERENCES.md (the sources and findings from RESEARCH.md and its notes that public files
    cite);
@@ -107,7 +107,7 @@ SETUP_FILES = tuple(
 )
 REFERENCES_FILE = "docs/REFERENCES.md"  # generated from RESEARCH.md and research/notes/
 SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")
-SECTIONS = ("01", "02", "03", "04")
+SECTIONS = ("section-1", "section-2", "section-3", "section-4")
 # Per section folder at the root: the owner's items, plus the folder README and the whole
 # assignment/ folder (its README, check.py and what it imports, starter/, the reference solution
 # in solution/, visible tests, fixtures, live-step helpers); the guard below still removes every
@@ -265,7 +265,7 @@ def classify(path: str) -> str | None:
 
 def missing_expected(included: Iterable[str]) -> list[str]:
     """Owner-listed files and folders the public tree does not have (yet): reported, not failed.
-    Section items are matched per number (`02-*/concepts.md`)."""
+    Section items are matched per number (`section-2-*/concepts.md`)."""
     present = set(included)
 
     def has(item: str) -> bool:
@@ -453,7 +453,7 @@ _SCRIPT = re.compile(
 )
 _SOLUTION = re.compile(
     r"(?<![\w.-])grader/(?:[\w./-]*[\w/])?"
-    r"|\b0[1-4]-[\w.-]+/(?:[\w.-]+/)*hidden/(?:[\w./-]*[\w/])?"
+    r"|\bsection-[1-4]-[\w.-]+/(?:[\w.-]+/)*hidden/(?:[\w./-]*[\w/])?"
 )
 _MENTION = re.compile(
     rf"\b(?:{_DOCS})\.md\b"
@@ -520,7 +520,7 @@ def _pattern(kind: str, text: str, target: str = "") -> str:
     if kind == "script":
         return posixpath.basename(text)
     if kind == "solution":
-        return "0N-*/hidden/" if "hidden/" in text else text.split("/", 1)[0] + "/"
+        return "section-N-*/hidden/" if "hidden/" in text else text.split("/", 1)[0] + "/"
     if kind == "run-id":
         return "VERIFICATION run id"
     if text.startswith(("research/", "instructor/", "../", "./")):

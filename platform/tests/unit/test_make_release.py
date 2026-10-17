@@ -25,16 +25,16 @@ _spec.loader.exec_module(mr)
 
 # -- selection ----------------------------------------------------------------------------------
 
-A1 = "01-instructions"
+A1 = "section-1-instructions"
 TRACKED = [
     "docs/images/screen-2-boards.png",
     "docs/evidence/s1.md",
     "docs/evidence.md",
     "docs/reference.md",
     "docs/STYLE.md",
-    "01-instructions/demo/expected/screen-1-final.png",
-    "01-instructions/demo/run.sh",
-    "01-instructions/demo/harness/AGENTS.md",
+    "section-1-instructions/demo/expected/screen-1-final.png",
+    "section-1-instructions/demo/run.sh",
+    "section-1-instructions/demo/harness/AGENTS.md",
     ".github/workflows/ci.yml",
     "use-in-your-repo/kit/README.md",
     "use-in-your-repo/kit/templates/AGENTS.md",
@@ -101,9 +101,9 @@ TRACKED = [
     f"{A1}/assignment/solution/captured/grade-solution.txt",
     f"{A1}/assignment/solution/grader/tests/test_grade.py",
     f"{A1}/assignment/solution/grader/hidden/checker_cases.py",
-    "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
-    "03-scope-sandbox/assignment/hidden/cases.json",
-    "05-extra/concepts.md",
+    "section-2-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+    "section-3-scope-sandbox/assignment/hidden/cases.json",
+    "section-5-extra/concepts.md",
     "platform/teamtrack/reference/checkpoints.toml",
     "platform/teamtrack/mutants/m1.patch",
     "platform/teamtrack/tests/hidden/f1/test_f1_search.py",
@@ -186,9 +186,9 @@ def test_selection_leaves_out_private_internal_and_unlisted_files() -> None:
         f"{A1}/scratch/idea.md",
         f"{A1}/assignment/solution/grader/hidden/checker_cases.py",
         f"{A1}/assignment/solution/grader/tests/test_grade.py",
-        "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
-        "03-scope-sandbox/assignment/hidden/cases.json",
-        "05-extra/concepts.md",
+        "section-2-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+        "section-3-scope-sandbox/assignment/hidden/cases.json",
+        "section-5-extra/concepts.md",
     ]:
         assert path not in sel.included, path
         assert path in sel.excluded, path
@@ -228,9 +228,9 @@ def test_missing_owner_files_are_listed_not_failed() -> None:
     assert "setup/windows.md" in missing
     assert "docs/CHANGELOG.md" not in missing
     assert f"{A1}/concepts.md" not in missing
-    assert "02-*/concepts.md" in missing
-    assert "02-*/assignment/check.py" in missing
-    assert "02-*/assignment/solution/" in missing
+    assert "section-2-*/concepts.md" in missing
+    assert "section-2-*/assignment/check.py" in missing
+    assert "section-2-*/assignment/solution/" in missing
     assert f"{A1}/assignment/solution/" not in missing
 
 
@@ -245,10 +245,10 @@ def test_extra_exclusions_are_removed_with_their_reason() -> None:
 @pytest.mark.parametrize(
     "path",
     [
-        "01-instructions/assignment/solution/grader/grade.py",
-        "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+        "section-1-instructions/assignment/solution/grader/grade.py",
+        "section-2-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
         "platform/src/shipharness/grader/check.py",
-        "03-scope-sandbox/assignment/hidden/cases.json",
+        "section-3-scope-sandbox/assignment/hidden/cases.json",
         "use-in-your-repo/skills/x/solution/hidden/answer.md",
     ],
 )
@@ -257,15 +257,16 @@ def test_guard_fails_on_any_grader_or_hidden_grader_case(path: str) -> None:
 
 
 def test_the_reference_solutions_are_public() -> None:
-    # Owner message 14 (reverses the old rule): every 0N-*/assignment/solution/ folder ships, its
-    # code, notes, captured outputs, and live evidence; only grader/ and hidden cases stay private.
+    # Owner message 14 (reverses the old rule): every section-N-*/assignment/solution/ folder ships,
+    # its code, notes, captured outputs, and live evidence; only grader/ and hidden cases stay
+    # private.
     solution = [
         f"{A1}/assignment/solution/README.md",
         f"{A1}/assignment/solution/SOLUTION_NOTES.md",
         f"{A1}/assignment/solution/captured/grade-solution.txt",
-        "03-scope-sandbox/assignment/solution/live/scores/r-1.json",
-        "04-verification/assignment/solution/a4_verification/adapter.py",
-        "04-verification/assignment/solution/tests/test_tools.py",
+        "section-3-scope-sandbox/assignment/solution/live/scores/r-1.json",
+        "section-4-verification/assignment/solution/a4_verification/adapter.py",
+        "section-4-verification/assignment/solution/tests/test_tools.py",
     ]
     assert mr.leaks(solution) == []
     assert mr.select(solution).included == sorted(solution)
@@ -287,7 +288,7 @@ def _report(included: list[str], hits: list | None = None) -> object:
 
 
 def test_a_leak_fails_the_dry_run_and_the_build() -> None:
-    report = _report(["README.md", "01-x/assignment/solution/grader/a.md"])
+    report = _report(["README.md", "section-1-x/assignment/solution/grader/a.md"])
     assert any("private" in p for p in report.dry_run_failures())
     assert any("private" in p for p in report.build_failures())
 
@@ -307,13 +308,13 @@ EXCLUDED = [
     "platform/scripts/build_testgen_dataset.py",
     "instructor/README.md",
     "instructor/run-sheet.md",
-    "01-instructions/assignment/solution/grader/grade.py",
+    "section-1-instructions/assignment/solution/grader/grade.py",
 ]
 INCLUDED = [
     "README.md",
     "platform/scripts/lint_prose.py",
     "platform/tests/unit/support.py",
-    "01-instructions/assignment/solution/SOLUTION_NOTES.md",
+    "section-1-instructions/assignment/solution/SOLUTION_NOTES.md",
 ]
 
 TEST_SOURCES = {
@@ -334,10 +335,10 @@ TEST_SOURCES = {
     ),
     # owner message 14: a test that reads the public reference solution ships
     "platform/tests/unit/test_reads_solution.py": (
-        "s = ROOT / '01-instructions' / 'assignment' / 'solution' / 'SOLUTION_NOTES.md'\n"
+        "s = ROOT / 'section-1-instructions' / 'assignment' / 'solution' / 'SOLUTION_NOTES.md'\n"
     ),
     "platform/tests/unit/test_reads_grader.py": (
-        "g = ROOT / '01-instructions' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
+        "g = ROOT / 'section-1-instructions' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
     ),
     "platform/tests/unit/test_lint.py": "p = REPO / 'platform' / 'scripts' / 'lint_prose.py'\n",
 }
@@ -374,14 +375,14 @@ def test_a_flagged_helper_excludes_the_tests_that_import_it() -> None:
 # -- reference check ----------------------------------------------------------------------------
 
 
-def _hits(text: str, path: str = "01-x/concepts.md", **kw: object) -> list:
+def _hits(text: str, path: str = "section-1-x/concepts.md", **kw: object) -> list:
     return mr.scan_references(path, text, **kw)
 
 
 def test_a_design_section_reference_is_reported_with_line_and_text() -> None:
     hits = _hits("Intro line.\nSee DESIGN.md §3 for the layout.\n")
     assert [(h.line, h.kind, h.text) for h in hits] == [(2, "section-cite", "DESIGN.md §3")]
-    assert hits[0].path == "01-x/concepts.md"
+    assert hits[0].path == "section-1-x/concepts.md"
 
 
 def test_links_mentions_and_citations_of_excluded_files() -> None:
@@ -641,10 +642,12 @@ def mini_repo(tmp_path: Path) -> Path:
             '[checkpoints."m1-s2-start"]\ntasks = ["f1"]\n'
         ),
         "platform/teamtrack/tests/hidden/test_h.py": "def test_h():\n    assert True\n",
-        "01-x/README.md": "# one\n",
-        "01-x/assignment/README.md": "# task\n\nThe reference solution: [solution](./solution/).\n",
-        "01-x/assignment/solution/README.md": "# answer\n",
-        "01-x/assignment/solution/grader/grade.py": "print(2)\n",
+        "section-1-x/README.md": "# one\n",
+        "section-1-x/assignment/README.md": (
+            "# task\n\nThe reference solution: [solution](./solution/).\n"
+        ),
+        "section-1-x/assignment/solution/README.md": "# answer\n",
+        "section-1-x/assignment/solution/grader/grade.py": "print(2)\n",
         "DESIGN.md": "# design\n",
         "RESEARCH.md": RESEARCH_MD,
         "research/notes/R-a.md": NOTES_A,
@@ -654,10 +657,10 @@ def mini_repo(tmp_path: Path) -> Path:
         "platform/tests/unit/test_pilot.py": "P = ROOT / 'platform' / 'scripts' / 'pilot.py'\n",
         "platform/tests/unit/test_ok.py": "def test_ok():\n    assert True\n",
         "platform/tests/unit/test_reads_solution.py": (
-            "S = ROOT / '01-x' / 'assignment' / 'solution' / 'README.md'\n"
+            "S = ROOT / 'section-1-x' / 'assignment' / 'solution' / 'README.md'\n"
         ),
         "platform/tests/unit/test_reads_grader.py": (
-            "G = ROOT / '01-x' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
+            "G = ROOT / 'section-1-x' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
         ),
     }
     for rel, text in files.items():
@@ -832,7 +835,7 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
     assert {"README.md", "docs/REFERENCES.md", "platform/src/pkg/later.py"} <= tree
     # owner message 14: the solution and the tests that read it ship; graders do not
     assert {
-        "01-x/assignment/solution/README.md",
+        "section-1-x/assignment/solution/README.md",
         "platform/tests/unit/test_reads_solution.py",
     } <= tree
     assert "platform/teamtrack/tests/hidden/test_h.py" in tree
@@ -841,7 +844,7 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
         "RESEARCH.md",
         "research/notes/R-a.md",
         "platform/scripts/pilot.py",
-        "01-x/assignment/solution/grader/grade.py",
+        "section-1-x/assignment/solution/grader/grade.py",
         "platform/tests/unit/test_pilot.py",
         "platform/tests/unit/test_reads_grader.py",
     ]:
@@ -1032,9 +1035,9 @@ def test_the_style_rewrite_pages_and_images_ship() -> None:
         "docs/evidence.md",
         "docs/reference.md",
         "docs/STYLE.md",
-        "01-instructions/demo/expected/screen-1-final.png",
-        "01-instructions/demo/run.sh",
-        "01-instructions/demo/harness/AGENTS.md",
+        "section-1-instructions/demo/expected/screen-1-final.png",
+        "section-1-instructions/demo/run.sh",
+        "section-1-instructions/demo/harness/AGENTS.md",
     ]:
         assert path in included, path
 

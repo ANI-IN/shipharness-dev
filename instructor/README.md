@@ -20,6 +20,6 @@ the class day, in step 1 of the run sheet's "Before class".
 
 Related: the public guide with the one-page class-day cheat sheet is
 [../docs/instructor-guide.md](../docs/instructor-guide.md); the slide outline is
-[../slides/outline.md](../slides/outline.md); section demo pages are in `0N-*/demo/README.md`; design
+[../slides/outline.md](../slides/outline.md); section demo pages are in `section-N-*/demo/README.md`; design
 and contracts are [../DESIGN.md](../DESIGN.md) (§13 console, §14 class plan) and
 [../CONTRACTS.md](../CONTRACTS.md).

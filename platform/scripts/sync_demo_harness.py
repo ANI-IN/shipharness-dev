@@ -3,14 +3,14 @@
 Each section's demo folder shows learners what one harness layer gives the agent. The files are
 taken from the layer's own code, so they match what the agent gets byte for byte:
 
-- 01-instructions: the instructions tree as `InstructionsLayer.prepare_workspace` places it (the
-  layer's file list, with walkthrough markers stripped).
-- 02-state-lifecycle: the four files `StateLayer.prepare_workspace` writes for the demo ticket (F2,
-  canonical, the dataset line `make show-2` runs).
-- 03-scope-sandbox: what the scope layer gives the harness arm of `make demo-3 FEATURE=F4`:
+- section-1-instructions: the instructions tree as `InstructionsLayer.prepare_workspace` places it
+  (the layer's file list, with walkthrough markers stripped).
+- section-2-state-lifecycle: the four files `StateLayer.prepare_workspace` writes for the demo
+  ticket (F2, canonical, the dataset line `make show-2` runs).
+- section-3-scope-sandbox: what the scope layer gives the harness arm of `make demo-3 FEATURE=F4`:
   `feature_list.json` (written from the task), `feature_list.schema.json` (the layer's asset), and
   the "## Scope" block of its context prefix (`scope-rules.txt`).
-- 04-verification: the verify layer places no files; its text is the context prefix
+- section-4-verification: the verify layer places no files; its text is the context prefix
   (`VerifyLayer.PREFIX`) and the gate's items per phase, in the order `run_gate` reports them.
 
 A section's README.md is its own page and is left alone. `platform/tests/unit/test_demo_harness.py`
@@ -191,10 +191,10 @@ class Section:
 
 
 SECTIONS: dict[str, Section] = {
-    "01-instructions": Section(instructions_files),
-    "02-state-lifecycle": Section(state_files, README),
-    "03-scope-sandbox": Section(scope_files, README),
-    "04-verification": Section(verify_files, README),
+    "section-1-instructions": Section(instructions_files),
+    "section-2-state-lifecycle": Section(state_files, README),
+    "section-3-scope-sandbox": Section(scope_files, README),
+    "section-4-verification": Section(verify_files, README),
 }
 
 

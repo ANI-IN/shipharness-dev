@@ -23,13 +23,13 @@ If a line must break a rule, for example to quote real output, end it with
 `<!-- check-style: allow SC08 quoted terminal output -->`: the check id, then the reason. A marker on its own
 line, right before a fenced block, covers the whole block.
 
-Public course files are: `README.md`, `setup/`, the section folders `01-*` to `04-*`,
+Public course files are: `README.md`, `setup/`, the section folders `section-1-*` to `section-4-*`,
 `final-project/`, `slides/README.md`, `use-in-your-repo/`, and `docs/` (except
 `docs/CHANGELOG.md`). The assignment graders and hidden test cases are not part of the course text.
 Files outside that list are not part of the course text either.
 
-Agent files are the files an agent reads, not a learner: `0N-*/demo/harness/`, the files in
-`0N-*/assignment/starter/` and `0N-*/assignment/solution/` other than their `README.md` and
+Agent files are the files an agent reads, not a learner: `section-N-*/demo/harness/`, the files in
+`section-N-*/assignment/starter/` and `section-N-*/assignment/solution/` other than their `README.md` and
 `SOLUTION.md`, `use-in-your-repo/kit/templates/`, `use-in-your-repo/kit/examples/*/filled/`, and
 `use-in-your-repo/skills/`. They follow their own format; only the image rules apply to them.
 
@@ -172,7 +172,7 @@ At most 4 columns. Keep each cell short: a few words, a count, or a command. No 
 ### 11. Images with captions
 
 Screenshots are real, from real runs, and stored in the repository: section screenshots in
-`0N-*/demo/expected/`, root README screenshots in `docs/images/`. File names are lowercase with
+`section-N-*/demo/expected/`, root README screenshots in `docs/images/`. File names are lowercase with
 hyphens (`screen-1-minute-4.png`). Each image stands on its own line with alt text, then a blank
 line, then an italic caption that says what to notice. Dates and run ids for captures go in the
 captures table of the section's evidence page (`docs/evidence/s1.md` and so on), not in the
@@ -246,7 +246,7 @@ In our test runs the harness arm did not beat the bare arm on any of the four ti
 shows each layer at work and measures it live. Details: [evidence](docs/evidence.md).
 ```
 
-### Section README (`0N-*/README.md`)
+### Section README (`section-N-*/README.md`)
 
 Limit: 120 lines.
 
@@ -273,7 +273,7 @@ query has no tenant filter, so a user at one company can now see another company
 rule against copying that code exists, near the end of a long handbook the agent never opened.
 ```
 
-### Concepts (`0N-*/concepts.md`)
+### Concepts (`section-N-*/concepts.md`)
 
 Limit: fits 15 minutes live, so at most about 1,800 words, plus diagrams. Code blocks and Mermaid
 blocks do not count toward the words.
@@ -312,7 +312,7 @@ Good example (What we measured):
 No measurable difference on this ticket with this model ([evidence](../docs/evidence/s1.md)).
 ```
 
-### Demo folder (`0N-*/demo/`)
+### Demo folder (`section-N-*/demo/`)
 
 | File | What it holds |
 |---|---|
@@ -397,7 +397,7 @@ Good example (What to watch):
 | 10 | 1 | The full verdict: hidden tests and mutants scored |
 ```
 
-### Assignment folder (`0N-*/assignment/`)
+### Assignment folder (`section-N-*/assignment/`)
 
 | Path | What it holds |
 |---|---|
@@ -463,7 +463,7 @@ The map stays short and points to one document per topic. A long map would bring
 problem this assignment fixes: rules the agent never reaches because they sit in a large file.
 ```
 
-### Post-class reading (`0N-*/post-class-reading/`)
+### Post-class reading (`section-N-*/post-class-reading/`)
 
 The folder has a `README.md` index and one file per reading.
 
@@ -498,7 +498,7 @@ Good example (one key idea):
    it while it works.
 ```
 
-### Session notes (`0N-*/session-notes.md`)
+### Session notes (`section-N-*/session-notes.md`)
 
 Limit: 150 lines. Write them from the real class run. Before the class has run, the page shows the
 reference run from the section's evidence page.

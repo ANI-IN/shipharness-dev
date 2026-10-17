@@ -233,7 +233,7 @@ uses three tools, two of them with no model calls:
 The four course skills package the same work for Claude Code, Codex, and Cursor; start at
 [use-in-your-repo/](../use-in-your-repo/README.md).
 
-**Your portfolio.** [Assignment 4](../04-verification/assignment/README.md) asks for one live A/B, a
+**Your portfolio.** [Assignment 4](../section-4-verification/assignment/README.md) asks for one live A/B, a
 testgen run on a repository you choose, a one-page case study, and a skill of your own. This project
 gives you each piece: the A/B's score records and trace links, the kit's check and testgen output,
 and the skill template. Report results the way this page does: as counts, one dot per run.

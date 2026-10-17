@@ -6,8 +6,8 @@ Course pages link to `docs/evidence.md#<anchor>` (the index) and to
 and rewrites each link whose target file lacks the anchor to the one file that has it. Links inside
 the evidence files themselves, `(#anchor)` and `(s1.md#anchor)`, are handled the same way.
 
-When an anchor is defined in more than one part file, a section page (0N-*/) takes its own part
-(sN.md), a final-project page takes final.md, and any other page takes general.md.
+When an anchor is defined in more than one part file, a section page (section-N-*/) takes its own
+part (sN.md), a final-project page takes final.md, and any other page takes general.md.
 
 Re-runnable: a second run changes nothing. It reports anchors defined in more than one evidence file
 (page-structure headings that every file or the index shares are left out), links it could not
@@ -92,7 +92,7 @@ def anchor_index(root: Path) -> dict[str, list[str]]:
 
 def preferred(page: str) -> str:
     """The part file a page's evidence belongs in."""
-    section = re.match(r"0(\d)-", page)
+    section = re.match(r"section-(\d)-", page)
     if section:
         return f"{PARTS_DIR}s{section.group(1)}.md"
     if page.startswith("final-project/"):

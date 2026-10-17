@@ -302,8 +302,8 @@ the last line is `warm: incomplete`, fix the step marked `x` and rerun.
 ### Step 12: Run the first live demo
 
 **Why.** This is the end-to-end check: a real agent run on TeamTrack with the first harness layer,
-scored by the referee and shown live on the console. It is the run that Section 1 of the class
-shows.
+scored by the referee and shown live on the console. It is the run that Section 1 of Module 1
+shows in class.
 
 **Do this.** Open two Terminal windows, both in `~/shipharness`. In the first, start the console and
 leave it running:
@@ -357,5 +357,5 @@ You are ready when:
 - `make warm` ends with `warm: done`;
 - `make show-1` shows a run with a primary verdict on the console.
 
-Next: the [Section 1 demo](../01-instructions/demo/README.md), which explains what you just ran,
+Next: the [Section 1 demo](../section-1-instructions/demo/README.md), which explains what you just ran,
 or the [module overview](../README.md).
