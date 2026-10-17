@@ -101,7 +101,7 @@ def test_breaks_follow_the_class_plan(run_sheet: str) -> None:
 def test_minute_rows_cover_the_class_without_gaps(run_sheet: str) -> None:
     times = [r[0].split("-") for r in minute_rows(run_sheet)]
     assert times[0][0] == "0:00" and times[-1][1] == "4:00"
-    for (_, end), (start, _) in zip(times, times[1:]):
+    for (_, end), (start, _) in zip(times, times[1:], strict=True):
         assert end == start, f"gap or overlap between {end} and {start}"
 
 
