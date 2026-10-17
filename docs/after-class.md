@@ -15,8 +15,12 @@ repository. Source ids such as (A3, F-a-126) point to [REFERENCES.md](../REFEREN
 
 ## 2. Read the results again, slowly
 
-The live class shows one run per arm per section. One run is one dot: read it next to the
-experiment dots, never alone, because model output varies between runs.
+In S1 to S4 the class showed the harness arm alone (`make show-N`, harness in action), a pilot run
+replayed, and a constructed example; the final showed one live A/B per poll-chosen feature. One run is
+one dot: read it next to the course pilot's results, never alone, because model output varies between
+runs. The pilot's primary results and the post hoc counts, with their A/B ids, are in the
+[README, section 4](../README.md#4-how-the-course-measures-it): no measurable difference on this task
+with this model in any section.
 
 ```bash
 uv run shipharness report
@@ -33,9 +37,14 @@ How to read a single score record, field by field, is in
 
 ## 3. Run a demo yourself
 
-You can repeat any section's A/B on your own machine. It calls OpenAI live (no fallback) and costs
-real money, within these caps per A/B: 2 arms × $0.20 plus 2 blinded reviews × $0.04, so at most
-$0.48 (`.env.example`).
+You can repeat any section's A/B on your own machine, or the harness arm alone as in class
+(`make show-N PURPOSE=assignment`, at most $0.24: one arm × $0.20 plus one review × $0.04). An A/B
+calls OpenAI live (no fallback) and costs real money, within these caps: 2 arms × $0.20 plus 2
+blinded reviews × $0.04, so at most $0.48 (`.env.example`). The make targets use the class profile
+(effort low, 2 CPUs per container, the OpenAI Fast tier at twice the Standard token rate);
+`PROFILE=standard` uses the settings in your `.env` instead. In the course's class-profile round on 2026-10-17, one
+A/B per section (F1-F4) with this profile cost $0.1953 for all four together, reviews included; the
+per-arm costs are in the [README, section 13](../README.md#13-costs-and-caps).
 
 Two ways to run it:
 
@@ -56,9 +65,13 @@ stacks, features, and what to watch are in each section's runbook:
 
 To see what one layer contributes, remove it: `make demo-2 LAYERS=-state` runs the S2 A/B with the
 harness arm keeping only the instructions layer. This is A3's method of "removing one component at
-a time and reviewing what impact it had on the final result" (A3, F-a-125).
+a time and reviewing what impact it had on the final result" (A3, F-a-125). The course planned a
+leave-one-layer-out batch of its own but did not run it, because its pre-registered gate did not
+pass; a few runs of yours are a small version of it.
 
-`make swap-N` re-judges your latest demo-N A/B with the labels swapped and costs nothing.
+To replay a run you recorded, `make replay RUN=<id>` (RECORDING on every screen, no model calls
+without the reviewer). `make swap-N` re-judges your latest demo-N A/B with the labels swapped and
+costs nothing; it refuses a `make show-N` run, which has one arm only.
 
 ## 4. Do the assignments
 
@@ -123,7 +136,10 @@ Installing the skills into Claude Code, Codex, or Cursor is described in each sk
 [assured-tests](../skills/assured-tests/README.md),
 [skill-template](../skills/skill-template/README.md).
 
-To copy TeamTrack's whole harness into your repository in one command and fill it step by step, follow [apply-to-your-repo.md](apply-to-your-repo.md).
+To copy TeamTrack's whole harness into your repository in one command and fill it step by step,
+follow [apply-to-your-repo.md](apply-to-your-repo.md): `uv run shipharness init --target <your-repo>`
+copies the starter kit (no model calls), and the guide ends with deciding which layers earn their
+place in your repository.
 
 ## 7. The Thursday review
 

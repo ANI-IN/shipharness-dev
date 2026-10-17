@@ -42,15 +42,21 @@ uv run python scripts/fetch_testgen_libs.py boltons
 bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
 ```
 
-Captured on 2026-10-17 from `uv run python scripts/fetch_testgen_libs.py boltons` at commit 20178c6
-(the clone already existed, so it was only verified); your output will differ:
+Every capture in this guide was made on 2026-10-17 at commit d132507, in a shipharness checkout at
+`/home/ani/wt/crepo` (so `SHIPHARNESS` below was that path), with the worked example at
+`/tmp/boltons-queueutils`. Lines that print the checkout path show `/home/ani/wt/crepo`; yours show
+your own path.
+
+Captured on 2026-10-17 from `uv run python scripts/fetch_testgen_libs.py boltons` at commit d132507,
+on a checkout without the clone (the script cloned boltons and verified the pinned commit); your
+output will differ:
 
 ```text
-ok boltons 26.2.0 4332b35a278d694f30c99881faa61cde695c7a96 -> /home/ani/wt/kit/.shipharness/libs/boltons/src
+ok boltons 26.2.0 4332b35a278d694f30c99881faa61cde695c7a96 -> /home/ani/wt/crepo/.shipharness/libs/boltons/src
 ```
 
 Captured on 2026-10-17 from `bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils`
-at commit 20178c6; your output will differ:
+at commit d132507; your output will differ:
 
 ```text
 created /tmp/boltons-queueutils from boltons 4332b35
@@ -87,11 +93,11 @@ uv run shipharness --version
 ```
 
 What you should see. Captured on 2026-10-17 from `uv sync` and `uv run shipharness --version` at
-commit 20178c6; your output will differ:
+commit d132507; your output will differ:
 
 ```text
-Resolved 81 packages in 9ms
-Checked 79 packages in 1ms
+Resolved 85 packages in 3ms
+Checked 83 packages in 1ms
 shipharness 0.1.0
 ```
 
@@ -101,7 +107,7 @@ and `--force`.
 Common mistakes:
 
 - Running `uv sync` outside the checkout. Captured on 2026-10-17 from `uv sync` in an empty
-  folder; your output will differ:
+  folder (exit code 2); your output will differ:
 
   ```text
   error: No `pyproject.toml` found in current directory or any parent directory
@@ -128,7 +134,7 @@ captured on 2026-10-17 from `uv run shipharness init --target /tmp/boltons-queue
 20178c6, first two and last eleven lines; your output will differ:
 
 ```text
-Kit: /home/ani/wt/kit/kit/templates -> /tmp/boltons-queueutils
+Kit: /home/ani/wt/crepo/kit/templates -> /tmp/boltons-queueutils
 + .agents/skills/assured-tests/README.md
 ...
 + feature_list.json
@@ -152,10 +158,10 @@ installs one copy only. Each skill's README says which tool reads which folder, 
 How to check it worked:
 
 1. Run the same command again: it writes nothing. Captured on 2026-10-17 from the same command at
-   commit 20178c6; your output will differ:
+   commit d132507; your output will differ:
 
    ```text
-   Kit: /home/ani/wt/kit/kit/templates -> /tmp/boltons-queueutils
+   Kit: /home/ani/wt/crepo/kit/templates -> /tmp/boltons-queueutils
    wrote 0 files, 0 overwritten, 0 skipped, 97 unchanged
    Next: fill the REPLACE markers, then run: shipharness init --check /tmp/boltons-queueutils
    Cost: $0.000000 (no model calls)
@@ -163,7 +169,7 @@ How to check it worked:
 
 2. Validate the installed skills. Captured on 2026-10-17 from
    `uv run --project "$SHIPHARNESS" shipharness skills validate .claude/skills` (run in the
-   repository) at commit 20178c6; your output will differ:
+   repository) at commit d132507; your output will differ:
 
    ```text
    + assured-tests: valid (SKILL.md 96 lines)
@@ -182,7 +188,7 @@ How to check it worked:
 Common mistakes:
 
 - The target does not exist. Captured on 2026-10-17 from
-  `uv run shipharness init --target /tmp/no-such-repo` at commit 20178c6:
+  `uv run shipharness init --target /tmp/no-such-repo` at commit d132507:
 
   ```text
   x target directory not found: /tmp/no-such-repo
@@ -192,10 +198,10 @@ Common mistakes:
 - Your repository already has one of the files, for example its own `AGENTS.md`. init never
   overwrites it and says so. Captured on 2026-10-17 from
   `uv run shipharness init --target /tmp/kit-skip-demo --skills claude | grep -v "^+ "` (a folder
-  holding only an `AGENTS.md`) at commit 20178c6:
+  holding only an `AGENTS.md`) at commit d132507:
 
   ```text
-  Kit: /home/ani/wt/kit/kit/templates -> /tmp/kit-skip-demo
+  Kit: /home/ani/wt/crepo/kit/templates -> /tmp/kit-skip-demo
   ! skipped AGENTS.md: exists with other content (--force overwrites)
   wrote 61 files, 0 overwritten, 1 skipped, 0 unchanged
   Next: fill the REPLACE markers, then run: shipharness init --check /tmp/kit-skip-demo
@@ -220,7 +226,7 @@ uv run --project "$SHIPHARNESS" shipharness init --check .
 
 What you should see first: one line per marker, `file:line: what to write`, then a count and exit
 code 1. Captured on 2026-10-17 from `uv run shipharness init --check /tmp/boltons-queueutils` at
-commit 20178c6, first four and last three lines; your output will differ:
+commit d132507, first four and last three lines; your output will differ:
 
 ```text
 .github/workflows/shipharness.yml:1: CI for your repository's house rules. The values are TeamTrack's, as if teamtrack/ were its own repository: the app is at the repository root, the existing tests are in tests/visible, and the adapter is harness/shipharness_adapter.py.
@@ -253,7 +259,7 @@ three modules, and six documents were deleted because a library with no API, ten
 has no use for them. The feature is a real bug: the docstrings of `peek` and `pop` say an empty
 queue raises `KeyError`, and the code raises `IndexError`. Captured on 2026-10-17 from
 `uv run --project "$SHIPHARNESS" python -c "from boltons.queueutils import HeapPriorityQueue; HeapPriorityQueue().pop()"`
-at commit 20178c6, last line of the traceback:
+at commit d132507, last line of the traceback:
 
 ```text
 IndexError: pop on empty queue
@@ -266,7 +272,7 @@ How to check it worked:
 
 1. `--check` exits 0. Captured on 2026-10-17 from
    `uv run --project "$SHIPHARNESS" shipharness init --check .` in the filled worked example at
-   commit 20178c6; your output will differ:
+   commit d132507; your output will differ:
 
    ```text
    - docs/RELIABILITY.md: not present (deleted, or never installed)
@@ -280,13 +286,13 @@ How to check it worked:
    ```
 
 2. `init.sh` passes. Captured on 2026-10-17 from `uv run --project "$SHIPHARNESS" bash init.sh` at
-   commit 20178c6; your output will differ:
+   commit d132507; your output will differ:
 
    ```text
    == imports: the three modules load
    == basic end-to-end test: queueutils, stop at the first failure (full suite: see AGENTS.md)
    ...                                                                      [100%]
-   3 passed in 0.33s
+   3 passed in 0.73s
    ```
 
 3. Every path the map names exists: open each row of the "Where to look" table.
@@ -342,14 +348,14 @@ Use your own list after `--rules`, for example `R1,R2,R3,R4,R5,R6,R7` for a serv
 seven.
 
 What you should see: one `PASS` or `FAIL` line per check. Captured on 2026-10-17 from the second
-command in the worked example at commit 20178c6; your output will differ:
+command in the worked example at commit d132507; your output will differ:
 
 ```text
 UNSANDBOXED: the checks import and run this app's code on this machine.
   R6 import-linter
   existing tests
-PASS  r6_layering      new=0 baseline=0 probes=1 585 ms
-PASS  regression       new=0 baseline=0 probes=21 4766 ms
+PASS  r6_layering      new=0 baseline=0 probes=1 576 ms
+PASS  regression       new=0 baseline=0 probes=21 4488 ms
 Cost: $0.000000 (no model calls)
 ```
 
@@ -357,7 +363,7 @@ The 21 probes of `regression` are the 16 test functions and 5 doctests, because
 `check-params.json` sets `regression_targets` to `--doctest-modules boltons tests`.
 
 How to check it worked: break the rule on purpose and watch the check fail. Captured on 2026-10-17
-from these two commands in the worked example at commit 20178c6; your output will differ:
+from these two commands in the worked example at commit d132507; your output will differ:
 
 ```text
 $ echo "from .queueutils import PriorityQueue" >> boltons/typeutils.py
@@ -365,9 +371,9 @@ $ PYTHONPATH=harness uv run --project "$SHIPHARNESS" shipharness check --app . -
 UNSANDBOXED: the checks import and run this app's code on this machine.
   R6 import-linter
   existing tests
-FAIL  r6_layering      new=1 baseline=0 probes=1 574 ms
+FAIL  r6_layering      new=1 baseline=0 probes=1 721 ms
       [violation] forbidden import: boltons.typeutils -> boltons.queueutils
-PASS  regression       new=0 baseline=0 probes=21 4421 ms
+PASS  regression       new=0 baseline=0 probes=21 4531 ms
 Cost: $0.000000 (no model calls)
 ```
 
@@ -381,7 +387,7 @@ repository; replace the repository name if you cloned a fork.
 Common mistakes:
 
 - `PYTHONPATH` missing, so the adapter cannot be imported. Captured on 2026-10-17 from the check
-  command without `PYTHONPATH=harness`, last line, at commit 20178c6:
+  command without `PYTHONPATH=harness`, last line, at commit d132507:
 
   ```text
   ModuleNotFoundError: No module named 'shipharness_adapter'
@@ -389,7 +395,7 @@ Common mistakes:
 
 - A rule in `--rules` whose adapter methods you deleted. Captured on 2026-10-17 from
   `PYTHONPATH=harness uv run --project "$SHIPHARNESS" shipharness check --app . --adapter shipharness_adapter:HouseRulesAdapter --rules R2`
-  in the worked example at commit 20178c6:
+  in the worked example at commit d132507:
 
   ```text
   UNSANDBOXED: the checks import and run this app's code on this machine.
@@ -420,7 +426,7 @@ would cross it (README, [Costs and caps](../README.md#13-costs-and-caps)). Price
 in `config/prices.toml`: gpt-6-luna $0.10 input, $0.01 cached input, $0.50 output. The variable
 overrides the default for one command; captured on 2026-10-17 from
 `MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" python -c "from shipharness.config import Settings; print(Settings().max_run_cost_usd)"`
-at commit 20178c6:
+at commit d132507:
 
 ```text
 0.1
@@ -448,7 +454,7 @@ a summary `testgen <run id>: <status>; kept <n> of <m> proposed tests`, one line
 (`+ <test id>` for a kept test, `- <test id>: filter <n>: <reason>` for a discarded one),
 `Kept tests and report: <folder>`, and the cost line.
 
-[[PENDING: captured output of the first harnessed run on the worked example (kept and discarded tests, cost line) | source: M6 pilot | how: cd /tmp/boltons-queueutils && MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
+[[CAPTURE: terminal output of the first harnessed run on the worked example (Baseline line, summary, one line per kept or discarded test, Cost line) and its wall time | how: cd /tmp/boltons-queueutils && time MAX_RUN_COST_USD=0.10 uv run --project "$SHIPHARNESS" shipharness testgen --repo . --module boltons/queueutils.py --tests tests/test_queueutils.py --layers verify --max-tests 3 --sandbox local --python "$SHIPHARNESS/.venv/bin/python" --out /tmp/boltons-queueutils-testgen]]
 
 How to check it worked: the output folder holds the kept tests and `testgen-report.json`, and the
 last line is a cost line at or below your cap.
@@ -456,7 +462,7 @@ last line is a cost line at or below your cap.
 Common mistakes:
 
 - No API key. testgen stops before any model call. Captured on 2026-10-17 from the command above
-  with `OPENAI_API_KEY=` (empty) in front, at commit 20178c6:
+  with `OPENAI_API_KEY=` (empty) in front, at commit d132507:
 
   ```text
   x OPENAI_API_KEY is missing: add it to .env at the repo root
@@ -490,7 +496,7 @@ test as code before you commit it. A discarded test's line names the filter that
 without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered module most
 proposed tests are discarded there (`skills/assured-tests/SKILL.md`).
 
-[[PENDING: the kept tests and the per-test filter results of testgen-report.json from the first harnessed run | source: M6 pilot | how: ls /tmp/boltons-queueutils-testgen and read testgen-report.json after the step 5 command]]
+[[CAPTURE: the kept test files and the per-test filter results of testgen-report.json from the step 5 run | how: ls /tmp/boltons-queueutils-testgen && cat /tmp/boltons-queueutils-testgen/testgen-report.json]]
 
 What to do when a result surprises you: rerun the check alone (`--rules R6`) to see one rule's
 findings; for testgen, open `testgen-report.json` and read the reason recorded for each test.
@@ -504,10 +510,18 @@ result" (A3, F-a-125). On TeamTrack, `make demo-2 LAYERS=-state` does that for y
 ([after-class.md](after-class.md), costs money). On your own repository there is no A/B runner, so
 decide per layer from what it prevents and what it costs to keep current.
 
+Each layer encodes an assumption about what the model cannot do on its own; A3 says "those
+assumptions are worth stress testing" (A3, F-a-124). The course pilot is a worked case: on TeamTrack
+with gpt-6-luna, no section showed a measurable difference on its primary measure, and the harness
+arms ran longer and cost more per run; the one post hoc difference was that harness arms with the
+scope layer never changed a file outside the allowed paths (README, [How the course measures
+it](../README.md#4-how-the-course-measures-it)). A result like that is a reason to keep a layer small
+and cheap, or to measure it on your own failures, not a reason to keep it by default.
+
 | Layer | Kit files | The worked example's decision | Why |
 |---|---|---|---|
 | S1 Instructions | `AGENTS.md`, `ARCHITECTURE.md`, `docs/` | kept, smaller | The map and the layering rule are short; six TeamTrack documents were deleted because nothing in a library uses them |
-| S2 State and session lifecycle | `progress.md`, `session-handoff.md`, `init.sh`, exec plans | kept | One feature can still span sessions; the test step of `init.sh` took 0.33 s in step 3 |
+| S2 State and session lifecycle | `progress.md`, `session-handoff.md`, `init.sh`, exec plans | kept | One feature can still span sessions; the test step of `init.sh` took 0.73 s in step 3 |
 | S3 Scope and sandbox | `feature_list.json`, `harness/sandbox-policy.toml` | feature list kept; policy kept as reference | One feature at a time; no container is used for this repository yet |
 | S4 Verification | `harness/`, `docs/clean-state-checklist.md`, the CI workflow, testgen | kept | The layering check failed on a seeded violation (step 4) and costs nothing to run |
 

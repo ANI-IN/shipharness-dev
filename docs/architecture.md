@@ -76,7 +76,10 @@ only the run log and `exports/`.
 
   This follows A4's practice of running the agent in a container without internet access (A4,
   F-a-18, F-a-88, F-a-90). The code is in `src/shipharness/sandbox/policy.py` (walkthrough anchors
-  `S3:policy` and `S3:run_args`).
+  `S3:policy` and `S3:run_args`). The printout shows the settings as loaded; the class profile
+  (`--profile class`, the default of the `make` targets for live runs) sets `cpus` to 2.0 for every
+  arm, referee, and preview container, together with reasoning effort `low` and the OpenAI Fast tier
+  for the agent's calls, the same for both arms (`src/shipharness/config/profiles.py`).
 - **Agent-written code never runs on the host**, except in the labelled no-Docker fallback
   (`SANDBOX_MODE=none`), where every screen shows `UNSANDBOXED — results not official`.
 - **Each arm gets its own fresh git repository**, exported from `teamtrack/` at the checkpoint tag,
@@ -127,6 +130,10 @@ sequenceDiagram
 4. The referee judges each arm as soon as that arm ends.
 5. One score record per arm goes to `exports/scores/<run_id>.json`, and the terminal prints one
    line per arm and a cost line.
+
+`make show-N` runs the same path with `--arms harness`: only the harness arm runs and is judged
+("harness in action"); its score record is marked `single_arm` and stays out of every bare-vs-harness
+comparison, screen 4, and the swap test.
 
 ## 4. Packages in `src/shipharness/`
 

@@ -1,33 +1,37 @@
 # Pre-class setup
 
-Do this before class. Target: 10 minutes or less. At the end, `make doctor` reports `result: + ready` and the TeamTrack board opens in your browser.
+Do this before class. At the end, `make doctor` reports `result: + ready` and the TeamTrack board
+opens in your browser.
 
-[[PENDING: measured time for steps 1-7 on a clean Linux, macOS, and Windows (WSL2) machine | source: M6 pilot | how: time each step from a fresh clone with `time make setup` and a stopwatch for the rest]]
+How long it takes: the course has not timed these steps on a clean machine, so plan for an hour the
+first time. The slowest step is building the two sandbox images in step 4; on the course's class host
+(Ubuntu in WSL2) a rebuild of both images took 145 s on 2026-10-17. Downloads depend on your network.
 
 ## Accounts you need
 
 | Account | Plan | Why |
 |---|---|---|
-| OpenAI API | Paid, **Build tier or higher, with at least $5 of credit purchased** | The agent model, gpt-6-luna, lists API rate limits only for the paid tiers Build, Launch, and Grow; there is no Free row (RESEARCH §4.2). The four assignments are planned to use at most $6 in total, and no single command more than $2.50 (DESIGN §11.5). |
-| LangSmith | **Free Developer plan, no card on file** | Traces and experiments. Without a card, a personal organization is limited to 5,000 traces per month; past the limit LangSmith refuses new traces instead of billing (RESEARCH §4.3). The module plans at most 400 traces for you (DESIGN §12). |
+| OpenAI API | Paid, **Build tier or higher, with at least $5 of credit purchased** | The agent model, gpt-6-luna, lists API rate limits only for the paid tiers Build, Launch, and Grow; there is no Free row (https://developers.openai.com/api/docs/models/gpt-6-luna, read 2026-10-17). The four assignments are planned to use at most $6 in total, and no single command more than $2.50 ([README, section 12](../README.md#12-assignments)). |
+| LangSmith | **Free Developer plan, no card on file** | Traces and experiments. Without a card, a personal organization is limited to 5,000 traces per month; past the limit LangSmith refuses new traces instead of billing (https://docs.langchain.com/langsmith/billing, read 2026-10-17). The module plans at most 400 traces for you ([README, section 7](../README.md#7-prerequisites-and-accounts)). |
 
 Do not add a credit card to LangSmith. Create one API key in each account and keep both ready for
 step 5.
 
 ## What runs where
 
-shipharness runs on Linux, macOS, or Windows through WSL2 (DESIGN §9). Native Windows shells
+shipharness runs on Linux, macOS, or Windows through WSL2. Native Windows shells
 (PowerShell, cmd) are not supported for sandboxed commands, and the Makefile expects a POSIX shell.
 
 | Your machine | Container runtime (any one) | Notes |
 |---|---|---|
 | Linux | Docker Engine or Podman | |
 | macOS | Docker Desktop or Colima | |
-| Windows | WSL2 with Ubuntu, then Docker Engine inside Ubuntu or Docker Desktop with the WSL2 backend | Work only inside the Ubuntu terminal. Keep the repository in the WSL2 filesystem (for example `~/shipharness`), not under `/mnt/c` (RESEARCH §4.4) |
+| Windows | WSL2 with Ubuntu, then Docker Engine inside Ubuntu or Docker Desktop with the WSL2 backend | Work only inside the Ubuntu terminal. Keep the repository in the WSL2 filesystem (for example `~/shipharness`), not under `/mnt/c` ([setup-windows.md](../docs/setup-windows.md)) |
 
 The class host is a Windows PC with Docker Engine inside the Ubuntu WSL2 distribution, systemd
-enabled, and nothing Docker-related installed on the Windows side (DESIGN D-22). Docker Desktop also
-works; pick whichever you already have.
+enabled, and nothing Docker-related installed on the Windows side
+([setup-windows.md](../docs/setup-windows.md)). Docker Desktop also works; pick whichever you already
+have.
 
 ## Steps
 
@@ -58,12 +62,14 @@ the repository pins Python 3.12 in `.python-version`, and uv fetches it when nee
 | Podman (Linux, macOS, Windows) | Install from podman.io; on macOS and Windows run `podman machine init && podman machine start` | `podman info` |
 
 Docker Engine on WSL2 needs systemd: `/etc/wsl.conf` should contain `[boot]` and `systemd=true`
-(DESIGN D-22). More detail: [sandbox/README.md](../sandbox/README.md).
+([setup-windows.md](../docs/setup-windows.md#2-check-that-systemd-is-on)). More detail:
+[sandbox/README.md](../sandbox/README.md).
 
 ### 4. Clone and run `make setup`
 
 ```bash
-git clone https://github.com/ANI-IN/shipharness.git && cd shipharness
+git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
+cd ~/shipharness
 make setup
 ```
 
@@ -88,7 +94,8 @@ If your LangSmith account is in the EU region, also set
 `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` (no trailing slash).
 
 `.env` is git-ignored. Never commit it, paste it into an issue or chat, or share a screenshot of it.
-shipharness never prints, logs, traces, or passes the keys into a container (CONTRACTS §20).
+shipharness never prints, logs, traces, or passes the keys into a container
+([docs/architecture.md](../docs/architecture.md)).
 
 ### 6. `make doctor`
 
@@ -99,7 +106,7 @@ make doctor
 It checks Python, git, uv, the container runtime, both keys, the price table, and that `.env` is not
 tracked by git. Each key is reported on its own line as `ok`, `missing`, `invalid` (the provider
 rejected it), or `unreachable` (network error), with the next step to take; no part of a key is ever
-shown (CONTRACTS §20). It costs nothing: the OpenAI check lists models and uses no tokens (DESIGN §3.1).
+shown. It costs nothing: the OpenAI check lists models and uses no tokens (`src/shipharness/doctor.py`).
 
 You are done with this step when the last line reads `result: + ready` **and** the
 `container runtime` line shows `+ ok`. A container-runtime warning does not fail the doctor, but

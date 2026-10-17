@@ -164,7 +164,7 @@ LANGSMITH_API_KEY=
 If your LangSmith account is in the EU region, also set
 `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` (no trailing slash).
 
-If you will run `make demo-N`, `make final`, or `make replay` yourself, also set
+If you will run `make demo-N`, `make show-N`, `make final`, or `make replay` yourself, also set
 `SHIPHARNESS_CLASS_DATE` to the day you run them (`YYYY-MM-DD`). Class commands refuse without it;
 it names the LangSmith project `shipharness-class-<date>`, and every command run under that date
 shares one $2.50 session cap (`MAX_SESSION_COST_USD`).

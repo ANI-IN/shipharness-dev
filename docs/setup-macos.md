@@ -94,8 +94,9 @@ docker info
 
 `brew install docker` installs the Docker command-line client that Colima needs. Colima's default
 virtual machine has 2 CPUs and 2 GiB of memory; `--memory 4` gives it 4 GiB. Each arm container is
-limited to 1 CPU and 1 GiB, and an A/B runs two arm containers, two board previews, and the referee,
-so give the virtual machine room. To change the size later: `colima stop`, then `colima start` with
+limited to 1 CPU and 1 GiB by default, and to 2 CPUs under the class profile that the `make` targets
+for live runs use; an A/B runs two arm containers, two board previews, and the referee, so give the
+virtual machine room. To change the size later: `colima stop`, then `colima start` with
 new values.
 
 After a restart of the Mac, run `colima start` again before any course command.

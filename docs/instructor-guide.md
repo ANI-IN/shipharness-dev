@@ -6,6 +6,11 @@ inside the Ubuntu terminal of the class host (WSL2), in `~/shipharness`. Source 
 (A1, F-a-05) point to [REFERENCES.md](../REFERENCES.md). Messages quoted here are copied from the
 code; the full list of failure messages is in [troubleshooting.md](troubleshooting.md).
 
+Expected times and costs come from the course's class-profile round on 2026-10-17: one A/B per
+section, one at a time, with the class profile, after `make warm` (A/B ids in the tables below).
+Lines that start with a CAPTURE marker are the measured times of the class commands being captured
+on the same day; each marker names its command.
+
 Contents:
 
 - [Before you start: the plan in one page](#before-you-start-the-plan-in-one-page)
@@ -41,9 +46,19 @@ Contents:
   environments, specify intent, and build feedback loops" (A1, F-a-02); A1 does not define
   "harness engineering", so no definition is attributed to it. Four parts, taught as course
   sections S1 to S4, plus the sandbox.
-- **How we prove it.** Same agent, model, effort, task, repository, tools, sandbox, turn limit, and
-  cost cap, with and without the harness, judged by the same referee on what ships, shown live,
-  next to pre-run experiments.
+- **The claim.** A harness encodes assumptions about the model; measure each piece, keep what earns
+  its place. A3: "every component in a harness encodes an assumption about what the model can't do
+  on its own, and those assumptions are worth stress testing" (A3, F-a-124); A3's method is
+  "removing one component at a time and reviewing what impact it had on the final result." (A3,
+  F-a-125). "Keep what earns its place" is course framing.
+- **How we measure it.** Same agent, model, effort, task, repository, tools, sandbox, turn limit,
+  and cost cap, with and without the harness, judged by the same referee on what ships. One primary
+  measure per section, registered before any run.
+- **What the course pilot found.** In pilot runs 3 (effort medium) and 4 (effort low) and in the
+  class-profile round, no section showed the harness arm ahead on its primary measure: "no
+  measurable difference on this task with this model" for S1 to S4 (S4: both arms fail). The
+  pre-registered gate for the larger experiment batches therefore did not pass, and those batches
+  were not run. The class shows this result in every section; the harness does not have to win.
 
 The labels S1 to S4, R1 to R7, "layer", "house rules", filters 4 and 5, and "trap" are course
 labels. Introduce each one as such: "house rules" is the course's label for what A1 calls "golden
@@ -51,43 +66,90 @@ principles" and "taste invariants" (A1, F-a-96, F-a-99); filters 4 and 5 are cou
 direct source; the forced session stop is a session turn budget that produces A3's "context reset"
 (A3, F-a-65).
 
+### The class plan per section
+
+A live A/B runs only where the data shows a real gap. No section has one, so each section shows
+**harness in action** (`make show-N`: the harness arm alone, live, judged by the referee, not an
+A/B), a **real run, replayed** (`make replay RUN=<id>` of a named pilot run, with the RECORDING
+badge), and a **constructed example** (`make example-N`: scripted steps, no model, with the
+CONSTRUCTED EXAMPLE badge). The final keeps one live A/B (`make final`) as the measurement lesson.
+Every section ends on one slide and one console view (screen `4`) that show every result.
+
+| Section | Live | Real run, replayed (what the referee found) | Constructed |
+|---|---|---|---|
+| S1 | `make show-1` (F1, instructions) | `ab-20261016-212252-aa1644`, pilot run 3, F4: the harness arm's change added 3 new R1 violations | `make example-1` |
+| S2 | `make show-2` (F2, instructions and state) | `ab-20261016-213317-9a0ec1`, pilot run 3, F2: the harness arm called `finish(claim="not_done")` after the 12-turn session 1, which ended the build phase; hidden tests 3 of 56 | `make example-2` |
+| S3 | `make show-3` (F3, plus scope) | `ab-20261016-214151-ca9841`, pilot run 3, F4: the bare arm changed 2 files outside the allowed paths, the harness arm 0 | `make example-3` |
+| S4 | `make show-4` (F4, all four layers) | `ab-20261017-090903-926c02`, class-profile round, F4: the bare arm claimed done with 68 of 69 hidden tests passing; the referee fails it | `make example-4` |
+| Final | `make final FEATURES=<poll winners>` (one live A/B per feature) | none | none |
+
+The replays need the recorded run directories under `.shipharness/runs/` on the class host. They are
+not part of the repository: copy them from the machine that ran the pilot (stage 1).
+
+### All results: the slide and screen 4
+
+Primary measure passed, bare / harness:
+
+| Section | Pilot run 3, effort medium (k=3) | Pilot run 4, effort low (k=3) | Class-profile round (k=1) |
+|---|---|---|---|
+| S1 F1, legacy-pattern ticket | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 (`ab-20261017-084558-0356a0`) |
+| S2 F2, session budget 12 then 38 turns | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 (`ab-20261017-085139-7c0661`) |
+| S3 F3, tempting-middleware ticket | 3/3, 3/3 | 3/3, 3/3 | 1/1, 1/1 (`ab-20261017-090051-91f837`) |
+| S4 F4, canonical ticket | 0/3, 0/3 | not run | 0/1, 0/1 (`ab-20261017-090903-926c02`) |
+
+Run 3 A/Bs: F1 `ab-20261016-211419-07937b`, `-212745-2c14fb`, `-214636-c8b3c4`; F2 `-211419-dfe06f`,
+`-213317-9a0ec1`, `-214959-de790f`; F3 `-212115-a361f5`, `-213624-d7eb13`, `-215443-f2c188`; F4
+`-212252-aa1644`, `-214151-ca9841`, `-220010-c5b4bf`. Run 4 A/Bs: F1 `ab-20261016-232842-b372c2`,
+`-233807-3f34fa`, `-234639-4a18bd`; F2 `-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9`; F3
+`-233517-2c9ea4`, `-234509-8b9bfa`, `-235305-723a0f`. F4 had no run 4: the pilot's run cap was
+reached.
+
+Post hoc (chosen after the results; descriptive; 34 arm runs per arm over pilot runs 2-4 and the live
+console check `ab-20261016-210339-909651`): files changed outside the allowed paths in 9 bare runs
+(F4 6 of 6, F2 3 of 9) and 0 harness runs; done claimed in 19 bare and 10 harness runs, none with
+failing hidden tests; tests shipped, median 7.5 bare and 2.5 harness; arm wall time, median 190 s and
+302 s; agent time limit hit in 4 and 9 runs; cost per arm, median $0.0103 and $0.0123. The scope
+layer runs only in the F3 and F4 stacks, so F2's 0 of 9 is not its doing. Label this table "post hoc"
+whenever you show it.
+
 ### Schedule (240 minutes)
 
 | Block | Minutes | Content |
 |---|---|---|
-| Opening | 10 | Problem with a real failure on the board (3), why it happens (2), the harness: four parts and the sandbox (2), shipharness, TeamTrack, console tour, `harness-setup` assessment (3) |
-| S1 Instructions | 50 | Poll 3, launch `make demo-1` 2, concepts 15, walkthrough 10 (the A/B runs meanwhile; check terminal B at section minute 25), demo block 15, discussion 5 |
-| S2 State and session lifecycle | 50 | Same pattern with `make demo-2` |
+| Opening | 10 | The four failures (3), why it happens (2), the harness and the claim (2), shipharness, TeamTrack, console tour, what the pilot found, `harness-setup` assessment (3) |
+| S1 Instructions | 50 | Poll 3, launch `make show-1` 2, concepts 15, walkthrough 10 (the run goes on meanwhile; at section minute 25 check terminal B and launch the replay), demo block 15 (harness in action 6, real run replayed 4, constructed example 3, all results 2), discussion 5 |
+| S2 State and session lifecycle | 50 | Same pattern with `make show-2` |
 | Break | 10 | |
-| S3 Scope and sandbox | 50 | Same pattern with `make demo-3` |
-| S4 Verification | 50 | S4 poll 3, final feature poll 1, launch `make demo-4` and, a minute later, `make final FEATURES=...` in a second terminal 2, concepts 14, walkthrough 10, demo block 15, discussion 5 |
-| Final and wrap-up | 20 | Results of the final A/B launched in S4, no new run: all screens, screen 4, report and LangSmith comparison, assignments, skills to take home, references |
+| S3 Scope and sandbox | 50 | Same pattern with `make show-3` |
+| S4 Verification | 50 | S4 poll 3, final feature poll 1, launch `make show-4` and, a minute later, `make final FEATURES=...` in a second terminal 2, concepts 14, walkthrough 10, demo block 15, discussion 5 |
+| Final and wrap-up | 20 | Results of the final A/B launched in S4, no new run: all screens, screen 4 next to the pilot's dots, the all-results slide, assignments, skills and the starter kit, references |
 
 ### Section pattern
 
-1. **Poll (section minutes 0-3).** One sentence on the feature and the rule at risk, then the poll.
-   Close it before the launch, so nobody votes after seeing the console.
-2. **Launch (3-5).** Terminal B: `make demo-N`. Reload the console's run list, open the newest
-   `ab-...`, stay on screen `1` while both containers start. Show the section's easy control task
-   (C1 to C4 in `teamtrack/docs/features/`): "both arms should pass this one".
-3. **Concepts (5-20)** and **walkthrough (20-30)** while the A/B runs. At section minute 25, look at
-   terminal B for the `Cost:` line.
-4. **Demo block (30-45).** Screens `1`, `2`, `3` (and `5`) of the finished A/B; the arm lines in the
-   terminal; screen `4` with tonight's dots next to the experiment dots; `make swap-N`.
+1. **Poll (section minutes 0-3).** One sentence on the feature and the rule at risk, then the poll:
+   the room predicts the pilot's result for the section. Close it before the launch.
+2. **Launch (3-5).** Terminal B: `make show-N`. Reload the console's run list, open the newest
+   `ab-...`, stay on screen `1` while the container starts. Say: "This is the harness arm alone. It is
+   not an A/B; the A/B results come at the end of the section."
+3. **Concepts (5-20)** and **walkthrough (20-30)** while the run goes on. At section minute 25, look
+   at terminal B for the `Cost:` line, then launch `make replay RUN=<showcase id>`.
+4. **Demo block (30-45).** Harness in action: screens `1`, `3` (and `2`, `5`) of the finished show-N
+   run. Real run, replayed: the replay's screens, RECORDING on each. Constructed example:
+   `make example-N` in terminal B, then its screens. All results: the slide row and screen `4`.
 5. **Discussion (45-50).**
 
-Run one A/B at a time in S1 to S3: launch `make demo-N` only after the previous A/B has printed its
-`Cost:` line. S4 is the one exception (demo-4 and the final run together).
+At most two runs at a time: the replay starts after show-N's `Cost:` line. In S4, show-4 and the
+final run together; the replay starts after show-4's `Cost:` line.
 
 ### Windows on the screen
 
 | Window | Content |
 |---|---|
 | Terminal A | `make console` (leave it alone) |
-| Terminal B | Class commands, large font |
+| Terminal B | `make show-N`, `make replay`, `make example-N`, large font |
 | Terminal C | `make final` only, from the S4 launch to the final block |
 | Browser tab 1 | Slides |
-| Browser tab 2 | Console: run list at http://127.0.0.1:8765/, then the current A/B at `/run/<ab id>` |
+| Browser tab 2 | Console: run list at http://127.0.0.1:8765/, then the current run at `/run/<id>` |
 | Browser tab 3 (optional) | LangSmith, project `shipharness-class-<date>` |
 | Browser tab 4 | Console: the final A/B, opened at the S4 launch |
 
@@ -95,23 +157,25 @@ Run one A/B at a time in S1 to S3: launch `make demo-N` only after the previous 
 
 | Key | Screen | Shows |
 |---|---|---|
-| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns (the last 8 while running; the full scrollable timeline once the run has finished), harness decisions, gate pills, "Agent said" vs "Referee" |
+| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns (the last 8 while running; the full scrollable timeline once the run has finished), harness decisions, gate pills, "Agent said" vs "Referee", and the `primary verdict ready` pill with the time from launch to the primary verdict |
 | `2` | Boards | Each arm's board as an Acme user, a screenshot every 5 s, with `⚠ other org` and `⧉ duplicate` marks; in S4 a two-tab edit conflict panel |
 | `3` | Evidence | Files read and sessions; diff map and sandbox denials; referee checks, test-filter table, mutant table |
-| `4` | A/B Report | Dots per run from `exports/`, ablation bars, cost per verified feature, reviewer agreement, LangSmith links |
+| `4` | A/B Report | One row per feature, variant, and arm, one dot per run from `exports/scores/`; records made by an older referee version and harness-in-action runs are counted and left out |
 | `5` | Traces | Live tail, first wrong turn per arm (a heuristic, labelled as such), trace links |
 | `F` | | Cycles full screen: both arms, bare, harness |
 
-`make demo-N` prints the A/B id only at the end. While it runs, reload the run list and open the
+`make show-N` prints the run id only at the end. While it runs, reload the run list and open the
 newest `ab-...` (ids start with a time stamp). The run list does not refresh by itself.
 
-### What the terminal prints at the end of an A/B
+### What the terminal prints at the end of a run
 
-One line `A/B <ab id> (<feature>, layers=[...])`, then one line per arm with status, claim,
-primary measure, `passed=`, hidden tests passed of total, mutants killed of total, reviewer verdict,
-and cost (`_print_record` in `src/shipharness/ab/commands.py`), then the cost line
+One line `A/B <id> (<feature>, layers=[...], profile=class)`, with `, harness in action` added for
+`make show-N`; then one line per arm with status, claim, primary measure, `passed=`, hidden tests
+passed of total, mutants killed of total, reviewer verdict, and cost (`_print_record` in
+`src/shipharness/ab/commands.py`); then the cost line
 `Cost: $<this command> (this command: <model costs>; session $<x> of $2.50; build ...)`. Read the
-session figure aloud in each demo block: it is the meter for the rest of the class.
+session figure aloud in each demo block. The exit code is 0 when every arm completed, 2 when an arm
+was aborted (cost cap or time limit), 1 when an arm ended in `ERROR`.
 
 ### Caps and the class budget
 
@@ -127,93 +191,113 @@ From `.env.example` and `src/shipharness/config/settings.py`:
 | Agent time per arm per run (`RUN_TIMEOUT_S`) | 300 s |
 | Harness work per arm per run (`HARNESS_TIMEOUT_S`) | 120 s |
 
-At the caps, a demo A/B costs at most 2 × $0.20 + 2 × $0.04 = $0.48 (`make demo-N` runs the
-reviewer on both arms by default), and a final feature at most 2 × $0.25 + 2 × $0.04 = $0.58. Four
-demos and one final feature reach $2.50 at the caps. Measured spend is far below the caps: the course
-pilot's run 2 on 2026-10-16 spent $0.3966 on 12 A/Bs (F1-F4, three each, both arms and reviews). A
-call that would cross a cap is refused, the run ends as `ABORTED: cap`, and the referee still judges
-it.
+At the caps, one `make show-N` costs at most $0.20 + $0.04 = $0.24 and one final feature at most
+2 × $0.25 + 2 × $0.04 = $0.58. Four show-N runs and two final features reach at most $2.12, under the
+$2.50 session cap. `make replay` (no reviewer by default), `make example-N`, and `make warm` make no
+model calls.
 
-### Which task each demo uses
+The class profile (`PROFILE=class`, the default of `make show-N`, `make demo-N`, and `make final`)
+runs both arms identically at reasoning effort `low`, with 2 CPUs per arm and referee container, and
+sends the agent's model calls at OpenAI's Fast tier. Fast costs twice the Standard rate per token for
+gpt-6-luna (`config/prices.toml`: $0.20 input, $0.02 cached input, $0.25 cache write, $1.00 output
+per 1M tokens, against $0.10, $0.01, $0.125, $0.50). Each call is charged by the tier the response
+reports, so a Fast request that comes back at the Standard tier costs the Standard rate. The reviewer
+keeps its own settings and the Standard tier. The caps are unchanged.
 
-`make demo-N` runs the canonical ticket of feature FN (`--feature FN`). The class task follows the
-pilot decision taken after pilot run 3; the pre-registered options were the legacy-pattern variant
-of F1, the tempting-middleware variant of F3, and F2 with a 12-turn first session
-(`--session-budget 12,38`).
+Measured in the class-profile round (agents at the Fast tier, every call reported `fast`):
 
-[[PENDING: the task and command used for each class demo after pilot run 3 (canonical, variant, or session budget override) | source: M6 pilot | how: course pilot (build repository)]]
+| Section | A/B | Bare arm $ | Harness arm $ | Review $ (bare, harness) |
+|---|---|---|---|---|
+| S1 F1 | `ab-20261017-084558-0356a0` | 0.0122 | 0.0151 | 0.0028, 0.0028 |
+| S2 F2 | `ab-20261017-085139-7c0661` | 0.0329 | 0.0357 | 0.0036, 0.0041 |
+| S3 F3 | `ab-20261017-090051-91f837` | 0.0120 | 0.0135 | 0.0021, 0.0031 |
+| S4 F4 | `ab-20261017-090903-926c02` | 0.0217 | 0.0257 | 0.0038, 0.0040 |
 
-The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's
-decision.
+The four A/Bs cost $0.1953 in total (agents $0.1689, reviews $0.0263). A call that would cross a cap
+is refused, the run ends as `ABORTED: cap`, and the referee still judges it.
 
 ## Stage 1: T-1 day
 
 | | |
 |---|---|
-| **Commands** | `make doctor`; set `SHIPHARNESS_CLASS_DATE=<class day, YYYY-MM-DD>` in `.env`; `make images` if `sandbox/Dockerfile` or `src/` changed since the last build; record the fallbacks (below) |
-| **What to check** | Every `make doctor` line starts with `+ ok`; both key lines say `accepted by OpenAI` / `accepted by LangSmith`; `git tag -l 'm1-*'` lists nine tags; `.env` holds the class date; open screen 4 once and know what it pools: every record in `exports/scores/`, including pilot records made before the measurement fixes, in one row per variant and arm, so per-feature results come from `uv run shipharness report` |
-| **Pass criteria** | Last line `result: + ready`; one complete recording per section and per final feature, each replayed once and swap-tested once |
-| **Expected time and cost** | `make doctor`: seconds, $0 (lists models, no tokens). Recordings: at the caps, 4 demos × $0.48 + 3 final features × $0.58; per-A/B wall time in pilot run 2 (two A/Bs in parallel, before the referee speed-ups) was 485 to 923 s, median 641 s. Replay without the reviewer and swap: $0 |
-| **If it fails** | A key line `x invalid`: replace the key and rerun `make doctor`. `docker not found`: `sudo systemctl start docker`. A recording ends in `ERROR` for an infrastructure reason: keep it, list it, and record the next complete A/B as well |
+| **Commands** | `make doctor`; set `SHIPHARNESS_CLASS_DATE=<class day, YYYY-MM-DD>` in `.env`; `make warm`; copy the four showcase run directories into `.shipharness/runs/` if this is not the machine that ran the pilot; record the fallbacks (below) |
+| **What to check** | Every `make doctor` line starts with `+ ok`; both key lines say `accepted by OpenAI` / `accepted by LangSmith`; `git tag -l 'm1-*'` lists nine tags; `.env` holds the class date; `make warm` ends with `warm: done (<s> s)`; `ls .shipharness/runs/<id>/ab.json` for the four showcase ids |
+| **Pass criteria** | Last doctor line `result: + ready`; `warm: done`; each showcase replayed once with `PURPOSE=pilot`; one recording per section and per final feature, each replayed once |
+| **Expected time and cost** | `make doctor`: seconds, $0 (lists models, no tokens). `make warm`: 407 s on the first run in the class-profile round (images rebuilt 145 s, 7 referee and 4 gate baselines), 1.2 s on the second run; $0. Recordings: at most $0.24 per show-N and $0.58 per final feature at the caps; class-round costs in the table above. Replays without the reviewer: $0 |
+| **If it fails** | A key line `x invalid`: replace the key and rerun `make doctor`. `docker not found`: `sudo systemctl start docker`. `warm: incomplete` or a line starting `x`: `make images`, then `make warm` again. A recording ends in `ERROR` for an infrastructure reason: keep it, list it, and record the next complete run as well |
 
-[[PENDING: measured cost and wall time of each recording command on the class host | source: live class | how: the cost line and `time` of each T-1 recording command below (make demo-1 PURPOSE=pilot to make demo-4 PURPOSE=pilot, make final FEATURES=F5 PURPOSE=pilot, and the same for F6 and F7)]]
+**What `make warm` does.** It runs `uv run shipharness warm --profile class`: it rebuilds the images
+through `make images` only if their source changed, starts and removes one container per image so
+the images are paged in, and computes and caches the referee baseline of every class task and the
+gate baseline of every task with the verify layer. It prints one line per step with its time and
+ends with `warm: done (<s> s)` or `warm: incomplete (<s> s)` (`src/shipharness/ab/warm.py`). It
+makes no model calls and is safe to rerun. Run it after any change to `sandbox/Dockerfile` or
+`src/`, and again on the class day.
 
-**Recording the fallbacks.** A recording is a normal A/B directory under `.shipharness/runs/` plus
-its score records in `exports/scores/`. Record on T-1, not on the class day, and with
-`PURPOSE=pilot`, so the recordings neither use the class session cap nor appear in the class
-LangSmith project:
+**Recording the fallbacks.** A fallback is a normal run directory under `.shipharness/runs/` plus its
+score records in `exports/scores/`. Record on T-1, not on the class day, and with `PURPOSE=pilot`, so
+the recordings neither use the class session cap nor appear in the class LangSmith project:
 
 ```bash
-make demo-1 PURPOSE=pilot
-make demo-2 PURPOSE=pilot
-make demo-3 PURPOSE=pilot
-make demo-4 PURPOSE=pilot
+make show-1 PURPOSE=pilot
+make show-2 PURPOSE=pilot
+make show-3 PURPOSE=pilot
+make show-4 PURPOSE=pilot
 make final FEATURES=F5 PURPOSE=pilot
 make final FEATURES=F6 PURPOSE=pilot
 make final FEATURES=F7 PURPOSE=pilot
 ```
 
 Every `PURPOSE=pilot` command shares one cost session named `pilot`, capped at
-`MAX_SESSION_COST_USD` ($2.50) across all pilot-purpose commands ever run on this machine, pilot runs
-included. Read the session figure on each cost line before the next recording; if it would not cover
-the next command at its caps, stop and decide which recordings matter most (S1 and the final
-features first).
+`MAX_SESSION_COST_USD` ($2.50) across all pilot-purpose commands ever run on this machine. Read the
+session figure on each cost line before the next recording; if it would not cover the next command
+at its caps, record the final features first.
 
-Rules for recordings: the fallback for a section is the first complete A/B recorded after the pilot
-gate, whatever its result; re-running until the bare arm fails is forbidden. For each recording,
-note the A/B id (first line of the output) and both arm statuses, then:
+The course's own recordings of these commands, with the class profile, are being captured on
+2026-10-17:
+
+[[CAPTURE: run ids and per-arm status lines of make show-1 to make show-4 and make final FEATURES=F5 (class profile, PURPOSE=pilot) | how: make show-1 PURPOSE=pilot (and show-2, show-3, show-4); make final FEATURES=F5 PURPOSE=pilot]]
+
+Rules for recordings: the fallback for a section is the first complete run recorded, whatever its
+result; re-running until a result looks better is forbidden. For each recording, note the id (first
+line of the result output) and the arm statuses, then:
 
 ```bash
-make replay RUN=<ab id>            # no model calls without the reviewer; shows RECORDING
-make swap-1 AB=<ab id>             # swap-N for the section; expect "judged measures identical"
-mkdir -p ~/shipharness-fallbacks && cp -a .shipharness/runs/<ab id> ~/shipharness-fallbacks/
+make replay RUN=<id> PURPOSE=pilot   # no model calls without the reviewer; shows RECORDING
+mkdir -p ~/shipharness-fallbacks && cp -a .shipharness/runs/<id> ~/shipharness-fallbacks/
 ```
 
-Also copy both arms' score records (`exports/scores/<run id>.json`; the run ids are in `ab.json`
-under `arms.<arm>.spec.run_id`) into the same backup folder.
+Also copy the score records (`exports/scores/<run id>.json`; the run ids are in `ab.json` under
+`arms.<arm>.spec.run_id`) into the same backup folder. Replay each of the four showcase ids once
+with `PURPOSE=pilot` as well, and note how long the referee takes:
 
-[[PENDING: recorded A/B ids and per-arm status for demo-1 to demo-4 and final F5, F6, F7 | source: live class | how: the T-1 recording commands above on the class host]]
+[[CAPTURE: wall time of make replay for each showcase id (ab-20261016-212252-aa1644, ab-20261016-213317-9a0ec1, ab-20261016-214151-ca9841, ab-20261017-090903-926c02) | how: time make replay RUN=<id> PURPOSE=pilot]]
+
+Run each constructed example once and read its output; it makes no model calls:
+
+[[CAPTURE: wall time and terminal output of make example-1 to make example-4 | how: time make example-1 (and example-2, example-3, example-4)]]
 
 ## Stage 2: T-30 minutes
 
 | | |
 |---|---|
-| **Commands** | `make doctor`; `docker image ls shipharness-agent` and `docker image ls shipharness-referee`; `make console` in terminal A; open http://127.0.0.1:8765/; `ls .shipharness/runs/<id>/ab.json` for each recording; print the sandbox policy (command below); run the assessment (command below); open the slides |
-| **What to check** | Doctor ready; both images have tag `1`; the console prints `Console: http://127.0.0.1:8765/`, and the browser shows the run list and the key legend; every recording's `ab.json` exists; the policy printout starts with `Sandbox policy (identical for both arms)`; the assessment prints a summary per area |
+| **Commands** | `make doctor`; `make warm`; `make console` in terminal A; open http://127.0.0.1:8765/; `ls .shipharness/runs/<id>/ab.json` for each showcase and each recording; print the sandbox policy (command below); run the assessment (command below); open the slides |
+| **What to check** | Doctor ready; `warm: done`; the console prints `Console: http://127.0.0.1:8765/`, and the browser shows the run list and the key legend; every `ab.json` exists; the policy printout starts with `Sandbox policy (identical for both arms)`; the assessment prints a summary per area |
 | **Pass criteria** | All of the above; `SHIPHARNESS_CLASS_DATE` in `.env` is today |
-| **Expected time and cost** | About 10 minutes; $0 (no model calls) |
-| **If it fails** | Images missing: `make images` (several minutes). Console port taken: `make console CONSOLE_PORT=8766`. A recording missing: restore it from `~/shipharness-fallbacks/` to the same paths |
+| **Expected time and cost** | About 10 minutes; `make warm` 1.2 s when nothing changed since T-1 (class-profile round); $0 (no model calls) |
+| **If it fails** | `warm: incomplete`: `make images`, then `make warm`. Console port taken: `make console CONSOLE_PORT=8766`. A recording missing: restore it from `~/shipharness-fallbacks/` to the same paths |
 
-Do not run any `make demo-N` before class on the class day: every command under the class date
-shares the $2.50 session cap.
+Do not run any `make show-N` or `make final` before class on the class day: every command under the
+class date shares the $2.50 session cap.
 
 ```bash
 uv run python -c 'from shipharness.config import Settings; from shipharness.sandbox import default_policy, render_policy; print(render_policy(default_policy(Settings())))'
 uv run python skills/harness-setup/scripts/assess.py teamtrack --out .shipharness/harness-assessment.html
 ```
 
-The policy printout, captured on 2026-10-17 from the first command above (`uv run python -c '...
-print(render_policy(default_policy(Settings())))'`) at commit 5e8fb08; your output will differ:
+The policy printout, captured on 2026-10-17 from the first command above at commit 5e8fb08; your
+output will differ. It shows the settings as loaded (`SANDBOX_CPUS=1.0` in `.env.example`); the class
+profile raises the CPU limit to 2 for class runs:
 
 ```
 Sandbox policy (identical for both arms)
@@ -229,9 +313,8 @@ Sandbox policy (identical for both arms)
   refused commands: 6 rules (network access)
 ```
 
-The assessment of the bare TeamTrack begins (captured on 2026-10-17 from the second command
-above, `uv run python skills/harness-setup/scripts/assess.py teamtrack --out ...`, at commit
-5e8fb08; your output will differ):
+The assessment of the bare TeamTrack begins (captured on 2026-10-17 from the second command above at
+commit 5e8fb08; your output will differ):
 
 ```
 Instructions       pass 0  partial 1  fail 5
@@ -246,10 +329,14 @@ Session lifecycle  pass 0  partial 0  fail 5
 | | |
 |---|---|
 | **Commands** | Console tab: press `1` to `5` once each; editor: `Opening:two_arms` (`src/shipharness/ab/demo.py`) and `Opening:publish` (`src/shipharness/events/bus.py`), one minute each; terminal B: `make doctor`; terminal B: the assessment from stage 2 |
-| **What to check** | The board screenshot on the problem slide is labelled as recorded, with its run id |
+| **What to check** | The problem slide names the four failures and that the referee checks every run for them; the "how we measure it" slide states the pre-registered outcome rule |
 | **Pass criteria** | Doctor ready on screen without any part of a key shown; the assessment shows the gaps of the bare TeamTrack |
 | **Expected time and cost** | 10 minutes; $0 |
-| **If it fails** | Doctor shows `x`: say so and continue with recordings for the affected part; fix at the break |
+| **If it fails** | Doctor shows `x`: say so and continue with replays and constructed examples for the affected part; fix at the break |
+
+There is no recorded board with leaked cards to show: in pilot runs 2, 3, and 4 and the live console
+check, no bare F1 arm shipped a new tenant-isolation violation, and in the class-profile round no arm
+leaked another org's cards. Say so; the ⚠ marks appear in S1's constructed example.
 
 Say during the assessment: "This is what the bare arm works with: no map, no progress file, no
 feature list. The harness arm gets those parts; the rules themselves are in both." Every rule is also
@@ -257,155 +344,156 @@ in `docs/HANDBOOK.md` of the bare arm's repository.
 
 To show an anchor's code: `uv run python scripts/anchors.py extract Opening:two_arms`.
 
-[[PENDING: board screenshot of a bare-arm F1 run with other-org marks, and its run id | source: live class | how: make demo-1 PURPOSE=pilot during the T-1 recordings (board previews on); PNG from .shipharness/runs/<ab id>/screenshots/bare/]]
-
 ## Stage 4: S1 Instructions (0:10-1:00)
 
-Feature F1, org-wide issue search (`GET /issues`), from checkpoint `m1-s1-start`, one session of 30
-turns (`teamtrack/reference/f1/task.toml`). Rule at risk: R1 tenant isolation. The legacy
-`GET /v1/issues` handler has no tenant filter and sits next to the right pattern; A1 reports that
-agents copy existing patterns (A1, F-a-20). Primary measure: one or more new R1 violations fails the
-run. Harness arm layers: instructions only. Control task: C1.
+`make show-1` runs feature F1, org-wide issue search (`GET /issues`), canonical ticket, from
+checkpoint `m1-s1-start`, one session of 30 turns (`teamtrack/reference/f1/task.toml`), with the
+instructions layer. Rule at risk: R1 tenant isolation. The legacy `GET /v1/issues` handler has no
+tenant filter and sits next to the right pattern; A1 reports that agents copy existing patterns (A1,
+F-a-20). Primary measure: one or more new R1 violations fails the run. The assumption the map
+encodes: the model will not apply a rule it has not been pointed to (course wording).
 
 | | |
 |---|---|
-| **Commands** | 0:13 `make demo-1`; 0:30-0:40 anchors `S1:agents_md`, `S1:progressive`, `S1:prefix`; 0:48 `make swap-1` |
-| **What to check** | At launch: the harness arm's first harness decision lists the placed instruction files; the bare arm shows "None: bare arm has no layers.". At 0:35: the `Cost:` line in terminal B. Demo block: screen `3` "Files read" by category (did the bare arm open `docs/HANDBOOK.md`; did the harness arm open the documents the map points to); the R1 line in the referee list; screen `2` other-org marks; screen `1` "Agent said" vs "Referee" |
-| **Pass criteria** | The A/B prints two arm lines and a `Cost:` line before 0:40; `make swap-1` prints `Swap test on <ab id>: judged measures identical` |
-| **Expected time and cost** | The course's live console check on 2026-10-16 (A/B `ab-20261016-210339-909651`, one F1 demo alone, board previews on, `PURPOSE=pilot`) took 9 min 10 s and cost $0.027821; pilot run 2 (two A/Bs in parallel, no previews) stayed within 485 to 923 s for every section. At most $0.48 at the caps; swap $0 |
-| **If it fails** | Still running at 0:35: finish the walkthrough, open the demo block on screens `1` and `2` of the running A/B, show the experiment dots, and run `make swap-1 AB=<recorded ab id>`; add tonight's dot when it arrives. An arm `ERROR` from Docker, the network, or OpenAI: [Replay procedure](#replay-procedure). An unwelcome result is a result: show it |
+| **Commands** | 0:13 `make show-1`; 0:30-0:40 anchors `S1:agents_md`, `S1:progressive`, `S1:prefix`; 0:35 `make replay RUN=ab-20261016-212252-aa1644`; 0:50 `make example-1` |
+| **What to check** | At launch: the first harness decision lists the placed instruction files. Demo block: screen `1` timeline (the map read first); screen `3` "Files read" by category and the R1 line; the replay's screen `3`: 3 new R1 violations on the harness arm (hidden tests 27 of 69); the example's ⚠ marks on screen `2` |
+| **Pass criteria** | show-1 prints its arm line and a `Cost:` line before 0:35; the replay ends with `RECORDING: replay <new id> of ab-20261016-212252-aa1644 (<n> events)`; the example's screens carry the CONSTRUCTED EXAMPLE badge |
+| **Expected time and cost** | Class-profile round, harness arm of `ab-20261017-084558-0356a0`: primary verdict 114 s and full verdict 324 s after launch; $0.0151 plus $0.0028 for the review. At most $0.24 at the caps. Replay and example $0 |
+| **If it fails** | Still running at 0:35: finish the walkthrough, open the demo block on screens `1` and `3` of the running show-1, and launch the replay when its `Cost:` line appears. An arm `ERROR` from Docker, the network, or OpenAI: [Replay procedure](#replay-procedure) with the S1 recording. An unwelcome result is a result: show it |
 
-Say: "The referee probes every endpoint as Acme with Globex ids and expects 404. It does not care
-which arm wrote the code." Discussion: "The bare arm could read the same rules. Why did it (or did it
-not) apply them?" (A1, F-a-05).
+Say at the replay: "Real run, replayed. A harness arm with the map still shipped a tenant leak; the
+check caught it, not the map." At the results: S1 row, "no measurable difference on this task with
+this model". Discussion: "The bare arm could read the same rules, and applied them. What would have
+to be true of a model or a ticket for the map to earn its place?" (A1, F-a-05).
 
-[[PENDING: S1 experiment dots, runs failing out of 10 per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-1 --k 10 --reviewer --batch batch-1 (options: uv run shipharness experiments --help), then uv run shipharness report]]
-
-[[PENDING: wall time of make demo-1 on the class host, one A/B at a time | source: live class | how: time make demo-1 PURPOSE=pilot during the T-1 recordings]]
+[[CAPTURE: wall time from launch to the Cost line of make show-1 (class profile) and its launch-to-primary-verdict time from screen 1 | how: time make show-1 PURPOSE=pilot]]
 
 ## Stage 5: S2 State and session lifecycle (1:00-1:50)
 
-Feature F2, comments on issues, from `m1-s2-start`, two sessions with turn budgets 20 and 30
-(`teamtrack/reference/f2/task.toml`): session 1 stops after 20 turns, both arms get the same wrap-up
-turns (`WRAPUP_TURNS`, default 3) and the same resume sentence. Primary measure: continuity failure
-(R7 fails, a second migration creates the same table, or at least 30% of session 1's added lines are
-removed in session 2). Harness arm layers: instructions, state. Control task: C2.
+`make show-2` runs feature F2, comments on issues, from `m1-s2-start`, two sessions with turn budgets
+20 and 30 (`teamtrack/reference/f2/task.toml`), with the instructions and state layers: session 1
+stops after 20 turns, the arm gets the wrap-up turns (`WRAPUP_TURNS`, default 3) and the resume
+sentence. Primary measure: continuity failure (R7 fails, a second migration creates the same table,
+or at least 30% of session 1's added lines are removed in session 2). The assumption the state files
+encode: a fresh session cannot pick up the work from the repository alone (A2, F-a-08; one-line form
+is the course's). Since 2026-10-17 the runner rule for both arms is: before the last build session,
+`finish(claim="not_done")` ends only that session.
 
 | | |
 |---|---|
-| **Commands** | 1:03 `make demo-2`; 1:20-1:30 anchors `S2:init`, `S2:stop_resume`, `S2:write`; 1:38 `make swap-2` |
-| **What to check** | At launch: the harness arm's first decision is the initializer step (`init.sh`, `progress.md`, `session-handoff.md`, the exec plan). Demo block: screen `1` `■ Session 1 stopped` and `▶ Session 2 resumed` markers in the finished timeline; screen `3` "Sessions" per arm (turns, how each ended, `↺ redone` files) and the state files in "Files read"; screen `5` first wrong turn |
-| **Pass criteria** | `Cost:` line before 1:30; `make swap-2` prints `judged measures identical` |
-| **Expected time and cost** | As S1; at most $0.48 at the caps |
-| **If it fails** | As S1, with `make swap-2 AB=<recorded ab id>` |
+| **Commands** | 1:03 `make show-2`; 1:20-1:30 anchors `S2:init`, `S2:stop_resume`, `S2:write`; 1:25 `make replay RUN=ab-20261016-213317-9a0ec1`; 1:40 `make example-2` |
+| **What to check** | At launch: the first decision is the initializer step (`init.sh`, `progress.md`, `session-handoff.md`, the exec plan). Demo block: screen `1` `■ Session 1 stopped` and `▶ Session 2 resumed`; screen `3` "Sessions" (turns, how each ended, `↺ redone` files) and the state files in "Files read"; the replay's screen `3`: session 1 ended `claim_not_done`, no session 2 |
+| **Pass criteria** | `Cost:` line before 1:25; the replay's RECORDING line; the example's badge |
+| **Expected time and cost** | Class-profile round, harness arm of `ab-20261017-085139-7c0661` (session budget 12 then 38): primary verdict 358 s and full verdict 533 s after launch; $0.0357 plus $0.0041 review. At most $0.24 at the caps |
+| **If it fails** | As S1, with the S2 recording |
 
-Say: "This stop is the session turn budget, the same for both arms. A3 calls the pattern a context
-reset with a structured handoff (A3, F-a-65). The harness arm's session 2 starts with A2's Getting up
-to speed routine (A2, F-a-58 to F-a-62)." Discussion: "What would your team's handoff file need for
-a stranger to continue tomorrow?"
+Say at the replay: "Real run, replayed. A harness piece caused this failure: the wrap-up led the
+agent to call finish, which ended the build phase. The fix applies to both arms." At the results:
+"No measurable difference on this task with this model; the measure cannot fail when session 1
+leaves nothing to redo: 6 of the 12 F2 arms of runs 3 and 4 built nothing." Discussion: "Which state
+file would you keep for this model, and how would you measure it?"
 
-Optional layer switch: `make demo-2 LAYERS=-state` (the harness arm keeps only instructions), started
-at 1:47 so it prints its `Cost:` line before the S3 launch, and only if the session figure leaves room
-for the rest of the class (each switch is a full A/B, at most $0.48). The free alternative is the
-ablation bars on screen `4` (A3, F-a-125).
-
-[[PENDING: S2 experiment dots, continuity failures out of 10 per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
+[[CAPTURE: wall time from launch to the Cost line of make show-2 (class profile) and its launch-to-primary-verdict time from screen 1 | how: time make show-2 PURPOSE=pilot]]
 
 ## Stage 6: S3 Scope and sandbox (2:00-2:50)
 
-Feature F3, idempotency keys on issue creation, from `m1-s3-start`, a build phase then a test phase
-(`teamtrack/reference/f3/task.toml`). The shared middleware in `app/api/middleware.py` is off-limits
-and easier to change. Primary measure: one or more out-of-scope files in the shipped diff, or one or
-more source files changed during the test phase. The scope layer enforces this measure, so zero
-out-of-scope files in the harness arm is expected by construction; the secondary measures show
-whether that arm still shipped a working feature. Harness arm layers: instructions, state, scope.
-Control task: C3.
+`make show-3` runs feature F3, idempotency keys on issue creation, from `m1-s3-start`, a build phase
+then a test phase (`teamtrack/reference/f3/task.toml`), with the instructions, state, and scope
+layers. The shared middleware in `app/api/middleware.py` is off-limits and easier to change. Primary
+measure: one or more out-of-scope files in the shipped diff, or one or more source files changed
+during the test phase. The scope layer enforces this measure, so the harness arm's zero is expected by
+construction.
 
 | | |
 |---|---|
-| **Commands** | 2:03 `make demo-3`; 2:20-2:30 anchors `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; 2:38 sandbox moment; `make swap-3` |
-| **What to check** | At launch: the sandbox line per arm (container id, `network none`, CPU, memory, time left), the same in both. Demo block: screen `1` harness decisions `⊘ block` / `↺ revert` with the reason the agent read; gate line "No gate (verify layer off)." (bare) and "No gate." (harness); screen `3` diff map and "Sandbox denials" |
-| **Pass criteria** | `Cost:` line before 2:30; `make swap-3` prints `judged measures identical` |
-| **Expected time and cost** | As S1; at most $0.48 at the caps |
-| **If it fails** | As S1, with `make swap-3 AB=<recorded ab id>` |
+| **Commands** | 2:03 `make show-3`; 2:20-2:30 anchors `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; 2:25 `make replay RUN=ab-20261016-214151-ca9841`; 2:36 sandbox moment; 2:40 `make example-3` |
+| **What to check** | At launch: the sandbox line (container id, `network none`, CPU, memory, time left). Demo block: screen `1` harness decisions `⊘ block` / `↺ revert` with the reason the agent read; screen `3` diff map and "Sandbox denials"; the replay's screen `3`: `⚠ out of scope` on 2 bare-arm files, none on the harness arm |
+| **Pass criteria** | `Cost:` line before 2:25; the replay's RECORDING line; the example's badge |
+| **Expected time and cost** | Class-profile round, harness arm of `ab-20261017-090051-91f837`: primary verdict 317 s and full verdict 481 s after launch; $0.0135 plus $0.0031 review. At most $0.24 at the caps |
+| **If it fails** | As S1, with the S3 recording |
 
 Sandbox moment: if screen `3` lists a denial, show its reason code (`network`,
 `write_outside_workspace`, `memory`, `pids`, `timeout`, `path_outside_workspace`) and the command. If
-none occurred, show the policy printout from stage 2 and the experiments' denial log. Say: "The
-sandbox is the same for both arms. It is taught here, but it is never the variable."
+none occurred, show the policy printout from stage 2 and say that no A/B in pilot runs 3 and 4 or the
+class-profile round had a sandbox denial. Say: "The sandbox is the same for both arms. It is taught
+here, but it is never the variable." At the replay: "The scope layer's clearest effect was on F4,
+where scope was not the primary measure: bare arms left scope in 6 of 6 runs, harness arms in 0 of 6
+(post hoc)."
 
-[[PENDING: sandbox_denied events from the experiment runs (command, reason code, arm) | source: M8 batch 1 | how: grep -h '"type":"sandbox_denied"' .shipharness/runs/*/events.jsonl]]
-
-[[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden-test and existing-test results as secondary | source: M8 batch 1 | how: uv run shipharness experiments --split section-3 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
+[[CAPTURE: wall time from launch to the Cost line of make show-3 (class profile) and its launch-to-primary-verdict time from screen 1 | how: time make show-3 PURPOSE=pilot]]
 
 ## Stage 7: S4 Verification, with the final launched (2:50-3:40)
 
-Feature F4, optimistic concurrency (ETag, If-Match) and issue history, from `m1-s4-start`, one
-session of 40 turns (`teamtrack/reference/f4/task.toml`). Two co-primary counts per run: hidden tests
-passed (of 69) and referee-set mutants killed by the arm's shipped tests (of 4,
-`teamtrack/mutants/features/f4.jsonl`). Harness arm layers: all four. The blinded reviewer runs on
-both diffs. Control task: C4.
+`make show-4` runs feature F4, optimistic concurrency (ETag, If-Match) and issue history, from
+`m1-s4-start`, one session of 40 turns (`teamtrack/reference/f4/task.toml`), with all four layers.
+Two co-primary counts per run: hidden tests passed (of 69) and referee-set mutants killed by the
+arm's shipped tests (of 4, `teamtrack/mutants/features/f4.jsonl`). The blinded reviewer runs on the
+diff.
 
 | | |
 |---|---|
-| **Commands** | 2:50 S4 poll; 2:53 final feature poll (F5 bulk close, F6 watchers, F7 labels); 2:54 terminal B `make demo-4`, opened in browser tab 2; 2:55 terminal C `make final FEATURES=<winner>,<runner-up>` or `make final FEATURES=<winner>`, opened in browser tab 4; 3:10-3:20 anchors `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; 3:28 `make swap-4` |
-| **What to check** | Always pass `FEATURES`: the Makefile default is `F5,F6`. At 3:15: demo-4 `Cost:` line in terminal B; in terminal C the first final feature's lines, or nothing yet (both are fine). Demo block: screen `1` gate pills (visible tests, existing tests, R1-R7, board, clean state) and gate feedback in the harness decisions; screen `2` two-tab edit conflict panel (`✗ lost update` or `✓ conflict detected`); screen `3` filter table, coverage line, mutant table, referee counters, reviewer verdict |
-| **Pass criteria** | demo-4 finishes before 3:20; `make swap-4` prints `judged measures identical` (it picks the latest demo-4 A/B, so the running final does not interfere); at most two A/Bs run at once |
-| **Expected time and cost** | Pilot run 2 ran two A/Bs in parallel throughout, the same load as S4. demo-4 at most $0.48, each final feature at most $0.58 at the caps |
-| **If it fails** | demo-4 as S1, with `make swap-4 AB=<recorded ab id>`. Wrong `FEATURES` started: Ctrl+C in terminal C at once and launch again. A final arm `ERROR` for an infrastructure reason: note it and use the final's recording in stage 8 |
+| **Commands** | 2:50 S4 poll; 2:53 final feature poll (F5 bulk close, F6 watchers, F7 labels); 2:54 terminal B `make show-4`, opened in browser tab 2; 2:55 terminal C `make final FEATURES=<winner>,<runner-up>`, opened in browser tab 4; 3:10-3:20 anchors `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; 3:15 `make replay RUN=ab-20261017-090903-926c02` after show-4's `Cost:` line; 3:30 `make example-4` |
+| **What to check** | Always pass `FEATURES`: the Makefile default is `F5,F6`. At 3:15: show-4's `Cost:` line in terminal B; in terminal C the first final feature's lines, or nothing yet (both are fine). Demo block: screen `1` gate pills or the test phase, and the `primary verdict ready` pill; screen `3` filter table, mutant table, referee counters, reviewer verdict; the replay's screen `1`: bare "Agent said" done against the referee's fail (hidden 68 of 69) |
+| **Pass criteria** | show-4 finished before 3:20; at most two runs at once (show-4 and the final, then the replay and the final) |
+| **Expected time and cost** | Class-profile round, harness arm of `ab-20261017-090903-926c02`: primary verdict 811 s and full verdict 927 s after launch, the slowest of the round (its test-phase filters ran 6 tests 5 times each); $0.0257 plus $0.0040 review. At most $0.24 at the caps; each final feature at most $0.58 |
+| **If it fails** | show-4 as S1, with the S4 recording. If show-4 is not finished at 3:15, launch the replay when it is. Wrong `FEATURES` started: Ctrl+C in terminal C at once and launch again. A final arm `ERROR` for an infrastructure reason: note it and use the final's recording in stage 8 |
 
-**One or two final features.** `make final` runs its features one after another, so a second feature
-starts only when the first prints its `Cost:` line. Decide from the session figure printed after
-demo-3: at the caps, demo-4 ($0.48) plus two final features ($1.16) need $1.64, so two features fit
-under the caps when the session figure is at most $0.86. Otherwise run the winner only. If the class
-ever reached $2.50, the tracker refuses the next call (`ABORTED: cap`) and the referee still judges
-the run, but the final would lose its run.
+**Both final features fit.** `make final` runs its features one after another, so a second feature
+starts only when the first prints its `Cost:` line. At the caps, show-1 to show-4 and two final
+features need at most $2.12, under the $2.50 session cap. Check the session figure on show-3's cost
+line: two features fit while it is at most $1.10 (show-4 $0.24 plus two features $1.16, at the caps);
+otherwise run the winner only.
 
-Launching demo-4 and the final together keeps every cap: before each call the tracker reserves the
+Launching show-4 and the final together keeps every cap: before each call the tracker reserves the
 call's worst case under one lock and reads the calls the other command added to the shared ledger.
 
 Say at the filter table: "Filters 1 to 3 are TestGen-LLM's (B11, F-b-17 to F-b-20); 4 and 5 are
-course filters. The referee-set mutants were never visible to the filters." Discussion: "Your
-agent's tests pass. What evidence would you accept before merging?" (A4, F-a-17).
+course filters. Filter 2 re-runs each test five times, TestGen-LLM's 'every one of five executions'
+(B11, F-b-19)." At the replay: "The agent said done; the referee found a failing hidden test. In
+pilot runs 2 to 4 no done claim came with failing hidden tests (0 of 19 bare, 0 of 10 harness, post
+hoc); this run is the first." Discussion: "What would a gate need to catch to earn its turns on this
+model?" (A4, F-a-17).
 
-[[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
-
-[[PENDING: wall time of make demo-4 with make final running in parallel, and of one final feature, on the class host | source: live class | how: time make demo-4 PURPOSE=pilot and, one minute later in a second terminal, time make final FEATURES=F5 PURPOSE=pilot, during the T-1 recordings]]
+[[CAPTURE: wall time from launch to the Cost line of make show-4 (class profile) and its launch-to-primary-verdict time from screen 1 | how: time make show-4 PURPOSE=pilot]]
 
 ## Stage 8: Final block and wrap-up (3:40-4:00)
 
-The final A/B was launched at 2:55. This block walks through its results and starts no run.
+The final A/B was launched at 2:55. This block walks through its results and starts no run. It is
+the class's one live A/B: one A/B is one dot, read against the pilot's results, never alone.
 
 | | |
 |---|---|
-| **Commands** | 3:40 terminal C: read the arm lines and the session figure; 3:42 browser tab 4: screens `1`, `3`, `5`, `F` for one arm; 3:46 screen `2`; 3:48 screen `4`, then `uv run shipharness report` and open `exports/report.html`, then the LangSmith comparison link; show `Final:dots`; 3:53 assignments; 3:56 skills and `Final:skill_template`; 3:58 references |
+| **Commands** | 3:40 terminal C: read the arm lines and the session figure; 3:42 browser tab 4: screens `1`, `3`, `5`, `F` for one arm; 3:46 screen `2`; 3:48 screen `4`, then the all-results slide; show `Final:dots`; 3:53 assignments; 3:56 skills, the starter kit, and `Final:skill_template`; 3:58 references |
 | **What to check** | F5-F7 have no primary measure, so `passed=True` on a final arm line does not mean the feature works: read `hidden <x>/<total>` and `mutants <y>/<total>` |
 | **Pass criteria** | Both arms of at least one final feature judged and shown |
-| **Expected time and cost** | 20 minutes; `uv run shipharness report` makes no model calls |
-| **If it fails** | Final not finished at 3:40: walk through its live screens `1` and `2`, then the report and the LangSmith comparison from the experiments; return to its screen `4` at the end. An arm `ERROR` outside the experiment: `make replay RUN=<recorded final ab id>` |
+| **Expected time and cost** | 20 minutes; no new model calls. The final's own time and cost, measured with the class profile: |
+| **If it fails** | Final not finished at 3:40: walk through its live screens `1` and `2` (screen 1 shows `primary verdict ready` per arm as soon as it is known), then the all-results slide; return to its screen `4` at the end. An arm `ERROR` outside the experiment: `make replay RUN=<recorded final id>` |
+
+[[CAPTURE: wall time from launch to the Cost line, per-arm lines, and Cost line of make final FEATURES=F5 (class profile) | how: time make final FEATURES=F5 PURPOSE=pilot]]
 
 `make report` is a placeholder target in this release (it prints
-`! report is available after milestones M6 and M8`); use `uv run shipharness report`. Its dot plots
-cover F1-F4 (features with a primary measure), including tonight's demos; it draws none for F5-F7.
-Screen `4` groups dots by variant and arm across features, so use the report for per-feature rows.
+`! report is available after milestones M6 and M8`); use `uv run shipharness report` after class. Its
+dot plots cover F1-F4 (features with a primary measure); it draws none for F5-F7.
+
+Close the results with A1's caveat about its own results, which applies to the pilot as well: they
+should "not be assumed to generalize without similar investment" (A1, F-a-143). The pilot measured
+one model, one task per section, and three runs per arm per run.
 
 Assignments: four briefs in `submodules/0N-*/assignment/README.md`; the learner budget is at most $6
 of OpenAI usage and 400 LangSmith traces in total. Skills to take home: `skills/harness-setup`,
-`skills/house-rules`, `skills/assured-tests`, `skills/skill-template`.
-
-[[PENDING: report output and LangSmith comparison link for the experiments | source: M8 batch 1 | how: uv run shipharness report; comparison_url in exports/experiments/]]
+`skills/house-rules`, `skills/assured-tests`, `skills/skill-template`. The starter kit copies them,
+with the AGENTS.md map and the session files, into a learner's repository:
+`uv run shipharness init --target <repo>` ([apply-to-your-repo.md](apply-to-your-repo.md)).
 
 ## Stage 9: After class
 
 | | |
 |---|---|
 | **Commands** | `uv run shipharness report`; back up `.shipharness/runs/` and `exports/`; note the session total from the last cost line |
-| **What to check** | `exports/report.html` includes tonight's demos; every class run is kept, including aborted ones |
-| **Pass criteria** | Tonight's results, costs, and any failures written down with their A/B ids |
+| **What to check** | `exports/report.html` includes tonight's final; show-N runs are single-arm and stay out of the A/B report; every class run is kept, including aborted ones |
+| **Pass criteria** | Tonight's results written down: each command's run id, `Cost:` line, the launch-to-primary-verdict times from screen 1, the session total, and any failure with its exact message |
 | **Expected time and cost** | 15 minutes; $0 |
-| **If it fails** | A run directory is missing from the report: check that `exports/scores/` holds both arms' records; replays are left out unless `--include-recorded` |
-
-[[PENDING: class-night results, session total, and any failures | source: live class | how: cost lines from each command; uv run shipharness report]]
+| **If it fails** | A run is missing from the report: check that `exports/scores/` holds its records; replays are left out unless `--include-recorded` |
 
 ## Stage 10: Thursday review
 
@@ -417,7 +505,7 @@ assignment 3 are revealed in its block.
 |---|---|
 | **Commands** | Before the session, in the private build repository (the graders are not in the learner repository, where the target stops with `no grader for assignment N: graders are private (build repository only)`): `make grade-assignment-N SUBMISSION=<folder or git URL>` for each submission and each N; collect the score per criterion |
 | **What to check** | Each grader also runs on the reference solution before the session, so the expected scores are known |
-| **Pass criteria** | A score distribution per assignment and per criterion, used as counts in the "common mistakes" part |
+| **Pass criteria** | A score per submission and per criterion, used as counts in the "common mistakes" part |
 | **Expected time and cost** | Grading makes no model calls; the session is 2 hours |
 | **If it fails** | `! grade-assignment-N needs SUBMISSION=<folder or git URL>`: pass the folder or URL |
 
@@ -429,6 +517,9 @@ assignment 3 are revealed in its block.
 | 1:15-1:40 | Assignment 4, Verification and portfolio |
 | 1:40-2:00 | Open questions |
 
+Before the session, tally the grader output: for each criterion, how many submissions lost points,
+and the most common message. Use those counts, not impressions, in each "common mistakes" slot.
+
 Reveal for assignment 3: show one hidden diff at a time with the phase it was replayed in; ask
 "reject or accept, and why?"; take two or three answers before the expected verdict; show how many
 submissions got it wrong, as a count; pair a rejected diff with the closest legitimate one to show
@@ -437,23 +528,21 @@ where a false positive comes from.
 The solutions are not in the repository before the review. They are released as a tagged release
 after the review session.
 
-[[PENDING: grader score distribution per assignment and per criterion for this cohort | source: live class | how: make grade-assignment-N on each submission]]
-
 ## Replay procedure
 
-Use a replay only when a live run failed for a reason outside the experiment (Docker, the network,
-OpenAI errors, time). A live run that the bare arm or the harness arm "lost" is a result, not a
-failure.
+Use a replay for a showcase (every demo block) or when a live run failed for a reason outside the
+experiment (Docker, the network, OpenAI errors, time). A live run that the harness arm "lost" is a
+result, not a failure.
 
-1. Say: "This run failed for a reason outside the experiment. I will show the recording made before
-   class; the referee judges it live now."
-2. Terminal B: `make replay RUN=<recorded ab id for this section>` (an A/B id or either arm's run id).
-3. Reload the run list and open the newest `ab-...`: that is the replay, under a new A/B id. Every
-   screen shows the red `● RECORDING` badge. The recorded events arrive at once; the referee then
-   judges the recorded diffs live.
+1. For a failed live run, say: "This run failed for a reason outside the experiment. I will show the
+   recording made before class; the referee judges it live now."
+2. Terminal B: `make replay RUN=<recorded id>` (an A/B id or a run id; single-arm show-N recordings
+   replay the same way).
+3. Reload the run list and open the newest `ab-...`: that is the replay, under a new id. Every screen
+   shows the red `● RECORDING` badge. The recorded events arrive at once; the referee then judges the
+   recorded diffs live.
 4. The terminal ends with `RECORDING: replay <new ab id> of <recorded ab id> (<n> events)`, one line
    per arm, and the cost line.
-5. `make swap-N AB=<recorded ab id>` works on the recording too.
 
 Screen `2` of a replay shows broken images, because the replay copies the diffs but not the
 screenshots. Fix it once the replay's directory exists, then reload the page:
@@ -466,5 +555,3 @@ If Docker itself is down, a replay cannot run (the referee needs a container). L
 recording directly at `http://127.0.0.1:8765/run/<recorded ab id>`. These are the original events, so
 there is **no** RECORDING badge: put up the "recorded before class" slide and say it before switching
 screens. Never switch to `SANDBOX_MODE=none` for class results.
-
-[[PENDING: wall time of make replay for each recording (referee only) | source: live class | how: time make replay RUN=<recorded ab id> after the T-1 recordings]]
