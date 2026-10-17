@@ -14,20 +14,106 @@ and variable, the caps and limits, and the folders. Each table names the file it
 
 ### Codes used in this course
 
-Pages write each code with plain words next to it, such as "R1 tenant isolation".
+Pages use the plain names below. The short codes appear only in code: commands, file names, logs,
+console screens, and captured output. Where a page quotes one, it says the plain name right there.
 
-- **Section 1 to Section 4**: Instructions; State and session lifecycle; Scope and sandbox;
-  Verification. Slide code anchors such as `S4:gate` use the short form.
-- **Assignment 1 to Assignment 4**: the take-home work of Sections 1 to 4.
-- **F1 to F7**: TeamTrack's feature tickets. F1 org-wide issue search, F2 comments on issues, F3
-  idempotency keys on issue creation, F4 version checks (optimistic concurrency) and issue history,
-  F5 bulk close, F6 watchers, F7 labels.
-- **R1 to R7**: TeamTrack's house rules, each a written rule with a check. R1 tenant isolation, R2
-  roles, R3 API conventions, R4 idempotent creates, R5 audit log, R6 layering, R7 migrations.
-- **House rules**: the rules a team wants every change to follow, each with a check that prints how
-  to fix a violation.
-- **Sources**: named by a short name with a link, such as (OpenAI, Harness engineering); each page
-  lists its sources in full at the end.
+| Code | Plain name | Command alias |
+|---|---|---|
+| `F1` | Org-wide issue search | `org-search` |
+| `F2` | Comments on issues | `comments` |
+| `F3` | Idempotent issue creation (retried creates never duplicate) | `idempotent-create` |
+| `F4` | Version checks on issue edits, with issue history | `version-checks` |
+| `F5` | Bulk close | `bulk-close` |
+| `F6` | Watchers | `watchers` |
+| `F7` | Labels | `labels` |
+| `R1` | Tenant isolation rule: another org's resource answers 404 | |
+| `R2` | Roles rule: viewers cannot write; some writes are admin-only | |
+| `R3` | API conventions rule: list and error envelopes, status codes | |
+| `R4` | Idempotent creates rule: honour the `Idempotency-Key` header | |
+| `R5` | Audit log rule: one audit row per write | |
+| `R6` | Layering rule: the API layer never imports the database layer | |
+| `R7` | Migrations rule: one Alembic head, upgrades work on an empty database | |
+| `S1` | Section 1: Instructions | |
+| `S2` | Section 2: State and session lifecycle | |
+| `S3` | Section 3: Scope and sandbox | |
+| `S4` | Section 4: Verification | |
+| `A1` to `A4` | Assignment 1 to Assignment 4, the take-home work of Sections 1 to 4 | |
+
+The four section features (org-wide search, comments, idempotent creation, version checks) belong to
+the sections; the final project picks one of bulk close, watchers, or labels. Commands take the
+alias: `make demo-3 FEATURE=version-checks`, `make final FEATURES=watchers,bulk-close`. Slide code
+anchors such as `S4:gate` keep the short form. Sources are named by a short name with a link, such
+as ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)), and each page
+lists its sources in full at the end.
+
+### Glossary
+
+One line per term, in plain words. Pages spell out each term on first use too.
+
+- **A/B**: Bare arm and harness arm on the same ticket, scored the same way.
+- **Ablation**: Removing one harness layer and running again, to see what that layer was worth.
+- **Adapter**: The file that tells `shipharness check` where your app's routes, models, and rules live.
+- **Alembic head**: The newest migration in Alembic's chain of database migrations; a healthy history has exactly one.
+- **Audit log**: A table with one row per write that says who changed what.
+- **Bare arm**: An agent run with the ticket and the repository, and no harness.
+- **Baseline**: The results on the unchanged app, recorded once so later checks count only new problems.
+- **Blinded reviewer**: A separate model that reads a diff without knowing which arm wrote it.
+- **bwrap and seccomp**: Linux tools that limit which files and system calls a process may use.
+- **Class date**: The class day in `.env`, which names the LangSmith project and keys the session cap.
+- **Class profile**: The settings the live class runs use, the same for both arms.
+- **Compaction**: Squeezing an old context into a short summary so the session can go on.
+- **Context reset**: Ending a session and starting a fresh one that reads its state from files.
+- **Doctest**: An example in a docstring that runs as a test.
+- **Embeddings**: Number vectors that stand for a text's meaning, so similar texts can be found.
+- **Exec plan**: A living plan file for one long change, with its progress, decisions, and surprises.
+- **Experiment export**: The JSON file a run writes for each arm, listing its runs and scores.
+- **Fast tier**: OpenAI's quicker, higher-priced service tier, used in the class profile.
+- **Feature list**: A JSON file that lists each feature with a `passes` field; the harness, not the agent, sets it.
+- **Flakiness**: How often a test gives different results on the same code; the referee re-runs each shipped test five times.
+- **Flaky test**: A test that sometimes passes and sometimes fails on the same code.
+- **Gate**: The harness check that must pass before "done" counts; the agent does not control it.
+- **Harness**: The files and code around the agent that decide what it sees and what it may do.
+- **Harness arm**: The same run as the bare arm, with the harness turned on.
+- **Harness layer**: One part of the harness: instructions, state, scope, or verification.
+- **Held-out tests**: Hidden tests the agent never sees; only the referee runs them.
+- **Hidden tests**: Tests the agent never sees; the referee runs them after it stops (also held-out tests).
+- **House rules**: The rules a team wants every change to follow, each with a check that prints how to fix a violation.
+- **Idempotency**: Sending the same request twice has the same effect as sending it once.
+- **Idempotency key**: An id the client sends with a create request, so a retried request does not create a duplicate.
+- **Import-linter**: A tool that fails when code imports across a forbidden layer boundary.
+- **k**: The number of tries per arm and task; k=1 is one try.
+- **LangSmith**: The tracing service that records every model call of a run.
+- **Lost update**: One edit silently overwriting another made at the same time.
+- **Migration head**: Another name for the Alembic head: the single newest migration.
+- **Mutant**: A copy of the code with one small bug planted on purpose; a good test fails on it.
+- **Optimistic concurrency**: An edit carries the version it read, and the server refuses it if the record changed since.
+- **pass^k**: Passing on all k tries of the same task, not just on one.
+- **Pill**: The status badge on console screen 1 that shows the primary verdict.
+- **Primary measure**: The one question a section's A/B answers, fixed before any run.
+- **Primary verdict**: The referee's answer to the one question the section asks.
+- **Probe**: A request the referee sends to test one house rule on one endpoint.
+- **Progressive disclosure**: The agent first sees a short description and opens the full instructions only when it needs them.
+- **Reasoning effort**: How long the model thinks before it answers (low, medium, high).
+- **Referee**: The program that scores each run after the agent stops.
+- **Referee set**: Mutants held back from test generation and used only to judge the kept tests.
+- **Registered**: Fixed in writing before any run, so the result cannot shape the question.
+- **Regression oracle**: The reference for correct behaviour: the current code's results, which new tests must match.
+- **Regression tests**: Tests that guard the behaviour the code has today.
+- **Replay**: Showing a recorded run again and judging it again, with no model calls.
+- **Reward hacking**: Passing the visible checks without doing the task they stand for.
+- **Sandbox**: The container the agent's commands run in, with no network and only the files it may use.
+- **Session**: One stretch of agent work that starts with a fresh context; a long task spans several sessions.
+- **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
+- **Skill**: A folder with a `SKILL.md` file that tells an agent how to do one kind of task.
+- **Soft delete**: Marking a row as deleted (a `deleted_at` time) instead of removing it.
+- **Stopwords**: Common words such as "the" that a text comparison ignores.
+- **Swap test**: Scoring an A/B again with the arm labels swapped, to check the reviewer is not biased by them.
+- **Tenant**: One customer organisation (org) in an app that serves many; tenant isolation keeps each org's data apart.
+- **Ticket**: The task the agent gets, written like a work ticket.
+- **Trace**: The recorded steps of a run, model calls and tool calls, in LangSmith.
+- **Turn**: One model reply, with the tool calls it makes.
+- **Turn budget**: The most turns a session may use before the runner stops it.
+- **Walkthrough anchor**: A marker such as `S4:gate` in the code that a walkthrough page points to.
 
 ## Make targets
 
@@ -66,7 +152,7 @@ These call OpenAI live and never fall back to a recording. Each prints a `Cost:`
 |---|---|---|---|
 | `make show-1` to `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness ...` | The harness arm alone, judged by the referee | $0.24 |
 | `make demo-1` to `make demo-4` | `uv run shipharness ab --section demo-N --feature FN ...` | A/B: both arms, both judged | $0.48 |
-| `make demo-3 FEATURE=F4` | `uv run shipharness ab --section demo-3 --feature F4 ...` | The Section 3 live A/B in class | $0.48 |
+| `make demo-3 FEATURE=version-checks` | `uv run shipharness ab --section demo-3 --feature F4 ...` | The Section 3 live A/B in class | $0.48 |
 | `make final` | one `uv run shipharness ab --section final --feature <f> ...` per feature | One A/B per feature in `FEATURES` | $0.58 per feature |
 
 The worst cases come from the caps in `.env.example`: one arm $0.20 plus one review $0.04; a final
@@ -141,8 +227,8 @@ Defaults from the `Makefile`.
 |---|---|---|---|
 | `PURPOSE` | `class` | live runs, swap, replay, doctor, warm | LangSmith project and cost session (table below) |
 | `PROFILE` | `class` | live runs, examples, warm | `class` or `standard` (the settings in `.env`) |
-| `FEATURE` | `F3` | demo-3 | `F4` runs the Section 3 class A/B |
-| `FEATURES` | `F5,F6` | final | Comma-separated final features, for example `F6` |
+| `FEATURE` | `F3` (idempotent creation) | demo-3 | `version-checks` runs the Section 3 class A/B |
+| `FEATURES` | `F5,F6` (bulk close, watchers) | final | Comma-separated final features, for example `watchers` |
 | `LAYERS` | empty | demo-N, show-N, final | `-<layer>` removes one layer, for example `-state` |
 | `SESSION_BUDGET` | empty | demo-N, show-N | Session turn budgets, for example `12,38` |
 | `AB` | `latest` | swap-N | The A/B or run id to re-judge |
@@ -256,3 +342,8 @@ than $6 of OpenAI usage and 400 LangSmith traces.
 Files that runs write: `.shipharness/runs/<ab id>/` (run log, diffs, board screenshots),
 `.shipharness/ledger.jsonl` (one line per model call), and `exports/scores/` (one score record per
 arm). All three are git-ignored. More detail: [architecture](architecture.md).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)
+  (OpenAI, Ryan Lopopolo, 2026-02-11)
