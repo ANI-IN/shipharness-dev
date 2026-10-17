@@ -108,13 +108,18 @@ SETUP_FILES = tuple(
 REFERENCES_FILE = "docs/REFERENCES.md"  # generated from RESEARCH.md and research/notes/
 SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")
 SECTIONS = ("section-1", "section-2", "section-3", "section-4")
+# The course diagrams: each diagrams/ folder ships its README.md and, per diagram, the Excalidraw
+# source and its two renders. Nothing else in a diagrams/ folder ships.
+_DIAGRAM_FILE = r"diagrams/(?:README\.md|[a-z0-9][a-z0-9-]*\.(?:excalidraw|png|svg))"
+_DOCS_DIAGRAM = re.compile(rf"^docs/{_DIAGRAM_FILE}$")
 # Per section folder at the root: the owner's items, plus the folder README and the whole
 # assignment/ folder (its README, check.py and what it imports, starter/, the reference solution
 # in solution/, visible tests, fixtures, live-step helpers); the guard below still removes every
 # grader/ folder and every hidden grader case.
 _SECTION_ITEM = re.compile(
     r"^(?:" + "|".join(SECTIONS) + r")-[^/]+/(?:README\.md|concepts\.md"
-    r"|session-notes\.md|demo/.+|post-class-reading/.+|assignment/.+)$"
+    r"|session-notes\.md|demo/.+|post-class-reading/.+|assignment/.+"
+    rf"|{_DIAGRAM_FILE})$"
 )
 _SECTION_DIR = re.compile(r"^(?:" + "|".join(SECTIONS) + r")-[^/]+/")
 SECTION_EXPECTED = (
@@ -246,7 +251,7 @@ def leaks(paths: Iterable[str]) -> list[tuple[str, str]]:
 def _allowed(path: str) -> bool:
     if path in ROOT_FILES or path in LEARNER_SCRIPTS or path in DOCS_FILES:
         return True
-    if path.startswith(ALLOW_DIRS):
+    if path.startswith(ALLOW_DIRS) or _DOCS_DIAGRAM.match(path):
         return True
     if path.startswith("slides/"):
         return path.endswith(SLIDE_SUFFIXES)

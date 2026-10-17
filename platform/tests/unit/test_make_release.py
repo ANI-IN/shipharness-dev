@@ -201,6 +201,33 @@ def test_selection_leaves_out_private_internal_and_unlisted_files() -> None:
     assert sel.excluded["notes.txt"] == mr.REASON_NOT_ALLOWED
 
 
+def test_the_diagrams_folders_ship_their_sources_renders_and_readme() -> None:
+    shipped = [
+        "docs/diagrams/README.md",
+        "docs/diagrams/agent-loop.excalidraw",
+        "docs/diagrams/agent-loop-step-1.png",
+        "docs/diagrams/results-final.svg",
+        f"{A1}/diagrams/README.md",
+        f"{A1}/diagrams/manual-vs-map.excalidraw",
+        f"{A1}/diagrams/manual-vs-map.png",
+        f"{A1}/diagrams/manual-vs-map.svg",
+        "section-4-verification/diagrams/verification-pipeline-step-6.svg",
+    ]
+    left_out = [
+        "docs/diagrams/notes.txt",
+        "docs/diagrams/drafts/agent-loop.png",
+        "docs/diagrams/Agent-Loop.png",
+        f"{A1}/diagrams/build.py",
+        f"{A1}/diagrams/old/manual-vs-map.svg",
+        "platform/scripts/diagrams/build.py",  # the generator stays internal
+    ]
+    sel = mr.select(shipped + left_out)
+    assert sorted(sel.included) == sorted(shipped)
+    for path in left_out:
+        assert path in sel.excluded, path
+    assert sel.excluded["platform/scripts/diagrams/build.py"] == mr.REASON_INTERNAL
+
+
 def test_leak_check_names_every_private_file_with_its_reason() -> None:
     public = [
         "README.md",
