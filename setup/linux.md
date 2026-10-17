@@ -1,72 +1,122 @@
-# Setup on Linux (Ubuntu)
+# Module 1: Harness Engineering for Coding Agents - Setup on Linux
 
-Exact commands to go from a fresh Ubuntu machine to `make doctor` reporting `result: + ready`. For
-Windows, use [windows.md](windows.md) (it ends in the same Ubuntu commands, inside
-WSL2). For macOS, use [macos.md](macos.md).
+> **Terms on this page**
+>
+> - **Harness arm**: the same run with the harness turned on.
+> - **Referee**: the program that scores each run after the agent stops.
+> - **Console**: the browser page that shows a run live, on five screens.
+> - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
+> - **R1**: the house rule on tenant isolation: a user sees only their own organization's data.
 
-## What was tested, and where
+This page takes a Linux machine with nothing installed to a first live run, watched on the console.
+The commands are for Ubuntu and other systems that use `apt`. On another distribution, use its
+package manager for git and make, and [Docker's install pages](https://docs.docker.com/engine/install/).
 
-The course's class host is Windows 11 with WSL2, Ubuntu 26.04.1 (systemd on), Docker Engine 29.9.1
-inside Ubuntu, the repository at `~/shipharness`, uv 0.13.1, and Python 3.12.15. The commands below
-are Ubuntu commands; they were tested in that Ubuntu, which runs inside WSL2. A native Ubuntu
-install uses the same commands, but no native install was tested for the course.
+Every command on this page was run in Ubuntu 26.04.1 LTS on the course machine, which runs Ubuntu
+inside WSL2. A native Linux install was not tested; the commands are the same.
 
-| Step | Status on the class host |
-|---|---|
-| 1 git, make, curl | Installed; versions checked on 2026-10-17 (`git version 2.53.0`, `GNU Make 4.4.1`, curl 8.18.0) |
-| 2 uv | Installed in `~/.local/bin`, where the official installer puts it; `uv --version` printed `uv 0.13.1` on 2026-10-17. The install command itself follows the official page |
-| 3 Docker Engine | Installed from Docker's apt repository (`download.docker.com`, suite `resolute`, packages `docker-ce 5:29.9.1`); `systemctl is-active docker` printed `active`, and the user is in the `docker` group (checked 2026-10-17). The install commands follow the official page |
-| 4 `make setup` | `make -n setup` checked on 2026-10-17 (it prints `uv sync --frozen`, the two image builds, and the `.env` copy); `uv sync --frozen` ran on 2026-10-17. The image builds ran on the class host for the course pilot |
-| 5 `.env` | Format from `.env.example` |
-| 6 `make doctor` | `uv run shipharness doctor --offline` ran on 2026-10-17 (output below); the online key check is the same command without `--offline` |
-| 7 `make up` | Ran on 2026-10-17 (output in step 7); `/board` answered with the sign-in page |
+## Before you start
 
-**As of 2026-10-17, the `git clone` command in step 4 has not been run on the class host.** Its URL
-is the public learner repository, which can be cloned only after it is published. The class host's
-checkout at `~/shipharness` is the course's build repository.
+- A supported Ubuntu release. Docker lists 26.10, 26.04 (LTS), 24.04 (LTS), and 22.04 (LTS)
+  ([Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/), read 2026-10-17).
+  Check yours:
 
-## Accounts first
+  ```bash
+  . /etc/os-release; echo "$PRETTY_NAME ($VERSION_CODENAME)"
+  ```
 
-You need two accounts and one API key in each. Details and reasons are in the
-[README](../README.md#7-prerequisites-and-accounts): an OpenAI API account with credit bought (the
-"Build" usage tier needs $5 in total credit purchases), and a LangSmith account on the free
-Developer plan with no card on file.
+  > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-## 1. Install git, make, and curl
+  On the course machine:
 
-```bash
-sudo apt update && sudo apt install -y git make curl
-```
+  ```text
+  Ubuntu 26.04.1 LTS (resolute)
+  ```
 
-Check:
+- `sudo` rights.
+- About 4 GB of free disk for the two sandbox images.
+- A payment card for OpenAI (step 2). LangSmith needs no card.
 
-```bash
-git --version && make --version | head -1 && curl --version | head -1
-```
+## Steps
 
-## 2. Install uv
+### Step 1: Create the OpenAI account and an API key
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+**Why.** The coding agent (`gpt-6-luna`) and the reviewer (`gpt-5.6-luna`) are OpenAI models
+(`.env.example`). Every live run calls the OpenAI API with your key and is billed to your account.
 
-To get the same version as the class host, put the version in the URL:
+**Do this.**
 
-```bash
-curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh
-```
+1. Open https://platform.openai.com/signup and create an account, or sign in at
+   https://platform.openai.com.
+2. Open the API keys page: https://platform.openai.com/api-keys.
+3. Create a new secret key, named for example `harness-course`.
+4. Copy the key right away and keep it private until step 9. Treat it like a password.
 
-The installer places `uv` and `uvx` in `~/.local/bin` and can add that folder to your shell
-profile. Open a new terminal, then check with `uv --version`. You do not install Python yourself:
-the repository pins 3.12 in `.python-version`, and uv downloads it on first use.
+**You should see.** The new key once, in full, in a dialog. After you close it, the page shows only
+its name and a short form.
 
-Source: uv installation page, https://docs.astral.sh/uv/getting-started/installation/ (read
-2026-10-17).
+**Check it worked.** The key is listed on the API keys page. The real test is `make doctor` in
+step 10, which asks OpenAI whether it accepts the key.
 
-## 3. Install Docker Engine
+**If it fails.** If you closed the dialog before copying, create a new key and delete the old one.
+If the key ever lands in a chat, an issue, or a screenshot, delete it and create a new one.
 
-These are Docker's commands for Ubuntu ("Install using the apt repository"). On 2026-10-17 Docker
-listed Ubuntu 26.10, 26.04 (LTS), 24.04 (LTS), and 22.04 (LTS) as supported.
+### Step 2: Add credit (Build tier)
+
+**Why.** The agent model has no free tier. Its model page lists the Free tier as "Not supported"
+([OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
+The Build tier needs "$5 in total credit purchases", and "Your organization's usage tier upgrades
+automatically as its total credit purchases reach each threshold."
+([OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
+
+**Do this.**
+
+1. Open https://platform.openai.com/settings/organization/billing/overview.
+2. Add a payment method.
+3. Buy at least $5 of credit in total.
+4. Decide on automatic recharge. With it off, spending stops when the credit runs out. The course's
+   own caps apply either way.
+
+**You should see.** Your credit balance on the billing page.
+
+**Check it worked.** https://platform.openai.com/settings/organization/limits shows your usage tier.
+One `make show-1` costs at most $0.24 at the caps in `.env.example`.
+
+**If it fails.** A later run that ends with `OpenAI billing limit reached (quota or spend limit);
+add credit and retry.` means the account is out of credit: add more. The message
+`no access to gpt-6-luna (NotFoundError)` means the account is not on the Build tier yet.
+
+### Step 3: Create the LangSmith account and an API key (no card)
+
+**Why.** Every run sends traces to LangSmith, where you can open the agent's steps one by one. The
+free Developer plan is enough: "Personal organizations are limited to 5,000 traces per month until
+a credit card is added."
+([LangSmith, Billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
+card there is nothing to bill. Do not add a card.
+
+**Do this.**
+
+1. Open https://smith.langchain.com and sign up. Stay on the free Developer plan.
+2. Go to Settings, then API Keys, then Create API Key
+   ([LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)).
+3. Choose a Personal Access Token with an expiry after the course, and create it.
+4. Copy the key right away: "LangSmith will display the API key only once."
+
+**You should see.** The key once, in a dialog.
+
+**Check it worked.** The key is listed under Settings, API Keys. `make doctor` in step 10 reports
+`accepted by LangSmith`.
+
+**If it fails.** If the key was not copied, create a new one. If your account is in the EU region,
+step 9 adds one more line to `.env`.
+
+### Step 4: Install Docker Engine
+
+**Why.** Each agent run, and the referee that scores it, runs in its own container with no network
+and only the workspace writable (`platform/sandbox/Dockerfile`).
+
+**Do this.** These are Docker's commands for Ubuntu, "Install using the apt repository"
+([Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/), read 2026-10-17):
 
 ```bash
 # Add Docker's official GPG key:
@@ -90,104 +140,205 @@ sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
-Docker also publishes a convenience script (`curl -fsSL https://get.docker.com -o get-docker.sh`
-then `sudo sh get-docker.sh`); its page recommends the script only for testing and development
-machines.
-
-Then let your user run Docker without `sudo`, and open a new terminal (or log out and in):
+Then let your user run Docker without `sudo`
+([Docker, Post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/)):
 
 ```bash
 sudo groupadd docker
 sudo usermod -aG docker $USER
 ```
 
-`groupadd` reports that the group exists if the package already created it; that is fine.
+`groupadd` may say the group already exists; that is fine. Log out and log back in, so the group
+change takes effect.
 
-Check:
+**You should see.** apt installs the packages with no error line.
+
+**Check it worked.**
 
 ```bash
 systemctl is-active docker
 id -nG | tr ' ' '\n' | grep -x docker
-docker info
+docker --version
 ```
 
-The first line prints `active`; the second prints `docker`. On Ubuntu the Docker service starts on
-boot by default. If it is not running: `sudo systemctl start docker`.
+On the course machine:
 
-Sources: Docker Engine on Ubuntu, https://docs.docker.com/engine/install/ubuntu/; Linux
-post-installation steps, https://docs.docker.com/engine/install/linux-postinstall/ (both read
-2026-10-17).
+```text
+active
+docker
+Docker version 29.9.1, build dfc520d
+```
 
-Podman also works (`SANDBOX_RUNTIME=podman` in `.env`, and `make setup RUNTIME=podman`), but the
-course did not test it.
+Docker's own check is `docker run hello-world`, which prints a message that the install works.
 
-## 4. Clone and run `make setup`
+**If it fails.**
 
-Keep the repository in your home folder, for example `~/shipharness`. As of 2026-10-17 the
-`git clone` line below has not been run on the class host; see the table at the top:
+| Problem | Fix |
+|---|---|
+| `permission denied` on `/var/run/docker.sock` | Log out and in; `id -nG` must list `docker` |
+| `systemctl is-active docker` prints `inactive` | `sudo systemctl start docker` |
+| apt reports conflicts with `docker.io` | Run Docker's "Uninstall old versions" command first |
+
+### Step 5: Install git
+
+**Why.** You clone the course repository with git, and every run creates fresh git repositories for
+the agent's workspace.
+
+**Do this.**
 
 ```bash
-git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
+sudo apt install -y git
+```
+
+**You should see.** The install ends without an error line.
+
+**Check it worked.** `git --version` prints a version. On the course machine:
+
+```text
+git version 2.53.0
+```
+
+**If it fails.** If apt cannot find the package, run `sudo apt update` and try again.
+
+### Step 6: Install uv
+
+**Why.** uv installs the pinned Python and every package (`uv.lock`), and every make target runs
+through `uv run`. `.python-version` pins Python 3.12, and uv downloads it on first use.
+
+**Do this.** The course machine uses uv 0.13.1; this installs that version
+([uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)):
+
+```bash
+curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh
+```
+
+The installer puts `uv` in `~/.local/bin`. Open a new terminal afterwards, so that folder is on
+your `PATH`.
+
+**You should see.** The installer ends with a line that says where it put `uv`.
+
+**Check it worked.** In the new terminal, `uv --version` prints the version:
+
+```text
+uv 0.13.1 (x86_64-unknown-linux-gnu)
+```
+
+**If it fails.** `uv: command not found` means the terminal started before the install: open a new
+one. If it persists, check that `~/.local/bin/uv` exists.
+
+### Step 7: Install make
+
+**Why.** Every course command is a make target, such as `make setup` or `make show-1`.
+
+**Do this.**
+
+```bash
+sudo apt install -y make
+```
+
+**You should see.** The install ends without an error line.
+
+**Check it worked.** `make --version` prints a first line like this one:
+
+```text
+GNU Make 4.4.1
+```
+
+**If it fails.** If apt cannot find the package, run `sudo apt update` and try again.
+
+### Step 8: Clone the repository and run make setup
+
+**Why.** The repository holds the course code, TeamTrack (the app the agent works on), the
+checkpoint tags each demo starts from, and the sandbox images.
+
+**Do this.**
+
+```bash
+git clone https://github.com/ANI-IN/harness-engineering-session-rc.git ~/shipharness
 cd ~/shipharness
 make setup
 ```
 
-`make setup` runs, in order (from `make -n setup`):
+`make setup` installs the pinned packages, builds the two images `shipharness-agent:1` and
+`shipharness-referee:1`, and copies `.env.example` to `.env`. The image builds are the slow part.
 
-```
-uv sync --frozen
-docker build -f platform/sandbox/Dockerfile --target agent -t shipharness-agent:1 .
-docker build -f platform/sandbox/Dockerfile --target referee -t shipharness-referee:1 .
-```
+**You should see.** uv's install lines, two `docker build` runs, and at the end
+`+ created .env: fill in the two API keys`.
 
-and copies `.env.example` to `.env` if `.env` does not exist. If it prints
-`! docker not found: images not built; sandboxed runs need a container runtime`, Docker is not on
-your `PATH`: fix step 3, then run `make images`.
-
-Check that the checkpoint tags came with the clone (the demos start from them):
+**Check it worked.**
 
 ```bash
 git tag -l 'm1-*'
+docker image ls --format '{{.Repository}}:{{.Tag}} {{.Size}}' | grep shipharness
 ```
 
-It lists nine tags, from `m1-alt-a` to `m1-s4-start`, including `m1-final-start`.
+You should see nine tags and two images. On the course machine:
 
-## 5. Put your keys in `.env`
-
-Open `.env` in the repository root in an editor and fill in:
-
+```text
+m1-alt-a
+m1-alt-b
+m1-base
+m1-complete
+m1-final-start
+m1-s1-start
+m1-s2-start
+m1-s3-start
+m1-s4-start
+shipharness-referee:1 2.81GB
+shipharness-agent:1 1.28GB
 ```
-OPENAI_API_KEY=
-LANGSMITH_API_KEY=
+
+**If it fails.**
+
+| Problem | Fix |
+|---|---|
+| `! docker not found: images not built; sandboxed runs need a container runtime` | Finish step 4, then `make images` |
+| `permission denied` on `/var/run/docker.sock` | Step 4: log out and in |
+| `git tag -l 'm1-*'` prints nothing | The copy was not made with `git clone`; clone again |
+
+### Step 9: Put your keys in the .env file
+
+**Why.** Your keys go into `.env` in the repository folder. It is git-ignored, and the tools never
+print, log, trace, or pass the keys into a container. The class date names your LangSmith project
+`shipharness-class-<date>` and keys one $2.50 session cap to that date.
+
+**Do this.** Open the file with `nano .env`. Fill in three lines: paste your two keys after the
+`=`, and write today's date as `YYYY-MM-DD`. The values below are placeholders.
+
+```ini
+OPENAI_API_KEY=<your OpenAI key>
+LANGSMITH_API_KEY=<your LangSmith key>
+SHIPHARNESS_CLASS_DATE=<today, YYYY-MM-DD>
 ```
 
-If your LangSmith account is in the EU region, also set
+Save with Ctrl+O and Enter, and leave with Ctrl+X. EU LangSmith accounts also set
 `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` (no trailing slash).
 
-If you will run `make demo-N`, `make show-N`, `make final`, or `make replay` yourself, also set
-`SHIPHARNESS_CLASS_DATE` to the day you run them (`YYYY-MM-DD`). Class commands refuse without it;
-it names the LangSmith project `shipharness-class-<date>`, and every command run under that date
-shares one $2.50 session cap (`MAX_SESSION_COST_USD`).
-The assignments tell you which commands they need.
+**You should see.** The three lines filled, with no quotes and no spaces around the `=`.
 
-`.env` is git-ignored. Never commit it, paste it anywhere, or share a screenshot of it.
+**Check it worked.** Step 10 reads the file and tests both keys.
 
-## 6. `make doctor`
+**If it fails.** Never commit `.env`, paste it anywhere, or share a screenshot of it. If you did,
+delete both keys on their provider pages and create new ones.
+
+### Step 10: Run make doctor
+
+**Why.** One command checks everything so far: Python, git, uv, Docker, both keys, the price table,
+the class date, and that `.env` is not tracked by git. The OpenAI check lists models and uses no
+tokens.
+
+**Do this.**
 
 ```bash
 make doctor
 ```
 
-It checks Python, git, uv, the container runtime, both keys, the price table, and that `.env` is not
-tracked by git. The OpenAI check lists models and uses no tokens. You are done when the last line is
-`result: + ready` and the `container runtime` line starts with `+ ok`. Each key line then says
-`accepted by OpenAI` or `accepted by LangSmith`.
+**You should see.** Every item starts with `+ ok`, the key lines end in `accepted by OpenAI` and
+`accepted by LangSmith`, and the last line is `result: + ready`. No part of a key is ever shown.
+Here is the same command on the course machine before `.env` was filled in:
 
-Captured on 2026-10-17 from `uv run shipharness doctor --offline`, in a checkout
-without a `.env` file (no network calls); your output will differ:
-
-```
-$ uv run shipharness doctor --offline
+```text
+uv run shipharness doctor --purpose class
 shipharness doctor
   + ok          python                 3.12.15
   + ok          git                    /usr/bin/git
@@ -199,50 +350,157 @@ shipharness doctor
     next step: LANGSMITH_API_KEY is missing: add it to .env at the repo root
   + ok          prices                 gpt-6-luna, gpt-5.6-luna
   + ok          .env not in git        not tracked
+  x missing     SHIPHARNESS_CLASS_DATE not set (PURPOSE=class needs the class day, YYYY-MM-DD)
+    next step: add this line to .env at the repository root: SHIPHARNESS_CLASS_DATE=YYYY-MM-DD
+      or, for this terminal only: export SHIPHARNESS_CLASS_DATE=YYYY-MM-DD
+      (write the class day in place of YYYY-MM-DD)
+      class runs trace to the LangSmith project shipharness-class-<date>
+      not a class run? use PURPOSE=pilot with make, or --purpose pilot
   result: x not ready (fix the items above)
 Cost: $0.000000 (no model calls)
+make: *** [Makefile:57: doctor] Error 1
 ```
 
-## 7. `make up`
+**Check it worked.** The last line reads `result: + ready`, and `make doctor` exits without a
+`make: ***` line.
+
+**If it fails.** Each `x` line has a `next step` under it. The common ones:
+
+| Line | Fix |
+|---|---|
+| `x missing     OPENAI_API_KEY` (or `LANGSMITH_API_KEY`) | Step 9: the key goes into `.env` next to the `Makefile` |
+| `x invalid     OPENAI_API_KEY ...` | Copy the key again; check the credit (step 2) |
+| `x invalid     LANGSMITH_API_KEY ...` | Create a new key; EU accounts set `LANGSMITH_ENDPOINT` |
+| `! warn        container runtime ...` | `sudo systemctl start docker`, or finish step 4 |
+
+### Step 11: Run make warm
+
+**Why.** It prepares the machine so your first run starts at once. It rebuilds an image only if its
+source changed, starts each image once, and caches the referee and gate baselines of the class
+tasks. It makes no model calls and is safe to rerun.
+
+**Do this.**
 
 ```bash
-make up
+make warm
 ```
 
-It prints where the board is, then the server's log. Captured on 2026-10-17 on the class host,
-first lines; your output will differ:
+**You should see.** One line per step with its time, then `warm: done (<seconds> s)` and a cost
+line. The last lines on the course machine, after a code change made it rebuild the images:
 
+```text
+images: built (shipharness-agent:1: source changed; shipharness-referee:1: source changed) (137.9 s)
+page-in shipharness-agent:1 (0.8 s)
+page-in shipharness-referee:1 (0.5 s)
+plan: 0 baselines to compute (0.7 s)
+referee baseline demo-1 F1: cached (0.0 s)
+referee baseline demo-2 F2: cached (0.0 s)
+referee baseline demo-3 F3: cached (0.0 s)
+referee baseline demo-4 F4: cached (0.0 s)
+referee baseline final F5: cached (0.0 s)
+referee baseline final F6: cached (0.0 s)
+referee baseline final F7: cached (0.0 s)
+gate baseline demo-4 F4: cached (0.0 s)
+gate baseline final F5: cached (0.0 s)
+gate baseline final F6: cached (0.0 s)
+gate baseline final F7: cached (0.0 s)
+warm: done (140.6 s)
 ```
-uv run shipharness up --port 8000
-TeamTrack: http://127.0.0.1:8000/board  (API docs: /docs)
-INFO:     Started server process [927409]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+
+A first run with no cached baselines took 407 s on the course machine; a second run
+took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
+
+**Check it worked.** The last line before the cost line is `warm: done`.
+
+**If it fails.** Without the class date, `make warm` stops before any work:
+
+```text
+x SHIPHARNESS_CLASS_DATE is not set: class runs need the class day (YYYY-MM-DD)
+  add this line to .env at the repository root: SHIPHARNESS_CLASS_DATE=YYYY-MM-DD
+  or, for this terminal only: export SHIPHARNESS_CLASS_DATE=YYYY-MM-DD
+  (write the class day in place of YYYY-MM-DD)
+  class runs trace to the LangSmith project shipharness-class-<date>
+  not a class run? use PURPOSE=pilot with make, or --purpose pilot
+warm: nothing done
 ```
 
-How to check it worked, from a second terminal (captured the same day):
+Set the date (step 9) and run it again. If a line starts with `x images: build failed`, start
+Docker and run `make images` to see the build error. If the last line is `warm: incomplete`, fix the
+step marked `x` and rerun; finished baselines stay cached.
 
+### Step 12: Run the first live demo
+
+**Why.** This is the end-to-end check: a real agent run on TeamTrack with the first harness layer,
+scored by the referee and shown live on the console. It is the run that Section 1 of the class
+shows.
+
+**Do this.** Open two terminals, both in `~/shipharness`. In the first, start the console and leave
+it running:
+
+```bash
+make console
 ```
-$ curl -s -o /dev/null -w '%{http_code} %{redirect_url}
-' http://127.0.0.1:8000/board
-303 http://127.0.0.1:8000/board/login
+
+Open http://127.0.0.1:8765/ in your browser. In the second terminal, start the run:
+
+```bash
+make show-1
 ```
 
-The board sends you to its sign-in page (`<title>Sign in · TeamTrack</title>`, with demo users such
-as `admin@acme.test`). Open http://127.0.0.1:8000/board in a browser, pick a demo user on the sign-in
-page (for example `admin@acme.test`), and you see the Acme project board. The demo data has two orgs, Acme and Globex
-(`platform/teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken:
-`make up PORT=8001`.
+`make show-1` runs the harness arm alone with the instructions layer on feature F1 (org-wide issue
+search), then the referee and one review. It costs at most $0.24 at the caps.
 
-## When a step fails
+**You should see.** The first terminal prints the console's address:
+
+```text
+uv run shipharness console --port 8765
+Console: http://127.0.0.1:8765/
+INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+```
+
+Reload the run list in the browser, open the newest run, and press `1`. The run takes about 10
+minutes. The second terminal ends with the arm's result line and a cost line. On the course machine:
+
+```text
+  harness  completed         claim=done     primary={"r1_new_violations": 0} passed=True hidden 52/52 mutants 2/4 reviewer=accept cost=$0.0179
+Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; session $1.342904 of $2.50; build $2.268653 of $15.00 ($12.731347 left))
+```
+
+The `session` figure there includes earlier runs on that machine; your first session starts at $0.
+What each screen shows, minute by minute, is in the [Section 1 demo](../01-instructions/demo/README.md).
+
+**Check it worked.** The console shows the run with a primary verdict, and the terminal shows a
+`Cost:` line. The exit code is 0 when the arm completed and 2 when it was aborted by a cap or time
+limit; an aborted run is still scored and shown.
+
+**If it fails.**
+
+| Problem | Fix |
+|---|---|
+| `x SHIPHARNESS_CLASS_DATE is not set: ...` | Step 9, or run `make show-1 PURPOSE=pilot` |
+| `x OpenAI refused the key: ...; no arm was started` | Run `make doctor`; it names the problem |
+| `ERROR` with `docker run failed: ...` | `sudo systemctl start docker`, then `make warm` |
+| `make console` reports the address is in use | `make console CONSOLE_PORT=8766`, then open port 8766 |
+
+## Common errors
 
 | Symptom | Fix |
 |---|---|
-| `permission denied` on `/var/run/docker.sock` | The `docker` group is not active in this terminal yet: open a new terminal (or log out and in) after step 3, then `id -nG` must list `docker` |
-| `make setup` prints `! docker not found: images not built; sandboxed runs need a container runtime` | Docker is not on your `PATH` or not installed: finish step 3, then `make images` |
-| `make doctor`: `x missing     OPENAI_API_KEY` (or `LANGSMITH_API_KEY`) | Step 5: the key goes into `.env` in the repository root |
-| `make doctor`: `! warn        container runtime      docker not found: ...` | Start Docker (`sudo systemctl start docker`) or finish step 3 |
+| `make: command not found` | Step 7 |
+| `uv: command not found` | Open a new terminal (step 6) |
+| `permission denied` on the Docker socket | Log out and in after step 4 |
+| A run prints its results, then `make: *** [...] Error 2` | An arm hit a cap or the time limit; the run is complete and scored |
+| `ABORTED: cap` in a result line | A cost cap was reached; see the caps in the [reference](../docs/reference.md#caps-and-limits) |
 
-Next: the [README](../README.md) for what to run, and
-[troubleshooting.md](../docs/troubleshooting.md) for every other message.
+Every other message, with its cause and fix: [troubleshooting](../docs/troubleshooting.md).
+
+## You're ready
+
+You are ready when:
+
+- `make doctor` ends with `result: + ready`;
+- `make warm` ends with `warm: done`;
+- `make show-1` shows a run with a primary verdict on the console.
+
+Next: the [Section 1 demo](../01-instructions/demo/README.md), which explains what you just ran,
+or the [module overview](../README.md).

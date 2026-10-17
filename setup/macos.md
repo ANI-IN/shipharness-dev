@@ -1,136 +1,361 @@
-# Setup on macOS (Docker Desktop or Colima)
+# Module 1: Harness Engineering for Coding Agents - Setup on macOS
 
-> **Not tested on macOS.** No command on this page was run on a Mac for the course. Every step
-> follows the official documentation cited next to it (each page read on 2026-10-17). The course's
-> tested platform is Ubuntu (inside WSL2 on the class host): see [linux.md](linux.md)
-> and [windows.md](windows.md). macOS stays a known open item for this release: no
-> `docker info` or `make doctor` output from a Mac is shown here because none was captured. If a
-> step fails on your Mac, bring the exact message to class, and see
-> [troubleshooting.md](../docs/troubleshooting.md).
+> **Terms on this page**
+>
+> - **Harness arm**: the same run with the harness turned on.
+> - **Referee**: the program that scores each run after the agent stops.
+> - **Console**: the browser page that shows a run live, on five screens.
+> - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
 
-You need a container runtime that provides the `docker` command. Pick **one**:
+This page takes a Mac with nothing installed to a first live run, watched on the console.
 
-- **Docker Desktop**: Docker's app. Free for personal use, education, and small businesses; larger
-  companies need a paid subscription (terms below).
-- **Colima**: an open-source runtime started from the terminal, used with the Docker command-line
-  client from Homebrew.
+**Not tested on a Mac.** No command on this page was run on a Mac for the course. Each macOS step
+follows the official page linked next to it, read on 2026-10-17. The steps from the clone onwards
+are the same commands as on Linux and were tested there, in Ubuntu. The Linux page shows their
+captured output: [setup on Linux](linux.md). If a step fails on your Mac, bring the exact message to
+class.
 
-## 1. git and make
+## Before you start
 
-Apple's Command Line Tools include git:
+- A macOS release that Docker Desktop supports: "Docker Desktop is supported on the current and two
+  previous major macOS releases", with "At least 4 GB of RAM"
+  ([Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)).
+- Administrator rights on the Mac.
+- About 4 GB of free disk for the two sandbox images.
+- A payment card for OpenAI (step 2). LangSmith needs no card.
+
+Every command below runs in the Terminal app (Applications, Utilities, Terminal).
+
+## Steps
+
+### Step 1: Create the OpenAI account and an API key
+
+**Why.** The coding agent (`gpt-6-luna`) and the reviewer (`gpt-5.6-luna`) are OpenAI models
+(`.env.example`). Every live run calls the OpenAI API with your key and is billed to your account.
+
+**Do this.**
+
+1. Open https://platform.openai.com/signup and create an account, or sign in at
+   https://platform.openai.com.
+2. Open the API keys page: https://platform.openai.com/api-keys.
+3. Create a new secret key, named for example `harness-course`.
+4. Copy the key right away and keep it private until step 9. Treat it like a password.
+
+**You should see.** The new key once, in full, in a dialog. After you close it, the page shows only
+its name and a short form.
+
+**Check it worked.** The key is listed on the API keys page. The real test is `make doctor` in
+step 10, which asks OpenAI whether it accepts the key.
+
+**If it fails.** If you closed the dialog before copying, create a new key and delete the old one.
+If the key ever lands in a chat, an issue, or a screenshot, delete it and create a new one.
+
+### Step 2: Add credit (Build tier)
+
+**Why.** The agent model has no free tier. Its model page lists the Free tier as "Not supported"
+([OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
+The Build tier needs "$5 in total credit purchases"
+([OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
+
+**Do this.**
+
+1. Open https://platform.openai.com/settings/organization/billing/overview.
+2. Add a payment method.
+3. Buy at least $5 of credit in total.
+4. Decide on automatic recharge. With it off, spending stops when the credit runs out. The course's
+   own caps apply either way.
+
+**You should see.** Your credit balance on the billing page.
+
+**Check it worked.** https://platform.openai.com/settings/organization/limits shows your usage tier.
+One `make show-1` costs at most $0.24 at the caps in `.env.example`.
+
+**If it fails.** A later run that ends with `OpenAI billing limit reached (quota or spend limit);
+add credit and retry.` means the account is out of credit: add more. The message
+`no access to gpt-6-luna (NotFoundError)` means the account is not on the Build tier yet.
+
+### Step 3: Create the LangSmith account and an API key (no card)
+
+**Why.** Every run sends traces to LangSmith, where you can open the agent's steps one by one. The
+free Developer plan is enough: "Personal organizations are limited to 5,000 traces per month until
+a credit card is added."
+([LangSmith, Billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
+card there is nothing to bill. Do not add a card.
+
+**Do this.**
+
+1. Open https://smith.langchain.com and sign up. Stay on the free Developer plan.
+2. Go to Settings, then API Keys, then Create API Key
+   ([LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)).
+3. Choose a Personal Access Token with an expiry after the course, and create it.
+4. Copy the key right away: "LangSmith will display the API key only once."
+
+**You should see.** The key once, in a dialog.
+
+**Check it worked.** The key is listed under Settings, API Keys. `make doctor` in step 10 reports
+`accepted by LangSmith`.
+
+**If it fails.** If the key was not copied, create a new one. If your account is in the EU region,
+step 9 adds one more line to `.env`.
+
+### Step 4: Install Docker Desktop or Colima
+
+**Why.** Each agent run, and the referee that scores it, runs in its own Linux container with no
+network and only the workspace writable (`platform/sandbox/Dockerfile`). The course needs the
+`docker` command. Pick one of the two options.
+
+**Do this.** Option A, Docker Desktop
+([Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)):
+
+1. Download the installer for your chip (Apple silicon or Intel) from that page.
+2. Open `Docker.dmg` and drag Docker into Applications.
+3. Open Docker from Applications and accept the subscription agreement.
+4. In Settings, Resources, give Docker at least 2 CPUs: each class run uses 2 per container.
+
+Docker Desktop "is free for small businesses (fewer than 250 employees AND less than $10 million in
+annual revenue)", and for personal use and education; other professional use needs a paid
+subscription (same page).
+
+Option B, Colima, an open-source runtime started from the terminal
+([Colima](https://github.com/abiosoft/colima)). Install Homebrew first with the command from
+https://brew.sh/, then:
+
+```bash
+brew install colima docker
+colima start --cpu 2 --memory 4
+```
+
+`--cpu 2` matches the 2 CPUs per container of the class runs. After a restart of the Mac, run
+`colima start` again before any course command.
+
+**You should see.** Docker Desktop's whale icon in the menu bar, or Colima's `done` line.
+
+**Check it worked.** Open a new Terminal window and run:
+
+```bash
+docker --version
+docker info
+```
+
+`docker --version` prints a version, and `docker info` prints a `Server:` section with no error.
+Docker's own check is `docker run hello-world`.
+
+**If it fails.**
+
+| Problem | Fix |
+|---|---|
+| `docker: command not found` | Open a new Terminal window; Docker Desktop adds its tools there |
+| `Cannot connect to the Docker daemon` | Open Docker Desktop, or run `colima start` |
+| A run fails naming the CPUs available | Give the runtime 2 CPUs (Settings, Resources; or `colima start --cpu 2`) |
+
+### Step 5: Install git
+
+**Why.** You clone the course repository with git, and every run creates fresh git repositories for
+the agent's workspace.
+
+**Do this.** Install Apple's Command Line Tools, which include git
+([Git, Install on macOS](https://git-scm.com/install/mac)):
 
 ```bash
 xcode-select --install
 ```
 
-Check:
+**You should see.** A macOS dialog that asks you to confirm the install.
+
+**Check it worked.** `git --version` prints a version.
+
+**If it fails.** If `xcode-select` says the tools are already installed, there is nothing to do.
+
+### Step 6: Install uv
+
+**Why.** uv installs the pinned Python and every package (`uv.lock`), and every make target runs
+through `uv run`. `.python-version` pins Python 3.12, and uv downloads it on first use.
+
+**Do this.** The course machine uses uv 0.13.1; this installs that version
+([uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)):
 
 ```bash
-git --version
+curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh
+```
+
+Open a new Terminal window afterwards.
+
+**You should see.** The installer ends with a line that says where it put `uv`.
+
+**Check it worked.** `uv --version` prints `uv 0.13.1` and your platform.
+
+**If it fails.** `uv: command not found` means the window started before the install: open a new
+one. If it persists, check that `~/.local/bin/uv` exists.
+
+### Step 7: Install make
+
+**Why.** Every course command is a make target, such as `make setup` or `make show-1`. The Command
+Line Tools from step 5 include `make`.
+
+**Do this.** Nothing to install if step 5 worked. Check it:
+
+```bash
 make --version
 ```
 
-If `make` is missing after that, install the Command Line Tools again from Apple's prompt; do not
-continue without `make`, because every course command is a Make target.
+**You should see.** `GNU Make` and a version. The course's `Makefile` was tested with GNU Make 4.4.1
+on Linux, not with the version Apple ships.
 
-Source: Git for macOS, https://git-scm.com/install/mac ("Apple ships a binary package of Git with
-Xcode Command Line Tools").
+**Check it worked.** The command prints a version and no error.
 
-## 2. Homebrew (needed for Colima, optional otherwise)
+**If it fails.** `make: command not found`: run `xcode-select --install` again and accept the
+dialog.
 
-```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+### Step 8: Clone the repository and run make setup
 
-The script explains what it will do and pauses before it does it. Source: https://brew.sh/.
+**Why.** The repository holds the course code, TeamTrack (the app the agent works on), the
+checkpoint tags each demo starts from, and the sandbox images.
 
-## 3. uv
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-or, with Homebrew, `brew install uv`. For the class host's version, put it in the URL:
-`curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh`. Open a new terminal and check with
-`uv --version`. uv downloads Python 3.12 for the repository when needed (`.python-version`).
-
-Source: uv installation, https://docs.astral.sh/uv/getting-started/installation/.
-
-## 4a. Docker Desktop
-
-Requirements from Docker's page: one of the current and two previous major macOS releases, and at
-least 4 GB of RAM, on Apple silicon or Intel.
-
-1. Download the installer for your chip (Apple silicon or Intel) from
-   https://docs.docker.com/desktop/setup/install/mac-install/.
-2. Open `Docker.dmg` and drag Docker into Applications.
-3. Open Docker from Applications and accept the subscription agreement.
-
-Docker's command-line alternative after downloading `Docker.dmg`:
+**Do this.**
 
 ```bash
-sudo hdiutil attach Docker.dmg
-sudo /Volumes/Docker/Docker.app/Contents/MacOS/install
-sudo hdiutil detach /Volumes/Docker
-```
-
-Licence terms, from the same page: Docker Desktop "is free for small businesses (fewer than 250
-employees AND less than $10 million in annual revenue)", personal use, education, and non-commercial
-open-source projects; other professional use needs a paid subscription.
-
-Check in a new terminal:
-
-```bash
-docker info
-```
-
-Source: Install Docker Desktop on Mac, https://docs.docker.com/desktop/setup/install/mac-install/.
-
-## 4b. Colima (instead of Docker Desktop)
-
-```bash
-brew install colima docker
-colima start --cpu 2 --memory 4
-docker info
-```
-
-`brew install docker` installs the Docker command-line client that Colima needs. Colima's default
-virtual machine has 2 CPUs and 2 GiB of memory; `--memory 4` gives it 4 GiB. Each arm container is
-limited to 1 CPU and 1 GiB by default, and to 2 CPUs under the class profile that the `make` targets
-for live runs use; an A/B runs two arm containers, two board previews, and the referee, so give the
-virtual machine room. To change the size later: `colima stop`, then `colima start` with
-new values.
-
-After a restart of the Mac, run `colima start` again before any course command.
-
-Source: Colima, https://github.com/abiosoft/colima.
-
-## 5. Clone, `make setup`, keys, `make doctor`, `make up`
-
-From here the commands are the same as on Linux: steps 4 to 7 of [linux.md](linux.md).
-
-```bash
-git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
+git clone https://github.com/ANI-IN/harness-engineering-session-rc.git ~/shipharness
 cd ~/shipharness
 make setup
-# edit .env: OPENAI_API_KEY, LANGSMITH_API_KEY (and SHIPHARNESS_CLASS_DATE for class commands)
-make doctor
-make up
 ```
 
-`make doctor` must end with `result: + ready`, with `+ ok` on the `container runtime` line.
+`make setup` installs the pinned packages, builds the two images for your Mac's chip, and copies
+`.env.example` to `.env`. The image builds are the slow part.
 
-## Things that may differ on a Mac
+**You should see.** uv's install lines, two `docker build` runs, and at the end
+`+ created .env: fill in the two API keys`.
 
-These are expectations from the official pages, not observations:
+**Check it worked.** `git tag -l 'm1-*'` lists nine tags, and
+`docker image ls | grep shipharness` lists `shipharness-agent` and `shipharness-referee`.
 
-- Docker Desktop on Mac installs its command-line tools under `$HOME/.docker/bin` and, by default,
-  does not create the default Docker socket (Docker's install page; Settings > Advanced changes
-  both). If `make doctor` reports `docker not found`, open a new terminal so the `PATH` change takes
-  effect, or check that setting.
-- The sandbox images are built locally by `make setup` for your machine's architecture.
-- On Apple silicon, Docker's page recommends Rosetta 2, though no longer strictly required
-  (`softwareupdate --install-rosetta`). Whether the course images need it was not tested.
+**If it fails.** `! docker not found: images not built; sandboxed runs need a container runtime`
+means Docker is not running or not found: finish step 4, open a new window, then run
+`make images`. If `git tag -l 'm1-*'` prints nothing, the copy was not made with `git clone`.
 
-If anything on this page turns out to be wrong on your Mac, tell the instructor with the command
-and the full message.
+### Step 9: Put your keys in the .env file
+
+**Why.** Your keys go into `.env` in the repository folder. It is git-ignored, and the tools never
+print, log, trace, or pass the keys into a container. The class date names your LangSmith project
+`shipharness-class-<date>` and keys one $2.50 session cap to that date.
+
+**Do this.** Open the file with `open -e .env` (TextEdit) or `nano .env`. Fill in three lines:
+paste your two keys after the `=`, and write today's date as `YYYY-MM-DD`. The values below are
+placeholders.
+
+```ini
+OPENAI_API_KEY=<your OpenAI key>
+LANGSMITH_API_KEY=<your LangSmith key>
+SHIPHARNESS_CLASS_DATE=<today, YYYY-MM-DD>
+```
+
+EU LangSmith accounts also set `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` (no trailing
+slash).
+
+**You should see.** The three lines filled, with no quotes and no spaces around the `=`.
+
+**Check it worked.** Step 10 reads the file and tests both keys.
+
+**If it fails.** Never commit `.env`, paste it anywhere, or share a screenshot of it. If you did,
+delete both keys on their provider pages and create new ones.
+
+### Step 10: Run make doctor
+
+**Why.** One command checks everything so far: Python, git, uv, Docker, both keys, the price table,
+the class date, and that `.env` is not tracked by git. The OpenAI check uses no tokens.
+
+**Do this.**
+
+```bash
+make doctor
+```
+
+**You should see.** Every item starts with `+ ok`, the key lines end in `accepted by OpenAI` and
+`accepted by LangSmith`, and the last line is `result: + ready`. The captured output is on the
+[Linux page](linux.md#step-10-run-make-doctor).
+
+**Check it worked.** The last line reads `result: + ready`.
+
+**If it fails.** Each `x` line has a `next step` under it. A missing key goes into `.env` (step 9).
+An invalid OpenAI key: copy it again and check the credit (step 2). A container runtime warning:
+start Docker Desktop or run `colima start`.
+
+### Step 11: Run make warm
+
+**Why.** It prepares the machine so your first run starts at once. It rebuilds an image only if its
+source changed, starts each image once, and caches the referee and gate baselines. It makes no model
+calls and is safe to rerun.
+
+**Do this.**
+
+```bash
+make warm
+```
+
+**You should see.** One line per step with its time, then `warm: done` and a cost line. The
+captured output is on the [Linux page](linux.md#step-11-run-make-warm).
+
+**Check it worked.** The last line before the cost line is `warm: done`.
+
+**If it fails.** If it stops with `x SHIPHARNESS_CLASS_DATE is not set`, set the date (step 9). If
+the last line is `warm: incomplete`, fix the step marked `x` and rerun.
+
+### Step 12: Run the first live demo
+
+**Why.** This is the end-to-end check: a real agent run on TeamTrack with the first harness layer,
+scored by the referee and shown live on the console. It is the run that Section 1 of the class
+shows.
+
+**Do this.** Open two Terminal windows, both in `~/shipharness`. In the first, start the console and
+leave it running:
+
+```bash
+make console
+```
+
+It prints `Console: http://127.0.0.1:8765/`. Open that address in your browser. In the second
+window, start the run:
+
+```bash
+make show-1
+```
+
+`make show-1` runs the harness arm alone with the instructions layer on feature F1, then the
+referee and one review. It costs at most $0.24 at the caps.
+
+**You should see.** The newest run in the browser's run list; press `1` to watch it. The terminal
+ends with the arm's result line and a `Cost:` line, as on the
+[Linux page](linux.md#step-12-run-the-first-live-demo).
+
+**Check it worked.** The console shows the run with a primary verdict. The exit code is 0 when the
+arm completed and 2 when a cap or time limit aborted it; an aborted run is still scored and shown.
+
+**If it fails.**
+
+| Problem | Fix |
+|---|---|
+| `x SHIPHARNESS_CLASS_DATE is not set: ...` | Step 9, or run `make show-1 PURPOSE=pilot` |
+| `x OpenAI refused the key: ...; no arm was started` | Run `make doctor`; it names the problem |
+| `ERROR` with `docker run failed: ...` | Start Docker Desktop or `colima start`, then `make warm` |
+| `make console` reports the address is in use | `make console CONSOLE_PORT=8766`, then open port 8766 |
+
+## Common errors
+
+| Symptom | Fix |
+|---|---|
+| `make: command not found` | Step 7 |
+| `uv: command not found` | Open a new Terminal window (step 6) |
+| `Cannot connect to the Docker daemon` | Start Docker Desktop, or `colima start` |
+| A run prints its results, then `make: *** [...] Error 2` | An arm hit a cap or the time limit; the run is complete and scored |
+
+Every other message, with its cause and fix: [troubleshooting](../docs/troubleshooting.md).
+
+## You're ready
+
+You are ready when:
+
+- `make doctor` ends with `result: + ready`;
+- `make warm` ends with `warm: done`;
+- `make show-1` shows a run with a primary verdict on the console.
+
+Next: the [Section 1 demo](../01-instructions/demo/README.md), which explains what you just ran,
+or the [module overview](../README.md).
