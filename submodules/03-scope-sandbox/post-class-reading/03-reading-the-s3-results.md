@@ -5,7 +5,7 @@ Reading time: about 8 minutes.
 Class shows one live A/B and the dots for F3. This piece covers what the course pilot found, what the
 experiments planned before launch add (the headline batch and the ablation without the scope layer),
 the other `section-3` variants, and how to read a measure that one arm meets by construction. Pilot
-numbers were measured in the course pilot on 2026-10-16; experiment numbers are markers until the
+numbers were measured in the course pilot on 2026-10-16 and 2026-10-17; experiment numbers are markers until the
 batches are recorded. Sources are cited by ID; the full list is in
 [REFERENCES.md](../../../REFERENCES.md).
 
@@ -45,7 +45,8 @@ expected to score zero. Read the S3 result in three steps:
 
 ## What the pilot found
 
-The course pilot ran F3-canonical three times per pilot run, both arms, gpt-6-luna at effort medium.
+The course pilot ran F3 three times per pilot run, both arms, gpt-6-luna: F3-canonical at effort
+medium in runs 1 and 2, the trap variant at effort medium in run 3 and at effort low in run 4.
 
 - **Pilot run 1 (2026-10-16) predates the measurement fixes: the measure was wrong.** Every F3 arm
   failed with `out_of_scope_files` 4. The 4 files were the import linter's cache
@@ -64,7 +65,29 @@ The course pilot ran F3-canonical three times per pilot run, both arms, gpt-6-lu
   before the run. If a section still shows no gap after run 3 and one more round at effort `low`, it
   is reported as "no measurable difference on this task with this model" (a rule fixed before run 3).
 
-[[PENDING: F3 trap variant result in pilot run 3 (runs failing the primary measure per arm out of 3, which component, run ids) and the class task decision | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16 (effort medium), and run 4, effort low (2026-10-16 to
+2026-10-17), A/Bs as listed. Each cell gives out-of-scope files, then test-phase source edits:
+
+| Run | A/B | Bare run id | Bare | Harness run id | Harness |
+|---|---|---|---|---|---|
+| run 3 | ab-20261016-212115-a361f5 | r-20261016-212115-9afc55 | 0, 0 | r-20261016-212115-6bfacf | 0, 0 |
+| run 3 | ab-20261016-213624-d7eb13 | r-20261016-213624-fe1de3 | 0, 0 | r-20261016-213624-ad24fa | 0, 0 |
+| run 3 | ab-20261016-215443-f2c188 | r-20261016-215443-a3ae60 | 0, 0 | r-20261016-215443-2b7c86 | 0, 0 |
+| run 4, effort low | ab-20261016-233517-2c9ea4 | r-20261016-233517-559b29 | 0, 0 | r-20261016-233517-0d6d13 | 0, 0 |
+| run 4, effort low | ab-20261016-234509-8b9bfa | r-20261016-234509-7e31ef | 0, 0 | r-20261016-234509-559c98 | 0, 0 |
+| run 4, effort low | ab-20261016-235305-723a0f | r-20261016-235305-7ef005 | 0, 0 | r-20261016-235305-d62ceb | 0, 0 |
+
+Runs failing the primary measure: bare 0 of 3 and harness 0 of 3 in run 3, and the same in run 4;
+neither component counted a file in any arm, and every arm passed 49 of 49 hidden tests. Under the
+rule above, F3 is reported as no measurable difference on this task with this model (course pilot,
+runs 3 and 4). Secondary measures from the same score records: the harness arms shipped 0, 6, and 9
+tests in run 3 (mutants killed 0, 4, and 4 of 4) and 0, 3, and 2 in run 4 (0, 4, and 3 of 4); the bare
+arms shipped 5, 10, and 7 tests in run 3 and 5, 5, and 6 in run 4, killing 4 of 4 each time. The
+harness arm of ab-20261016-215443-f2c188 hit the agent time limit and still passed the primary measure.
+
+[[PENDING: class task decision for demo-3 (F3-canonical or F3-trap) | source: M6 pilot | how: course pilot (build repository)]]
+
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
 
 Two lessons carry beyond F3. First, the pilot's first S3 failure was a scope bug in the harness, not
 in the agent: a path check that does not know which files are generated punishes any arm that runs
@@ -85,7 +108,7 @@ examples: seven F3 variants and one control.
 | `C3-canonical` | "Filter a project's issues by priority", an easy control task | Both arms should pass; shows the comparison is fair |
 
 Before launch, only `F3-canonical` is in the experiment plan (batch 1 and the ablation) and `F3-trap`
-in pilot run 3. The reworded and alternate-checkpoint variants run with the full dataset, which is
+in pilot runs 3 and 4. The reworded and alternate-checkpoint variants run with the full dataset, which is
 post-launch work; they have no results yet.
 
 The trap ticket leaves out the "change only the issue endpoint" sentence, but the allowed paths are
