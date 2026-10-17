@@ -33,7 +33,7 @@ code is the fairness of the comparison, not the details.
 
 ### Opening:two_arms
 
-File: `src/shipharness/ab/demo.py:360-379` (pulled with `uv run python scripts/anchors.py extract Opening:two_arms`)
+File: `src/shipharness/ab/demo.py:403-424` (pulled with `uv run python scripts/anchors.py extract Opening:two_arms`)
 
 ```python
         # Same task, same model, effort, budgets, cost cap, tools, and sandbox for both arms.
@@ -48,14 +48,14 @@ File: `src/shipharness/ab/demo.py:360-379` (pulled with `uv run python scripts/a
 
         try:
             with ThreadPoolExecutor(max_workers=2, thread_name_prefix="arm") as pool:
-                futures = {arm: pool.submit(run_and_judge, arm) for arm in ARMS}
+                futures = {arm: pool.submit(run_and_judge, arm) for arm in arms}
                 done = {arm: future.result() for arm, future in futures.items()}
         finally:
             stop.set()  # previews stop (and their containers with them) on every path
             for thread in previews:
                 thread.join(timeout=10)
-        results = {arm: done[arm][0] for arm in ARMS}
-        records = {arm: done[arm][1] for arm in ARMS}
+        results = {arm: done[arm][0] for arm in arms}
+        records = {arm: done[arm][1] for arm in arms}
 ```
 
 Talking points:
@@ -342,7 +342,7 @@ Talking points:
 
 ### S2:stop_resume (4 minutes)
 
-File: `src/shipharness/harness/state/lifecycle.py:80-117` (pulled with `uv run python scripts/anchors.py extract S2:stop_resume`)
+File: `src/shipharness/harness/state/lifecycle.py:95-134` (pulled with `uv run python scripts/anchors.py extract S2:stop_resume`)
 
 ```python
 def session_stop(
@@ -372,12 +372,14 @@ def session_stop(
     return [stop], summary
 
 
-def resume_text(summary: str) -> str:
+def resume_text(summary: str, phase: str = "build") -> str:
     """Extra resume text for the harness arm (the neutral resume sentence comes first)."""
     text = (
         "Start with the Getting up to speed steps before you change code. The structured "
         "handoff from the last session is in session-handoff.md."
     )
+    if phase == "test":
+        text = f"{text} {TEST_PHASE_FIRST}"
     return f"{text} Its machine summary:\n\n{summary[:3000]}" if summary else text
 ```
 
@@ -393,6 +395,9 @@ Talking points:
 - `resume_text` is extra text for the harness arm only. Both arms first get the same neutral resume
   sentence (`NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py`), and both get the same number of
   wrap-up turns (DESIGN §6.1).
+- `phase == "test"`: a test-phase session starts with the feature's tests (`TEST_PHASE_FIRST`,
+  change 9 in VERIFICATION.md, "Pilot-driven changes after run 2"), so the session does not spend its
+  turns on the getting-up-to-speed routine before writing any test.
 - Context resets are model-dependent: A3 later dropped them for a newer model (RESEARCH §5,
   correction 4). Teach the handoff as a choice, not a law.
 
@@ -448,7 +453,7 @@ operations "to the project directory only" (F-a-86), A6 as supplementary (F-a-21
 
 ### S3:allowed_paths (2.5 minutes)
 
-File: `src/shipharness/harness/scope/guard.py:58-96` (pulled with `uv run python scripts/anchors.py extract S3:allowed_paths`)
+File: `src/shipharness/harness/scope/guard.py:59-97` (pulled with `uv run python scripts/anchors.py extract S3:allowed_paths`)
 
 ```python
 @dataclass(frozen=True)
@@ -825,7 +830,7 @@ Talking points:
 
 ### S4:gate (3 minutes)
 
-File: `src/shipharness/harness/verify/gate.py:133-172` (pulled with `uv run python scripts/anchors.py extract S4:gate`)
+File: `src/shipharness/harness/verify/gate.py:143-188` (pulled with `uv run python scripts/anchors.py extract S4:gate`)
 
 ```python
 def run_gate(
@@ -847,13 +852,19 @@ def run_gate(
     sandbox.exec(
         f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", cfg.limit(300)
     )
-    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg.limit(cfg.timeout_s))
+    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg)
     items = [visible]
     if phase == "build":
         check_items, check_lines = _check_items(sandbox, cfg, root, on_progress)
         items += sorted(check_items, key=_order)
         lines += check_lines
-    clean = clean_state_check(sandbox, base_sha, cfg.limit(120))
+    clean = clean_state_check(
+        sandbox,
+        base_sha,
+        cfg.limit(120),
+        migrations=cfg.migrations,
+        ruff_select=cfg.ruff_select,
+    )
     items.append(clean)
     if clean.status == "fail":
         lines.append(f"FAIL clean state: {clean.detail}")
@@ -872,7 +883,9 @@ Talking points:
 - Pending pills go to the console first, so screen 1 shows ⏳ before ✓ or ✗.
 - Build phase items: visible tests, existing tests, R1-R7, board smoke check, clean state (git clean,
   ruff clean, one migration head, no debug output; A2, F-a-84). Clean state is composite with A4's
-  "task verifier is nearly perfect" point (A4, F-a-127; RESEARCH §3.4).
+  "task verifier is nearly perfect" point (A4, F-a-127; RESEARCH §3.4). `ruff_select`: when the
+  repository has no ruff config of its own, the clean-state ruff check pins ruff's documented default
+  rules (`E4,E7,E9,F`; VERIFICATION.md, change 21).
 - On failure the agent gets feedback with the first three failures and continues within its turn
   budget (`_feedback` in the same file).
 - Disclosed overlap: the gate runs the same R1-R7 as the referee; the S4 primary measures (hidden
@@ -884,7 +897,7 @@ Talking points:
 
 ### Final:dots (2 minutes)
 
-File: `src/shipharness/ab/report.py:77-113` (pulled with `uv run python scripts/anchors.py extract Final:dots`)
+File: `src/shipharness/ab/report.py:83-119` (pulled with `uv run python scripts/anchors.py extract Final:dots`)
 
 ```python
 def render_dot_plot(group: dict[str, Any], width: int = 640) -> str:
