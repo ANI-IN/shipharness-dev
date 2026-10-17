@@ -203,9 +203,9 @@ commit it was captured at. `make` exits 2 whenever the script it runs exits non-
 | File | Command | Captured | Result |
 |---|---|---|---|
 | `check-starter.txt` | `make check-assignment-3` | 2026-10-17, 61ec849 | every part FAIL, script exit 1 |
-| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, SHA_CAP | CHECK_RESULT |
+| `check-solution.txt` | `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | every row ok, live row `ok`, exit 0 |
 | `grade-starter.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` | 2026-10-17, e7287f4 | 0.0 / 100, FAIL |
-| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, SHA_CAP | 100.0 / 100, PASS |
+| `grade-solution.txt` | `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` | 2026-10-17, 65d70a0 | 100.0 / 100, PASS |
 | `docker-solution.txt` | `uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests` | 2026-10-16, recorded in 3dcc7a1 | 2 passed |
 
 The reference solution scores 100.0 / 100 with `Result: PASS` on its captured live run (A/B

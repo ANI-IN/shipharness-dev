@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` at commit 155dc77 (no model calls); your output will differ.
+# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` at commit 65d70a0 (no model calls); your output will differ.
 $ make grade-assignment-4 SUBMISSION=submodules/04-verification/solution
 uv run python scripts/grade_assignment.py 4 "submodules/04-verification/solution"
-A4 grade for /home/ani/wt/f04/submodules/04-verification/solution
+A4 grade for /home/ani/wt/assign/submodules/04-verification/solution
 
 Criterion                     Points  Tests
 R8-interface                     5/5  5/5

@@ -27,8 +27,9 @@ uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-san
 ```
 
 The first two were run again on 2026-10-17 after the live run was captured (output in
-`captured/`). The grader tests were run the same day (N_A3); the docker line was not (no
-containers), and `captured/docker-solution.txt` holds the container check from 2026-10-16.
+`captured/`). The grader tests were run the same day (42 passed, the slow one deselected); the
+docker line was not (no containers), and `captured/docker-solution.txt` holds the container check
+from 2026-10-16.
 
 Grade a learner submission (a folder, or a git URL that is cloned shallow; `scripts/grade_assignment.py`):
 

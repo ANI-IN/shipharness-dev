@@ -150,15 +150,15 @@ a committed mutation check of the grader is an open item.
 Real output, no model calls, each command run once. Each text file starts with the label
 "captured on 2026-10-17 from `<command>` at commit <sha> (no model calls); your output will
 differ", then `$ <command>`, then everything `make` printed and the exit code. The two solution
-files were captured again at commit SHA_CAP, after the live run went into `live/` and the
+files were captured again at commit 65d70a0, after the live run went into `live/` and the
 marker special case was removed; the starter files are from commit 155dc77 (that change does not
 touch what the starter scores).
 
 | File | Commit | Command | Result |
 |---|---|---|---|
 | `captured/self-check-starter.txt` | 155dc77 | `make check-assignment-4` | 2 of 23 visible tests pass, every failure names its TODO, 32 TODO markers listed; `check.py` exits 1, so `make` exits 2 |
-| `captured/self-check-solution.txt` | SHA_CAP | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23, the four live-evidence tests and the three portfolio tests on the captured run |
-| `captured/grade-solution.txt` | SHA_CAP | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, every criterion on real work (no marker accepted) |
+| `captured/self-check-solution.txt` | 65d70a0 | `make check-assignment-4 A4_IMPL=submodules/04-verification/solution` | exit 0, 23 of 23, the four live-evidence tests and the three portfolio tests on the captured run |
+| `captured/grade-solution.txt` | 65d70a0 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/solution` | Score: 100/100, every criterion on real work (no marker accepted) |
 | `captured/grade-starter.txt` | 155dc77 | `make grade-assignment-4 SUBMISSION=submodules/04-verification/assignment/starter` | Score: 3/100 (one R8-interface test and one F6-interface test pass) |
 | `captured/r8-teamtrack.json` | 155dc77 | `PYTHONPATH=submodules/04-verification/solution uv run python -m a4_verification.run_r8 --build teamtrack --checkpoint m1-base --feature A4` (stdout only; JSON, so it carries no label line; exit 3) | 15 probes, one finding at `GET /v1/issues` (`deleted_list`, `leak`) |
 
