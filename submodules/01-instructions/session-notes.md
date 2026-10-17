@@ -91,16 +91,32 @@ What changed because of it: the course's pre-registered next step for a section 
 trap variant. `F1-trap` names the legacy code as the place where the query code exists and does not
 point to the handbook.
 
-### Pilot run 3 and the experiments
+### Pilot runs 3 and 4, and the experiments
 
-[[PENDING: pilot run 3 result for S1 (F1-trap), runs failing of 3 per arm on r1_new_violations>=1, with run ids, and the class decision for S1 | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16, A/Bs `ab-20261016-211419-07937b`,
+`ab-20261016-212745-2c14fb`, and `ab-20261016-214636-c8b3c4` (ticket `F1-trap`, effort medium), and
+run 4, effort low, 2026-10-16, A/Bs `ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, and
+`ab-20261016-234639-4a18bd`. Runs failing the primary measure (`r1_new_violations >= 1`), per arm (the
+run ids are in [demo/README.md](demo/README.md), section 7):
+
+| Run | Bare arm | Harness arm |
+|---|---|---|
+| 3 | 0 of 3 | 0 of 3 |
+| 4, effort low | 0 of 3 | 0 of 3 |
+
+Every arm had 0 new R1 violations and 52 of 52 hidden tests; the legacy `/v1` handler was not copied
+into a leak. No measurable difference on this task with this model (course pilot, runs 3 and 4).
+
+[[PENDING: class decision for S1 (class task as decided after pilot run 3) | source: M6 pilot | how: course pilot (build repository)]]
+
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
 
 [[PENDING: batch 1 dots for F1 canonical, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: uv run shipharness report]]
 
 [[PENDING: ablation result for the leave-out-instructions configuration (all minus instructions) | source: M8 ablation | how: uv run shipharness report]]
 
-If S1 still shows no gap after these, the course has pre-registered how it is reported: as no
-measurable difference on this task with this model, shown with the live A/B, the dots, and a
+Pilot runs 3 and 4 showed no gap on S1. The course pre-registered how such a result is reported: as
+no measurable difference on this task with this model, shown with the live A/B, the dots, and a
 discussion of why.
 
 ---
@@ -110,8 +126,9 @@ discussion of why.
 **The bare arm passed without a map. Does the map do nothing?**
 On the canonical ticket the ticket itself pointed to the handbook, so both arms had the rules in
 context (section 3). The A/B measures the map only on tickets that do not do that work for it. That
-is why the pre-registered next task is the trap variant, and why "what did each arm read before it
-wrote the query?" is the question for the discussion.
+is why the pre-registered next task was the trap variant, and why "what did each arm read before it
+wrote the query?" is the question for the discussion. On the trap variant both arms also passed 3 of
+3, in pilot runs 3 and 4 (section 3).
 
 **Is the harness arm not just given more information?**
 No. By course rule the harness may change how knowledge is organised and delivered, not add facts

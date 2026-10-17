@@ -10,10 +10,14 @@ There is no `run.sh`: every step is a Make target, and each target is a thin wra
 `uv run shipharness ...` (see the `Makefile`). Run everything inside WSL2 on the class host.
 
 This runbook is written for the canonical task, `F1-canonical`, which is what `make demo-1` runs. In
-pilot run 2 that task showed no gap between the arms (section 7), so pilot run 3 tries the course's
-pre-registered trap variant `F1-trap`. The class task follows the course's decision after pilot run 3.
+pilot run 2 that task showed no gap between the arms (section 7), so pilot run 3 tried the course's
+pre-registered trap variant `F1-trap`, and run 4 repeated it at effort low. Both arms passed 3 of 3 in
+each run: no measurable difference on this task with this model (course pilot, runs 3 and 4; section
+7). The class task follows the course's decision after pilot run 3.
 
 [[PENDING: class task for S1 (F1-canonical or F1-trap) and the exact class command, from the decision after pilot run 3 | source: M6 pilot | how: course pilot (build repository)]]
+
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
 
 ---
 
@@ -276,7 +280,8 @@ harness (list_for_org):
 
 The lesson for the class: the A/B can only show the harness piece working on a task where the bare
 arm is not handed the pointer. The trap variant removes the handbook line from the ticket and names
-the legacy code instead; pilot run 3 tests it (marker at the top of this file).
+the legacy code instead. Pilot runs 3 and 4 tested it, and both arms passed 3 of 3 in each run: no
+measurable difference on this task with this model (section 7).
 
 ---
 
@@ -304,9 +309,33 @@ rejections are about archived projects passed as `project_id`, not about tenancy
 reviews says `tenant_isolation_risk: none`); the referee's hidden tests passed 52 of 52 in both arms.
 The reviewer is a secondary measure.
 
-Pilot run 3 and the batches:
+Pilot runs 3 and 4 and the batches:
 
-[[PENDING: pilot run 3 dots for the S1 task chosen for run 3 (F1-trap), runs failing of 3 per arm, with run ids | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16, A/Bs `ab-20261016-211419-07937b`,
+`ab-20261016-212745-2c14fb`, and `ab-20261016-214636-c8b3c4`: ticket `F1-trap`, k=3, gpt-6-luna,
+effort medium, reviewer on, two A/Bs in parallel. Then run 4, effort low, 2026-10-16, A/Bs
+`ab-20261016-232842-b372c2`, `ab-20261016-233807-3f34fa`, and `ab-20261016-234639-4a18bd`: the same
+ticket and settings with effort low for both arms. One row per run, from the score records:
+
+| Run | A/B | Arm | Run id | Primary | R1 new | R1 leaks | Hidden | Mutants | Shipped tests | Turns | Agent time (s) | Cost | Reviewer |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | `ab-20261016-211419-07937b` | bare | `r-20261016-211419-8fb5f4` | pass | 0 | 0 | 52/52 | 3/4 | 7 | 34 | 142 | $0.0086 | accept |
+| | | harness | `r-20261016-211419-741ab3` | pass | 0 | 0 | 52/52 | 2/4 | 7 | 42 | 170 | $0.0124 | accept |
+| 3 | `ab-20261016-212745-2c14fb` | bare | `r-20261016-212745-a9900c` | pass | 0 | 0 | 52/52 | 3/4 | 7 | 42 | 194 | $0.0110 | accept |
+| | | harness | `r-20261016-212745-8a0bbf` | pass | 0 | 0 | 52/52 | 3/4 | 10 | 42 | 248 | $0.0121 | accept |
+| 3 | `ab-20261016-214636-c8b3c4` | bare | `r-20261016-214636-8e13f4` | pass | 0 | 0 | 52/52 | 2/4 | 5 | 41 | 223 | $0.0102 | accept |
+| | | harness | `r-20261016-214636-53d21a` | pass | 0 | 0 | 52/52 | 3/4 | 12 | 42 | 197 | $0.0115 | accept |
+| 4, effort low | `ab-20261016-232842-b372c2` | bare | `r-20261016-232842-1b27e7` | pass | 0 | 0 | 52/52 | 2/4 | 8 | 26 | 112 | $0.0051 | accept |
+| | | harness | `r-20261016-232842-f3515e` | pass | 0 | 0 | 52/52 | 2/4 | 7 | 39 | 165 | $0.0087 | accept |
+| 4, effort low | `ab-20261016-233807-3f34fa` | bare | `r-20261016-233807-7f74f1` | pass | 0 | 0 | 52/52 | 3/4 | 9 | 32 | 123 | $0.0068 | accept |
+| | | harness | `r-20261016-233807-36c040` | pass | 0 | 0 | 52/52 | 3/4 | 20 | 37 | 176 | $0.0086 | accept |
+| 4, effort low | `ab-20261016-234639-4a18bd` | bare | `r-20261016-234639-cd17ac` | pass | 0 | 0 | 52/52 | 2/4 | 6 | 30 | 108 | $0.0058 | accept |
+| | | harness | `r-20261016-234639-209fdf` | pass | 0 | 0 | 52/52 | 3/4 | 18 | 37 | 153 | $0.0084 | reject |
+
+Runs failing the primary measure (`r1_new_violations >= 1`): run 3 bare 0 of 3, harness 0 of 3; run 4,
+effort low, bare 0 of 3, harness 0 of 3. No arm added an R1 violation; the legacy `/v1` handler was not
+copied into a leak. No measurable difference on this task with this model (course pilot, runs 3 and 4).
+A/B wall time, in table order: run 3 415.7 s, 519.3 s, 486.3 s; run 4 395.7 s, 420.2 s, 386.0 s.
 
 [[PENDING: F1 canonical dots, runs failing out of 10 per arm, with run ids | source: M8 batch 1 | how: uv run shipharness report]]
 
