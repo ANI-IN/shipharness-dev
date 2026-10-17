@@ -422,6 +422,47 @@ CASES = [
         {},
         3,
     ),
+    (
+        "SC23",
+        "docs/guide.md",
+        "Run `make demo-3 FEATURE=version-checks`; the screen shows `F4` (version checks).\n",
+        "Text.\n\nThe agent breaks R1 while it builds F4.\n",
+        {},
+        3,
+    ),
+    (
+        "SC24",
+        "docs/guide.md",
+        "Read [the guide](guide.md) and [OpenAI](https://openai.com/).\n",
+        "Text.\n\nRead [the guide]() and [link].\n",
+        {},
+        3,
+    ),
+    (
+        "SC24",
+        "docs/guide.md",
+        "See [the paper](https://arxiv.org/abs/2402.09171).\n",
+        "Text.\n\nSee [the paper](htps//arxiv.org/abs/2402.09171).\n",
+        {},
+        3,
+    ),
+    (
+        "SC25",
+        "docs/guide.md",
+        "Keep only tests that pass five times ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171))."
+        "\n\n## Sources\n\n- Meta, TestGen-LLM: https://arxiv.org/abs/2402.09171\n",
+        "Text.\n\nKeep only tests that pass five times (Meta, TestGen-LLM).\n",
+        {},
+        3,
+    ),
+    (
+        "SC25",
+        "docs/guide.md",
+        "Text.\n",
+        "Text.\n\nSee [SpecBench](https://arxiv.org/abs/2605.21384).\n",
+        {},
+        3,
+    ),
 ]
 
 
@@ -445,12 +486,13 @@ def test_check_pass_and_fail(
 
 def test_every_check_has_a_passing_and_a_failing_case() -> None:
     covered = {c[0] for c in CASES}
-    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), 21, 22]}
+    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), *range(21, 26)]}
 
 
 def test_severities_follow_the_first_version() -> None:
     errors = {"SC00", "SC01", "SC02", "SC03", "SC04", "SC05", "SC06", "SC07", "SC08", "SC09"}
     errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20", "SC21", "SC22"}
+    errors |= {"SC23", "SC24", "SC25"}
     warnings = {"SC11", "SC16", "SC17", "SC18"}
     for check, (_, severity) in cs.CHECKS.items():
         assert severity == ("error" if check in errors else "warning"), check
@@ -762,7 +804,7 @@ def test_cli(tmp_path: Path) -> None:
     listed = run_cli(tmp_path, "--list-checks")
     assert listed.returncode == 0
     rows = [ln for ln in listed.stdout.splitlines() if re.match(r"^SC\d\d ", ln)]
-    assert len(rows) == len(cs.CHECKS) == 23
+    assert len(rows) == len(cs.CHECKS) == 26
 
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
@@ -1107,3 +1149,119 @@ def test_the_working_slide_file_is_checked_for_labels_only(tmp_path: Path) -> No
     assert cs.is_public(rel)
     found = problems(tmp_path, rel, "## 1. Opening\n\nTODO " + LABELS)
     assert sorted(p.check for p in found) == ["SC09", "SC21", "SC22"]
+
+
+# -- plain names, links, and sources (SC23, SC24, SC25) --------------------------------------------
+
+
+def plain_checks(found) -> list[str]:
+    return sorted(p.check for p in found if p.check in ("SC23", "SC24", "SC25"))
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Run `make final FEATURES=watchers,bulk-close`.\n",
+        "```bash\nmake demo-3 FEATURE=F4\n```\n",
+        "Open [f5-bulk-close.md](tasks/f5-bulk-close.md) for `F5`.\n",
+        "Requirements R-S1 and R-L5, task `F1-trap`, file f1.md, Apple M1.\n",
+        "The Section 4 poll, Assignment 2, and the F-key on screen.\n",
+    ],
+)
+def test_identifiers_are_not_bare_codes(tmp_path: Path, text: str) -> None:
+    assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Pick F5, F6, or F7.\n",
+        "| R1 Tenant isolation | 404 |\n",
+        "Clauses R1.1 to R1.6 hold.\n",
+        "Features F1-F4 have a measure.\n",
+        "<!-- F4 is the confirmation -->\nText.\n",
+    ],
+)
+def test_bare_feature_and_rule_codes_fail(tmp_path: Path, text: str) -> None:
+    assert "SC23" in plain_checks(problems(tmp_path, "docs/guide.md", text))
+
+
+def test_an_allow_marker_keeps_a_code_a_checker_reads(tmp_path: Path) -> None:
+    text = (
+        "| R1: runs | 0/3 | 1/3 | <!-- check-style: allow SC23 the Section 1 checker reads it -->\n"
+    )
+    assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+@pytest.mark.parametrize(
+    "rel",
+    ["docs/evidence/s1.md", "docs/evidence.md"],
+)
+def test_evidence_pages_keep_their_codes(tmp_path: Path, rel: str) -> None:
+    text = "F4 broke R1 (Anthropic, Harness design).\n"
+    assert plain_checks(problems(tmp_path, rel, text)) == []
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        "use-in-your-repo/skills/house-rules/SKILL.md",
+        "use-in-your-repo/kit/templates/AGENTS.md",
+        "section-4-verification/assignment/solution/skill/testgen-evidence/SKILL.md",
+        "slides/module1-slides.md",
+        "slides/deck.md",
+    ],
+)
+def test_skills_kit_templates_and_slides_get_the_plain_name_checks(
+    tmp_path: Path, rel: str
+) -> None:
+    text = "# Skill\n\nKeep R1 (Meta, TestGen-LLM); see [link].\n"
+    assert plain_checks(problems(tmp_path, rel, text)) == ["SC23", "SC24", "SC25"]
+
+
+def test_the_frozen_demo_harness_keeps_its_wording(tmp_path: Path) -> None:
+    rel = "section-1-instructions/demo/harness/AGENTS.md"
+    assert plain_checks(problems(tmp_path, rel, "R1 tenant isolation; [link].\n")) == []
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Agents skew positive ([Anthropic, Harness design]"
+        "(https://www.anthropic.com/engineering/harness-design-long-running-apps)).\n",
+        "Held-out tests catch it (SpecBench).\n",
+        "Anthropic's Effective harnesses article says so.\n",
+    ],
+)
+def test_a_source_needs_a_link_and_a_sources_list(tmp_path: Path, text: str) -> None:
+    found = problems(tmp_path, "docs/guide.md", text)
+    assert plain_checks(found) == ["SC25"], found
+
+
+def test_a_linked_source_with_a_sources_list_passes(tmp_path: Path) -> None:
+    url = "https://www.anthropic.com/engineering/harness-design-long-running-apps"
+    text = (
+        f"Agents skew positive ([Anthropic, Harness design]({url})).\n\n"
+        f"## Sources\n\n- [Harness design for long-running application development]({url})\n"
+    )
+    assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_a_sources_heading_may_close_any_template(tmp_path: Path) -> None:
+    url = "https://arxiv.org/abs/2402.09171"
+    body = (
+        f"Tests pass five times ([Meta, TestGen-LLM]({url})).\n\n## Sources\n\n- [TestGen]({url})\n"
+    )
+    found = problems(tmp_path, DEMO, demo_page(body))
+    assert [p for p in found if p.check in ("SC16", "SC25")] == [], found
+
+
+def test_the_module_title_is_not_a_source_mention(tmp_path: Path) -> None:
+    text = "Harness engineering is the work of this course; harness design matters.\n"
+    assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_further_reading_is_the_sources_list_of_a_concepts_page(tmp_path: Path) -> None:
+    url = "https://arxiv.org/abs/2605.21384"
+    text = f"Held-out tests ([SpecBench]({url})).\n\n## Further reading\n\n- [SpecBench]({url})\n"
+    assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
