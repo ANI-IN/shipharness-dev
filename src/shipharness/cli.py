@@ -23,10 +23,12 @@ def _register_commands() -> None:
     """Commands contributed by subsystem packages (each exposes register(app))."""
     from shipharness.ab.commands import register as register_ab
     from shipharness.checks.commands import register as register_checks
+    from shipharness.kit.commands import register as register_kit
     from shipharness.skills_cli.commands import register as register_skills
     from shipharness.testgen.commands import register as register_testgen
 
     register_checks(app)
+    register_kit(app)
     register_skills(app)
     register_testgen(app)
     register_ab(app)
