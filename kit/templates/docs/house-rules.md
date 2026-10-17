@@ -71,6 +71,7 @@ the import chain; then undo the change. A check that never fails proves nothing.
 | `error: app directory not found: <dir>` | `--app` points at the wrong folder | Pass the folder that holds your app package |
 | `ModuleNotFoundError: No module named 'shipharness_adapter'` | `PYTHONPATH` does not include `harness` | Run from the repository root with `PYTHONPATH=harness` |
 | `check crashed: ...` and exit 1 | The adapter or the app raised an error | Read the error; usually `create_app()` cannot import the app |
+| `check crashed: AttributeError: 'HouseRulesAdapter' object has no attribute 'create_app'` | `--rules` names a rule whose adapter methods you deleted | Drop the rule from `--rules`, or add the methods the table above lists for it |
 | `baseline=` grows and `new=0` | A known violation got worse but was already listed | Fix it, then record the baseline again |
 
 ## Adding your own rule

@@ -7,6 +7,7 @@ as the built-in TeamTrackAdapter, and the checks pass through it on the TeamTrac
 from __future__ import annotations
 
 import importlib
+import sys
 from pathlib import Path
 
 import pytest
@@ -23,7 +24,9 @@ SPEC = "shipharness_adapter:HouseRulesAdapter"
 @pytest.fixture
 def template(monkeypatch: pytest.MonkeyPatch):  # type: ignore[no-untyped-def]
     monkeypatch.syspath_prepend(str(HARNESS_DIR))
+    monkeypatch.delitem(sys.modules, "shipharness_adapter", raising=False)
     module = importlib.import_module("shipharness_adapter")
+    monkeypatch.setitem(sys.modules, "shipharness_adapter", module)
     return module.HouseRulesAdapter()
 
 
