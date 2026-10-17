@@ -14,8 +14,8 @@ no working endpoint, so it starts again: it writes a new migration from the old 
 half of the endpoint.
 
 Now the repository has two migration heads, and the deploy stops. A reviewer untangles two
-versions of one change, and Marco pays for the same work twice. The second session simply did not
-know what the first one had done.
+versions of one change, and Marco pays for the same work twice. The second session did not know
+what the first one had done.
 
 > **Terms on this page**
 >
@@ -41,13 +41,11 @@ repository at every stop, and start every session by reading them.
 ## How it works
 
 Anthropic's harness team states the problem of long tasks: "each new session begins with no memory
-of what came before." Without help, the next session starts "with a feature half-implemented and
-undocumented. The agent would then have to guess at what had happened"
+of what came before." The next session then has to guess at what happened
 ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
 
-Keeping the old context alive in a compressed form is not the answer: "However, compaction isn’t
-sufficient." The same team's later harness names the alternative: "Context resets—clearing the
-context window entirely and starting a fresh agent, combined with a structured handoff that carries
+Compressing the old context is not enough: "compaction isn’t sufficient." The same team's later
+harness uses context resets instead: a fresh agent, "combined with a structured handoff that carries
 the previous agent's state and the next steps"
 ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
@@ -61,15 +59,13 @@ The state lives in a few files, each with one job:
 | Exec plan | The plan, its progress, its decisions | OpenAI, Harness engineering; PLANS.md |
 | `session-handoff.md` | The last session's state and the next steps | Anthropic, Harness design |
 
-The exec plan comes from OpenAI: "execution plans with progress and decision logs that
-are checked into the repository" ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)).
+The exec plan comes from OpenAI ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)).
 Its recipe sets a high bar: "it should always be possible to restart from _only_ the ExecPlan and no
 other work." ([OpenAI, PLANS.md](../docs/evidence/s2.md#src-openai-exec-plans))
 
-Two routines wrap the files. At the start of a session, under the heading "Getting up to speed":
-"Read the git logs and progress files to get up to speed on what was recently worked on." Then run
-`init.sh` and a basic test, because starting a new feature on a broken app "would likely make the
-problem worse." At the end: "End the session by writing a git commit and progress update."
+Two routines wrap the files. At the start, "Getting up to speed": read the git log and the progress
+files, then run `init.sh` and a basic test, because a new feature on a broken app "would likely make
+the problem worse." At the end: "End the session by writing a git commit and progress update."
 
 ```mermaid
 flowchart LR
@@ -85,9 +81,9 @@ flowchart LR
   end
 ```
 
-The course needs the stop at a known point, in both arms, in every run. It uses a **session turn
-budget**: a fixed number of turns per session, the same for both arms. This is the course's own
-mechanism, not a source term; it produces the context reset at turn 12.
+The course needs the stop at a known point in every run, so it uses a **session turn budget**: the
+same fixed number of turns per session in both arms. This is the course's own mechanism, not a
+source term; it produces the context reset at turn 12.
 
 ### Before and after
 
@@ -174,7 +170,7 @@ It helps when:
 - A task is longer than one session, and sessions end before the work is done.
 - The work leaves traces that are hard to find again, such as a decision made after reading three
   documents.
-- Several agents or people pick up the same task. A handoff file works for both.
+- Several agents or people pick up the same task.
 
 It does not help, or helps less, when:
 
@@ -182,13 +178,12 @@ It does not help, or helps less, when:
   uncommitted migration before it wrote anything.
 - The task fits in one session. The files then cost turns and give nothing back.
 - The stop never comes. If the agent finishes in session 1, there is nothing to hand off.
-- The model changes. Anthropic's team dropped resets for a later model: "Opus 4.5 largely removed
-  that behavior on its own, so I was able to drop context resets from this harness entirely."
-  ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+- The model changes. Anthropic's team dropped resets because "Opus 4.5 largely removed that
+  behavior on its own" ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 The same source gives the test to apply: "every component in a harness encodes an assumption about
 what the model can't do on its own, and those assumptions are worth stress testing." The state files
-assume a fresh session cannot pick up the work from the repository alone. Measure that on your model.
+assume a fresh session cannot pick up the work from the repository alone.
 
 ## Key takeaways
 
@@ -204,21 +199,16 @@ assume a fresh session cannot pick up the work from the repository alone. Measur
 1. Session 2 of the bare arm has the whole repository. Why can it still write a second migration?
 2. Why does the harness write the machine summary itself, instead of asking the agent for it?
 3. A run passes the continuity check with 3 of 56 hidden tests. What does the pass tell you?
-4. Anthropic's team dropped context resets for a later model. Why does the course still use a stop?
 
 <details>
 <summary>Answers</summary>
 
 1. Being in the repository is not being noticed. If session 2 does not run `git status` or read
-   the migrations folder before it writes code, it works from the ticket alone and starts from the
-   old head.
-2. The agent writes notes in its last turns, and a session can end before those turns come. Facts
-   such as commits, changed files, and migration heads can be read from the repository at the stop,
-   whatever the agent did.
+   the migrations folder first, it works from the ticket alone and starts from the old head.
+2. A session can end before the agent's wrap-up turns come. Commits, changed files, and migration
+   heads can be read from the repository at the stop, whatever the agent did.
 3. Only that session 2 did not break or redo session 1's work. Here session 1 left almost no code,
    so there was nothing to redo. The hidden-test count says the feature was not built.
-4. To make the problem visible at a known point, the same for both arms. The files are the part
-   that holds for any model.
 
 </details>
 
@@ -229,6 +219,3 @@ assume a fresh session cannot pick up the work from the repository alone. Measur
 - [Harness design: context resets and handoffs](post-class-reading/02-harness-design-context-resets.md):
   resets against compaction, and why they depend on the model.
 - [Exec plans](post-class-reading/03-exec-plans.md): a plan the next session can restart from.
-- The sources: [Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running);
-  [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design);
-  [OpenAI, PLANS.md](../docs/evidence/s2.md#src-openai-exec-plans).

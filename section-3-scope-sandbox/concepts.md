@@ -40,18 +40,15 @@ command can reach.
 ## How it works
 
 No single source says "agents edit files outside the ticket". Several observations point there.
-Agents copy what they find: "Codex replicates patterns that already exist in
-the repository—even uneven or suboptimal ones."
-([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)) An agent running unattended
-can do damage: one author advises "(Run this in a container, not your actual machine)." and reports
-that the agent once ran "pkill -9 bash on accident, thus killing itself and ending the loop."
-([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)) Anthropic's prompting guide
+Agents copy what they find: "Codex replicates patterns that already exist in the repository"
+([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)). An agent running
+unattended can do damage: one once ran "pkill -9 bash on accident, thus killing itself and ending
+the loop" ([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)). Anthropic's prompting guide
 warns that a model "may take actions that are difficult to reverse or affect shared systems"
 ([Claude docs](../docs/evidence/s3.md#src-claude-prompting)).
 
-Strong words do not check anything. Anthropic's long-running harness told its agent:
-"It is unacceptable to remove or edit tests because this could lead to missing or buggy
-functionality." It kept the feature list in JSON because "the model is less likely to
+Strong words do not check anything. Anthropic's long-running harness told its agent that editing
+tests is "unacceptable", and kept the feature list in JSON because "the model is less likely to
 inappropriately change or overwrite JSON files compared to Markdown files."
 ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)) "Less likely" is
 the point: the wording makes a bad edit rarer, and no code catches the one that happens.
@@ -82,8 +79,7 @@ flowchart TB
 ### Before and after
 
 **Before: scope in the ticket text.** The bare arm reads the same ticket, spec, and handbook. Nothing
-stops a patch to `app/services/errors.py`. In the course's test runs on the F4 ticket, every bare arm
-made exactly that change.
+stops a patch to `app/services/errors.py`.
 
 **After: scope as a checked list.** The harness arm gets the same ticket, plus this block in its
 context, written from the task's allowed paths:
@@ -108,17 +104,17 @@ class in `app/services/issues.py`, a file on the list.
    time." The scope block names that one feature.
 3. **Only the harness sets `passes`.** In Anthropic's harness the agent edits the list "only by
    changing the status of a passes field". Here the agent may not edit it at all. It calls `finish`,
-   and the harness sets `passes: true` after its own test run, because: "Separating the agent doing the work from the agent judging it proves to be a
-   strong lever to address this issue."
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+   and the harness sets `passes: true` after its own test run: separating the worker from the judge
+   "proves to be a strong lever"
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 4. **Allowed paths per phase, enforced.** A patch with any path outside the phase's list is refused
    before it applies. After each command, a byte snapshot restores any file outside the list. The test
    phase allows tests only, so the agent cannot make a failing test pass by changing the code.
 
 ### The sandbox
 
-Every tool command runs in one container per arm; the agent loop and the API keys stay on the host.
-The flags are explained in the [Docker docs](../docs/evidence/s3.md#src-docker-run).
+Every tool command runs in one container per arm ([Docker docs](../docs/evidence/s3.md#src-docker-run));
+the agent loop and the API keys stay on the host.
 
 | Limit | Docker flag | What it stops |
 |---|---|---|
@@ -127,9 +123,9 @@ The flags are explained in the [Docker docs](../docs/evidence/s3.md#src-docker-r
 | Memory, CPU, processes | `--memory 1024m`, `--cpus 2.0` in class, `--pids-limit 256` | Runaway memory, fork bombs |
 | Non-root | `--user 1000:1000`, `--cap-drop ALL` | Root inside the container |
 
-With `--network none`, "only the loopback device is created". Anthropic's compiler agents worked the
-same way: "Claude did not have internet access at any point during its development."
-([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler))
+With `--network none`, "only the loopback device is created". Anthropic's compiler agents also
+worked with no internet access
+([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)).
 
 Two different refusals come from the two parts:
 
@@ -233,7 +229,7 @@ not.
 3. On screen 3: the diff map marks the file changed or blocked, and the referee's `diff_scope` row
    gives the count. The score record's `out_of_scope_files` holds the same number.
 4. For the run that goes wrong: with no network and a read-only root, a bad command cannot install,
-   download, or write outside the workspace. The keys stay on the host either way.
+   download, or write outside the workspace.
 
 </details>
 
@@ -242,7 +238,3 @@ not.
 - [The feature list as scope](post-class-reading/01-effective-harnesses-feature-list.md).
 - [Containers for unattended agents](post-class-reading/02-c-compiler-containers.md).
 - [Sandboxes in another agent](post-class-reading/03-codex-sandbox-and-approvals.md).
-- The sources: [OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness);
-  [Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running);
-  [Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler);
-  [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design).
