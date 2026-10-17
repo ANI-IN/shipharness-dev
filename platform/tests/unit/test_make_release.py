@@ -1022,7 +1022,7 @@ def test_a_commit_by_another_identity_or_with_a_trailer_is_reported(
 
 
 def test_the_style_rewrite_pages_and_images_ship() -> None:
-    # STYLE rewrite (2026-10-17): evidence pages, the reference page, STYLE.md, docs/images/, and each
+    # STYLE rewrite (2026-10-17): evidence pages, reference page, STYLE.md, docs/images/, and each
     # section's demo folder (run.sh, harness/, expected/) are public course files.
     included = mr.select(TRACKED).included
     for path in [
