@@ -1,6 +1,6 @@
 # Using PLANS.md for multi-hour problem solving
 
-Reading time: about 5 minutes.
+Reading time: about 15 minutes.
 Source: Aaron Friel (OpenAI Cookbook), "Using PLANS.md for multi-hour problem solving", 2025-10-07, archived, <https://cookbook.openai.com/articles/codex_exec_plans> ([evidence](../../docs/evidence/s2.md#src-openai-exec-plans)).
 
 > **Terms on this page**

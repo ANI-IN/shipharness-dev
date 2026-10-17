@@ -1,6 +1,6 @@
 # Effective harnesses for long-running agents
 
-Reading time: about 5 minutes.
+Reading time: about 10 minutes.
 Source: Justin Young (Anthropic), "Effective harnesses for long-running agents", 2025-11-26, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents> ([evidence](../../docs/evidence/s1.md#src-anthropic-long-running)).
 
 > **Terms on this page**

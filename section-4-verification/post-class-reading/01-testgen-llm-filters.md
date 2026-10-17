@@ -1,6 +1,6 @@
 # Automated Unit Test Improvement using Large Language Models at Meta
 
-Reading time: about 5 minutes.
+Reading time: about 60 minutes.
 Source: Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14, <https://arxiv.org/abs/2402.09171> ([evidence](../../docs/evidence/s4.md#src-testgen-llm)).
 
 > **Terms on this page**

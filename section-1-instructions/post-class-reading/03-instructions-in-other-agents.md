@@ -1,6 +1,6 @@
 # Extend Claude with skills, Build skills, and Agent Skills in Cursor
 
-Reading time: about 5 minutes.
+Reading time: about 80 minutes.
 Source: the skills pages of Claude Code <https://code.claude.com/docs/en/skills>, Codex <https://learn.chatgpt.com/docs/build-skills>, and Cursor <https://cursor.com/docs/skills>, read 2026-10-17 ([evidence](../../docs/evidence/s1.md#src-claude-code-skills)).
 
 > **Terms on this page**

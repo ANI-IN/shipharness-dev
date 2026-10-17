@@ -1,6 +1,6 @@
 # Harness design for long-running application development
 
-Reading time: about 5 minutes.
+Reading time: about 25 minutes.
 Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 > **Terms on this page**

@@ -1,7 +1,8 @@
 # Module 1: Harness Engineering for Coding Agents - Section 3 reading list
 
 Three short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
-words and shows how to apply it to your own repository.
+words and shows how to apply it to your own repository. Each page takes about five minutes; the
+reading time in the table is for the full source, at 200 words a minute.
 
 > **Terms on this page**
 >
@@ -13,9 +14,9 @@ words and shows how to apply it to your own repository.
 
 | Reading | Reading time | Why read it |
 |---|---|---|
-| [01 Effective harnesses for long-running agents](01-effective-harnesses-feature-list.md) | 5 minutes | Where the feature list, one feature at a time, and `passes` come from |
-| [02 Building a C compiler with parallel Claudes](02-c-compiler-containers.md) | 5 minutes | Why unattended agents run in a container with no internet |
-| [03 Codex: agent approvals and security](03-codex-sandbox-and-approvals.md) | 5 minutes | How another coding agent sets its sandbox, and what it leaves to you |
+| [01 Effective harnesses for long-running agents](01-effective-harnesses-feature-list.md) | 10 minutes | Where the feature list, one feature at a time, and `passes` come from |
+| [02 Building a C compiler with parallel Claudes](02-c-compiler-containers.md) | 15 minutes | Why unattended agents run in a container with no internet |
+| [03 Codex: agent approvals and security](03-codex-sandbox-and-approvals.md) | 20 minutes | How another coding agent sets its sandbox, and what it leaves to you |
 
 ## How to use these
 
