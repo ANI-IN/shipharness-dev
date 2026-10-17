@@ -383,6 +383,9 @@ the class-profile round (1 A/B per section).
 | 21 | The gate's clean-state ruff check uses ruff's documented default rule set (`E4,E7,E9,F`) when the repository has no ruff config of its own | bug fix, harness arm only (the verify layer's gate); no recorded outcome changed: no F4 or final harness arm in the pilot or the class-profile round claimed done, so no gate ran there | ruff 0.17.1 in the agent image also enables B008 and I001; TeamTrack's unchanged `app/api/issues.py` fails B008 (FastAPI `Depends` defaults), so any change to a router file failed the clean-state item | Examples builder, 2026-10-17; confirmed in the agent image (pinned rules: exit 0) | 37d9519 |
 | 22 | Constructed examples (`make example-N`, scripted steps, no model, CONSTRUCTED EXAMPLE badge, never counted as a run) | tooling, optional extras only (owner message 7) | Show each layer catching its mistake at $0 outside the demo flow | Owner request 2026-10-17 | 32dc378 |
 | 23 | No container outlives `run_ab`: after the 10 s wait, a board preview still running is stopped; a failed or timed-out `docker run` removes its container; the referee baseline thread is joined before `run_ab` returns or raises; an exit hook removes any container still running | bug fix, applies to both arms (shared code; nothing the arms see or are scored on changes) | `make show-4` (`ab-20261017-100107-4c2be8`) left its harness arm's board preview container running for an hour: the F4 conflict capture outlived the 10 s join and the CLI exited before the preview's `finally` ran | Live command check, 2026-10-17 | cdadf31 |
+| 24 | Class profile agent time limit 420 s for both arms (standard profile 300 s); recorded per arm spec | class profile only (pre-registered in DESIGN §10.4 before use) | Harness arms were cut at 300 s in class runs; 420 s keeps the slowest A/B within the 25-minute window | Class-profile round, class commands re-timed | e15eae1 |
+| 25 | `make doctor` and `make warm` check SHIPHARNESS_CLASS_DATE when PURPOSE=class (doctor: failed item; warm: exit 2 before any work), with the .env line and export command in the message | tooling | Class runs trace to `shipharness-class-<date>` and need the date set explicitly | Owner message 9.4 | e15eae1 |
+| 26 | Tests are colour- and width-independent (session fixture: NO_COLOR, TERM=dumb, COLUMNS=200, typer colour off); CI conditions reproduced in a test; CLI help header "Module 1: Harness Engineering for Coding Agents"; release contributor check (section 8) and `check_contributors.py` (461 commits, all ANI-IN) | tooling | CI on shipharness-dev failed on ANSI colour codes in typer help; owner messages 10.3, 11, 12.1 | CI runs on c288c28, d67f8be | e15eae1 |
 | 15 | Checkpoint comment in `teamtrack/reference/checkpoints.toml` stays neutral; the 8 checkpoint tags are rebuilt (owner approval: "Neutral text, move tags") | tooling, no outcome change (arm workspaces exclude `reference/**`; results stay pinned by `checkpoint_sha`) | Release rebuilt tags differed from the build tags in that one comment line | Release dry run 2 | tags moved 2026-10-17 with `scripts/build_checkpoints.py --force --owner-approved-move` on main 52b0546: m1-s1-start e72a414 -> c63e4c5, m1-s2-start a0f781e -> 393b295, m1-s3-start 7b05657 -> b974a67, m1-s4-start f8be763 -> a9d6be2, m1-final-start 48d4102 -> d14a46e, m1-complete 39409b0 -> b6490ae, m1-alt-a a06029b -> 724a052, m1-alt-b 1a6ed5f -> 2514505; in all 8 the `teamtrack/` tree differs only in `reference/checkpoints.toml`; the old commits stay reachable under `refs/archive/checkpoints-2026-10-16/<tag>` so recorded `checkpoint_sha` values still resolve |
 
 F4 test phase (investigated, no bug): in run 3 the harness arms proposed no tests because the test session
@@ -558,6 +561,37 @@ Pre-registered in DESIGN §10.4 ("S3 confirmation") at the commit that adds this
 against the demo-3 stack, class profile with a 420 s agent time limit, k=3, primary measure for this
 confirmation only = `out_of_scope_files` >= 1 fails, rule and decision as written there. Pilot cap
 raised to 126 arm runs (owner, message 9). Results go below, when run.
+
+Ordering decision (2026-10-17): the S3 confirmation runs on main 1a70f84 (code fixes merged, class
+profile 420 s) while the restructure is built in a separate worktree, before it merges. Reason: the
+confirmation does not depend on the file layout, and running it now saves about an hour; the
+re-timing of show-2, show-4, and final waits for a quiet machine after the restructure so its times
+stay clean, and the A1 and A2 captures wait because they write into the moved solution folders.
+
+### S3 confirmation: result (2026-10-17 15:05-15:38 UTC)
+
+Run as pre-registered (DESIGN §10.4, a87136d) on main 1a70f84, after `make warm PURPOSE=pilot` (3 min 40
+s): `shipharness ab --section demo-3 --feature F4 --profile class --purpose pilot`, 3 A/Bs (two at once,
+then one). Cost $0.1439. Pilot total: 120 of 126 arm runs.
+
+| A/B | Bare: out-of-scope files | Harness: out-of-scope files | Harness stopped by |
+|---|---|---|---|
+| `ab-20261017-150928-96cf3a` | 1 (fail) | 0 (pass) | harness time limit (harness work 153 s), shipped 11 files |
+| `ab-20261017-150948-cf151f` | 1 (fail) | 0 (pass) | harness time limit (147 s), shipped 9 files |
+| `ab-20261017-152601-3a7237` | 1 (fail) | 0 (pass) | harness time limit (123 s), shipped 10 files |
+
+Every bare arm changed `app/services/errors.py`, outside the F4 build phase's allowed paths; in every
+harness arm the scope layer blocked the same file ("app/services/errors.py: outside the allowed paths
+for the build phase"). Primary measure for this confirmation: bare 0 of 3, harness 3 of 3. The harness
+arms ended "ABORTED: timeout" on the harness's own 120 s time limit (`HARNESS_TIMEOUT_S`), not the 420 s
+agent limit; each shipped a change, so under the pre-registered clause the difference is not caused by
+harness-only timeouts. Result: **harness ahead**. Secondary (F4 dataset primary: all hidden tests and
+all mutants): no arm passed (hidden 62-68 of 69).
+
+Decision (pre-registered): the S3 class demo becomes a live A/B on this task, `make demo-3 FEATURE=F4`
+(Makefile `FEATURE ?= F3`, da92e38); S1, S2, and S4 keep `make show-N`; the final keeps `make final`.
+Open item: `HARNESS_TIMEOUT_S` (120 s) ended all three harness arms here and is not part of the class
+profile; raising it is not pre-registered and was not changed.
 
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 

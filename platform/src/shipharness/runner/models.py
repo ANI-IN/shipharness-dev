@@ -52,6 +52,7 @@ class AgentRunSpec(BaseModel):
     reasoning_effort: str
     max_output_tokens: int = 8000
     service_tier: str = "auto"
+    run_timeout_s: int = 300  # agent time limit (RUN_TIMEOUT_S; class profile: 420)
     profile: str = "standard"  # run profile (config/profiles.py), the same for both arms
     single_arm: bool = False  # True: harness arm alone (`ab --arms harness`), not an A/B
     constructed: bool = False  # True: a constructed example (scripted steps, no model)

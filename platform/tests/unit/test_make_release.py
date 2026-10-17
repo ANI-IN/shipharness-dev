@@ -932,3 +932,82 @@ def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
 def test_the_slide_screenshots_ship_with_the_deck() -> None:
     # slides/deck.md embeds slides/img/*.png; without them `make slides` fails in the public repo.
     assert "slides/img/show-1-screen-1.png" in mr.select(TRACKED).included
+
+
+# -- contributors (owner message 10.3) ------------------------------------------------------------
+
+
+def test_contributors_pass_for_the_built_repository(mini_repo: Path, tmp_path: Path) -> None:
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    assert rel.contributors == []
+    text = mr.render(rel, "files.txt", "REFERENCES.md")
+    assert "== 8. Contributors: PASS" in text
+    assert rel.failures() == []
+
+
+@pytest.mark.parametrize(
+    "line",
+    [
+        "Co-authored-by: Someone <s@example.com>",
+        "\N{ROBOT FACE} Generated with [Claude Code](https://claude.com/claude-code)",
+        "Generated with Claude",
+    ],
+)
+def test_an_attribution_line_in_a_public_file_fails_the_dry_run_and_the_build(
+    mini_repo: Path, tmp_path: Path, line: str
+) -> None:
+    _write(mini_repo, "README.md", f"# mini\n\nAs A2 says (F-a-03).\n\n{line}\n")
+    _git(mini_repo, "commit", "-q", "-am", "attribution")
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    assert any("README.md:5" in p for p in rel.contributors), rel.contributors
+    assert any(f.startswith("contributors:") for f in rel.failures())
+    text = mr.render(rel, "files.txt", "REFERENCES.md")
+    assert "== 8. Contributors: FAIL" in text and "README.md:5" in text
+    assert "--build would refuse:" in text and "contributors:" in text
+    with pytest.raises(mr.ReleaseError, match="contributors:"):
+        mr.build(mini_repo, "HEAD", tmp_path / "learner", verify=[sys.executable, "-c", "pass"])
+
+
+def test_the_contributor_script_is_a_private_build_tool() -> None:
+    assert mr.classify("platform/scripts/check_contributors.py") == mr.REASON_INTERNAL
+    assert "platform/scripts/check_contributors.py" in mr.INTERNAL_SCRIPTS
+
+
+def test_contributor_files_and_dependabot_are_reported() -> None:
+    problems = mr.contributor_file_problems(
+        {
+            "use-in-your-repo/kit/templates/.github/CODEOWNERS": "* @ANI-IN @someone\n",
+            "use-in-your-repo/kit/templates/CODEOWNERS": "# owners\n* @ANI-IN\n",
+            "docs/AUTHORS.md": "ANI-IN\nSomeone Else\n",
+            "CONTRIBUTORS": "ANI-IN <44803072+ANI-IN@users.noreply.github.com>\n",
+            ".github/dependabot.yml": "version: 2\n",
+            ".github/dependabot.yaml": "version: 2\n",
+            "README.md": "No attribution here; co-authored work is fine to discuss.\n",
+        }
+    )
+    assert any(
+        p.startswith("use-in-your-repo/kit/templates/.github/CODEOWNERS") and "@someone" in p
+        for p in problems
+    )
+    assert not any(p.startswith("use-in-your-repo/kit/templates/CODEOWNERS") for p in problems)
+    assert any(p.startswith("docs/AUTHORS.md") and "Someone Else" in p for p in problems)
+    assert not any(p.startswith("CONTRIBUTORS") for p in problems)
+    assert any(p.startswith(".github/dependabot.yml") for p in problems)
+    assert any(p.startswith(".github/dependabot.yaml") for p in problems)
+    assert not any(p.startswith("README.md") for p in problems)
+
+
+def test_a_commit_by_another_identity_or_with_a_trailer_is_reported(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    public = rel.public
+    (public / "x.txt").write_text("x\n", encoding="utf-8")
+    _git(public, "add", "-A")
+    # _git commits as t <t@t.invalid>, not as ANI-IN.
+    _git(public, "commit", "-q", "-m", "more\n\nCo-authored-by: Someone <s@example.com>")
+    problems = mr.contributor_problems(public, rel.public_files)
+    assert any("author t <t@t.invalid>" in p for p in problems)
+    assert any("committer t <t@t.invalid>" in p for p in problems)
+    assert any("Co-authored-by trailer" in p for p in problems)
+    assert len([p for p in problems if "more" in p]) == 1  # one line per offending commit

@@ -26,6 +26,7 @@ CONFTEST = REPO / "platform" / "tests" / "conftest.py"
 
 # Sample values substituted for make variables before the CLI parses a recipe line.
 SAMPLES = {
+    "$(FEATURE)": "F3",
     "$(LAYERS_OPT)": "--layers=-scope",
     "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
     "$(PURPOSE)": "pilot",
@@ -262,6 +263,18 @@ def test_warm_target_runs_the_warm_command_with_the_profile() -> None:
         assert f" {target} " in f" {phony} ", target
 
 
+def test_doctor_and_warm_pass_the_purpose() -> None:
+    # Owner message 9.4: make warm and make doctor check SHIPHARNESS_CLASS_DATE when PURPOSE=class
+    # (the default); PURPOSE=pilot or assignment needs no date.
+    assert _variables()["PURPOSE"] == "class"
+    for target in ("doctor", "warm"):
+        calls = _shipharness_calls(target)
+        assert len(calls) == 1, target
+        command, params = _parse(calls[0])
+        assert command == target
+        assert params["purpose"] == "pilot", target  # the sample value of $(PURPOSE)
+
+
 def test_images_target_tags_the_images_the_settings_name() -> None:
     # make warm rebuilds through `make images` with the image names it uses.
     variables = _variables()
@@ -314,3 +327,12 @@ def test_testpaths_hold_the_platform_and_the_section_assignment_tests() -> None:
     for path in paths:
         assert (REPO / path).is_dir(), path
     assert options["pythonpath"] == ["platform/teamtrack"]
+
+
+def test_demo_3_runs_the_s3_confirmation_task_by_feature() -> None:
+    # S3 confirmation (pre-registered, 2026-10-17): harness ahead on the F4 ticket, so the S3 class
+    # demo is a live A/B on F4: `make demo-3 FEATURE=F4`. Without FEATURE it stays F3.
+    command, params = _parse(_shipharness_calls("demo-3")[0])
+    assert command == "ab" and params["section"] == "demo-3"
+    assert _variables()["FEATURE"] == "F3"
+    assert "--feature $(FEATURE)" in " ".join(_rules()["demo-3"])

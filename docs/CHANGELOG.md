@@ -4,6 +4,17 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### Class time limit, class date check, CLI title (2026-10-17)
+- Class profile: the agent time limit (`RUN_TIMEOUT_S`) is 420 s for both arms (standard keeps
+  300 s), so a run fits the class window; each arm's spec in `ab.json` records `run_timeout_s`.
+- `make doctor` and `make warm` pass `--purpose $(PURPOSE)` (default `class`). With `class`, a
+  missing or malformed `SHIPHARNESS_CLASS_DATE` (YYYY-MM-DD) is a failed doctor item, and warm stops
+  before any work; both print the `.env` line, the export command, and the class project name
+  `shipharness-class-<date>`. `PURPOSE=pilot` and `PURPOSE=assignment` need no date.
+- The CLI help header reads "Module 1: Harness Engineering for Coding Agents".
+- Tests read CLI output without colour codes and at a fixed width on any host, GitHub Actions
+  included.
+
 ### Release tag class-v1, no freeze (2026-10-17)
 - No experiment freeze: the pilot gate did not pass, so the release carries no `harness-frozen` tag.
   The release build writes the public `harness-frozen` tag only when the build repository

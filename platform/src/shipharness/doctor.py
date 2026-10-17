@@ -11,7 +11,7 @@ from typing import Literal, Protocol
 import httpx
 from pydantic import BaseModel
 
-from shipharness.config import Prices, Settings, UnknownModelPrice
+from shipharness.config import Prices, Settings, UnknownModelPrice, class_date
 from shipharness.config.prices import REPO_ROOT
 
 Status = Literal["ok", "missing", "invalid", "unreachable", "warn"]
@@ -150,7 +150,9 @@ def run_doctor(
     offline: bool,
     probes: DoctorProbes | None = None,
     which: Callable[[str], str | None] = shutil.which,
+    purpose: str | None = None,
 ) -> DoctorReport:
+    """Every check; with a `purpose` (class, pilot, assignment) also the class date check."""
     probes = probes or RealProbes()
     checks: list[DoctorCheck] = []
     version = sys.version_info
@@ -241,4 +243,28 @@ def run_doctor(
             next_step="git rm --cached .env (keep the file, stop tracking it)",
         )
     )
+    if purpose is not None:
+        checks.append(class_date_check(settings, purpose))
     return DoctorReport(checks=checks)
+
+
+def class_date_check(settings: Settings, purpose: str) -> DoctorCheck:
+    """PURPOSE=class needs SHIPHARNESS_CLASS_DATE as YYYY-MM-DD; pilot and assignment do not."""
+    name = class_date.VARIABLE
+    if purpose != "class":
+        return DoctorCheck(name=name, status="ok", detail=f"not needed for PURPOSE={purpose}")
+    day = settings.shipharness_class_date
+    problem = class_date.class_date_problem(day)
+    if problem is None:
+        return DoctorCheck(
+            name=name,
+            status="ok",
+            detail=f"{day} (class runs trace to {class_date.class_project(day)})",
+        )
+    detail = "not set" if not day else problem.removeprefix(f"{name}=")
+    return DoctorCheck(
+        name=name,
+        status="missing" if not day else "invalid",
+        detail=f"{detail} (PURPOSE=class needs the class day, YYYY-MM-DD)",
+        next_step="\n      ".join(class_date.class_date_fix()),
+    )

@@ -457,6 +457,9 @@ def register(app: typer.Typer) -> None:
     @app.command("warm")
     def warm_cmd(
         profile: str = typer.Option("class", help=PROFILE_HELP),
+        purpose: str = typer.Option(
+            "class", help="class (checks SHIPHARNESS_CLASS_DATE first), pilot, or assignment."
+        ),
         images_command: str | None = typer.Option(
             None, help="Command that builds the images (default: make images RUNTIME=<runtime>)."
         ),
@@ -468,11 +471,28 @@ def register(app: typer.Typer) -> None:
         from shipharness.ab.runtime import cost_line
         from shipharness.ab.workspace import workspace_base
         from shipharness.config import UnknownModelPrice
+        from shipharness.config.class_date import (
+            PURPOSE_CHOICES,
+            PURPOSES,
+            class_date_fix,
+            class_date_problem,
+        )
 
         if profile not in PROFILES:
             typer.echo(f"x unknown --profile {profile!r}: {', '.join(PROFILES)}")
             raise typer.Exit(2)
-        settings = _settings().model_copy(update={"langsmith_tracing": False})
+        if purpose not in PURPOSES:
+            typer.echo(f"x unknown --purpose {purpose!r}: {PURPOSE_CHOICES}")
+            raise typer.Exit(2)
+        loaded = _settings()
+        problem = class_date_problem(loaded.shipharness_class_date) if purpose == "class" else None
+        if problem:
+            typer.echo(f"x {problem}: class runs need the class day (YYYY-MM-DD)")
+            for line in class_date_fix():
+                typer.echo(f"  {line}")
+            typer.echo("warm: nothing done")
+            raise typer.Exit(2)
+        settings = loaded.model_copy(update={"langsmith_tracing": False})
         if settings.sandbox_mode != "docker":
             typer.echo("x SANDBOX_MODE=none: there are no containers or images to warm up")
             raise typer.Exit(2)

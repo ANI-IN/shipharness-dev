@@ -17,12 +17,15 @@ FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
 # demo-N, swap-N, final: PURPOSE picks the LangSmith project. class needs
-# SHIPHARNESS_CLASS_DATE (the class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
+# SHIPHARNESS_CLASS_DATE (the class day, YYYY-MM-DD) in .env; PURPOSE=pilot traces to
+# shipharness-pilot instead. doctor and warm check the class date when PURPOSE=class.
 PURPOSE ?= class
 # demo-N, final, show-N, warm: PROFILE=class (default) makes live class runs fast, identical for both
 # arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 # arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
 PROFILE ?= class
+# demo-3's ticket: F3 by default; FEATURE=F4 runs the S3 confirmation task as a live A/B.
+FEATURE ?= F3
 # images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
 AGENT_IMAGE ?= shipharness-agent:1
 REFEREE_IMAGE ?= shipharness-referee:1
@@ -51,7 +54,7 @@ images:
 	$(RUNTIME) build -f platform/sandbox/Dockerfile --target referee -t $(REFEREE_IMAGE) .
 
 doctor:
-	$(UV) run shipharness doctor
+	$(UV) run shipharness doctor --purpose $(PURPOSE)
 
 up:
 	$(UV) run shipharness up --port $(PORT)
@@ -104,7 +107,7 @@ demo-2:
 	  --profile $(PROFILE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-3 --feature $(FEATURE) $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 demo-4:
@@ -172,7 +175,7 @@ replay:
 # Before class, on the class host: build the images only if their source changed, page each image
 # in, and cache the referee and gate baselines of the class tasks. No model calls; safe to rerun.
 warm:
-	$(UV) run shipharness warm --profile $(PROFILE) --images-command "make images RUNTIME=$(RUNTIME)"
+	$(UV) run shipharness warm --purpose $(PURPOSE) --profile $(PROFILE) --images-command "make images RUNTIME=$(RUNTIME)"
 
 experiments report pilot:
 	@echo "! make $@ is not a make target in this release; use uv run shipharness experiments --help or uv run shipharness report --help"; exit 2
