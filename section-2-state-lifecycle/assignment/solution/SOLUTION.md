@@ -187,14 +187,20 @@ the grader is not in this repository.
 
 The live step ran with this folder's layer, as in
 [SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in). Its files are in [live/](live/):
-the task, the command, the full output, the run summary, and both score records. The run is not
-valid evidence: the harness arm reached its agent time limit in session 3, so it had three
-sessions, not four. [live/README.md](live/README.md) shows where the time went. The grade with that
-run is 90/100 (`captured/grade-solution.txt`): every scenario criterion passes, and the live
-criterion gives 0. Dates and run ids are on the
+the task, the command, the full output, the run summary, and both score records.
+
+The harness arm ran four build sessions, and the state layer wrote and committed a handoff at every
+stop. The referee found no continuity failure. Sessions 1 and 3 ended by their turn budget. Session
+2 ended on its last turn with the agent's own `finish(claim="not_done")`, and the stop step still ran
+for it. Under the live step's rule, that counts as a forced stop
+([SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in)).
+[live/README.md](live/README.md) shows how each session ended.
+
+The grade is 100 out of 100 (`captured/grade-solution.txt`): every scenario criterion passes, and
+the live criterion gives its 10 points. Dates and run ids are on the
 [evidence page](../../../docs/evidence/s2.md#s2-a2-solution).
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI Cookbook, Aaron Friel, 2025-10-07)
+- Source 1: Effective harnesses for long-running agents, [https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), Anthropic (Justin Young), 2025-11-26
+- Source 2: Using PLANS.md for multi-hour problem solving, [https://cookbook.openai.com/articles/codex_exec_plans](https://cookbook.openai.com/articles/codex_exec_plans), OpenAI Cookbook (Aaron Friel), 2025-10-07

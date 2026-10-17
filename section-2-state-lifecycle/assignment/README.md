@@ -22,7 +22,7 @@ you close.
 > **Terms on this page**
 >
 > - **Harness layer**: One part of the harness: instructions, state, scope, or verification.
-> - **Forced stop**: The end of a session by its turn budget, before the work is done.
+> - **Forced stop**: The end of a session before the work is done: by its turn budget, or by the agent's `finish(claim="not_done")` once the harness stop step has run.
 > - **Step ledger**: One line per ticket step, done or not, derived from git at every stop.
 > - **Test stand-in agent**: A deterministic program, not a model, that plays the agent in the graded scenarios.
 > - **Scenario**: One run of the real runner with your layer, the stand-in agent, and four sessions.
@@ -101,8 +101,10 @@ starter untouched, copy it first (`cp -r section-2-state-lifecycle/assignment/st
    ```
 
    Check: it ends with `+ live evidence written`, and the self-check's last lines report valid live
-   evidence. If the model ended a session early, move `live/` away and run again
-   ([SPEC.md, "Evidence to hand in"](SPEC.md#evidence-to-hand-in)).
+   evidence. Sessions 1 to 3 must end by their turn budget. A session the agent ends itself with
+   `finish(claim="not_done")` also counts, but only if your layer's stop step wrote and committed
+   the handoff and `progress.md` for it. If a session ended any other way, move `live/` away and run
+   again ([SPEC.md, "Evidence to hand in"](SPEC.md#evidence-to-hand-in)).
 
 8. **Submit.** Commit your folder, `a2_state/` and `live/`, on your own branch, or hand in the
    folder. Do not change `a2_state/` after the live step.

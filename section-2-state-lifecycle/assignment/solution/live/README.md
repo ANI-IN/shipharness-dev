@@ -1,45 +1,47 @@
 # Module 1: Harness Engineering for Coding Agents - Assignment 2 reference live step
 
-This folder holds the files of the reference solution's live step: one A/B on the four-session comments
-task (`F2-a2-four-sessions`, session budget [10, 10, 10, 20]), with the reference
-`ResumableStateLayer` as the harness arm's state layer and gpt-6-luna as the agent model.
+This folder holds the live step of the reference solution for Assignment 2: State and sessions. It
+is one A/B run on the four-session comments task (`F2-a2-four-sessions`: Feature 2: Comments on
+issues, split over sessions of 10, 10, 10, and 20 turns). The harness arm used the reference
+`ResumableStateLayer` as its state layer. The agent model was gpt-6-luna.
 
 Command (from the repository root, with keys, Docker, and the checkpoints; `make doctor` passes):
 
-```
-uv run python 02-state-lifecycle/assignment/live/run_live.py --impl 02-state-lifecycle/assignment/solution --forced-stops
+```bash
+uv run python section-2-state-lifecycle/assignment/live/run_live.py --impl section-2-state-lifecycle/assignment/solution --forced-stops
 ```
 
 The script writes these files next to this README: `task.jsonl`, `command.txt`, `output.txt`,
-`summary.json`, and `scores/<run_id>.json` (one score record per arm). The grader checks them with
+`summary.json`, and `scores/` (one score record per arm). The grader checks them with
 `assignment/a2_scenario/live_evidence.py`.
 
-## This run is not valid evidence
+## What the run shows
 
-The run in this folder finished, but it does not meet the live step's rule. The rule asks for four
-build sessions in the harness arm, the first three ended by their turn budget (the fixed number of
-turns a session gets), and three session stops. In this run the harness arm reached its agent time limit (300 s) on turn 8 of session 3, so
-it had three sessions, two session stops, and no session 4. The script says so at the end of
-`output.txt`:
+This is the fifth attempt, run on 2026-10-17. It cost $0.027010.
 
-> Your output will differ: run times, ids, and the agent's wording change on every run.
+- The harness arm ran four build sessions.
+- The state layer wrote and committed a handoff and a `progress.md` entry at every stop.
+- The referee found no continuity failure in either arm: no second migration head, no table
+  created twice, no large share of an earlier session's lines redone.
+- Neither arm finished the feature in its 50 build turns: each passed 3 of 56 hidden tests.
 
-```text
-x live evidence in 02-state-lifecycle/assignment/solution/live is not valid:
-  - summary: the harness arm needs 4 build sessions, the first 3 ended by turn_budget (found 3: ['turn_budget', 'turn_budget', 'timeout'])
-  - summary: the harness arm needs 3 session_stop events (sessions 1-3), found [1, 2]
-```
+## How the sessions ended
 
-Where the time went, from the harness arm's run log: each session began with start-up calls before
-the agent read the ticket. Session 1 ran one long status command (23 s) and the visible test suite
-(37 s); sessions 2 and 3 ran `bash init.sh` (20 s and 40 s) and the visible test suite (55 s and
-51 s). Those calls took about 225 s of the 300 s, so session 3 ran out of time before its turn
-budget. The
-bare arm ran all four sessions in 159 s of agent time. The run shared the machine with another
-live A/B, which made the tool calls slower.
+The live step's rule says that sessions 1 to 3 of the harness arm end by a forced stop. A forced stop
+is the turn budget (the fixed number of turns a session gets), or the agent's own
+`finish(claim="not_done")` when the harness stop step still ran for that session: the handoff and
+`progress.md` written and committed before the next session.
 
-The grade of this folder is 90/100: every scenario criterion passes, and the live criterion
-(10 points) gives 0 because of the two problems above (`../captured/grade-solution.txt`).
+Sessions 1 and 3 ended by their turn budget. Session 2 ended on its last turn, when the agent called
+`finish` with the claim `not_done`. The stop step ran for it: `summary.json` lists the handoff, the
+two files the state layer wrote, and the new commit session 3 started from. So the run counts.
+
+The fourth attempt, run just before this one, ended session 2 in the same way. It was judged under
+the earlier rule, which accepted only the turn budget, so it did not count; its files are kept
+outside the course folders.
+
+The grade of this folder is 100 out of 100 (`../captured/grade-solution.txt`): every scenario
+criterion passes, and the live criterion gives its 10 points.
 
 To try again, move the files listed above out of this folder (keep this README), then run the
 command again. The script refuses to run while `summary.json` is here.

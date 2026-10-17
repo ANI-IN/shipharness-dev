@@ -37,6 +37,13 @@ LIVE_VARIANT = "a2-four-sessions"
 # The 50 build turns of every F2 line in the dataset, split over four sessions.
 LIVE_BUDGETS = (10, 10, 10, 20)
 FORCED_STOPS = len(LIVE_BUDGETS) - 1
+# How sessions 1 to 3 of the harness arm may end. The turn budget forces the stop. An agent's own
+# finish(claim="not_done") also counts, but only when the harness stop step ran for that session:
+# the handoff and progress written and committed (owner decision, 2026-10-18).
+FORCED_END = "turn_budget"
+AGENT_END = "claim_not_done"
+HANDOFF_FILE = "session-handoff.md"
+PROGRESS_FILE = "progress.md"
 LIVE_LAYERS = "instructions,state"
 LAYER_CLASS = "ResumableStateLayer"
 # Class defaults, read from the settings class (no .env is read here).
@@ -135,19 +142,41 @@ def ab_id_from_output(output: str) -> str | None:
 
 
 def _stops(events: Path, run_id: str) -> list[dict[str, Any]]:
-    stops = []
+    """The session_stop events of `run_id`, each with what the harness stop step left: the
+    handoff path, the paths of the state layer's session_stop decision for that session, the
+    commit the session ended on, and the commit the next session started from (they differ when
+    the stop step committed the handoff and progress)."""
+    stops: list[dict[str, Any]] = []
     if not events.is_file():
         return stops
+    written: dict[Any, list[str]] = {}
+    resumes: dict[Any, Any] = {}
     for line in events.read_text(encoding="utf-8").splitlines():
         try:
             event = json.loads(line)
         except ValueError:
             continue
-        if event.get("type") == "session_stop" and event.get("run_id") == run_id:
-            data = event.get("data", {})
+        if event.get("run_id") != run_id:
+            continue
+        kind, data = event.get("type"), event.get("data", {})
+        if kind == "harness_decision" and data.get("kind") == "session_stop":
+            index = (data.get("data") or {}).get("session_index")
+            written.setdefault(index, []).extend(str(p) for p in data.get("paths") or [])
+        elif kind == "session_resume":
+            resumes[data.get("session_index")] = data.get("start_sha")
+        elif kind == "session_stop":
             stops.append(
-                {"session_index": data.get("session_index"), "ended_by": data.get("ended_by")}
+                {
+                    "session_index": data.get("session_index"),
+                    "ended_by": data.get("ended_by"),
+                    "handoff_path": data.get("handoff_path"),
+                    "end_sha": data.get("end_sha"),
+                }
             )
+    for stop in stops:
+        index = stop["session_index"]
+        stop["state_paths"] = sorted(set(written.get(index, [])))
+        stop["resume_sha"] = resumes.get(index + 1) if isinstance(index, int) else None
     return stops
 
 
@@ -329,6 +358,17 @@ def _check_records(
     return records
 
 
+def _stop_step_ran(stop: dict[str, Any] | None) -> bool:
+    """True when the harness stop step ran for a session: its session_stop names a handoff, the
+    state layer wrote the handoff and progress.md for it, and the next session started from a
+    new commit (the stop step's commit)."""
+    if not stop or not stop.get("handoff_path"):
+        return False
+    written = set(stop.get("state_paths") or [])
+    end, resume = stop.get("end_sha"), stop.get("resume_sha")
+    return {HANDOFF_FILE, PROGRESS_FILE} <= written and bool(end and resume) and end != resume
+
+
 def _check_summary(submission: Path, summary: dict[str, Any], problems: list[str]) -> None:
     layer = summary.get("layer", {})
     if not str(layer.get("class", "")).endswith(f".{LAYER_CLASS}"):
@@ -351,11 +391,24 @@ def _check_summary(submission: Path, summary: dict[str, Any], problems: list[str
     harness = arms.get("harness", {}) if isinstance(arms.get("harness"), dict) else {}
     build = [s for s in harness.get("sessions", []) if s.get("phase") == "build"]
     ends = [s.get("ended_by") for s in build]
-    if len(build) != len(LIVE_BUDGETS) or ends[:FORCED_STOPS] != ["turn_budget"] * FORCED_STOPS:
+    by_index = {s.get("session_index"): s for s in harness.get("session_stops", [])}
+    forced = [
+        end == FORCED_END or (end == AGENT_END and _stop_step_ran(by_index.get(i)))
+        for i, end in enumerate(ends[:FORCED_STOPS], start=1)
+    ]
+    if len(build) != len(LIVE_BUDGETS) or not all(forced):
         problems.append(
             f"summary: the harness arm needs {len(LIVE_BUDGETS)} build sessions, the first "
-            f"{FORCED_STOPS} ended by turn_budget (found {len(build)}: {ends})"
+            f"{FORCED_STOPS} ended by {FORCED_END}, or by {AGENT_END} with the harness stop step "
+            f"run (found {len(build)}: {ends})"
         )
+    for i, end in enumerate(ends[:FORCED_STOPS], start=1):
+        if end == AGENT_END and not _stop_step_ran(by_index.get(i)):
+            problems.append(
+                f"summary: session {i} ended by {AGENT_END}, but the run log shows no harness "
+                f"stop step for it (a session_stop with a handoff, {HANDOFF_FILE} and "
+                f"{PROGRESS_FILE} written, and a commit before session {i + 1})"
+            )
     stops = [s.get("session_index") for s in harness.get("session_stops", [])]
     if stops != list(range(1, FORCED_STOPS + 1)):
         problems.append(

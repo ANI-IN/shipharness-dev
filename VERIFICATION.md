@@ -781,6 +781,34 @@ score records in `exports/scores/` carries an A/B id (from `shipharness ab`), no
 exists in this repository, and no evidence page, VERIFICATION entry, or slide cites an experiments
 batch or a LangSmith experiment link, so no published number came through the broken path.
 
+A1 reference A/B, third attempt (valid; 2026-10-17 21:16-23:20 UTC; worktree `~/wt/a1ref2`, branch
+a1-reference-run-2 with the referee fix 8254083 and the reference tree committed as 19a1731): the
+same command and batch, 48 arm runs (bare 22 completed and 2 aborted at the agent time limit;
+harness 24 completed), `Cost: $0.545313`. The referee judged every run (hidden 52/52 or 54/54 on
+Feature 1 runs except one harness run at 46/52; regression 144/144 and up). House rule 1 measure 0 of
+24 failing in each arm; House rule 3 measure 0 of 24 in each arm: no measurable difference. The
+second attempt's invalid evidence stays outside the repository (`~/a1-attempts/attempt-2/`). The
+evidence folder (2.3 MB, as `live_evidence.py` collected it) is now in
+`section-1-instructions/assignment/solution/work/live/`; `ab-report.md`, `live/README.md`,
+`SOLUTION.md`, and `docs/evidence/s1.md` give the result; grade recaptured 100/100 and self-check 24
+of 24 (2026-10-18).
+
+A2 reference live step, attempts 4 and 5 (2026-10-17 21:18 and 21:34 UTC, `run_live.py --impl
+section-2-state-lifecycle/assignment/solution --forced-stops`): `Cost: $0.027463` and
+`Cost: $0.027010`. Both give four build sessions in the harness arm, a handoff at every stop, and no
+continuity failure, but both end session 2 with the agent's own `finish(claim="not_done")` instead
+of the turn budget, so the turn-budget-only evidence rule failed them (grade 90/100). Attempt 5 is
+committed as the evidence (`solution/live/`); attempt 4 stays in `.shipharness/pilot/a2-attempt-4/`.
+Owner decision (2026-10-18): an agent-ended session (`claim_not_done`) counts as a stop only when
+the harness stop step ran (handoff and progress written and committed). Implemented test-first in
+`a2_scenario/live_evidence.py`: the summary now records, per stop, the handoff path, the paths of
+the state layer's session_stop decision, and the end and next-start commits; the new tests failed
+before the change (3 failed, 22 passed), then passed. Grader test
+`test_missing_live_evidence_fails_the_live_criterion` graded the solution folder, which now holds
+evidence; it now grades a copy with an empty `live/`. Attempt 5's `summary.json` was rebuilt from
+its run folder (other fields unchanged); its session 2 stop step committed 1d5239c ("harness:
+session 2 state for F2"). Grade recaptured: 100/100.
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before

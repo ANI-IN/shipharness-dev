@@ -119,6 +119,54 @@ def test_fewer_forced_stops_fail(impl: Path, tmp_path: Path) -> None:
     assert "3 session_stop events" in problems
 
 
+AGENT_ENDED = ["turn_budget", "claim_not_done", "turn_budget"]
+
+
+def test_the_summary_records_what_each_stop_step_left(tmp_path: Path) -> None:
+    ab_dir = fx.write_run(tmp_path / "runs", tmp_path / "exports", harness_ends=AGENT_ENDED)
+    summary = le.build_summary(ab_dir, layer=fx.LAYER_NAME, digest="d", impl="my-a2")
+    stop = summary["arms"]["harness"]["session_stops"][1]
+    assert stop["session_index"] == 2
+    assert stop["ended_by"] == "claim_not_done"
+    assert stop["handoff_path"] == "session-handoff.md"
+    assert {"session-handoff.md", "progress.md"} <= set(stop["state_paths"])
+    assert stop["end_sha"] != stop["resume_sha"]
+
+
+def test_an_agent_ended_session_counts_as_a_stop_when_the_stop_step_ran(
+    impl: Path, tmp_path: Path
+) -> None:
+    # Owner decision (2026-10-18): finish(claim="not_done") ends a session like the turn budget
+    # when the harness stop step wrote and committed the handoff and progress for that session.
+    _evidence(impl, tmp_path, harness_ends=AGENT_ENDED)
+    assert le.validate(impl) == []
+
+
+def test_an_agent_ended_session_without_the_stop_step_fails(impl: Path, tmp_path: Path) -> None:
+    _evidence(impl, tmp_path, harness_ends=AGENT_ENDED, stop_step=False)
+    problems = "\n".join(le.validate(impl))
+    assert "session 2 ended by claim_not_done" in problems
+    assert "4 build sessions" in problems
+
+
+def test_an_agent_ended_session_from_an_older_summary_fails(impl: Path, tmp_path: Path) -> None:
+    evidence = _evidence(impl, tmp_path, harness_ends=AGENT_ENDED)
+
+    def strip(data: dict) -> None:  # type: ignore[type-arg]
+        for stop in data["arms"]["harness"]["session_stops"]:
+            for key in ("handoff_path", "state_paths", "end_sha", "resume_sha"):
+                stop.pop(key, None)
+
+    _rewrite_json(evidence / "summary.json", strip)
+    assert any("claim_not_done" in p for p in le.validate(impl))
+
+
+@pytest.mark.parametrize("end", ["timeout", "claim_done", "error"])
+def test_any_other_session_end_still_fails(impl: Path, tmp_path: Path, end: str) -> None:
+    _evidence(impl, tmp_path, harness_ends=["turn_budget", end, "turn_budget"])
+    assert any("4 build sessions" in p for p in le.validate(impl))
+
+
 def test_another_model_fails(impl: Path, tmp_path: Path) -> None:
     _evidence(impl, tmp_path, model="gpt-5.6-luna")
     assert any("model gpt-5.6-luna" in p for p in le.validate(impl))

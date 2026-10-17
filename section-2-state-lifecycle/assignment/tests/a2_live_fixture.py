@@ -72,13 +72,13 @@ def score_record(arm: str, **overrides: Any) -> dict[str, Any]:
     return ScoreRecord(**values).model_dump(mode="json")
 
 
-def _sessions(stops: int) -> list[dict[str, Any]]:
+def _sessions(stops: int, ends: list[str]) -> list[dict[str, Any]]:
     build = [
         {
             "index": i + 1,
             "phase": "build",
             "turns": le.LIVE_BUDGETS[i],
-            "ended_by": "turn_budget" if i < stops else "claim_done",
+            "ended_by": ends[i] if i < stops else "claim_done",
             "start_sha": "a" * 40,
             "end_sha": "b" * 40,
         }
@@ -95,14 +95,38 @@ def write_run(
     stops: int = le.FORCED_STOPS,
     model: str = le.LIVE_MODEL,
     records: dict[str, dict[str, Any]] | None = None,
+    harness_ends: list[str] | None = None,
+    stop_step: bool = True,
 ) -> Path:
-    """A made-up run folder (ab.json, events.jsonl) and its score records under exports/scores/."""
+    """A made-up run folder (ab.json, events.jsonl) and its score records under exports/scores/.
+
+    `harness_ends` says how the harness arm's first `stops` sessions ended (default: all by
+    turn_budget). With `stop_step` false, the harness stop step leaves no trace: no state-layer
+    session_stop decision, and the next session starts from the commit the session ended on."""
     ab_dir = runs_dir / AB_ID
     ab_dir.mkdir(parents=True)
     records = records or {arm: score_record(arm) for arm in RUN_IDS}
     arms = {}
-    events = []
+    events: list[dict[str, Any]] = []
+
+    def event(arm: str, run_id: str, kind: str, data: dict[str, Any]) -> None:
+        events.append(
+            {
+                "v": 1,
+                "ab_id": AB_ID,
+                "run_id": run_id,
+                "arm": arm,
+                "seq": len(events) + 1,
+                "ts": "synthetic-fixture",
+                "type": kind,
+                "data": data,
+            }
+        )
+
     for arm, run_id in RUN_IDS.items():
+        harness = arm == "harness"
+        ends = list(harness_ends or []) if harness else []
+        ends += ["turn_budget"] * (stops - len(ends))
         record = records[arm]
         arms[arm] = {
             "spec": {
@@ -119,28 +143,47 @@ def write_run(
                 "run_id": run_id,
                 "status": record["status"],
                 "claim": record["claim"],
-                "sessions": _sessions(stops),
+                "sessions": _sessions(stops, ends),
                 "cost_usd": record["cost_usd"],
                 "turns_total": record["turns_total"],
             },
         }
         for index in range(1, stops + 1):
-            events.append(
-                {
-                    "v": 1,
-                    "ab_id": AB_ID,
-                    "run_id": run_id,
-                    "arm": arm,
-                    "seq": len(events) + 1,
-                    "ts": "synthetic-fixture",
-                    "type": "session_stop",
-                    "data": {
-                        "session_index": index,
-                        "ended_by": "turn_budget",
-                        "end_sha": "b" * 40,
-                        "handoff_path": "session-handoff.md" if arm == "harness" else None,
+            ran = harness and stop_step
+            if ran:
+                paths = ["session-handoff.md", "progress.md"]
+                event(
+                    arm,
+                    run_id,
+                    "harness_decision",
+                    {
+                        "kind": "session_stop",
+                        "layer": "state",
+                        "message": f"session {index} state written",
+                        "paths": paths,
+                        "data": {"session_index": index},
                     },
-                }
+                )
+            event(
+                arm,
+                run_id,
+                "session_stop",
+                {
+                    "session_index": index,
+                    "ended_by": ends[index - 1],
+                    "end_sha": "b" * 40,
+                    "handoff_path": "session-handoff.md" if harness else None,
+                },
+            )
+            event(
+                arm,
+                run_id,
+                "session_resume",
+                {
+                    "session_index": index + 1,
+                    "start_sha": ("c" if ran else "b") * 40,
+                    "prefix_blocks": ["core"],
+                },
             )
     ab = {"note": NOTE, "checkpoint_sha": CHECKPOINT_SHA, "arms": arms}
     (ab_dir / "ab.json").write_text(json.dumps(ab, indent=2), encoding="utf-8")

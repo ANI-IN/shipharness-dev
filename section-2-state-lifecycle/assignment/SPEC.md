@@ -6,7 +6,7 @@ page is the reference you check your work against.
 > **Terms on this page**
 >
 > - **Work folder**: The folder you submit; `section-2-state-lifecycle/assignment/starter/` unless you pass `A2_IMPL=` to make.
-> - **Forced stop**: The end of a session by its turn budget, before the work is done.
+> - **Forced stop**: The end of a session before the work is done: by its turn budget, or by the agent's `finish(claim="not_done")` once the harness stop step has run.
 > - **Step ledger**: One line per ticket step, done or not, derived from git at every stop.
 > - **Test stand-in agent**: A deterministic program, not a model, that plays the agent in the graded scenarios.
 > - **Scenario**: One run of the real runner with your layer, the stand-in agent, and four sessions.
@@ -218,16 +218,21 @@ Both arms run and the referee judges both. Then it writes the other evidence fil
 - **R-E2.** The run ids and the A/B id agree across `summary.json`, the score records, and
   `output.txt`. `command.txt` names the live task.
 - **R-E3.** Both arms ran `gpt-6-luna` with budgets 10, 10, 10, 20. The harness arm had four build
-  sessions, the first three ended by the turn budget, and three `session_stop` events.
+  sessions and three `session_stop` events. Each of sessions 1 to 3 ended by the turn budget, or by
+  the agent's own `finish(claim="not_done")` with the harness stop step run for that session: the
+  handoff (`session-handoff.md`) and `progress.md` written and committed before the next session.
 - **R-E4.** `recorded` is false and `sandboxed` is true in both records.
 - **R-E5.** Each arm's cost is at most the run cap ($0.20), and the `Cost:` line is at most the
   command cap ($2.50), both from `platform/src/shipharness/config/settings.py`.
 - **R-E6.** The harness record lists the `state` layer, and `summary.json` holds a sha256 of your
   `a2_state/*.py` that matches the folder you submit.
 
-The run does not count when the model ends one of sessions 1 to 3 before its turn budget, even with
-`finish(claim="not_done")`, or when a cap stops the run before session 4. Move `live/` away and run
-again. The check reads files only: it never runs a model and needs no keys.
+An agent-ended session counts as a stop only when the harness stop step ran: the check reads the
+session's `session_stop` event, the state layer's note that it wrote the handoff and `progress.md`,
+and the new commit the next session starts from. The run does not count when one of sessions 1 to
+3 ends any other way (a time limit, `finish(claim="done")`, an error), when the stop step left no
+handoff commit, or when a cap stops the run before session 4. Move `live/` away and run again. The
+check reads files only: it never runs a model and needs no keys.
 
 ## Limits
 

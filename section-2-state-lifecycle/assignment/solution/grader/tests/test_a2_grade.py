@@ -78,9 +78,13 @@ def test_the_solution_scores_100_with_valid_live_evidence(
 
 
 def test_missing_live_evidence_fails_the_live_criterion(
-    capsys: pytest.CaptureFixture[str],
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    code = grade.main(["--impl", str(SOLUTION), "--fail-under", "100"])
+    # The reference layer with an empty live/ folder (the solution folder holds real evidence).
+    folder = tmp_path / "submission"
+    shutil.copytree(SOLUTION / "a2_state", folder / "a2_state")
+    (folder / "live").mkdir()
+    code = grade.main(["--impl", str(folder), "--fail-under", "100"])
     printed = capsys.readouterr().out
     assert code == 1
     assert "Score: 90.0/100" in printed
