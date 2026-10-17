@@ -1,8 +1,8 @@
-# A1 A/B report: the instructions layer on section-1 (reference tree)
+# Assignment 1 A/B report: the instructions layer on section-1 (reference tree)
 
 This is the reference solution's report. Its structure is what a learner's report must have. The
 reference live run was not captured: the course plan of 2026-10-17 required a real
-captured live run for assignments A3 and A4 only, so the A1 reference A/B was left out of scope.
+captured live run for Assignments 3 and 4 only, so the Assignment 1 reference A/B was left out of scope.
 Every value below that needs the run says so instead of giving a number.
 
 ## Setup

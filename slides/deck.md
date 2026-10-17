@@ -6,7 +6,7 @@ slides/outline.md holds only the block table and the class plan per section.
 Format, one block per slide:
 
   ## 12. Slide title              starts a slide: number, a dot, the title (numbers run 1-72)
-  section: S1 Instructions        required; shown in the header
+  section: Section 1: Instructions  required; shown in the header
   minutes: 2.5                    speaker timing; the build prints the total per section
   layout: title                   optional: default (the usual), title, or statement (one big line)
   subtitle: One line              optional, under the title
@@ -38,7 +38,7 @@ Writing rules: docs/STYLE.md (plain short sentences, counts not percentages, sho
 Run ids, A/B ids, finding ids, and commit hashes stay out of this file: numbers on the slides come
 from the runs listed in docs/evidence.md, and sources are named by a short name whose full entry is
 in docs/REFERENCES.md. The rounds are named by their settings: the medium-effort round, the
-low-effort round, the class-settings round (one A/B per section, class profile), and the S3
+low-effort round, the class-settings round (one A/B per section, class profile), and the Section 3
 confirmation (three A/Bs on the F4 ticket, class profile with the 420 s agent time limit). Console
 screenshots in img/ come from timed runs of the class commands on 2026-10-17, cut to the panels
 that matter; slides/outline.md lists which run each one shows.
@@ -48,10 +48,10 @@ that matter; slides/outline.md lists which run each one shows.
 flowchart LR
   TK["Same ticket, model, tools, budgets"] --> BA["Bare arm: agent loop"]
   TK --> HA["Harness arm: agent loop"]
-  HA --- L1["S1 Instructions"]
-  HA --- L2["S2 State and session lifecycle"]
-  HA --- L3["S3 Scope"]
-  HA --- L4["S4 Verification"]
+  HA --- L1["Section 1 Instructions"]
+  HA --- L2["Section 2 State and session lifecycle"]
+  HA --- L3["Section 3 Scope"]
+  HA --- L4["Section 4 Verification"]
   BA --> SB1["Sandbox"]
   HA --> SB2["Sandbox, identical"]
   SB1 --> REF["Referee: same checks, fresh container"]
@@ -117,7 +117,7 @@ diagram: architecture now=L1,L2,L3,L4,SB1,SB2
 - The work: "design environments, specify intent, and build feedback loops" (OpenAI)
 - "every component in a harness encodes an assumption about what the model can't do on its own" (Anthropic, Harness design)
 - Assumptions change with the model: the same author later dropped context resets
-- Four parts, S1 to S4, plus a sandbox that is the same for both arms
+- Four parts, Sections 1 to 4, plus a sandbox that is the same for both arms
 - The course's claim: measure each piece, keep what earns its place
 
 notes:
@@ -182,7 +182,7 @@ Guide: docs/instructor-guide.md, "Thirty minutes before".
 Source: Makefile `doctor`, `warm`; use-in-your-repo/skills/harness-setup/scripts/assess.py.
 
 ## 8. Poll
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3
 live: the room's poll result
 
@@ -199,7 +199,7 @@ and the class-settings round (1), all on the legacy-pattern ticket.
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 
 ## 9. Launching harness in action: F1 org-wide issue search
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 2
 
 - Now: run `make show-1` in terminal B; it runs during slides 10-18, back on slide 19
@@ -229,14 +229,14 @@ differ. Runs: docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: Makefile `show-1`; platform/teamtrack/reference/f1/task.toml.
 
-## 10. S1: what the agent knows
-section: S1 Instructions
+## 10. Section 1: what the agent knows
+section: Section 1: Instructions
 minutes: 1.5
 diagram: architecture now=L1
 
 - Why an agent does not apply a rule that lives only outside its context
 - Knowledge as a short AGENTS.md map into `docs/`, plus skills that load in tiers
-- How to read the S1 result: new R1 violations per run, bare arm against harness arm
+- How to read the Section 1 result: new R1 violations per run, bare arm against harness arm
 - The assumption the map encodes: the model will not apply a rule it has not been pointed to
 
 notes:
@@ -246,7 +246,7 @@ wording. Tonight's question: does it hold for this model on this ticket?
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 
 ## 11. Problem: the rule is written down, the agent does not apply it
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 2
 
 - F1 builds `GET /issues`, an org-wide issue search
@@ -262,7 +262,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: platform/teamtrack/docs/HANDBOOK.md (R1); platform/teamtrack/docs/features/f1.md.
 
 ## 12. Cause: what is not in context does not exist
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 2.5
 
 - "anything it can’t access in-context while running effectively doesn’t exist"
@@ -279,7 +279,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: docs/REFERENCES.md (OpenAI, Harness engineering).
 
 ## 13. Harness piece: AGENTS.md as a map
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3
 
 - "roughly 100 lines", "a map", "the table of contents" (OpenAI)
@@ -295,7 +295,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: docs/REFERENCES.md (OpenAI, Harness engineering); platform/teamtrack/harness/instructions/.
 
 ## 14. Progressive disclosure
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3
 
 - Docs: "agents start with a small, stable entry point and are taught where to look next" (OpenAI)
@@ -311,7 +311,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: docs/REFERENCES.md (OpenAI, Harness engineering; Agent Skills spec; Agent Skills, What are skills?).
 
 ## 15. Keep the map true
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3
 
 - Linters and CI jobs check the docs (OpenAI)
@@ -328,7 +328,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: docs/REFERENCES.md (OpenAI, Harness engineering); platform/tests/unit/harness_instructions/test_parity.py.
 
 ## 16. Code: the map
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3
 code: S1:agents_md 9,11-21
 
@@ -342,7 +342,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: anchor S1:agents_md.
 
 ## 17. Code: skills, tier 1 only
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3.5
 code: S1:progressive 31-39
 
@@ -357,7 +357,7 @@ Guide: docs/instructor-guide.md, "Section by section".
 Source: anchor S1:progressive.
 
 ## 18. Code: the stable prefix
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 3.5
 code: S1:prefix 10-19
 
@@ -371,7 +371,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: anchor S1:prefix.
 
 ## 19. Demo block: what to watch
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 8
 image: img/s1-watch.png
 live: `make show-1`: the primary verdict and the documents the agent opened
@@ -393,7 +393,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Runs: docs/evidence.md, Captures.
 
 ## 20. Demo block: reading the result
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 7
 image: img/s1-result.png
 
@@ -418,7 +418,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Runs: docs/evidence.md, Section 1.
 
 ## 21. Runbook and next
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 5
 
 - Runbook: `section-1-instructions/demo/README.md`
@@ -432,7 +432,7 @@ every piece encodes an assumption about the model.
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 
 ## 22. Poll
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 3
 live: the room's poll result
 
@@ -449,7 +449,7 @@ and the class-settings round (1). Each ran a 12-turn first session and a 38-turn
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 
 ## 23. Launching harness in action: F2 comments
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 2
 
 - Now: run `make show-2 SESSION_BUDGET=12,38` in terminal B; back on slide 32
@@ -479,14 +479,14 @@ docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: Makefile `show-2`; platform/teamtrack/reference/f2/task.toml.
 
-## 24. S2: what the agent remembers
-section: S2 State and session lifecycle
+## 24. Section 2: what the agent remembers
+section: Section 2: State and session lifecycle
 minutes: 2
 diagram: architecture now=L2
 
 - The initializer and coding agents, `init.sh`, the progress file, and git history
 - An exec plan and a structured handoff that let a session resume after a reset
-- How to read the S2 result: redone or lost work after a forced stop
+- How to read the Section 2 result: redone or lost work after a forced stop
 - The assumption the state files encode: a fresh session cannot pick up the work from the repository alone
 
 notes:
@@ -496,7 +496,7 @@ problem. The one-line assumption is the course's wording.
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 
 ## 25. Cause: every session starts empty
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 2.5
 
 - "each new session begins with no memory of what came before." (Anthropic, Effective harnesses)
@@ -510,7 +510,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: docs/REFERENCES.md (Anthropic, Effective harnesses).
 
 ## 26. Harness piece: state on disk
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 3.5
 
 - An initializer agent and a coding agent (Anthropic, Effective harnesses)
@@ -526,7 +526,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: docs/REFERENCES.md (Anthropic, Effective harnesses); docs/architecture.md.
 
 ## 27. Getting up to speed, and ending a session
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 3
 
 - The routine: `pwd`, progress and git log, the feature list, `init.sh`, a basic test
@@ -540,7 +540,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: docs/REFERENCES.md (Anthropic, Effective harnesses).
 
 ## 28. Exec plans and the structured handoff
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 4
 
 - Exec plans move from active to completed (OpenAI; OpenAI, PLANS.md)
@@ -558,7 +558,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: docs/REFERENCES.md (OpenAI, Harness engineering; OpenAI, PLANS.md; Anthropic, Harness design).
 
 ## 29. Code: init.sh
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 3
 code: S2:init 14-19
 
@@ -572,7 +572,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: anchor S2:init.
 
 ## 30. Code: stop and resume
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 4
 code: S2:stop_resume 28-36
 
@@ -588,7 +588,7 @@ Guide: docs/instructor-guide.md, "Section by section".
 Source: anchor S2:stop_resume.
 
 ## 31. Code: the session log
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 3
 code: S2:write 1-11
 
@@ -602,7 +602,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: anchor S2:write.
 
 ## 32. Demo block: what to watch
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 8
 image: img/s2-watch.png
 live: `make show-2`: the primary verdict and the file session 2 read first
@@ -626,7 +626,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Runs: docs/evidence.md, Captures.
 
 ## 33. Demo block: reading the result
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 7
 image: img/s2-result.png
 
@@ -652,7 +652,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Runs: docs/evidence.md, Section 2.
 
 ## 34. Runbook and next
-section: S2 State and session lifecycle
+section: Section 2: State and session lifecycle
 minutes: 5
 
 - Runbook: `section-2-state-lifecycle/demo/README.md`
@@ -678,7 +678,7 @@ Write the return time on the slide.
 Guide: docs/instructor-guide.md, "Section by section", Break.
 
 ## 36. Poll
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 3
 live: the room's poll result
 
@@ -690,13 +690,13 @@ live: the room's poll result
 
 notes:
 Say before the vote: "The harness arm is not in the question. Its scope layer refuses any edit
-outside the list, so its zero is built in." The answer comes on slide 47. The 3 A/Bs are the S3
+outside the list, so its zero is built in." The answer comes on slide 47. The 3 A/Bs are the Section 3
 confirmation: registered before any of its runs, class profile, 420 s agent time limit.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 
 ## 37. Launching a live A/B: F4, scope
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 2
 
 - Now: run `make demo-3 FEATURE=F4` in terminal B; it runs during slides 38-45, back on slide 46
@@ -718,7 +718,7 @@ notes:
 Why a live A/B here: before class this ticket showed a real gap (slide 47), so the class runs the
 comparison live. Each arm has its own sandbox with the same limits.
 
-Timing: in the S3 confirmation A/B that ran alone, like tonight's (agent time limit 420 s), the bare
+Timing: in the Section 3 confirmation A/B that ran alone, like tonight's (agent time limit 420 s), the bare
 arm's primary verdict came 5:15 after launch and its full verdict 8:06; the harness arm's came 8:50
 and 11:18. Cost $0.0487. The command exited 2: the harness arm stopped at the harness's own time
 limit after shipping its change. Your output will differ. Runs: docs/evidence.md, Section 3.
@@ -726,14 +726,14 @@ limit after shipping its change. Your output will differ. Runs: docs/evidence.md
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: Makefile `demo-3`; platform/teamtrack/reference/f4/task.toml.
 
-## 38. S3: what the agent may change and reach
-section: S3 Scope and sandbox
+## 38. Section 3: what the agent may change and reach
+section: Section 3: Scope and sandbox
 minutes: 2
 diagram: architecture now=L3
 
 - One feature at a time, allowed paths per phase, and a `passes` field only the harness sets
 - The container limits for both arms, and how to read a `sandbox_denied` event
-- How to read the S3 result: out-of-scope files in the shipped diff, bare arm against harness arm
+- How to read the Section 3 result: out-of-scope files in the shipped diff, bare arm against harness arm
 - The assumption the scope layer encodes: the agent will change files outside the ticket unless code stops it
 
 notes:
@@ -743,7 +743,7 @@ wording. No single source sentence states the cause, so slide 39 shows its sourc
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 
 ## 39. Cause: copied patterns and hard-to-undo actions
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 2.5
 
 - "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones" (OpenAI)
@@ -759,7 +759,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: docs/REFERENCES.md.
 
 ## 40. Harness piece: one feature list, one feature
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 3.5
 
 - `feature_list.json` as the source of truth; JSON over Markdown (Anthropic)
@@ -776,7 +776,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: docs/REFERENCES.md (Anthropic, Effective harnesses; Anthropic, Harness design; Anthropic, Coding agent demo).
 
 ## 41. Allowed paths per phase
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 3
 
 - Build and test phases each have an allow list
@@ -793,7 +793,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: docs/architecture.md; platform/teamtrack/reference/f4/task.toml; docs/REFERENCES.md.
 
 ## 42. Sandbox 1: why a container
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 2
 diagram: architecture now=SB1,SB2
 
@@ -808,7 +808,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: docs/REFERENCES.md.
 
 ## 43. Sandbox 2: the same limits for both arms
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 2
 
 - `--network none`, memory without swap, 256 processes, non-root
@@ -825,7 +825,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: docs/architecture.md (sandbox policy); section-3-scope-sandbox/concepts.md.
 
 ## 44. Code: allowed paths and evidence
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 5
 code: S3:allowed_paths 12-17
 code: S3:passes 17-21
@@ -842,7 +842,7 @@ Guide: docs/instructor-guide.md, "Section by section".
 Source: anchors S3:allowed_paths, S3:passes.
 
 ## 45. Code: the sandbox policy
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 5
 code: S3:policy 7-16
 
@@ -857,7 +857,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: anchors S3:policy, S3:run_args, S3:dockerfile.
 
 ## 46. Demo block: what to watch
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 8
 image: img/s3-watch.png
 live: `make demo-3 FEATURE=F4`: each arm's diff map and its `diff_scope` line
@@ -866,10 +866,10 @@ live: `make demo-3 FEATURE=F4`: each arm's diff map and its `diff_scope` line
 - The harness arm's diff map shows the same file as ⊘ blocked
 - Screen 1: the harness decision ⊘ block, with the reason the agent read
 - Screen 3, Verification: `diff_scope` per arm; Sandbox denials for both
-- Picture: screen 3 of an S3 confirmation A/B before class
+- Picture: screen 3 of an Section 3 confirmation A/B before class
 
 notes:
-In the S3 confirmation A/B that ran alone (your output will differ; times from the arms' start):
+In the Section 3 confirmation A/B that ran alone (your output will differ; times from the arms' start):
 the harness arm read the add-endpoint skill at 0:25. At 1:16 its patch to app/services/errors.py
 was blocked: "app/services/errors.py: outside the allowed paths for the build phase". Both arms
 claimed done about 3 minutes in. The bare arm's diff map lists six changed files, among them
@@ -881,7 +881,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Runs: docs/evidence.md, Section 3.
 
 ## 47. Demo block: reading the result
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 7
 image: img/s3-result.png
 
@@ -889,14 +889,14 @@ image: img/s3-result.png
 - Harness ahead, by construction: the guard enforces what this measures
 - New: on this ticket the bare agent edits a shared file every time
 - The pill on screen 1 is F4's own bar, and every arm failed it
-- S3's own ticket, F3: no measurable difference, 7 of 7 each
+- Section 3's own ticket, F3: no measurable difference, 7 of 7 each
 - Picture: screen 1 of the same A/B, the verdict lines
 
 notes:
 Read tonight's `diff_scope` lines first, then this slide. If tonight's bare arm stays in scope, say
 so: one A/B is one dot.
 
-The S3 confirmation was registered before any of its runs: F4 ticket, the S3 layer stack, class
+The Section 3 confirmation was registered before any of its runs: F4 ticket, the Section 3 layer stack, class
 profile with the 420 s agent time limit, 3 A/Bs, primary measure for this confirmation only: one or
 more out-of-scope files fails. Every bare arm changed app/services/errors.py. Every harness arm was
 refused that edit. The harness arms stopped at the harness's own 120 s limit, each after shipping
@@ -912,7 +912,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Runs: docs/evidence.md, Section 3.
 
 ## 48. Runbook and next
-section: S3 Scope and sandbox
+section: Section 3: Scope and sandbox
 minutes: 5
 
 - Runbook: `section-3-scope-sandbox/demo/README.md`
@@ -926,7 +926,7 @@ files. A guard that blocks every edit scores zero out-of-scope files and ships n
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 
 ## 49. Poll
-section: S4 Verification
+section: Section 4: Verification
 minutes: 3
 live: the room's poll result
 
@@ -945,7 +945,7 @@ save with the old version gets 412.
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
 
 ## 50. Poll: the final feature
-section: S4 Verification
+section: Section 4: Verification
 minutes: 1
 live: the room's poll result
 
@@ -962,7 +962,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: final-project/README.md; platform/teamtrack/reference/f5/task.toml to f7.
 
 ## 51. Launching harness in action on F4, and the final A/B
-section: S4 Verification
+section: Section 4: Verification
 minutes: 2
 
 - Now: `make show-4` in terminal B, then `make final FEATURES=<poll winner>` in terminal C
@@ -997,8 +997,8 @@ block. Your output will differ. Runs: docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: Makefile `show-4`, `final`; platform/teamtrack/reference/f4/task.toml; platform/teamtrack/mutants/features/f4.jsonl.
 
-## 52. S4: what proves the work is done
-section: S4 Verification
+## 52. Section 4: what proves the work is done
+section: Section 4: Verification
 minutes: 1
 diagram: architecture now=L4
 
@@ -1014,7 +1014,7 @@ wording, based on Anthropic, Harness design, and Anthropic, C compiler.
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
 
 ## 53. Cause: self-grading and visible tests
-section: S4 Verification
+section: Section 4: Verification
 minutes: 2.5
 
 - "agents reliably skew positive when grading their own work" (Anthropic, Harness design)
@@ -1029,7 +1029,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: docs/REFERENCES.md.
 
 ## 54. Harness piece: test filters
-section: S4 Verification
+section: Section 4: Verification
 minutes: 3
 
 - Filters 1-3 from TestGen-LLM (Meta): builds, passes reliably, adds coverage
@@ -1045,7 +1045,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: section-4-verification/concepts.md; docs/REFERENCES.md (TestGen-LLM).
 
 ## 55. Mutants and hidden tests
-section: S4 Verification
+section: Section 4: Verification
 minutes: 3
 
 - ACH (Meta): mutants for the fault you care about, then tests that catch them
@@ -1061,7 +1061,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: section-4-verification/concepts.md; docs/REFERENCES.md (ACH; SpecBench); counts in section-4-verification/post-class-reading/04-held-out-tests-specbench.md.
 
 ## 56. A separate evaluator and a gate
-section: S4 Verification
+section: Section 4: Verification
 minutes: 3
 
 - A blinded reviewer with grading criteria (Anthropic, Harness design)
@@ -1078,7 +1078,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: docs/architecture.md; docs/REFERENCES.md.
 
 ## 57. Measure each piece
-section: S4 Verification
+section: Section 4: Verification
 minutes: 1.5
 
 - Read the trace: find the first wrong turn; screen 5 shows it per arm, as a heuristic
@@ -1094,7 +1094,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: docs/REFERENCES.md (Anthropic, Harness design); docs/architecture.md.
 
 ## 58. Code: the filter pipeline
-section: S4 Verification
+section: Section 4: Verification
 minutes: 2.5
 code: S4:filters 20-23,30-36
 
@@ -1108,7 +1108,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: anchor S4:filters.
 
 ## 59. Code: a tenant probe and blinding
-section: S4 Verification
+section: Section 4: Verification
 minutes: 4
 code: S4:probe 1-12
 
@@ -1123,7 +1123,7 @@ Guide: docs/instructor-guide.md, "Section by section".
 Source: anchors S4:probe, S4:blind.
 
 ## 60. Code: the gate
-section: S4 Verification
+section: Section 4: Verification
 minutes: 3.5
 code: S4:gate 13,22-26,33-35,37
 
@@ -1139,7 +1139,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: anchor S4:gate.
 
 ## 61. Demo block: what to watch
-section: S4 Verification
+section: Section 4: Verification
 minutes: 8
 image: img/s4-watch.png
 live: `make show-4`: the gate pills and the filter table
@@ -1163,7 +1163,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Runs: docs/evidence.md, Captures.
 
 ## 62. Demo block: reading the result
-section: S4 Verification
+section: Section 4: Verification
 minutes: 7
 image: img/s4-result.png
 
@@ -1190,7 +1190,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Runs: docs/evidence.md, Section 4.
 
 ## 63. Runbook and next
-section: S4 Verification
+section: Section 4: Verification
 minutes: 5
 
 - Runbook: `section-4-verification/demo/README.md`
@@ -1288,16 +1288,16 @@ section: Final results
 minutes: 2
 subtitle: Primary measure, runs passing per arm, before class
 
-- S1, F1, no new R1 violation: bare 7 of 7, harness 7 of 7
-- S2, F2, no continuity failure: bare 7 of 7, harness 7 of 7
-- S3, F3, scope: 7 of 7 each; S3 confirmation on F4, no out-of-scope file: bare 0 of 3, harness 3 of 3
-- S4, F4, all hidden tests and mutants: bare 0 of 4, harness 0 of 4
+- Section 1, F1, no new R1 violation: bare 7 of 7, harness 7 of 7
+- Section 2, F2, no continuity failure: bare 7 of 7, harness 7 of 7
+- Section 3, F3, scope: 7 of 7 each; Section 3 confirmation on F4, no out-of-scope file: bare 0 of 3, harness 3 of 3
+- Section 4, F4, all hidden tests and mutants: bare 0 of 4, harness 0 of 4
 - One harness lead, on scope, by construction; elsewhere no measurable difference on this task with this model
 - Post hoc, 34 runs per arm: outside the allowed paths, harness 0, bare 9; done claimed 10 against 19, none false
 
 notes:
-S1 to S3 on their own tickets: the medium-effort round, the low-effort round, and the class-settings
-round. F4: the medium-effort round and the class-settings round. The S3 confirmation: 3 A/Bs,
+Sections 1 to 3 on their own tickets: the medium-effort round, the low-effort round, and the class-settings
+round. F4: the medium-effort round and the class-settings round. The Section 3 confirmation: 3 A/Bs,
 registered before its runs. The gate registered before the medium- and low-effort rounds needed the
 harness arm ahead in 3 of 4 sections. It was ahead in 0, so the planned larger batches (10 runs per
 arm, and one layer left out at a time) were not run.
@@ -1315,10 +1315,10 @@ Runs: docs/evidence.md, Results.
 section: Wrap-up
 minutes: 3
 
-- A1 Instructions: `section-1-instructions/assignment/`, at most $2.50 and 150 traces
-- A2 State and session lifecycle: `section-2-state-lifecycle/assignment/`, at most $0.40 and 4 traces
-- A3 Scope and sandbox: `section-3-scope-sandbox/assignment/`, at most $0.48 and 4 traces
-- A4 Verification and portfolio: `section-4-verification/assignment/`, at most $0.68
+- Assignment 1, Instructions: `section-1-instructions/assignment/`, at most $2.50 and 150 traces
+- Assignment 2, State and session lifecycle: `section-2-state-lifecycle/assignment/`, at most $0.40 and 4 traces
+- Assignment 3, Scope and sandbox: `section-3-scope-sandbox/assignment/`, at most $0.48 and 4 traces
+- Assignment 4, Verification and portfolio: `section-4-verification/assignment/`, at most $0.68
 - Each: grading criteria, a starter folder, `make check-assignment-N` offline, one live step, and a full solution
 - Total at most $6 and 400 traces; Thursday review
 

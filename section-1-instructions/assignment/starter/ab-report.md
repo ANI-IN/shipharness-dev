@@ -1,4 +1,4 @@
-# A1 A/B report: the instructions layer on section-1
+# Assignment 1 A/B report: the instructions layer on section-1
 
 <!-- Fill every TODO. Copy the numbers from the output of ab_summary.py; do not type them by hand.
      Counts, not percentages: "3/24", never "12.5%". The self-check compares the command, the runs

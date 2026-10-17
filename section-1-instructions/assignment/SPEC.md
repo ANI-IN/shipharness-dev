@@ -293,7 +293,7 @@ label of your own, such as your initials:
 git switch -c a1-ab-run                          # throwaway branch: never merge it
 rm -rf platform/teamtrack/harness/instructions
 cp -r section-1-instructions/assignment/starter/instructions platform/teamtrack/harness/instructions
-git add platform/teamtrack/harness/instructions && git commit -m "A1: my instructions tree for the A/B"
+git add platform/teamtrack/harness/instructions && git commit -m "Assignment 1: my instructions tree for the A/B"
 git log -1 --format=%h                           # the "Instructions tree commit"
 CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-<name>"
 echo "\$ $CMD" > ~/a1-live-output.txt            # the exact command: first line of the evidence
