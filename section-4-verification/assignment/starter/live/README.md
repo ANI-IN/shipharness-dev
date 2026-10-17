@@ -1,4 +1,4 @@
-# live
+# Module 1: Harness Engineering for Coding Agents - Assignment 4 live evidence
 
 The files of your two live runs go here (instructions: steps 6 to 8 of the
 [assignment](../../README.md), and [SPEC.md](../../SPEC.md#evidence-to-hand-in)). The self-check and the grader validate them; nothing is re-run.

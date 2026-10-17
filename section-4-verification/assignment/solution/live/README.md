@@ -1,4 +1,4 @@
-# live
+# Module 1: Harness Engineering for Coding Agents - Assignment 4 reference live evidence
 
 Live evidence of the reference solution, in the layout every submission uses (see
 [SPEC.md](../../SPEC.md#evidence-to-hand-in)). Two runs, both captured on 2026-10-17: one testgen
@@ -7,12 +7,15 @@ the [evidence page](../../../../docs/evidence/s4.md#s4-a4-solution). The grader 
 files the same way as a learner's (`assignment/visible_tests/a4_live.py`) and re-runs nothing;
 `../portfolio/` reports what they show.
 
-| File | What it holds |
-|---|---|
-| `testgen.txt` | The testgen run: `$ <testgen command>`, then everything the command printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests" |
-| `testgen-report.json` | `.shipharness/a4/testgen/testgen-report.json` after `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept test, 23 existing tests) |
-| `ab.txt` | The A/B: `$ <ab command>`, then everything the command printed (the A/B line, one line per arm, the `Cost:` line) |
-| `scores/` | The A/B's two ScoreRecords, bare arm and harness arm, copied from `exports/scores/`; each file is named by its run id |
+- `testgen.txt`: the testgen run. A `$ <testgen command>` line, then everything the command
+  printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests".
+- `testgen-report.json`: `.shipharness/a4/testgen/testgen-report.json` after
+  `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept
+  test, 23 existing tests).
+- `ab.txt`: the A/B. A `$ <ab command>` line, then everything the command printed (the A/B line,
+  one line per arm, the `Cost:` line).
+- `scores/`: the A/B's two ScoreRecords, bare arm and harness arm, copied from `exports/scores/`;
+  each file is named by its run id.
 
 The commands that produced them (from the repository root; keys in `.env`; Docker running for the
 A/B). The testgen command runs without `--image`, so its tests ran on the host and it printed an

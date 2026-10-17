@@ -101,7 +101,9 @@ Real output of the last command above on `platform/teamtrack/`; the full JSON do
 | `new_violations` | 1 |
 | `total_probes` | 15 |
 | Finding | `R8`, `leak`, `GET /v1/issues`, `detail_key` `deleted_list` |
-| `detail` | GET /v1/issues -> 200 lists soft-deleted issue(s) [1, 11]; add `deleted_at IS NULL` to the query (HANDBOOK: deleted issues are hidden from lists) |
+
+The finding's `detail` reads: "GET /v1/issues -> 200 lists soft-deleted issue(s) [1, 11]; add
+`deleted_at IS NULL` to the query (HANDBOOK: deleted issues are hidden from lists)".
 
 The one finding is the legacy `/v1/issues` handler, which reads every row through
 `list_all_legacy` with no `deleted_at` filter. It exists at the checkpoint, so it belongs in the
