@@ -143,5 +143,8 @@ grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
 	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
 	$(UV) run python scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
 
+# slides: slides/deck.md -> slides/dist/deck.{html,pdf,pptx}; lists open PENDING items and empty
+# result slots. SLIDES_OPTS=--strict fails while any remain (release check); --check validates only.
+SLIDES_OPTS ?=
 slides:
-	@echo "! slides are built in milestone M10"; exit 2
+	$(UV) run python scripts/build_slides.py $(SLIDES_OPTS)
