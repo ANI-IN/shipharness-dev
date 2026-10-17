@@ -24,7 +24,7 @@ words and shows how to apply it to your own repository.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the "Feature list" part of
-  [Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running), then the
+  [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running), then the
   sections on running agents in parallel in
-  [Anthropic, C compiler](../../docs/evidence.md#src-anthropic-c-compiler).
+  [Anthropic, C compiler](../../docs/evidence/s3.md#src-anthropic-c-compiler).
 - The class recap is in [session-notes.md](../session-notes.md).

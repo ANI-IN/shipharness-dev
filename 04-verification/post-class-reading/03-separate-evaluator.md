@@ -1,7 +1,7 @@
 # Harness design for long-running application development
 
 Reading time: about 5 minutes.
-Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence.md#src-anthropic-harness-design)).
+Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 > **Terms on this page**
 >
@@ -21,7 +21,7 @@ work is not the one that judges it.
 1. **Agents praise their own work.** "When asked to evaluate work they've produced, agents tend to
    respond by confidently praising the work—even when, to a human observer, the quality is obviously
    mediocre." Asking the same agent to self-verify, as an earlier Anthropic harness did ("Self-verify
-   all features", [Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running)),
+   all features", [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)),
    does not remove that bias.
 
 2. **A separate judge, with criteria, is the lever.** "Separating the agent doing the work from the

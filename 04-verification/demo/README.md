@@ -119,7 +119,7 @@ plus the per-review cap.
 ## What to watch
 
 Minutes count from the launch, in one real run on a quiet machine
-([evidence](../../docs/evidence.md#s4-show-4-capture)).
+([evidence](../../docs/evidence/s4.md#s4-show-4-capture)).
 
 | Minute | Screen | What appears |
 |---|---|---|
@@ -195,7 +195,7 @@ The captured run shows why both are needed:
   right and the code was wrong.
 - Filter 2 keeps only tests that pass, so it discarded that test. The filters keep regression tests;
   they treat the current code as correct. ACH's authors name this limit: "it cannot detect existing
-  faults residing in the code base" ([Meta, ACH](../../docs/evidence.md#src-ach)).
+  faults residing in the code base" ([Meta, ACH](../../docs/evidence/s4.md#src-ach)).
 - The one kept test caught none of the 4 referee mutants.
 
 One run cannot compare arms. The comparison needs both arms, many times:

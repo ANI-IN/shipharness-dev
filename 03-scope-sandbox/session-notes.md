@@ -35,9 +35,9 @@ in [demo/expected/](demo/expected/README.md).
    module.
 2. **Strong words make a bad edit rarer, not impossible.** Anthropic's harness wrote "It is
    unacceptable to remove or edit tests" and chose JSON because the model is "less likely" to
-   overwrite it ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running)).
+   overwrite it ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
 3. **Enforce the boundary, leave the method free.** In OpenAI's words: "enforce boundaries
-   centrally, allow autonomy locally." ([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness))
+   centrally, allow autonomy locally." ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
    The agent chose where to put its new error class; the harness only refused the shared file.
 4. **Check before a patch and after a command.** A patch is checked path by path before it applies.
    A command can write anything, so a byte snapshot restores stray files after it runs.
@@ -48,7 +48,7 @@ in [demo/expected/](demo/expected/README.md).
    scope layer refuses with `blocked`.
 7. **Every harness piece is a bet.** "every component in a harness encodes an assumption about what
    the model can't do on its own, and those assumptions are worth stress testing."
-   ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)) The scope layer bets
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) The scope layer bets
    that the agent will leave the list unless code stops it.
 
 ## What the result showed
@@ -64,8 +64,8 @@ when its shipped diff has at least one out-of-scope file.
 Model gpt-6-luna. On F4 the harness arm was ahead. Every bare arm changed the shared
 `app/services/errors.py`; the scope layer blocked every harness arm on that same file, and each one
 put the new error class in a file it was allowed to change
-([evidence](../docs/evidence.md#s3-confirmation)). On F3 neither arm ever left the list, so there was
-no measurable difference ([evidence](../docs/evidence.md#s3-pilot)).
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On F3 neither arm ever left the list, so there was
+no measurable difference ([evidence](../docs/evidence/s3.md#s3-pilot)).
 
 What the F4 result does not show: existing tests kept passing in every arm, so the stray file broke
 nothing that was tested. No arm met F4's own measure (every hidden test and every mutant). Harness
@@ -99,7 +99,7 @@ list, deletes new ones, and the tool result ends with `REVERTED`.
 **Did the sandbox refuse anything?**
 No command in any test run. The container is the same for both arms, so no run measures whether it
 helps. The course keeps it on the sources' advice, for the run that goes wrong
-([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler)).
+([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)).
 
 **Why counts and not percentages?**
 Every run is a dot. With 3 runs per arm, a percentage hides how few runs there are.

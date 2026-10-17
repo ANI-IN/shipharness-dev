@@ -8,7 +8,7 @@ The second session starts with an empty context. It cannot see what the first on
 a second migration for the same table from the old head. The deploy stops on two migration heads.
 
 Anthropic's harness team names the cause: "each new session begins with no memory of what came
-before." ([Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running)) This
+before." ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)) This
 demo stops a live agent at that point: TeamTrack's F2 ticket, comments on issues, with the first
 session cut off after 12 turns.
 
@@ -113,7 +113,7 @@ it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 ## What to watch
 
 Minutes count from the launch, in one real run on a quiet machine
-([evidence](../../docs/evidence.md#s2-show-2-capture)). That run had a 300 s agent time limit; the
+([evidence](../../docs/evidence/s2.md#s2-show-2-capture)). That run had a 300 s agent time limit; the
 class profile now has 420 s.
 
 | Minute | Screen | What appears |
@@ -140,7 +140,7 @@ class profile now has 420 s.
 
 Session 1 ended with `finish(claim="not_done")` on its twelfth turn, and session 2 still started.
 That is a runner fix at work: before it, that call ended the build phase, and the 38-turn session
-never ran ([evidence](../../docs/evidence.md#s2-runner-fix)).
+never ran ([evidence](../../docs/evidence/s2.md#s2-runner-fix)).
 
 What session 2 read first is in [expected/](expected/README.md): its git log starts with
 "harness: session 1 handoff for F2", and the agent's own notes list the house rules and files that
@@ -197,7 +197,7 @@ One run cannot compare arms. The comparison needs both arms, many times:
 | Bare ahead | Fewer continuity failures in the bare arm | Not seen |
 
 In one of those runs the bare arm, with no state files, found session 1's uncommitted work with
-`git status` and carried on ([evidence](../../docs/evidence.md#s2-bare-found-state)). What the demo does show is the state layer's path: what it writes at the stop, and what
+`git status` and carried on ([evidence](../../docs/evidence/s2.md#s2-bare-found-state)). What the demo does show is the state layer's path: what it writes at the stop, and what
 the next session reads first. The [walkthrough](walkthrough.md) shows the code behind each step.
 
 ## If it fails

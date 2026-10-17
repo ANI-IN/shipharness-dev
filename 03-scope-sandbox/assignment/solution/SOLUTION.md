@@ -82,13 +82,13 @@ What is in this folder:
 - **The gate's items must agree with `passed`.** A gate result that says `passed: true` next to a
   failed item is refused. One field alone is weak evidence, which is the point of separating the
   agent that works from the one that judges
-  ([Anthropic, Harness design](../../../docs/evidence.md#src-anthropic-harness-design)).
+  ([Anthropic, Harness design](../../../docs/evidence/s1.md#src-anthropic-harness-design)).
 - **The reason code is `write_outside_workspace`**, the closest of the fixed codes in
   `platform/src/shipharness/sandbox/base.py`. The scope layer's snapshot skips `.git`, so a history
   rewrite is a change the harness cannot restore. A production version would add its own code.
 - **Revert commands stay allowed.** Anthropic's harness used git "to revert bad code changes and
   recover working states of the code base."
-  ([Anthropic, Effective harnesses](../../../docs/evidence.md#src-anthropic-long-running)) So
+  ([Anthropic, Effective harnesses](../../../docs/evidence/s1.md#src-anthropic-long-running)) So
   `git revert`, `git restore`, and `git checkout -- <path>` keep running.
 
 ### Known limits
@@ -219,4 +219,4 @@ Result: PASS (needs >= 80 points, every out-of-scope diff rejected, zero false p
 
 The grade output is cut to the criterion lines. Without `live/`, the same folder scores 90.0 / 100
 and fails, because valid live evidence is a pass condition. Dates and ids for the run and the grade
-are on the [evidence page](../../../docs/evidence.md#s3-a3-solution).
+are on the [evidence page](../../../docs/evidence/s3.md#s3-a3-solution).

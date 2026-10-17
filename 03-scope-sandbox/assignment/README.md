@@ -15,7 +15,7 @@ Path checks go wrong in both directions. Before its measurement was fixed, the c
 counted the import linter's cache as out-of-scope files in every arm. You will build the checks so
 that they decide what a diff really changes before they decide whether it is allowed. The idea
 behind them is OpenAI's "enforce boundaries centrally, allow autonomy locally."
-([OpenAI, Harness engineering](../../docs/evidence.md#src-openai-harness))
+([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness))
 
 > **Terms on this page**
 >

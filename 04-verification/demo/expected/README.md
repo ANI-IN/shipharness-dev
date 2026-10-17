@@ -3,7 +3,7 @@
 This folder holds the output and the screenshots of one real `make show-4` run, on a quiet machine,
 with the class settings. Nothing here is staged or edited, except where a line says it was cut. Use it
 to check that your run looks roughly like this one, or to follow the demo without running it. When
-and how it was captured is in the [evidence page](../../../docs/evidence.md#s4-show-4-capture).
+and how it was captured is in the [evidence page](../../../docs/evidence/s4.md#s4-show-4-capture).
 
 > **Terms on this page**
 >

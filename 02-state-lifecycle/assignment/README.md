@@ -15,7 +15,7 @@ a feature that never finishes while every session bills for work already done.
 
 A handoff helps only if it carries the right facts. Anthropic's harness team describes one that
 "carries the previous agent's state and the next steps"
-([Anthropic, Harness design](../../docs/evidence.md#src-anthropic-harness-design)). The class's state
+([Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design)). The class's state
 layer carries notes and a machine summary, but it never says which steps are done. That is the gap
 you close.
 

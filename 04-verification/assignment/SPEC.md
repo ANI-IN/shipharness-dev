@@ -90,7 +90,7 @@ and the command exits 0.
 
 The class is `NoDuplicateTest`, with `number = 6`, a `name`, and `evaluate(cand, ctx) -> FilterResult`.
 It follows TestGen-LLM's later filter that removes "previously seen test cases"
-([Meta, TestGen-LLM](../../docs/evidence.md#src-testgen-llm)); ignoring renamed local variables is
+([Meta, TestGen-LLM](../../docs/evidence/s4.md#src-testgen-llm)); ignoring renamed local variables is
 the course's addition.
 
 1. The constructor takes the existing suite's tests as candidate tests (for example from
@@ -177,7 +177,7 @@ The live runs are not graded on their results. An arm that fails its primary mea
 - No leftover template line in any portfolio file.
 - `skill/`: exactly one folder whose `SKILL.md` passes `shipharness skills validate`, is not named
   `skill-template`, has no template placeholder left, and has content under "When to use" and
-  "Steps" ([Agent Skills specification](../../docs/evidence.md#src-agent-skills-spec)).
+  "Steps" ([Agent Skills specification](../../docs/evidence/s1.md#src-agent-skills-spec)).
 
 ## Self-check
 

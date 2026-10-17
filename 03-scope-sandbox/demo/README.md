@@ -38,7 +38,7 @@ harness arm's patch to the shared errors module, while the bare arm changes it f
 
 This is a real A/B, because the course measured a gap on this ticket before class: in three test
 runs, every bare arm changed `app/services/errors.py` and every harness arm stayed inside the list
-([evidence](../../docs/evidence.md#s3-confirmation)). The files the scope layer gives the agent are in
+([evidence](../../docs/evidence/s3.md#s3-confirmation)). The files the scope layer gives the agent are in
 [harness/](harness/): `feature_list.json`, its schema, and `scope-rules.txt`, the exact scope text in
 the agent's context.
 
@@ -122,7 +122,7 @@ Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
 ## What to watch
 
 Minutes count from the start of the run on the console, in one real A/B that ran alone on the
-machine ([evidence](../../docs/evidence.md#s3-demo-capture)).
+machine ([evidence](../../docs/evidence/s3.md#s3-demo-capture)).
 
 | Minute | Screen | What appears |
 |---|---|---|

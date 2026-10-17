@@ -25,7 +25,7 @@ uv run python platform/scripts/sync_demo_harness.py
 
 The file set follows Anthropic's long-running harness: "an init.sh script, a claude-progress.txt
 file that keeps a log of what agents have done, and an initial git commit that shows what files were
-added." ([Anthropic, Effective harnesses](../../../docs/evidence.md#src-anthropic-long-running))
+added." ([Anthropic, Effective harnesses](../../../docs/evidence/s1.md#src-anthropic-long-running))
 The course adds a structured handoff and an exec plan.
 
 | Path | What it holds | Who writes it later |

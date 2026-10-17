@@ -72,7 +72,7 @@ What is in this folder:
   `GET /v1/issues` finding matches across runs and counts as baseline.
 - **Remediation in the message.** Each `detail` says what to change, such as "add `deleted_at IS
   NULL` to the query". OpenAI's harness team writes its lint messages "to inject remediation
-  instructions into agent context" ([OpenAI, Harness engineering](../../../docs/evidence.md#src-openai-harness)).
+  instructions into agent context" ([OpenAI, Harness engineering](../../../docs/evidence/s1.md#src-openai-harness)).
 - **Filter 6 outside the default list.** The pipeline takes a list of filters, so filter 6 runs
   without a change under `platform/src/`. `apply_filter --update-report` adds its rows to the testgen
   report, so one file shows all six filters.
@@ -204,4 +204,4 @@ Score: 100/100
 ```
 
 Dates, run ids, and the capture details for all of the above are on the
-[evidence page](../../../docs/evidence.md#s4-a4-solution).
+[evidence page](../../../docs/evidence/s4.md#s4-a4-solution).

@@ -28,14 +28,14 @@ The cost is a shipped bug that every check approved, and a review that rested on
 
 - Agents grade their own work too kindly. Anthropic's harness team found that "agents reliably skew
   positive when grading their own work."
-  ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+  ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 - A later session sees progress and stops early: "a later agent instance would look around, see that
   progress had been made, and declare the job done."
-  ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running))
+  ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
 - Green tests look like a finished job: "it is easy to see tests pass and assume the job is done,
-  when this is rarely the case." ([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+  when this is rarely the case." ([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler))
 - Visible tests miss what held-out tests catch: "while every frontier agent saturates the visible
-  suite, reward hacking persists" ([SpecBench](../docs/evidence.md#src-specbench)).
+  suite, reward hacking persists" ([SpecBench](../docs/evidence/s4.md#src-specbench)).
 
 ## How this section fixes it
 

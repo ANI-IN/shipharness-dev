@@ -15,9 +15,9 @@ The gap is real in TeamTrack. Its handbook says that deleted issues "behave as i
 `GET /v1/issues` handler already lists deleted issues.
 
 Anthropic's compiler team names the trap: "it is easy to see tests pass and assume the job is done"
-([Anthropic, C compiler](../../docs/evidence.md#src-anthropic-c-compiler)). OpenAI's harness team
+([Anthropic, C compiler](../../docs/evidence/s4.md#src-anthropic-c-compiler)). OpenAI's harness team
 turns such rules into checks whose messages teach: "we write the error messages to inject remediation
-instructions into agent context" ([OpenAI, Harness engineering](../../docs/evidence.md#src-openai-harness)).
+instructions into agent context" ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness)).
 
 > **Terms on this page**
 >

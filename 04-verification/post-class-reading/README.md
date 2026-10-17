@@ -25,6 +25,6 @@ words and shows how to apply it to your own repository.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the section on the evaluator in
-  [Anthropic, Harness design](../../docs/evidence.md#src-anthropic-harness-design), then the filter
-  pipeline in [Meta, TestGen-LLM](../../docs/evidence.md#src-testgen-llm).
+  [Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design), then the filter
+  pipeline in [Meta, TestGen-LLM](../../docs/evidence/s4.md#src-testgen-llm).
 - The class recap is in [session-notes.md](../session-notes.md).

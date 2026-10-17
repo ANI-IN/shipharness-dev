@@ -28,10 +28,10 @@ ticket on every agent change.
 ## Why it happens
 
 - Agents copy what they find: "Codex replicates patterns that already exist in the repository—even
-  uneven or suboptimal ones." ([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness))
+  uneven or suboptimal ones." ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
   TeamTrack's handbook points to the shared errors module for every new error.
 - Unattended agents do things nobody asked for. One author's advice is "(Run this in a container, not
-  your actual machine)." ([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+  your actual machine)." ([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler))
 - A list of files in a ticket is text. Nothing checks it, so the agent's own judgement decides.
 
 ## How this section fixes it
@@ -39,7 +39,7 @@ ticket on every agent change.
 The scope layer makes the ticket's list a boundary that code checks. The harness writes a feature
 list with one feature, refuses any patch outside the phase's allowed paths, undoes a command's stray
 changes, and sets `passes` itself from evidence. Every tool command of both arms runs in the same
-container with no network ([Anthropic, Autonomous coding demo](../docs/evidence.md#src-autonomous-coding)
+container with no network ([Anthropic, Autonomous coding demo](../docs/evidence/s3.md#src-autonomous-coding)
 keeps "File operations restricted to the project directory only").
 
 ```mermaid
@@ -53,7 +53,7 @@ flowchart LR
 
 The course measures whether it helps. On the class demo's ticket, every bare arm changed a shared
 file outside the list in three test runs, and the scope layer kept every harness arm inside it
-([evidence](../docs/evidence.md#s3-confirmation)). On the idempotency ticket (F3), neither arm ever left the list.
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On the idempotency ticket (F3), neither arm ever left the list.
 The concepts page explains both, and what the result does not show.
 
 ## How to work through this section

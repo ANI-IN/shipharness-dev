@@ -30,11 +30,11 @@ The class run's record stays on the instructor's machine. A captured run, with i
 ## Key ideas
 
 1. **Every session starts with no memory.** "each new session begins with no memory of what came
-   before." ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running)) What a
+   before." ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)) What a
    session did exists for the next one only if it is in the repository.
 2. **Compaction is not enough.** "However, compaction isn’t sufficient." A clean session plus a
    handoff is the alternative: a context reset
-   ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)).
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 3. **The state lives in a few files and git.** `init.sh`, `progress.md`, the exec plan, the
    handoff, and the commits. Each has one job.
 4. **Two routines.** Getting up to speed at the start: read the git log and the progress file, run
@@ -48,7 +48,7 @@ The class run's record stays on the instructor's machine. A captured run, with i
    setup, not a rule.
 8. **State files cost turns.** "every component in a harness encodes an assumption about what the
    model can't do on its own, and those assumptions are worth stress testing."
-   ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 ## What the result showed
 
@@ -68,11 +68,11 @@ of the twelve arm runs at medium and low effort the agent built nothing, so ther
 redo, and the measure passed. And those six runs exposed a runner bug: `finish(claim="not_done")` at
 the end of session 1 ended the whole build phase. The fix applies to both arms, and the captured demo
 run shows it working: session 1 ended that way, and session 2 still ran
-([evidence](../docs/evidence.md#s2-runner-fix)).
+([evidence](../docs/evidence/s2.md#s2-runner-fix)).
 
 Measures chosen after the results, so they describe and do not test: over 9 runs per arm, harness
 arms hit the agent time limit in 4 and bare arms in 0. Median arm wall time was 361 s against 232 s
-([post hoc measures](../docs/evidence.md#s2-posthoc)).
+([post hoc measures](../docs/evidence/s2.md#s2-posthoc)).
 
 ## Questions from class
 

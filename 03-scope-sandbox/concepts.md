@@ -42,22 +42,22 @@ command can reach.
 No single source says "agents edit files outside the ticket". Several observations point there.
 Agents copy what they find: "Codex replicates patterns that already exist in
 the repository—even uneven or suboptimal ones."
-([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness)) An agent running unattended
+([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)) An agent running unattended
 can do damage: one author advises "(Run this in a container, not your actual machine)." and reports
 that the agent once ran "pkill -9 bash on accident, thus killing itself and ending the loop."
-([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler)) Anthropic's prompting guide
+([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)) Anthropic's prompting guide
 warns that a model "may take actions that are difficult to reverse or affect shared systems"
-([Claude docs](../docs/evidence.md#src-claude-prompting)).
+([Claude docs](../docs/evidence/s3.md#src-claude-prompting)).
 
 Strong words do not check anything. Anthropic's long-running harness told its agent:
 "It is unacceptable to remove or edit tests because this could lead to missing or buggy
 functionality." It kept the feature list in JSON because "the model is less likely to
 inappropriately change or overwrite JSON files compared to Markdown files."
-([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running)) "Less likely" is
+([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)) "Less likely" is
 the point: the wording makes a bad edit rarer, and no code catches the one that happens.
 
 OpenAI's harness team names the alternative: "enforce boundaries centrally, allow autonomy locally."
-([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness)) The agent picks how to build
+([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)) The agent picks how to build
 the feature. The harness decides which files it may touch.
 
 The section has two parts, and they answer different questions:
@@ -110,7 +110,7 @@ class in `app/services/issues.py`, a file on the list.
    changing the status of a passes field". Here the agent may not edit it at all. It calls `finish`,
    and the harness sets `passes: true` after its own test run, because: "Separating the agent doing the work from the agent judging it proves to be a
    strong lever to address this issue."
-   ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 4. **Allowed paths per phase, enforced.** A patch with any path outside the phase's list is refused
    before it applies. After each command, a byte snapshot restores any file outside the list. The test
    phase allows tests only, so the agent cannot make a failing test pass by changing the code.
@@ -118,7 +118,7 @@ class in `app/services/issues.py`, a file on the list.
 ### The sandbox
 
 Every tool command runs in one container per arm; the agent loop and the API keys stay on the host.
-The flags are explained in the [Docker docs](../docs/evidence.md#src-docker-run).
+The flags are explained in the [Docker docs](../docs/evidence/s3.md#src-docker-run).
 
 | Limit | Docker flag | What it stops |
 |---|---|---|
@@ -129,7 +129,7 @@ The flags are explained in the [Docker docs](../docs/evidence.md#src-docker-run)
 
 With `--network none`, "only the loopback device is created". Anthropic's compiler agents worked the
 same way: "Claude did not have internet access at any point during its development."
-([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler))
 
 Two different refusals come from the two parts:
 
@@ -176,14 +176,14 @@ file; on F3, a source edit in the test phase also fails it.
 
 On F4 the harness arm was ahead. Every bare arm changed the shared `app/services/errors.py`, and the
 scope layer blocked every harness arm on that same file
-([evidence](../docs/evidence.md#s3-confirmation)). On F3 there was no measurable difference: neither
-arm ever left the list ([evidence](../docs/evidence.md#s3-pilot)).
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On F3 there was no measurable difference: neither
+arm ever left the list ([evidence](../docs/evidence/s3.md#s3-pilot)).
 
 Read the F4 result with its limits. Existing tests kept passing in every arm, and no arm met F4's
 own measure. The scope layer kept the change inside the list; it did not make the feature better.
 
 The sandbox is the same for both arms, so no run measures it. It refused no command in any test run
-([evidence](../docs/evidence.md#s3-sandbox)).
+([evidence](../docs/evidence/s3.md#s3-sandbox)).
 
 ## When it helps, and when it does not
 
@@ -202,7 +202,7 @@ It does not help, or helps less, when:
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an
 assumption about what the model can't do on its own, and those assumptions are worth stress testing."
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)) The scope layer assumes
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) The scope layer assumes
 the agent will change files outside the ticket unless code stops it. On F4 that held; on F3 it did
 not.
 
@@ -242,7 +242,7 @@ not.
 - [The feature list as scope](post-class-reading/01-effective-harnesses-feature-list.md).
 - [Containers for unattended agents](post-class-reading/02-c-compiler-containers.md).
 - [Sandboxes in another agent](post-class-reading/03-codex-sandbox-and-approvals.md).
-- The sources: [OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness);
-  [Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running);
-  [Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler);
-  [Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design).
+- The sources: [OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness);
+  [Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running);
+  [Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler);
+  [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design).

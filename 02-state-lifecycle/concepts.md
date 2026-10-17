@@ -43,13 +43,13 @@ repository at every stop, and start every session by reading them.
 Anthropic's harness team states the problem of long tasks: "each new session begins with no memory
 of what came before." Without help, the next session starts "with a feature half-implemented and
 undocumented. The agent would then have to guess at what had happened"
-([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running)).
+([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
 
 Keeping the old context alive in a compressed form is not the answer: "However, compaction isn’t
 sufficient." The same team's later harness names the alternative: "Context resets—clearing the
 context window entirely and starting a fresh agent, combined with a structured handoff that carries
 the previous agent's state and the next steps"
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)).
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 The state lives in a few files, each with one job:
 
@@ -62,9 +62,9 @@ The state lives in a few files, each with one job:
 | `session-handoff.md` | The last session's state and the next steps | Anthropic, Harness design |
 
 The exec plan comes from OpenAI: "execution plans with progress and decision logs that
-are checked into the repository" ([OpenAI, Harness engineering](../docs/evidence.md#src-openai-harness)).
+are checked into the repository" ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)).
 Its recipe sets a high bar: "it should always be possible to restart from _only_ the ExecPlan and no
-other work." ([OpenAI, PLANS.md](../docs/evidence.md#src-openai-exec-plans))
+other work." ([OpenAI, PLANS.md](../docs/evidence/s2.md#src-openai-exec-plans))
 
 Two routines wrap the files. At the start of a session, under the heading "Getting up to speed":
 "Read the git logs and progress files to get up to speed on what was recently worked on." Then run
@@ -165,7 +165,7 @@ session 1 ended the whole build phase, so session 2 never ran. The fix applies t
 
 Measures chosen after the results, so they describe and do not test: harness arms hit the agent
 time limit in 4 of 9 runs, bare arms in 0 of 9. The state files cost turns
-([post hoc measures](../docs/evidence.md#s2-posthoc)).
+([post hoc measures](../docs/evidence/s2.md#s2-posthoc)).
 
 ## When it helps, and when it does not
 
@@ -184,7 +184,7 @@ It does not help, or helps less, when:
 - The stop never comes. If the agent finishes in session 1, there is nothing to hand off.
 - The model changes. Anthropic's team dropped resets for a later model: "Opus 4.5 largely removed
   that behavior on its own, so I was able to drop context resets from this harness entirely."
-  ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+  ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 The same source gives the test to apply: "every component in a harness encodes an assumption about
 what the model can't do on its own, and those assumptions are worth stress testing." The state files
@@ -229,6 +229,6 @@ assume a fresh session cannot pick up the work from the repository alone. Measur
 - [Harness design: context resets and handoffs](post-class-reading/02-harness-design-context-resets.md):
   resets against compaction, and why they depend on the model.
 - [Exec plans](post-class-reading/03-exec-plans.md): a plan the next session can restart from.
-- The sources: [Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running);
-  [Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design);
-  [OpenAI, PLANS.md](../docs/evidence.md#src-openai-exec-plans).
+- The sources: [Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running);
+  [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design);
+  [OpenAI, PLANS.md](../docs/evidence/s2.md#src-openai-exec-plans).

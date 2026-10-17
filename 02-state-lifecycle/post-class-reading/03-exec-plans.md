@@ -1,7 +1,7 @@
 # Using PLANS.md for multi-hour problem solving
 
 Reading time: about 5 minutes.
-Source: Aaron Friel (OpenAI Cookbook), "Using PLANS.md for multi-hour problem solving", 2025-10-07, archived, <https://cookbook.openai.com/articles/codex_exec_plans> ([evidence](../../docs/evidence.md#src-openai-exec-plans)).
+Source: Aaron Friel (OpenAI Cookbook), "Using PLANS.md for multi-hour problem solving", 2025-10-07, archived, <https://cookbook.openai.com/articles/codex_exec_plans> ([evidence](../../docs/evidence/s2.md#src-openai-exec-plans)).
 
 > **Terms on this page**
 >
@@ -13,7 +13,7 @@ Source: Aaron Friel (OpenAI Cookbook), "Using PLANS.md for multi-hour problem so
 
 A progress file says what happened. A plan says what the work is, why it is shaped that way, and what
 is left. OpenAI's harness team keeps "execution plans with progress and decision logs that are
-checked into the repository" ([OpenAI, Harness engineering](../../docs/evidence.md#src-openai-harness)),
+checked into the repository" ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness)),
 and this recipe is the one they link for how to write them. The course's exec plan template is built
 from it.
 

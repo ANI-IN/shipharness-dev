@@ -41,16 +41,16 @@ only tests that prove something, and score the result with tests and faults it n
 Two causes sit behind the scenario. The first is self-grading. Anthropic's harness team found that
 "agents reliably skew positive when grading their own work." Their fix is structural: "Separating the
 agent doing the work from the agent judging it proves to be a strong lever to address this issue."
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 The second is that green tests are not a finished feature. Anthropic's compiler team: "it is easy to
 see tests pass and assume the job is done, when this is rarely the case." So "the task verifier" must
 be "nearly perfect, otherwise Claude will solve the wrong problem."
-([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler))
+([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler))
 
 SpecBench measured the gap: "while every frontier agent saturates the visible suite, reward hacking
 persists". Deliberate cheating was rare; "compositional failures account for a much larger fraction"
-([SpecBench](../docs/evidence.md#src-specbench)). F4 has that shape. The `ETag`, the header check,
+([SpecBench](../docs/evidence/s4.md#src-specbench)). F4 has that shape. The `ETag`, the header check,
 and the edit form each work alone. The lost update appears only when two writers meet.
 
 The verification layer answers with four checks, each owned by someone other than the agent:
@@ -74,7 +74,7 @@ flowchart LR
 ```
 
 The filters come from Meta's TestGen-LLM, which keeps a generated test only after "a series of
-progressively demanding semantic filters" ([Meta, TestGen-LLM](../docs/evidence.md#src-testgen-llm)).
+progressively demanding semantic filters" ([Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm)).
 The course runs five, cheapest first:
 
 | Filter | What it checks | Source |
@@ -86,7 +86,7 @@ The course runs five, cheapest first:
 | 5 | No source file changed during the test phase | Course filter |
 
 Filter 3 has a mutant branch because Meta's ACH found that "49%" of tests that catch a new mutant
-"do not also add line coverage" ([Meta, ACH](../docs/evidence.md#src-ach)). Filters 4 and 5 have no
+"do not also add line coverage" ([Meta, ACH](../docs/evidence/s4.md#src-ach)). Filters 4 and 5 have no
 source; they stop a test that asserts nothing, and a test phase that edits the code until its test
 passes.
 
@@ -94,7 +94,7 @@ passes.
 
 **Before: the agent's word.** In the bare arm, `finish(claim="done")` ends the phase. In one test run
 before class, a bare arm ended its build with "Verified the complete visible suite (191 passing)".
-The referee then found a hidden test failing ([evidence](../docs/evidence.md#s4-claims)).
+The referee then found a hidden test failing ([evidence](../docs/evidence/s4.md#s4-claims)).
 
 **After: a gate on the claim.** In the harness arm, the same call starts the gate. A failure comes
 back as the result of `finish`: "Not accepted.", one line that names the failed items, up to three
@@ -128,7 +128,7 @@ tests and mutants instead. The [walkthrough](demo/walkthrough.md) reads the gate
 
 A separate model also reviews each final diff. Its verdict is secondary, because "the evaluator is
 still an LLM that is inclined to be generous towards LLM-generated outputs."
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 ## What we measured
 
@@ -168,7 +168,7 @@ Anthropic's harness team gives the test to apply: "every component in a harness 
 about what the model can't do on its own, and those assumptions are worth stress testing." The
 verification layer assumes the agent's "done" and its own tests cannot be trusted. A separate judge
 "is worth the cost when the task sits beyond what the current model does reliably solo."
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 ## Key takeaways
 
@@ -210,7 +210,7 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
 - [Mutation-guided tests (ACH)](post-class-reading/02-mutation-guided-tests-ach.md)
 - [Separate evaluators](post-class-reading/03-separate-evaluator.md)
 - [Held-out tests (SpecBench)](post-class-reading/04-held-out-tests-specbench.md)
-- The sources: [Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design);
-  [Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler);
-  [Meta, TestGen-LLM](../docs/evidence.md#src-testgen-llm);
-  [Meta, ACH](../docs/evidence.md#src-ach); [SpecBench](../docs/evidence.md#src-specbench).
+- The sources: [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design);
+  [Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler);
+  [Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm);
+  [Meta, ACH](../docs/evidence/s4.md#src-ach); [SpecBench](../docs/evidence/s4.md#src-specbench).

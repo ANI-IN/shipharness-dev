@@ -113,7 +113,7 @@ Each item runs inside the arm's container.
   violations against the checkpoint's own baseline.
 - The clean-state item runs on the workspace itself, against `base_sha`, the commit before the
   agent's first change. It follows Anthropic's definition: code "that would be appropriate for
-  merging to a main branch" ([Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running)).
+  merging to a main branch" ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)).
 - `lines` collects one failure line per problem, each with its reason on the same line.
 
 ### gate.py, lines 176-181
@@ -132,7 +132,7 @@ The verdict.
 
 - One failed item fails the gate. Anthropic's compiler team says why the bar is that high: "it’s
   important that the task verifier is nearly perfect, otherwise Claude will solve the wrong
-  problem." ([Anthropic, C compiler](../../docs/evidence.md#src-anthropic-c-compiler))
+  problem." ([Anthropic, C compiler](../../docs/evidence/s4.md#src-anthropic-c-compiler))
 - `_feedback` (lines 191-200) writes `Gate <id>: <n> of <m> items failed (<names>).`, the first three
   failure lines, and "Fix these, commit your work, and call finish again." The same team asks for a
   few lines of output, with the reason "on the same line" as the error.

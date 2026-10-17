@@ -93,7 +93,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
 - **Evidence over claims.** The ledger comes from commits and the working tree, never from the files
   the agent edits. An agent that ticks a step early does no harm: the next stop rebuilds Progress
   from git. Anthropic's harness pairs the progress file with "the git history"
-  ([Anthropic, Effective harnesses](../../../docs/evidence.md#src-anthropic-long-running)); taking
+  ([Anthropic, Effective harnesses](../../../docs/evidence/s1.md#src-anthropic-long-running)); taking
   the status from git alone is this course's choice.
 - **The harness owns the plan's Progress section.** The agent's own words go to Surprises &
   Discoveries and the Decision Log, and the wrap-up message says so.
@@ -102,7 +102,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
   the agent's own `S<n>:` commit, so each step is committed once.
 - **Session history in two places.** `progress.md` keeps the session log; the plan keeps one line per
   session too. The plan alone is then enough to restart from, as OpenAI's recipe asks
-  ([OpenAI, PLANS.md](../../../docs/evidence.md#src-openai-exec-plans)).
+  ([OpenAI, PLANS.md](../../../docs/evidence/s2.md#src-openai-exec-plans)).
 - **Entries kept in memory.** The session log is rebuilt from the layer's own list, so an agent that
   rewrites `progress.md` cannot delete history.
 
@@ -117,7 +117,7 @@ format, the machine summary, migration heads read as text, and sandboxed commits
   agent that rewrote the file before the stop.
 - **A JSON state file.** Anthropic's team found the model "is less likely to inappropriately change
   or overwrite JSON files compared to Markdown files"
-  ([Anthropic, Effective harnesses](../../../docs/evidence.md#src-anthropic-long-running)). The
+  ([Anthropic, Effective harnesses](../../../docs/evidence/s1.md#src-anthropic-long-running)). The
   course keeps Markdown files as the workspace state, so the harness owns the parts that matter
   instead.
 
@@ -188,4 +188,4 @@ The live step ran once with this folder's layer, as in
 [SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in). Its files are in [live/](live/):
 the task, the command, the full output, the run summary, and both score records. The grade that
 includes them is in `captured/grade-solution.txt`. Dates and run ids are on the
-[evidence page](../../../docs/evidence.md#s2-a2-solution).
+[evidence page](../../../docs/evidence/s2.md#s2-a2-solution).

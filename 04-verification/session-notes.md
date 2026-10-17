@@ -32,24 +32,24 @@ The class run's record stays on the instructor's machine. A captured run, with i
 ## Key ideas
 
 1. **The agent's "done" is a claim.** "agents reliably skew positive when grading their own work."
-   ([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)) Treat a done
+   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) Treat a done
    claim as the start of a check, not the end of the work.
 2. **Separate the doer from the judge.** "Separating the agent doing the work from the agent judging
    it proves to be a strong lever to address this issue." In shipharness, the gate decides whether a
    claim stands, and only the harness sets `passes`.
 3. **The verifier must be strict.** "it’s important that the task verifier is nearly perfect,
    otherwise Claude will solve the wrong problem."
-   ([Anthropic, C compiler](../docs/evidence.md#src-anthropic-c-compiler)) One failed gate item fails
+   ([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler)) One failed gate item fails
    the claim.
 4. **Visible tests miss what held-out tests catch.** "while every frontier agent saturates the visible
-   suite, reward hacking persists" ([SpecBench](../docs/evidence.md#src-specbench)). Most of the gap
+   suite, reward hacking persists" ([SpecBench](../docs/evidence/s4.md#src-specbench)). Most of the gap
    is features that pass alone and fail together.
 5. **Keep tests that prove something.** Five filters, cheapest first: runs, passes five times, adds
    coverage or catches a mutant, has real assertions, and leaves the source alone
-   ([Meta, TestGen-LLM](../docs/evidence.md#src-testgen-llm)). Filters 4 and 5 are the course's own.
+   ([Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm)). Filters 4 and 5 are the course's own.
 6. **Filters trust the current code.** A failing test is discarded, even when the test is right. ACH's
    limit: it "cannot detect existing faults residing in the code base"
-   ([Meta, ACH](../docs/evidence.md#src-ach)).
+   ([Meta, ACH](../docs/evidence/s4.md#src-ach)).
 7. **Score with what the agent never sees.** The gate leaves out the hidden tests and the referee
    mutants, so they still measure held-out behaviour.
 8. **A model reviewer is useful but lenient.** "the evaluator is still an LLM that is inclined to be
@@ -71,7 +71,7 @@ Model gpt-6-luna. The reviewer rejected all 14 arms and agreed with the referee 
 
 No measurable difference on this task with this model. The gate was not tested in these runs: no
 harness arm claimed done on F4. Six used all their build turns, and one stopped with `not_done`. Two
-bare arms claimed done, and the referee failed both ([done claims](../docs/evidence.md#s4-claims)).
+bare arms claimed done, and the referee failed both ([done claims](../docs/evidence/s4.md#s4-claims)).
 
 The captured demo run filled that gap once. The harness arm claimed done, and the gate passed all 11
 items on the first try. The referee then failed the run: 68 of 69 hidden tests, 0 of 4 mutants. The
@@ -80,7 +80,7 @@ that very case; it failed with "assert 422 == 412", and filter 2 discarded it.
 
 Measures chosen after the results, so they describe and do not test: over 34 runs per arm across all
 sections, harness arms claimed done in 10 and bare arms in 19. Harness arms shipped fewer tests
-(median 2.5 against 7.5; on F4, 0 against 15.5) ([post hoc measures](../docs/evidence.md#s4-posthoc)).
+(median 2.5 against 7.5; on F4, 0 against 15.5) ([post hoc measures](../docs/evidence/s4.md#s4-posthoc)).
 
 ## Questions from class
 
@@ -88,7 +88,7 @@ sections, harness arms claimed done in 10 and bare arms in 19. Harness arms ship
 On F4 the runs barely tested it: the gate never ran in an A/B, and the filters saw few tests. That is
 a result about this task and this model. A separate judge "is worth the cost when the task sits
 beyond what the current model does reliably solo."
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design))
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
 
 **The bare arm caught more mutants. Does that mean the filters hurt?**
 The bare arm shipped more tests. A test nobody writes cannot catch a mutant, and the filters judge

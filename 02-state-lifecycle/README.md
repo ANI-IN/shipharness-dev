@@ -26,18 +26,18 @@ change, and a bill for the same work twice.
 ## Why it happens
 
 - Every session starts from zero: "each new session begins with no memory of what came before."
-  ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running))
+  ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
 - Without a record, the next session has to guess. Anthropic's agents were left "to guess at what
-  had happened" ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running)).
+  had happened" ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
 - Squeezing the old context into the new session does not fix it: "However, compaction isn’t
-  sufficient." ([Anthropic, Effective harnesses](../docs/evidence.md#src-anthropic-long-running))
+  sufficient." ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
 
 ## How this section fixes it
 
 The state layer keeps the work in the repository. Before session 1 it writes `init.sh`,
 `progress.md`, a structured handoff, and an exec plan. At every stop it writes the facts from git
 and the files on disk, keeps the agent's notes, and commits. Every session starts by reading them
-([Anthropic, Harness design](../docs/evidence.md#src-anthropic-harness-design)).
+([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 ```mermaid
 flowchart LR

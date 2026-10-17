@@ -4,7 +4,7 @@ This folder holds the output and the screenshots of one real `make show-2 SESSIO
 run, on a quiet machine, with the class settings. Nothing here is staged or edited, except where a
 line says it was cut. Use it to check that your run looks roughly like this one, or to follow the
 demo without running it. When and how it was captured is in the
-[evidence page](../../../docs/evidence.md#s2-show-2-capture).
+[evidence page](../../../docs/evidence/s2.md#s2-show-2-capture).
 
 > **Terms on this page**
 >

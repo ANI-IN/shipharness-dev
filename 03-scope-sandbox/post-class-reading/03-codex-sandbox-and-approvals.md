@@ -1,7 +1,7 @@
 # Codex: agent approvals and security
 
 Reading time: about 5 minutes.
-Source: OpenAI, Codex documentation, "Agent approvals & security" <https://developers.openai.com/codex/agent-approvals-security>, with "Sandboxing concepts" and the "Configuration reference", read 2026-10-16 ([evidence](../../docs/evidence.md#src-codex-security)).
+Source: OpenAI, Codex documentation, "Agent approvals & security" <https://developers.openai.com/codex/agent-approvals-security>, with "Sandboxing concepts" and the "Configuration reference", read 2026-10-16 ([evidence](../../docs/evidence/s3.md#src-codex-security)).
 
 > **Terms on this page**
 >

@@ -332,7 +332,7 @@ rule 2 refuses it, while the referee does not count it. In the course's test run
 | The live A/B: 2 agent runs, 2 reviews | At most $0.48 at the caps | 2 per run: 4 |
 
 For scale: in the course's test runs of the same command, one arm cost between $0.0068 and $0.0102,
-and one review between $0.0018 and $0.0033 ([evidence](../../docs/evidence.md#s3-a3-solution)).
+and one review between $0.0018 and $0.0033 ([evidence](../../docs/evidence/s3.md#s3-a3-solution)).
 
 ### Common mistakes
 

@@ -1,7 +1,7 @@
 # SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents
 
 Reading time: about 5 minutes.
-Source: Zhao, Srikanth, Wu, Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents", preprint, v2 2026-09-09, <https://arxiv.org/abs/2605.21384>, with its repository <https://github.com/WecoAI/SpecBench> ([evidence](../../docs/evidence.md#src-specbench)).
+Source: Zhao, Srikanth, Wu, Jiang (Weco AI), "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents", preprint, v2 2026-09-09, <https://arxiv.org/abs/2605.21384>, with its repository <https://github.com/WecoAI/SpecBench> ([evidence](../../docs/evidence/s4.md#src-specbench)).
 
 > **Terms on this page**
 >

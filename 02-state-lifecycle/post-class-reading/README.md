@@ -25,6 +25,6 @@ words and shows how to apply it to your own repository.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the "Getting up to speed" part of
-  [Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running), then the
-  context reset part of [Anthropic, Harness design](../../docs/evidence.md#src-anthropic-harness-design).
+  [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running), then the
+  context reset part of [Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design).
 - The class recap is in [session-notes.md](../session-notes.md).

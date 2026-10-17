@@ -1,7 +1,7 @@
 # Harness design for long-running application development
 
 Reading time: about 5 minutes.
-Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence.md#src-anthropic-harness-design)).
+Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 > **Terms on this page**
 >
@@ -28,7 +28,7 @@ should be checked.
 2. **Resets cost something.** "This solves the core issue, but adds orchestration complexity, token
    overhead, and latency to each harness run." The course saw the same: harness arms with state
    files ran longer, and hit the agent time limit more often, than bare arms
-   ([evidence](../../docs/evidence.md#s2-posthoc)).
+   ([evidence](../../docs/evidence/s2.md#s2-posthoc)).
 
 3. **Whether you need one depends on the model.** "Opus 4.5 largely removed that behavior on its
    own, so I was able to drop context resets from this harness entirely." What stayed was more

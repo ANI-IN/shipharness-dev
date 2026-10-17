@@ -54,7 +54,7 @@ The start of `prepare_workspace`, the initializer step.
 - `initial_files` renders the four templates in `assets/` with the ticket's id, title, and steps.
   The result is exactly what [harness/](harness/README.md) holds.
 - Anthropic's harness uses a model session for this, an "initializer agent"
-  ([Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running)). Here it is
+  ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)). Here it is
   plain code, because one ticket fixes the files. It costs no model call.
 - `write_file` never writes through a link, so an agent cannot redirect a harness write.
 - The commit runs inside the arm's sandbox and names its paths, so nothing the agent staged slips in.

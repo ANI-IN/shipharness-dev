@@ -4,7 +4,7 @@ This folder holds the output and the screenshots of the real `make demo-3 FEATUR
 ran before class, with the class settings. Nothing here is staged or edited, except where a line says
 it was cut. Use it to check that your run looks roughly like these, or to follow the demo without
 running it. When and how each file was captured is in the
-[evidence page](../../../docs/evidence.md#s3-demo-capture).
+[evidence page](../../../docs/evidence/s3.md#s3-demo-capture).
 
 > **Terms on this page**
 >
