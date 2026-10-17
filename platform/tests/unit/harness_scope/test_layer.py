@@ -100,7 +100,7 @@ def test_context_prefix_is_stable_and_states_the_scope(tmp_path: Path) -> None:
     ctx.phase, ctx.session_index, ctx.turn = "test", 2, 5
     assert layer.context_prefix(ctx) == first
     text = "\n".join(first)
-    assert "F3" in text and "one feature" in text
+    assert "one feature: Feature 3: Safe retries for issue creation" in text
     assert "app/api/issues.py" in text and "tests/visible/**" in text
     assert "It is unacceptable to remove or edit tests" in text
     assert "feature_list.json is written only by the harness" in text

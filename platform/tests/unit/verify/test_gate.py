@@ -110,7 +110,9 @@ def test_failures_give_feedback_with_the_first_three_failures() -> None:
     lines = [ln for ln in result.feedback.splitlines() if ln.startswith(("FAIL", "FAILED"))]
     assert len(lines) == 3
     assert lines[0].startswith("FAILED tests/visible/test_a.py::test_one")
-    assert lines[1] == "FAIL R1 GET /x/0: violation: r1_tenant problem 0"
+    assert lines[1] == "FAIL House rule 1 GET /x/0: violation: r1_tenant problem 0"
+    summary = result.feedback.splitlines()[0]
+    assert "(visible tests, House rule 1: Tenant isolation, House rule 2: Roles)" in summary
     assert "g3" in result.feedback
 
 

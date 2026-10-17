@@ -1,6 +1,6 @@
 # Cursor pagination
 
-Status: in force. Verified by the R3 check.
+Status: in force. Verified by the check for House rule 3: API conventions.
 
 ## Decision
 

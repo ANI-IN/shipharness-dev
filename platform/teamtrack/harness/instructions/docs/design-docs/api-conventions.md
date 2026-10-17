@@ -1,8 +1,8 @@
-# API conventions (R3)
+# House rule 3: API conventions
 
-Status: in force for every endpoint. Verified by the R3 check.
+Status: in force for every endpoint. Verified by the House rule 3 check.
 
-## R3 API conventions
+## The rule
 
 ### Lists
 

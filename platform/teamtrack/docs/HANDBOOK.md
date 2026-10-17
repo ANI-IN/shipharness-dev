@@ -50,7 +50,7 @@ touch it.
 These rules apply to every endpoint, including new ones. Automated checks discover endpoints from the
 OpenAPI schema, so a new endpoint is checked the moment it exists.
 
-### R1 Tenant isolation
+### House rule 1: Tenant isolation
 
 No org may see or change another org's data. Every query on customer data filters by the caller's
 `org_id`. If a user asks for a resource that belongs to another org, respond **404 not_found**, exactly
@@ -60,7 +60,7 @@ that the object belongs to the caller's org.
 
 The check: for every endpoint and method, a request as an Acme user with Globex IDs must return 404.
 
-### R2 Roles
+### House rule 2: Roles
 
 Roles are `admin`, `member`, and `viewer`. Viewers can read but never write: every POST, PUT, PATCH,
 and DELETE must return **403 forbidden** for a viewer. Some writes are admin-only: creating and
@@ -70,7 +70,7 @@ by hand.
 
 The check: every write endpoint called as a viewer must return 403.
 
-### R3 API conventions
+### House rule 3: API conventions
 
 - List endpoints return `{"items": [...], "next_cursor": "..." | null}` and accept `cursor` and
   `limit` (1 to 100, default 20). Use the helpers in `app/api/pagination.py`: keyset pagination by
@@ -82,7 +82,7 @@ The check: every write endpoint called as a viewer must return 403.
 
 The check: a schema-based fuzzer (Schemathesis) plus assertions on the list and error envelopes.
 
-### R4 Idempotent creates
+### House rule 4: Safe retries
 
 Create endpoints accept an `Idempotency-Key` header. The same key with the same body returns the first
 response and creates nothing new; the same key with a different body returns 409
@@ -92,7 +92,7 @@ roadmap.)
 
 The check: a duplicate POST with the same key must leave exactly one new record.
 
-### R5 Audit log
+### House rule 5: Audit log
 
 Every write adds exactly one row to the audit log, with the actor, an action name such as
 `issue.create`, the entity type, and its id. Reads add nothing. An idempotent replay adds nothing. Use
@@ -100,13 +100,13 @@ Every write adds exactly one row to the audit log, with the actor, an action nam
 
 The check: count audit rows before and after each write.
 
-### R6 Layering
+### House rule 6: Layering
 
 `app/api` never imports `app/db`, and neither does `app/web`. See "Code layout".
 
 The check: the import-linter contract.
 
-### R7 Migrations
+### House rule 7: Migrations
 
 Every schema change gets an Alembic migration in `migrations/versions/`. There must be exactly one
 migration head, and `alembic upgrade head` must work on an empty database. Before you add a migration,

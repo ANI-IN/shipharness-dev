@@ -9,12 +9,12 @@ canonical_ticket = """
 Make issue creation safe to retry.
 
 Mobile clients retry POST /projects/{project_id}/issues after timeouts and we get duplicate issues.
-Support the Idempotency-Key header there, with the same semantics as POST /projects (house rule R4):
+Support the Idempotency-Key header there, with the same semantics as POST /projects (House rule 4: Safe retries):
 the same key and body return the first response and create nothing, the same key with a different
 body is a 409 idempotency_conflict, keys are scoped per org and per endpoint, and a replay adds no
 audit row. Use services.idempotency.run_once.
 
-Change only the issue endpoint and its service, and update house rule R4 in docs/HANDBOOK.md, which
+Change only the issue endpoint and its service, and update House rule 4 in docs/HANDBOOK.md, which
 still says issue creation does not support keys; shared middleware is out of scope. After building
 it, write the tests in a separate test phase without changing application code. The full spec is in
 docs/features/f3.md.

@@ -5,6 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+from shipharness.datasets.names import feature_label
 from shipharness.harness.scope.features import ticket_steps, ticket_title
 from shipharness.runner.models import AgentRunSpec
 
@@ -28,6 +29,7 @@ def fields(
     step_list = steps if steps is not None else (ticket_steps(spec.ticket_text) or [title])
     return {
         "feature_id": spec.feature_id,
+        "feature": feature_label(spec.feature_id),
         "description": title,
         "exec_plan": exec_plan_path(spec.feature_id),
         "steps": "\n".join(f"- {step}" for step in step_list),

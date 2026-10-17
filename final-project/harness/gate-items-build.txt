@@ -1,11 +1,11 @@
 visible tests
 existing tests
-R1
-R2
-R3
-R4
-R5
-R6
-R7
+House rule 1: Tenant isolation
+House rule 2: Roles
+House rule 3: API conventions
+House rule 4: Safe retries
+House rule 5: Audit log
+House rule 6: Layering
+House rule 7: Migrations
 board
 clean state

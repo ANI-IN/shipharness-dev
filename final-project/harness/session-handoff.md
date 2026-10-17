@@ -1,6 +1,6 @@
 # Session handoff
 
-A structured handoff that carries the previous session's state and the next steps (A3). The
+A structured handoff that carries the previous session's state and the next steps. The
 harness rewrites "Machine summary" at every session stop. Write your own notes under "Notes from
 the agent" before the session ends.
 

@@ -106,7 +106,7 @@ def test_failing_gate_returns_gate_fail_and_writes_state(tmp_path: Path) -> None
         ctx = ctx_for(tmp_path, FakeSandbox(Script([RED])), bus)
         decision = VerifyLayer(baseline_json='{"results": []}').on_claim_done(ctx)
     assert decision is not None and decision.kind == "gate_fail"
-    assert "FAIL R1" in decision.message
+    assert "FAIL House rule 1" in decision.message
     assert decision.data["gate_id"] == ctx.state["verify.gate"]["gate_id"]
     assert ctx.state["verify.gate"]["passed"] is False
     events = list(read_events(log))

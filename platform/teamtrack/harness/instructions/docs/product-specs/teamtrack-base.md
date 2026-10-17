@@ -41,8 +41,8 @@ not exist (404 on read, hidden from lists).
 
 ## Audit log
 
-Every write adds one audit row (R5, `docs/RELIABILITY.md`). The audit log is append-only; there is no
-endpoint to edit or delete audit rows.
+Every write adds one audit row (House rule 5: Audit log, `docs/RELIABILITY.md`). The audit log is
+append-only; there is no endpoint to edit or delete audit rows.
 
 ## Web board
 

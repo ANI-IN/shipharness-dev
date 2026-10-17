@@ -1,10 +1,10 @@
 # Security
 
-Who may see and change data. Two house rules live here: R1 Tenant isolation and R2 Roles. They apply
-to every endpoint, including new ones. Automated checks discover endpoints from the OpenAPI schema,
+Who may see and change data. Two house rules live here: House rule 1: Tenant isolation and House
+rule 2: Roles. They apply to every endpoint, including new ones. Automated checks discover endpoints from the OpenAPI schema,
 so a new endpoint is checked the moment it exists.
 
-## R1 Tenant isolation
+## House rule 1: Tenant isolation
 
 No org may see or change another org's data.
 
@@ -21,7 +21,7 @@ finds nothing.
 
 The check: for every endpoint and method, a request as an Acme user with Globex IDs must return 404.
 
-## R2 Roles
+## House rule 2: Roles
 
 Roles are `admin`, `member`, and `viewer`.
 

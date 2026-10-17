@@ -1,13 +1,13 @@
 ---
 name: add-endpoint
-description: Add or change a TeamTrack HTTP endpoint so it follows house rules R1-R7 (tenant scoping, roles, list and error envelopes, idempotent creates, one audit row per write, layering, migrations) and ships with tests. Use when a ticket adds a route, changes a route's behaviour, or adds a field that needs a schema change.
+description: Add or change a TeamTrack HTTP endpoint so it follows House rules 1 to 7 (tenant isolation, roles, API conventions with list and error envelopes, safe retries for creates, one audit row per write, layering, migrations) and ships with tests. Use when a ticket adds a route, changes a route's behaviour, or adds a field that needs a schema change.
 ---
 
 # Add a TeamTrack endpoint
 
 Work through the steps in order. Each step names the rule it satisfies and the document that holds
 the full rule. Automated checks find every endpoint in the OpenAPI schema, so a new endpoint is
-checked against R1-R7 the moment it exists.
+checked against House rules 1 to 7 the moment it exists.
 
 ## 0. Start from the right example
 
@@ -23,18 +23,19 @@ Answer these before writing code:
 
 | Question | Where the answer leads |
 |---|---|
-| Read or write? | Reads use `current_actor`; writes use `require_writer` (R2). |
-| Admin-only? Creating and updating users, adding and removing project members, archiving projects, and reading the audit log are. | Use `require_admin` (R2). |
-| Does it return a list? | List envelope and cursor pagination (R3). |
-| Does it create something? | 201, `Idempotency-Key`, `run_once` (R3, R4). |
-| Does it delete something? | 204 (R3). Issues are soft-deleted and projects archived (`docs/product-specs/teamtrack-base.md`). |
-| Does its body carry another object's ID (for example an assignee)? | Check that the object belongs to the caller's org (R1). |
-| Does it need a new table or column? | One Alembic migration (R7), step 2. |
+| Read or write? | Reads use `current_actor`; writes use `require_writer` (House rule 2: Roles). |
+| Admin-only? Creating and updating users, adding and removing project members, archiving projects, and reading the audit log are. | Use `require_admin` (House rule 2). |
+| Does it return a list? | List envelope and cursor pagination (House rule 3: API conventions). |
+| Does it create something? | 201, `Idempotency-Key`, `run_once` (House rule 3, House rule 4: Safe retries). |
+| Does it delete something? | 204 (House rule 3). Issues are soft-deleted and projects archived (`docs/product-specs/teamtrack-base.md`). |
+| Does its body carry another object's ID (for example an assignee)? | Check that the object belongs to the caller's org (House rule 1: Tenant isolation). |
+| Does it need a new table or column? | One Alembic migration (House rule 7: Migrations), step 2. |
 
-Full rules: `docs/SECURITY.md` (R1, R2), `docs/design-docs/api-conventions.md` (R3),
-`docs/RELIABILITY.md` (R4, R5, R7), `ARCHITECTURE.md` (R6).
+Full rules: `docs/SECURITY.md` (House rules 1 and 2), `docs/design-docs/api-conventions.md`
+(House rule 3), `docs/RELIABILITY.md` (House rules 4, 5, and 7), `ARCHITECTURE.md` (House rule 6:
+Layering).
 
-## 2. Schema change (R7), only if needed
+## 2. Schema change (House rule 7), only if needed
 
 1. Run `alembic heads` from the TeamTrack folder. There must be exactly one head.
 2. Change the model in `app/db/models.py`.
@@ -45,14 +46,14 @@ Full rules: `docs/SECURITY.md` (R1, R2), `docs/design-docs/api-conventions.md` (
 
 Alembic notes: `docs/references/alembic-llms.txt`.
 
-## 3. Repository (R1)
+## 3. Repository (House rule 1)
 
 - Every query on customer data takes `org_id` as an explicit argument and filters on it.
 - For a list, page by ascending id with the helpers in `app/repositories/common.py` (`page`,
   `split_page`), as `app/repositories/projects.py` does in `list_page`.
 - Archived projects and soft-deleted issues behave as if they do not exist: filter them out.
 
-## 4. Service (R1, R5)
+## 4. Service (House rule 1, House rule 5: Audit log)
 
 - The function takes the session and an `Actor`, and works only inside `actor.org_id`.
 - If the resource is missing or belongs to another org, raise `NotFound` from
@@ -64,9 +65,9 @@ Alembic notes: `docs/references/alembic-llms.txt`.
 - A create used with `run_once` takes `commit: bool = True` and the router passes `commit=False`,
   so `run_once` commits once and an idempotent replay adds no audit row.
 
-## 5. Router (R2, R3, R4, R6)
+## 5. Router (House rules 2, 3, 4, and 6)
 
-- Import only from `app/api/` and `app/services/`. Never import `app.db` (R6).
+- Import only from `app/api/` and `app/services/`. Never import `app.db` (House rule 6).
 - Role dependency from `app/api/deps.py`: `current_actor`, `require_writer`, or `require_admin`.
 - Lists: `page_params`, `decode_cursor`, and `to_page` from `app/api/pagination.py`, with a `Page`
   response model, as `list_projects` in `app/api/projects.py` does.

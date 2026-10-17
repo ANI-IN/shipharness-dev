@@ -116,7 +116,7 @@ def migration_heads(workspace: Path) -> str:
     if not revisions:
         return "no migrations found"
     heads = sorted(clean(r, 60) for r in revisions if r not in parents)
-    note = "" if len(heads) == 1 else "; house rule R7 needs exactly one"
+    note = "" if len(heads) == 1 else "; there must be exactly one (House rule 7: Migrations)"
     return f"{len(heads)} ({', '.join(heads)}){note}"
 
 

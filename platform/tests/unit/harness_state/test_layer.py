@@ -91,7 +91,7 @@ def test_init_sh_sets_up_and_runs_a_basic_test(tmp_path: Path) -> None:
     assert "alembic upgrade head" in script
     assert "pytest tests/visible" in script
     assert "uvicorn app.main:create_app --factory" in script
-    assert "F3" in script
+    assert "Feature 3: Safe retries for issue creation" in script
 
 
 def test_progress_md_has_the_contract_sections_in_order(tmp_path: Path) -> None:
@@ -106,7 +106,7 @@ def test_progress_md_has_the_contract_sections_in_order(tmp_path: Path) -> None:
         "## Next",
         "## Session log",
     ]
-    assert "F3: Idempotency keys on create-issue" in body
+    assert "Feature 3: Safe retries for issue creation. Idempotency keys on create-issue" in body
     assert "{{" not in body
 
 

@@ -16,6 +16,7 @@ from typing import Any
 from pydantic import ValidationError
 
 from shipharness.checks.base import CheckResult
+from shipharness.datasets.names import rule_short
 from shipharness.sandbox.base import Sandbox
 
 RUNNER_MODULE = "shipharness.checks.runner"
@@ -162,8 +163,9 @@ def last_progress(progress: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def failure_lines(result: CheckResult, limit: int = 3) -> list[str]:
-    """Grep-friendly lines for the new findings of a failing check."""
-    label = CHECK_LABELS.get(result.check, result.check)
+    """Grep-friendly lines for the new findings of a failing check (a house rule by its short
+    name, "House rule 1"; the gate's summary line above them gives the full label)."""
+    label = rule_short(CHECK_LABELS.get(result.check, result.check))
     lines = []
     for finding in [f for f in result.findings if not f.baseline][:limit]:
         where = f" {finding.endpoint}" if finding.endpoint else ""

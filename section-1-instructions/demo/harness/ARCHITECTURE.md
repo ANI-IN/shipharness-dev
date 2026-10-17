@@ -33,7 +33,7 @@ The code is layered. A layer may only call the layer below it.
 
 `app/main.py` wires everything together. `app/seed.py` creates the demo data.
 
-## R6 Layering
+## House rule 6: Layering
 
 `app/api` never imports `app/db`, and neither does `app/web`.
 
@@ -48,7 +48,7 @@ every endpoint and need a separate review; feature work should not touch it.
 ## Data and migrations
 
 SQLite is used for development and the demo. Keep queries portable. Every schema change gets an
-Alembic migration in `migrations/versions/` (R7, `docs/RELIABILITY.md`).
+Alembic migration in `migrations/versions/` (House rule 7: Migrations, `docs/RELIABILITY.md`).
 
 ## Legacy code
 

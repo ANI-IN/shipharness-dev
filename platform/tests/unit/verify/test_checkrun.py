@@ -78,7 +78,7 @@ def test_failure_lines_skip_baseline_findings_and_are_grep_friendly() -> None:
     )
     results, _ = parse_runner_output(runner_output([raw], progress=False))
     lines = failure_lines(results[0])
-    assert lines == ["FAIL R1 GET /x/0: violation: r1_tenant problem 0"]
+    assert lines == ["FAIL House rule 1 GET /x/0: violation: r1_tenant problem 0"]
 
 
 def test_write_container_file_round_trips_any_content_in_chunks() -> None:
