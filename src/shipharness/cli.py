@@ -100,6 +100,39 @@ def console(port: int = typer.Option(8765, help="Port for the live console.")) -
     uvicorn.run(console_app, host="127.0.0.1", port=port)
 
 
+@app.command()
+def verify(
+    tag: str = typer.Option("class-v1", "--tag", help="Release tag whose record to compare."),
+    repo: Path = typer.Option(Path("."), "--repo", help="Your clone (default: this folder)."),
+) -> None:
+    """Check that your copy matches a release tag: file content and checkpoint trees."""
+    import subprocess
+
+    from shipharness.freeze import verify_copy
+
+    top = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=repo,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if top.returncode != 0:
+        typer.echo(f"x {repo} is not a git clone of the course repository")
+        raise typer.Exit(2)
+    record, differences = verify_copy(Path(top.stdout.strip()), tag)
+    if record is None:
+        typer.echo(f"x tag {tag} not found: run `git fetch --tags`, then run this again")
+        raise typer.Exit(2)
+    if differences:
+        for line in differences:
+            typer.echo(line)
+        raise typer.Exit(1)
+    paths = record.get("paths") or record.get("frozen_paths") or []
+    trees = record.get("checkpoint_trees", {})
+    typer.echo(f"your copy matches {tag}: {len(paths)} paths, {len(trees)} checkpoint trees")
+
+
 @datasets_app.command("validate")
 def datasets_validate(
     path: Path = typer.Argument(..., exists=True, dir_okay=False),

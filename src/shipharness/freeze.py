@@ -15,6 +15,10 @@ Rule 1: after the tag, a change to a frozen path passes only with an entry in th
 check that it cannot change any score). No silent changes.
 
 Console, report, replay tooling, docs, slides, and course content stay editable.
+
+The release tag `class-v1` is separate: it is not a freeze. It records the content hashes of the
+same paths, the checkpoint trees, and the run settings of the class release, so a learner can
+check a copy with `shipharness verify --tag class-v1`.
 """
 
 from __future__ import annotations
@@ -32,6 +36,13 @@ from shipharness.config import Settings
 TAG = "harness-frozen"
 CHECKPOINT_TAG_PREFIX = "m1-"
 _MARKER = "frozen-record:"
+
+CLASS_TAG = "class-v1"
+CLASS_MESSAGE = (
+    "Class version 1: the code, datasets, and settings used for the class. No experiment freeze; "
+    "the pilot gate did not pass (see the course notes)."
+)
+_CLASS_MARKER = "class-record:"
 
 FROZEN_PATHS: tuple[str, ...] = (
     # treatment
@@ -172,14 +183,32 @@ def make_record(repo: Path, effective: Settings) -> dict[str, Any]:
     }
 
 
-def read_record(repo: Path) -> dict[str, Any] | None:
-    if _git(repo, "rev-parse", "-q", "--verify", f"refs/tags/{TAG}").returncode != 0:
+def class_record(repo: Path, settings: Settings) -> dict[str, Any]:
+    """The `class-v1` record: content hashes of `FROZEN_PATHS`, the checkpoint trees, and the run
+    settings (secrets are never recorded)."""
+    return {
+        "tag": CLASS_TAG,
+        "paths": list(FROZEN_PATHS),
+        "content_hashes": content_hashes(repo, FROZEN_PATHS),
+        "checkpoint_trees": checkpoint_trees(repo),
+        "run_settings": run_settings(settings),
+    }
+
+
+def read_tag_record(repo: Path, tag: str) -> dict[str, Any] | None:
+    """The JSON record after the marker line in an annotated tag's message; None without the tag."""
+    if _git(repo, "rev-parse", "-q", "--verify", f"refs/tags/{tag}").returncode != 0:
         return None
-    message = _git(repo, "tag", "--list", TAG, "--format=%(contents)").stdout
-    _, found, payload = message.partition(_MARKER)
-    if not found:
-        raise FreezeError(f"{TAG} has no frozen record in its message")
-    return json.loads(payload)
+    message = _git(repo, "tag", "--list", tag, "--format=%(contents)").stdout
+    for marker in (_MARKER, _CLASS_MARKER):
+        _, found, payload = message.partition(marker)
+        if found:
+            return json.loads(payload)
+    raise FreezeError(f"{tag} has no record in its message")
+
+
+def read_record(repo: Path) -> dict[str, Any] | None:
+    return read_tag_record(repo, TAG)
 
 
 def read_exceptions(repo: Path) -> tuple[dict[str, str], list[str]]:
@@ -228,7 +257,9 @@ def _message(record: dict[str, Any]) -> str:
     )
 
 
-def _tag(repo: Path, message: str, identity: tuple[str, str]) -> str:
+def _tag(
+    repo: Path, message: str, identity: tuple[str, str], tag: str = TAG, target: str = "HEAD"
+) -> str:
     name, email = identity
     made = _git(
         repo,
@@ -238,13 +269,14 @@ def _tag(repo: Path, message: str, identity: tuple[str, str]) -> str:
         f"user.email={email}",
         "tag",
         "-a",
-        TAG,
+        tag,
         "-m",
         message,
+        target,
     )
     if made.returncode != 0:
         raise FreezeError(made.stderr.strip() or "git tag failed")
-    return _git(repo, "rev-parse", f"{TAG}^{{commit}}").stdout.strip()
+    return _git(repo, "rev-parse", f"{tag}^{{commit}}").stdout.strip()
 
 
 def _dirty(repo: Path, paths: list[str]) -> list[str]:
@@ -272,10 +304,38 @@ def write_record_tag(repo: Path, record: dict[str, Any], *, identity: tuple[str,
     return _tag(repo, _message(record), identity)
 
 
+def write_class_tag(
+    repo: Path, record: dict[str, Any], *, identity: tuple[str, str], target: str = "HEAD"
+) -> str:
+    """Annotated `class-v1` tag at `target`: the owner's sentence, a blank line, then the record.
+    Returns the commit it points at."""
+    if _git(repo, "rev-parse", "-q", "--verify", f"refs/tags/{CLASS_TAG}").returncode == 0:
+        raise FreezeError(f"{CLASS_TAG} exists in {repo}")
+    payload = json.dumps(record, indent=2, sort_keys=True)
+    message = f"{CLASS_MESSAGE}\n\n{_CLASS_MARKER}\n{payload}\n"
+    return _tag(repo, message, identity, tag=CLASS_TAG, target=target)
+
+
+def verify_copy(repo: Path, tag: str = CLASS_TAG) -> tuple[dict[str, Any] | None, list[str]]:
+    """A working copy against a tag's record: (record, one line per difference), or (None, [])
+    when the tag is not in the repository."""
+    record = read_tag_record(repo, tag)
+    if record is None:
+        return None, []
+    present = checkpoint_trees(repo)
+    missing = sorted(name for name in record.get("checkpoint_trees", {}) if name not in present)
+    found = [
+        line
+        for line in compare_content(repo, record)
+        if line.removeprefix("checkpoint content differs: ") not in missing
+    ]
+    return record, found + [f"checkpoint tag missing: {n} (run git fetch --tags)" for n in missing]
+
+
 def compare_content(repo: Path, record: dict[str, Any]) -> list[str]:
     """Frozen content of `repo` against `record` by content hash and checkpoint tree (rule 2)."""
     found: list[str] = []
-    paths = record.get("frozen_paths") or list(FROZEN_PATHS)
+    paths = record.get("frozen_paths") or record.get("paths") or list(FROZEN_PATHS)
     now = content_hashes(repo, paths)
     for path in paths:
         if now.get(path) != record.get("content_hashes", {}).get(path):

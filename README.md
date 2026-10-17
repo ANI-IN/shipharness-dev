@@ -237,6 +237,21 @@ make up             # TeamTrack board on http://127.0.0.1:8000/board (Ctrl+C to 
 
 On Windows, clone inside Ubuntu into `~/shipharness`, never under `/mnt/c`.
 
+**Verify your copy.** The release tag `class-v1` records the code, datasets, and settings used for
+the class: a content hash per path that shapes a run, and the `teamtrack/` tree of each checkpoint
+tag. It is not an experiment freeze; the pilot gate did not pass, so no `harness-frozen` tag exists.
+After `make setup`, check that your clone matches the tag:
+
+```bash
+git fetch --tags
+uv run shipharness verify --tag class-v1
+```
+
+Expected output: `your copy matches class-v1: 26 paths, 8 checkpoint trees`. Otherwise the command
+prints one line per path or checkpoint that differs (exit 1), and a missing tag asks you to run
+`git fetch --tags` (exit 2). Your own edits under those paths, such as in `datasets/`, also count
+as differences.
+
 Then, without spending anything:
 
 ```bash

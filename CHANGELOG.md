@@ -4,6 +4,17 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### Release tag class-v1, no freeze (2026-10-17)
+- No experiment freeze: the pilot gate did not pass, so the release carries no `harness-frozen` tag.
+  `scripts/make_release.py` writes the public `harness-frozen` tag only when the build repository
+  has a freeze record, and otherwise says so in its report.
+- `class-v1` is the release tag: an annotated tag on the public commit whose message reads "Class
+  version 1: the code, datasets, and settings used for the class. No experiment freeze; the pilot
+  gate did not pass (see the course notes)." followed by a record of the content hashes, the
+  checkpoint `teamtrack/` trees, and the run settings.
+- `shipharness verify --tag class-v1` compares a clone with that record and prints either "your
+  copy matches class-v1" or one line per difference.
+
 ### Class profile, class plan, starter kit, slides (2026-10-17)
 - `shipharness ab --profile standard|class`: the class profile (reasoning effort low, 2 CPUs per arm,
   referee, and preview container, OpenAI Fast tier for the agent arms) is identical for both arms and
@@ -72,7 +83,7 @@ All notable changes to this project are recorded here.
 - Harness overhead cuts (harness arm only): `init.sh` runs one end-to-end test file, the session
   start reuses the handoff's visible-test status, and the gate baseline is cached per checkpoint
   commit; budgets stay identical for both arms and primary measures never change (pilot rules).
-- `shipharness.freeze`: the `harness-frozen` tag pins treatment,
+- `shipharness.freeze`: the `harness-frozen` tag (only if the pilot gate passes) pins treatment,
   measurement, tasks (with checkpoint tag commits), and environment (with run settings by value);
   `tests/unit/test_harness_freeze.py` fails on drift once the tag exists.
 - Freeze rules 1 and 2: content hash per frozen path and checkpoint trees in the tag record
