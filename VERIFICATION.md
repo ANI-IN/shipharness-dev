@@ -365,6 +365,53 @@ after the tags were built. The file is not part of any arm workspace or score, a
 no result is affected. Not fixed tonight: moving tags that have results needs the owner's approval, and
 reverting the comment puts a private script name back into a public file. Owner decision.
 
+### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
+
+**Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change
+any classification or the gate; they describe what the arms did beyond the pre-registered primary
+measures. Source: the 94 pilot arm runs (smoke run 2, run 1 24, run 2 24, console check 2, run 3 24,
+run 4 18), every one with its score record in `exports/scores/`; no record missing. Script and full
+per-run table: `.shipharness/pilot/exploratory-2026-10-17.py` and `.md` (private build repository).
+Run 1 and the smoke run predate the measurement fixes (changes 1-6: for example every run 1 arm counted
+the import linter's cache as out-of-scope files), so the pooled tables below use runs 2-4 and the console
+check only (68 arm runs). Run 4 is at effort low; the others at medium.
+
+Definitions: "claimed done" = the arm's final `finish` claim was `done`; "false done" = claimed done
+while the referee found hidden tests failing; "hidden all" = every hidden
+test passed; "existing kept" = every existing test keeps passing (`regression`); "out of scope" = at
+least one changed file outside the task's allowed paths; medians per arm run.
+
+| Section | Arm | n | Primary | Claimed done | False done | Hidden all | Existing kept | Out of scope | Tests shipped (median) | Mutants killed (median) | Time limit hit | Turns (median) | Arm wall s (median) | Arm cost $ (median) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| F1 | bare | 10 | 10/10 | 9/10 | 0/9 | 10/10 | 10/10 | 0/10 | 8 | 3 | 0/10 | 40.5 | 177 | 0.0103 |
+| F1 | harness | 10 | 10/10 | 5/10 | 0/5 | 10/10 | 10/10 | 0/10 | 10 | 3 | 0/10 | 42 | 168 | 0.0122 |
+| F2 | bare | 9 | 9/9 | 0/9 | - | 4/9 | 9/9 | 3/9 | 8 | 1 | 0/9 | 62 | 232 | 0.0171 |
+| F2 | harness | 9 | 6/9 | 1/9 | 0/1 | 3/9 | 8/9 | 0/9 | 0 | 0 | 4/9 | 44 | 361 | 0.0132 |
+| F3 | bare | 9 | 9/9 | 9/9 | 0/9 | 9/9 | 9/9 | 0/9 | 6 | 4 | 0/9 | 31 | 171 | 0.0083 |
+| F3 | harness | 9 | 9/9 | 4/9 | 0/4 | 9/9 | 9/9 | 0/9 | 0 | 0 | 1/9 | 42 | 293 | 0.0101 |
+| F4 | bare | 6 | 0/6 | 1/6 | 0/1 | 3/6 | 6/6 | 6/6 | 15.5 | 3 | 4/6 | 43 | 306 | 0.0168 |
+| F4 | harness | 6 | 0/6 | 0/6 | - | 4/6 | 5/6 | 0/6 | 0 | 0 | 4/6 | 50 | 382 | 0.0168 |
+| All | bare | 34 | 28/34 | 19/34 | 0/19 | 26/34 | 34/34 | 9/34 | 7.5 | 3 | 4/34 | 35.5 | 190 | 0.0103 |
+| All | harness | 34 | 25/34 | 10/34 | 0/10 | 26/34 | 32/34 | 0/34 | 2.5 | 0.5 | 9/34 | 42 | 302 | 0.0123 |
+
+F2 harness primary 6/9 includes run 2's 0/3, measured before change 7 fixed the continuity check.
+
+What the table shows (descriptive, not tested for significance; n is 6 to 10 per cell):
+
+- Out of scope: harness arms changed no file outside the allowed paths in 34 of 34 runs; bare arms did
+  in 9 of 34 (F4 6 of 6, two files each; F2 3 of 9). The scope layer's effect is visible on F2 and F4,
+  where it is not the primary measure, and absent on F3, the section that measures it, because the bare
+  arm never left scope there.
+- Claims: harness arms claimed done less often (10 of 34 against 19 of 34). No claim was false in either
+  arm. One bare claim of done came with a failed primary measure: `ab-20261016-220010-c5b4bf` (run 3 F4),
+  build complete (hidden 69 of 69), but one of four referee mutants survived its shipped tests.
+- Tests: harness arms shipped fewer tests (median 2.5 against 7.5) and killed fewer referee mutants
+  (median 0.5 against 3); F3 and F4 harness arms shipped a median of 0.
+- Time and cost: harness arms ran longer (median 302 s against 190 s; 9 of 34 hit the agent time limit
+  against 4 of 34) and cost more per arm (median $0.0123 against $0.0103).
+- Existing tests: kept passing in 34 of 34 bare and 32 of 34 harness arm runs (run 2 F2 and run 3 F4
+  harness each broke some).
+
 ### Overnight run 2026-10-17: Phase 0 and decisions
 
 Owner instructions: `instructor/engineering-notes/overnight-2026-10-17.md` (verbatim).
