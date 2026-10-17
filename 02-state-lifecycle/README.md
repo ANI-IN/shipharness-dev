@@ -49,7 +49,7 @@ flowchart LR
 
 The course also measures whether it helps. On this ticket, with this model, it made no measurable
 difference: neither arm had a continuity failure in any test run before class
-([evidence](../docs/evidence.md#section-2)). The concepts page explains why, and what the state
+([evidence](../docs/evidence/s2.md#section-2)). The concepts page explains why, and what the state
 files cost.
 
 ## How to work through this section

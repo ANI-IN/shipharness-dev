@@ -697,6 +697,53 @@ feature and leave out records made before the measurement fixes. Both are consol
 | Class choreography (poll, launch, concepts and walkthrough while the A/B runs, demo block); final poll and launch in S4 | fbb6552, 7d761a2 |
 | Console screen 1 shows the full timeline once a run has finished | a7b1a54, 6a69735 |
 
+### Final integration before the release candidate (2026-10-17/18)
+
+Merged on main: the integ branch (S3 class task `make demo-3 FEATURE=F4` in `make warm` and the run
+sheet test; one demo-harness sync script with a drift test; evidence links point at the page that
+holds each anchor; internal attributions removed) and the stylecheck branch (`docs/STYLE.md` rules,
+`platform/scripts/check_style.py`, `make check-style`). The A2 live step gives the harness 600 s for
+its four handoffs (the default 120 s cut session 3 of the first attempt). The A4 grader treats a
+recorded checkpoint commit with the same TeamTrack tree as the current tag as the same checkpoint (the
+tags were rebuilt by the restructure).
+
+Style check: on main before the fixes, 17 errors and 10 warnings (the 1,316 errors reported on the
+stylecheck branch were from its older tree). Checker fixes, each with a test that failed first: a
+numbered starter gap ("TODO 1a") or the handoff's "TODO markers" is not a leftover; a marker on its
+own line covers the fenced block after it; screenshots beside an `expected/` page count as captured
+output; the final project follows the demo template plus "Use it on your own repository" (it has no
+grader; the owner's message lists it with the demo READMEs). CI now runs `check_style.py --strict`:
+201 files, 0 errors, 0 warnings, 1 allowed line (the A2 SPEC's ledger example names a commit).
+
+Docs review (one fresh reviewer against STYLE.md, read-only): 9 blockers, 5 major, 10 minor.
+- Fixed: the final project's Section 3 row is split by ticket (F3, no measurable difference; F4
+  confirmation, harness ahead); `make final` without `FEATURES` is said to run two A/Bs; the class plan
+  names `make final FEATURES=F6,F5`; the S3 `run.sh` cites `docs/evidence/s3.md`; Sections 2 and 4
+  link their own evidence page; the "session" caption in Section 1; disk space (at least 6 GB); `-y`
+  on two apt commands; "two tickets in Section 3".
+- Ruled not a defect for the release: "the grader is not in this repository" (10 pages) and the
+  `REFERENCES.md` links (3 pages). The release build removes every `grader/` folder and generates
+  `docs/REFERENCES.md`; both were checked in the RC build.
+- Deferred (minor): the Makefile line numbers inside captured terminal output (real output, replaced
+  by the re-timing capture), glossary capitalisation, the continuity threshold wording, the excerpt's
+  message format, the Section 1 line count.
+
+Timings: every published run time for show-1, show-2, demo-3, show-4, and the final now carries its
+measurement date (2026-10-17, before class; all but demo-3 with the earlier 300 s agent limit). The
+re-timing with the 420 s class limit runs after the release candidate.
+
+HARNESS_TIMEOUT_S stays 120 s in the class profile (owner decision, 2026-10-18). It can end a harness
+arm's harness work early, as in the S3 confirmation, where the harness arm still shipped its change.
+
+Machine: WSL stopped answering at about 23:55 IST on 2026-10-17 (load above 20, under 1 GB free) and
+was restarted with `wsl --shutdown` at 00:25 IST. After the restart: `git fsck` clean, no merge or
+rebase in progress, no containers left. The A1 reference capture and the second A2 live attempt were
+interrupted; both re-run after the release candidate, then the solutions and grades are updated.
+
+Checks on the integrated main: ruff and format clean; prose lint 236 files, 0 problems; anchors
+clean; style check strict clean; `make test` 2393 passed, 1 skipped; Docker tests
+(`pytest -m docker platform/tests`, after `make images`) 16 passed.
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before

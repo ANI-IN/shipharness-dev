@@ -42,7 +42,7 @@ That is the lesson of the section in one screen. The gate checks what the agent 
 checks what it cannot.
 
 This is not an A/B. The course already compared both arms on F4: both failed the primary measure in
-every test run ([evidence](../../docs/evidence.md#section-4)). So class shows the verification layer
+every test run ([evidence](../../docs/evidence/s4.md#section-4)). So class shows the verification layer
 at work, and screen 4 shows the comparison.
 
 ```mermaid

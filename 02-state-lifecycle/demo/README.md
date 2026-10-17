@@ -40,7 +40,7 @@ redid session 1's work.
 *The moment that matters: session 1 stops, and session 2's first call reads the state files.*
 
 This is not an A/B. The course already compared both arms on this ticket and found no measurable
-difference ([evidence](../../docs/evidence.md#section-2)). So class shows the state layer doing its
+difference ([evidence](../../docs/evidence/s2.md#section-2)). So class shows the state layer doing its
 job, and screen 4 shows the comparison.
 
 ```mermaid

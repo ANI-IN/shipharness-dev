@@ -95,7 +95,7 @@ model run, watched on the console.
 | Section 2 | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` | 50 |
 | Break | | | 10 |
 | Section 3 | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=F4` | 50 |
-| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final` | 50 |
+| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=F6,F5` (the poll's winner first) | 50 |
 | Final | The final A/B on every screen, then all results | none | 20 |
 
 Each section opens with a poll and launches its run at once. The concepts and the code walkthrough
@@ -145,7 +145,7 @@ allowed paths, the harness arm was blocked from doing so in 3 of 3 runs. That re
 The harness also costs something. Counted after the results were known, harness arms ran longer
 (median 302 s against 190 s) and cost more (median $0.0123 against $0.0103 per arm). OpenAI warns
 that its own results should "not be assumed to generalize without similar investment". The same
-holds here: one model, one ticket per section, a few runs per arm. The tools in this repository let
+holds here: one model, one ticket per section (two in Section 3), a few runs per arm. The tools in this repository let
 you run the same measurement on your own model and code. Every run id and count:
 [evidence](docs/evidence.md).
 

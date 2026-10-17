@@ -126,7 +126,7 @@ Minutes count from the launch, in one real run on a quiet machine
 
 ![Screen 1 at minute 3: the test phase writes and runs test_org_issue_search.py](expected/screen-1-minute-3.png)
 
-*Minute 3. The agent has said done; in its second session it writes and runs its own test.*
+*Minute 3. The agent has said done; in the test phase it writes and runs its own test.*
 
 ![Screen 1 at minute 4: primary verdict PASS, new R1 violations 0](expected/screen-1-minute-4.png)
 

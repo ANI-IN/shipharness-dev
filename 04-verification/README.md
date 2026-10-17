@@ -54,7 +54,7 @@ flowchart LR
 
 The course also measures whether the layer helps. On this ticket, with this model, it made no
 measurable difference: both arms failed every test run before class
-([evidence](../docs/evidence.md#section-4)). The concepts page explains why, and what the gate still
+([evidence](../docs/evidence/s4.md#section-4)). The concepts page explains why, and what the gate still
 catches.
 
 ## How to work through this section

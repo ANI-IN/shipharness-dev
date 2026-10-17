@@ -21,8 +21,8 @@ shipped, and you watch it on the console. They assume no tool is installed and n
 | Docker | Each run and the referee run in containers | $0 for Docker Engine and Colima |
 | git, uv, make | Clone the repository, install Python and packages, run the commands | $0 |
 
-You need about 4 GB of disk for the two sandbox images: on the course machine they are 1.28 GB and
-2.81 GB. uv installs Python 3.12 for you, so you do not install Python yourself.
+You need at least 6 GB of free disk. The two sandbox images alone take about 4 GB (1.28 GB
+and 2.81 GB on the course machine). uv installs Python 3.12 for you, so you do not install Python yourself.
 
 What the course commands cost:
 

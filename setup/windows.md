@@ -26,7 +26,7 @@ Two rules matter more than any other on this page:
 - Windows 11, or Windows 10 version 2004 (build 19041) or later
   ([Microsoft, Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install)).
 - Administrator rights on the PC, for step 4 only.
-- About 4 GB of free disk for the two sandbox images.
+- At least 6 GB of free disk; the two sandbox images alone take about 4 GB.
 - A payment card for OpenAI (step 2). LangSmith needs no card.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
@@ -178,7 +178,7 @@ turn that integration off for Ubuntu, so only one engine answers the `docker` co
 ```bash
 # Add Docker's official GPG key:
 sudo apt update
-sudo apt install ca-certificates curl
+sudo apt install -y ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo chmod a+r /etc/apt/keyrings/docker.asc
@@ -194,7 +194,7 @@ Signed-By: /etc/apt/keyrings/docker.asc
 EOF
 
 sudo apt update
-sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 ```
 
 Then let your user run Docker without `sudo`

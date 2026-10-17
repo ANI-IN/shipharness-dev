@@ -36,8 +36,9 @@ measures whether the harness helps, and reports every result as measured.
 
 ## What you'll see
 
-`make final` runs the bare arm against the harness arm with all four layers: instructions, state,
-scope, and verification. Both arms get the same ticket, model, tools, sandbox, turn budgets, and
+`make final FEATURES=F5` runs the bare arm against the harness arm with all four layers:
+instructions, state, scope, and verification. Without `FEATURES` it runs F5 and then F6: two A/Bs,
+at most $0.58 each. Both arms get the same ticket, model, tools, sandbox, turn budgets, and
 cost cap, and one referee scores both. You watch both arms work side by side on console screen 1.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
@@ -184,13 +185,15 @@ and killed 2 of 3 mutants. An earlier F5 run killed 1 of 3 (bare) and 3 of 3 (ha
 same harness, a different split.
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
-arm ([evidence](../docs/evidence/final.md#final-project)):
+arm, plus a confirmation on a second Section 3 ticket
+([evidence](../docs/evidence/final.md#final-project)):
 
 | Section | Primary measure | Result |
 |---|---|---|
 | 1 Instructions | No new tenant leak | No measurable difference |
 | 2 State | Work survives a session stop | No measurable difference |
-| 3 Scope | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
+| 3 Scope (F3, the section's ticket) | No file outside the allowed paths | No measurable difference |
+| 3 Scope (F4, the confirmation) | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
 | 4 Verification | All hidden tests and mutants | No measurable difference (both fail) |
 
 To draw your own dots from every run in `exports/`, run the report. It makes no model calls and
