@@ -50,6 +50,8 @@ run 3.
 
 [[PENDING: final S2 class task (F2 canonical [20, 30] or F2 canonical with --session-budget 12,38) and the exact class command | source: M6 pilot | how: course pilot (build repository)]]
 
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
+
 ---
 
 ## 2. Commands
@@ -176,7 +178,8 @@ If the class runs the 12-turn lever, say "after 12 turns" instead.
 
 What the pilot showed so far: in run 2 the bare arm passed in 3 of 3 runs; the harness arm's 0 of 3
 is not a valid measurement, because the continuity check counted the harness's own files, a bug fixed
-since (section 7). Answer pattern from the experiments:
+since (section 7). In runs 3 and 4 (12-turn first session) both arms passed in 3 of 3 runs, including
+arms that built nothing (section 7). Answer pattern from the experiments:
 
 [[PENDING: S2 poll answer pattern: continuity_failure counts per arm out of k=10, split by component (a) R7, (b) duplicate table, (c) redone >= 30%, with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
 
@@ -256,8 +259,8 @@ session 1 was `pwd`/`git log`, the three state files, `init.sh`, the visible tes
 the HANDBOOK, a skill, four instruction documents, two product files, and then the bookkeeping in
 turns 18-20; its first product patch came at turn 27 of session 2. The bare arm wrote its first
 product patch at turn 18 of session 1. The change after run 2 (a harness change, harness arm only)
-moved the bookkeeping to the wrap-up turns and put the agent's notes ahead of any document. Tonight's
-run is the first class-host run with that change; compare the first-patch turn per session with the
+moved the bookkeeping to the wrap-up turns and put the agent's notes ahead of any document. Pilot
+runs 3 and 4 ran with that change (section 7); compare the first-patch turn per session with the
 run 2 timeline below.
 
 ---
@@ -340,7 +343,44 @@ Hidden tests are secondary for S2; the gap in them (55-56 against 3) is the turn
 section 6, not a continuity failure. Every bare arm wrote `migrations/versions/0002_comments.py` in
 session 1 and none wrote a second migration (session patches in the same A/B folders).
 
-[[PENDING: pilot run 3 F2 dots (12-turn first session, k=3): continuity_failure, redone_lines_pct, hidden passed, sessions per arm, with run ids | source: M6 pilot | how: course pilot (build repository)]]
+### Pilot runs 3 and 4 dots for F2 (12-turn first session)
+
+Every run of F2 canonical with `--session-budget 12,38`: measured in the course pilot, run 3,
+2026-10-16 (effort medium), A/Bs `ab-20261016-211419-dfe06f`, `ab-20261016-213317-9a0ec1`,
+`ab-20261016-214959-de790f`; and run 4, effort low, 2026-10-16/17, A/Bs `ab-20261016-232842-ac03b2`,
+`ab-20261016-234027-226a76`, `ab-20261016-235211-ea59a9`. Sessions and turns count every session of
+the arm, the test phase included.
+
+| Run | A/B | Arm | Run id | Status | `continuity_failure` | `redone_lines_pct` | Hidden tests passed (of 56) | Sessions | Turns | Cost (USD) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | `ab-20261016-211419-dfe06f` | bare | `r-20261016-211419-22afc9` | completed | false | 0.0 | 56 | 3 | 62 | 0.0186 |
+| 3 | `ab-20261016-211419-dfe06f` | harness | `r-20261016-211419-3f4a1c` | ABORTED: timeout | false | 0.0 | 56 | 3 | 58 | 0.0186 |
+| 3 | `ab-20261016-213317-9a0ec1` | bare | `r-20261016-213317-97004c` | completed | false | 5.3 | 56 | 3 | 62 | 0.0171 |
+| 3 | `ab-20261016-213317-9a0ec1` | harness | `r-20261016-213317-a33b07` | completed | false | 0.0 | 3 | 2 | 24 | 0.0054 |
+| 3 | `ab-20261016-214959-de790f` | bare | `r-20261016-214959-c2f640` | completed | false | 0.0 | 56 | 3 | 62 | 0.0185 |
+| 3 | `ab-20261016-214959-de790f` | harness | `r-20261016-214959-1deb1e` | ABORTED: timeout | false | 0.0 | 3 | 2 | 22 | 0.0032 |
+| 4, effort low | `ab-20261016-232842-ac03b2` | bare | `r-20261016-232842-16089d` | completed | false | 0.0 | 3 | 2 | 20 | 0.0050 |
+| 4, effort low | `ab-20261016-232842-ac03b2` | harness | `r-20261016-232842-ee62c3` | ABORTED: timeout | false | 0.0 | 56 | 3 | 44 | 0.0132 |
+| 4, effort low | `ab-20261016-234027-226a76` | bare | `r-20261016-234027-e3c2b2` | completed | false | 0.0 | 3 | 2 | 21 | 0.0058 |
+| 4, effort low | `ab-20261016-234027-226a76` | harness | `r-20261016-234027-92eb41` | completed | false | 0.0 | 3 | 2 | 24 | 0.0064 |
+| 4, effort low | `ab-20261016-235211-ea59a9` | bare | `r-20261016-235211-d597c7` | completed | false | 0.0 | 3 | 2 | 24 | 0.0056 |
+| 4, effort low | `ab-20261016-235211-ea59a9` | harness | `r-20261016-235211-0b643c` | completed | false | 0.0 | 56 | 3 | 62 | 0.0183 |
+
+The primary measure passed in 3 of 3 runs per arm in run 3 and again in run 4: no measurable
+difference on this task with this model (course pilot, runs 3 and 4). `continuity_failure` was false
+in all 12 arms, so none of parts (a), (b), (c) fired, and `redone_lines_pct` stayed below the 30%
+threshold in every arm.
+
+That pass includes the arms that built nothing (hidden tests 3 of 56): the harness arms of
+`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f` in run 3, and all three bare arms and the
+harness arm of `ab-20261016-234027-226a76` in run 4. The measure checks migrations and redone lines;
+it cannot fail when session 1 leaves no product lines to redo. A pass says no migration was broken or
+duplicated and nothing was redone, not that the feature was built.
+
+Secondary, hidden tests 56 of 56: run 3 bare 3 of 3, harness 1 of 3; run 4 bare 0 of 3, harness 2 of
+3. In run 3, in `ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, the harness arm called
+`finish(claim="not_done")` at the end of the 12-turn first session, which ended the build phase: the
+38-turn session never ran. In run 4 no bare arm built the feature (20-24 turns).
 
 ### Class-host screenshots and live output
 
