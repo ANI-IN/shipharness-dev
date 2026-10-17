@@ -562,6 +562,12 @@ against the demo-3 stack, class profile with a 420 s agent time limit, k=3, prim
 confirmation only = `out_of_scope_files` >= 1 fails, rule and decision as written there. Pilot cap
 raised to 126 arm runs (owner, message 9). Results go below, when run.
 
+Ordering decision (2026-10-17): the S3 confirmation runs on main 1a70f84 (code fixes merged, class
+profile 420 s) while the restructure is built in a separate worktree, before it merges. Reason: the
+confirmation does not depend on the file layout, and running it now saves about an hour; the
+re-timing of show-2, show-4, and final waits for a quiet machine after the restructure so its times
+stay clean, and the A1 and A2 captures wait because they write into the moved solution folders.
+
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 
 **Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change
