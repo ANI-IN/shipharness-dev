@@ -1,6 +1,7 @@
 <!--
 deck.md: the source of the Module 1 slides. `make slides` (scripts/build_slides.py) turns it into
-slides/dist/deck.html, deck.pdf, and deck.pptx. Built from slides/outline.md; keep both in step.
+slides/dist/deck.html, deck.pdf, and deck.pptx. This file is the single source of the slide content;
+slides/outline.md holds only the block table and the class plan per section.
 
 Format, one block per slide:
 
@@ -13,14 +14,15 @@ Format, one block per slide:
   image: images/board.png         a picture, path relative to this folder (must exist)
   code: S1:prefix 10-19           lines of a walkthrough anchor (scripts/anchors.py), e.g. 1-4,9-12;
                                   left-out lines show as "..."; at most 12 code lines per slide
-  slot: s1_dots                   a result slot, empty until the lead fills it from run data:
+  slot: s1_dots                   a result slot, empty until filled from run data:
   slot: s1_dots = 3 of 10 failed  text, or an image path such as images/s1-dots.png
-  live: tonight's two dots        a value produced in class, shown as "Filled in live: ..."
+  live: the room's poll result    a value produced in class, shown as "Filled in live: ..."
 
   - Bullet text, 3 to 6 per slide, `code` in backticks
     a line indented under a bullet continues it
 
   [[PENDING: what | source: ... | how: ...]]   an open item, shown as an amber box on the slide
+  [[CAPTURE: what | how: command]]              output still to be copied in from a real run
 
   ```mermaid                      an inline Mermaid diagram for this slide only
   flowchart LR
@@ -29,11 +31,15 @@ Format, one block per slide:
 
   notes:
   Speaker notes until the next "## N." line. The build adds "Slide N of 72 | section | minutes"
-  at the top of the PPTX notes. A PENDING line in the notes is listed but stays off the slide.
+  at the top of the PPTX notes. A PENDING or CAPTURE line in the notes is listed but stays off the
+  slide.
 
-Filling a result: put the value after the slot name (`slot: s1_dots = ...`) and delete the PENDING
-line that describes it. `make slides` lists every PENDING marker and empty slot at the end;
-`uv run python scripts/build_slides.py --strict` fails while any remain.
+`make slides` lists every PENDING and CAPTURE marker and every empty slot at the end;
+`make slides SLIDES_OPTS=--strict` fails while any remain. Replace a CAPTURE line with the captured
+text (labelled with its date and run id) and rebuild.
+
+Numbers in the notes come from the course pilot (runs 2, 3, and 4 on 2026-10-16 and 2026-10-17,
+the live console check, and the class-profile round on 2026-10-17), each with its A/B id.
 -->
 
 ::: diagram architecture
@@ -56,34 +62,35 @@ flowchart LR
 section: Opening
 minutes: 0.5
 layout: title
-subtitle: Instructions, state, scope, and verification that make agent-written code safe to merge
+subtitle: Instructions, state, scope, and verification: what each piece assumes about the model, and how to measure it
 
 - Module 1 · course repository `shipharness`
 
 notes:
-Welcome. Tonight one coding agent builds the same features twice, with and without a harness, and a
-referee judges both. Everything you see is in the course repository.
+Welcome. Tonight you see each harness piece at work on a real feature, the results of the course's
+own measurements before class, and one live A/B at the end. Everything you see is in the course
+repository.
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
 Source: README.md title and first paragraph.
 
-## 2. The problem: four real failures
+## 2. The problem: four failures to check for
 section: Opening
 minutes: 2.5
-slot: bare_f1_board
-slot: bare_f1_run_id
 
-- A new endpoint returns one customer's data to another customer
-- A second session does not know what the first did, and redoes or breaks it
-- The agent changes files it was never asked to touch, and older features stop working
+- Cross-tenant data: an Acme user sees Globex issues
+- A second session that redoes or breaks the first
+- Edits outside the ticket
 - The agent's own tests pass while the behaviour is wrong
-- On the board: a recorded bare-arm F1 run with ⚠ other-org marks, recorded before class
-
-[[PENDING: board screenshot of a recorded bare-arm F1 run with other-org marks, and its run id | source: M6 pilot | how: make demo-1 on the class host; PNG under .shipharness/runs/<ab id>/screenshots/bare/]]
+- The referee checks every run for all four, in both arms
 
 notes:
-Read the four failures, then point at the board screenshot. Say "recorded before class" and read out
-its run id. "The agent said it passed" is the only evidence a reviewer gets without a harness.
+Read the four failures. Then say: "In the course pilot no bare-arm F1 run shipped a new
+tenant-isolation violation, so there is no recorded screenshot of one to show. We come back to what
+that means at the end." Pilot facts: F1 bare arm, 0 new R1 violations in run 2 (A/Bs
+ab-20261016-181736-a07558, ab-20261016-183644-0036f0, ab-20261016-185628-37483b), run 3, run 4, the
+live console check (ab-20261016-210339-909651), and the class-profile round
+(ab-20261017-084558-0356a0).
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
 Source: README.md §1.
@@ -105,22 +112,25 @@ merged. Cause 4: the visible suite passes while held-out tests that compose feat
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
 Source: README.md §2; REFERENCES.md.
 
-## 4. The solution: a harness
+## 4. A harness encodes assumptions about the model
 section: Opening
 minutes: 2
 diagram: architecture now=L1,L2,L3,L4,SB1,SB2
 
-- A harness is the environment around the agent, not a better prompt
-- A1: "design environments, specify intent, and build feedback loops" (F-a-02)
+- A1 on the work: "design environments, specify intent, and build feedback loops" (F-a-02)
+- A3: "every component in a harness encodes an assumption about what the model can't do on its own" (F-a-124)
+- Assumptions change with the model: A3 dropped context resets for Opus 4.5 (F-a-69)
 - Four parts, S1 to S4, plus a sandbox that is identical for both arms
-- A1 never defines "harness engineering"; no definition is attributed to A1
+- The course's claim: measure each piece, keep what earns its place
 
 notes:
-The thick borders and the word "now" mark the parts this slide is about: all four parts and the
-sandbox. The section names S1 to S4 are course labels, not source terms.
+A3's sentence goes on: "and those assumptions are worth stress testing" (F-a-124). A1 never defines
+"harness engineering"; no definition is attributed to A1. The thick borders and the word "now" mark
+all four parts and the sandbox. The section names S1 to S4 and the phrase "keep what earns its
+place" are course framing, not source terms.
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: README.md §3; REFERENCES.md.
+Source: README.md §3; REFERENCES.md (A1 F-a-02; A3 F-a-124, F-a-69).
 
 ## 5. shipharness, TeamTrack, console
 section: Opening
@@ -139,19 +149,21 @@ as counted at M3 (OpenAPI operations, visible tests).
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
 Source: README.md §5, §9, §11; anchor Opening:two_arms.
 
-## 6. How we prove it
+## 6. How we measure it
 section: Opening
 minutes: 1
 
-- Same agent, model, effort, task, repository, tools, sandbox, turn limit, and cost cap
-- One deterministic referee judges what each arm ships
+- Same agent, model, effort, task, repository, tools, sandbox, turn limit, cost cap; one deterministic referee
 - House rules R1-R7: the course label for A1's "golden principles" (F-a-99)
+- One primary measure per section, registered before any run; results are counts, never percentages
+- Registered before the runs: no gap is reported as "no measurable difference on this task with this model"
+- One piece at a time is A3's method: "removing one component at a time" (F-a-125)
 - Datasets: 60 tasks in six groups, 40 test-generation targets
-- One primary measure per section, registered before any run
 
 notes:
-The bare arm gets every rule in docs/HANDBOOK.md; nothing is withheld. Results are counts such as
-"2/3", never percentages.
+The bare arm gets every rule in docs/HANDBOOK.md; nothing is withheld. A section's A/B tests the
+harness so far against the bare arm; only taking one piece out tests that piece. A3's full sentence:
+"removing one component at a time and reviewing what impact it had on the final result." (F-a-125)
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
 Source: README.md §4, §10 (primary measures); teamtrack/docs/HANDBOOK.md (R1-R7); datasets/README.md.
@@ -166,10 +178,12 @@ live: `make doctor` output and the `harness-setup` assessment of the bare TeamTr
 - Read the gaps it reports: instructions, state, scope, verification
 
 notes:
-Run both live. The assessment is read-only and makes no model calls.
+Run both live. The assessment is read-only and makes no model calls. `make warm` ran before class:
+it builds the images if their source changed, pages each image in, and caches the referee and gate
+baselines, so the first launch does not pay for startup.
 
 Run sheet: docs/instructor-guide.md, Stage 3: Opening (0:00-0:10).
-Source: Makefile `doctor`; skills/harness-setup/scripts/assess.py.
+Source: Makefile `doctor`, `warm`; skills/harness-setup/scripts/assess.py.
 
 ## 8. Poll
 section: S1 Instructions
@@ -177,44 +191,39 @@ minutes: 3
 live: the room's poll result
 
 - F1 org-wide issue search; rule at risk: R1 tenant isolation
-- Both arms can open `docs/HANDBOOK.md`, which says "Do not copy" about `GET /v1/issues`
-- Out of 10 bare-arm runs of F1, how many ship `GET /issues` with at least one new R1 violation?
-- A) 0-2   B) 3-5   C) 6-8   D) 9-10
+- The pilot's trap ticket: a legacy handler without the tenant filter, next to the right pattern
+- Of the pilot's 7 bare-arm F1 runs on that ticket, how many shipped at least one new R1 violation?
+- A) 0-1   B) 2-3   C) 4-5   D) 6-7
 - Close the poll before the launch
 
 notes:
-Close the poll before launching, so nobody votes after seeing the console.
+The answer comes on slide 20. The 7 runs: pilot run 3 (effort medium), run 4 (effort low), and the
+class-profile round, all on the F1 trap ticket (trap-legacy-pattern).
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
 Source: submodules/01-instructions/demo/README.md §4.
 
-## 9. Launching the live A/B: F1 org-wide issue search
+## 9. Launching harness in action: F1 org-wide issue search
 section: S1 Instructions
 minutes: 2
-slot: c1_control
 
-- Now: run `make demo-1` in terminal B; it runs during slides 10-18, back on slide 19
-- Rule at risk: R1; the trap: a legacy handler without the tenant filter
-- Harness arm layers: instructions
-- Primary measure: one or more new R1 violations fails the run
-- Control glance: C1, both arms should pass this one
-
-[[PENDING: C1 control results per arm | source: M8 batch 4 | how: make experiments, full dataset; make report]]
+- Now: run `make show-1` in terminal B; it runs during slides 10-18, back on slide 19
+- Harness in action: the harness arm alone on F1, live; not an A/B, so it stays out of the comparison
+- Watch for: the agent reads the map, then only the documents the ticket needs
+- Harness arm layers: instructions; the referee still judges the run (R1 probes, hidden tests, mutants)
 
 notes:
-Reload the console's run list, open the newest ab-..., stay on screen 1 while both containers start.
+Reload the console's run list and open the newest run; stay on screen 1 while the container starts.
+Why no live A/B here: the pilot showed no gap on F1 (slide 20), so the class shows the layer at work
+instead, plus one real run replayed and one constructed example.
 
-The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
-running in parallel on the class host, before the approved referee speed-ups) every A/B finished
-within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (course pilot, run 2,
-2026-10-16). Course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the pilot's task variants, effort
-medium, two A/Bs in parallel on the class host): wall time per A/B min 384 s, median 512 s, max 620 s.
-Run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, two in parallel): min 309 s, median 414 s,
-max 565 s. Neither run timed one A/B on its own.
-[[PENDING: wall time of make demo-1 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3)]]
+Timing reference: in the class-profile round (2026-10-17, A/B ab-20261017-084558-0356a0, class
+profile: effort low, Fast tier, 2 CPUs per container, early primary verdict), the harness arm's
+primary verdict came 114 s after launch and its full verdict 324 s after launch.
+[[CAPTURE: wall time of make show-1 on the class host, launch to the primary verdict and to the full verdict | how: make show-1]]
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: README.md §10; teamtrack/reference/f1/task.toml; teamtrack/docs/features/c1.md.
+Source: Makefile `show-1`; README.md §10; teamtrack/reference/f1/task.toml.
 
 ## 10. S1: what the agent knows
 section: S1 Instructions
@@ -223,12 +232,12 @@ diagram: architecture now=L1
 
 - Explain why an agent does not apply a rule that exists only outside its context (A1)
 - Structure knowledge as a short AGENTS.md map into `docs/`, plus one skill with progressive disclosure (B1)
-- Read the S1 A/B result: R1 and R3 failures with and without the instructions layer
-- Testing right now: a legacy handler without the tenant filter, next to the right pattern
+- Read the S1 result: R1 and R3 failures with and without the instructions layer
+- The assumption the map encodes: the model will not apply a rule it has not been pointed to
 
 notes:
-The first three bullets are the section's objectives (course design). The legacy handler is
-`GET /v1/issues`; the A/B running in terminal B tests whether the agent copies it.
+The first three bullets are the section's objectives (course design). The one-line assumption is the
+course's wording, after A3 (F-a-124). Today's question: does it hold for this model on this ticket?
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
 Source: S1 learning objectives (course design); README.md §10 (legacy GET /v1/issues).
@@ -306,7 +315,9 @@ minutes: 3
 - A unit test checks that both forms carry each rule id
 
 notes:
-The harness changes how knowledge is organised, not what the agent may know.
+The harness changes how knowledge is organised, not what the agent may know. A1's argument is a map
+against one giant instruction file (F-a-23, F-a-24). The course's bare arm has the rules in a
+handbook on disk, so the pilot did not test A1's comparison.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
 Source: A1 in REFERENCES.md; README.md §4.
@@ -334,8 +345,9 @@ code: S1:progressive 31-39
 - The full SKILL.md is never pre-loaded; the agent reads it when the task matches
 
 notes:
-Section minute 25 falls on this slide: check terminal B for the `Cost:` line.
-[[PENDING: wall time of make demo-1 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-1 on the class host (pilot run 3)]]
+Section minute 25 falls on this slide: check terminal B for the `Cost:` line of `make show-1` (the
+timing reference is in the notes of slide 9). Once it is there, start the replay for slide 19 in
+terminal B: `make replay RUN=ab-20261016-212252-aa1644`.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00), "Check at section minute 25".
 Source: anchor S1:progressive.
@@ -354,51 +366,57 @@ From `agents_md = ...` to `return`.
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
 Source: anchor S1:prefix.
 
-## 19. Demo block: what the console shows
+## 19. Demo block: harness in action, and a real run replayed
 section: S1 Instructions
 minutes: 8
+live: `make show-1`: the primary verdict and the documents the agent opened
 
-- The finished A/B, screen by screen
-- Screen 1: harness decisions, and "Agent said" next to "Referee"
-- Screen 2: ⚠ other-org cards on each arm's board
-- Screen 3: files read by category (did the agent open the documents the map points to)
-- Screen 3: new R1 violations in the referee list
+- `make show-1`, finished: screen 1 shows "primary verdict ready", then the full verdict
+- Screen 1: the map read first, then the documents the ticket needs; screen 3: files read by category
+- Real run, replayed: `make replay RUN=ab-20261016-212252-aa1644` (pilot run 3, F4)
+- In that run the harness arm's change added 3 new R1 violations, and the referee's R1 check listed them
 
 notes:
-Say: "The referee probes every endpoint as Acme with Globex ids and expects 404. It does not care
-which arm wrote the code."
+Every screen of the replay shows RECORDING. Say: "The referee probes every endpoint as Acme with
+Globex ids and expects 404. It does not care which arm wrote the code, or whether the arm had a map."
+The replayed run: pilot run 3, F4, A/B ab-20261016-212252-aa1644, harness arm hidden tests 27 of 69
+and 3 new R1 violations. If the replay's referee is still running, walk through screens 1 and 3 first.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: README.md §11.
+Source: README.md §11; Makefile `show-1`, `replay`.
 
-## 20. Demo block: results
+## 20. Demo block: a constructed example, and what the pilot measured
 section: S1 Instructions
 minutes: 7
-slot: s1_experiment_dots
-live: tonight's two dots; swap test verdict
 
-- The A/B verdicts
-- Tonight's two dots next to the experiment dots
-- `make swap-1`: the referee judges code, not labels
-
-[[PENDING: S1 experiment dots, runs failing out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1; make report]]
+- Constructed example: `make example-1`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
+- It shows the ⚠ other-org marks on a board, which no pilot arm produced
+- Pilot, any new R1 violation fails: bare 0 of 7 failing, harness 0 of 7 (poll answer: A)
+- No measurable difference on this task with this model: the bare arm applied R1 without the map
+- Why: in run 2 every bare arm opened the handbook with its third tool call; no arm copied the legacy handler into a leak
+- Post hoc, descriptive (10 runs per arm): done claimed by harness 5, bare 9; median cost $0.0122 against $0.0103
 
 notes:
-Screen 4 for the dots. An unwelcome result is a result: show it.
+The 7 runs per arm: run 3, effort medium (A/Bs ab-20261016-211419-07937b, ab-20261016-212745-2c14fb,
+ab-20261016-214636-c8b3c4); run 4, effort low (ab-20261016-232842-b372c2, ab-20261016-233807-3f34fa,
+ab-20261016-234639-4a18bd); class-profile round (ab-20261017-084558-0356a0). Run 2 on the canonical
+ticket gave the same, 0 of 3 per arm. "Post hoc" means chosen after the results were known:
+descriptive, never a test; the 10 runs per arm are run 2, the live console check, run 3, and run 4.
+[[CAPTURE: what make example-1 shows on each console screen, and its wall time | how: make example-1]]
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
-Source: M8 experiment results (make report); make swap-1.
+Source: course pilot runs 2-4 and class-profile round (A/B ids above); submodules/01-instructions/concepts.md (third tool call).
 
 ## 21. Runbook and next
 section: S1 Instructions
 minutes: 5
 
 - Runbook: `submodules/01-instructions/demo/README.md`
-- Discussion: the bare arm could read the same rules. Why did it (or did it not) apply them?
+- Discussion: the map changed nothing on this ticket. What would have to be true of a model or a ticket for it to earn its place?
 - Next: what happens when a session ends halfway
 
 notes:
-Tie the discussion back to A1, F-a-05.
+Tie the discussion back to A1, F-a-05, and to A3, F-a-124.
 
 Run sheet: docs/instructor-guide.md, Stage 4: S1 Instructions (0:10-1:00).
 Source: docs/instructor-guide.md (schedule).
@@ -409,45 +427,37 @@ minutes: 3
 live: the room's poll result
 
 - F2 comments over two sessions; at risk: continuity and R7
-- Both agents stop after 20 turns, before F2 is finished, and restart with an empty context
-- After session 2, which arm ships one migration head, one `comments` table, and keeps session 1's work?
-- A) Both arms   B) Only the harness arm   C) Only the bare arm   D) Neither
+- In the pilot both arms stopped after 12 turns and restarted with an empty context
+- In those 7 A/Bs, which arms failed the continuity measure?
+- A) No arm   B) Only bare arms   C) Only harness arms   D) Some of both
 - Close the poll before the launch
 
 notes:
-If the class runs the 12-turn lever, say "after 12 turns" instead.
+The answer comes on slide 33. The 7 A/Bs: pilot run 3, run 4, and the class-profile round, F2
+canonical with a 12-turn first session and a 38-turn second session.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: submodules/02-state-lifecycle/demo/README.md §4.
 
-## 23. Launching the live A/B: F2 comments
+## 23. Launching harness in action: F2 comments
 section: S2 State and session lifecycle
 minutes: 2
-slot: c2_control
 
-- Now: run `make demo-2` in terminal B; it runs during slides 24-31, back on slide 32
-- Two sessions, budgets 20 and 30; same wrap-up turns and resume sentence for both arms
+- Now: run `make show-2 SESSION_BUDGET=12,38` in terminal B; it runs during slides 24-31, back on slide 32
+- Harness in action: the harness arm alone on F2, first session 12 turns; not an A/B
+- Watch for: the handoff written at the end of session 1, and session 2 resuming from it
 - Harness arm layers: instructions, state
-- Primary measure: continuity failure
-- Control glance: C2, both arms should pass this one
-
-[[PENDING: C2 control results per arm | source: M8 batch 4 | how: make experiments, full dataset; make report]]
 
 notes:
-Continuity failure: R7 fails, a second migration creates the same table, or 30% or more of session
-1's added lines are removed in session 2.
+Continuity failure, the primary measure: R7 fails, a second migration creates the same table, or 30%
+or more of session 1's added lines are removed in session 2.
 
-The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
-running in parallel on the class host, before the approved referee speed-ups) every A/B finished
-within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (course pilot, run 2,
-2026-10-16). Course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the pilot's task variants, effort
-medium, two A/Bs in parallel on the class host): wall time per A/B min 384 s, median 512 s, max 620 s.
-Run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, two in parallel): min 309 s, median 414 s,
-max 565 s. Neither run timed one A/B on its own.
-[[PENDING: wall time of make demo-2 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-2 on the class host (pilot run 3)]]
+Timing reference: in the class-profile round (A/B ab-20261017-085139-7c0661), the harness arm's
+primary verdict came 358 s after launch and its full verdict 533 s after launch.
+[[CAPTURE: wall time of make show-2 on the class host, launch to the primary verdict and to the full verdict | how: make show-2 SESSION_BUDGET=12,38]]
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: README.md §10; teamtrack/reference/f2/task.toml.
+Source: Makefile `show-2`; README.md §10; teamtrack/reference/f2/task.toml.
 
 ## 24. S2: what the agent remembers
 section: S2 State and session lifecycle
@@ -456,11 +466,12 @@ diagram: architecture now=L2
 
 - Describe the initializer and coding agents, `init.sh`, the progress file, and git history (A2)
 - Design an exec plan (A1, A7) and a structured handoff (A3) that let a session resume after a reset
-- Read the S2 A/B result: redone or lost work and migration-head conflicts after a forced stop
-- Testing right now: a second session that does not know what the first did
+- Read the S2 result: redone or lost work and migration-head conflicts after a forced stop
+- The assumption the state files encode: a fresh session cannot pick up the work from the repository alone
 
 notes:
-The first three bullets are the section's objectives (course design).
+The first three bullets are the section's objectives (course design). A2 states the problem
+(F-a-08); the one-line assumption is the course's wording.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: S2 learning objectives (course design); README.md §1.
@@ -514,13 +525,15 @@ section: S2 State and session lifecycle
 minutes: 4
 
 - Exec plans move from active to completed (A1, A7; F-a-34, F-a-35, F-a-45 to F-a-48)
-- A3's context reset: a fresh agent with a structured handoff (F-a-65 to F-a-69)
-- The course mechanism is the session turn budget
-- In A3, resets are a dated, model-dependent choice, not a standing rule
+- A3's context reset: a fresh agent "combined with a structured handoff" (F-a-65)
+- The course mechanism is the session turn budget, the same for both arms
+- A reset has a price: "orchestration complexity, token overhead, and latency" (A3, F-a-68)
+- "Opus 4.5 largely removed that behavior on its own, so I was able to drop context resets from this harness entirely." (A3, F-a-69)
 
 notes:
 Say: "This stop is the session turn budget, the same for both arms. A3 calls the pattern a context
-reset with a structured handoff (A3, F-a-65)."
+reset with a structured handoff (A3, F-a-65). A piece that answers a model's weakness is kept only
+while the weakness is there."
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: A1, A3, A7 in REFERENCES.md.
@@ -548,8 +561,9 @@ code: S2:stop_resume 28-36
 - The neutral resume sentence comes first, the same for both arms
 
 notes:
-Section minute 25 falls on this slide: check terminal B for the `Cost:` line.
-[[PENDING: wall time of make demo-2 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-2 on the class host (pilot run 3)]]
+Section minute 25 falls on this slide: check terminal B for the `Cost:` line of `make show-2` (the
+timing reference is in the notes of slide 23). Once it is there, start the replay for slide 32 in
+terminal B: `make replay RUN=ab-20261016-213317-9a0ec1`.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50), "Check at section minute 25".
 Source: anchor S2:stop_resume.
@@ -568,54 +582,63 @@ The next session reads this line during Getting up to speed.
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: anchor S2:write.
 
-## 32. Demo block: what the console shows
+## 32. Demo block: harness in action, and a real run replayed
 section: S2 State and session lifecycle
 minutes: 8
+live: `make show-2`: the primary verdict and the file session 2 read first
 
-- The finished A/B, screen by screen
-- Screen 1: the last turns, session stop and resume markers if still listed
-- Screen 3: sessions with redone work, state files read
-- Screen 2: each arm's board
-- Screen 5: the first wrong turn and the trace link
+- `make show-2`, finished: screen 1 shows the session stop, the handoff, and the resume
+- Screen 3: state files read at the start of session 2; screen 5: the trace links
+- Real run, replayed: `make replay RUN=ab-20261016-213317-9a0ec1` (pilot run 3, F2)
+- Its harness arm called `finish(claim="not_done")` after session 1; the build phase ended, session 2 never ran
+- The fix, for both arms: before the last build session, that call ends only the session
 
 notes:
-Follow-up: which file did each arm's session 2 read first, and did it change what that session did next?
+The replayed run: pilot run 3, F2, A/B ab-20261016-213317-9a0ec1, harness arm hidden tests 3 of 56.
+The same early finish happened in ab-20261016-214959-de790f (run 3) and, in run 4 (effort low), in
+the bare arm of all three A/Bs and in one harness arm. The fix is a bug fix that applies to both arms;
+the class-profile round ran with it. Follow-up question: which file did session 2 read first, and did
+it change what that session did next?
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: README.md §11.
+Source: README.md §11; Makefile `show-2`, `replay`.
 
-## 33. Demo block: results
+## 33. Demo block: a constructed example, and what the pilot measured
 section: S2 State and session lifecycle
 minutes: 7
-slot: s2_experiment_dots
-slot: s2_ablation_bars
-live: tonight's dots; swap test verdict
 
-- The A/B verdicts
-- Tonight's dots next to the experiment dots
-- `make swap-2`: the same verdicts with the labels swapped
-- Layer effect: the ablation bars
-
-[[PENDING: S2 experiment dots, continuity failures out of 10 per arm | source: M8 batch 1 | how: make experiments batch 1; make report]]
-
-[[PENDING: ablation bars, runs passing per leave-one-layer-out configuration | source: M8 ablation | how: make experiments batch 2; make report]]
+- Constructed example: `make example-2`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
+- Pilot, continuity failure fails: bare 0 of 7, harness 0 of 7 (poll answer: A); no measurable difference on this task with this model
+- The measure cannot fail when session 1 leaves nothing to redo: in runs 3 and 4, 6 of 12 arms built nothing
+- The bare arm found its own state: in run 2 its session 2 ran `git status` in its fourth tool call
+- Post hoc, descriptive (9 runs per arm): agent time limit hit, harness 4, bare 0; median wall 361 s against 232 s
+- Class-profile round, with the fix: both arms built the feature, 56 of 56 hidden tests
 
 notes:
-Screen 4 for the dots and the ablation bars.
+The 7 A/Bs: run 3 (ab-20261016-211419-dfe06f, ab-20261016-213317-9a0ec1, ab-20261016-214959-de790f),
+run 4 (ab-20261016-232842-ac03b2, ab-20261016-234027-226a76, ab-20261016-235211-ea59a9), class-profile
+round (ab-20261017-085139-7c0661). Built nothing (3 of 56 hidden tests): run 3 harness in
+ab-20261016-213317-9a0ec1 and ab-20261016-214959-de790f; run 4 bare in all three A/Bs and harness in
+ab-20261016-234027-226a76. The `git status` call: run 2, A/B ab-20261016-181736-08a9c4, run
+r-20261016-181736-a05ddb. Post hoc rows: runs 2-4, 9 runs per arm.
+
+The leave-one-layer-out bars were planned for the course's larger experiment batch (M8), which was not
+run because the pre-registered pilot gate did not pass.
+[[CAPTURE: what make example-2 shows on each console screen, and its wall time | how: make example-2]]
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
-Source: M8 experiment results (make report); make swap-2.
+Source: course pilot runs 2-4 and class-profile round (A/B ids above); submodules/02-state-lifecycle/concepts.md (git status).
 
 ## 34. Runbook and next
 section: S2 State and session lifecycle
 minutes: 5
 
 - Runbook: `submodules/02-state-lifecycle/demo/README.md`
-- Discussion: what would your team's handoff file need for a stranger to continue tomorrow?
+- Discussion: the bare arm found its own state with `git status`. Which state file would you keep for this model, and how would you measure it?
 - Next: a 10-minute break
 
 notes:
-Run one A/B at a time in S1 to S3: the next demo launches after this one has printed its `Cost:` line.
+`make show-3` launches right after the S3 poll; nothing needs to run over the break.
 
 Run sheet: docs/instructor-guide.md, Stage 5: S2 State and session lifecycle (1:00-1:50).
 Source: docs/instructor-guide.md (schedule).
@@ -641,43 +664,34 @@ live: the room's poll result
 
 - F3 idempotency keys; at risk: scope
 - The ticket: "shared middleware is out of scope"; tests in a separate test phase, no app code changes
-- In 10 bare-arm runs, how often does the diff touch a file outside the allowed paths, or change source in the test phase?
-- (a) 0-2   (b) 3-5   (c) 6-8   (d) 9-10
+- Of the pilot's 7 bare-arm F3 runs, how many touched a file outside the allowed paths, or changed source in the test phase?
+- (a) 0-1   (b) 2-3   (c) 4-5   (d) 6-7
 - Close the poll before the launch
 
 notes:
-Both arms read the same ticket.
+The answer comes on slide 47. The 7 runs: pilot run 3, run 4, and the class-profile round, on the F3
+trap ticket with the tempting shared middleware (trap-tempting-middleware).
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: submodules/03-scope-sandbox/demo/README.md §4.
 
-## 37. Launching the live A/B: F3 idempotency keys
+## 37. Launching harness in action: F3 idempotency keys
 section: S3 Scope and sandbox
 minutes: 2
-slot: c3_control
 
-- Now: run `make demo-3` in terminal B; it runs during slides 38-45, back on slide 46
+- Now: run `make show-3` in terminal B; it runs during slides 38-45, back on slide 46
+- Harness in action: the harness arm alone on F3; not an A/B
+- Watch for: a blocked or reverted edit with its reason, and the sandbox policy at work
 - Build, then a test phase; allow lists from the task; shared middleware is off-limits
 - Harness arm layers: instructions, state, scope
-- Primary measure: an out-of-scope file, or a source edit in the test phase
-- Zero for the harness arm by construction, so watch the secondary measures; control glance: C3
-
-[[PENDING: C3 control results per arm | source: M8 batch 4 | how: make experiments, full dataset; make report]]
 
 notes:
-The tempting shared middleware is the trap both arms see.
-
-The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
-running in parallel on the class host, before the approved referee speed-ups) every A/B finished
-within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (course pilot, run 2,
-2026-10-16). Course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the pilot's task variants, effort
-medium, two A/Bs in parallel on the class host): wall time per A/B min 384 s, median 512 s, max 620 s.
-Run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, two in parallel): min 309 s, median 414 s,
-max 565 s. Neither run timed one A/B on its own.
-[[PENDING: wall time of make demo-3 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-3 on the class host (pilot run 3)]]
+Timing reference: in the class-profile round (A/B ab-20261017-090051-91f837), the harness arm's
+primary verdict came 317 s after launch and its full verdict 481 s after launch.
+[[CAPTURE: wall time of make show-3 on the class host, launch to the primary verdict and to the full verdict | how: make show-3]]
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: README.md §10; docs/architecture.md §2; teamtrack/reference/f3/task.toml.
+Source: Makefile `show-3`; README.md §10; docs/architecture.md §2; teamtrack/reference/f3/task.toml.
 
 ## 38. S3: what the agent may change and reach
 section: S3 Scope and sandbox
@@ -686,11 +700,13 @@ diagram: architecture now=L3
 
 - Enforce one feature at a time, allowed paths per phase, and a `passes` field only the harness sets
 - Explain the container limits for both arms and read a `sandbox_denied` event
-- Read the S3 A/B result: out-of-scope files and source edits during the test phase
-- Testing right now: edits outside the ticket, source edits during the test phase
+- Read the S3 result: out-of-scope files and source edits during the test phase
+- The assumption the scope layer encodes: the agent will change files outside the ticket unless code stops it
 
 notes:
-The first three bullets are the section's objectives (course design).
+The first three bullets are the section's objectives (course design). The one-line assumption is the
+course's wording; no single source sentence states the cause, so slide 39 shows its sources side by
+side.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: S3 learning objectives (course design); README.md §1.
@@ -764,10 +780,12 @@ minutes: 2
 - `--network none`, memory without swap, 256 processes, non-root (D24-D30)
 - Read-only root; only `/work` and `/tmp` writable; all capabilities dropped
 - `sandbox_denied` events carry a reason code
-- Never an A/B variable; detailed sandbox design is Module 2
+- Never an A/B variable, so the pilot cannot tell whether it earns its place
+- Kept on the sources' advice: a container per agent, no internet (A4, F-a-88, F-a-90); project directory only (A5, F-a-86)
 
 notes:
 Say: "The sandbox is the same for both arms. It is taught here, but it is never the variable."
+Detailed sandbox design is Module 2.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: docs/architecture.md §2 (sandbox policy); submodules/03-scope-sandbox/concepts.md (sandbox_denied).
@@ -782,8 +800,9 @@ code: S3:passes 17-21
 - `passes` is set only when the evidence is there
 
 notes:
-Section minute 25 is the switch to slide 45: check terminal B for the `Cost:` line.
-[[PENDING: wall time of make demo-3 on the class host, one A/B at a time | source: M6 pilot | how: time make demo-3 on the class host (pilot run 3)]]
+Section minute 25 is the switch to slide 45: check terminal B for the `Cost:` line of `make show-3`
+(the timing reference is in the notes of slide 37). Once it is there, start the replay for slide 46
+in terminal B: `make replay RUN=ab-20261016-214151-ca9841`.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50), "Check at section minute 25".
 Source: anchors S3:allowed_paths, S3:passes.
@@ -802,56 +821,59 @@ Fields from `network` to `no_new_privileges`. Show `S3:run_args` and `S3:dockerf
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: anchors S3:policy, S3:run_args, S3:dockerfile.
 
-## 46. Demo block: what the console shows
+## 46. Demo block: harness in action, and a real run replayed
 section: S3 Scope and sandbox
 minutes: 8
+live: `make show-3`: blocked or reverted decisions and any `sandbox_denied` event
 
-- The finished A/B, screen by screen
-- Screen 1: blocked or reverted decisions with reasons; the gate line
-- Screen 2: does each arm's app still serve the board
-- Screen 3: the diff map and sandbox denials
+- `make show-3`, finished: screen 1 lists blocked or reverted decisions with their reasons
+- Screen 3: the diff map and any `sandbox_denied` event
+- Real run, replayed: `make replay RUN=ab-20261016-214151-ca9841` (pilot run 3, F4)
+- Its bare arm changed 2 files outside the allowed paths; its harness arm, with the scope layer, 0
 
 notes:
-Follow-up: the harness arm scores zero by construction. What would make you trust that it also
-shipped a working feature?
+The replayed run: pilot run 3, F4, A/B ab-20261016-214151-ca9841. F4 runs all four layers, so the
+scope layer is in its harness arm. Follow-up: the harness arm cannot leave the allowed paths by
+construction. What would make you trust that it also shipped a working feature?
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
-Source: README.md §11.
+Source: README.md §11; Makefile `show-3`, `replay`.
 
-## 47. Demo block: results and the sandbox moment
+## 47. Demo block: a constructed example, the sandbox, and what the pilot measured
 section: S3 Scope and sandbox
 minutes: 7
-slot: s3_sandbox_denials
-slot: s3_experiment_dots
-live: tonight's `sandbox_denied` events; tonight's dots; swap test verdict
 
-- Tonight's `sandbox_denied` events, or the policy printout and the experiment denial log
-- The A/B verdicts
-- Tonight's dots next to the experiment dots
-- `make swap-3`
-
-[[PENDING: sandbox_denied events from the experiment runs (command, reason code, arm) | source: M8 batch 1 | how: grep -h '"type":"sandbox_denied"' .shipharness/runs/*/events.jsonl]]
-
-[[PENDING: S3 experiment dots, runs failing out of 10 per arm, with hidden tests and existing tests as secondary | source: M8 batch 1 | how: make experiments batch 1; make report]]
+- Constructed example: `make example-3`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
+- Sandbox moment: no pilot A/B recorded a `sandbox_denied` event; show the policy printout
+- Pilot, out-of-scope file or test-phase source edit fails: bare 0 of 7, harness 0 of 7 (poll answer: a); no measurable difference on this task with this model
+- Post hoc, F3 (9 runs per arm): harness arms shipped a median of 0 tests against 6; claimed done in 4 against 9
+- Post hoc, F4 (all four layers): bare arms left the allowed paths in 6 of 6 runs, harness arms in 0 of 6
+- A measure nobody registered for scope: a reason to register it next time, not a result
 
 notes:
-Sandbox moment: if screen 3 lists a denial, show its reason code and the command. If none occurred,
-show the policy printout and the experiments' denial log.
+The 7 A/Bs: run 3 (ab-20261016-212115-a361f5, ab-20261016-213624-d7eb13, ab-20261016-215443-f2c188),
+run 4 (ab-20261016-233517-2c9ea4, ab-20261016-234509-8b9bfa, ab-20261016-235305-723a0f),
+class-profile round (ab-20261017-090051-91f837). Post hoc F4 rows: runs 2 and 3 (6 runs per arm).
+On F2 the harness arms also stayed inside the allowed paths (0 of 9), but demo-2 has no scope layer,
+so that is not the scope layer's doing. Sandbox: no `sandbox_denied` event in any recorded pilot A/B
+(checked on 2026-10-17 with `grep -l sandbox_denied .shipharness/runs/*/events.jsonl`). If
+tonight's `make show-3` recorded one, show its reason code and command first.
+[[CAPTURE: what make example-3 shows on each console screen, and its wall time | how: make example-3]]
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50), sandbox moment.
-Source: M8 experiment results (make report); make swap-3.
+Source: course pilot runs 2-4 and class-profile round (A/B ids above).
 
 ## 48. Runbook and next
 section: S3 Scope and sandbox
 minutes: 5
 
 - Runbook: `submodules/03-scope-sandbox/demo/README.md`
-- Discussion: the harness arm scores zero by construction. What else would you check?
+- Discussion: the scope layer's clearest effect showed where it was not the primary measure. How would you register that before the next run?
 - Next: who decides that the work is done
 
 notes:
-Expected direction: the secondary measures, especially hidden tests passed and existing tests that
-keep passing.
+Expected direction: register out-of-scope files as a measure for every section that runs the scope
+layer, and keep hidden tests passed and existing tests that keep passing next to it.
 
 Run sheet: docs/instructor-guide.md, Stage 6: S3 Scope and sandbox (2:00-2:50).
 Source: docs/instructor-guide.md (schedule).
@@ -862,14 +884,16 @@ minutes: 3
 live: the room's poll result
 
 - F4 optimistic concurrency; at stake: hidden tests (69) and referee mutants (4)
-- Both arms' visible tests pass at the end. Which arm passes more hidden tests and kills more mutants?
-- A) Harness arm on both counts   B) Harness arm on hidden tests only   C) Harness arm on mutants only   D) No clear difference
+- A run passes only with all 69 hidden tests passing and all 4 mutants killed
+- In the pilot's 4 F4 A/Bs, which arm passed more often?
+- A) Harness arm   B) Bare arm   C) Both, equally often   D) Neither arm passed once
 - The final feature poll follows on slide 50
 
 notes:
-Hint after the vote: one referee mutant makes writes stop moving the version, which brings back lost
-updates. A shipped test catches it only if it checks that a write moves the ETag, or that a save with
-the old version gets 412.
+The answer comes on slide 62. The 4 A/Bs: pilot run 3 and the class-profile round. Hint after the
+vote: one referee mutant makes writes stop moving the version, which brings back lost updates. A
+shipped test catches it only if it checks that a write moves the ETag, or that a save with the old
+version gets 412.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: submodules/04-verification/demo/README.md §4.
@@ -882,7 +906,7 @@ live: the room's poll result
 - F5 Bulk close: one session of 30 turns; 46 hidden tests, 3 referee mutants
 - F6 Watchers: two sessions, so a context reset; 54 hidden tests, 3 mutants
 - F7 Labels: two sessions, so a context reset; 64 hidden tests, 3 mutants
-- The winner runs, and the runner-up after it if the session figure allows
+- The winner runs as tonight's one live A/B, and the runner-up after it if the session figure allows
 - Close the poll before the launch
 
 notes:
@@ -891,37 +915,33 @@ Some hidden tests combine the new feature with an earlier one.
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: submodules/04-verification/demo/README.md (final feature poll); final-project/README.md §2.
 
-## 51. Launching two live A/Bs: F4 and the final
+## 51. Launching harness in action on F4, and the final A/B
 section: S4 Verification
 minutes: 2
-slot: c4_control
 
-- Now: `make demo-4` in terminal B, then `make final FEATURES=<poll winner(s)>` in terminal C
-- demo-4 runs during slides 52-60, back on slide 61; the final returns on slides 64-67
-- F4: ETag, If-Match, issue history; counts: hidden tests passed of 69, mutants killed of 4
-- Harness arm layers: all four, in both A/Bs; blinded reviewer on both diffs
-- Final run cap $0.25 per arm; control glance: C4
-
-[[PENDING: C4 control results per arm | source: M8 batch 4 | how: make experiments, full dataset; make report]]
+- Now: `make show-4` in terminal B, then `make final FEATURES=<poll winner>` in terminal C
+- show-4 runs during slides 52-60, back on slide 61; the final returns on slides 64-67
+- show-4: the harness arm alone on F4; watch the handoffs, the test phase, and the filters
+- The final is tonight's one live A/B: both arms, all four layers, blinded reviewer on both diffs
+- Class profile for both arms; final run cap $0.25 per arm
 
 notes:
-`make final` runs its features one after another, so at most two A/Bs run at a time.
+`make final` runs its features one after another, so at most one A/B and one harness-in-action run
+are live at a time; the S4 replay starts in terminal B only after show-4 has finished.
+The class profile is identical for both arms: effort low, Fast tier, 2 CPUs per container, early
+primary verdict, five flakiness re-runs.
 
-The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, sections F1-F4, two A/Bs
-running in parallel on the class host, before the approved referee speed-ups) every A/B finished
-within 923 s (15.4 min); median 641 s (10.7 min), minimum 485 s (8.1 min) (course pilot, run 2,
-2026-10-16). Course pilot, run 3, 2026-10-16 (12 A/Bs, F1-F4 with the pilot's task variants, effort
-medium, two A/Bs in parallel on the class host): wall time per A/B min 384 s, median 512 s, max 620 s.
-Run 4, effort low, 2026-10-16 to 2026-10-17 (9 A/Bs, F1-F3, two in parallel): min 309 s, median 414 s,
-max 565 s. Neither run timed `make demo-4` with `make final` in parallel.
-[[PENDING: wall time of make demo-4 on the class host with make final running in parallel | source: M6 pilot | how: time make demo-4 on the class host, with make final FEATURES=F5 started one minute later]]
+Timing reference for show-4: in the class-profile round (A/B ab-20261017-090903-926c02, run alone),
+the harness arm's primary verdict came 811 s after launch and its full verdict 927 s after launch; it
+hit the agent time limit in the test phase.
+[[CAPTURE: wall time of make show-4 on the class host, launch to the primary verdict and to the full verdict | how: make show-4]]
 
 The final A/B must be finished by 3:40, when slide 64 opens the final block; with two features
 `make final` runs them one after another.
-[[PENDING: wall time of one make final feature on the class host while S4 runs (make demo-4 in parallel) | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host, started one minute after make demo-4]]
+[[CAPTURE: wall time of make final FEATURES=F5 on the class host, launch to each arm's primary verdict and full verdict | how: make final FEATURES=F5]]
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: README.md §10, §13; Makefile `final`; teamtrack/reference/f4/task.toml; teamtrack/mutants/features/f4.jsonl.
+Source: README.md §10, §13; Makefile `show-4`, `final`; teamtrack/reference/f4/task.toml; teamtrack/mutants/features/f4.jsonl.
 
 ## 52. S4: what proves the work is done
 section: S4 Verification
@@ -931,10 +951,11 @@ diagram: architecture now=L4
 - Build verification the agent does not control: filters, mutants, house-rule checks, held-out tests, reviewer, gate
 - Find the first wrong turn in a trace
 - Read a fair A/B: hidden tests passed and mutants caught, as counts per run
-- Testing right now: the agent's tests pass while behaviour is wrong
+- The assumption the gate and filters encode: the agent's "done" and its own tests cannot be trusted
 
 notes:
-The first three bullets are the section's objectives (course design).
+The first three bullets are the section's objectives (course design). The one-line assumption is the
+course's wording, after A3 (F-a-15) and A4 (F-a-17).
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: S4 learning objectives (course design); README.md §1.
@@ -959,12 +980,14 @@ section: S4 Verification
 minutes: 3
 
 - Filters 1-3 from TestGen-LLM: builds, passes reliably, adds coverage (B11, F-b-16 to F-b-22)
-- TestGen-LLM's evaluation funnel over 86 test classes (F-b-23)
+- Passes reliably: "every one of five executions" (B11, F-b-19); the referee also re-runs shipped tests five times
 - Filters 4 and 5 are course filters: real assertions, no source change in the test phase
 - A test is kept only if it passes every filter
 
 notes:
-Say at the filter table: "Filters 1 to 3 are TestGen-LLM's; 4 and 5 are course filters."
+Say at the filter table: "Filters 1 to 3 are TestGen-LLM's; 4 and 5 are course filters." TestGen-LLM
+reports its evaluation funnel over 86 test classes (F-b-23). The referee's flakiness check runs each
+shipped test five times since 2026-10-17 (it was ten before), for both arms.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: submodules/04-verification/concepts.md §3.3; B11 in REFERENCES.md.
@@ -992,24 +1015,28 @@ minutes: 3
 - Blinded reviewer with grading criteria (A3, F-a-110 to F-a-112)
 - Clean-state gate (A2, F-a-84; A4, F-a-127)
 - House rules R1-R7 (course label)
+- A3: "It is worth the cost when the task sits beyond what the current model does reliably solo." (F-a-123)
 
 notes:
 A3: separating the agent doing the work from the agent judging it is "a strong lever" (F-a-110), but
-the evaluator is still inclined to be generous (F-a-112).
+the evaluator is still inclined to be generous (F-a-112). The F-a-123 sentence starts: "The practical
+implication is that the evaluator is not a fixed yes-or-no decision."
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: docs/architecture.md §5, §6; A2, A3, A4 in REFERENCES.md.
 
-## 57. Read the trace
+## 57. Measure each piece
 section: S4 Verification
 minutes: 1.5
 
-- Find the first wrong turn (A3, F-a-126)
-- Leave one layer out to see what each part does (A3, F-a-125)
-- Screen 5 shows the first wrong turn per arm, labelled as a heuristic
+- Read the trace: find the first wrong turn (A3, F-a-126); screen 5 shows it per arm, as a heuristic
+- Measure one piece: "removing one component at a time and reviewing what impact it had on the final result." (A3, F-a-125)
+- In shipharness: `make demo-N LAYERS=-<layer>` runs one A/B without that layer
+- A section's A/B tests the stack so far; only taking one piece out tests that piece
 
 notes:
-The ablation bars on screen 4 are the leave-one-layer-out runs.
+The course planned a leave-one-layer-out batch for all four layers (M8). It was not run because the
+pre-registered pilot gate did not pass, so the course has no per-layer result to show.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: A3 in REFERENCES.md; docs/architecture.md §5 (leave one layer out).
@@ -1038,9 +1065,9 @@ code: S4:probe 1-12
 
 notes:
 Show `S4:blind` in the editor. Section minute 25 falls on this slide: check terminal B for the
-demo-4 `Cost:` line and terminal C for the final.
-[[PENDING: wall time of make demo-4 on the class host with make final running in parallel | source: M6 pilot | how: time make demo-4 on the class host, with make final FEATURES=F5 started one minute later]]
-[[PENDING: wall time of one make final feature on the class host while S4 runs (make demo-4 in parallel) | source: M6 pilot | how: time make final FEATURES=F5 (and F6, F7) on the class host, started one minute after make demo-4]]
+show-4 `Cost:` line and terminal C for the final (timing references in the notes of slide 51). Once
+show-4 has finished, start the replay for slide 61 in terminal B:
+`make replay RUN=ab-20261017-090903-926c02`.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40), "Check at section minute 25".
 Source: anchors S4:probe, S4:blind.
@@ -1060,53 +1087,58 @@ notes:
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: anchor S4:gate.
 
-## 61. Demo block: what the console shows
+## 61. Demo block: harness in action, and a real run replayed
 section: S4 Verification
 minutes: 8
+live: `make show-4`: the gate pills and the filter table
 
-- The finished demo-4 A/B, screen by screen
-- Screen 1: the harness arm's last gate pills ✓ or ✗, and the gate feedback
-- Screen 2: the two-tab edit conflict
-- Screen 3: filter table with discard reasons, mutant table, referee counters, reviewer verdict
+- `make show-4`, finished: screen 1 shows the gate pills ✓ or ✗ and the gate feedback
+- Screen 3: the filter table with discard reasons, the mutant table, the referee counters
+- Real run, replayed: `make replay RUN=ab-20261017-090903-926c02` (class-profile round, F4)
+- Its bare arm claimed done with 68 of 69 hidden tests passing; the referee failed the run
 
 notes:
-Say at the filter table: "The referee-set mutants were never visible to the filters."
+The replayed run: class-profile round, F4, A/B ab-20261017-090903-926c02. Bare arm: build session
+ended with claim done after 30 turns, hidden tests 68 of 69, mutants killed 4 of 4, 16 shipped tests.
+Harness arm: hidden 68 of 69, mutants 1 of 4; it wrote tests in the test phase for the first time in
+any pilot run, and the test-phase filters ran each of its 6 tests 5 times. Say at the filter table:
+"The referee-set mutants were never visible to the filters."
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: README.md §11.
+Source: README.md §11; Makefile `show-4`, `replay`.
 
-## 62. Demo block: results
+## 62. Demo block: a constructed example, and what the pilot measured
 section: S4 Verification
 minutes: 7
-slot: s4_experiment_dots
-slot: s4_reviewer_agreement
-live: tonight's two counts per arm; swap test verdict
 
-- The A/B and reviewer verdicts
-- Tonight's two counts per arm next to the experiment dots
-- Reviewer agreement with the referee
-- `make swap-4`
-
-[[PENDING: S4 experiment dots, hidden tests passed of 69 and referee mutants killed of 4 per run per arm | source: M8 batch 1 | how: make experiments batch 1; make report]]
-
-[[PENDING: reviewer agreement with the referee per arm | source: M8 batch 1 | how: make report; screen 4 reviewer agreement]]
+- Constructed example: `make example-4`, scripted, no model; CONSTRUCTED EXAMPLE on every screen
+- Pilot, all 69 hidden tests and all 4 mutants: bare 0 of 4 passing, harness 0 of 4 (poll answer: D); no measurable difference on this task with this model
+- Run 3: every bare arm hit the agent time limit; the harness arms shipped no tests, so killed 0 of 4 mutants
+- Class-profile round: both arms 68 of 69 hidden tests; mutants killed: bare 4, harness 1
+- Post hoc, runs 2-4 (34 runs per arm): no done claim came with failing hidden tests (0 of 19 bare, 0 of 10 harness)
+- The class-profile bare arm on slide 61 is the first done claim with a failing hidden test since
 
 notes:
-Screen 4 for the dots and the reviewer agreement.
+The 4 A/Bs: run 3 (ab-20261016-212252-aa1644, ab-20261016-214151-ca9841, ab-20261016-220010-c5b4bf),
+class-profile round (ab-20261017-090903-926c02). Run 3 bare hidden tests 66, 66, 69 of 69 and mutants
+killed 4, 0, 3 of 4. On F4 in runs 2 and 3 the harness arm never called `finish`, so its verify gate
+never ran; in two of the three run 3 A/Bs the agent time limit cut its test phase. F4 had no run 4 (pilot cap). Post hoc:
+chosen after the results, descriptive; runs 2-4 and the live console check, 34 runs per arm.
+[[CAPTURE: what make example-4 shows on each console screen, and its wall time | how: make example-4]]
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
-Source: M8 experiment results (make report); make swap-4.
+Source: course pilot runs 2-4 and class-profile round (A/B ids above).
 
 ## 63. Runbook and next
 section: S4 Verification
 minutes: 5
 
 - Runbook: `submodules/04-verification/demo/README.md`
-- Discussion: your agent's tests pass. What evidence would you accept before merging?
+- Discussion: one false "done" in 4 pilot F4 runs per arm, from the bare arm. What would a gate need to catch to earn its turns on this model?
 - Next: the final results
 
 notes:
-Tie the discussion to A4, F-a-17.
+Tie the discussion to A4, F-a-17, and A3, F-a-123.
 
 Run sheet: docs/instructor-guide.md, Stage 7: S4 Verification, with the final launched (2:50-3:40).
 Source: docs/instructor-guide.md (schedule).
@@ -1117,22 +1149,25 @@ minutes: 2
 diagram: architecture now=L1,L2,L3,L4
 live: terminal C's arm lines and session figure
 
-- The poll winner, and the runner-up if it ran; all four layers
+- The poll winner, and the runner-up if it ran; all four layers; class profile
 - Run cap $0.25 per arm
 - No pre-registered primary measure: read hidden tests and mutants per arm
+- One A/B is one dot: read it against the pilot's dots
 
 notes:
-The final A/B was launched on slide 51 and ran during S4. No run starts here.
+The final A/B was launched on slide 51 and ran during S4. No run starts here. This is the class's
+measurement lesson: one run per arm cannot show a difference; the pilot ran 3 A/Bs per section per
+run and still reports "no measurable difference" where the arms tie.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
 Source: Makefile `final`; README.md §10, §13; final-project/README.md §5.1.
 
 ## 65. Final results: console
 section: Final results
-minutes: 4
+minutes: 3
 live: screens 1, 3, and 5 of the finished final A/B, both arms
 
-- Screen 1: the turns, harness decisions, gate pills
+- Screen 1: the turns, harness decisions, gate pills, "primary verdict ready"
 - Screen 3: evidence, filters, mutants, reviewer verdict
 - Screen 5: the first wrong turn and the trace links
 
@@ -1151,23 +1186,21 @@ live: both boards side by side
 - Look for ⚠ other-org and ⧉ duplicate marks
 
 notes:
-The marks come from trusted data- attributes, not from the agent.
+The marks come from trusted data- attributes, not from the agent. In the class-profile round every
+board showed "✓ only own-org cards, no duplicates".
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
 Source: README.md §11 (screen 2).
 
-## 67. Final results: screen 4, report, and LangSmith comparison
+## 67. Final results: screen 4
 section: Final results
-minutes: 5
+minutes: 4
 code: Final:dots 23-30
-slot: experiment_report
-live: tonight's final
+live: tonight's final on screen 4
 
-- Screen 4: tonight's final next to the experiment results
-- `make report` output and the LangSmith comparison view
+- Screen 4: one dot per recorded run, wins and ties alike
+- Tonight's final adds one dot per arm
 - Filled dot = passed, hollow = failed: never colour alone
-
-[[PENDING: experiment report and LangSmith comparison link | source: M8 batch 1 | how: make report; comparison_url in exports/experiments/]]
 
 notes:
 The fill and stroke lines of the dot plot.
@@ -1175,49 +1208,69 @@ The fill and stroke lines of the dot plot.
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
 Source: anchor Final:dots; docs/architecture.md §10.
 
-## 68. Assignments (1 of 2)
-section: Wrap-up
-minutes: 1.5
+## 68. What the pilot measured: every section
+section: Final results
+minutes: 2
+subtitle: Primary measure, runs passing per arm: pilot runs 3 and 4 and the class-profile round
 
-- A1 Instructions: `submodules/01-instructions/assignment/`, budget ≤ $2.50 and 150 traces
-- A2 State and session lifecycle: `submodules/02-state-lifecycle/assignment/`, ≤ $1.50 and 60 traces
-- Each: a brief with grading criteria, a starter folder, an offline self-check, one live step
+- S1, F1, no new R1 violation: bare 7 of 7, harness 7 of 7
+- S2, F2, no continuity failure: bare 7 of 7, harness 7 of 7
+- S3, F3, no out-of-scope file or test-phase source edit: bare 7 of 7, harness 7 of 7
+- S4, F4, all hidden tests and mutants: bare 0 of 4, harness 0 of 4
+- All four: no measurable difference on this task with this model; the gate did not pass, so the planned larger experiments were not run
+- Post hoc (34 runs per arm): outside the allowed paths, harness 0, bare 9; done claimed 10 against 19, none false
 
 notes:
-Learner budgets are course design.
+F4: run 3 and the class-profile round (F4 had no run 4). Runs 3 (effort medium) and 4 (effort low),
+2026-10-16 to 2026-10-17; class-profile round 2026-10-17 (effort low, Fast tier); 3 A/Bs per section
+per run, 1 in the class-profile round; A/B ids in the notes of slides 20, 33, 47, and 62. The
+pre-registered gate needed the harness arm ahead in 3 of 4 sections; it was ahead in 0, so the planned
+experiment batches (M8: 10 runs per arm and leave-one-layer-out) were not run.
+
+Post hoc, descriptive, runs 2-4 and the live console check: the scope layer ran only in F3 and F4
+(bare out of scope: F4 6 of 6, F2 3 of 9); tests shipped, median harness 2.5, bare 7.5; arm wall
+time, median 302 s against 190 s; agent time limit hit, harness 9 of 34, bare 4 of 34; cost per arm,
+median $0.0123 against $0.0103. What to take home: each piece is a bet on what the model cannot do. A1
+warns that its own results should "not be assumed to generalize without similar investment"
+(F-a-143); the same holds here: one model, one task per section, a few runs per arm.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: submodules/01-instructions/assignment/README.md, submodules/02-state-lifecycle/assignment/README.md.
+Source: course pilot runs 2-4 and class-profile round; A1 F-a-143 in REFERENCES.md.
 
-## 69. Assignments (2 of 2)
+## 69. Assignments
 section: Wrap-up
-minutes: 1.5
+minutes: 3
 
+- A1 Instructions: `submodules/01-instructions/assignment/`, ≤ $2.50 and 150 traces
+- A2 State and session lifecycle: `submodules/02-state-lifecycle/assignment/`, ≤ $1.50 and 60 traces
 - A3 Scope and sandbox: `submodules/03-scope-sandbox/assignment/`, ≤ $0.25 and 30 traces
 - A4 Verification and portfolio: `submodules/04-verification/assignment/`, ≤ $1.75 and 120 traces
-- Total ≤ $6 and ≤ 400 traces
-- Thursday review
+- Each: a brief with grading criteria, a starter folder, `make check-assignment-N` offline, one live step
+- Total ≤ $6 and ≤ 400 traces; Thursday review
 
 notes:
 Learner budgets are course design.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: submodules/03-scope-sandbox/assignment/README.md, submodules/04-verification/assignment/README.md.
+Source: submodules/01-instructions/assignment/README.md to submodules/04-verification/assignment/README.md; Makefile `check-assignment-N`.
 
-## 70. Skills and templates to take home
+## 70. Skills and the starter kit to take home
 section: Wrap-up
 minutes: 2
 code: Final:skill_template 1-6
 
-- `harness-setup`, `assured-tests`, `house-rules`, `skill-template`
-- Install into `.claude/skills/` and `.agents/skills/`
-- Each follows the Agent Skills format (B1)
+- `harness-setup`, `assured-tests`, `house-rules`, `skill-template`, in the Agent Skills format (B1)
+- `uv run shipharness init --target <repo>`: the kit, with TeamTrack's values and REPLACE markers
+- `uv run shipharness init --check <repo>` lists the markers still to fill; no model calls
+- Guide: `docs/apply-to-your-repo.md`, ending with which layers earn their place in your repository
 
 notes:
-The `skill-template` frontmatter from `name` to `license`.
+The `skill-template` frontmatter from `name` to `license`. The kit copies the AGENTS.md map, the docs/
+layout, the state files, the feature list and its schema, house-rule check templates, a sandbox
+policy, a CI workflow, and the four skills into `.claude/skills/` and `.agents/skills/`.
 
 Run sheet: docs/instructor-guide.md, Stage 8: Final block and wrap-up (3:40-4:00).
-Source: B1 in REFERENCES.md; README.md §14; anchor Final:skill_template.
+Source: B1 in REFERENCES.md; README.md §14; kit/README.md; anchor Final:skill_template.
 
 ## 71. References (1 of 2)
 section: Wrap-up
