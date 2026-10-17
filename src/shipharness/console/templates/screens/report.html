@@ -15,6 +15,7 @@
   <h2>No exports yet</h2>
   <p>No exports yet in {{ exports_dir }}. Screen 4 reads ScoreRecords from <code>exports/scores/</code> and experiments from <code>exports/experiments/</code>; they appear after the referee or <code>shipharness experiments</code> writes them.</p>
   {% if comparison %}<p>LangSmith comparison for this run: <a href="{{ comparison }}">{{ comparison }}</a></p>{% endif %}
+  {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
 </article>
 </div>
 {% else %}
@@ -32,6 +33,7 @@
   {% if report.unsandboxed %}<p>{{ status("unknown", report.unsandboxed ~ " runs unsandboxed: not official") }}</p>{% endif %}
   {% if report.recorded %}<p class="muted">{{ report.recorded }} runs are replays (recorded).</p>{% endif %}
   {% if report.single_arm %}<p class="muted">{{ report.single_arm }} single-arm run{{ "s" if report.single_arm != 1 }} (harness in action) not compared: no bare run.</p>{% endif %}
+  {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
 </article>
 
 <article class="panel">

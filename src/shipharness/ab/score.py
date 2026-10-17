@@ -68,6 +68,8 @@ class ScoreRecord(BaseModel):
     captured_at: str
     # True: the harness arm ran alone (`ab --arms harness`); never in a bare-vs-harness comparison.
     single_arm: bool = False
+    # True: a constructed example (`shipharness example`, scripted steps, no model); never counted.
+    constructed: bool = False
     referee_version: str = REFEREE_VERSION
 
 

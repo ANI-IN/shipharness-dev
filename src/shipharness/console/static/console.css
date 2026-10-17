@@ -16,6 +16,7 @@
   --harness: #7fd7ff;
   --recording: #ff3b30;
   --recording-text: #ffffff;
+  --constructed: #f5a8ff;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--bg); color: var(--text); }
@@ -51,6 +52,7 @@ body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex
 .badge.recording { background: var(--recording); color: var(--recording-text); }
 .badge.unsandboxed { background: var(--warn); color: #111111; }
 .badge.single-arm { background: var(--info); color: #111111; }
+.badge.constructed { background: var(--constructed); color: #111111; }
 .badge.profile { border: 2px solid var(--muted); color: var(--text); font-weight: 700; }
 .seq { color: var(--muted); font-size: 20px; }
 

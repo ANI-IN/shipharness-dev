@@ -1,8 +1,8 @@
 """A/B report from `exports/` only: one dot per run per arm for each primary
 measure, and counts ("2/3 runs failing"), never percentages. Replays
 (`recorded=True`) are left out unless asked for, and single-arm runs (`ab --arms harness`, harness
-in action) always are: they have no bare run to compare with. Output: report.json and a static
-report.html.
+in action) always are: they have no bare run to compare with. Constructed examples (`shipharness
+example`, scripted steps) are never counted either. Output: report.json and a static report.html.
 """
 
 from __future__ import annotations
@@ -26,7 +26,9 @@ def build_report(exports_dir: Path, include_recorded: bool = False) -> dict[str,
     scores = [
         s
         for s in read_exports("scores", exports_dir)
-        if (include_recorded or not s.get("recorded")) and not s.get("single_arm")
+        if (include_recorded or not s.get("recorded"))
+        and not s.get("single_arm")
+        and not s.get("constructed")
     ]
     groups: dict[tuple[str, str], dict[str, Any]] = {}
     for s in sorted(scores, key=lambda s: (s["feature_id"], s["captured_at"], s["run_id"])):

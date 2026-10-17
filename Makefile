@@ -129,6 +129,21 @@ show-4:
 	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
+# Constructed example: section N's layer stack on its canonical task in the real sandbox, driven by
+# scripted steps (no model, no API key, $0); labelled CONSTRUCTED EXAMPLE and never counted.
+.PHONY: example-1 example-2 example-3 example-4
+example-1:
+	$(UV) run shipharness example --section demo-1 --profile $(PROFILE)
+
+example-2:
+	$(UV) run shipharness example --section demo-2 --profile $(PROFILE)
+
+example-3:
+	$(UV) run shipharness example --section demo-3 --profile $(PROFILE)
+
+example-4:
+	$(UV) run shipharness example --section demo-4 --profile $(PROFILE)
+
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
 # picks another one.
 swap-1:

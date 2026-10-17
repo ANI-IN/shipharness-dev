@@ -267,3 +267,21 @@ def test_images_target_tags_the_images_the_settings_name() -> None:
     assert variables["REFEREE_IMAGE"] == "shipharness-referee:1"
     recipe = " ".join(_rules()["images"])
     assert "-t $(AGENT_IMAGE)" in recipe and "-t $(REFEREE_IMAGE)" in recipe
+
+
+# -- constructed examples (owner, 2026-10-17) -----------------------------------------------------
+
+
+@pytest.mark.parametrize("n", [1, 2, 3, 4])
+def test_example_target_runs_the_section_constructed_example(n: int) -> None:
+    calls = _shipharness_calls(f"example-{n}")
+    assert len(calls) == 1
+    command, params = _parse(calls[0])
+    assert command == "example"  # never `ab`: no model, and the live guard is not involved
+    assert params["section"] == f"demo-{n}"
+    assert params["profile"] == "standard"  # PROFILE reaches the command
+    phony = " ".join(
+        line for line in MAKEFILE.read_text(encoding="utf-8").replace("\\n", " ").splitlines()
+        if line.startswith(".PHONY")
+    )  # fmt: skip
+    assert f" example-{n} " in f" {phony} "

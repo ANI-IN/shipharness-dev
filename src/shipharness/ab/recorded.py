@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from shipharness.ab.demo import AB_RECORD, ARMS, ABTask, export_single_arm
+from shipharness.ab.demo import AB_RECORD, ARMS, ABTask, export_single_arm, keep_constructed
 from shipharness.ab.mutants import referee_mutants
 from shipharness.ab.referee import Referee, RefereeDeps, Reviewer, SandboxFactory
 from shipharness.ab.score import ScoreRecord
@@ -52,7 +52,8 @@ JUDGED_FIELDS: tuple[str, ...] = (
 
 
 class SingleArmRecord(ValueError):
-    """The record is a single-arm run (`ab --arms harness`): there is no other arm to swap with."""
+    """The record is a single-arm run (`ab --arms harness`) or a constructed example
+    (`shipharness example`): there is no other arm to swap with."""
 
 
 class UnpinnedRecord(ValueError):
@@ -97,6 +98,7 @@ class LoadedAB:
     from_working_tree: bool = False
     pinned: bool = False  # False: the record predates checkpoint_sha
     single_arm: bool = False  # the harness arm alone ("harness in action")
+    constructed: bool = False  # a constructed example (scripted steps, no model)
 
     def export_ref(self) -> str | None:
         """What swap and replay export: the recorded commit (None = the working tree, for an
@@ -135,19 +137,20 @@ def load_ab(run_dir: Path) -> LoadedAB:
         from_working_tree=bool(data.get("from_working_tree", False)),
         pinned="checkpoint_sha" in data,
         single_arm=bool(data.get("single_arm", False)),
+        constructed=bool(data.get("constructed", False)),
     )
 
 
 def latest_ab_dir(runs_dir: Path, section: str | None) -> Path:
     """The most recent recorded A/B (ab ids start with a sortable time stamp), limited to one
-    section (demo-N or final) when `section` is given. Single-arm runs (`make show-N`) are not
-    A/Bs and are skipped."""
+    section (demo-N or final) when `section` is given. Single-arm runs (`make show-N`) and
+    constructed examples (`make example-N`) are not A/Bs and are skipped."""
     for record in sorted(Path(runs_dir).glob(f"ab-*/{AB_RECORD}"), reverse=True):
         try:
             data = json.loads(record.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if data.get("single_arm"):
+        if data.get("single_arm") or data.get("constructed"):
             continue
         if section is None or data.get("section") == section:
             return record.parent
@@ -205,6 +208,11 @@ class SwapReport:
 
 def swap_test(run_dir: Path, deps: RecordedDeps) -> SwapReport:
     ab = load_ab(run_dir)
+    if ab.constructed:
+        raise SingleArmRecord(
+            f"{ab.ab_id} is a constructed example (scripted steps, no model): the swap test needs "
+            "an A/B; pass the id of an A/B"
+        )
     if ab.single_arm:
         raise SingleArmRecord(
             f"{ab.ab_id} is a single-arm run (harness in action): the swap test needs both arms; "
@@ -283,9 +291,10 @@ def replay_ab(run_dir: Path, deps: RecordedDeps, *, ab_id: str | None = None) ->
                 log_run_id=loaded.spec["run_id"],  # continuity counts the original run's sessions
                 export=not ab.single_arm,
             )
-            records[arm] = (
-                export_single_arm(verdict.record, deps.exports_dir)
-                if ab.single_arm
-                else verdict.record
-            )
+            if ab.constructed:  # a replayed constructed example stays out of exports/ too
+                records[arm] = keep_constructed(verdict.record, new_dir / arm)
+            elif ab.single_arm:
+                records[arm] = export_single_arm(verdict.record, deps.exports_dir)
+            else:
+                records[arm] = verdict.record
     return ReplayResult(new_id, ab.ab_id, count, records, new_dir)

@@ -39,6 +39,7 @@ class AgentRunSpec(BaseModel):
     service_tier: str = "auto"
     profile: str = "standard"  # run profile (config/profiles.py), the same for both arms
     single_arm: bool = False  # True: harness arm alone (`ab --arms harness`), not an A/B
+    constructed: bool = False  # True: a constructed example (scripted steps, no model)
     cost_limit_usd: float = 0.20
     workspace: Path
 
