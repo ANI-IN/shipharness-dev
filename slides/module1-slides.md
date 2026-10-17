@@ -42,7 +42,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 30 | Cheat Sheet: The instructions layer in four moves | Section 1 | none |
 | 31 | Section 1 - Implementation Notes: The map at work | Section 1 | screenshot: section-1-instructions/demo/expected/screen-1-final.png |
 | 32 | What just happened: The run, minute by minute | Section 1 | none |
-| 33 | under-the-hood look: How the prefix is built | Section 1 | none |
+| 33 | Under the hood: How the prefix is built | Section 1 | none |
 | 34 | What we measured: No measurable difference on F1 | Section 1 | section-1-instructions/diagrams/results-s1.png |
 | 35 | Apply it Monday: Turn your instruction file into a map | Section 1 | none |
 | 36 | Q&A: Section 1, what the agent knows | Section 1 | none |
@@ -60,7 +60,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 48 | Cheat Sheet: Four state pieces across a stop | Section 2 | none |
 | 49 | Section 2 - Implementation Notes: Stop and resume | Section 2 | screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png |
 | 50 | What just happened: One run, two sessions | Section 2 | none |
-| 51 | under-the-hood look: What runs at every stop | Section 2 | none |
+| 51 | Under the hood: What runs at every stop | Section 2 | none |
 | 52 | What we measured: No measurable difference on F2 | Section 2 | section-2-state-lifecycle/diagrams/results-s2.png |
 | 53 | Apply it Monday: State that survives a stop | Section 2 | none |
 | 54 | Q&A: State and session lifecycle | Section 2 | none |
@@ -76,7 +76,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 64 | Cheat Sheet: Four boundaries for one feature | Section 3 | none |
 | 65 | Section 3 - Implementation Notes: Scope at work | Section 3 | screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png |
 | 66 | What just happened: Same pull, two arms | Section 3 | none |
-| 67 | under-the-hood look: One method decides every path | Section 3 | none |
+| 67 | Under the hood: One method decides every path | Section 3 | none |
 | 68 | What we measured: Scope held on F4, by construction | Section 3 | section-3-scope-sandbox/diagrams/results-s3.png |
 | 69 | Apply it Monday: Scope your next agent task | Section 3 | none |
 | 70 | Q&A: Scope and sandbox | Section 3 | none |
@@ -96,7 +96,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 84 | Cheat Sheet: four checks the agent does not own | Section 4 | section-4-verification/diagrams/verification-pipeline.png |
 | 85 | Section 4 - Implementation Notes: The gate at work | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png |
 | 86 | What just happened: eleven minutes of show-4 | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-t01m.png (+ t03m, t04m, t09m) |
-| 87 | under-the-hood look: the gate's verdict in six lines | Section 4 | none |
+| 87 | Under the hood: the gate's verdict in six lines | Section 4 | none |
 | 88 | What we measured: no measurable difference on F4 | Section 4 | section-4-verification/diagrams/results-s4.png |
 | 89 | Apply it Monday: check your agent's done | Section 4 | none |
 | 90 | Q&A: Section 4, Verification | Section 4 | none |
@@ -805,10 +805,10 @@ What just happened: The run, minute by minute
 - Misconception: "PASS at 4:11 means the feature is correct". Correction: PASS answers one question, no new tenant leak; the 52 of 52 hidden tests at 10:00 are a separate answer.
 - Time: 3 minutes. Next: the code behind those notes.
 
-## Slide 33: under-the-hood look: How the prefix is built
+## Slide 33: Under the hood: How the prefix is built
 **Block:** Section 1  **Time:** 5  **Diagram:** none
 **On the slide:**
-under-the-hood look: How the prefix is built
+Under the hood: How the prefix is built
 platform/src/shipharness/harness/instructions/router.py, lines 37-47
 **Visual:** The code excerpt, quoted exactly, with line 2 highlighted as the key line (`agents_md = ...`, read from `source`, the course's copy):
 ```python
@@ -1214,7 +1214,7 @@ Section 2 - Implementation Notes: Stop and resume
 - Misconception: "PASS means the feature is done." Correction: PASS means session 2 did not break or redo session 1's work. Read the hidden-test count next to it.
 - Time and transition: 3 minutes. "What code ran at 1:23? Let's read it."
 
-## Slide 51: under-the-hood look: What runs at every stop
+## Slide 51: Under the hood: What runs at every stop
 **Block:** Section 2  **Time:** 5  **Diagram:** none
 **On the slide:**
 The facts come from the repository, not the agent
@@ -1586,7 +1586,7 @@ Section 3 - Implementation Notes: Scope at work
 - Misconception: "ABORTED means the run is invalid." Correction: an aborted arm is judged on what it shipped; exit 2 is a result.
 - Time and transition: 3 minutes. "Here is the method that decided that block."
 
-## Slide 67: under-the-hood look: One method decides every path
+## Slide 67: Under the hood: One method decides every path
 **Block:** Section 3  **Time:** 5  **Diagram:** none
 **On the slide:**
 The refusal names the phase and the full list
@@ -2047,7 +2047,7 @@ Section 4 - Implementation Notes: The gate at work
 - Point at the green 3:24 mark next to the red 9:19 mark: same run, the gate said yes, the referee said no.
 - Time: 4 minutes. Transition: "Here is the code that made the gate's decision."
 
-## Slide 87: under-the-hood look: the gate's verdict in six lines
+## Slide 87: Under the hood: the gate's verdict in six lines
 **Block:** Section 4  **Time:** 5 min (3:25-3:30)  **Diagram:** none
 **On the slide:**
 - One failed item fails the gate
