@@ -24,6 +24,8 @@ PURPOSE ?= class
 # arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 # arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
 PROFILE ?= class
+# demo-3's ticket: F3 by default; FEATURE=F4 runs the S3 confirmation task as a live A/B.
+FEATURE ?= F3
 # images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
 AGENT_IMAGE ?= shipharness-agent:1
 REFEREE_IMAGE ?= shipharness-referee:1
@@ -105,7 +107,7 @@ demo-2:
 	  --profile $(PROFILE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-3 --feature $(FEATURE) $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 demo-4:

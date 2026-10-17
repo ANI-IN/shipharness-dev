@@ -25,6 +25,7 @@ CONFTEST = REPO / "tests" / "conftest.py"
 
 # Sample values substituted for make variables before the CLI parses a recipe line.
 SAMPLES = {
+    "$(FEATURE)": "F3",
     "$(LAYERS_OPT)": "--layers=-scope",
     "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
     "$(PURPOSE)": "pilot",
@@ -311,3 +312,12 @@ def test_no_target_mentions_build_milestones() -> None:
     text = MAKEFILE.read_text(encoding="utf-8")
     assert "milestone" not in text.lower()
     assert any("uv run shipharness experiments" in line for line in _rules()["experiments"])
+
+
+def test_demo_3_runs_the_s3_confirmation_task_by_feature() -> None:
+    # S3 confirmation (pre-registered, 2026-10-17): harness ahead on the F4 ticket, so the S3 class
+    # demo is a live A/B on F4: `make demo-3 FEATURE=F4`. Without FEATURE it stays F3.
+    command, params = _parse(_shipharness_calls("demo-3")[0])
+    assert command == "ab" and params["section"] == "demo-3"
+    assert _variables()["FEATURE"] == "F3"
+    assert "--feature $(FEATURE)" in " ".join(_rules()["demo-3"])
