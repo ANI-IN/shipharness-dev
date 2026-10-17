@@ -1,4 +1,4 @@
-# Live evidence of the reference A/B
+# Module 1: Harness Engineering for Coding Agents - Live evidence of the reference A/B
 
 This folder holds the live evidence of the reference solution's A/B, in the layout that
 `assignment/live_evidence.py` collects and that the self-check and the grader check:
@@ -10,9 +10,8 @@ This folder holds the live evidence of the reference solution's A/B, in the layo
 | `scores/<run_id>.json` | the ScoreRecord of every run in them (`platform/src/shipharness/ab/score.py`) |
 | `runs/<run_id>/events.jsonl` | the run log of every harness-arm run |
 
-The reference live run was not captured. The owner's FOCUS instructions of 2026-10-17 required a
-real captured live run for assignments A3 and A4 only, so the A1 reference A/B was left out of
-scope. This folder therefore holds no evidence, and the grader gives the reference 0 of the 12
+The reference live run is being re-run; its first attempt was interrupted on 2026-10-17. Until it
+is captured, this folder holds no evidence, and the grader gives the reference 0 of the 12
 points of criterion F, with or without `--allow-pending` (`captured/grade-solution.txt`).
 
 If the run is captured later, these are the commands (repository root; needs keys and Docker;
@@ -27,7 +26,7 @@ git log -1 --format=%h                             # the "Instructions tree comm
 CMD="uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference"
 echo "\$ $CMD" > ~/a1-reference-output.txt
 $CMD | tee -a ~/a1-reference-output.txt
-git switch -                                       # back to the build branch
+git switch -                                       # back to your branch
 uv run python section-1-instructions/assignment/live_evidence.py --batch a1-reference --output ~/a1-reference-output.txt --work section-1-instructions/assignment/solution/work
 uv run python section-1-instructions/assignment/ab_summary.py --batch a1-reference --exports section-1-instructions/assignment/solution/work/live
 ```

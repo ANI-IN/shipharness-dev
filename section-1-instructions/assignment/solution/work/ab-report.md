@@ -12,8 +12,8 @@ Every value below that needs the run says so instead of giving a number.
 - Model and reasoning effort: `OPENAI_MODEL` and `OPENAI_REASONING_EFFORT` from the settings
   (the course defaults), recorded in each experiment's metadata
 
-Instructions tree commit: none, because the reference live run was not captured (not part of
-this release).
+Instructions tree commit: none, because the reference live run was not captured (it is being
+re-run).
 
 ## Results
 
@@ -22,17 +22,17 @@ this release).
 | R1: runs with at least one new R1 violation | not captured | not captured |
 | R3: runs with at least one new R3 failure | not captured | not captured |
 
-No counts: the reference live run was not captured (not part of this release).
+No counts: the reference live run was not captured (it is being re-run).
 
 ## Links
 
-No LangSmith experiment links: the reference live run was not captured (not part of this release).
+No LangSmith experiment links: the reference live run was not captured (it is being re-run).
 
 ## Cost and traces
 
 Budget for this command: at most $2.50 and 150 traces (the course budget); the run stops cleanly at
 `MAX_BATCH_COST_USD`. No measured cost or trace count: the reference live run was not captured
-(not part of this release).
+(it is being re-run).
 
 ## Reading the result
 

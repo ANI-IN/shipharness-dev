@@ -1,4 +1,4 @@
-# live
+# Module 1: Harness Engineering for Coding Agents - A2 reference live step
 
 This folder holds the files of the reference solution's live step: one A/B on the four-session F2
 task (`F2-a2-four-sessions`, session budget [10, 10, 10, 20]), with the reference
@@ -21,6 +21,8 @@ build sessions in the harness arm, the first three ended by their turn budget, a
 stops. In this run the harness arm reached its agent time limit (300 s) on turn 8 of session 3, so
 it had three sessions, two session stops, and no session 4. The script says so at the end of
 `output.txt`:
+
+> Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ```text
 x live evidence in 02-state-lifecycle/assignment/solution/live is not valid:
