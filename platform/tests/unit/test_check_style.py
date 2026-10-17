@@ -737,5 +737,5 @@ def test_the_final_project_page_follows_the_demo_template_plus_the_take_home_ste
 
 
 def test_the_generated_references_page_is_not_checked() -> None:
-    # make_release.py writes docs/REFERENCES.md into the public repo: every source and finding id.
+    # The release build writes docs/REFERENCES.md into the public repo: every source and finding id.
     assert not cs.is_public("docs/REFERENCES.md")
