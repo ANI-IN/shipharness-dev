@@ -19,18 +19,20 @@ no evidence for keeping or dropping any part of the harness.
 > - **REPLACE marker**: a line in a kit template that says what to write in place of the example value.
 > - **House rule**: a team convention written as one checkable sentence, with a check that finds violations.
 > - **Baseline**: the violations that exist today, recorded once, so only new ones fail.
-> - **R1 to R7**: TeamTrack's seven house rules, from tenant isolation (R1) to one migration head (R7).
+> - **The seven house rules**: TeamTrack's rules, from tenant isolation to one migration head. The kit files and the `--rules` option name them by id, `R1` to `R7`.
+> - **Mutant**: a copy of the code with one small bug planted on purpose; a good test fails on it ("kills" it).
+> - **Doctest**: an example in a docstring that runs as a test.
 
 ## Why it happens
 
 - A long file hides the rules: "A giant instruction file crowds out the task, the code, and the
   relevant docs". OpenAI keeps `AGENTS.md` short: "we treat it as the table of contents", "roughly
-  100 lines" ([OpenAI, Harness engineering](../docs/evidence/final.md#quotes-used-on-these-pages)).
+  100 lines" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 - Unchecked docs rot. The same team checks them by machine: "Dedicated linters and CI jobs validate
   that the knowledge base is up to date, cross-linked, and structured correctly."
 - Every harness piece is a guess about the model: "every component in a harness encodes an
   assumption about what the model can't do on its own, and those assumptions are worth stress
-  testing" ([Anthropic, Harness design](../docs/evidence/final.md#quotes-used-on-these-pages)).
+  testing" ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 ## What the kit does
 
@@ -319,14 +321,14 @@ Compare [the filled map](kit/examples/boltons-queueutils/filled/AGENTS.md) with
 
 **What it is.** A house rule is the course's name for what OpenAI calls "golden principles": a
 convention checked by code, not by memory. Their reason: "When documentation falls short, we promote
-the rule into code" ([OpenAI, Harness engineering](../docs/evidence/final.md#quotes-used-on-these-pages)).
+the rule into code" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 `shipharness check` runs TeamTrack's seven rules on any FastAPI app, with no model calls.
 
 Three files hold your version:
 
 | File | What you decide |
 |---|---|
-| `docs/house-rules.md` | Which of R1 to R7 you keep, and why |
+| `docs/house-rules.md` | Which of the seven house rules you keep, and why |
 | `harness/shipharness_adapter.py` | The facts the checks need about your app |
 | `harness/check-params.json` | `regression_targets`: the pytest targets of your suite |
 
@@ -334,8 +336,8 @@ For a FastAPI service, keep the adapter's methods and change their values: two s
 a test client signs in as a role, the seeded ids, and how to count audit rows. The template answers
 exactly like TeamTrack's built-in adapter, so it is a working start.
 
-For a library, keep R6 as a layering rule for your packages, plus the check that existing tests keep
-passing. The worked example keeps an import-linter layers contract: `queueutils` above `listutils`
+For a library, keep the layering rule (`R6`) for your packages, plus the check that existing tests
+keep passing. The worked example keeps an import-linter layers contract: `queueutils` above `listutils`
 above `typeutils` ([its adapter](kit/examples/boltons-queueutils/filled/harness/shipharness_adapter.py)).
 
 Record today's violations once as the baseline, then check against it. Run both from your
@@ -414,7 +416,7 @@ repository; change the repository name in it if you use a fork.
   Drop the rule, or add the methods `docs/house-rules.md` lists for it.
 - Running the checks on code you do not trust. They import and run your app in this process; the
   first line says so.
-- Writing the R6 contract only into your repository's own `.importlinter`. The check reads the
+- Writing the layering contract (`R6`) only into your repository's own `.importlinter`. The check reads the
   contract from the adapter on purpose, so a change under review cannot weaken it.
 
 ## Step 5: The first harnessed run
@@ -428,8 +430,8 @@ a model for tests of one module and keeps a proposed test only if it passes five
 4. It has real assertions and does not mock the unit under test.
 5. It changed no source file.
 
-Filters 1 to 3 come from Meta's TestGen-LLM work; filters 4 and 5 are the course's own
-([sources](../docs/evidence/final.md#sources-for-these-pages)). `--layers verify` gives the model the
+Filters 1 to 3 come from Meta's TestGen-LLM work
+([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)); filters 4 and 5 are the course's own. `--layers verify` gives the model the
 course's verification layer. testgen works on any repository with a pytest suite, so it is the first
 harnessed run for a repository that is not TeamTrack.
 
@@ -510,7 +512,7 @@ line is a cost line at or below your cap.
 | `PASS` / `FAIL` | `FAIL` means at least one new violation |
 | `new=` | Violations not in the baseline: these fail CI |
 | `baseline=` | Violations already in `check-baseline.json`: shown, not counted |
-| `probes=` | Requests sent (R1 to R5), contracts run (R6), or tests run |
+| `probes=` | Requests sent (rules `R1` to `R5`), import contracts run (`R6`, layering), or tests run |
 | `[violation] ...` | One line per new violation, naming the endpoint or import |
 | Exit code | 0 no new violation, 3 a new violation, 1 an error |
 
@@ -518,7 +520,7 @@ Add `--json` for one JSON document with every finding; that is also the baseline
 
 **The testgen output.** A kept test asserts what the code does today. So it guards against future
 regressions, but it "cannot detect existing faults residing in the code base"
-([Meta, Mutation-guided test generation](../docs/evidence/final.md#quotes-used-on-these-pages)).
+([Meta, ACH](https://arxiv.org/abs/2501.12862), mutation-guided test generation).
 Review each kept test as code before you commit it. A discarded test's line names the filter that
 rejected it. Without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered
 module most proposals are discarded there.
@@ -555,14 +557,15 @@ testgen, open `testgen-report.json` and read the reason recorded for each test.
 **What it is.** The course's harness has four layers: instructions, state, scope, and verification.
 Not every repository needs all of them in full. Anthropic's method is "removing one component at a
 time and reviewing what impact it had on the final result"
-([Anthropic, Harness design](../docs/evidence/final.md#quotes-used-on-these-pages)). On TeamTrack,
-`make demo-2 LAYERS=-state` does that for you, and it costs money ([after-class.md](../docs/after-class.md)).
-Your own repository has no A/B runner, so decide each layer from what it prevents and what it costs
-to keep current.
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+On TeamTrack, `make demo-2 LAYERS=-state` does that for you, and it costs money
+([after-class.md](../docs/after-class.md)). Your own repository has no A/B runner (the course tool
+that runs the same ticket with and without a layer), so decide each layer from what it prevents and
+what it costs to keep current.
 
 Start from what the course measured on TeamTrack. The instructions, state, and verification layers
-showed no measurable difference on their primary measures. With the scope layer on, harness arms
-kept to the allowed files in 3 of 3 runs of one ticket, and bare arms in 0 of 3
+showed no measurable difference on their primary measures. With the scope layer on, the agent kept
+to the allowed files in 3 of 3 runs of one ticket; without the harness, it did in 0 of 3
 ([evidence](../docs/evidence/final.md#use-in-your-repository)). A result like that is a reason to
 keep a layer small and cheap, or to measure it on your own failures. It is not a reason to keep
 every layer by default.
@@ -595,3 +598,10 @@ makes a mistake that a dropped layer would have caught. The failure each part pr
 
 More on the kit itself: [kit/README.md](kit/README.md). More on the skills:
 [use-in-your-repo/](README.md).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM, 2024-02-14)
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH, 2025-01-22)

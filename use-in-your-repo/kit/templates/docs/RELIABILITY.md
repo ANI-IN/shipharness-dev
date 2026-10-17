@@ -1,4 +1,4 @@
-<!-- REPLACE: TeamTrack's reliability rules (R4 idempotent creates, R5 audit log, R7 migrations), kept as the example. Keep the rules your service needs and delete the rest. -->
+<!-- REPLACE: TeamTrack's reliability rules (`R4` idempotent creates, `R5` audit log, `R7` migrations), kept as the example. Keep the rules your service needs and delete the rest. -->
 # Reliability
 
 Writes that are safe to repeat, a complete audit trail, and a schema that always migrates. Three house
@@ -7,7 +7,7 @@ including new ones.
 
 ## R4 Idempotent creates
 
-<!-- REPLACE: delete R4 if clients never retry your creates. Name the file that shows your pattern (TeamTrack: app/api/projects.py). -->
+<!-- REPLACE: delete `R4` (idempotent creates) if clients never retry your creates. Name the file that shows your pattern (TeamTrack: app/api/projects.py). -->
 - Create endpoints accept an `Idempotency-Key` header.
 - The same key with the same body returns the first response and creates nothing new.
 - The same key with a different body returns 409 idempotency_conflict.
@@ -25,7 +25,7 @@ The check: a duplicate POST with the same key must leave exactly one new record.
 
 ## R5 Audit log
 
-<!-- REPLACE: delete R5 if you keep no audit log. The R5 check counts rows with audit_count() in your adapter. -->
+<!-- REPLACE: delete `R5` (audit log) if you keep no audit log. The `R5` check counts rows with audit_count() in your adapter. -->
 - Every write adds exactly one row to the audit log, with the actor, an action name such as
   `issue.create`, the entity type, and its id.
 - Reads add nothing.
@@ -38,7 +38,7 @@ The check: count audit rows before and after each write.
 
 ## R7 Migrations
 
-<!-- REPLACE: your migration tool and its one-head check. Delete R7 if you have no database. -->
+<!-- REPLACE: your migration tool and its one-head check. Delete `R7` (migrations) if you have no database. -->
 - Every schema change gets an Alembic migration in `migrations/versions/`.
 - There must be exactly one migration head, and `alembic upgrade head` must work on an empty
   database.

@@ -11,8 +11,8 @@ Summary in our own words; quotes are marked. Sources are listed at the end of th
 ACH starts from a concern written in plain text, for example a kind of privacy fault seen before.
 A language model writes mutants: small changes to the code that simulate that fault. A second
 model, used as a judge, removes mutants that behave the same as the original (equivalent mutants).
-A modified TestGen-LLM then writes tests that pass on the original code and fail on the mutant
-.
+A modified TestGen-LLM ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)) then writes tests
+that pass on the original code and fail on the mutant.
 
 The target is mutants that are "relevant to the issue of concern and also currently not caught
 (unkilled) by any existing test case". A kept test therefore catches a fault that no
@@ -29,7 +29,7 @@ existing test catches: ACH calls this "Hardening".
 
 ## Limits the authors state
 
-The current code is the regression oracle, so ACH "cannot detect existing faults residing in the
+The current code is the regression oracle (the reference for correct behaviour), so ACH "cannot detect existing faults residing in the
 code base". It protects against future regressions of the concern.
 
 ## What the course takes from it
@@ -38,9 +38,10 @@ code base". It protects against future regressions of the concern.
   adds no coverage, because coverage alone would discard about half of such tests.
 - Targeted mutants on risky lines, written by hand for the course rather than by a model, and
   validated so each one is killed by at least one existing test.
-- Mutants split into a filter set and a referee set, so the tests are never judged with the
+- Mutants split into a filter set and a referee set (mutants held back to judge the kept tests), so the tests are never judged with the
   mutants that selected them.
 
 ## Sources
 
 - [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.

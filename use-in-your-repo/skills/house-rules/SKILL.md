@@ -59,8 +59,7 @@ implementations, we let agents ship fast without undermining the foundation".
    probe against the running app for behaviour such as tenant isolation.
 5. Write the error message in `REMEDIATION`: what to do instead and which document to read. Keep the
    format `ERROR <id> <path>:<line>: <what is wrong>. Fix: <what to do>`, one line per violation,
-   so grep finds it ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): "write ERROR and put the reason on the same line so grep will find it",
-   ).
+   so grep finds it ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): "write ERROR and put the reason on the same line so grep will find it").
 6. Run the check on the whole repository. List existing violations in `BASELINE` so the rule
    applies to new code from today, and open a feature to remove each one.
 7. Wire it in: add the check to CI and to the gate an agent must pass before "done", and add one

@@ -184,8 +184,8 @@ Session lifecycle  pass 0  partial 0  fail 5
 FAIL     I1 AGENTS.md map at the repository root: no AGENTS.md at the repository root
 ```
 
-TeamTrack has no harness files at its root on purpose: in the course A/B the bare arm works without
-them, and the harness arm has `AGENTS.md` placed at the workspace root from
+TeamTrack has no harness files at its root on purpose: in the course's A/B runs (the same ticket run
+with and without the harness), the run without the harness works without them, and the run with it has `AGENTS.md` placed at the workspace root from
 `platform/teamtrack/harness/instructions/`. So most checks fail on the app folder itself.
 
 ## What it costs

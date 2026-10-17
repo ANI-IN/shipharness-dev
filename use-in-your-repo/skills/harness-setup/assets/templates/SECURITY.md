@@ -50,3 +50,8 @@ back here.
 
 Do not fix it in the same change. Add it under "Next" in `progress.md` with the rule ID and the
 file, so it gets its own feature and its own review.
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)

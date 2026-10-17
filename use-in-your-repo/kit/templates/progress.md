@@ -1,4 +1,4 @@
-<!-- REPLACE: TeamTrack's progress log as the harness writes it for feature F1. Keep the section names: agents update Done, In progress, and Next, and add one Session log line per session. Source: Anthropic, "Effective harnesses for long-running agents" (2025-11-26), https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents. -->
+<!-- REPLACE: TeamTrack's progress log as the harness writes it for TeamTrack's org-wide issue search feature (`F1`). Keep the section names: agents update Done, In progress, and Next, and add one Session log line per session. Source: Anthropic, "Effective harnesses for long-running agents" (2025-11-26), https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents. -->
 # Progress
 
 A log of what agents have done on this ticket ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) keeps it in claude-progress.txt; this course

@@ -27,7 +27,7 @@ HTMX). Each customer is an org, and every customer row carries an `org_id`.
 
 ## House rules at a glance
 
-<!-- REPLACE: your house rules, one line each, with the document that explains it. docs/house-rules.md says how to adapt R1-R7 or drop one. -->
+<!-- REPLACE: your house rules, one line each, with the document that explains it. docs/house-rules.md says how to adapt the seven house rules (`R1` to `R7`) or drop one. -->
 Every endpoint follows all seven rules, new endpoints included. Automated checks find endpoints in
 the OpenAPI schema, so a new endpoint is checked the moment it exists.
 
@@ -103,11 +103,11 @@ focused document above is quicker to read.
 
 ## Start of every session
 
-<!-- REPLACE: in TeamTrack the harness gives the agent these steps at the start of every session (src/shipharness/harness/state/lifecycle.py, rendered for F1). Keep them when no harness runs your sessions: replace run_visible_tests (a shipharness tool) with your test command and F1 with your feature id. -->
+<!-- REPLACE: in TeamTrack the harness gives the agent these steps at the start of every session (src/shipharness/harness/state/lifecycle.py, rendered for the org-wide issue search feature, `F1`). Keep them when no harness runs your sessions: replace run_visible_tests (a shipharness tool) with your test command and `F1` with your feature id. -->
 
 1. Run `pwd` to see the directory you are working in. You can only edit files in this directory.
 2. Read progress.md and the git log (`git log --oneline -20`) to see what was recently worked on.
-3. Read session-handoff.md (the structured handoff from the last session) and the exec plan docs/exec-plans/active/F1.md.
+3. Read session-handoff.md (the structured handoff from the last session) and the exec plan docs/exec-plans/active/F1.md. <!-- check-style: allow SC23 test_templates matches this harness session step verbatim -->
 4. Read the "Notes from the agent" in session-handoff.md before any other document: earlier sessions wrote down the house rules and files that matter for this ticket. Open a document from the AGENTS.md map only for a detail the notes do not cover (in the first session, only the documents for the parts you will change).
 5. Read feature_list.json and work on the feature listed there, and only it.
 6. Run `bash init.sh` to set up the database and run a basic end-to-end test.
@@ -118,6 +118,6 @@ focused document above is quicker to read.
 <!-- REPLACE: the wrap-up steps the harness gives the agent at the end of a session. Keep them when no harness does it for you. -->
 
 1. Update progress.md: Done, In progress, and Next.
-2. Update the exec plan docs/exec-plans/active/F1.md: Progress (with timestamps) and Decision Log.
+2. Update the exec plan docs/exec-plans/active/F1.md: Progress (with timestamps) and Decision Log. <!-- check-style: allow SC23 test_templates matches this harness session step verbatim -->
 3. Write your notes under "## Notes from the agent" in session-handoff.md: what you were doing, what is left, what to watch out for, and the house rules and file locations from the documents you read that matter for this ticket, so the next session does not need to read them again. The harness writes the machine summary itself.
 4. Commit your work to git with a descriptive message (git add, then git commit).

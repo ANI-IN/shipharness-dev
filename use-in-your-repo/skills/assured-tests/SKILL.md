@@ -34,6 +34,9 @@ A proposed test is kept only if it passes all five, checked in this order, cheap
 | 4 | Has real assertions and does not mock the unit under test | Course filter (no direct source) |
 | 5 | No source file changed during the test phase | Course filter, built on [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
 
+A mutant is a copy of the code with one small bug planted on purpose; a test kills it when the
+test fails on that copy.
+
 Why each filter exists, and what it cannot catch: [filters](references/filters.md). The two papers
 in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
 
@@ -79,8 +82,7 @@ in short: [TestGen-LLM](references/testgen-llm.md), [ACH](references/ach.md).
 - Each run calls a model; `shipharness testgen` prints `Cost: $X` at exit and respects the course
   cost cap.
 - The current code is the oracle: a kept test asserts what the code does today, so it protects
-  against future regressions but "cannot detect existing faults residing in the code base" ([Meta, ACH](https://arxiv.org/abs/2501.12862),
-  ).
+  against future regressions but "cannot detect existing faults residing in the code base" ([Meta, ACH](https://arxiv.org/abs/2501.12862)).
 - Filter 2's five runs catch most flakiness, not all of it.
 
 ## Sources

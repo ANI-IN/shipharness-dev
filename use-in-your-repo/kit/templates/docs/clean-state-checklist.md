@@ -12,7 +12,7 @@ Go through this list before ending a session and before saying a feature is done
 - [ ] Changed Python files are lint clean: `ruff check <changed .py files>`.
 <!-- REPLACE: your migration check, or delete this item if you have no database. -->
 - [ ] `alembic heads` shows exactly one `(head)`, and `alembic upgrade head` works on an empty
-      database (house rule R7).
+      database (`R7`, the migrations rule).
 <!-- REPLACE: the debug calls your language uses; these are the ones the gate rejects in added non-test Python lines. -->
 - [ ] No debug output was added outside the tests: no `print(`, `breakpoint()`, `import pdb`, or
       `pdb.set_trace(` in the diff.
