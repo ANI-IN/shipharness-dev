@@ -68,7 +68,7 @@ def test_opening_balance_is_recorded_once_and_counts(tmp_path: Path) -> None:
     write_ledger(
         ledger, [{"ts": "2026-10-16T16:35:58Z", "session": "s", "experiment": False, "cost_usd": 1}]
     )
-    record_opening_balance(ledger, 0.0022, note="M3-M4 before the ledger (VERIFICATION)")
+    record_opening_balance(ledger, 0.0022, note="M3-M4 before the ledger")
     assert tracker(ledger).build_total_usd == pytest.approx(1.0022)
     entry = json.loads(ledger.read_text(encoding="utf-8").splitlines()[-1])
     assert entry["kind"] == "opening" and entry["ts"] < "2026-10-16T16:35:58Z"

@@ -132,3 +132,11 @@ def test_tag_is_refused_when_it_already_exists(tmp_path: Path) -> None:
     frozen(repo)
     with pytest.raises(freeze.FreezeError, match="exists"):
         frozen(repo)
+
+
+def test_the_tag_message_cites_no_private_build_document() -> None:
+    # The record tag is pushed to the public repository at release; its message must stand alone.
+    from shipharness.freeze import _message
+
+    message = _message({"content_hashes": {}})
+    assert "DESIGN" not in message and "VERIFICATION" not in message

@@ -221,7 +221,7 @@ def expected_record(repo: Path) -> dict[str, Any] | None:
 
 def _message(record: dict[str, Any]) -> str:
     return (
-        "Harness freeze before M8 (DESIGN 10.4). M8 results are valid only for this content.\n\n"
+        "Harness freeze before M8 (course freeze rules 1 and 2). M8 results are valid only for this content.\n\n"
         f"{_MARKER}\n{json.dumps(record, indent=2, sort_keys=True)}\n"
     )
 

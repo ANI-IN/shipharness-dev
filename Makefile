@@ -66,7 +66,7 @@ format:
 
 lint-prose:
 	$(UV) run python scripts/lint_prose.py
-	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md DESIGN.md RESEARCH.md; fi
+	@if command -v vale >/dev/null 2>&1; then vale --minAlertLevel=error README.md $(wildcard DESIGN.md RESEARCH.md); fi  # DESIGN.md, RESEARCH.md: build repository only, not included in the public release
 
 anchors:
 	$(UV) run python scripts/anchors.py list
