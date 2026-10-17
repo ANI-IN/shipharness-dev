@@ -149,7 +149,6 @@ def test_selection_follows_the_owner_structure() -> None:
         "setup/pre-class.md",
         "use-in-your-repo/README.md",
         "use-in-your-repo/skills/harness-setup/SKILL.md",
-        "docs/CHANGELOG.md",
         "platform/teamtrack/reference/checkpoints.toml",
         "platform/teamtrack/mutants/m1.patch",
         "platform/teamtrack/tests/hidden/f1/test_f1_search.py",
@@ -218,6 +217,16 @@ def test_leak_check_names_every_private_file_with_its_reason() -> None:
     assert sorted(found) == sorted(public[3:])
     assert found["platform/scripts/pilot.py"] == mr.REASON_INTERNAL
     assert found[f"{A1}/assignment/solution/grader/tests/test_grade.py"] == mr.REASON_SOLUTION
+
+
+def test_the_changelog_stays_out_of_the_release() -> None:
+    # docs/CHANGELOG.md is the build log of this repository, not course text.
+    assert "docs/CHANGELOG.md" not in mr.DOCS_FILES
+    assert mr.classify("docs/CHANGELOG.md") == mr.REASON_PRIVATE
+    sel = mr.select(TRACKED)
+    assert "docs/CHANGELOG.md" not in sel.included
+    assert sel.excluded["docs/CHANGELOG.md"] == mr.REASON_PRIVATE
+    assert dict(mr.leaks(["docs/CHANGELOG.md"])) == {"docs/CHANGELOG.md": mr.REASON_PRIVATE}
 
 
 def test_missing_owner_files_are_listed_not_failed() -> None:

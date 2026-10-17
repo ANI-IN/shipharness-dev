@@ -24,8 +24,8 @@ If a line must break a rule, for example to quote real output, end it with
 line, right before a fenced block, covers the whole block.
 
 Public course files are: `README.md`, `setup/`, the section folders `section-1-*` to `section-4-*`,
-`final-project/`, `slides/README.md`, `use-in-your-repo/`, and `docs/` (except
-`docs/CHANGELOG.md`). The assignment graders and hidden test cases are not part of the course text.
+`final-project/`, `slides/README.md`, `use-in-your-repo/`, and `docs/`. The assignment graders and
+hidden test cases are not part of the course text.
 Files outside that list are not part of the course text either.
 
 Agent files are the files an agent reads, not a learner: `section-N-*/demo/harness/`, the files in
