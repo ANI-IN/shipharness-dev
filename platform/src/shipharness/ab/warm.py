@@ -39,9 +39,10 @@ CLASS_TASKS: tuple[tuple[str, str], ...] = (
     ("final", "F6"),
     ("final", "F7"),
 )
-# What the image build context copies (sandbox/Dockerfile); .dockerignore drops caches and DBs.
-IMAGE_SOURCES = ("sandbox/Dockerfile", "pyproject.toml", "uv.lock")
-IMAGE_SOURCE_DIRS = ("src",)
+# What the image build context copies (platform/sandbox/Dockerfile); .dockerignore drops caches
+# and DBs.
+IMAGE_SOURCES = ("platform/sandbox/Dockerfile", "pyproject.toml", "uv.lock")
+IMAGE_SOURCE_DIRS = ("platform/src",)
 _SKIP_PARTS = {"__pycache__"}
 _SKIP_SUFFIXES = {".pyc", ".db"}
 IMAGE_STAMP = "images.json"

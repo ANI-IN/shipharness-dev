@@ -18,6 +18,7 @@ import pytest
 from shipharness.ab.demo import ABTask, run_ab, section_layers
 from shipharness.ab.runtime import build_runtime
 from shipharness.config import Settings
+from shipharness.layout import find_repo_root
 from shipharness.runner.model import ScriptedModelClient, tool_step
 
 pytestmark = [
@@ -25,8 +26,8 @@ pytestmark = [
     pytest.mark.skipif(shutil.which("docker") is None, reason="docker not installed"),
 ]
 
-REPO = Path(__file__).resolve().parents[3]
-DATASET = REPO / "datasets" / "teamtrack-features-v1.jsonl"
+REPO = find_repo_root(Path(__file__))
+DATASET = REPO / "platform" / "datasets" / "teamtrack-features-v1.jsonl"
 
 
 def _f4_task() -> ABTask:

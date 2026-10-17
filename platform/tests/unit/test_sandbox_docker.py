@@ -12,6 +12,7 @@ import pytest
 
 from shipharness.config import Settings
 from shipharness.events import EventBus, read_events
+from shipharness.layout import find_repo_root
 from shipharness.sandbox import DockerSandbox, default_policy
 
 pytestmark = [
@@ -144,7 +145,7 @@ def test_preview_reloads_the_arms_code_and_captures_the_board(tmp_path: Path) ->
     from shipharness.ab.workspace import export_checkpoint
     from shipharness.console.preview import BoardPreview
 
-    repo = Path(__file__).resolve().parents[2]
+    repo = find_repo_root(Path(__file__))
     workspace = export_checkpoint(repo, None, tmp_path / "ws")
     settings = Settings(_env_file=None)
     policy = default_policy(settings).model_copy(update={"workspace_read_only": True})
@@ -206,7 +207,7 @@ def test_check_runner_judges_teamtrack_inside_the_referee_container(tmp_path: Pa
         runner_command,
     )
 
-    repo = Path(__file__).resolve().parents[2]
+    repo = find_repo_root(Path(__file__))
     build = export_checkpoint(repo, None, tmp_path / "build")
     build.chmod(0o777)
     settings = Settings(_env_file=None)

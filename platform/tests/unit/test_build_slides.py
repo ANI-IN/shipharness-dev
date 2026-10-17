@@ -10,8 +10,12 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
-_spec = importlib.util.spec_from_file_location("build_slides", REPO / "scripts" / "build_slides.py")
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+_spec = importlib.util.spec_from_file_location(
+    "build_slides", REPO / "platform" / "scripts" / "build_slides.py"
+)
 assert _spec and _spec.loader
 bs = importlib.util.module_from_spec(_spec)
 sys.modules["build_slides"] = bs
@@ -300,7 +304,7 @@ def test_check_mode_exits_2_on_validation_errors(tmp_path: Path) -> None:
 def test_code_excerpt_selects_lines_and_folds_skipped_content() -> None:
     ref = bs.CodeRef("S4:filters", [(20, 23), (30, 36)])
     excerpt = bs.resolve_code(ref, REPO)
-    assert excerpt.path == "src/shipharness/filters/pipeline.py"
+    assert excerpt.path == "platform/src/shipharness/filters/pipeline.py"
     assert excerpt.lines[0].strip() == "for flt in filters:"
     assert bs.FOLD in excerpt.lines
     assert excerpt.count == 11

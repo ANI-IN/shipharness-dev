@@ -1,10 +1,10 @@
 """Build the course slides from slides/deck.md: an HTML deck, a PDF, and a PPTX with speaker notes.
 
 Usage:
-  uv run python scripts/build_slides.py            validate, then write slides/dist/deck.*
-  uv run python scripts/build_slides.py --check    validate and list open items (no browser)
-  uv run python scripts/build_slides.py --strict   exit 1 while a PENDING or CAPTURE marker or an
-                                                   empty slot remains
+  uv run python platform/scripts/build_slides.py           validate, then write slides/dist/deck.*
+  uv run python platform/scripts/build_slides.py --check   validate and list open items (no browser)
+  uv run python platform/scripts/build_slides.py --strict  exit 1 while a PENDING or CAPTURE marker
+                                                          or an empty slot remains
 
 The deck format is described in slides/README.md and in the comment at the top of slides/deck.md.
 Mermaid diagrams are rendered to PNG once with Playwright Chromium (mermaid loaded from a pinned CDN
@@ -32,7 +32,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 DECK = REPO / "slides" / "deck.md"
 OUT = REPO / "slides" / "dist"
 COURSE = "Module 1: Harness Engineering for Coding Agents"
@@ -328,7 +328,9 @@ class CodeExcerpt:
 
 @functools.lru_cache(maxsize=4)
 def _anchor_index(root: Path) -> dict[str, tuple[str, list[str]]]:
-    spec = importlib.util.spec_from_file_location("_anchors", REPO / "scripts" / "anchors.py")
+    spec = importlib.util.spec_from_file_location(
+        "_anchors", REPO / "platform" / "scripts" / "anchors.py"
+    )
     assert spec and spec.loader
     anchors = importlib.util.module_from_spec(spec)
     sys.modules["_anchors"] = anchors  # dataclasses look the module up while it loads

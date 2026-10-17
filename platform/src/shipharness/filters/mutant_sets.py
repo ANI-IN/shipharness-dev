@@ -1,9 +1,10 @@
 """Filter and referee sets stay disjoint across every TeamTrack mutant file.
 
-A module file (`teamtrack/mutants/<module>.jsonl`) and a feature file
-(`teamtrack/mutants/features/<task>.jsonl`) can mutate the same line. If one file puts a mutation in
-the filter set and another puts the same mutation in the referee set, a test written to kill the
-filter mutant also kills the referee mutant, and the referee no longer measures held-out behaviour.
+A module file (`platform/teamtrack/mutants/<module>.jsonl`) and a feature file
+(`platform/teamtrack/mutants/features/<task>.jsonl`) can mutate the same line. If one file puts a
+mutation in the filter set and another puts the same mutation in the referee set, a test written
+to kill the filter mutant also kills the referee mutant, and the referee no longer measures
+held-out behaviour.
 `overlaps` reports every such pair, and every id used twice.
 
 A mutation is identified by (file, original, replacement) after whitespace normalisation. Mutations
@@ -49,8 +50,9 @@ from collections.abc import Iterable
 from pathlib import Path
 
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import APP_DIR
 
-MUTANTS_DIR = REPO_ROOT / "teamtrack" / "mutants"
+MUTANTS_DIR = REPO_ROOT / APP_DIR / "mutants"
 
 
 def mutant_files(root: Path = MUTANTS_DIR) -> list[Path]:

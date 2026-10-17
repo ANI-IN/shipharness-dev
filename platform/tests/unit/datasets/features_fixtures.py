@@ -12,7 +12,9 @@ import json
 import shutil
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
 FEATURES = ("F1", "F2", "F3", "F4", "F5", "F6", "F7")
 CONTROLS = ("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")
 START = {
@@ -129,17 +131,22 @@ def make_repo(
         (mutants / f"{task}.jsonl").write_text(feature_mutant(task), encoding="utf-8")
     (tt / "reference").mkdir(parents=True, exist_ok=True)
     (tt / "reference" / "checkpoints.toml").write_text(checkpoints_toml(), encoding="utf-8")
-    for path in (REPO / "teamtrack" / "mutants").glob("*.jsonl"):
+    for path in (REPO / "platform" / "teamtrack" / "mutants").glob("*.jsonl"):
         shutil.copy2(path, tt / "mutants" / path.name)
     if not real_sources:
         return root
     for control in CONTROLS:
         task = control.lower()
-        shutil.copytree(REPO / "teamtrack" / "reference" / task, tt / "reference" / task)
         shutil.copytree(
-            REPO / "teamtrack" / "tests" / "hidden" / task, tt / "tests" / "hidden" / task
+            REPO / "platform" / "teamtrack" / "reference" / task, tt / "reference" / task
+        )
+        shutil.copytree(
+            REPO / "platform" / "teamtrack" / "tests" / "hidden" / task,
+            tt / "tests" / "hidden" / task,
         )
     sources = root / "datasets" / "sources"
     sources.mkdir(parents=True)
-    shutil.copy2(REPO / "datasets" / "sources" / "tickets.toml", sources / "tickets.toml")
+    shutil.copy2(
+        REPO / "platform" / "datasets" / "sources" / "tickets.toml", sources / "tickets.toml"
+    )
     return root

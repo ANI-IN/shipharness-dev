@@ -12,10 +12,13 @@ from shipharness.console.report import load_report
 from shipharness.console.screens import STATUS, ScreenContext, ScreenRenderer, status
 from shipharness.console.state import ConsoleState
 from shipharness.events import read_events
+from shipharness.layout import find_repo_root
 from tests.unit.console.fixture_log import build_fixture_exports, build_fixture_run
 
-STATIC = Path(__file__).parents[3] / "src" / "shipharness" / "console" / "static"
-TEMPLATES = Path(__file__).parents[3] / "src" / "shipharness" / "console" / "templates"
+STATIC = find_repo_root(Path(__file__)) / "platform" / "src" / "shipharness" / "console" / "static"
+TEMPLATES = (
+    find_repo_root(Path(__file__)) / "platform" / "src" / "shipharness" / "console" / "templates"
+)
 CSS = (STATIC / "console.css").read_text(encoding="utf-8")
 
 

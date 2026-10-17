@@ -8,10 +8,11 @@ import pytest
 from shipharness.events import EventBus, read_events
 from shipharness.harness.base import BaseLayer, Harness, LayerContext, parse_layers
 from shipharness.harness.decisions import HarnessDecision
+from shipharness.layout import find_repo_root
 from shipharness.runner.models import AgentRunSpec, ToolCall
 from shipharness.sandbox import FakeSandbox
 
-HARNESS_SRC = Path(__file__).resolve().parents[2] / "src" / "shipharness" / "harness"
+HARNESS_SRC = find_repo_root(Path(__file__)) / "platform" / "src" / "shipharness" / "harness"
 
 
 def make_ctx(tmp_path: Path, bus: EventBus | None = None) -> LayerContext:

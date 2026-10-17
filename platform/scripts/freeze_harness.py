@@ -1,7 +1,7 @@
 """Create the `harness-frozen` tag when the M6 pilot gate passes (DESIGN §10.4).
 
-    uv run python scripts/freeze_harness.py --dry-run   # print the record, change nothing
-    uv run python scripts/freeze_harness.py             # tag HEAD
+    uv run python platform/scripts/freeze_harness.py --dry-run   # print the record, change nothing
+    uv run python platform/scripts/freeze_harness.py             # tag HEAD
 
 Refuses when the tag exists or frozen paths have uncommitted changes. Prints the tag and its commit
 for VERIFICATION.md. Secrets are never read into the record.
@@ -17,7 +17,7 @@ from pathlib import Path
 from shipharness import freeze
 from shipharness.config import Settings
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 IDENTITY = ("ANI-IN", "44803072+ANI-IN@users.noreply.github.com")
 
 

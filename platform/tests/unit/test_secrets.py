@@ -8,7 +8,9 @@ from pathlib import Path
 
 import pytest
 
-REPO_ROOT = Path(__file__).resolve().parents[2]
+from shipharness.layout import find_repo_root
+
+REPO_ROOT = find_repo_root(Path(__file__))
 
 # OpenAI keys start with "sk-"; LangSmith keys start with "lsv2_pt_" or "lsv2_sk_".
 KEY_PATTERNS = [

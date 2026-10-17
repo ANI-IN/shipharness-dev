@@ -12,7 +12,9 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
 RUN_SHEET = REPO / "instructor" / "run-sheet.md"
 
 # Anything that starts or names a recorded or scripted run instead of a live one.

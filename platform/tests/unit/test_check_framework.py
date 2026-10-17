@@ -15,8 +15,9 @@ from shipharness.checks import (
     mark_baseline,
     register_check,
 )
+from shipharness.layout import find_repo_root
 
-TEAMTRACK = Path(__file__).resolve().parents[2] / "teamtrack"
+TEAMTRACK = find_repo_root(Path(__file__)) / "platform" / "teamtrack"
 
 
 @pytest.fixture(scope="module")

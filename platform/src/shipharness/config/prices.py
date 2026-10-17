@@ -1,4 +1,4 @@
-"""Model prices from `config/prices.toml`."""
+"""Model prices from `platform/config/prices.toml`."""
 
 from __future__ import annotations
 
@@ -6,9 +6,9 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-# src/shipharness/config/prices.py -> repository root is three levels above the package directory.
-REPO_ROOT = Path(__file__).resolve().parents[3]
-DEFAULT_PRICES_FILE = REPO_ROOT / "config" / "prices.toml"
+from shipharness.layout import PLATFORM_DIR, REPO_ROOT
+
+DEFAULT_PRICES_FILE = REPO_ROOT / PLATFORM_DIR / "config" / "prices.toml"
 
 _REQUIRED = ("input", "cached_input", "cache_write", "output")
 

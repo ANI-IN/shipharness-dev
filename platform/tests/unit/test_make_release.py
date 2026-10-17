@@ -10,8 +10,12 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
-_spec = importlib.util.spec_from_file_location("make_release", REPO / "scripts" / "make_release.py")
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+_spec = importlib.util.spec_from_file_location(
+    "make_release", REPO / "platform" / "scripts" / "make_release.py"
+)
 assert _spec and _spec.loader
 mr = importlib.util.module_from_spec(_spec)
 sys.modules["make_release"] = mr
@@ -518,7 +522,9 @@ def test_unknown_finding_ids_are_reported_unresolved() -> None:
 
 def test_references_text_passes_the_prose_lint_and_the_reference_check() -> None:
     refs = _references({"a.md": "F-a-01 F-b-01\n"})
-    lint = importlib.util.spec_from_file_location("lint_prose", REPO / "scripts" / "lint_prose.py")
+    lint = importlib.util.spec_from_file_location(
+        "lint_prose", REPO / "platform" / "scripts" / "lint_prose.py"
+    )
     assert lint and lint.loader
     module = importlib.util.module_from_spec(lint)
     lint.loader.exec_module(module)
@@ -764,7 +770,7 @@ def test_dry_run_cli_reports_broken_references_without_failing(
     done = subprocess.run(
         [
             sys.executable,
-            str(REPO / "scripts" / "make_release.py"),
+            str(REPO / "platform" / "scripts" / "make_release.py"),
             "--dry-run",
             "--repo",
             str(mini_repo),

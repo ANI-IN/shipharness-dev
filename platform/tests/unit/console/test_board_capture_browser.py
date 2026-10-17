@@ -23,11 +23,12 @@ from shipharness.console.board_capture import (
 )
 from shipharness.console.preview import BoardPreview, parse_capture_output
 from shipharness.events import EventBus, read_events
+from shipharness.layout import find_repo_root
 from shipharness.sandbox import ExecResult
 
 pytestmark = pytest.mark.browser
 
-TEAMTRACK = Path(__file__).parents[3] / "teamtrack"
+TEAMTRACK = find_repo_root(Path(__file__)) / "platform" / "teamtrack"
 FIXTURE_BOARD = """<!doctype html><html><head><title>b</title></head><body>
 <article class="card" data-issue-id="1" data-org="acme"><a class="title">Login bug</a></article>
 <article class="card" data-issue-id="21" data-org="globex"><a class="title">Globex x</a></article>

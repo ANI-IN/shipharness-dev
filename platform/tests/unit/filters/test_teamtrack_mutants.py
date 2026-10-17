@@ -16,10 +16,11 @@ from pathlib import Path
 import pytest
 
 from shipharness.filters.mutants import Mutant, load_mutants, run_mutant_detailed
+from shipharness.layout import find_repo_root
 
 from .helpers import PY, local_sandbox
 
-TEAMTRACK = Path(__file__).resolve().parents[3] / "teamtrack"
+TEAMTRACK = find_repo_root(Path(__file__)) / "platform" / "teamtrack"
 MUTANTS_DIR = TEAMTRACK / "mutants"
 V = "tests/visible/"
 

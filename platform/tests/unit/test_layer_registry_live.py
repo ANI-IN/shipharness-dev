@@ -7,7 +7,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
 
 
 def test_every_layer_resolves_in_a_fresh_interpreter() -> None:

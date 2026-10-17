@@ -5,8 +5,8 @@ with board previews off, several at once, under a hard total budget: a new A/B s
 spend since the pilot began plus the worst case of every A/B in flight and of the next one fits the
 budget. Writes one JSON summary under `.shipharness/pilot/` and prints the gate conditions.
 
-    uv run python scripts/pilot.py --k 3 --effort medium --parallel 2 --budget 10
-    uv run python scripts/pilot.py --determinism 10 --ab <ab id>   # referee re-runs, no model calls
+    uv run python platform/scripts/pilot.py --k 3 --effort medium --parallel 2 --budget 10
+    uv run python platform/scripts/pilot.py --determinism 10 --ab <ab id>   # referee re-runs only
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 SECTIONS = {"F1": "demo-1", "F2": "demo-2", "F3": "demo-3", "F4": "demo-4"}
 # Fields that differ between two judgements of the same build by design (ids, links, timings, cost).
 VOLATILE = {
@@ -102,7 +102,7 @@ def judged(record: dict[str, Any]) -> dict[str, Any]:
 
 
 def _settings() -> Any:
-    sys.path.insert(0, str(REPO / "src"))
+    sys.path.insert(0, str(REPO / "platform" / "src"))
     from shipharness.config import get_settings
 
     return get_settings()

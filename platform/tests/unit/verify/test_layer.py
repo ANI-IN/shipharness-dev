@@ -11,6 +11,7 @@ from shipharness.cost import Caps, CostTracker
 from shipharness.events import EventBus, read_events
 from shipharness.harness.base import Harness, LayerContext
 from shipharness.harness.verify.layer import VerifyLayer
+from shipharness.layout import find_repo_root
 from shipharness.runner.loop import RunOptions, run_agent
 from shipharness.runner.model import ScriptedModelClient, tool_step
 from shipharness.runner.models import AgentRunSpec
@@ -353,7 +354,7 @@ def test_gate_params_report_no_new_violations_on_the_untouched_checkpoint(tmp_pa
     from shipharness.checks.base import CheckResult
     from shipharness.checks.runner import run_checks
 
-    repo = Path(__file__).resolve().parents[3] / "teamtrack"
+    repo = find_repo_root(Path(__file__)) / "platform" / "teamtrack"
     ctx = ctx_for(tmp_path, FakeSandbox(Script([GREEN])))
     params = VerifyLayer()._params(ctx)
     kw: dict[str, Any] = dict(checkpoint="m1-s1-start", feature_id="F1", seed=5)

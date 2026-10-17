@@ -6,7 +6,9 @@ import importlib.util
 from pathlib import Path
 from typing import Any
 
-SCRIPT = Path(__file__).resolve().parents[3] / "scripts" / "probe_langsmith.py"
+from shipharness.layout import find_repo_root
+
+SCRIPT = find_repo_root(Path(__file__)) / "platform" / "scripts" / "probe_langsmith.py"
 
 
 def load_probe() -> Any:

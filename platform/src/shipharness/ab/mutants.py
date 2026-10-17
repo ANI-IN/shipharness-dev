@@ -9,7 +9,10 @@ from typing import Any
 
 import structlog
 
-MUTANT_DIR = Path("teamtrack") / "mutants"
+from shipharness.layout import APP_DIR, app_dir_at, logical_path
+
+MUTANT_DIR = Path(APP_DIR) / "mutants"
+_LOGICAL_MUTANT_DIR = "teamtrack/mutants"  # how task manifests name it (any layout)
 
 
 def _blob(course_repo: Path, ref: str, rel: Path) -> bytes | None:
@@ -24,7 +27,8 @@ def _blob(course_repo: Path, ref: str, rel: Path) -> bytes | None:
 
 def load_referee_mutants(mutant_set: str, course_repo: Path, ref: str | None = None) -> list[Any]:
     """`mutant_set` is a comma-separated list of module names (`app.services.issues`, resolved to
-    `teamtrack/mutants/<name>.jsonl`) or repo-relative `.jsonl` paths. Only the referee set is
+    TeamTrack's `mutants/<name>.jsonl`) or repo-relative `.jsonl` paths (`teamtrack/...` names
+    TeamTrack's directory in either layout). Only the referee set is
     returned; filter-set mutants are never used to judge an arm. Records are validated, but not
     matched against source lines here: the arm may have changed a line, which the mutant runner
     reports as an error for that mutant. With `ref` (the A/B's pinned checkpoint commit), the
@@ -35,7 +39,8 @@ def load_referee_mutants(mutant_set: str, course_repo: Path, ref: str | None = N
     for token in (t.strip() for t in mutant_set.split(",")):
         if not token:
             continue
-        rel = Path(token) if token.endswith(".jsonl") else MUTANT_DIR / f"{token}.jsonl"
+        logical = token if token.endswith(".jsonl") else f"{_LOGICAL_MUTANT_DIR}/{token}.jsonl"
+        rel = Path(logical_path(logical, app_dir_at(Path(course_repo), ref)))
         if ref is None:
             path = Path(course_repo) / rel
             if not path.is_file():

@@ -6,8 +6,10 @@ import importlib.util
 import json
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-_spec = importlib.util.spec_from_file_location("pilot", REPO / "scripts" / "pilot.py")
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+_spec = importlib.util.spec_from_file_location("pilot", REPO / "platform" / "scripts" / "pilot.py")
 assert _spec and _spec.loader
 pilot = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(pilot)

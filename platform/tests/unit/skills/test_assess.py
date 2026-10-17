@@ -12,10 +12,11 @@ from types import ModuleType
 
 import pytest
 
+from shipharness.layout import find_repo_root
 from tests.unit.skills.helpers import load_script
 
-REPO = Path(__file__).resolve().parents[3]
-SKILL = REPO / "skills" / "harness-setup"
+REPO = find_repo_root(Path(__file__))
+SKILL = REPO / "use-in-your-repo" / "skills" / "harness-setup"
 SCRIPT = SKILL / "scripts" / "assess.py"
 TEMPLATES = SKILL / "assets" / "templates"
 AREAS = ["Instructions", "State", "Scope", "Verification", "Session lifecycle"]
@@ -179,10 +180,10 @@ def test_cli_json_and_missing_repo(tmp_path: Path) -> None:
 
 def test_assess_teamtrack(assess: ModuleType, tmp_path: Path) -> None:
     """The bundled demo target: the bare repo has visible tests and a handbook, but no map."""
-    checks = assess.assess(REPO / "teamtrack")
+    checks = assess.assess(REPO / "platform" / "teamtrack")
     found = statuses(checks)
     assert found["V1"] == "pass"
     assert found["I1"] == "fail"  # rules live in docs/HANDBOOK.md, not an AGENTS.md map
     assert found["C1"] == "fail"
-    html = assess.render_html(REPO / "teamtrack", checks)
+    html = assess.render_html(REPO / "platform" / "teamtrack", checks)
     assert all(area in html for area in AREAS)

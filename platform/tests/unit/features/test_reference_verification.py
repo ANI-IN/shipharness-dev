@@ -36,7 +36,7 @@ RULE_CHECKS = [
     "r7_migrations",
 ]
 SEED = 20261016
-MUTANT_DIR = REPO_ROOT / "teamtrack" / "mutants" / "features"
+MUTANT_DIR = REPO_ROOT / "platform" / "teamtrack" / "mutants" / "features"
 
 
 @pytest.fixture(autouse=True)

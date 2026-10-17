@@ -1,6 +1,6 @@
 """Assignment solutions and the public course repository: nothing is ever published.
 
-    uv run python scripts/publish_solutions.py --assignment 1 --dry-run
+    uv run python platform/scripts/publish_solutions.py --assignment 1 --dry-run
 
 Owner decision (release brief): the public repository ANI-IN/harness-engineering-session never
 gets a `solution/` folder or assignment grader tests, also not after a review session. The dry
@@ -19,7 +19,7 @@ from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 PUBLIC_REPO = "ANI-IN/harness-engineering-session"
 RULE = (
     "the public repository never gets a solution/ folder or assignment grader tests "

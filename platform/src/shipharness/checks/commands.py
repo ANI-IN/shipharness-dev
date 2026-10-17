@@ -42,7 +42,9 @@ def _render(results: list[CheckResult]) -> None:
 
 
 def check(
-    app_dir: Path = typer.Option(Path("teamtrack"), "--app", help="App directory (the build)."),
+    app_dir: Path = typer.Option(
+        Path("platform/teamtrack"), "--app", help="App directory (the build)."
+    ),
     rules: str = typer.Option(
         DEFAULT_RULES, "--rules", help="Rules or check names, comma separated."
     ),

@@ -10,14 +10,15 @@ from pydantic import BaseModel, ValidationError
 
 from shipharness.config.prices import REPO_ROOT
 from shipharness.datasets.schema import LINE_MODELS, DatasetKind
+from shipharness.layout import DATASETS_DIR
 
 STANDARD_DATASETS: dict[DatasetKind, tuple[str, Path, int]] = {
     "features": (
         "teamtrack-features-v1",
-        REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl",
+        REPO_ROOT / DATASETS_DIR / "teamtrack-features-v1.jsonl",
         60,
     ),
-    "testgen": ("testgen-targets-v1", REPO_ROOT / "datasets" / "testgen-targets-v1.jsonl", 40),
+    "testgen": ("testgen-targets-v1", REPO_ROOT / DATASETS_DIR / "testgen-targets-v1.jsonl", 40),
 }
 
 

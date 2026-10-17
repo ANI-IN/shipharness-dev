@@ -1,6 +1,7 @@
 """Arm workspaces (contract I-6).
 
-Each arm gets a fresh git repository made from a filtered export of `teamtrack/` at the checkpoint,
+Each arm gets a fresh git repository made from a filtered export of TeamTrack at the checkpoint
+(`platform/teamtrack/`, or `teamtrack/` in a checkpoint commit made before the course-first layout),
 with one commit, outside the course checkout (`<system temp>/shipharness-ws/<ab_id>/<arm>/ws`).
 It is never a worktree: hidden tests, referee mutants, reference implementations, and other
 branches are unreachable through git. Host git here only touches the course repository (trusted)
@@ -23,8 +24,9 @@ from pathlib import Path, PurePosixPath
 
 from shipharness.config.prices import REPO_ROOT
 from shipharness.events import Arm
+from shipharness.layout import APP_DIR as APP_DIR  # re-exported: TeamTrack in this checkout
+from shipharness.layout import app_dir_at
 
-APP_DIR = "teamtrack"
 HIDDEN_DIR = "tests/hidden"
 WORKSPACE_EXCLUDES: tuple[str, ...] = (
     "harness/**",
@@ -147,11 +149,13 @@ def _archive(repo: Path, ref: str, path: str) -> bytes:
 
 
 def export_checkpoint(
-    repo: Path, checkpoint: str | None, dest: Path, app_dir: str = APP_DIR
+    repo: Path, checkpoint: str | None, dest: Path, app_dir: str | None = None
 ) -> Path:
     """Filtered export of `<repo>/<app_dir>` at `checkpoint` (a git ref) into `dest`.
-    `checkpoint=None` exports the working tree (development only; demos use tags)."""
+    `checkpoint=None` exports the working tree (development only; demos use tags). The default
+    `app_dir` is TeamTrack's directory at that commit (`app_dir_at`)."""
     dest.mkdir(parents=True, exist_ok=True)
+    app_dir = app_dir or app_dir_at(Path(repo), checkpoint)
     if checkpoint is None:
         src = Path(repo) / app_dir
         for path in sorted(src.rglob("*")):
@@ -167,10 +171,11 @@ def export_checkpoint(
 
 
 def export_hidden_tests(
-    repo: Path, checkpoint: str | None, dest: Path, app_dir: str = APP_DIR
+    repo: Path, checkpoint: str | None, dest: Path, app_dir: str | None = None
 ) -> Path:
     """Hidden tests for the referee container only (mounted read-only; never in a workspace)."""
     dest.mkdir(parents=True, exist_ok=True)
+    app_dir = app_dir or app_dir_at(Path(repo), checkpoint)
     prefix = f"{app_dir}/{HIDDEN_DIR}"
     if checkpoint is None:
         src = Path(repo) / prefix

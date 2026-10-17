@@ -9,8 +9,9 @@ import sys
 from pathlib import Path
 
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import APP_DIR
 
-TEAMTRACK_DIR = REPO_ROOT / "teamtrack"
+TEAMTRACK_DIR = REPO_ROOT / APP_DIR
 
 
 def _ensure_importable() -> None:

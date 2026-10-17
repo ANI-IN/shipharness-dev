@@ -7,10 +7,11 @@ from types import ModuleType
 
 import pytest
 
+from shipharness.layout import find_repo_root
 from tests.unit.skills.helpers import load_script
 
-REPO = Path(__file__).resolve().parents[3]
-SCRIPT = REPO / "skills" / "assured-tests" / "scripts" / "run_testgen.py"
+REPO = find_repo_root(Path(__file__))
+SCRIPT = REPO / "use-in-your-repo" / "skills" / "assured-tests" / "scripts" / "run_testgen.py"
 
 
 @pytest.fixture(scope="module")

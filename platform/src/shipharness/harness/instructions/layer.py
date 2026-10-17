@@ -1,9 +1,9 @@
 """Instructions layer (S1): what the agent knows.
 
-- prepare_workspace: copies `teamtrack/harness/instructions/` into the workspace. The tree mirrors
-  the workspace layout: AGENTS.md and ARCHITECTURE.md at the root, docs/ as the system of record
-  (A1, F-a-29, F-a-30), skills in `.agents/skills/` (B3). docs/HANDBOOK.md is never touched: both
-  arms read it.
+- prepare_workspace: copies `platform/teamtrack/harness/instructions/` into the workspace. The tree
+  mirrors the workspace layout: AGENTS.md and ARCHITECTURE.md at the root, docs/ as the system of
+  record (A1, F-a-29, F-a-30), skills in `.agents/skills/` (B3). docs/HANDBOOK.md is never
+  touched: both arms read it.
 - context_prefix: one stable block from `router.build_prefix` (the map + skills tier 1).
 - after_tool: records which harness docs and skills the agent opened with read_file, into
   `ctx.state["instructions.files_read"]`, and returns one `note` decision per first read (skills
@@ -20,11 +20,12 @@ from shipharness.config.prices import REPO_ROOT
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision
 from shipharness.harness.instructions.router import SKILLS_DIR, build_prefix, strip_markers
+from shipharness.layout import APP_DIR
 from shipharness.runner.models import ToolCall, ToolResult
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
 from shipharness.runner.skills_loader import SkillsLoader
 
-DEFAULT_SOURCE = REPO_ROOT / "teamtrack" / "harness" / "instructions"
+DEFAULT_SOURCE = REPO_ROOT / APP_DIR / "harness" / "instructions"
 FILES_READ_KEY = "instructions.files_read"
 _SKIP_PARTS = {"__pycache__", ".DS_Store"}
 

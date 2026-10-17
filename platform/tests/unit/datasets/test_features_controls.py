@@ -23,10 +23,11 @@ from shipharness.ab import checkpoints
 from shipharness.ab.mutants import load_referee_mutants
 from shipharness.datasets.features_checks import hidden_test_ids
 from shipharness.filters.mutants import check_against_source, run_mutant_detailed
+from shipharness.layout import find_repo_root
 from tests.unit.filters.helpers import PY, local_sandbox
 
-REPO = Path(__file__).resolve().parents[3]
-TT = REPO / "teamtrack"
+REPO = find_repo_root(Path(__file__))
+TT = REPO / "platform" / "teamtrack"
 CONTROLS = [f"c{n}" for n in range(1, 9)]
 RULES = ["r1_tenant", "r2_roles", "r3_conventions", "r4_idempotency", "r5_audit"]
 RULES += ["r6_layering", "r7_migrations"]

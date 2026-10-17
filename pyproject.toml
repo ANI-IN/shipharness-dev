@@ -49,7 +49,7 @@ build-backend = "uv_build"
 
 [tool.uv.build-backend]
 module-name = "shipharness"
-module-root = "src"
+module-root = "platform/src"
 
 [tool.ruff]
 line-length = 100
@@ -78,9 +78,9 @@ extend-immutable-calls = [
 ]
 
 [tool.pytest.ini_options]
-testpaths = ["tests/unit", "teamtrack/tests/visible"]
+testpaths = ["platform/tests/unit", "platform/teamtrack/tests/visible"]
 norecursedirs = [".claude", ".superpowers", ".venv", ".git", ".hypothesis", ".shipharness", "exports", "research", "node_modules"]
-pythonpath = ["teamtrack"]
+pythonpath = ["platform/teamtrack"]
 markers = [
     "live: needs OPENAI_API_KEY and LANGSMITH_API_KEY and calls external services",
     "docker: needs a working Docker or Podman runtime",

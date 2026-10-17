@@ -12,7 +12,7 @@ from shipharness.runner.model import ModelClient, OpenAIModelClient
 from shipharness.sandbox import UNSANDBOXED_BANNER
 from shipharness.testgen.targets import TARGETS_FILE
 
-COURSE_ROOT = REPO_ROOT  # where teamtrack/, .shipharness/libs/, and mutant refs resolve
+COURSE_ROOT = REPO_ROOT  # where TeamTrack, .shipharness/libs/, and mutant refs resolve
 
 
 class MissingKey(RuntimeError):

@@ -27,10 +27,10 @@ jobs:
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
-      - run: uv run python scripts/lint_prose.py
-      - run: uv run python scripts/anchors.py check
+      - run: uv run python platform/scripts/lint_prose.py
+      - run: uv run python platform/scripts/anchors.py check
       - name: import-linter (house rule R6)
-        working-directory: teamtrack
+        working-directory: platform/teamtrack
         run: uv run lint-imports --config .importlinter
 
   fast:
@@ -64,6 +64,6 @@ jobs:
         with:
           version: "0.13.1"
       - run: uv sync --frozen
-      - run: docker build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .
-      - run: docker build -f sandbox/Dockerfile --target referee -t shipharness-referee:1 .
-      - run: uv run pytest -m docker tests/unit/test_sandbox_docker.py
+      - run: docker build -f platform/sandbox/Dockerfile --target agent -t shipharness-agent:1 .
+      - run: docker build -f platform/sandbox/Dockerfile --target referee -t shipharness-referee:1 .
+      - run: uv run pytest -m docker platform/tests/unit/test_sandbox_docker.py

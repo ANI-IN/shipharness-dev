@@ -144,10 +144,15 @@ def test_feature_list_with_a_replace_note_fails_the_schema() -> None:
 
 def test_clean_state_checklist_follows_the_template_and_the_gate() -> None:
     text = kit("docs/clean-state-checklist.md")
-    template = REPO_ROOT / "skills/harness-setup/assets/templates/clean-state-checklist.md"
+    template = (
+        REPO_ROOT
+        / "use-in-your-repo/skills/harness-setup/assets/templates/clean-state-checklist.md"
+    )
     heads = [ln for ln in template.read_text(encoding="utf-8").splitlines() if ln.startswith("#")]
     assert [ln for ln in without_markers(text) if ln.startswith("#")] == heads
-    gate = (REPO_ROOT / "src/shipharness/harness/verify/clean_state.py").read_text(encoding="utf-8")
+    gate = (REPO_ROOT / "platform/src/shipharness/harness/verify/clean_state.py").read_text(
+        encoding="utf-8"
+    )
     for needle in ("git status --porcelain --untracked-files=all", "ruff check", "alembic heads"):
         assert needle in gate and needle in text, needle
     for debug in ("print(", "breakpoint()", "import pdb", "pdb.set_trace("):

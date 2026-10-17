@@ -9,10 +9,11 @@ from types import ModuleType
 
 import pytest
 
+from shipharness.layout import find_repo_root
 from tests.unit.skills.helpers import load_script
 
-REPO = Path(__file__).resolve().parents[3]
-SCRIPT = REPO / "skills" / "house-rules" / "scripts" / "new_rule.py"
+REPO = find_repo_root(Path(__file__))
+SCRIPT = REPO / "use-in-your-repo" / "skills" / "house-rules" / "scripts" / "new_rule.py"
 TITLE = "Soft-deleted rows never appear"
 
 

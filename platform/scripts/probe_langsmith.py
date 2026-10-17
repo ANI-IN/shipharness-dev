@@ -1,7 +1,7 @@
 """Live probe of LangSmith behaviour on the configured account (RESEARCH G-13). Uses ~6 traces,
 no OpenAI calls. Prints a JSON summary; never prints a key.
 
-Usage: uv run python scripts/probe_langsmith.py
+Usage: uv run python platform/scripts/probe_langsmith.py
 """
 
 from __future__ import annotations

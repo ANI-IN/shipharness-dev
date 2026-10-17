@@ -18,7 +18,7 @@ from shipharness.config.prices import REPO_ROOT
 
 def _script() -> ModuleType:
     spec = importlib.util.spec_from_file_location(
-        "build_checkpoints_script", REPO_ROOT / "scripts" / "build_checkpoints.py"
+        "build_checkpoints_script", REPO_ROOT / "platform" / "scripts" / "build_checkpoints.py"
     )
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)

@@ -183,7 +183,7 @@ def run_doctor(
                 else f"{settings.sandbox_runtime} not found: only the UNSANDBOXED fallback can run"
             ),
             next_step="install Docker Desktop (WSL2 backend), Docker Engine, Podman, or Colima; "
-            "see sandbox/README.md",
+            "see platform/sandbox/README.md",
         )
     )
     checks.append(

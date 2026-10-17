@@ -63,20 +63,25 @@ def test_the_stamp_records_source_and_image_so_the_next_plan_builds_nothing(
 def test_the_source_digest_follows_the_image_build_context(tmp_path: Path) -> None:
     root = tmp_path / "repo"
     for rel, text in {
-        "sandbox/Dockerfile": "FROM x\n",
+        "platform/sandbox/Dockerfile": "FROM x\n",
         "pyproject.toml": "[project]\n",
         "uv.lock": "lock\n",
-        "src/pkg/a.py": "A = 1\n",
-        "src/pkg/__pycache__/a.cpython-312.pyc": "bytes",
+        "platform/src/pkg/a.py": "A = 1\n",
+        "platform/src/pkg/__pycache__/a.cpython-312.pyc": "bytes",
         "README.md": "readme\n",
     }.items():
         (root / rel).parent.mkdir(parents=True, exist_ok=True)
         (root / rel).write_text(text, encoding="utf-8")
     first = warm.image_source_digest(root)
     (root / "README.md").write_text("changed\n", encoding="utf-8")  # not in the image
-    (root / "src/pkg/__pycache__/a.cpython-312.pyc").write_text("other", encoding="utf-8")
+    (root / "platform/src/pkg/__pycache__/a.cpython-312.pyc").write_text("other", encoding="utf-8")
     assert warm.image_source_digest(root) == first
-    for rel in ("src/pkg/a.py", "sandbox/Dockerfile", "uv.lock", "pyproject.toml"):
+    for rel in (
+        "platform/src/pkg/a.py",
+        "platform/sandbox/Dockerfile",
+        "uv.lock",
+        "pyproject.toml",
+    ):
         before = warm.image_source_digest(root)
         (root / rel).write_text((root / rel).read_text(encoding="utf-8") + "#\n", encoding="utf-8")
         assert warm.image_source_digest(root) != before, rel
@@ -86,7 +91,7 @@ def test_the_source_digest_follows_the_image_build_context(tmp_path: Path) -> No
 
 
 def test_the_class_tasks_are_the_canonical_demo_tasks_and_the_final_features() -> None:
-    tasks = warm.class_tasks(REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl")
+    tasks = warm.class_tasks(REPO_ROOT / "platform" / "datasets" / "teamtrack-features-v1.jsonl")
     assert [(t.section, t.task.feature_id) for t in tasks] == [
         ("demo-1", "F1"), ("demo-2", "F2"), ("demo-3", "F3"), ("demo-4", "F4"),
         ("final", "F5"), ("final", "F6"), ("final", "F7"),

@@ -14,9 +14,10 @@ from dataclasses import dataclass
 
 from shipharness.config.prices import REPO_ROOT
 from shipharness.cost import Usage
+from shipharness.layout import APP_DIR
 from shipharness.runner.model import Step, tool_step
 
-REFERENCE_DIR = REPO_ROOT / "teamtrack" / "reference"
+REFERENCE_DIR = REPO_ROOT / APP_DIR / "reference"
 NO_USAGE = Usage(input_tokens=0, output_tokens=0)  # scripted steps call no model: $0
 
 
@@ -59,7 +60,8 @@ def finish(claim: str, summary: str) -> Step:
 
 def reference_patch(feature: str, paths: Sequence[str]) -> str:
     """The sections of the course's reference change for `feature` that touch `paths`, in that
-    order. The change is teamtrack/reference/<f>/<f>.patch, a git diff against the checkpoint."""
+    order. The change is platform/teamtrack/reference/<f>/<f>.patch, a git diff against the
+    checkpoint."""
     name = feature.lower()
     text = (REFERENCE_DIR / name / f"{name}.patch").read_text(encoding="utf-8")
     sections: dict[str, str] = {}

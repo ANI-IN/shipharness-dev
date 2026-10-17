@@ -1,8 +1,8 @@
 """Checkpoints: the base product plus an ordered list of reference tasks (M5 ruling R-3).
 
-`teamtrack/reference/checkpoints.toml` names each checkpoint and its tasks. Main's `teamtrack/`
-stays the base product; reference code lives only in `teamtrack/reference/<task>/` as `git apply`
-patches (paths relative to `teamtrack/`):
+`platform/teamtrack/reference/checkpoints.toml` names each checkpoint and its tasks. Main's
+TeamTrack stays the base product; reference code lives only in its `reference/<task>/` as
+`git apply` patches (paths relative to TeamTrack's directory):
 
 - `<task>.patch` applies to the task's start checkpoint;
 - `<task>.<checkpoint>.patch` replaces it where the default does not apply. When the task is in
@@ -12,7 +12,9 @@ patches (paths relative to `teamtrack/`):
 `materialize` builds a checkpoint in a directory from the working tree (tests, verification).
 `build_commits` makes one commit per checkpoint whose parent is the current HEAD, in a temporary
 index (no checkout, no branch moves), and tags it; only the integrator runs it without
-`dry_run`. Task manifests (`teamtrack/reference/<task>/task.toml`) are read by `load_task`.
+`dry_run`. Task manifests (`reference/<task>/task.toml`) are read by `load_task`. A checkout or a
+HEAD in the layout before the course-first one (TeamTrack at `teamtrack/`) still works:
+TeamTrack's directory is resolved per checkout and per commit (`app_dir_at`).
 """
 
 from __future__ import annotations
@@ -26,9 +28,15 @@ from pathlib import Path
 
 from shipharness.ab.workspace import APP_DIR, export_checkpoint
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import app_dir_at
 
 REFERENCE = Path(APP_DIR) / "reference"
 CHECKPOINTS_FILE = REFERENCE / "checkpoints.toml"
+
+
+def reference_dir(repo: Path) -> Path:
+    """`<repo>/<TeamTrack>/reference` for the checkout `repo` (either layout)."""
+    return Path(repo) / app_dir_at(Path(repo)) / "reference"
 
 
 class CheckpointError(ValueError):
@@ -48,7 +56,7 @@ class Checkpoint:
 
 @dataclass(frozen=True)
 class TaskManifest:
-    """`teamtrack/reference/<task>/task.toml` (builder contract §3)."""
+    """`<TeamTrack>/reference/<task>/task.toml` (builder contract §3)."""
 
     task: str  # directory name, e.g. "f1"
     id: str  # "F1"
@@ -64,7 +72,7 @@ class TaskManifest:
 
 
 def load_checkpoints(repo: Path = REPO_ROOT) -> dict[str, Checkpoint]:
-    data = tomllib.loads((Path(repo) / CHECKPOINTS_FILE).read_text(encoding="utf-8"))
+    data = tomllib.loads((reference_dir(repo) / "checkpoints.toml").read_text(encoding="utf-8"))
     return {
         name: Checkpoint(name, list(spec.get("tasks", [])), str(spec.get("description", "")))
         for name, spec in data.get("checkpoints", {}).items()
@@ -85,7 +93,7 @@ def state_before(task: str, name: str, repo: Path = REPO_ROOT) -> list[str]:
 
 
 def patch_for(task: str, name: str, repo: Path = REPO_ROOT) -> Path:
-    folder = Path(repo) / REFERENCE / task
+    folder = reference_dir(repo) / task
     variant = folder / f"{task}.{name}.patch"
     if variant.is_file():
         return variant
@@ -131,7 +139,7 @@ def materialize(repo: Path, name: str, dest: Path) -> Path:
 
 
 def load_task(task: str, repo: Path = REPO_ROOT) -> TaskManifest:
-    path = Path(repo) / REFERENCE / task / "task.toml"
+    path = reference_dir(repo) / task / "task.toml"
     data = tomllib.loads(path.read_text(encoding="utf-8"))
     return TaskManifest(
         task=task,
@@ -149,7 +157,7 @@ def load_task(task: str, repo: Path = REPO_ROOT) -> TaskManifest:
 
 
 def task_names(repo: Path = REPO_ROOT, prefix: str = "") -> list[str]:
-    root = Path(repo) / REFERENCE
+    root = reference_dir(repo)
     return sorted(
         p.name for p in root.iterdir() if (p / "task.toml").is_file() and p.name.startswith(prefix)
     )
@@ -231,6 +239,7 @@ def build_commits(
         if taken:
             raise CheckpointError(f"tag(s) already exist: {taken} (use --force to move them)")
     head = _git(repo, "rev-parse", "HEAD^{commit}")
+    app_dir = app_dir_at(repo, head)
     results: list[BuildResult] = []
     with tempfile.TemporaryDirectory(prefix="shipharness-checkpoint-") as tmp:
         for name in wanted:
@@ -240,7 +249,7 @@ def build_commits(
             for task in spec.tasks:
                 patch = patch_for(task, name, repo)
                 try:
-                    _git(repo, "apply", "--cached", f"--directory={APP_DIR}", str(patch), env=env)
+                    _git(repo, "apply", "--cached", f"--directory={app_dir}", str(patch), env=env)
                 except CheckpointError as exc:
                     raise ReferenceApplyError(f"{patch.name} at {name}: {exc}") from None
             tree = _git(repo, "write-tree", env=env)

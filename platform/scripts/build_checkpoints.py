@@ -1,12 +1,13 @@
-"""Build the checkpoint commits and tags from teamtrack/reference/checkpoints.toml (ruling R-3).
+"""Build the checkpoint commits and tags from TeamTrack's reference/checkpoints.toml (R-3).
 
-    uv run python scripts/build_checkpoints.py --dry-run          # what it would tag or move
-    uv run python scripts/build_checkpoints.py                    # integrator only: commit + tag
-    uv run python scripts/build_checkpoints.py m1-s2-start --force
+    uv run python platform/scripts/build_checkpoints.py --dry-run   # what it would tag or move
+    uv run python platform/scripts/build_checkpoints.py             # integrator only: commit + tag
+    uv run python platform/scripts/build_checkpoints.py m1-s2-start --force
 
 Each checkpoint becomes one commit whose parent is the current HEAD (main), not on any branch,
-with the checkpoint's reference patches applied to teamtrack/ in a temporary index; then a tag of
-the same name. Builders never run it without --dry-run: tags are shared by every worktree.
+with the checkpoint's reference patches applied to TeamTrack's directory (platform/teamtrack/, or
+teamtrack/ when HEAD is in the layout before the course-first one) in a temporary index; then a
+tag of the same name. Builders never run it without --dry-run: tags are shared by every worktree.
 
 Moving a tag changes what every recorded result that names it would be judged against. --force
 moves existing tags only while no recorded result exists (no `<runs>/*/ab.json`, no JSON export

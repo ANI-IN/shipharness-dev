@@ -16,12 +16,14 @@ from pathlib import Path
 from typing import Any
 
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import APP_DIR, DATASETS_DIR
 
-INSTRUCTIONS = REPO_ROOT / "teamtrack" / "harness" / "instructions"
-FEATURES_FILE = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
+INSTRUCTIONS = REPO_ROOT / APP_DIR / "harness" / "instructions"
+FEATURES_FILE = REPO_ROOT / DATASETS_DIR / "teamtrack-features-v1.jsonl"
 EXAMPLE_ID = "F1-canonical"
 # TeamTrack's A/B runs leave `steps` empty (the dataset has none). The kit shows observable steps
-# instead, each one shortened from a sentence of the API section of teamtrack/docs/features/f1.md.
+# instead, each one shortened from a sentence of the API section of
+# platform/teamtrack/docs/features/f1.md.
 F1_STEPS = (
     "GET /issues lists the caller's org's issues across its projects.",
     "Filters are optional and combine with AND.",

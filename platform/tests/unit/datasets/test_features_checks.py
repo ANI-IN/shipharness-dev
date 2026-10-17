@@ -19,6 +19,7 @@ from shipharness.datasets.features_checks import (
     checkpoint_tree,
     collect_tests,
 )
+from shipharness.layout import find_repo_root
 
 from .features_fixtures import make_repo
 
@@ -275,7 +276,7 @@ def test_unbuildable_checkpoint_is_reported(app_repo: Path) -> None:
     assert errors and "c-two" in errors[0] and "cannot be built" in errors[0]
 
 
-REAL = Path(__file__).resolve().parents[3]
+REAL = find_repo_root(Path(__file__))
 
 
 def test_f4_mutants_apply_at_m1_alt_b_where_their_line_numbers_moved() -> None:

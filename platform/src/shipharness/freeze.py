@@ -32,6 +32,7 @@ from pathlib import Path
 from typing import Any
 
 from shipharness.config import Settings
+from shipharness.layout import APP_DIR, LEGACY_APP_DIR
 
 TAG = "harness-frozen"
 CHECKPOINT_TAG_PREFIX = "m1-"
@@ -46,34 +47,34 @@ _CLASS_MARKER = "class-record:"
 
 FROZEN_PATHS: tuple[str, ...] = (
     # treatment
-    "src/shipharness/harness",
-    "src/shipharness/runner",  # loop, prompts, tools, patch formats
-    "src/shipharness/filters",
-    "teamtrack/harness",  # instruction files the harness places in the workspace
+    "platform/src/shipharness/harness",
+    "platform/src/shipharness/runner",  # loop, prompts, tools, patch formats
+    "platform/src/shipharness/filters",
+    "platform/teamtrack/harness",  # instruction files the harness places in the workspace
     # measurement
-    "src/shipharness/checks",  # checks and the check runner
-    "src/shipharness/reviewer",  # prompt and grading criteria
-    "src/shipharness/ab/artifacts.py",
-    "src/shipharness/ab/checkpoints.py",
-    "src/shipharness/ab/clients.py",
-    "src/shipharness/ab/commands.py",
-    "src/shipharness/ab/demo.py",
-    "src/shipharness/ab/experiments.py",
-    "src/shipharness/ab/mutants.py",
-    "src/shipharness/ab/referee.py",
-    "src/shipharness/ab/runtime.py",
-    "src/shipharness/ab/score.py",
-    "src/shipharness/ab/workspace.py",
+    "platform/src/shipharness/checks",  # checks and the check runner
+    "platform/src/shipharness/reviewer",  # prompt and grading criteria
+    "platform/src/shipharness/ab/artifacts.py",
+    "platform/src/shipharness/ab/checkpoints.py",
+    "platform/src/shipharness/ab/clients.py",
+    "platform/src/shipharness/ab/commands.py",
+    "platform/src/shipharness/ab/demo.py",
+    "platform/src/shipharness/ab/experiments.py",
+    "platform/src/shipharness/ab/mutants.py",
+    "platform/src/shipharness/ab/referee.py",
+    "platform/src/shipharness/ab/runtime.py",
+    "platform/src/shipharness/ab/score.py",
+    "platform/src/shipharness/ab/workspace.py",
     # tasks
-    "datasets",
-    "teamtrack/tests/hidden",
-    "teamtrack/mutants",
-    "teamtrack/reference",  # task manifests, reference patches, checkpoints.toml
+    "platform/datasets",
+    "platform/teamtrack/tests/hidden",
+    "platform/teamtrack/mutants",
+    "platform/teamtrack/reference",  # task manifests, reference patches, checkpoints.toml
     # environment
-    "sandbox/Dockerfile",
-    "src/shipharness/sandbox",  # policy and container execution
-    "src/shipharness/cost",  # caps and reservations
-    "config/prices.toml",
+    "platform/sandbox/Dockerfile",
+    "platform/src/shipharness/sandbox",  # policy and container execution
+    "platform/src/shipharness/cost",  # caps and reservations
+    "platform/config/prices.toml",
     "uv.lock",
     ".python-version",
 )
@@ -134,15 +135,21 @@ def checkpoint_tags(repo: Path) -> dict[str, str]:
 
 
 def checkpoint_trees(repo: Path) -> dict[str, str]:
-    """Checkpoint tag name -> the id of its `teamtrack/` tree (what arms and the referee use; the
-    build repository's checkpoint commits also hold private files, the public rebuild does not),
-    or of the whole tree when the tag has no `teamtrack/` (compared, rule 2)."""
+    """Checkpoint tag name -> the id of its TeamTrack tree (what arms and the referee use; the
+    build repository's checkpoint commits also hold private files, the public rebuild does not):
+    `platform/teamtrack/`, or `teamtrack/` in a tag made before the course-first layout (the same
+    tree id when the content is the same), or the whole tree when the tag has neither (compared,
+    rule 2)."""
     names = _git(repo, "tag", "--list", f"{CHECKPOINT_TAG_PREFIX}*").stdout.split()
     trees: dict[str, str] = {}
     for name in names:
-        sub = _git(repo, "rev-parse", "-q", "--verify", f"{name}:teamtrack")
-        whole = _git(repo, "rev-parse", f"{name}^{{tree}}")
-        trees[name] = (sub.stdout if sub.returncode == 0 else whole.stdout).strip()
+        for app in (APP_DIR, LEGACY_APP_DIR):
+            sub = _git(repo, "rev-parse", "-q", "--verify", f"{name}:{app}")
+            if sub.returncode == 0:
+                trees[name] = sub.stdout.strip()
+                break
+        else:
+            trees[name] = _git(repo, "rev-parse", f"{name}^{{tree}}").stdout.strip()
     return trees
 
 

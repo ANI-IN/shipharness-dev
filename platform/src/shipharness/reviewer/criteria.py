@@ -6,8 +6,9 @@ from __future__ import annotations
 from pathlib import Path
 
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import APP_DIR
 
-INSTRUCTIONS_DIR = REPO_ROOT / "teamtrack" / "harness" / "instructions"
+INSTRUCTIONS_DIR = REPO_ROOT / APP_DIR / "harness" / "instructions"
 SOURCES = ("docs/SECURITY.md", "ARCHITECTURE.md")
 
 DEFAULT_CRITERIA = """\

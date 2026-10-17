@@ -1,9 +1,9 @@
-"""Targets from `datasets/testgen-targets-v1.jsonl` for `shipharness testgen --target <id>`.
+"""Targets from `platform/datasets/testgen-targets-v1.jsonl` for `shipharness testgen --target`.
 
 A target's line names the repository, the module, its existing tests, the filter mutants, and the
 metadata (`baseline_includes_doctests`, ...). Library targets run in the fetched clone
 `.shipharness/libs/<library>/src` with that library's `.venv` python; TeamTrack targets run in
-`teamtrack/`.
+`platform/teamtrack/`.
 """
 
 from __future__ import annotations
@@ -16,9 +16,10 @@ from pathlib import Path
 from typing import Any
 
 from shipharness.config.prices import REPO_ROOT
+from shipharness.layout import DATASETS_DIR, app_dir_at, resolve
 
-TARGETS_FILE = REPO_ROOT / "datasets" / "testgen-targets-v1.jsonl"
-FETCH_COMMAND = "uv run python scripts/fetch_testgen_libs.py"
+TARGETS_FILE = REPO_ROOT / DATASETS_DIR / "testgen-targets-v1.jsonl"
+FETCH_COMMAND = "uv run python platform/scripts/fetch_testgen_libs.py"
 TEAMTRACK = "teamtrack"
 
 
@@ -74,7 +75,7 @@ def resolve_target(
     name = str(inputs["repo"])
     python: str | None = None
     if name == TEAMTRACK:
-        repo = Path(course_root) / TEAMTRACK
+        repo = Path(course_root) / app_dir_at(Path(course_root))
     else:
         lib = Path(course_root) / ".shipharness" / "libs" / name
         repo = lib / "src"
@@ -93,7 +94,7 @@ def resolve_target(
         repo=repo,
         module=str(inputs["module"]),
         existing_tests=[str(t) for t in inputs.get("existing_tests", [])],
-        mutants=Path(course_root) / path if path else None,
+        mutants=resolve(Path(course_root), path) if path else None,
         mutant_set=selected or None,
         python=python,
         metadata=metadata,

@@ -76,7 +76,8 @@ def test_adapter_holds_a_layers_contract_for_the_three_modules() -> None:
 
 
 GUIDES = [
-    REPO_ROOT / "docs" / "apply-to-your-repo.md",
+    REPO_ROOT / "use-in-your-repo" / "README.md",
+    REPO_ROOT / "use-in-your-repo" / "apply-to-your-repo.md",
     KIT_DIR / "README.md",
     EXAMPLE / "README.md",
 ]
@@ -109,7 +110,7 @@ def test_guide_links_and_anchors_resolve(guide: Path) -> None:
 
 
 def test_guide_pending_markers_use_the_course_form() -> None:
-    text = (REPO_ROOT / "docs" / "apply-to-your-repo.md").read_text(encoding="utf-8")
+    text = (REPO_ROOT / "use-in-your-repo" / "apply-to-your-repo.md").read_text(encoding="utf-8")
     # Before release the guide holds no PENDING marker; any that remains uses the course form.
     markers = [line for line in text.splitlines() if "[[PENDING" in line]
     for line in markers:

@@ -1,6 +1,6 @@
 """Prose lint for course documents: banned words and phrases (brief §1.3) and emoji.
 
-Usage: python scripts/lint_prose.py [PATH ...]   (default: the course documents)
+Usage: python platform/scripts/lint_prose.py [PATH ...]   (default: the course documents)
 A line ending with `<!-- lint-prose: allow -->` is skipped (for quoting the banned list itself).
 Exact titles of cited sources are allowed even when they contain a banned word.
 """
@@ -11,7 +11,7 @@ import re
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 
 DEFAULT_TARGETS = [
     "README.md",
@@ -22,15 +22,17 @@ DEFAULT_TARGETS = [
     "CHANGELOG.md",
     "setup",
     "docs",
-    "submodules",
+    "01-instructions",
+    "02-state-lifecycle",
+    "03-scope-sandbox",
+    "04-verification",
     "final-project",
     "slides",
     "instructor",
-    "skills",
-    "kit",
-    "teamtrack/docs",
-    "sandbox/README.md",
-    "datasets/README.md",
+    "use-in-your-repo",
+    "platform/teamtrack/docs",
+    "platform/sandbox/README.md",
+    "platform/datasets/README.md",
 ]
 
 BANNED_WORDS = [

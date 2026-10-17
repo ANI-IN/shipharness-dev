@@ -1,9 +1,9 @@
 """Walkthrough anchors: code shown in class is marked `[walkthrough:<id>] start` / `end`.
 
 Usage:
-  python scripts/anchors.py list
-  python scripts/anchors.py extract S3:policy
-  python scripts/anchors.py check [--root DIR]
+  python platform/scripts/anchors.py list
+  python platform/scripts/anchors.py extract S3:policy
+  python platform/scripts/anchors.py check [--root DIR]
 """
 
 from __future__ import annotations
@@ -14,8 +14,18 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
-SCAN_DIRS = ("src", "teamtrack", "sandbox", "skills", "submodules", "final-project")
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
+SCAN_DIRS = (
+    "platform/src",
+    "platform/teamtrack",
+    "platform/sandbox",
+    "use-in-your-repo/skills",
+    "01-instructions",
+    "02-state-lifecycle",
+    "03-scope-sandbox",
+    "04-verification",
+    "final-project",
+)
 SUFFIXES = {".py", ".md", ".html", ".sh", ".toml", ".json", ".yml", ".yaml", ""}
 SKIP_PARTS = {".venv", "__pycache__", ".git", "node_modules", ".pytest_cache"}
 MAX_LINES = 40

@@ -10,9 +10,11 @@ from pathlib import Path
 
 import pytest
 
-REPO = Path(__file__).resolve().parents[2]
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
 _spec = importlib.util.spec_from_file_location(
-    "publish_solutions", REPO / "scripts" / "publish_solutions.py"
+    "publish_solutions", REPO / "platform" / "scripts" / "publish_solutions.py"
 )
 assert _spec and _spec.loader
 ps = importlib.util.module_from_spec(_spec)
@@ -76,7 +78,7 @@ def test_cli_dry_run_reports_the_rule_and_publish_refuses(tmp_path: Path) -> Non
     _git(repo, "init", "-q", "-b", "main")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "first")
-    script = REPO / "scripts" / "publish_solutions.py"
+    script = REPO / "platform" / "scripts" / "publish_solutions.py"
     args = [sys.executable, str(script), "--repo", str(repo), "--assignment", "1"]
     done = subprocess.run([*args, "--dry-run"], capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stderr

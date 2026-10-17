@@ -4,8 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-SCRIPT = REPO / "scripts" / "anchors.py"
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+SCRIPT = REPO / "platform" / "scripts" / "anchors.py"
 
 M3_ANCHORS = ["Opening:publish", "S1:progressive", "S3:policy", "S3:dockerfile"]
 
@@ -34,8 +36,8 @@ def test_unknown_anchor_fails() -> None:
 
 
 def test_check_rejects_unbalanced_and_long_anchors(tmp_path: Path) -> None:
-    src = tmp_path / "src"
-    src.mkdir()
+    src = tmp_path / "platform" / "src"
+    src.mkdir(parents=True)
     (src / "a.py").write_text("# [walkthrough:S1:open] start\nx = 1\n", encoding="utf-8")
     body = "\n".join(f"y{i} = {i}" for i in range(45))
     (src / "b.py").write_text(

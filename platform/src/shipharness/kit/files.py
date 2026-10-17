@@ -13,9 +13,9 @@ from pathlib import Path
 
 from shipharness.config.prices import REPO_ROOT
 
-KIT_DIR = REPO_ROOT / "kit"
+KIT_DIR = REPO_ROOT / "use-in-your-repo" / "kit"
 TEMPLATES = KIT_DIR / "templates"
-SKILLS_DIR = REPO_ROOT / "skills"
+SKILLS_DIR = REPO_ROOT / "use-in-your-repo" / "skills"
 SKILL_NAMES = ("harness-setup", "assured-tests", "house-rules", "skill-template")
 SKILL_FOLDERS = {
     "claude": (".claude/skills",),

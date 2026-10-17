@@ -8,6 +8,7 @@ from pathlib import Path
 
 from shipharness import freeze
 from shipharness.config import Settings
+from shipharness.layout import find_repo_root
 
 IDENT = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "core.autocrlf=false"]
 
@@ -21,10 +22,14 @@ def git(repo: Path, *args: str) -> str:
 
 def make_repo(tmp_path: Path) -> Path:
     repo = tmp_path / "repo"
-    (repo / "src" / "shipharness" / "runner").mkdir(parents=True)
-    (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 1\n", encoding="utf-8")
-    (repo / "src" / "shipharness" / "console").mkdir(parents=True)
-    (repo / "src" / "shipharness" / "console" / "app.py").write_text("B = 1\n", encoding="utf-8")
+    (repo / "platform" / "src" / "shipharness" / "runner").mkdir(parents=True)
+    (repo / "platform" / "src" / "shipharness" / "runner" / "tools.py").write_text(
+        "A = 1\n", encoding="utf-8"
+    )
+    (repo / "platform" / "src" / "shipharness" / "console").mkdir(parents=True)
+    (repo / "platform" / "src" / "shipharness" / "console" / "app.py").write_text(
+        "B = 1\n", encoding="utf-8"
+    )
     git(repo.parent, "init", "-q", str(repo))
     git(repo, "add", "-A")
     git(repo, "commit", "-qm", "base")
@@ -39,22 +44,27 @@ def frozen(repo: Path, settings: Settings | None = None) -> None:
 def test_frozen_paths_cover_treatment_measurement_tasks_and_environment() -> None:
     paths = set(freeze.FROZEN_PATHS)
     for path in (
-        "src/shipharness/harness",
-        "src/shipharness/runner",
-        "src/shipharness/filters",
-        "teamtrack/harness",
-        "src/shipharness/checks",
-        "src/shipharness/ab/referee.py",
-        "src/shipharness/reviewer",
-        "datasets",
-        "teamtrack/tests/hidden",
-        "teamtrack/mutants",
-        "teamtrack/reference",
-        "sandbox/Dockerfile",
-        "src/shipharness/sandbox",
+        "platform/src/shipharness/harness",
+        "platform/src/shipharness/runner",
+        "platform/src/shipharness/filters",
+        "platform/teamtrack/harness",
+        "platform/src/shipharness/checks",
+        "platform/src/shipharness/ab/referee.py",
+        "platform/src/shipharness/reviewer",
+        "platform/datasets",
+        "platform/teamtrack/tests/hidden",
+        "platform/teamtrack/mutants",
+        "platform/teamtrack/reference",
+        "platform/sandbox/Dockerfile",
+        "platform/src/shipharness/sandbox",
     ):
         assert path in paths, path
-    for editable in ("src/shipharness/console", "src/shipharness/ab/report.py", "slides", "docs"):
+    for editable in (
+        "platform/src/shipharness/console",
+        "platform/src/shipharness/ab/report.py",
+        "slides",
+        "docs",
+    ):
         assert not any(editable == p or editable.startswith(p + "/") for p in paths), editable
     for key in ("openai_model", "openai_reasoning_effort", "max_turns_per_session",
                 "run_timeout_s", "harness_timeout_s", "max_run_cost_usd",
@@ -63,7 +73,7 @@ def test_frozen_paths_cover_treatment_measurement_tasks_and_environment() -> Non
 
 
 def test_every_frozen_path_exists_in_the_repository() -> None:
-    repo = Path(__file__).resolve().parents[2]
+    repo = find_repo_root(Path(__file__))
     missing = [p for p in freeze.FROZEN_PATHS if not (repo / p).exists()]
     assert missing == []
 
@@ -92,12 +102,18 @@ def test_tag_records_checkpoint_commits_and_run_settings(tmp_path: Path) -> None
 def test_change_to_a_frozen_path_is_a_problem_and_an_editable_path_is_not(tmp_path: Path) -> None:
     repo = make_repo(tmp_path)
     frozen(repo)
-    (repo / "src" / "shipharness" / "console" / "app.py").write_text("B = 2\n", encoding="utf-8")
+    (repo / "platform" / "src" / "shipharness" / "console" / "app.py").write_text(
+        "B = 2\n", encoding="utf-8"
+    )
     assert freeze.problems(repo, Settings(_env_file=None)) == []
-    (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 2\n", encoding="utf-8")
-    (repo / "src" / "shipharness" / "runner" / "new.py").write_text("C = 1\n", encoding="utf-8")
+    (repo / "platform" / "src" / "shipharness" / "runner" / "tools.py").write_text(
+        "A = 2\n", encoding="utf-8"
+    )
+    (repo / "platform" / "src" / "shipharness" / "runner" / "new.py").write_text(
+        "C = 1\n", encoding="utf-8"
+    )
     found = freeze.problems(repo, Settings(_env_file=None))
-    assert found == ["content differs: src/shipharness/runner"]
+    assert found == ["content differs: platform/src/shipharness/runner"]
 
 
 def test_moved_checkpoint_tag_is_a_problem(tmp_path: Path) -> None:
@@ -121,7 +137,9 @@ def test_tag_is_refused_when_frozen_paths_have_uncommitted_changes(tmp_path: Pat
     import pytest
 
     repo = make_repo(tmp_path)
-    (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 3\n", encoding="utf-8")
+    (repo / "platform" / "src" / "shipharness" / "runner" / "tools.py").write_text(
+        "A = 3\n", encoding="utf-8"
+    )
     with pytest.raises(freeze.FreezeError, match="uncommitted"):
         frozen(repo)
 
@@ -197,12 +215,16 @@ def test_verify_copy_matches_then_names_each_difference(tmp_path: Path) -> None:
     repo = class_tagged(tmp_path)
     record, found = freeze.verify_copy(repo, freeze.CLASS_TAG)
     assert record is not None and found == []
-    (repo / "src" / "shipharness" / "runner" / "tools.py").write_text("A = 2\n", encoding="utf-8")
-    (repo / "src" / "shipharness" / "console" / "app.py").write_text("B = 2\n", encoding="utf-8")
+    (repo / "platform" / "src" / "shipharness" / "runner" / "tools.py").write_text(
+        "A = 2\n", encoding="utf-8"
+    )
+    (repo / "platform" / "src" / "shipharness" / "console" / "app.py").write_text(
+        "B = 2\n", encoding="utf-8"
+    )
     git(repo, "tag", "-d", "m1-s1-start")
     _, found = freeze.verify_copy(repo, freeze.CLASS_TAG)
     assert found == [
-        "content differs: src/shipharness/runner",
+        "content differs: platform/src/shipharness/runner",
         "checkpoint tag missing: m1-s1-start (run git fetch --tags)",
     ]
 

@@ -9,16 +9,18 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[3]
-DATASET = REPO / "datasets" / "testgen-targets-v1.jsonl"
-SOURCES = REPO / "datasets" / "sources" / "testgen.toml"
-MUTANTS = REPO / "datasets" / "mutants"
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+DATASET = REPO / "platform" / "datasets" / "testgen-targets-v1.jsonl"
+SOURCES = REPO / "platform" / "datasets" / "sources" / "testgen.toml"
+MUTANTS = REPO / "platform" / "datasets" / "mutants"
 VALIDATION = MUTANTS / "validation.json"
 LIBRARIES = ("boltons", "wtforms")
 
 
 def load_script(name: str) -> ModuleType:
-    path = REPO / "scripts" / f"{name}.py"
+    path = REPO / "platform" / "scripts" / f"{name}.py"
     spec = importlib.util.spec_from_file_location(f"_script_{name}", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)

@@ -16,6 +16,7 @@ from pydantic import BaseModel, ValidationError
 
 from shipharness.datasets.schema import TestgenTarget
 from shipharness.filters.mutants import MutantError, load_mutant_ref
+from shipharness.layout import app_dir_at, resolve
 
 EXPECTED_COUNTS = {"teamtrack": 20, "boltons": 10, "wtforms": 10}
 EXPECTED_TOTAL = sum(EXPECTED_COUNTS.values())
@@ -36,10 +37,10 @@ def dotted_module(module: str) -> str:
 
 
 def source_root(repo: Path, name: str) -> Path | None:
-    """Where the line's source tree lives: teamtrack/ in this repository, or the fetched library
+    """Where the line's source tree lives: TeamTrack in this repository, or the fetched library
     clone (None when it has not been fetched)."""
     if name == "teamtrack":
-        return Path(repo) / "teamtrack"
+        return Path(repo) / app_dir_at(Path(repo))
     clone = Path(repo) / ".shipharness" / "libs" / name / "src"
     return clone if clone.is_dir() else None
 
@@ -62,10 +63,11 @@ def _check_ref(
     path, _, selected = ref.partition("#")
     if selected != wanted:
         return [f"{field}: {ref!r} must select the #{wanted} set"]
-    if not (Path(repo) / path).is_file():
+    file = resolve(Path(repo), path)  # dataset paths name datasets/ and teamtrack/ logically
+    if not file.is_file():
         return [f"{field}: {path} not found"]
     try:
-        mutants = load_mutant_ref(str(Path(repo) / ref), root)
+        mutants = load_mutant_ref(f"{file}#{selected}", root)
     except MutantError as exc:
         return [f"{field}: {exc}"]
     if not mutants:

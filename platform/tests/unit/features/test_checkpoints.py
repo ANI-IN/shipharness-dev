@@ -32,7 +32,9 @@ def test_checkpoints_match_ruling_r3() -> None:
 def test_every_task_of_a_checkpoint_has_a_default_patch() -> None:
     for checkpoint in cp.load_checkpoints().values():
         for task in checkpoint.tasks:
-            assert (REPO_ROOT / "teamtrack" / "reference" / task / f"{task}.patch").is_file()
+            assert (
+                REPO_ROOT / "platform" / "teamtrack" / "reference" / task / f"{task}.patch"
+            ).is_file()
 
 
 def test_patch_for_prefers_the_checkpoint_variant() -> None:
@@ -141,7 +143,7 @@ def test_build_creates_one_commit_per_checkpoint_on_main(toy_repo: Path) -> None
 
 
 def test_script_dry_run_lists_what_it_would_tag(toy_repo: Path) -> None:
-    script = REPO_ROOT / "scripts" / "build_checkpoints.py"
+    script = REPO_ROOT / "platform" / "scripts" / "build_checkpoints.py"
     done = subprocess.run(
         [sys.executable, str(script), "--dry-run", "--repo", str(toy_repo)],
         capture_output=True,
@@ -155,7 +157,7 @@ def test_script_dry_run_lists_what_it_would_tag(toy_repo: Path) -> None:
 
 
 def test_script_refuses_an_unknown_checkpoint(toy_repo: Path) -> None:
-    script = REPO_ROOT / "scripts" / "build_checkpoints.py"
+    script = REPO_ROOT / "platform" / "scripts" / "build_checkpoints.py"
     done = subprocess.run(
         [sys.executable, str(script), "--dry-run", "--repo", str(toy_repo), "nowhere"],
         capture_output=True,

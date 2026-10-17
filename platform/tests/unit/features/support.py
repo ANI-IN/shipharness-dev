@@ -9,7 +9,7 @@ from pathlib import Path
 from shipharness.ab import checkpoints as cp
 from shipharness.config.prices import REPO_ROOT
 
-TEAMTRACK = REPO_ROOT / "teamtrack"
+TEAMTRACK = REPO_ROOT / "platform" / "teamtrack"
 HIDDEN = TEAMTRACK / "tests" / "hidden"
 FEATURES = [f"f{n}" for n in range(1, 8)]
 

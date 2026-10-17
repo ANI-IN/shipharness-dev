@@ -5,8 +5,10 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[3]
-TEAMTRACK = REPO / "teamtrack"
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+TEAMTRACK = REPO / "platform" / "teamtrack"
 _IGNORE = shutil.ignore_patterns("__pycache__", "*.db", ".referee", ".pytest_cache")
 
 

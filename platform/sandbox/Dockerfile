@@ -1,6 +1,6 @@
 # shipharness sandbox images. Build from the repository root:
-#   docker build -f sandbox/Dockerfile --target agent   -t shipharness-agent:1 .
-#   docker build -f sandbox/Dockerfile --target referee -t shipharness-referee:1 .
+#   docker build -f platform/sandbox/Dockerfile --target agent   -t shipharness-agent:1 .
+#   docker build -f platform/sandbox/Dockerfile --target referee -t shipharness-referee:1 .
 # Dependencies are baked in at build time; containers run with --network none.
 # .dockerignore keeps .env and other local state out of the build context: no key enters an image.
 
@@ -24,7 +24,7 @@ RUN useradd --uid 1000 --create-home agent \
     && git config --system user.email "agent@sandbox.invalid" \
     && git config --system --add safe.directory /work
 # The check runner (python -m shipharness.checks.runner) comes from the image, never the workspace.
-COPY src/ /opt/shipharness/src/
+COPY platform/src/ /opt/shipharness/src/
 ENV PYTHONPATH=/opt/shipharness/src
 
 FROM base AS agent

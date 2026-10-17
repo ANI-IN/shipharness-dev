@@ -1,7 +1,7 @@
 """Checks for `teamtrack-features-v1` beyond the line schema (M5 builder contract §5).
 
 `check_features_line(line, repo)` checks one line against the course repository: the checkpoint is
-defined in `teamtrack/reference/checkpoints.toml`, every hidden test id exists in its file, the
+defined in TeamTrack's `reference/checkpoints.toml`, every hidden test id exists in its file, the
 mutant set resolves to a non-empty referee set whose every mutant applies at the line's checkpoint
 (its `original` matches exactly one line there), the primary measure parses against `ScoreRecord`
 (and is the measure registered for the feature, ruling R-5), and the allowed paths are non-empty
@@ -25,8 +25,10 @@ from pydantic import BaseModel, ValidationError
 
 from shipharness.ab.score import ScoreRecord, evaluate_primary
 from shipharness.datasets.schema import FeatureTask
+from shipharness.layout import APP_DIR as LAYOUT_APP_DIR
+from shipharness.layout import app_dir_at
 
-APP_DIR = "teamtrack"
+APP_DIR = LAYOUT_APP_DIR
 CHECKPOINTS_FILE = Path(APP_DIR) / "reference" / "checkpoints.toml"
 HIDDEN_PREFIX = "tests/hidden/"
 
@@ -89,10 +91,11 @@ def collect_tests(path: Path) -> dict[str, bool]:
 def hidden_test_ids(repo: Path, files: list[str]) -> list[str]:
     """Node ids (relative to the TeamTrack root, ruling R-1) for every test in `files`."""
     ids: list[str] = []
+    app = app_dir_at(Path(repo))
     for rel in files:
-        path = Path(repo) / APP_DIR / rel
+        path = Path(repo) / app / rel
         if not path.is_file():
-            raise FileNotFoundError(f"hidden test file {APP_DIR}/{rel} does not exist")
+            raise FileNotFoundError(f"hidden test file {app}/{rel} does not exist")
         ids += [f"{rel}::{name}" for name in collect_tests(path)]
     return ids
 
@@ -102,6 +105,7 @@ def _check_hidden(ids: list[str], repo: Path) -> list[str]:
         return ["outputs.hidden_test_ids: no hidden test ids"]
     errors: list[str] = []
     cache: dict[str, dict[str, bool] | None] = {}
+    app = app_dir_at(Path(repo))
     for node_id in ids:
         rel, sep, name = node_id.partition("::")
         if not sep or not name or not rel.startswith(HIDDEN_PREFIX):
@@ -111,13 +115,13 @@ def _check_hidden(ids: list[str], repo: Path) -> list[str]:
             )
             continue
         if rel not in cache:
-            path = Path(repo) / APP_DIR / rel
+            path = Path(repo) / app / rel
             cache[rel] = collect_tests(path) if path.is_file() else None
         tests = cache[rel]
         if tests is None:
-            errors.append(f"hidden id {node_id!r}: file {APP_DIR}/{rel} does not exist")
+            errors.append(f"hidden id {node_id!r}: file {app}/{rel} does not exist")
         elif name not in tests:
-            errors.append(f"hidden id {node_id!r}: no test {name!r} in {APP_DIR}/{rel}")
+            errors.append(f"hidden id {node_id!r}: no test {name!r} in {app}/{rel}")
         elif tests[name]:
             errors.append(
                 f"hidden id {node_id!r}: parametrized tests get ids the referee cannot match"
@@ -128,13 +132,18 @@ def _check_hidden(ids: list[str], repo: Path) -> list[str]:
 # -- checkpoints --------------------------------------------------------------------------------
 
 
+def checkpoints_file(repo: Path) -> Path:
+    """`<TeamTrack>/reference/checkpoints.toml`, relative to the checkout `repo` (either layout)."""
+    return Path(app_dir_at(Path(repo))) / "reference" / "checkpoints.toml"
+
+
 def checkpoint_names(repo: Path) -> set[str]:
-    """Checkpoint names defined in `teamtrack/reference/checkpoints.toml`."""
+    """Checkpoint names defined in TeamTrack's `reference/checkpoints.toml`."""
     from shipharness.ab.checkpoints import load_checkpoints
 
-    path = Path(repo) / CHECKPOINTS_FILE
+    path = Path(repo) / checkpoints_file(repo)
     if not path.is_file():
-        raise FileNotFoundError(f"{CHECKPOINTS_FILE.as_posix()} not found")
+        raise FileNotFoundError(f"{checkpoints_file(repo).as_posix()} not found")
     return set(load_checkpoints(Path(repo)))
 
 
@@ -200,7 +209,7 @@ def _signature(repo: Path, name: str) -> str:
     cached tree is rebuilt when either changes."""
     from shipharness.ab import checkpoints as cp
 
-    digest = hashlib.sha256((Path(repo) / CHECKPOINTS_FILE).read_bytes())
+    digest = hashlib.sha256((Path(repo) / checkpoints_file(repo)).read_bytes())
     for task in cp.checkpoint(name, repo).tasks:
         digest.update(cp.patch_for(task, name, repo).read_bytes())
     return digest.hexdigest()
@@ -290,7 +299,8 @@ def check_features_line(
 
     `apply_mutants` re-validates every referee mutant at the line's checkpoint (built from the
     reference patches, once per checkpoint). The default runs it when `repo` has the TeamTrack
-    source (`teamtrack/app`); repositories made of fixture manifests only have nothing to build."""
+    source (`platform/teamtrack/app`); repositories made of fixture manifests only have nothing to
+    build."""
     try:
         task = _as_task(line)
     except ValidationError as exc:
@@ -300,16 +310,16 @@ def check_features_line(
         if task.inputs.checkpoint not in checkpoint_names(repo):
             errors.append(
                 f"inputs.checkpoint {task.inputs.checkpoint!r} is not defined in "
-                f"{CHECKPOINTS_FILE.as_posix()}"
+                f"{checkpoints_file(repo).as_posix()}"
             )
     except (FileNotFoundError, tomllib.TOMLDecodeError) as exc:
-        errors.append(f"inputs.checkpoint: cannot read {CHECKPOINTS_FILE.as_posix()} ({exc})")
+        errors.append(f"inputs.checkpoint: cannot read {checkpoints_file(repo).as_posix()} ({exc})")
     checkpoint_ok = not errors
     errors += _check_hidden(task.outputs.hidden_test_ids, repo)
     mutant_errors = _check_mutants(task.outputs.mutant_set, repo)
     errors += mutant_errors
     if apply_mutants is None:
-        apply_mutants = (Path(repo) / APP_DIR / "app").is_dir()
+        apply_mutants = (Path(repo) / app_dir_at(Path(repo)) / "app").is_dir()
     if apply_mutants and checkpoint_ok and not mutant_errors:
         errors += check_mutants_apply(task.outputs.mutant_set, task.inputs.checkpoint, repo)
     errors += _check_primary(task.outputs.primary_measure, task.inputs.feature_id)

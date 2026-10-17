@@ -14,11 +14,12 @@ from shipharness.ab.demo import ABTask, run_ab
 from shipharness.ab.mutants import load_referee_mutants
 from shipharness.config import Settings
 from shipharness.events import EventBus
+from shipharness.layout import find_repo_root
 from shipharness.runner.models import AgentRunSpec
 
 from .test_demo import LINE, Clients, make_deps
 
-REPO = Path(__file__).resolve().parents[3]
+REPO = find_repo_root(Path(__file__))
 
 
 # --- referee-set mutants ---------------------------------------------------------------------

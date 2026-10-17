@@ -17,11 +17,12 @@ import typer
 from _pytest.mark.expression import Expression
 
 from shipharness.cli import app
+from shipharness.layout import find_repo_root
 
-REPO = Path(__file__).resolve().parents[2]
+REPO = find_repo_root(Path(__file__))
 MAKEFILE = REPO / "Makefile"
 PYPROJECT = REPO / "pyproject.toml"
-CONFTEST = REPO / "tests" / "conftest.py"
+CONFTEST = REPO / "platform" / "tests" / "conftest.py"
 
 # Sample values substituted for make variables before the CLI parses a recipe line.
 SAMPLES = {

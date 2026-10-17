@@ -6,7 +6,9 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
 
 
 def test_gitattributes_pins_lf() -> None:

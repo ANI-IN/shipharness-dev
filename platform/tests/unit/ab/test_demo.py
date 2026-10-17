@@ -147,7 +147,7 @@ def test_real_dataset_tickets_never_give_the_layers_an_empty_step_list() -> None
 
     from shipharness.config.prices import REPO_ROOT
 
-    path = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
+    path = REPO_ROOT / "platform" / "datasets" / "teamtrack-features-v1.jsonl"
     lines = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x]
     for line in lines:
         steps = ABTask.from_dataset_line(line).harness_kwargs()["feature_steps"]

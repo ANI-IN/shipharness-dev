@@ -7,9 +7,9 @@ directory first on sys.path (`Library.pythonpath`), so a mutant applied to a cop
 the code under test.
 
 Usage:
-  uv run python scripts/fetch_testgen_libs.py            # both libraries
-  uv run python scripts/fetch_testgen_libs.py boltons    # one library
-  uv run python scripts/fetch_testgen_libs.py --check    # verify what is there; no network
+  uv run python platform/scripts/fetch_testgen_libs.py            # both libraries
+  uv run python platform/scripts/fetch_testgen_libs.py boltons    # one library
+  uv run python platform/scripts/fetch_testgen_libs.py --check    # verify what is there; no network
 """
 
 from __future__ import annotations
@@ -21,7 +21,7 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 LIBS_DIR = REPO / ".shipharness" / "libs"
 
 

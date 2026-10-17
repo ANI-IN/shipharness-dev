@@ -4,8 +4,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-SCRIPT = REPO / "scripts" / "lint_prose.py"
+from shipharness.layout import find_repo_root
+
+REPO = find_repo_root(Path(__file__))
+SCRIPT = REPO / "platform" / "scripts" / "lint_prose.py"
 
 
 def lint(*paths: Path) -> subprocess.CompletedProcess[str]:

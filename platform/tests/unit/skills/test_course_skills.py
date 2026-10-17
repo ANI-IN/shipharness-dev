@@ -10,10 +10,11 @@ from pathlib import Path
 
 import pytest
 
+from shipharness.layout import find_repo_root
 from shipharness.skills_cli.validate import parse_skill_frontmatter, validate_skill
 
-REPO = Path(__file__).resolve().parents[3]
-SKILLS = REPO / "skills"
+REPO = find_repo_root(Path(__file__))
+SKILLS = REPO / "use-in-your-repo" / "skills"
 NAMES = ["assured-tests", "harness-setup", "house-rules", "skill-template"]
 SOURCE_ID = re.compile(r"\b(?:A[1-7]|B(?:1[0-4]|[1-9]))\b")
 TEMPLATES = SKILLS / "harness-setup" / "assets" / "templates"
@@ -67,7 +68,7 @@ def test_descriptions_say_what_and_when() -> None:
 
 def test_prose_lint_is_clean() -> None:
     result = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "lint_prose.py"), str(SKILLS)],
+        [sys.executable, str(REPO / "platform" / "scripts" / "lint_prose.py"), str(SKILLS)],
         capture_output=True,
         text=True,
         check=False,
@@ -196,7 +197,12 @@ def test_skill_template_has_placeholders_and_install_guide() -> None:
 
 def test_skill_template_anchor_extracts() -> None:
     result = subprocess.run(
-        [sys.executable, str(REPO / "scripts" / "anchors.py"), "extract", "Final:skill_template"],
+        [
+            sys.executable,
+            str(REPO / "platform" / "scripts" / "anchors.py"),
+            "extract",
+            "Final:skill_template",
+        ],
         capture_output=True,
         text=True,
         check=False,

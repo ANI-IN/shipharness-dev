@@ -23,8 +23,8 @@ from shipharness.datasets.schema import FeatureTask
 
 from .features_fixtures import CONTROLS, FEATURES, REPO, make_repo
 
-SCRIPT = REPO / "scripts" / "build_features_dataset.py"
-TICKETS = REPO / "datasets" / "sources" / "tickets.toml"
+SCRIPT = REPO / "platform" / "scripts" / "build_features_dataset.py"
+TICKETS = REPO / "platform" / "datasets" / "sources" / "tickets.toml"
 KEY_PHRASES = {
     "F1": ["GET /issues", "q"],
     "F2": ["/issues/{issue_id}/comments", "/comments/{comment_id}"],
@@ -309,7 +309,9 @@ def test_ticket_text_points_to_the_spec_and_names_the_feature(
 
 
 def test_ticket_texts_pass_the_prose_lint() -> None:
-    spec = importlib.util.spec_from_file_location("lint_prose", REPO / "scripts" / "lint_prose.py")
+    spec = importlib.util.spec_from_file_location(
+        "lint_prose", REPO / "platform" / "scripts" / "lint_prose.py"
+    )
     assert spec and spec.loader
     lint = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(lint)

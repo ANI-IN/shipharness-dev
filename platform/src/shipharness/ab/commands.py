@@ -13,8 +13,9 @@ import typer
 from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
 from shipharness.config.profiles import PROFILE_HELP, PROFILES
+from shipharness.layout import DATASETS_DIR
 
-FEATURES_FILE = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
+FEATURES_FILE = REPO_ROOT / DATASETS_DIR / "teamtrack-features-v1.jsonl"
 
 
 def _settings() -> Settings:

@@ -1,7 +1,7 @@
 """Grade one assignment submission (instructor; the graders live in the private build repository).
 
     make grade-assignment-N SUBMISSION=<folder or git URL>
-    uv run python scripts/grade_assignment.py N <folder or git URL>
+    uv run python platform/scripts/grade_assignment.py N <folder or git URL>
 
 A git URL is cloned shallow into a temporary folder; a folder is graded in place. The grader for
 assignment N sits in the submodule's private solution folder, which is not shipped in the public
@@ -15,7 +15,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 FLAGS = {1: "--work", 2: "--impl", 3: "--impl", 4: "--impl"}
 _URL_PREFIXES = ("https://", "http://", "ssh://", "git://", "file://", "git@")
 
@@ -46,7 +46,7 @@ def resolve_submission(value: str, clone_dir: Path) -> Path:
 
 
 def grader_command(n: int, submission: Path) -> list[str]:
-    found = sorted(REPO.glob(f"submodules/0{n}-*/solution/grader/grade.py"))  # private, not shipped
+    found = sorted(REPO.glob(f"0{n}-*/assignment/solution/grader/grade.py"))  # private, not shipped
     if not found:
         raise SubmissionError(
             f"no grader for assignment {n}: graders are private (build repository only)"

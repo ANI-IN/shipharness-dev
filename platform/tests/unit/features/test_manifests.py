@@ -16,7 +16,7 @@ from shipharness.config.prices import REPO_ROOT
 from shipharness.filters.mutants import load_mutants
 from tests.unit.features import support
 
-TEAMTRACK = REPO_ROOT / "teamtrack"
+TEAMTRACK = REPO_ROOT / "platform" / "teamtrack"
 SPECS = TEAMTRACK / "docs" / "features"
 HARNESS_SPECS = TEAMTRACK / "harness" / "instructions" / "docs" / "product-specs"
 PRIMARY = {  # ruling R-5

@@ -1,11 +1,11 @@
-"""Build datasets/teamtrack-features-v1.jsonl (DESIGN §10.1, M5 builder contract §5).
+"""Build platform/datasets/teamtrack-features-v1.jsonl (DESIGN §10.1, M5 builder contract §5).
 
 Usage:
-  uv run python scripts/build_features_dataset.py [--repo DIR] [--out FILE] [--check]
+  uv run python platform/scripts/build_features_dataset.py [--repo DIR] [--out FILE] [--check]
 
-Reads the task manifests (teamtrack/reference/<task>/task.toml for F1-F7 and C1-C8) and the ticket
-variants (datasets/sources/tickets.toml), collects hidden test ids statically from the files each
-manifest lists for the line's checkpoint, and writes 60 lines in a fixed order:
+Reads the task manifests (platform/teamtrack/reference/<task>/task.toml for F1-F7 and C1-C8) and
+the ticket variants (platform/datasets/sources/tickets.toml), collects hidden test ids statically
+from the files each manifest lists for the line's checkpoint, and writes 60 lines in a fixed order:
 7 canonical + 21 reworded + 8 alternate-checkpoint + 9 session-stop + 7 trap + 8 control.
 
 Splits: `smoke` (F1-F4 canonical, C5, C6) and `section-1` ... `section-4` (for feature Fn:
@@ -31,8 +31,9 @@ from shipharness.datasets.features_checks import (
     check_features_line,
     hidden_test_ids,
 )
+from shipharness.layout import resolve
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 FEATURES = ("F1", "F2", "F3", "F4", "F5", "F6", "F7")
 CONTROLS = ("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")
 STYLES = ("terse", "pm", "bug")
@@ -52,14 +53,14 @@ def manifest_path(task_id: str) -> Path:
 
 
 def load_manifest(repo: Path, task_id: str) -> dict[str, Any]:
-    path = repo / manifest_path(task_id)
+    path = resolve(repo, manifest_path(task_id).as_posix())
     if not path.is_file():
         raise DatasetSourceError(f"missing task manifest {manifest_path(task_id).as_posix()}")
     return tomllib.loads(path.read_text(encoding="utf-8"))
 
 
 def load_tickets(repo: Path) -> dict[str, list[dict[str, Any]]]:
-    path = repo / TICKETS
+    path = resolve(repo, TICKETS.as_posix())
     if not path.is_file():
         raise DatasetSourceError(f"missing ticket sources {TICKETS.as_posix()}")
     return tomllib.loads(path.read_text(encoding="utf-8"))
@@ -263,7 +264,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, help=f"output file (default: <repo>/{OUT.as_posix()})")
     parser.add_argument("--check", action="store_true", help="compare with --out, do not write")
     args = parser.parse_args(argv)
-    out = args.out or args.repo / OUT
+    out = args.out or resolve(args.repo, OUT.as_posix())
     try:
         lines = build_lines(args.repo)
     except DatasetSourceError as exc:
