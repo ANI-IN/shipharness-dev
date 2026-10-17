@@ -114,19 +114,19 @@ demo-4:
 # Harness in action: the harness arm alone on section N's canonical task, judged by the referee
 # (not an A/B; its records stay out of the bare-vs-harness comparison and of swap-N).
 show-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-1 --feature F1 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-2 --feature F2 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-3 --feature F3 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>

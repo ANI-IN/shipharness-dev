@@ -236,6 +236,7 @@ def test_show_target_runs_the_harness_arm_alone_on_the_section_task(n: int) -> N
     assert params["feature"] == f"F{n}"
     assert params["arms"] == "harness"
     assert params["purpose"] == "pilot"  # the same PURPOSE handling as demo-N
+    assert params["session_budget"] == "12,38"  # SESSION_BUDGET reaches show-N as it does demo-N
     assert params["swap"] is None and params["replay"] is None  # a live run: the live guard holds
 
 
