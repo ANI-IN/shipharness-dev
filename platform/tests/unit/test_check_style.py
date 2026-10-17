@@ -744,3 +744,14 @@ def test_the_final_project_page_follows_the_demo_template_plus_the_take_home_ste
 def test_the_generated_references_page_is_not_checked() -> None:
     # The release build writes docs/REFERENCES.md into the public repo: every source and finding id.
     assert not cs.is_public("docs/REFERENCES.md")
+
+
+def test_the_root_readme_tells_its_story_without_the_scenario_label(tmp_path: Path) -> None:
+    # Owner edit on the RC, 2026-10-18: the root README's problem story has no label.
+    text = (
+        "# Module 1: Harness Engineering for Coding Agents\n\n## The problem\n\n"
+        "Your team gives a week of tickets to a coding agent.\n"
+    )
+    assert [p for p in problems(tmp_path, "README.md", text) if p.check == "SC17"] == []
+    found = problems(tmp_path, "01-instructions/README.md", text.replace("# Module", "# Module", 1))
+    assert [p.check for p in found if p.check == "SC17"] == ["SC17"]

@@ -1,17 +1,11 @@
 # Module 1: Harness Engineering for Coding Agents
 
 This module teaches you to build the harness around a coding agent, and to measure whether each part
-of it helps. It is the first module of a multi-module program.
+of it helps. 
 
 ## The problem
 
-**Illustrative scenario.** Your team gives a week of tickets on a multi-tenant issue tracker to a
-coding agent. On Monday the agent copies an old handler that has no tenant filter. The tests pass,
-and one customer can now read another customer's issues. On Tuesday a session stops halfway through
-a database migration. The next session cannot see what the first one did, and it writes a second
-migration for the same table. On Wednesday a fix for one endpoint lands in shared middleware, and an
-older feature breaks. On Thursday the agent reports "done" on an edit-conflict feature that still
-loses updates, and the only evidence is the agent's word.
+Your team gives a week of tickets on a multi-tenant issue tracker to a coding agent. On Monday the agent copies an old handler that has no tenant filter. The tests pass, and one customer can now read another customer's issues. On Tuesday a session stops halfway through a database migration. The next session cannot see what the first one did, and it writes a second migration for the same table. On Wednesday a fix for one endpoint lands in shared middleware, and an older feature breaks. On Thursday the agent reports "done" on an edit-conflict feature that still loses updates, and the only evidence is the agent's word.
 
 Each of these costs more than the ticket saved: a data leak, a blocked deploy, a regression, and a
 review that rests on trust.

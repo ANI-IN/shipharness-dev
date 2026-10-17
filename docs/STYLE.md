@@ -60,7 +60,8 @@ Other pages (`concepts.md`, `walkthrough.md`, `SPEC.md`, and so on) have one H1 
 
 Pages that teach (root README, section READMEs, `concepts.md`, demo READMEs, assignment READMEs,
 the final project) open with `## The problem`. Its first paragraph starts with the label
-**Illustrative scenario.** and tells a short work story an engineer recognises. Each section uses
+**Illustrative scenario.** and tells a short work story an engineer recognises. The root
+README tells its story without the label. Each section uses
 its own failure:
 
 | Section | The failure in the story |
