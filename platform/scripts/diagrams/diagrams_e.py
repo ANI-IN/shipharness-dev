@@ -233,15 +233,15 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     # Source: platform/teamtrack/docs/HANDBOOK.md, "House rules" R1 to R7.
     @diagram(DOCS, "house-rules")
     def house_rules(s: Scene) -> None:
-        title(s, "TeamTrack house rules R1 to R7")
+        title(s, "TeamTrack's seven house rules")
         rules = [
-            ("R1 tenant isolation", "other org:\n404, not 403"),
-            ("R2 roles", "a viewer's write:\n403 forbidden"),
-            ("R3 API conventions", "cursor lists,\nerror envelope"),
-            ("R4 idempotent creates", "same Idempotency-Key:\none record"),
-            ("R5 audit log", "one audit row\nper write"),
-            ("R6 layering", "app/api never\nimports app/db"),
-            ("R7 migrations", "exactly one\nAlembic head"),
+            ("tenant isolation rule", "other org:\n404, not 403"),
+            ("roles rule", "a viewer's write:\n403 forbidden"),
+            ("API conventions rule", "cursor lists,\nerror envelope"),
+            ("idempotent creates rule", "same Idempotency-Key:\none record"),
+            ("audit log rule", "one audit row\nper write"),
+            ("layering rule", "app/api never\nimports app/db"),
+            ("migrations rule", "exactly one\nAlembic head"),
         ]
         w, gap = 420, 40
         for i, (name, example) in enumerate(rules):
@@ -301,7 +301,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             620,
             870,
             300,
-            "Scope (F4):\n3/3 vs 0/3",
+            "Scope:\n3/3 vs 0/3",
             role="accent",
             stroke_width=3,
         )

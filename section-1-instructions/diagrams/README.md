@@ -10,7 +10,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 > - **Harness arm**: The same run with the harness turned on.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
 
 ## The diagrams
 

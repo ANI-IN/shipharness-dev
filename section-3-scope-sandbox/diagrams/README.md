@@ -3,7 +3,7 @@
 The diagrams for Section 3, the scope layer and the sandbox. Each one has an `.excalidraw` source,
 a `.png` at 2x for slides, and an `.svg` with the font embedded for pages. Colours, step frames,
 editing, and licences are explained once, in [the course diagrams guide](../../docs/diagrams/README.md).
-The F4 ticket diagram, `optimistic-concurrency`, is in that folder too, because Section 4 uses it
+The version checks ticket diagram, `optimistic-concurrency`, is in that folder too, because Section 4 uses it
 as well.
 
 > **Terms on this page**
@@ -49,15 +49,15 @@ as well.
 - **What it teaches**: the scope layer as least privilege for file changes.
 - **Slide topic**: bare arm and harness arm permissions.
 - **Files**: `least-privilege`.
-- **Source**: `platform/src/shipharness/harness/scope/`, the F4 allowed paths in
+- **Source**: `platform/src/shipharness/harness/scope/`, the version checks allowed paths in
   `platform/teamtrack/reference/f4/task.toml`, and the seven tools in
   `platform/src/shipharness/runner/prompts.py`.
 
 ### Section 3 results
 
-![Dot chart: on F4 the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on F3 all runs passed](./results-s3.svg)
+![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on idempotency keys all runs passed](./results-s3.svg)
 
-*On F4 the bare arm left the allowed paths in 3 of 3 runs and the harness arm in 0 of 3.*
+*On version checks the bare arm left the allowed paths in 3 of 3 runs and the harness arm in 0 of 3.*
 
 - **What it teaches**: the one measured gap in the course, and the ticket where there was none.
 - **Slide topic**: what we measured in Section 3.

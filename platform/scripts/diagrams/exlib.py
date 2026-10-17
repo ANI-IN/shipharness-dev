@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import urllib.request
 from pathlib import Path
 from typing import Any
@@ -19,6 +20,7 @@ from style import (
     ARROWHEAD,
     BLUE,
     CANVAS,
+    COURSE_CODE,
     FONT_BODY,
     FONT_FAMILY,
     GREY,
@@ -520,6 +522,8 @@ class Scene:
             limit = {"title": MAX_WORDS_TITLE, "footnote": MAX_WORDS_FOOTNOTE}.get(role, MAX_WORDS)
             if words > limit:
                 self.problems.append(f"{role} {e['text']!r} has {words} words (> {limit})")
+            if re.search(COURSE_CODE, e["text"]):
+                self.problems.append(f"{role} {e['text']!r} has a course code; use the plain name")
             if role in counts:
                 counts[role] += 1
                 if "\n" in e["text"] or counts[role] > 1:

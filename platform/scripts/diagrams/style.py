@@ -63,6 +63,8 @@ MIN_SLIDE_PX = 20  # at 1080p, on the slide, at the placed size
 MAX_WORDS = 5  # every label: no sentences inside a diagram
 MAX_WORDS_TITLE = 8  # the one title line
 MAX_WORDS_FOOTNOTE = 8  # one small footnote line, such as the capture date
+# No course codes (F1-F7, R1-R7, S1-S4, A1-A4) in any label: plain names only (PLAIN-NAMES rule).
+COURSE_CODE = r"\b[FRSA][1-7]\b"
 
 # -- canvases -----------------------------------------------------------------------------
 # name: (width, height, placed width on a 1920x1080 slide). Both place at 864 px high.

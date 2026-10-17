@@ -188,7 +188,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             160,
             480,
             190,
-            "Exec plan\ndocs/exec-plans/active/F2.md",
+            "Exec plan\ndocs/exec-plans/active/",
             role="plain",
             stroke_width=3,
         )

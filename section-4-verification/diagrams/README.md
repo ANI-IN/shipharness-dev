@@ -3,7 +3,7 @@
 The diagrams for Section 4, the verification layer. Each one has an `.excalidraw` source, a `.png`
 at 2x for slides, and an `.svg` with the font embedded for pages. Colours, step frames, editing,
 and licences are explained once, in [the course diagrams guide](../../docs/diagrams/README.md). The
-F4 ticket diagram, `optimistic-concurrency`, is in that folder too, because Section 3 uses it as
+version checks ticket diagram, `optimistic-concurrency`, is in that folder too, because Section 3 uses it as
 well.
 
 > **Terms on this page**
@@ -35,10 +35,10 @@ well.
 
 *Test B passes on the broken code, so it would not catch a lost update; test A would.*
 
-- **What it teaches**: what "a test catches a mutant" means, on a real F4 referee mutant.
+- **What it teaches**: what "a test catches a mutant" means, on a real version checks referee mutant.
 - **Slide topic**: tests that prove something.
 - **Files**: `mutation-testing`.
-- **Source**: the F4 referee mutants in `platform/teamtrack/mutants/features/f4.jsonl` and the
+- **Source**: the version checks referee mutants in `platform/teamtrack/mutants/features/f4.jsonl` and the
   tests in `platform/teamtrack/reference/f4/f4.patch`.
 
 ### Section 4 results
@@ -71,7 +71,7 @@ well.
 *Frame 1 asks; frame 2 answers with the reasons.*
 
 - **What it teaches**: why the agent's own green suite does not decide done.
-- **Slide**: "Verification: The suite is green. Is F4 done?", frame N on build N.
+- **Slide**: the Verification slide that asks whether a green suite means version checks are done, frame N on build N.
 - **Files**: `socratic-s4`, with step frames `socratic-s4-step-1` to `socratic-s4-step-2`.
 - **Source**: [the Section 4 evidence](../../docs/evidence/s4.md).
 - **How to edit**: change `socratic-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

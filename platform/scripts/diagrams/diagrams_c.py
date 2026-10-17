@@ -71,7 +71,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s1(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 1, legacy pattern (F1)",
+            "Section 1: legacy pattern",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
@@ -86,7 +86,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s2(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 2, comments (F2)",
+            "Section 2: comments",
             [
                 ("Medium effort", [P] * 3, [P] * 3),
                 ("Low effort", [P] * 3, [P] * 3),
@@ -102,8 +102,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s,
             "Section 3: files outside allowed paths",
             [
-                ("Version checks (F4)", [F] * 3, [P] * 3),
-                ("Idempotency keys (F3)", [P] * 3, [P] * 3),
+                ("Version checks", [F] * 3, [P] * 3),
+                ("Idempotency keys", [P] * 3, [P] * 3),
                 ("Idempotency, middleware temptation", [P] * 7, [P] * 7),
             ],
             "pass: nothing shipped outside allowed paths",
@@ -114,7 +114,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def results_s4(s: Scene) -> None:
         dot_chart(
             s,
-            "Section 4, version checks (F4)",
+            "Section 4: version checks",
             [
                 ("Medium effort, round 1", [F] * 3, [F] * 3),
                 ("Medium effort, round 2", [F] * 3, [F] * 3),
@@ -130,11 +130,11 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s,
             "All sections, each on its measure",
             [
-                ("Section 1, legacy (F1)", [P] * 7, [P] * 7),
-                ("Section 2, comments (F2)", [P] * 7, [P] * 7),
-                ("Section 3, middleware (F3)", [P] * 7, [P] * 7),
-                ("Section 3, scope (F4)", [F] * 3, [P] * 3),
-                ("Section 4, hidden tests (F4)", [F] * 4, [F] * 4),
+                ("Section 1: legacy", [P] * 7, [P] * 7),
+                ("Section 2: comments", [P] * 7, [P] * 7),
+                ("Section 3: middleware", [P] * 7, [P] * 7),
+                ("Section 3: scope", [F] * 3, [P] * 3),
+                ("Section 4: hidden tests", [F] * 4, [F] * 4),
             ],
             "one dot per run, each arm",
         )

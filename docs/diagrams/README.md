@@ -89,12 +89,12 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 ![TeamTrack tables inside a dashed tenant boundary, with orgs above it](./teamtrack-data-model.svg)
 
-*Every table inside the dashed box carries org_id; R1 says another org's row answers 404.*
+*Every table inside the dashed box carries org_id; the tenant isolation rule says another org's row answers 404.*
 
 - **What it teaches**: the app every ticket changes, and the tenant rule the agent must keep.
 - **Slide topic**: meet TeamTrack, in the opening.
 - **Files**: `teamtrack-data-model`.
-- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for F2, F6, and F7
+- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for comments, watchers, and labels
   under `platform/teamtrack/reference/`.
 
 ### One ticket, two arms, one referee
@@ -114,7 +114,7 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 *The second save names a version that is no longer current, so it gets 412 and changes nothing.*
 
-- **What it teaches**: the F4 ticket, which Section 3 and Section 4 both run.
+- **What it teaches**: the version checks ticket, which Section 3 and Section 4 both run.
 - **Slide topic**: the version checks ticket, in Sections 3 and 4.
 - **Files**: `optimistic-concurrency`.
 - **Source**: `platform/teamtrack/docs/features/f4.md`.
@@ -143,23 +143,23 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 ### The results
 
-![Dot chart: one dot per run per arm for F1 to F4, filled for passed, hollow for failed](./results-final.svg)
+![Dot chart: one dot per run per arm for each section's measure, filled for passed, hollow for failed](./results-final.svg)
 
-*The harness arm was ahead only on F4's out-of-scope files: 3 of 3 runs passed against 0 of 3.*
+*The harness arm was ahead only on out-of-scope files in version checks: 3 of 3 runs passed against 0 of 3.*
 
 - **What it teaches**: what the course measured, as counts, with every run shown.
 - **Slide topic**: what we measured, at the close.
 - **Files**: `results-final`.
 - **Source**: [the final evidence page](../evidence/final.md).
 
-### House rules R1 to R7
+### House rules
 
 ![Seven boxes, one per TeamTrack house rule, each with an example](./house-rules.svg)
 
 *Each rule with one TeamTrack example.*
 
 - **What it teaches**: the seven house rules the referee checks, in plain words.
-- **Slide**: "House rules R1-R7", right after the data model.
+- **Slide**: the house rules slide, right after the data model.
 - **Files**: `house-rules`.
 - **Source**: `platform/teamtrack/docs/HANDBOOK.md`.
 - **How to edit**: change `house-rules` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).

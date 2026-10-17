@@ -60,7 +60,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         s.box(60, 190, 1800, 780, dashed=True, stroke=AMBER, stroke_width=BOLD)
         users = s.box(120, 250, 460, 130, "users\norg_id, email, role", role="plain")
         projects = s.box(730, 250, 460, 130, "projects\norg_id, key, archived_at", role="plain")
-        labels = s.box(1340, 250, 460, 130, "labels (F7)\norg_id, name", role="plain")
+        labels = s.box(1340, 250, 460, 130, "labels\norg_id, name", role="plain")
         members = s.box(120, 480, 460, 130, "project_members\nproject_id, user_id", role="plain")
         issues = s.box(
             730,
@@ -71,15 +71,9 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             role="plain",
             stroke_width=BOLD,
         )
-        issue_labels = s.box(
-            1340, 480, 460, 130, "issue_labels (F7)\nissue_id, label_id", role="plain"
-        )
-        comments = s.box(
-            300, 710, 560, 130, "comments (F2)\norg_id, issue_id, author_id", role="plain"
-        )
-        watchers = s.box(
-            1060, 710, 560, 130, "watchers (F6)\norg_id, issue_id, user_id", role="plain"
-        )
+        issue_labels = s.box(1340, 480, 460, 130, "issue_labels\nissue_id, label_id", role="plain")
+        comments = s.box(300, 710, 560, 130, "comments\norg_id, issue_id, author_id", role="plain")
+        watchers = s.box(1060, 710, 560, 130, "watchers\norg_id, issue_id, user_id", role="plain")
         s.text(100, 880, "every row carries org_id", B, INK)
         s.text(960, 880, "other org: 404, never 403", B, INK, "center")
         s.text(1820, 880, "audit_log, idempotency_keys: org_id", B, INK, "right")
@@ -106,7 +100,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         rows = [
             (1, "1  read all of this", INK),
             (196, "196  house rules", AMBER),
-            (204, "204  R1 tenant isolation", AMBER),
+            (204, "204  tenant isolation rule", AMBER),
             (586, "586  legacy /v1 API", AMBER),
             (669, "669  team notes, history", INK),
             (787, "787  questions we get", INK),
@@ -214,7 +208,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         a0 = s.box(110, 150, 400, 120, "0001_initial", role="plain")
         a1 = s.box(110, 460, 400, 130, "0002_comments\n(session 1)", role="harness")
         s.arrow(a0, a1, "down_revision", start="bottom", end="top")
-        s.box(80, 760, 460, 160, "1 head:\nR7 migrations holds", role="neutral")
+        s.box(80, 760, 460, 160, "1 head:\nmigrations rule holds", role="neutral")
         s.line([(660, 40), (660, 960)], dashed=True, color=GREY)
         s.text(1310, 60, "Two heads", T, INK, "center")
         b0 = s.box(1110, 150, 400, 120, "0001_initial", role="plain")
@@ -228,7 +222,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             760,
             640,
             160,
-            "2 heads:\nR7 migrations fails",
+            "2 heads:\nmigrations rule fails",
             role="fail",
             stroke_width=BOLD,
         )

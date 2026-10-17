@@ -10,7 +10,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 > - **Harness arm**: The same run with the harness turned on.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
-> - **R7**: House rule 7, migrations: exactly one Alembic head, and a fresh upgrade works.
+> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
 
 ## The diagrams
 
@@ -42,7 +42,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 
 ![A migration chain with one head, next to a fork where two migrations share one parent](./alembic-heads.svg)
 
-*Two migrations with the same down_revision make two heads, and house rule R7 needs exactly one.*
+*Two migrations with the same down_revision make two heads, and the migrations rule needs exactly one.*
 
 - **What it teaches**: what a redone migration does to the Alembic history.
 - **Slide topic**: the cost of a forgotten session.
@@ -71,7 +71,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **What it teaches**: how a stop without a handoff leads to a second migration and two heads.
 - **Slide**: "Problem statement: The second session redoes the first".
 - **Files**: `failure-story-s2`.
-- **Source**: the slide's notes; house rule R7 migrations in `platform/teamtrack/docs/HANDBOOK.md`.
+- **Source**: the slide's notes; the migrations rule (house rule 7) in `platform/teamtrack/docs/HANDBOOK.md`.
 - **How to edit**: change `failure-story-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: why redo work already on disk?
