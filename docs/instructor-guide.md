@@ -13,6 +13,12 @@ fits on one printed page. The sections after it give the detail behind each line
 > - **Primary verdict**: The referee's answer to the one question the section asks.
 > - **Console**: The browser page that shows a run live, on five screens.
 > - **Fallback recording**: A run you record the day before and replay only if a live run breaks.
+> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch it.
+> - **Gate**: The check that must pass before a feature counts as done.
+> - **Baseline**: The referee's or gate's result on the app before the agent changes it, saved so
+>   each run is compared against it.
+> - **Pill**: A small status badge on screen 1; one shows the primary verdict, others the gate.
 
 ## Class-day cheat sheet
 
@@ -28,9 +34,9 @@ Terminal B runs the section demos. Terminal C runs the final.
 | 0:08 | B | `make doctor` | Read the key lines aloud |
 | 0:13 | B | `make show-1` | Section 1, harness in action |
 | 1:14 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
-| 2:04 | B | `make demo-3 FEATURE=F4` | Section 3, live A/B |
+| 2:04 | B | `make demo-3 FEATURE=version-checks` | Section 3, live A/B |
 | 2:59 | B | `make show-4` | Section 4, harness in action |
-| 3:00 | C | `make final FEATURES=F6,F5` | The final A/B; put the poll's winner first |
+| 3:00 | C | `make final FEATURES=watchers,bulk-close` | The final A/B; put the poll's winner first |
 | 3:40 | C | No command | Read the final's arm lines |
 
 After each launch, reload the console's run list and open the newest run. At section minute 25,
@@ -62,7 +68,7 @@ What to say at each verdict:
 | 4 | "Every hidden test and every mutant. The work is done." | "The agent said done. The hidden tests and mutants say no." |
 | Final | No primary measure: read hidden tests and mutants per arm. | "One A/B is one dot." |
 
-In Section 3 the pill on screen 1 shows F4's own bar, which every arm failed before class. Read
+In Section 3 the pill on screen 1 shows the version checks feature's own bar, which every arm failed before class. Read
 `diff_scope` on screen 3 instead. Before class: bare 0 of 3 in scope, harness 3 of 3.
 
 Console keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen.
@@ -100,6 +106,8 @@ warm: done (140.6 s)
 Cost: $0.000000 (this command: no calls; session $0.000000 of $2.50; build $2.248909 of $15.00 ($12.751091 left))
 ```
 
+`F7` in the first line is the id of the labels feature.
+
 If `make warm` ends with `warm: incomplete`, run `make images`, then `make warm PURPOSE=pilot` again.
 
 ### Record the fallbacks
@@ -109,11 +117,11 @@ Run each class command once, in class order. The poll can pick any final feature
 ```bash
 make show-1 PURPOSE=pilot
 make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot
-make demo-3 FEATURE=F4 PURPOSE=pilot
+make demo-3 FEATURE=version-checks PURPOSE=pilot
 make show-4 PURPOSE=pilot
-make final FEATURES=F5 PURPOSE=pilot
-make final FEATURES=F6 PURPOSE=pilot
-make final FEATURES=F7 PURPOSE=pilot
+make final FEATURES=bulk-close PURPOSE=pilot
+make final FEATURES=watchers PURPOSE=pilot
+make final FEATURES=labels PURPOSE=pilot
 ```
 
 The first line of each result starts with `A/B` and the id. Write each id down. The fallback for a
@@ -266,7 +274,7 @@ The ticket is org-wide issue search, next to a legacy handler with no tenant fil
 verdict asks one question: did the change add a new tenant leak?
 
 Demo block, in this order: screen 1 (the files placed, the map and a skill read, then the code),
-screen 3 (files read, and the `r1_tenant` line), screen 2 (the board, own-org cards only), screen 5
+screen 3 (files read, and the `r1_tenant` line, the tenant isolation check), screen 2 (the board, own-org cards only), screen 5
 (trace links).
 
 Say at the result: "This is one harness arm on one run. It shows the layer ran. It cannot show the
@@ -298,12 +306,12 @@ Discussion: "Which state file would you keep for this model, and how would you m
 
 ### Section 3: Scope and sandbox (2:00-2:50)
 
-This section runs a live A/B. Before class, three A/Bs on the F4 ticket showed a real gap: every bare
+This section runs a live A/B. Before class, three A/Bs on the version checks ticket showed a real gap: every bare
 arm changed `app/services/errors.py`, a file outside the ticket's allowed paths. The scope layer
 blocked the same edit in every harness arm. Bare 0 of 3 in scope, harness 3 of 3
 ([evidence](evidence.md#section-3)).
 
-`make demo-3 FEATURE=F4` runs both arms at once. The harness arm has the instructions, state, and
+`make demo-3 FEATURE=version-checks` runs both arms at once. The harness arm has the instructions, state, and
 scope layers. Each arm has its own sandbox with the same limits.
 
 Demo block: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
@@ -313,7 +321,7 @@ column: `diff_scope: 1 new` against `diff_scope: 0 new`. Then screen 1: the harn
 
 Say at the result: "The guard enforces exactly what we measure, so the harness arm's zero is built
 in. What the runs show is that, on this ticket, the bare agent edits a shared file every time." Then:
-"Both arms still failed F4's own bar. The guard keeps the change in scope. It does not make the
+"Both arms still failed the ticket's own bar. The guard keeps the change in scope. It does not make the
 change correct."
 
 If screen 3 lists a sandbox denial, show its reason code and command. If not, show the policy
@@ -329,21 +337,22 @@ Five minutes. Put the return time on the break slide. Nothing runs during the br
 
 ### Section 4: Verification (2:55-3:40)
 
-Two polls open this section: the Section 4 poll, then the final feature poll (F5, F6, or F7).
+Two polls open this section: the Section 4 poll, then the final feature poll (bulk close, watchers, or labels).
 
 1. 2:59, terminal B: `make show-4`. Open its run in browser tab 2 right away.
 2. 3:00, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up,
-   for example `make final FEATURES=F6,F5`. Always pass `FEATURES`: the default is `F5,F6`. Open the
+   for example `make final FEATURES=watchers,bulk-close`. Always pass `FEATURES`: without it, make
+   runs bulk close, then watchers. Open the
    newest run in browser tab 3, then go back to tab 2.
 
-`make show-4` runs F4 with all four layers. A run passes only with all 69 hidden tests and all 4
+`make show-4` runs the version checks feature with all four layers. A run passes only with all 69 hidden tests and all 4
 referee mutants killed by its own tests.
 
 Demo block: screen 1 (the gate pills, then the test phase), screen 3 (the filter table and the
 mutant table), screen 2 (the two-tab conflict panel).
 
 Say at the result: "The gate checks what the agent can see. The hidden tests and the referee's
-mutants stay out of its reach." Before class, neither arm passed F4 once: no measurable difference
+mutants stay out of its reach." Before class, neither arm passed the version checks ticket once: no measurable difference
 ([evidence](evidence.md#section-4)).
 
 Discussion, two minutes: "What would a gate need to catch to earn its turns on this model?"
@@ -358,7 +367,8 @@ The final A/B started at 3:00. This block starts no run.
 3. Screen 4, then the all-results slide. Say: "One A/B is one dot. Read it next to the runs from
    before class, never alone."
 4. Assignments, the skills, and the starter kit (`uv run shipharness init --target ../your-repo`).
-5. References: [REFERENCES.md](REFERENCES.md).
+5. References: the last two slides. Their speaker notes, and the slides' Sources list, link every
+   source.
 
 If the final is not finished at 3:40, walk through its live screens 1 and 2 instead of step 2. Come
 back to its screen 4 at the end.

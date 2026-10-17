@@ -1,7 +1,7 @@
-# F6 Watchers
+# Watchers
 
 A final feature over two build sessions, then a test phase. Run it with
-`FEATURES=F6 ./final-project/run.sh` or `make final FEATURES=F6`.
+`FEATURES=watchers ./final-project/run.sh` or `make final FEATURES=watchers`.
 
 ## What it asks for
 
@@ -17,15 +17,17 @@ Users follow the issues they care about and see them in one list.
 
 | House rule | What can go wrong |
 |---|---|
-| R1 Tenant isolation | An admin adds another org's user as a watcher |
-| R2 Roles | A member manages other people's watching; a viewer writes |
-| R5 Audit log | One row per real change; none for a no-op or a refused write |
-| R7 Migrations | Exactly one new migration on the current head |
+| Tenant isolation rule | An admin adds another org's user as a watcher |
+| Roles rule | A member manages other people's watching; a viewer writes |
+| Audit log rule | One row per real change; none for a no-op or a refused write |
+| Migrations rule | Exactly one new migration on the current head (the latest migration) |
 
 The session stop matters here: the first session ends after 20 turns, partway through the feature.
 The second session starts with an empty context and must pick up the work from the repository.
 
 ## What the referee checks
+
+The referee is the program that scores each arm after the agent stops.
 
 - **Hidden tests:** 54, in three files under
   [platform/teamtrack/tests/hidden/f6/](../../platform/teamtrack/tests/hidden/f6/). 49 test the
@@ -43,7 +45,7 @@ The second session starts with an empty context and must pick up the work from t
   [platform/teamtrack/docs/features/f6.md](../../platform/teamtrack/docs/features/f6.md).
 - The ticket text, session budget (20 turns, then 30), allowed paths, and hidden test files:
   [platform/teamtrack/reference/f6/task.toml](../../platform/teamtrack/reference/f6/task.toml).
-- The dataset line `make final FEATURES=F6` runs (feature `F6`, variant `canonical`):
+- The dataset line `make final FEATURES=watchers` runs (feature `F6`, variant `canonical`):
   [platform/datasets/teamtrack-features-v1.jsonl](../../platform/datasets/teamtrack-features-v1.jsonl),
   built from [platform/datasets/sources/tickets.toml](../../platform/datasets/sources/tickets.toml).
 - The mutants: [platform/teamtrack/mutants/features/f6.jsonl](../../platform/teamtrack/mutants/features/f6.jsonl).

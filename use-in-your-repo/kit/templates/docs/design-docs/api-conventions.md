@@ -1,4 +1,4 @@
-<!-- REPLACE: TeamTrack's R3 conventions: list and error envelopes and status codes. The R3 check asserts exactly these envelopes; keep them only if your API follows them. -->
+<!-- REPLACE: TeamTrack's API conventions (`R3`, the API conventions rule): list and error envelopes and status codes. The `R3` check asserts exactly these envelopes; keep them only if your API follows them. -->
 # API conventions (R3)
 
 Status: in force for every endpoint. Verified by the R3 check.

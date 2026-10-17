@@ -13,6 +13,12 @@ page is the reference you check your work against.
 > - **Product file**: Any file except `progress.md`, `session-handoff.md`, `init.sh`, the feature list files, and `docs/exec-plans/`.
 > - **Score record**: The file the referee writes for each run, with every measured result.
 > - **Live evidence**: The files your real live run wrote, collected into `live/`.
+> - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
+> - **Alembic head**: The newest migration in the chain; Alembic is the migration tool TeamTrack uses.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 > Your output will differ: the examples on this page come from the course's own starter, and commit
 > hashes change on every run.
@@ -194,7 +200,7 @@ points are multiplied by the share of scenarios that pass it.
 ## Evidence to hand in
 
 You run your final layer once, live, with the course model (`gpt-6-luna`), through the real runner,
-the Docker sandbox, and the referee. The task is F2 with one change: four build sessions with budgets
+the Docker sandbox, and the referee. The task is the comments ticket with one change: four build sessions with budgets
 10, 10, 10, and 20 instead of two. Hidden tests, mutants, and the primary measure stay the same.
 
 ```bash

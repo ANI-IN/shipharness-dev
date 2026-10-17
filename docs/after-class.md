@@ -6,6 +6,11 @@
 > - **Harness arm**: the same run with the harness turned on.
 > - **A/B**: bare arm and harness arm on the same ticket, scored the same way.
 > - **Referee**: the program that scores each run after the agent stops.
+> - **Primary measure**: the one result each section is judged on, fixed before any run.
+> - **Trace**: the record of one run's steps (each model call and tool call), stored in LangSmith.
+> - **Gate**: a pass mark set before the runs; here, the result the test runs had to reach before
+>   the course would pay for larger batches.
+> - **Replay**: a recorded run played back on the console, with no model calls.
 
 This page covers the days between the live class and the review session: keep your results, read
 them again, run things yourself, do the four assignments, read further, and point the tools at your
@@ -36,7 +41,8 @@ uv run shipharness report
 ```
 
 It reads only `exports/` and writes `exports/report.json` and `exports/report.html`, with one dot per
-run for every feature that has a primary measure (F1 to F4). It makes no model calls. Replays are
+run for every feature that has a primary measure (the four section features: org-wide search,
+comments, idempotent creation, and version checks). It makes no model calls. Replays are
 left out unless you add `--include-recorded`. How to read one result, field by field, is in the
 [final project](../final-project/README.md#what-the-result-means).
 
@@ -49,7 +55,7 @@ money, within the caps in `.env.example`:
 |---|---|---|
 | `make show-1 PURPOSE=assignment` | The harness arm alone, as in class | $0.24 |
 | `make demo-1 PURPOSE=assignment` | An A/B: both arms, both scored | $0.48 |
-| `make demo-3 FEATURE=F4 PURPOSE=assignment` | The Section 3 A/B from class | $0.48 |
+| `make demo-3 FEATURE=version-checks PURPOSE=assignment` | The Section 3 A/B from class | $0.48 |
 
 `PURPOSE=assignment` traces to `shipharness-assignments` with its own cost session. Without it, the
 command runs as a class command and needs `SHIPHARNESS_CLASS_DATE` in `.env`. The make targets use the
@@ -100,9 +106,10 @@ Start with each section's session notes, then its reading list:
 | 3 Scope and sandbox | [notes](../section-3-scope-sandbox/session-notes.md) | [reading](../section-3-scope-sandbox/post-class-reading/README.md) |
 | 4 Verification | [notes](../section-4-verification/session-notes.md) | [reading](../section-4-verification/post-class-reading/README.md) |
 
-Every source, with its link, is in [REFERENCES.md](REFERENCES.md). Anthropic's advice to anyone who
-builds a harness is to "read its traces on realistic problems"; your LangSmith project from class is
-a good place to start.
+Every source this page names is linked in the Sources list at the end. Anthropic's advice to anyone
+who builds a harness is to "read its traces on realistic problems"
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps));
+your LangSmith project from class is a good place to start.
 
 ## Apply it to your own repository
 
@@ -121,3 +128,8 @@ and how to read their output.
 
 The review session goes through the four assignments: the expected approach, the reference solution,
 common mistakes, and discussion. Bring your self-check output and one question per assignment.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- [LangSmith billing](https://docs.langchain.com/langsmith/billing) (LangChain, read 2026-10-17)

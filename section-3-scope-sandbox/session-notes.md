@@ -14,13 +14,15 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Feature list**: `feature_list.json`, the one feature of the run and its `passes` field.
 > - **Sandbox**: The container every tool command runs in, the same for both arms.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 ## What we showed
 
 | Block | What happened | Read it again |
 |---|---|---|
 | Poll | Will the agent leave the ticket's list, with and without the scope layer? | [demo/README.md](demo/README.md) |
-| Launch | `make demo-3 FEATURE=F4`: both arms on the version-check ticket, live | [demo/README.md](demo/README.md) |
+| Launch | `make demo-3 FEATURE=version-checks`: both arms on the version checks ticket, live | [demo/README.md](demo/README.md) |
 | Concepts | The problem, the four scope rules, the sandbox, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The layer in 34 lines: decide a path, block, revert, count | [demo/walkthrough.md](demo/walkthrough.md) |
 | Demo block | The finished A/B on screens 1, 3, 5, 2, then the dots on screen 4 | [demo/README.md](demo/README.md) |
@@ -35,9 +37,9 @@ in [demo/expected/](demo/expected/README.md).
    module.
 2. **Strong words make a bad edit rarer, not impossible.** Anthropic's harness wrote "It is
    unacceptable to remove or edit tests" and chose JSON because the model is "less likely" to
-   overwrite it ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
+   overwrite it ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 3. **Enforce the boundary, leave the method free.** In OpenAI's words: "enforce boundaries
-   centrally, allow autonomy locally." ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
+   centrally, allow autonomy locally." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
    The agent chose where to put its new error class; the harness only refused the shared file.
 4. **Check before a patch and after a command.** A patch is checked path by path before it applies.
    A command can write anything, so a byte snapshot restores stray files after it runs.
@@ -48,7 +50,7 @@ in [demo/expected/](demo/expected/README.md).
    scope layer refuses with `blocked`.
 7. **Every harness piece is a bet.** "every component in a harness encodes an assumption about what
    the model can't do on its own, and those assumptions are worth stress testing."
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) The scope layer bets
+   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)) The scope layer bets
    that the agent will leave the list unless code stops it.
 
 ## What the result showed
@@ -58,17 +60,18 @@ when its shipped diff has at least one out-of-scope file.
 
 | Ticket | Bare arm: runs failing | Harness arm: runs failing |
 |---|---|---|
-| F4, version checks (the class demo) | 3 of 3 | 0 of 3 |
-| F3, idempotency keys, all settings | 0 of 10 | 0 of 10 |
+| Version checks (the class demo) | 3 of 3 | 0 of 3 |
+| Idempotent creation (retried creates never duplicate), all settings | 0 of 10 | 0 of 10 |
 
-Model gpt-6-luna. On F4 the harness arm was ahead. Every bare arm changed the shared
+Model gpt-6-luna. On version checks the harness arm was ahead. Every bare arm changed the shared
 `app/services/errors.py`; the scope layer blocked every harness arm on that same file, and each one
 put the new error class in a file it was allowed to change
-([evidence](../docs/evidence/s3.md#s3-confirmation)). On F3 neither arm ever left the list, so there was
-no measurable difference ([evidence](../docs/evidence/s3.md#s3-pilot)).
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On idempotent creation neither arm ever left the
+list, so there was no measurable difference ([evidence](../docs/evidence/s3.md#s3-pilot)).
 
-What the F4 result does not show: existing tests kept passing in every arm, so the stray file broke
-nothing that was tested. No arm met F4's own measure (every hidden test and every mutant). Harness
+What the version checks result does not show: existing tests kept passing in every arm, so the stray
+file broke nothing that was tested. No arm met the feature's own measure (every hidden test and every
+mutant). Harness
 arms passed fewer hidden tests in two of three runs, and every harness arm ended on the harness's own
 120 s limit for harness work.
 
@@ -76,7 +79,7 @@ arms passed fewer hidden tests in two of three runs, and every harness arm ended
 
 **If the harness arm scores zero by construction, why run an A/B?**
 For the bare arm. Its count shows how often the same agent, with the same ticket, leaves the list
-when nothing checks it. On F4 that was every run.
+when nothing checks it. On version checks that was every run.
 
 **Was the bare arm's change wrong?**
 Not by itself. Adding a 412 error class to the shared module follows the handbook's pattern, and the
@@ -84,7 +87,7 @@ existing tests kept passing. It was outside what the ticket allowed, so a review
 never saw it. The count measures scope, not correctness.
 
 **Why did both pills say FAIL?**
-They score F4's own measure: every hidden test and every referee mutant. No arm met it in the test
+They score the version checks feature's own measure: every hidden test and every referee mutant. No arm met it in the test
 runs. The scope result is on screen 3, in the diff map and the `diff_scope` row.
 
 **Why did the harness arm end `ABORTED: timeout`?**
@@ -99,7 +102,7 @@ list, deletes new ones, and the tool result ends with `REVERTED`.
 **Did the sandbox refuse anything?**
 No command in any test run. The container is the same for both arms, so no run measures whether it
 helps. The course keeps it on the sources' advice, for the run that goes wrong
-([Anthropic, C compiler](../docs/evidence/s3.md#src-anthropic-c-compiler)).
+([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
 
 **Why counts and not percentages?**
 Every run is a dot. With 3 runs per arm, a percentage hides how few runs there are.
@@ -115,3 +118,10 @@ Every run is a dot. With 3 runs per arm, a percentage hides how few runs there a
 4. Read the [post-class readings](post-class-reading/README.md), about 15 minutes in total.
 5. In your own repository, write the allowed paths for your next agent task as globs. After the run,
    compare them with `git diff --name-only` and count the files outside the list.
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)

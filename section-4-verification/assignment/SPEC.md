@@ -9,8 +9,10 @@ page is the reference you check your work against.
 > - **Check**: A shipharness program that probes every endpoint for one rule and reports findings.
 > - **Finding**: One violation a check reports, with a rule, an endpoint, a severity, and a detail key.
 > - **Baseline**: The findings on the unchanged checkpoint; a check counts only new ones.
+> - **Soft delete**: Marking a row as deleted (`deleted_at`) instead of removing it.
 > - **Marker**: A title only a soft-deleted test issue carries, so a response that shows it is evidence.
 > - **Candidate test**: One test function that a filter judges, with its file and test id.
+> - **Referee**: The program that scores each run after the agent stops.
 > - **Score record**: The file the referee writes for each run, with every measured result.
 > - **Live evidence**: The files your real runs wrote, collected into `live/`.
 
@@ -22,8 +24,8 @@ page is the reference you check your work against.
 - The rule, from `platform/teamtrack/docs/HANDBOOK.md`: "Deleting an issue is a soft delete: it sets
   `deleted_at`, and deleted issues behave as if they do not exist (404 on read, hidden from lists)".
 - The code you extend. Print the two walkthrough excerpts with
-  `uv run python platform/scripts/anchors.py extract S4:probe` (how R1 plans probes and judges one
-  response) and `... extract S4:filters` (the filter pipeline).
+  `uv run python platform/scripts/anchors.py extract S4:probe` (how the tenant isolation check plans
+  probes and judges one response) and `... extract S4:filters` (the filter pipeline).
 - The framework files: `platform/src/shipharness/checks/base.py` (`Finding`, `CheckContext`, the
   registry, `mark_baseline`), `checks/_http.py` (`open_target`, `apply_exemptions`),
   `checks/payloads.py` (`fill_path`, generated bodies), `checks/adapter.py` (the TeamTrack adapter),
@@ -90,8 +92,8 @@ and the command exits 0.
 
 The class is `NoDuplicateTest`, with `number = 6`, a `name`, and `evaluate(cand, ctx) -> FilterResult`.
 It follows TestGen-LLM's later filter that removes "previously seen test cases"
-([Meta, TestGen-LLM](../../docs/evidence/s4.md#src-testgen-llm)); ignoring renamed local variables is
-the course's addition.
+([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)); ignoring renamed local variables is the
+course's addition.
 
 1. The constructor takes the existing suite's tests as candidate tests (for example from
    `shipharness.filters.collect_candidates`). `evaluate` reads source only; it never runs a test.
@@ -154,11 +156,12 @@ The grader checks these files without a model call:
    `"filter": 6` and a reason per kept test, after all rows of filters 1 to 5, plus a `filter6`
    object whose `kept` lists the tests those rows passed.
 3. **A/B command and cost.** The command is `shipharness ab --section demo-4 --feature F4 --purpose
-   assignment --no-preview` (`--k 1`, `--reviewer`, or `--no-reviewer` may be added). The output has
+   assignment --no-preview`, where `F4` is the version checks feature (`--k 1`, `--reviewer`, or
+   `--no-reviewer` may be added). The output has
    one `A/B` line with the four layers of demo-4, and one `Cost:` line of at most $2.50 that names
    `gpt-6-luna` and no model other than it and the reviewer's `gpt-5.6-luna`.
 4. **A/B score records.** Exactly two, each valid and named `<run_id>.json`: one bare arm and one
-   harness arm, both with the `ab_id` that `ab.txt` printed, feature F4, variant `canonical`,
+   harness arm, both with the `ab_id` that `ab.txt` printed, feature `F4`, variant `canonical`,
    checkpoint `m1-s4-start` at the commit the tag names, `recorded` false, `sandboxed` true, arm cost
    at most $0.20, review cost at most $0.04, and the status `ab.txt` printed for that arm.
 
@@ -177,7 +180,7 @@ The live runs are not graded on their results. An arm that fails its primary mea
 - No leftover template line in any portfolio file.
 - `skill/`: exactly one folder whose `SKILL.md` passes `shipharness skills validate`, is not named
   `skill-template`, has no template placeholder left, and has content under "When to use" and
-  "Steps" ([Agent Skills specification](../../docs/evidence/s1.md#src-agent-skills-spec)).
+  "Steps" ([Agent Skills specification](https://agentskills.io/specification)).
 
 ## Self-check
 
@@ -243,7 +246,7 @@ nothing to show; run it once more on another module, inside the budget.
 |---|---|---|
 | R8, filter 6, the self-check, the grader | $0 | 0 |
 | `shipharness testgen` | At most $0.20 (the per-run cap) | 1 |
-| The F4 A/B: 2 arms, 2 reviews | At most $0.48 (two arm caps and two review caps) | 4 |
+| The version checks A/B: 2 arms, 2 reviews | At most $0.48 (two arm caps and two review caps) | 4 |
 
 The caps are in `platform/src/shipharness/config/settings.py` and `.env.example`. The reference
 solution's live step cost $0.045425 in all; its output is in [solution/SOLUTION.md](solution/SOLUTION.md#evidence).
@@ -263,3 +266,8 @@ solution's live step cost $0.045425 in all; its output is in [solution/SOLUTION.
 - Copying score records from another A/B or from a replay. The grader matches them to the `ab_id` in
   `live/ab.txt`.
 - Editing a transcript. Run ids, kept counts, statuses, and costs are checked against the JSON files.
+
+## Sources
+
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills)

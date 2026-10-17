@@ -11,8 +11,9 @@ uv run python platform/scripts/lint_prose.py
 ```
 
 `make check-style` runs `platform/scripts/check_style.py`. It checks placeholders, empty code
-blocks, images and captions, ids outside the evidence pages, table width, the title line, and
-internal phrases; any of these is an error and fails the check. Length limits, template headings,
+blocks, images and captions, ids and course codes outside the evidence pages, empty links, sources
+named without a link, table width, the title line, and internal phrases; any of these is an error
+and fails the check. Length limits, template headings,
 the scenario label, and the glossary box are printed as warnings; they fail only with
 `make check-style CHECK_STYLE_OPTS=--strict`. `uv run python platform/scripts/check_style.py
 --list-checks` lists every check. `lint_prose.py` checks banned words and emoji. Both must report 0
@@ -38,6 +39,7 @@ instruction trees (`instructions/` and `original/` under `starter/` and `solutio
 They follow their own format; only the image rules and the finding-id rule apply to them. The
 skills in `use-in-your-repo/skills/` and the kit templates are copied into learners' repositories,
 so every label rule of rule 5 applies to them too, in their scripts and other text files as well.
+So does a `skill/<name>/` folder in an assignment, which a learner reads as a worked example.
 
 Folder rules (checked on a full run): every `section-N-*/` folder has `README.md`, `concepts.md`,
 `session-notes.md`, `demo/` (`README.md`, `run.sh`, `walkthrough.md`, `harness/`, `expected/`),
@@ -97,14 +99,18 @@ and then the how-to.
   feature list field is `passes`; say "existing tests keep passing" and "grading criteria".
 - Report results as counts ("0 of 3 runs"), never as percentages.
 - Short paragraphs: at most 5 lines.
+- Standard terms (API, CI, HTTP, JSON, SQL, ETag) need no explanation. Spell out any less common
+  term on first use on each page, in a few plain words: "mutant (a copy of the code with one small
+  bug planted on purpose)". Every such term is in the glossary of `docs/reference.md`, one line
+  each, in alphabetical order.
 
 ### 4. One glossary box per page
 
 Each page defines the course terms it uses once, in one glossary box placed at the end of
 `## The problem`, after the scenario (or right after the H1 on pages without that section). Define a term in the box, then
 use it without explaining it again. Do not write sentences about labels, such as "this code is a
-course label, not a source term". If a label such as R1 appears on screen, define it in the box
-instead.
+course label, not a source term". If a code such as `R1` appears on screen or in quoted output,
+put it in a code span and explain it once in plain words right there: "`F4` (version checks)".
 
 ```markdown
 > **Terms on this page**
@@ -126,19 +132,27 @@ files under `docs/evidence/`, one per section (`s1.md` to `s4.md`, `final.md`, a
 - Name a source by a short name with a link, such as (OpenAI, Harness engineering),
   (Anthropic, Effective harnesses), (Anthropic, Harness design), (Anthropic, C compiler),
   (Meta, TestGen-LLM), (Meta, ACH), or (SpecBench). List each source once, with its full title and
-  link, in a short `## Sources` list at the end of the page.
+  link, in a short `## Sources` list at the end of the page. That H2 may close any template; on a
+  concepts page, `## Further reading` is the list. A known source named on a page with no link to
+  it, or linked on a page without the list, fails the check (SC25). URLs come from the course's source
+  register (the Sources sections of the evidence pages), never from memory.
+- A link always has text and a target: no `[text]()`, no `[link]`, no malformed URL (SC24).
 - Where a page relies on a finding, keep the claim and link to the section of the evidence page.
 - Assignments are "Assignment 1" to "Assignment 4", never `A1` to `A4`, so they do not clash with
   the source ids. Code identifiers such as `a2_state` or `make check-assignment-3` stay.
 - Sections are "Section 1" to "Section 4", never a bare `S1` to `S4` in prose. A walkthrough anchor
   such as `S4:gate` is an identifier and stays.
-- Other course codes come with plain words: "version checks (F4)", "R1 tenant isolation". The list
-  is under "Codes used in this course" in `docs/reference.md`.
-- Tokens in code spans and fenced code are identifiers and are not checked (SC21, SC22). Captured
-  terminal output (`expected/*.txt`, `captured/*.txt`) is real output: it is not edited, and the
-  check does not read it.
-- The skills and the kit templates carry no source, finding, run, or assignment ids at all. A
-  house-rule name such as "R1 tenant isolation" is example content and stays.
+- Features and house rules go by their plain names, never a bare `F1` to `F7` or `R1` to `R7` in
+  prose (SC23): "the version checks feature", "the tenant isolation rule". The names are under
+  "Codes used in this course" in `docs/reference.md`. Commands use the readable aliases:
+  `make demo-3 FEATURE=version-checks`, `make final FEATURES=watchers,bulk-close`.
+- Tokens in code spans and fenced code are identifiers and are not checked (SC21 to SC23).
+  Captured terminal output (`expected/*.txt`, `captured/*.txt`) is real output: it is not edited,
+  and the check does not read it. A line a program parses (such as the `R1` row of Assignment 1's
+  report, read by its `check.py`) keeps its token with an allow marker that says so.
+- The skills and the kit templates carry no source, finding, run, or assignment ids at all. Where
+  a template keeps a house-rule id for cross-references, it is a code span next to the plain name:
+  "`R1` Tenant isolation".
 
 Good:
 
@@ -192,7 +206,8 @@ Do not repeat it under each block or caption. Pages without captured output have
 
 ### 9. Consistent headings
 
-- One H1 per page. H2 headings are exactly the ones in the page's template, in that order.
+- One H1 per page. H2 headings are exactly the ones in the page's template, in that order, plus
+  an optional last `## Sources` (rule 5).
 - H3 headings are free. Do not go deeper than H3.
 - Sentence case ("What the result means"), no numbers in headings. Setup steps are the one
   exception: "Step 3: Install Docker Engine".

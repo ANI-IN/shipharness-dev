@@ -11,17 +11,19 @@ deleted show up again. Meanwhile several generated tests check the same thing in
 suite looks stronger than it is.
 
 The gap is real in TeamTrack. Its handbook says that deleted issues "behave as if they do not exist
-(404 on read, hidden from lists)". House rules R1 to R7 have checks; this rule has none. The legacy
+(404 on read, hidden from lists)". The seven house rules have checks; this rule has none. The legacy
 `GET /v1/issues` handler already lists deleted issues.
 
 Anthropic's compiler team names the trap: "it is easy to see tests pass and assume the job is done"
-([Anthropic, C compiler](../../docs/evidence/s4.md#src-anthropic-c-compiler)). OpenAI's harness team
-turns such rules into checks whose messages teach: "we write the error messages to inject remediation
-instructions into agent context" ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness)).
+([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)). OpenAI's
+harness team turns such rules into checks whose messages teach: "we write the error messages to
+inject remediation instructions into agent context"
+([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 
 > **Terms on this page**
 >
-> - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
+> - **House rules**: TeamTrack's seven rules for every endpoint: tenant isolation, roles, API conventions, idempotent creates, audit log, layering, migrations.
+> - **Soft delete**: Marking a row as deleted (`deleted_at`) instead of removing it.
 > - **R8**: The house rule you add: a soft-deleted issue answers 404 and never appears in a list.
 > - **Check**: A shipharness program that probes every endpoint for one rule and reports findings.
 > - **Baseline**: The findings on the unchanged checkpoint; a check counts only new ones.
@@ -40,15 +42,15 @@ flowchart LR
   R8 --> TT["On TeamTrack:<br/>one finding, GET /v1/issues"]
   K["testgen: kept tests"] -->|"you write"| F6["Filter 6<br/>no duplicate test"]
   F6 --> REP["testgen-report.json<br/>with filter-6 rows"]
-  AB["One live F4 A/B"] --> L["live/<br/>transcripts, score records"]
+  AB["One live A/B<br/>version checks"] --> L["live/<br/>transcripts, score records"]
   REP --> L
   L --> P["portfolio/<br/>report, LangSmith page, case study"]
 ```
 
 You turn the soft-delete rule into a check, R8, that finds deleted issues on any endpoint, including
 endpoints an agent adds later. You add filter 6, which discards a generated test that repeats another
-test. Then you run filtered test generation and one F4 A/B live, keep their files in `live/`, and
-write a short portfolio a reader can check. Everything lives in your implementation folder,
+test. Then you run filtered test generation and one A/B on the version checks feature live, keep
+their files in `live/`, and write a short portfolio a reader can check. Everything lives in your implementation folder,
 `starter/` by default. The exact requirements are in [SPEC.md](SPEC.md).
 
 ## Step by step
@@ -107,7 +109,7 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
 7. **Run filter 6 on the kept tests.** No model calls. `apply_filter --update-report` adds one
    filter-6 row per kept test to the report. Check: `live/testgen-report.json` has those rows.
 
-8. **Run the F4 A/B live, once.** It needs your keys and Docker; both arms run in containers. Check:
+8. **Run the version checks A/B live, once.** It needs your keys and Docker; both arms run in containers. Check:
    `live/ab.txt` ends with a `Cost:` line, and `live/scores/` holds two score records with the A/B's
    id. Never re-run for a nicer result: the step is graded on its files, not on which arm passed.
 
@@ -153,3 +155,8 @@ The reference solution is a finished implementation folder in [solution/](soluti
 - what the live step produced, and the grade it earned.
 
 Read it after your own attempt, and compare your choices with its alternatives.
+
+## Sources
+
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

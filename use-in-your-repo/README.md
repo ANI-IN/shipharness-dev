@@ -25,11 +25,11 @@ or may not pay for itself.
 
 - A rule the agent cannot see does not exist for it: "From the agent’s point of view, anything it
   can’t access in-context while running effectively doesn’t exist."
-  ([OpenAI, Harness engineering](../docs/evidence/final.md#quotes-used-on-these-pages))
+  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 - Sessions do not remember each other: "each new session begins with no memory of what came
-  before." ([Anthropic, Long-running agents](../docs/evidence/final.md#quotes-used-on-these-pages))
+  before." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 - Agents grade themselves kindly: "agents reliably skew positive when grading their own work."
-  ([Anthropic, Harness design](../docs/evidence/final.md#quotes-used-on-these-pages))
+  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 
 ## How this section fixes it
 
@@ -46,11 +46,11 @@ This folder replaces the empty folder with the harness you saw on TeamTrack, rea
 
 Measure before you keep a piece. On TeamTrack, the course found no measurable difference for the
 instructions, state, and verification layers on their primary measures. With the scope layer on,
-harness arms kept to the allowed files in 3 of 3 runs of one ticket; bare arms did in 0 of 3
-([evidence](../docs/evidence/final.md#use-in-your-repository)). Your repository and your model may
-differ. The source behind the map says the same of its own results: they "should not be assumed to
-generalize without similar investment—at least, not yet"
-([OpenAI, Harness engineering](../docs/evidence/final.md#quotes-used-on-these-pages)).
+the agent kept to the allowed files in 3 of 3 runs of one ticket; without the harness, it did in 0
+of 3 ([evidence](../docs/evidence/final.md#use-in-your-repository)). Your repository and your model
+may differ. The source behind the map says the same of its own results: they "should not be assumed
+to generalize without similar investment—at least, not yet"
+([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 
 ## How to work through this section
 
@@ -81,3 +81,9 @@ uv run shipharness init --check ~/my-repo
 - Ready for your own code? Follow [apply-to-your-repo.md](apply-to-your-repo.md) from step 1.
 - Building your portfolio? The [final project](../final-project/README.md) shows how the kit feeds
   Assignment 4.
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)

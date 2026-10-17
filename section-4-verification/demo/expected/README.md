@@ -9,6 +9,7 @@ and how it was captured is in the [evidence page](../../../docs/evidence/s4.md#s
 >
 > - **Verify gate**: The checks that run in the agent's container when it claims done; a failure sends the claim back.
 > - **Test filters**: Five checks a test from the test phase must pass to be kept.
+> - **Referee**: The program that scores each run after the agent stops.
 > - **Primary verdict**: The referee's answer to the one question the section asks.
 > - **Full verdict**: The primary verdict plus every other check: hidden tests, mutants, review.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
@@ -33,7 +34,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 *Minute 3: `finish done` at turn 1.31. Every gate pill is pending; the referee has not started.*
 
-![Screen 1 at minute 4: every gate pill passed, F4 passes set, the test phase starts](show-4-screen-1-t04m.png)
+![Screen 1 at minute 4: every gate pill passed, the feature marked as passing, the test phase starts](show-4-screen-1-t04m.png)
 
 *Minute 4: all eleven items pass, the scope layer sets `passes`, and session 2, the test phase, begins.*
 
@@ -55,7 +56,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 ![Screen 4: primary results, one dot per run](show-4-screen-4-final.png)
 
-*Screen 4: the test runs before class. F4 shows empty dots for both arms. This run is not a dot.*
+*Screen 4: the test runs before class. Version checks shows empty dots for both arms. This run is not a dot.*
 
 ![Screen 5: first wrong turn, referee events, and LangSmith links](show-4-screen-5-final.png)
 

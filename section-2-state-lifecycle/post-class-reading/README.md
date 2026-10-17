@@ -26,6 +26,11 @@ reading time in the table is for the full source, at 200 words a minute.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the "Getting up to speed" part of
-  [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running), then the
-  context reset part of [Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design).
+  [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), then the
+  context reset part of [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps).
 - The class recap is in [session-notes.md](../session-notes.md).
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

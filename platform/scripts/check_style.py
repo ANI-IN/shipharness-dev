@@ -60,6 +60,12 @@ CHECKS: dict[str, tuple[str, str]] = {
     "SC20": ("Every diagram (.png, .svg in a diagrams/ folder) has its .excalidraw source", ERROR),
     "SC21": ("Source or assignment ids (A1, B11) outside the evidence pages", ERROR),
     "SC22": ("Bare section codes S1 to S4 in prose (write 'Section 1')", ERROR),
+    "SC23": (
+        "Bare feature or rule codes F1 to F7, R1 to R7 in prose (write the plain name)",
+        ERROR,
+    ),
+    "SC24": ("Empty links, '[link]' placeholders, and malformed link URLs", ERROR),
+    "SC25": ("A source named without a link to it, or without a 'Sources' list", ERROR),
 }
 
 MODULE_TITLE = "Module 1: Harness Engineering for Coding Agents"
@@ -169,12 +175,24 @@ TEMPLATES: dict[str, list[str]] = {
 }
 
 # Checks that do not apply to a file. "SC14:pilot-run" exempts only the "pilot run N" phrase.
-EVIDENCE_EXEMPT = {"SC08", "SC09", "SC10", "SC21", "SC22", "SC14:pilot-run"}
-# The label checks: run ids, finding ids, commit hashes, source and assignment ids, section codes.
-LABEL_CHECKS = {"SC08", "SC09", "SC10", "SC21", "SC22"}
+EVIDENCE_EXEMPT = {"SC08", "SC09", "SC10", "SC21", "SC22", "SC23", "SC25", "SC14:pilot-run"}
+# The label checks: run ids, finding ids, commit hashes, source and assignment ids, section codes,
+# feature and rule codes, empty links, and unlinked sources.
+LABEL_CHECKS = {"SC08", "SC09", "SC10", "SC21", "SC22", "SC23", "SC24", "SC25"}
 FILE_EXEMPT: dict[str, set[str]] = {
     "docs/evidence.md": EVIDENCE_EXEMPT,  # the index of the evidence pages
-    "docs/STYLE.md": {"SC01", "SC02", "SC03", "SC08", "SC10", "SC13", "SC14"},
+    "docs/STYLE.md": {
+        "SC01",
+        "SC02",
+        "SC03",
+        "SC08",
+        "SC10",
+        "SC13",
+        "SC14",
+        "SC23",
+        "SC24",
+        "SC25",
+    },
     # Each slide that shows a run carries its own "your output will differ" line.
     "slides/deck.md": {"SC13"},
     # The working slide file: only the label checks apply.
@@ -275,6 +293,18 @@ def is_agent_file(rel: str) -> bool:
 def is_copy_out(rel: str) -> bool:
     """Files copied into a learner's repository: no source, finding, run, or assignment ids."""
     return bool(_COPY_OUT.match(_norm(rel)))
+
+
+# A skill a learner writes or reads as an assignment's solution: an agent file, but its prose
+# follows the label rules like the skills in use-in-your-repo/.
+_ASSIGNMENT_SKILL = re.compile(rf"^{_SECTION}/assignment/(?:starter|solution)/skill/.+\.md$")
+
+
+def gets_label_rules(rel: str) -> bool:
+    """Every label rule (SC21 to SC25) applies: learner pages, files copied into a learner's
+    repository, and the skills of an assignment. The other agent files keep their own wording."""
+    rel = _norm(rel)
+    return is_copy_out(rel) or bool(_ASSIGNMENT_SKILL.match(rel)) or not is_agent_file(rel)
 
 
 def is_checked(rel: str) -> bool:
@@ -568,6 +598,111 @@ _FINDING = re.compile(r"\bF-[ab]-\d+\b")
 _LABEL = re.compile(r"(?<!Part )\b[AB]\d{1,2}\b")
 # S1 to S4 alone; "S4:gate" is a walkthrough anchor and "R-S1" a requirement id.
 _SECTION_CODE = re.compile(r"(?<!-)\bS[1-4]\b(?!:\w)")
+# F1 to F7 (features) and R1 to R7 (house rules) alone; "R-S1", "F-a-20", and "f1.md" are other
+# identifiers, and a task name such as "F1-trap" goes in a code span.
+_COURSE_CODE = re.compile(r"(?<![-\w.])[FR][1-7](?![\w]|-[a-z]|:\w)")
+_EMPTY_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(\s*\)|(?<!!)\[\s*\]\([^)]*\)|\[link\]", re.I)
+_URL_TARGET = re.compile(r"\]\((https?:[^)\s]*)")
+_GOOD_URL = re.compile(r"^https?://[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+(?::\d+)?(?:[/?#][^\s<>\"]*)?$")
+# The list of sources at the end of a page; on a concepts page, "Further reading" is that list.
+_SOURCES_HEADING = re.compile(r"^(?:#{2,3} Sources|\*\*Sources\*\*|## Further reading)\s*$")
+# The sources a page may name: a short-name pattern, and the URL a link to it must use (from the
+# course's source register). The module title "Harness Engineering" is not a source name.
+_OWNER = r"(?:,|['’]s)?\s+[\"“]?"
+SOURCES: list[tuple[str, re.Pattern[str], re.Pattern[str]]] = [
+    (
+        "OpenAI, Harness engineering",
+        re.compile(rf"\bOpenAI{_OWNER}Harness engineering\b|Harness engineering: leveraging"),
+        re.compile(r"https://openai\.com/index/harness-engineering/?"),
+    ),
+    (
+        "Anthropic, Effective harnesses",
+        re.compile(r"\bEffective harnesses\b"),
+        re.compile(r"https://www\.anthropic\.com/engineering/effective-harnesses-for-long-running"),
+    ),
+    (
+        "Anthropic, Harness design",
+        re.compile(rf"\bAnthropic{_OWNER}Harness design\b|Harness design for long-running"),
+        re.compile(r"https://www\.anthropic\.com/engineering/harness-design-long-running-apps"),
+    ),
+    (
+        "Anthropic, C compiler",
+        re.compile(rf"\bAnthropic{_OWNER}(?:Building a )?C compiler\b"),
+        re.compile(r"https://www\.anthropic\.com/engineering/building-c-compiler"),
+    ),
+    (
+        "Anthropic, Autonomous coding demo",
+        re.compile(r"\bAutonomous [Cc]oding (?:[Aa]gent )?[Dd]emo\b"),
+        re.compile(r"https://github\.com/anthropics/claude-quickstarts"),
+    ),
+    (
+        "Anthropic, Prompting best practices",
+        re.compile(r"\bPrompting best practices\b"),
+        re.compile(r"https://docs\.claude\.com/en/docs/build-with-claude/prompt-engineering/"),
+    ),
+    (
+        "OpenAI, Exec plans",
+        re.compile(rf"\bOpenAI{_OWNER}Exec(?:ution)? plans\b|Using PLANS\.md for"),
+        re.compile(r"https://cookbook\.openai\.com/articles/codex_exec_plans"),
+    ),
+    (
+        "Agent Skills, Specification",
+        re.compile(r"\bAgent Skills,? [Ss]pecification\b"),
+        re.compile(r"https://agentskills\.io/specification"),
+    ),
+    (
+        "Agent Skills, What are skills",
+        re.compile(r"\bAgent Skills, What are skills\b"),
+        re.compile(r"https://agentskills\.io/what-are-skills"),
+    ),
+    (
+        "Agent Skills, Client guide",
+        re.compile(r"\bAgent Skills, Client guide\b"),
+        re.compile(r"https://agentskills\.io/client-implementation/"),
+    ),
+    (
+        "Agent Skills, skills-ref",
+        re.compile(r"\bAgent Skills, skills-ref\b"),
+        re.compile(r"https://(?:github\.com/agentskills/agentskills|pypi\.org/project/skills-ref)"),
+    ),
+    (
+        "Claude Code, Skills",
+        re.compile(r"\bClaude Code, [Ss]kills\b|\bExtend Claude with skills\b"),
+        re.compile(r"https://code\.claude\.com/docs/en/skills"),
+    ),
+    (
+        "Codex, Skills",
+        re.compile(r"\bCodex, [Ss]kills\b|\bBuild skills \(Codex\)"),
+        re.compile(
+            r"https://(?:learn\.chatgpt\.com/docs/build-skills|developers\.openai\.com/codex/skills)"
+        ),
+    ),
+    (
+        "Cursor, Skills",
+        re.compile(r"\bCursor, [Ss]kills\b"),
+        re.compile(r"https://cursor\.com/docs/(?:context/)?skills"),
+    ),
+    (
+        "Cursor 2.4 changelog",
+        re.compile(r"\bCursor 2\.4\b"),
+        re.compile(r"https://cursor\.com/changelog/2-4"),
+    ),
+    (
+        "Meta, TestGen-LLM",
+        re.compile(r"\bTestGen-LLM\b"),
+        re.compile(r"https://arxiv\.org/abs/2402\.09171"),
+    ),
+    (
+        "Meta, ACH",
+        re.compile(r"\bMeta,? ACH\b|\bACH\b(?=[ ,.)])"),
+        re.compile(r"https://arxiv\.org/abs/2501\.12862"),
+    ),
+    (
+        "SpecBench",
+        re.compile(r"\bSpecBench\b"),
+        re.compile(r"https://(?:arxiv\.org/abs/2605\.21384|github\.com/WecoAI/SpecBench)"),
+    ),
+]
 _HASH_CONTEXT = re.compile(r"\b(?:commit|sha|checkpoint_sha|tag)\b", re.I)
 _HASH_TOKEN = re.compile(r"\b(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}\b")
 _HASH_FULL = re.compile(r"\b[0-9a-f]{40}\b")
@@ -828,12 +963,25 @@ def _label_problems(no: int, text: str, c: _Collector, prose: bool) -> None:
         c.add(no, "SC22", f"section code {match.group(0)}: write 'Section N'")
 
 
+def _link_problems(no: int, text: str, c: _Collector) -> None:
+    """SC24: an empty link, a '[link]' placeholder, or a link URL that is not well formed."""
+    match = _EMPTY_LINK.search(text)
+    if match:
+        c.add(no, "SC24", f"empty or placeholder link '{match.group(0)}'")
+    for target in _LINK_TARGET.findall(text):
+        url = target.strip().split(" ", 1)[0].strip("<>")
+        looks_remote = "://" in url or url.startswith(("http", "htp", "www.")) or "//" in url
+        if looks_remote and not _GOOD_URL.match(url):
+            c.add(no, "SC24", f"malformed link URL '{url}'")
+
+
 def _check_labels(page: Page, c: _Collector, rel: str) -> None:
-    """SC09 on every line; SC21 and SC22 on prose and HTML comments, without code spans and link
-    targets; SC08 too in the files copied into a learner's repository. The other agent files (the
-    demo harness copies of the frozen TeamTrack harness) get only SC09."""
+    """SC09 on every line; SC21 to SC24 on prose and HTML comments, without code spans (and, for
+    the ids, link targets); SC08 too in the files copied into a learner's repository; SC25 once
+    per page. The other agent files (the demo harness copies of the frozen TeamTrack harness, the
+    instruction trees) get only SC09."""
     copy_out = is_copy_out(rel)
-    names = copy_out or not is_agent_file(rel)
+    names = gets_label_rules(rel)
     for ln in page.lines:
         if ln.kind == "fence":
             continue
@@ -844,7 +992,45 @@ def _check_labels(page: Page, c: _Collector, rel: str) -> None:
         if match:
             c.add(ln.no, "SC08", f"run id {match.group(0)}: ids go in the evidence pages")
         if names and ln.kind != "code":
-            _label_problems(ln.no, _mask_links(_mask_code(ln.text)[0]), c, prose=True)
+            nocode = _mask_code(ln.text)[0]
+            masked = _mask_links(nocode)
+            _label_problems(ln.no, masked, c, prose=True)
+            match = _COURSE_CODE.search(masked)
+            if match:
+                c.add(ln.no, "SC23", f"course code {match.group(0)}: write its plain name (see "
+                      "'Codes used in this course' in docs/reference.md)")  # fmt: skip
+            _link_problems(ln.no, nocode, c)
+    if names:
+        _check_sources(page, c)
+
+
+def _check_sources(page: Page, c: _Collector) -> None:
+    """SC25: every source the page names has a link to it on the page, and a page that names or
+    links a source lists each one under a 'Sources' heading at the end."""
+    raw = "\n".join(ln.text for ln in page.lines)
+    heading = max(
+        (
+            i
+            for i, ln in enumerate(page.lines)
+            if ln.kind == "prose" and _SOURCES_HEADING.match(ln.text)
+        ),
+        default=None,
+    )
+    listed = "\n".join(ln.text for ln in page.lines[heading:]) if heading is not None else ""
+    for name, mention, url in SOURCES:
+        first = next(
+            (ln.no for ln in page.lines if ln.kind == "prose" and mention.search(ln.masked)), None
+        )
+        linked = url.search(raw)
+        if first is not None and not linked:
+            c.add(first, "SC25", f"'{name}' is named with no link to it on the page")
+            continue
+        if not linked:
+            continue
+        where = first or next(ln.no for ln in page.lines if url.search(ln.text))
+        if not url.search(listed):
+            c.add(where, "SC25", f"'{name}' needs an entry, with its link, in a 'Sources' list "
+                  "at the end of the page")  # fmt: skip
 
 
 def check_script(rel: str, text: str) -> list[Problem]:
@@ -973,6 +1159,8 @@ def _check_template(page: Page, c: _Collector, rel: str, kind: str) -> None:
     if want is None:
         return
     have = [name for _, name in _h2s(page)]
+    if have[-1:] == ["Sources"]:  # the Sources list may close any page (rule 5)
+        have = have[:-1]
     if have != want:
         missing = [h for h in want if h not in have]
         extra = [h for h in have if h not in want]

@@ -16,6 +16,8 @@ why. The grader and its hidden cases are not in this repository.
 > - **Bare arm**: An agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: The same run with the harness turned on.
 > - **Live evidence**: The files your real A/B run wrote, collected into `live/`.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 What is in this folder:
 
@@ -82,13 +84,13 @@ What is in this folder:
 - **The gate's items must agree with `passed`.** A gate result that says `passed: true` next to a
   failed item is refused. One field alone is weak evidence, which is the point of separating the
   agent that works from the one that judges
-  ([Anthropic, Harness design](../../../docs/evidence/s1.md#src-anthropic-harness-design)).
+  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 - **The reason code is `write_outside_workspace`**, the closest of the fixed codes in
   `platform/src/shipharness/sandbox/base.py`. The scope layer's snapshot skips `.git`, so a history
   rewrite is a change the harness cannot restore. A production version would add its own code.
 - **Revert commands stay allowed.** Anthropic's harness used git "to revert bad code changes and
   recover working states of the code base."
-  ([Anthropic, Effective harnesses](../../../docs/evidence/s1.md#src-anthropic-long-running)) So
+  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) So
   `git revert`, `git restore`, and `git checkout -- <path>` keep running.
 
 ### Known limits
@@ -184,7 +186,7 @@ A3 live evidence: section-3-scope-sandbox/assignment/solution/live
 
 The live A/B ran once, with the class model and caps, as in
 [SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in). Its output, with the run id cut
-(the full output is in `live/ab-output.txt`):
+(the full output is in `live/ab-output.txt`); `F3` is the idempotent-creation ticket:
 
 ```text
 A/B <run id> (F3, layers=['instructions', 'scope', 'state'], profile=standard)
@@ -220,3 +222,8 @@ Result: PASS (needs >= 80 points, every out-of-scope diff rejected, zero false p
 The grade output is cut to the criterion lines. Without `live/`, the same folder scores 90.0 / 100
 and fails, because valid live evidence is a pass condition. Dates and ids for the run and the grade
 are on the [evidence page](../../../docs/evidence/s3.md#s3-a3-solution).
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

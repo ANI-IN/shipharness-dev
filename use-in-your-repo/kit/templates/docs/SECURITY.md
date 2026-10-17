@@ -7,7 +7,7 @@ so a new endpoint is checked the moment it exists.
 
 ## R1 Tenant isolation
 
-<!-- REPLACE: your tenant or owner boundary (TeamTrack: the org). Delete R1 if every caller may see all data. The check is shipharness check --rules R1 with your adapter (docs/house-rules.md). -->
+<!-- REPLACE: your tenant or owner boundary (TeamTrack: the org). Delete `R1` (tenant isolation) if every caller may see all data. The check is `shipharness check --rules R1` with your adapter (docs/house-rules.md). -->
 No org may see or change another org's data.
 
 - Every query on customer data filters by the caller's `org_id`. Services work only inside
@@ -25,7 +25,7 @@ The check: for every endpoint and method, a request as an Acme user with Globex 
 
 ## R2 Roles
 
-<!-- REPLACE: your roles and which of them may write. Delete R2 if every caller may write. -->
+<!-- REPLACE: your roles and which of them may write. Delete `R2` (roles) if every caller may write. -->
 Roles are `admin`, `member`, and `viewer`.
 
 - Viewers can read but never write: every POST, PUT, PATCH, and DELETE must return 403 forbidden for

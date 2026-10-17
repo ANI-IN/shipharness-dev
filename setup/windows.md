@@ -6,7 +6,11 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Console**: the browser page that shows a run live, on five screens.
 > - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
-> - **R1**: the house rule on tenant isolation: a user sees only their own organization's data.
+> - **Primary verdict**: the referee's answer to the one question the section asks.
+> - **Baseline**: the referee's or gate's result on the app before the agent changes it, saved so
+>   each run is compared against it.
+> - **Gate**: the check that must pass before a feature counts as done.
+> - **Trace**: the record of one run's steps (each model call and tool call), stored in LangSmith.
 > - **WSL2**: Windows Subsystem for Linux, which runs a real Ubuntu next to Windows.
 
 This page takes a Windows PC with nothing installed to a first live run, watched on the console.
@@ -472,6 +476,9 @@ gate baseline final F7: cached (0.0 s)
 warm: done (140.6 s)
 ```
 
+`F1` to `F7` in these lines are the course's ids for the seven class features, from org-wide issue
+search to labels.
+
 A first run with no cached baselines took 407 s on the course machine; a second run
 took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
 
@@ -515,8 +522,8 @@ second terminal, start the run:
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on feature F1 (org-wide issue
-search), then the referee and one review. It costs at most $0.24 at the caps.
+`make show-1` runs the harness arm alone with the instructions layer on the org-wide issue
+search feature, then the referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The first terminal prints the console's address:
 
@@ -573,3 +580,18 @@ You are ready when:
 
 Next: the [Section 1 demo](../section-1-instructions/demo/README.md), which explains what you just ran,
 or the [module overview](../README.md).
+
+## Sources
+
+- [Microsoft, Install WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
+- [Microsoft, Use systemd with WSL](https://learn.microsoft.com/en-us/windows/wsl/systemd)
+- [Microsoft, WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)
+- [Microsoft, Working across file systems](https://learn.microsoft.com/en-us/windows/wsl/filesystems)
+- [Microsoft, WSL troubleshooting](https://learn.microsoft.com/en-us/windows/wsl/troubleshooting)
+- [Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
+- [Docker, Post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/)
+- [uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)
+- [OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits)
+- [OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [LangSmith, Billing](https://docs.langchain.com/langsmith/billing)
+- [LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)

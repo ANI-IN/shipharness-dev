@@ -22,24 +22,24 @@ of the pattern.
 > - **Referee**: The program that scores each run after the agent stops.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
 
 ## Why it happens
 
 - A rule the agent never reads does not exist for it. OpenAI's harness team puts it this way: "From
   the agent’s point of view, anything it can’t access in-context while running effectively doesn’t
-  exist." ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
+  exist." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 - Agents copy what they find: "Codex replicates patterns that already exist in the repository—even
-  uneven or suboptimal ones." ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
+  uneven or suboptimal ones." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 - A longer instruction file does not fix it: "Too much guidance becomes non-guidance."
-  ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
+  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 
 ## How this section fixes it
 
 The instructions layer gives the agent a short `AGENTS.md` that "serves primarily as a map". The map
 points into a `docs/` folder with one focused document per topic. Agent Skills hold step-by-step
 recipes. The agent sees only their names and descriptions until a task needs one
-([Agent Skills specification](../docs/evidence/s1.md#src-agent-skills-spec)).
+([Agent Skills Specification](https://agentskills.io/specification)).
 
 ```mermaid
 flowchart LR
@@ -47,7 +47,7 @@ flowchart LR
   M["AGENTS.md map<br/>always in context"] --> A
   A -->|"opens when needed"| D["docs/SECURITY.md<br/>and other focused docs"]
   A -->|"opens when needed"| S["Skill: add-endpoint"]
-  A --> R["Referee checks R1<br/>on the shipped code"]
+  A --> R["Referee checks tenant isolation<br/>on the shipped code"]
 ```
 
 The course also measures whether the map helps. On this ticket, with this model, it made no
@@ -75,3 +75,8 @@ taught.
   [demo](demo/README.md).
 - Already set up? Start with [concepts.md](concepts.md).
 - Want to use the map in your own repository? See [use-in-your-repo/](../use-in-your-repo/README.md).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)

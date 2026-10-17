@@ -13,7 +13,7 @@ and nobody can say whether a rule would be lost on the way.
 Your starting point is that kind of file: `starter/original/AGENTS.md`, 899 lines, 70 tagged rules.
 OpenAI's harness team names the cost of such a file: "A giant instruction file crowds out the task,
 the code, and the relevant docs." Their fix is a short map, focused documents, and checks that run by
-machine ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness)).
+machine ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 
 > **Terms on this page**
 >
@@ -24,9 +24,11 @@ machine ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harn
 > - **Bare arm**: An agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: The same run with the harness turned on.
 > - **A/B**: Bare arm and harness arm on the same ticket, scored the same way.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
-> - **R3**: House rule 3, API conventions: list and error envelopes, status codes.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **API conventions rule**: House rule 3: list and error envelopes, status codes.
 > - **Live evidence**: The files your real A/B run wrote, collected into `live/`.
+> - **Score record**: The file the referee writes for each run, with every measured result.
+> - **Experiment export**: The JSON file the run writes for each arm, listing that arm's runs.
 
 ## What you'll build
 
@@ -38,15 +40,15 @@ flowchart LR
   C -->|"OK or ERROR lines"| S["make check-assignment-1"]
   T -->|"used by the harness arm"| AB["Live A/B<br/>section-1 tasks, 3 runs each"]
   AB --> L["live/<br/>score records, exports, run logs"]
-  L --> R["ab-report.md<br/>R1 and R3 counts"]
+  L --> R["ab-report.md<br/>tenant isolation and<br/>API conventions counts"]
 ```
 
 You split the file into an `instructions/` tree: a short map, `ARCHITECTURE.md`, a `docs/` folder
 where each active rule lives in exactly one document, and one Agent Skill. You write
 `checker/check_docs.py`, a script that fails when a link breaks or a rule from the original goes
 missing. Then you run one live A/B of your tree against the bare arm, keep its evidence in `live/`,
-and report R1 and R3 as counts in `ab-report.md`. Everything lives in your work folder, `starter/` by
-default. The exact requirements are in [SPEC.md](SPEC.md).
+and report the tenant isolation and API conventions results as counts in `ab-report.md`. Everything
+lives in your work folder, `starter/` by default. The exact requirements are in [SPEC.md](SPEC.md).
 
 ## Step by step
 
@@ -63,8 +65,10 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
    unchanged starter it fails by design.
 
 2. **Read the original.** List its sections and its 70 tags: 66 active, 4 retired. Decide a home for
-   each: R1 and R2 in `docs/SECURITY.md`, R3 in an API conventions design doc, R4, R5, and R7 in
-   `docs/RELIABILITY.md`, R6 in `ARCHITECTURE.md`. History and review notes are background, not rules.
+   each: the tenant isolation and roles rules (`R1`, `R2`) in `docs/SECURITY.md`, the API conventions
+   rule (`R3`) in an API conventions design doc, the idempotent creates, audit log, and migrations
+   rules (`R4`, `R5`, `R7`) in `docs/RELIABILITY.md`, and the layering rule (`R6`) in
+   `ARCHITECTURE.md`. History and review notes are background, not rules.
    Check: every active tag has exactly one planned home.
 
 3. **Write the checker first.** Fill the two stubs marked `TODO(A1-3)` and `TODO(A1-4)` in
@@ -114,7 +118,7 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
 | B. Rule coverage | Each active rule once, at least half its words kept, no extra rules or facts | 25 | Mostly grader |
 | C. Skill | Valid, named for its folder, "Use when", linked from the map, cites tags | 12 | Self-check |
 | D. Docs checker | Your tests pass, clean on your tree, finds faults, passes hidden cases | 26 | Both |
-| E. A/B report | Exact command, R1 and R3 as counts, links, budget, reading and limits | 10 | Self-check |
+| E. A/B report | Exact command, `R1` and `R3` rows as counts, links, budget, reading and limits | 10 | Self-check |
 | F. Live run evidence | Complete, matches the command, class model and caps, your tree used | 12 | Self-check |
 | **Total** | | **100** | |
 
@@ -133,3 +137,7 @@ The reference solution is a finished work folder in [solution/](solution/). Its
 - what the live A/B measured, and the grade it earned.
 
 Read it after your own attempt, and compare your choices with its alternatives.
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

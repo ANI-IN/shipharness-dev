@@ -20,20 +20,22 @@ handler that lists issues with no org filter. The ticket asks for a new org-wide
 > - **Console**: The browser page that shows a run live, on five screens.
 > - **Ticket**: The task the agent gets, written like a work ticket.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; a good test catches (kills) it.
+> - **LangSmith**: The tracing service that records every model call of a run.
 
 ## What you'll see
 
 `make show-1` runs the harness arm alone, live, on that ticket, with the map, the docs, and one skill.
 You watch the agent open the skill and the architecture document, write the code, and finish. In the
-captured run, the referee's primary verdict on R1 arrived 4 minutes 11 seconds after launch, and the
+captured run, the referee's primary verdict on the tenant isolation rule arrived 4 minutes 11 seconds after launch, and the
 full verdict at 10 minutes.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ![Console screen 1 after the full verdict: primary verdict PASS, hidden tests 52/52, claim supported](expected/screen-1-final.png)
 
-*The end of a real run: no new R1 violation, every hidden test passed, the agent's claim supported.*
+*The end of a real run: no new tenant isolation violation, every hidden test passed, the agent's claim supported.*
 
 This is not an A/B. The course already compared both arms on this ticket and found no measurable
 difference ([evidence](../../docs/evidence/s1.md#section-1)). So class shows the map doing its job,
@@ -43,7 +45,7 @@ and screen 4 shows the comparison.
 flowchart LR
   T2["Terminal 2:<br/>run.sh, then make show-1"] --> H["Harness arm<br/>in a container"]
   H -->|"tool calls, notes"| E[("Run log")]
-  H -->|"shipped code"| R["Referee<br/>R1 first, then the rest"]
+  H -->|"shipped code"| R["Referee<br/>tenant isolation first, then the rest"]
   R -->|"primary, then full verdict"| E
   E --> C["Terminal 1: make console<br/>five screens in the browser"]
 ```
@@ -89,8 +91,9 @@ PURPOSE=pilot ./section-1-instructions/demo/run.sh
 ```
 
 You can also call `make show-1` directly. At the end, terminal 2 prints the arm's record line and the
-cost line. The run id and the running totals are cut where marked; the full capture is in
-[expected/terminal.txt](expected/terminal.txt):
+cost line. In it, `F1` is the org-wide issue search, and `r1_new_violations` counts new violations
+of the tenant isolation rule. The run id and the running totals are cut where marked; the full
+capture is in [expected/terminal.txt](expected/terminal.txt):
 
 ```text
 A/B ... (F1, layers=['instructions'], profile=class, harness in action)
@@ -128,7 +131,7 @@ Minutes count from the launch, in one real run on a quiet machine
 
 *Minute 3. The agent has said done; in the test phase it writes and runs its own test.*
 
-![Screen 1 at minute 4: primary verdict PASS, new R1 violations 0](expected/screen-1-minute-4.png)
+![Screen 1 at minute 4: primary verdict PASS, no new tenant isolation violations](expected/screen-1-minute-4.png)
 
 *Minute 4. The primary verdict arrives before the slower checks finish. Read it aloud.*
 
@@ -136,8 +139,8 @@ Then switch screens.
 
 **Screen 3, Evidence.** Files read, grouped as skill, harness doc, handbook, code, and test. In this
 run the agent opened the skill, `ARCHITECTURE.md`, and the handbook, but not the security document.
-The referee list shows `r1_tenant: 0 new`. The old `/v1/issues` leak is part of the starting code and
-does not count.
+The referee list shows `r1_tenant: 0 new` (no new tenant isolation violation). The old `/v1/issues`
+leak is part of the starting code and does not count.
 
 ![Screen 3: files read by group, the five changed files, every referee check at 0 new](expected/screen-3-final.png)
 
@@ -165,7 +168,7 @@ arm. Say: "Tonight's run is not a dot in the comparison."
 
 ## What the result means
 
-The primary verdict answers one question: did the shipped change add a new R1 violation? The referee
+The primary verdict answers one question: did the shipped change add a new violation of the tenant isolation rule? The referee
 calls every endpoint as an Acme user with Globex ids and expects 404. PASS means no new violation.
 FAIL means at least one endpoint now shows another org's data.
 
@@ -173,9 +176,9 @@ One run cannot compare arms. The comparison needs both arms, many times:
 
 | Reading | What it looks like here | What the test runs found |
 |---|---|---|
-| Harness ahead | The harness arm passes R1 in more runs than the bare arm | Not seen |
+| Harness ahead | The harness arm passes the tenant check in more runs than the bare arm | Not seen |
 | No measurable difference | Both arms pass, or fail, in about the same number of runs | Seen: no failing run in either arm |
-| Bare ahead | The bare arm passes R1 in more runs than the harness arm | Not seen |
+| Bare ahead | The bare arm passes the tenant check in more runs than the harness arm | Not seen |
 
 ![Dot chart for the legacy-pattern ticket: every run of both arms passed](../diagrams/results-s1.svg)
 

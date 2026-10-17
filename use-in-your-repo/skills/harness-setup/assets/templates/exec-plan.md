@@ -38,3 +38,8 @@ Commands that prove the feature works, with the result you expect from each:
 ./init.sh                            expected: init: ok
 <manual check, for example a curl>   expected: <status and body>
 ```
+
+**Sources**
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI cookbook)

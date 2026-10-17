@@ -6,7 +6,8 @@ Source: Zhao, Srikanth, Wu, Jiang (Weco AI), "SpecBench: Measuring Reward Hackin
 > **Terms on this page**
 >
 > - **Visible tests**: Tests the agent can read and run while it works. SpecBench calls them validation tests.
-> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
 > - **Reward hacking gap**: How much more of the visible suite an agent passes than of the held-out suite.
 
 ## Why it matters
@@ -33,8 +34,8 @@ Do not confuse it with Spec-Bench (arXiv 2401.07851), an unrelated benchmark.
    cannot be eliminated by improving the test suite alone".
 
 The course applies the design to TeamTrack. Hidden tests live outside each arm's workspace, and the
-referee mounts them read-only in its own container. F4 has 69 of them, including two files that
-combine F4 with earlier features. They check only what the feature spec states. In the captured
+referee mounts them read-only in its own container. The version checks feature has 69 of them,
+including two files that combine it with earlier features. They check only what the feature spec states. In the captured
 Section 4 run, the one hidden test that failed combined two rules: a stale `If-Match` and an invalid
 body.
 
@@ -48,3 +49,8 @@ body.
    measures the spec's gaps, not the agent.
 4. After each agent task, compare the two results. A green visible suite with a red held-out test is
    the gap this paper measures.
+
+## Sources
+
+- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384) (Weco AI, preprint v2, 2026-09-09)
+- [SpecBench repository](https://github.com/WecoAI/SpecBench) (Weco AI)

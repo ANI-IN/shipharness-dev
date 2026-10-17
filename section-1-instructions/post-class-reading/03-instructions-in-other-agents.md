@@ -1,7 +1,7 @@
 # Extend Claude with skills, Build skills, and Agent Skills in Cursor
 
 Reading time: about 80 minutes.
-Source: the skills pages of Claude Code <https://code.claude.com/docs/en/skills>, Codex <https://learn.chatgpt.com/docs/build-skills>, and Cursor <https://cursor.com/docs/skills>, read 2026-10-17 ([evidence](../../docs/evidence/s1.md#src-claude-code-skills)).
+Source: the skills pages of Claude Code ([Extend Claude with skills](https://code.claude.com/docs/en/skills)), Codex ([Build skills](https://learn.chatgpt.com/docs/build-skills)), and Cursor ([Agent Skills](https://cursor.com/docs/skills)), read 2026-10-17 ([evidence](../../docs/evidence/s1.md#src-claude-code-skills)).
 
 > **Terms on this page**
 >
@@ -17,10 +17,10 @@ in its own folders. A skill in a folder your agent never scans does not exist fo
 ## Three key ideas
 
 1. **Every harness uses a small entry point.** OpenAI's team gives Codex a short `AGENTS.md` "injected
-   into context" as a map ([OpenAI](../../docs/evidence/s1.md#src-openai-harness)). Anthropic's
+   into context" as a map ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)). Anthropic's
    long-running harness tells each session where to look first: "Read the git logs and progress files
    to get up to speed on what was recently worked on."
-   ([Anthropic](../../docs/evidence/s1.md#src-anthropic-long-running)) Skills start as a catalogue of
+   ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) Skills start as a catalogue of
    names and descriptions.
 
 2. **Who builds the entry point differs.** In shipharness the harness code puts the map into context,
@@ -38,7 +38,7 @@ Where each agent looks for skills, from its own page:
 |---|---|---|
 | Claude Code | `.claude/skills/<name>/` | `~/.claude/skills/<name>/` |
 | Codex | `.agents/skills` | `$HOME/.agents/skills` |
-| Cursor (2.4 and later) | `.agents/skills/`, `.cursor/skills/` | `~/.agents/skills/`, `~/.cursor/skills/` |
+| Cursor ([2.4](https://cursor.com/changelog/2-4) and later) | `.agents/skills/`, `.cursor/skills/` | `~/.agents/skills/`, `~/.cursor/skills/` |
 
 ## Apply it to your repo
 
@@ -52,3 +52,12 @@ Where each agent looks for skills, from its own page:
 4. Put vendor-specific data under `metadata`, so the skill keeps to the six standard fields.
 5. Test discovery: start your agent and ask it. Claude Code's page suggests "What skills are
    available?".
+
+## Sources
+
+- [Extend Claude with skills](https://code.claude.com/docs/en/skills) (Claude Code docs)
+- [Build skills](https://learn.chatgpt.com/docs/build-skills) (Codex docs)
+- [Agent Skills](https://cursor.com/docs/skills) (Cursor docs)
+- [Cursor 2.4 changelog](https://cursor.com/changelog/2-4) (Cursor, 2026-01-22)
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)

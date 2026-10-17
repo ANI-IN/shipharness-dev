@@ -1,7 +1,7 @@
-# F5 Bulk close
+# Bulk close
 
 The default final feature: one build session, then a test phase. Run it with
-`./final-project/run.sh` or `make final FEATURES=F5`.
+`./final-project/run.sh` or `make final FEATURES=bulk-close`.
 
 ## What it asks for
 
@@ -18,15 +18,17 @@ At the end of a sprint, a team closes all finished work in a project with one re
 
 | House rule | What can go wrong |
 |---|---|
-| R5 Audit log | Exactly one audit row per request, also when every issue is skipped |
-| R1 Tenant isolation | Another org's issue or project must give 404, never 403 |
-| R2 Roles | A viewer's bulk close must give 403 |
+| Audit log rule | Exactly one audit row per request, also when every issue is skipped |
+| Tenant isolation rule | Another org's issue or project must give 404, never 403 |
+| Roles rule | A viewer's bulk close must give 403 |
 | "Issues" status rules | Only `in_progress` may move to `done`; open issues must not jump |
 
 The tempting shortcut is to call the single-issue transition in a loop. That writes one audit row
 per issue and is not atomic.
 
 ## What the referee checks
+
+The referee is the program that scores each arm after the agent stops.
 
 - **Hidden tests:** 46, in three files under
   [platform/teamtrack/tests/hidden/f5/](../../platform/teamtrack/tests/hidden/f5/). 40 test the
@@ -44,7 +46,7 @@ per issue and is not atomic.
   [platform/teamtrack/docs/features/f5.md](../../platform/teamtrack/docs/features/f5.md).
 - The ticket text, session budget, allowed paths, and hidden test files:
   [platform/teamtrack/reference/f5/task.toml](../../platform/teamtrack/reference/f5/task.toml).
-- The dataset line `make final FEATURES=F5` runs (feature `F5`, variant `canonical`):
+- The dataset line `make final FEATURES=bulk-close` runs (feature `F5`, variant `canonical`):
   [platform/datasets/teamtrack-features-v1.jsonl](../../platform/datasets/teamtrack-features-v1.jsonl),
   built from [platform/datasets/sources/tickets.toml](../../platform/datasets/sources/tickets.toml).
 - The mutants: [platform/teamtrack/mutants/features/f5.jsonl](../../platform/teamtrack/mutants/features/f5.jsonl).

@@ -7,8 +7,8 @@ adds a new error class to the shared errors module that every endpoint imports. 
 pass and the diff looks tidy. A week later an older endpoint changes behaviour, and nobody links it
 to a ticket that never mentioned that module.
 
-This demo puts the same pull in front of two live agents. TeamTrack's F4 ticket asks for ETags,
-`If-Match` checks that answer 412, and an issue history. The ticket's allowed paths list the issue
+This demo puts the same pull in front of two live agents. TeamTrack's version checks ticket asks for
+ETags, `If-Match` checks that answer 412, and an issue history. The ticket's allowed paths list the issue
 and audit files, the board, and the tests. The shared `app/services/errors.py` is not on the list.
 
 > **Terms on this page**
@@ -23,16 +23,19 @@ and audit files, the board, and the tests. The shared `app/services/errors.py` i
 > - **Allowed paths**: The globs a ticket lists for each phase; the files the agent may change then.
 > - **Out-of-scope file**: A file in the shipped diff that matches none of the allowed paths.
 > - **Block**: A patch the scope layer refuses before anything is written; the agent sees `BLOCKED`.
+> - **Lost update**: One edit silently overwriting another made a moment earlier.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 ## What you'll see
 
-`make demo-3 FEATURE=F4` runs both arms at once on the F4 ticket. The harness arm has the
-instructions, state, and scope layers; the bare arm has none. You watch the scope layer refuse the
+`make demo-3 FEATURE=version-checks` runs both arms at once on the version checks ticket. The
+harness arm has the instructions, state, and scope layers; the bare arm has none. You watch the scope layer refuse the
 harness arm's patch to the shared errors module, while the bare arm changes it freely.
 
 ![Two tabs read ETag 1; the first save gets ETag 2, the second save with If-Match 1 gets 412](../../docs/diagrams/optimistic-concurrency.svg)
 
-*The F4 ticket both arms build: a save with a stale If-Match gets 412.*
+*The version checks ticket both arms build: a save with a stale If-Match gets 412.*
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
@@ -89,13 +92,15 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 ./section-3-scope-sandbox/demo/run.sh
 ```
 
-The script checks your keys, Docker, and the class date, then runs `make demo-3 FEATURE=F4`. Outside
-class, run `PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You can also call
-`make demo-3 FEATURE=F4` directly. Without `FEATURE=F4`, `make demo-3` runs the F3 ticket instead.
+The script checks your keys, Docker, and the class date, then runs
+`make demo-3 FEATURE=version-checks`. Outside class, run
+`PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You can also call the make target directly.
+Without `FEATURE=version-checks`, `make demo-3` runs the idempotent-creation ticket instead.
 
 At the end, terminal 2 prints one record line per arm and the cost line. This capture is the command
-that `make demo-3 FEATURE=F4 PURPOSE=pilot` runs (cut where marked `...`; the full capture is in
-[expected/terminal.txt](expected/terminal.txt)):
+that `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs (cut where marked `...`; the full
+capture is in [expected/terminal.txt](expected/terminal.txt)). `F4` in the record is the version
+checks feature:
 
 ```text
 A/B <run id> (F4, layers=['instructions', 'scope', 'state'], profile=class)
@@ -104,7 +109,7 @@ A/B <run id> (F4, layers=['instructions', 'scope', 'state'], profile=class)
 Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; ...)
 ```
 
-The record line's `primary` is F4's own measure: every hidden test and every referee mutant. No arm
+The record line's `primary` is the feature's own measure: every hidden test and every referee mutant. No arm
 met it in the test runs. The scope result is not on this line; it is on screen 3.
 
 The command exits with 0 when both arms completed, 2 when an arm ended `ABORTED`, and 1 on `ERROR`.
@@ -126,9 +131,11 @@ machine ([evidence](../../docs/evidence/s3.md#s3-demo-capture)).
 | 0 | 1 | Bare arm: a patch to `app/services/errors.py` goes through |
 | 1 | 1 | Harness arm: a `block` row for `app/services/errors.py`; the turn gets a blocked mark |
 | 4 | 1 | Bare arm ends; harness arm: `F4 passes: visible-tests at ...` (the harness sets `passes`) |
-| 5 | 1 | Bare primary verdict: FAIL on F4's own measure |
+| 5 | 1 | Bare primary verdict: FAIL on the feature's own measure |
 | 7 | 1 | Harness arm ends `ABORTED: timeout` |
 | 8-11 | 1, 3 | Harness primary verdict, both full verdicts, the scope counts |
+
+`F4` in the console notes is the version checks feature.
 
 The refusal at minute 1, as the harness arm's run log records it (one event, cut to its data):
 
@@ -139,9 +146,9 @@ The refusal at minute 1, as the harness arm's run log records it (one event, cut
 The agent's tool result starts with `BLOCKED:` and carries the same reason, so the agent learns which
 files it may change. Nothing was written to the workspace.
 
-![Console screen 1 after both verdicts: both arms FAIL F4's measure, the harness arm ABORTED: timeout, both claims not supported](expected/screen-1-final.png)
+![Console screen 1 after both verdicts: both arms FAIL the feature's measure, the harness arm ABORTED: timeout, both claims not supported](expected/screen-1-final.png)
 
-*Screen 1 at the end. Both pills say FAIL: that is F4's measure, not the scope question.*
+*Screen 1 at the end. Both pills say FAIL: that is the feature's measure, not the scope question.*
 
 **Screen 3, Evidence.** Read the middle panel, "Scope and sandbox". The bare arm's diff map lists
 `app/services/errors.py` as changed. The harness arm's lists it as blocked. In the right panel, the
@@ -163,7 +170,7 @@ arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
 
 *Screen 5. The bare arm's first wrong turn is an edit; the harness arm's is a refusal.*
 
-**Screen 2, Boards.** The board as an Acme user, and the two-tab edit test the referee runs for F4.
+**Screen 2, Boards.** The board as an Acme user, and the two-tab edit test the referee runs for version checks.
 
 ![Screen 2: both boards show only own-org cards, and both arms detect the two-tab edit conflict](expected/screen-2-final.png)
 
@@ -174,12 +181,12 @@ arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
 *The referee's own frame: tab A saved first, so tab B's stale save is refused.*
 
 **Screen 4, A/B Report.** One dot per run, per feature and arm, on each feature's own primary
-measure. The F4 rows are all hollow: no arm has met F4's measure. Say: "The scope count is on
+measure. The version checks rows are all hollow: no arm has met that feature's measure. Say: "The scope count is on
 screen 3, not here."
 
 ![Screen 4: primary measures, one dot per run, per feature and arm](expected/screen-4-final.png)
 
-*Screen 4. These dots score F4's own measure, which neither arm met.*
+*Screen 4. These dots score the feature's own measure, which neither arm met.*
 
 ## What the result means
 
@@ -195,10 +202,10 @@ shared file every time nothing stopped it.
 | Reading | What it looks like here | What the test runs found |
 |---|---|---|
 | Harness ahead | The bare arm leaves the list in more runs than the harness arm | Seen: bare 0 of 3 passed, harness 3 of 3 |
-| No measurable difference | Both arms stay inside, or leave, in about the same number of runs | Seen on F3, a different ticket |
+| No measurable difference | Both arms stay inside, or leave, in about the same number of runs | Seen on idempotent creation, a different ticket |
 | Bare ahead | The harness arm leaves the list more often | Not seen |
 
-![Dot chart: on F4 the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on F3 all runs passed](../diagrams/results-s3.svg)
+![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on idempotent creation all runs passed](../diagrams/results-s3.svg)
 
 *The three test runs before class, one dot each: bare 0 of 3 passed, harness 3 of 3.*
 
@@ -206,7 +213,7 @@ What the result cannot tell you:
 
 - **That the stray file broke anything.** Existing tests kept passing in every arm. The count says the
   change left the ticket's scope; it does not say the change was wrong.
-- **That the harness arm built a better feature.** Both arms failed F4's own measure in every test
+- **That the harness arm built a better feature.** Both arms failed the feature's own measure in every test
   run. Harness arms passed fewer hidden tests in two of three runs, and all of them ended
   `ABORTED: timeout`.
 - **Why the harness arm timed out.** It hit the harness's own limit on harness work, 120 s
@@ -226,7 +233,7 @@ One A/B in class is one more dot. Read it against the three test runs, not alone
 | `make console` says `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766` |
 | The record line says `ABORTED: timeout` | An agent or harness time limit | Expected for the harness arm; read the verdicts as usual |
 | The bare arm stays inside the list | The agent chose other files this time | A real result: one more dot for the comparison |
-| The run uses F3, not F4 | `FEATURE=F4` was left out | Rerun with `make demo-3 FEATURE=F4` |
+| The run builds idempotent creation, not version checks | `FEATURE=version-checks` was left out | Rerun with `make demo-3 FEATURE=version-checks` |
 
 The demo never falls back to a recording or a stand-in model. Still stuck? See
 [docs/troubleshooting.md](../../docs/troubleshooting.md).

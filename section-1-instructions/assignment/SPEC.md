@@ -13,6 +13,8 @@ page is the reference you check your work against.
 > - **Bare arm**: An agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: The same run with the harness turned on.
 > - **Live evidence**: The files your real A/B run wrote, collected into `live/`.
+> - **Experiment export**: The JSON file the run writes for each arm, listing that arm's runs.
+> - **LangSmith**: The tracing service that records every model call of a run.
 
 > Your output will differ: the examples on this page come from the course's own starter and reference
 > work, not from your files.
@@ -37,10 +39,10 @@ section-1-instructions/assignment/starter/   your work folder
   original/AGENTS.md                  the 899-line input (read-only)
   instructions/
     AGENTS.md                         the map, 30 to 120 lines
-    ARCHITECTURE.md                   layering (R6), wiring, board, configuration
+    ARCHITECTURE.md                   layering rule (R6), wiring, board, configuration
     docs/
-      SECURITY.md                     R1, R2
-      RELIABILITY.md                  R4, R5, R7
+      SECURITY.md                     tenant isolation (R1), roles (R2)
+      RELIABILITY.md                  idempotent creates (R4), audit log (R5), migrations (R7)
       QUALITY_SCORE.md                grades, testing, the legacy API
       PLANS.md                        roadmap, scope
       design-docs/index.md            catalogue of design docs
@@ -94,7 +96,7 @@ an agent would find from the map.
 - **R-S5.** `AGENTS.md` points to `.agents/skills/<name>/SKILL.md`, and the steps cite the rule tags
   they serve. The section-1 tasks add an org-wide list, so a list-endpoint skill fits.
 
-The format rules come from the [Agent Skills specification](../../docs/evidence/s1.md#src-agent-skills-spec).
+The format rules come from the [Agent Skills Specification](https://agentskills.io/specification).
 
 ### The checker
 
@@ -156,7 +158,8 @@ means a full id the original does not define, or a family `R<n>` with no `R<n>.x
 ### Overlap
 
 - Content words of a statement: remove ids, lowercase, split on every character outside `a-z`, `0-9`
-  and `_`, then drop the words in the starter's `STOPWORDS` and words shorter than two characters.
+  and `_`, then drop the words in the starter's `STOPWORDS` (common words such as "the" and "of") and words
+  shorter than two characters.
 - overlap = |words(original) ∩ words(new)| / |words(original)|, or 1.0 when the original has no
   content words. A first definition below 0.5 is `weak-rule`.
 
@@ -182,7 +185,7 @@ ERROR missing-rule R1.3
 FAILED: 67 problems
 ```
 
-R1.1 is weak although its first sentence is copied word for word. The original goes on
+`R1.1` is weak although its first sentence is copied word for word. The original goes on
 ("Repositories take `org_id` as an explicit argument and filter on it; ..."), and the copy keeps 41%
 of its content words.
 
@@ -192,12 +195,13 @@ of its content words.
 
 - **Setup**: the exact command (with `--split section-1`, `--k 3`, `--layers instructions`, and a
   `--batch` label), `Instructions tree commit: <sha>`, and `Runs per arm: <n>`.
-- **Results**: an R1 row and an R3 row with `failing/runs` per arm (for example `3/24`). Runs equal
-  "Runs per arm". No percentages.
+- **Results**: an `R1` row (the tenant isolation rule) and an `R3` row (the API conventions rule),
+  with `failing/runs` per arm (for example `3/24`). Runs equal "Runs per arm". No percentages.
 - **Links**: the two LangSmith experiment URLs.
 - **Cost and traces**: `Cost: $<x>` at most 2.50 and `Traces: <n>` at most 150.
-- **Reading the result**: at least 60 words that discuss R1 and R3. **Limits**: at least 20 words.
-- The command, runs per arm, R1 and R3 counts, and links equal what the live evidence says (R-L5).
+- **Reading the result**: at least 60 words that discuss both rules, `R1` and `R3`. **Limits**: at
+  least 20 words.
+- The command, runs per arm, `R1` and `R3` counts, and links equal what the live evidence says (R-L5).
 
 ## Self-check
 
@@ -242,10 +246,10 @@ tree earns nothing for having no duplicates.
 | | Eleven hidden cases (proportional) | 10 | hidden |
 | E (10) | Six sections, no to-do marker left | 2 | visible |
 | | Exact command (1); tree commit and runs per arm (1) | 2 | visible |
-| | R1 and R3 rows as counts matching runs per arm (1 each) | 2 | visible |
+| | `R1` and `R3` rows as counts matching runs per arm (1 each) | 2 | visible |
 | | Two LangSmith experiment links | 1 | visible |
 | | Cost and traces within budget | 1 | visible |
-| | Reading (60 words, R1 and R3) and limits (20 words), 1 each | 2 | visible |
+| | Reading (60 words, `R1` and `R3`) and limits (20 words), 1 each | 2 | visible |
 | F (12) | R-L1: `live/` present and well formed; without it every F item scores 0 | 3 | visible |
 | | R-L2: consistent with the command (four parts, proportional) | 3 | visible |
 | | R-L3: class model and caps (five parts, proportional) | 2 | visible |
@@ -324,8 +328,8 @@ another work folder. Commit `live/` with your work.
 | Self-check, checker, validator, `ab_summary.py`, `live_evidence.py` | $0 | 0 |
 | The live A/B: 8 tasks x 2 arms x 3 runs = 48 runs | At most $2.50; the command stops cleanly at its cost cap | 2 per run (agent and referee): 96, within 150 |
 
-For scale: in the course pilot, single F1 arm runs cost between $0.0051 and $0.0151 each
-([pilot results](../../docs/evidence/s1.md#s1-pilot)).
+For scale: in the course pilot, single arm runs on the org-wide issue search cost between $0.0051 and
+$0.0151 each ([pilot results](../../docs/evidence/s1.md#s1-pilot)).
 
 ### Common mistakes
 
@@ -342,3 +346,6 @@ For scale: in the course pilot, single F1 arm runs cost between $0.0051 and $0.0
 - Typing the report's numbers by hand. Copy them from `ab_summary.py --exports <work>/live`.
 - Committing only `ab-report.md`. Without `live/`, criterion F scores 0.
 
+## Sources
+
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)

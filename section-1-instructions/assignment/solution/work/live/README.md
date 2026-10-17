@@ -7,7 +7,7 @@ This folder holds the live evidence of the reference solution's A/B, in the layo
 |---|---|
 | `output.txt` | the command line (`$ ...`) and everything it printed, ending with its `Cost: $...` line |
 | `experiments/<name>.json` | the two experiment exports of batch `a1-reference` (bare and harness) |
-| `scores/<run_id>.json` | the ScoreRecord of every run in them (`platform/src/shipharness/ab/score.py`) |
+| `scores/<run_id>.json` | the score record (`platform/src/shipharness/ab/score.py`) of every run in them |
 | `runs/<run_id>/events.jsonl` | the run log of every harness-arm run |
 
 The reference live run is being re-run; its first attempt was interrupted on 2026-10-17. Until it

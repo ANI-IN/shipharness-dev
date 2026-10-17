@@ -47,7 +47,8 @@ the section, and the minutes. The build warns about any slide whose text had to 
 
 The build stops (exit 2) unless: there are exactly 72 slides, numbered 1 to 72 in order; every slide
 has a section; no slide has more than 6 bullets or 12 code lines; every image path exists; and every
-code reference resolves to a walkthrough anchor.
+code reference resolves to a walkthrough anchor (a named, marked block of course code that a code
+slide shows; `platform/scripts/anchors.py` lists them).
 
 ## Block format
 
@@ -55,7 +56,7 @@ The comment at the top of `deck.md` has the full reference. One slide looks like
 
 ```markdown
 ## 19. Demo block: what to watch
-section: S1 Instructions
+section: Section 1: Instructions
 minutes: 8
 image: img/s1-watch.png
 live: `make show-1`: the primary verdict
@@ -71,7 +72,8 @@ The first line is the number, a dot, and the title. `section:` is required and s
 `minutes:` is the speaker timing. `image:` is a path relative to this folder. `live:` is a value
 produced in class; it shows as a grey "Filled in live" box. Bullets start with `- `; use 3 to 6.
 
-Other fields: `layout:` (`default`, `title`, or `statement`), `subtitle:`, `slot:` (a result slot),
+Other fields: `layout:` (`default`, `title`, or `statement`), `subtitle:`, `slot:` (a result slot:
+a place for a number or chart that is filled from run data),
 `code:` (lines of a walkthrough anchor, for example `code: S4:filters 20-23,30-36`; left-out lines
 show as `...`), `diagram: architecture now=L1,L2` (the architecture diagram defined once at the top
 of `deck.md`, with the named parts drawn thick and marked "now"), and inline Mermaid blocks.

@@ -28,17 +28,16 @@ filters 4 and 5 are the course's own, with no direct source, and are presented a
 ## Filter 3: adds line coverage, or kills a mutant nothing else kills
 
 - Rule: the test covers at least one line the existing suite does not, or it kills a filter-set
-  mutant that no existing test kills.
+  mutant (a copy of the code with one small bug planted on purpose) that no existing test kills.
 - Source, coverage branch: [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171) discards "Any test that does not improve coverage". [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)
   measures line coverage only.
 - Source, mutant branch: [Meta, ACH](https://arxiv.org/abs/2501.12862) builds mutants "that denote faults that are both relevant to the issue
   of concern and also currently not caught (unkilled) by any existing test case", and keeps tests
-  that catch them: "Hardening: The new tests catch faults that no existing test can catch" (
-  ).
+  that catch them: "Hardening: The new tests catch faults that no existing test can catch".
 - Why both: in [Meta, ACH](https://arxiv.org/abs/2501.12862), 49% of the tests that uniquely kill a mutant add no line coverage. A
   coverage-only filter would throw those tests away.
-- Course detail: mutants are split into a filter set, which this filter uses, and a referee set kept
-  apart for judging. A test is never judged by the same mutants that selected it.
+- Course detail: mutants are split into a filter set, which this filter uses, and a referee set (mutants
+  kept apart to judge the kept tests). A test is never judged by the same mutants that selected it.
 - Misses: faults that no mutant simulates, in lines that are already covered.
 
 ## Filter 4: real assertions, no mocking of the unit under test

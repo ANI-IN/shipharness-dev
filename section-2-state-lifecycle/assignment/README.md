@@ -15,7 +15,7 @@ a feature that never finishes while every session bills for work already done.
 
 A handoff helps only if it carries the right facts. Anthropic's harness team describes one that
 "carries the previous agent's state and the next steps"
-([Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design)). The class's state
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)). The class's state
 layer carries notes and a machine summary, but it never says which steps are done. That is the gap
 you close.
 
@@ -28,7 +28,8 @@ you close.
 > - **Scenario**: One run of the real runner with your layer, the stand-in agent, and four sessions.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Exec plan**: A plan checked into the repository, with its progress and its decisions.
-> - **R7**: House rule 7, migrations: exactly one Alembic head, and a fresh upgrade works.
+> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
+> - **Alembic head**: The newest migration in the chain; Alembic is the migration tool TeamTrack uses.
 > - **Live evidence**: The files your real live run wrote, collected into `live/`.
 
 ## What you'll build
@@ -137,3 +138,7 @@ The reference solution is a finished layer in [solution/](solution/). Its
 - what the captured self-check shows, and where the live run's evidence is.
 
 Read it after your own attempt, and compare your choices with its alternatives.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

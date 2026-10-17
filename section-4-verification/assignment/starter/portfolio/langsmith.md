@@ -1,4 +1,4 @@
-# LangSmith traces: F4 A/B, bare vs harness
+# LangSmith traces: version checks A/B, bare vs harness
 
 <!-- Keep the three sections below. Replace every TODO. -->
 
@@ -15,5 +15,5 @@ block.
 ## What the comparison shows
 
 TODO: per arm, the counts from your score records (hidden tests passed, mutants killed, existing
-tests that keep passing, new R1-R7 violations), what the two traces show about where the arms
+tests that keep passing, new house rule violations), what the two traces show about where the arms
 differ, and the cost line the command printed.

@@ -6,14 +6,14 @@ pieces as part of its portfolio.
 
 ## What to show
 
-1. **One live A/B.** You ran `./final-project/run.sh` (or `make final FEATURES=F5`, `F6`, or `F7`)
-   to the end. Keep terminal 2's two arm lines and the cost line, and the A/B id from the console.
+1. **One live A/B.** You ran `./final-project/run.sh` (or `make final FEATURES=bulk-close`,
+   `FEATURES=watchers`, or `FEATURES=labels`) to the end. Keep terminal 2's two arm lines and the cost line, and the A/B id from the console.
 2. **The five screens.** One screenshot of each console screen for that A/B, as in
    [expected/](expected/README.md).
 3. **Your reading of it.** Three to five sentences: the counts per arm (hidden tests, mutants
-   killed, claim, files outside the allowed paths), and which of the three outcomes it is: harness
+   killed, that is planted bugs the arm's own tests caught, claim, files outside the allowed paths), and which of the three outcomes it is: harness
    ahead, no measurable difference, or bare ahead. Say that one A/B is one dot.
-4. **One layer tested.** Either a second A/B with one layer removed (`make final FEATURES=F5
+4. **One layer tested.** Either a second A/B with one layer removed (`make final FEATURES=bulk-close
    LAYERS=-scope`), or a written reason, from [walkthrough.md](walkthrough.md), for the layer you
    would remove first and what would show you were wrong.
 5. **The harness on your own repository.** The steps of [your-repo/](your-repo/README.md) on a

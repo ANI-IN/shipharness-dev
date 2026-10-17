@@ -5,8 +5,9 @@
 > - **Verify gate**: The checks that run in the agent's container when it claims done; a failure sends the claim back.
 > - **Done claim**: The agent's call `finish(claim="done")`, which says the phase's work is complete.
 > - **Gate item**: One check of the gate, shown as one pill on console screen 1.
-> - **Clean state**: All work committed, ruff clean on changed files, one migration head, no debug output.
-> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Clean state**: All work committed, ruff clean on changed files, one migration head (a single latest migration), no debug output.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
 > - **Workspace**: The harness arm's copy of TeamTrack, inside its container.
 
@@ -27,7 +28,7 @@ sequenceDiagram
   A->>R: finish(claim="done")
   R->>G: run_gate (build or test phase)
   G-->>R: items pending (console pills)
-  G->>C: visible tests, R1-R7 and more, clean state
+  G->>C: visible tests, house rules and more, clean state
   C-->>G: pass or fail per item
   alt an item failed
     G-->>R: feedback: summary and first three failures
@@ -61,8 +62,9 @@ GATE_CHECKS: tuple[str, ...] = (
 - Seven house rules, the existing tests (`regression`), and a board smoke check.
 - What is missing matters most: no hidden tests and no referee mutants. Those stay with the referee,
   so they are still held out when it scores the run.
-- The referee runs the same R1 to R7 checks. That overlap is disclosed: a harness arm is expected to
-  do better on R1 to R7 by construction, so Section 4 scores hidden tests and mutants instead.
+- The referee runs the same seven house rule checks. That overlap is disclosed: a harness arm is
+  expected to do better on those rules by construction, so Section 4 scores hidden tests and mutants
+  instead.
 
 ### gate.py, lines 155-162
 
@@ -113,7 +115,8 @@ Each item runs inside the arm's container.
   violations against the checkpoint's own baseline.
 - The clean-state item runs on the workspace itself, against `base_sha`, the commit before the
   agent's first change. It follows Anthropic's definition: code "that would be appropriate for
-  merging to a main branch" ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)).
+  merging to a main branch"
+  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 - `lines` collects one failure line per problem, each with its reason on the same line.
 
 ### gate.py, lines 176-181
@@ -132,7 +135,7 @@ The verdict.
 
 - One failed item fails the gate. Anthropic's compiler team says why the bar is that high: "it’s
   important that the task verifier is nearly perfect, otherwise Claude will solve the wrong
-  problem." ([Anthropic, C compiler](../../docs/evidence/s4.md#src-anthropic-c-compiler))
+  problem." ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler))
 - `_feedback` (lines 191-200) writes `Gate <id>: <n> of <m> items failed (<names>).`, the first three
   failure lines, and "Fix these, commit your work, and call finish again." The same team asks for a
   few lines of output, with the reason "on the same line" as the error.
@@ -154,3 +157,8 @@ does not include the held-out checks.
   target; the held-out checks tell you whether the work is right.
 - Cap the feedback: a summary, the first few failures, and what to do next. Anthropic's compiler team
   warns against printing "thousands of useless bytes" into the agent's context.
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)

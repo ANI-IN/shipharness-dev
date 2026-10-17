@@ -38,7 +38,7 @@ The code is layered. A layer may only call the layer below it.
 
 ## R6 Layering
 
-<!-- REPLACE: your layering rule and the command that checks it. The same contract goes into layering_contract() in harness/shipharness_adapter.py for shipharness check --rules R6. -->
+<!-- REPLACE: your layering rule and the command that checks it. The same contract goes into layering_contract() in harness/shipharness_adapter.py for `shipharness check --rules R6` (`R6`, the layering rule). -->
 `app/api` never imports `app/db`, and neither does `app/web`.
 
 The check: the import-linter contract. Run `lint-imports --config .importlinter` from the TeamTrack

@@ -47,3 +47,7 @@ should be checked.
    impact it had on the final result." Run the same task with and without the handoff and compare.
 4. Re-check when you change models. A mechanism that helped last quarter's model may only cost turns
    now.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

@@ -21,6 +21,9 @@ review that rests on trust.
 > - **Primary verdict**: the referee's answer to the one question the section asks.
 > - **Ticket**: the task the agent gets, written like a work ticket.
 > - **Console**: the browser page that shows a run live, on five screens.
+> - **Hidden tests**: tests the agent never sees; the referee runs them after the agent stops.
+> - **Mutant**: a copy of the code with one small bug planted on purpose; good tests catch it.
+> - **Gate**: the check that must pass before a feature counts as done.
 
 ## Why it happens
 
@@ -45,7 +48,8 @@ The finding ids behind these quotes are on the [evidence page](docs/evidence/gen
 
 ## The harness
 
-A harness is the environment around the agent, not a better prompt. OpenAI describes the work as to
+A harness is the environment around the agent, not a better prompt.
+[OpenAI](https://openai.com/index/harness-engineering/) describes the work as to
 "design environments, specify intent, and build feedback loops". This module builds it in four
 layers, one per section.
 
@@ -64,7 +68,8 @@ layers, one per section.
   filters, and a gate checks the work before "done" counts. The harness, not the agent, marks a
   feature as passing.
 
-Every layer costs turns, time, and money. Anthropic puts it this way: "every component in a harness
+Every layer costs turns, time, and money.
+[Anthropic](https://www.anthropic.com/engineering/harness-design-long-running-apps) puts it this way: "every component in a harness
 encodes an assumption about what the model can't do on its own, and those assumptions are worth
 stress testing". So the module measures each layer: the same agent, model, ticket, and sandbox, with
 and without the harness, scored by the same referee.
@@ -80,9 +85,9 @@ model run, watched on the console.
 | Section 1 | The agent reads the map, then only the documents it needs | `make show-1` | 50 |
 | Break | | | 10 |
 | Section 2 | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` | 50 |
-| Section 3 | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=F4` | 50 |
+| Section 3 | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=version-checks` | 50 |
 | Break | | | 5 |
-| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=F6,F5` (the poll's winner first) | 45 |
+| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=watchers,bulk-close` (the poll's winner first) | 45 |
 | Final | The final A/B on every screen, then all results | none | 20 |
 
 Each section opens with a poll and launches its run at once. The concepts and the code walkthrough
@@ -130,7 +135,8 @@ allowed paths, the harness arm was blocked from doing so in 3 of 3 runs. That re
 *In the bare arm the shared errors file is changed; in the harness arm the same file is blocked.*
 
 The harness also costs something. Counted after the results were known, harness arms ran longer
-(median 302 s against 190 s) and cost more (median $0.0123 against $0.0103 per arm). OpenAI warns
+(median 302 s against 190 s) and cost more (median $0.0123 against $0.0103 per arm).
+[OpenAI](https://openai.com/index/harness-engineering/) warns
 that its own results should "not be assumed to generalize without similar investment". The same
 holds here: one model, one ticket per section (two in Section 3), a few runs per arm. The tools in this repository let
 you run the same measurement on your own model and code. Every run id and count:
@@ -171,3 +177,10 @@ an empty machine, including both accounts.
 - [After class](docs/after-class.md) and [optional extras](docs/extras.md).
 
 License: MIT, see [LICENSE](LICENSE).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

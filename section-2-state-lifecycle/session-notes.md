@@ -13,6 +13,10 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
+> - **Compaction**: Squeezing an old context into a short summary for the next session.
+> - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
+> - **Fast tier**: OpenAI's faster service tier, at twice the standard price; class runs use it.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
 
 ## What we showed
 
@@ -30,11 +34,11 @@ The class run's record stays on the instructor's machine. A captured run, with i
 ## Key ideas
 
 1. **Every session starts with no memory.** "each new session begins with no memory of what came
-   before." ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)) What a
+   before." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) What a
    session did exists for the next one only if it is in the repository.
 2. **Compaction is not enough.** "However, compaction isn’t sufficient." A clean session plus a
    handoff is the alternative: a context reset
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
+   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 3. **The state lives in a few files and git.** `init.sh`, `progress.md`, the exec plan, the
    handoff, and the commits. Each has one job.
 4. **Two routines.** Getting up to speed at the start: read the git log and the progress file, run
@@ -48,7 +52,7 @@ The class run's record stays on the instructor's machine. A captured run, with i
    setup, not a rule.
 8. **State files cost turns.** "every component in a harness encodes an assumption about what the
    model can't do on its own, and those assumptions are worth stress testing."
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 
 ## What the result showed
 
@@ -110,3 +114,8 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 4. Read the [post-class readings](post-class-reading/README.md), about 15 minutes in total.
 5. In your own repository, stop your agent in the middle of a task and start a fresh session. Watch
    its first five tool calls: does it find what the last session did?
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

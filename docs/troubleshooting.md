@@ -6,6 +6,13 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Class profile**: the settings the live class runs use, the same for both arms.
 > - **Class date**: the class day in `.env`, which names the LangSmith project and keys the session cap.
+> - **Primary measure**: the one result each section is judged on, fixed before any run.
+> - **Baseline**: the referee's or gate's result on the app before the agent changes it, saved so
+>   each run is compared against it.
+> - **Gate**: the check that must pass before a feature counts as done.
+> - **Mutant**: a copy of the code with one small bug planted on purpose; good tests catch it.
+> - **Swap test**: the referee scores a recorded A/B again with the arm labels swapped; the scores
+>   must not change.
 
 Find the exact text you see in the first column. The messages are copied from the code, and each
 part names the file that prints them, so you can read the code. Never paste your `.env` or a key
@@ -75,10 +82,15 @@ fall back to a recorded or scripted run (source: `platform/src/shipharness/ab/co
 | `x SHIPHARNESS_CLASS_DATE is not set: set it in .env to the class day (YYYY-MM-DD) for class commands, or pass --purpose pilot for a pilot run` | Class commands need the class date | Set it in `.env`, or add `PURPOSE=pilot` or `PURPOSE=assignment` |
 | `x OPENAI_API_KEY is missing: live A/B runs call OpenAI and never fall back to a stand-in; ...` | No key | Fill in `.env`, then `make doctor` |
 | `x OpenAI refused the key: <reason>; no arm was started` | The key is invalid, cannot use the model, or OpenAI is unreachable | `make doctor` names the problem; `no access to gpt-6-luna (NotFoundError)` means the account is below the Build tier |
-| `x no task for feature=<id> example=None variant=canonical` | The feature id is not in `platform/datasets/teamtrack-features-v1.jsonl` | Use F1 to F7; `make final` takes F5, F6, F7 |
+| `x no task for feature=<id> example=None variant=canonical` | The feature id is not in `platform/datasets/teamtrack-features-v1.jsonl` | Use one of the feature names listed below the table |
 | `! replay needs RUN=<ab or run id>` | `make replay` without `RUN` | `make replay RUN=<id>` (source: `Makefile`) |
 | `x unknown --arms '<value>': both or harness` | `--arms` takes `both` (an A/B) or `harness` (what `make show-N` runs) | Use one of the two |
 | `x unknown --profile '<value>': standard, class` | `--profile` takes `standard` or `class` | Use one of the two |
+
+The feature names for `FEATURE=` and `FEATURES=` are `org-search`, `comments`,
+`idempotent-create`, `version-checks`, `bulk-close`, `watchers`, and `labels`; `make final` takes the
+last three. The raw `--feature` flag of `uv run shipharness ab` takes the ids `F1` to `F7`, in the
+same order.
 
 `make experiments` and `make report` only show the options of `uv run shipharness experiments` and
 `uv run shipharness report`. Run those commands directly with the options you need.
@@ -103,7 +115,7 @@ other features and exits with the last non-zero code.
 | `ERROR`, `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | The account is out of credit or at its spend limit | Add credit |
 | `ERROR`, `OpenAI request kept failing after retries` | Repeated rate-limit or server errors | Try again later |
 | `ERROR`, `arm setup failed: RuntimeError: docker run failed: ...` | Docker stopped, or an image is missing | Start Docker; `make images` |
-| `passed=True` on a `make final` line with a low hidden-test count | F5 to F7 have no primary measure, so `passed` is always true | Read the hidden-test and mutant counts ([final project](../final-project/README.md#what-the-result-means)) |
+| `passed=True` on a `make final` line with a low hidden-test count | The final features have no primary measure, so `passed` is always true | Read the hidden-test and mutant counts ([final project](../final-project/README.md#what-the-result-means)) |
 
 ## The class profile and the Fast tier
 

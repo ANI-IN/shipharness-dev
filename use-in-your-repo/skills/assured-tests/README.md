@@ -22,7 +22,7 @@ instructions) and optional `scripts/`, `references/`, and `assets/` folders ([Ag
 says what the skill does, how to install it in Claude Code, Codex, and Cursor, how to call it, and
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
-Sources are named in short form, such as (OpenAI, Harness engineering), and listed in full at the end of this page.
+Sources are named in short form with a link, and listed in full at the end of this page.
 
 ## What it does and when to use it
 
@@ -39,6 +39,9 @@ five filters, cheapest first:
 | 3 | Adds line coverage, or kills a mutant no existing test kills | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862) |
 | 4 | Has real assertions and does not mock the unit under test | Course filter; no direct source |
 | 5 | No source file changed during the test phase | Course filter, built on [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
+
+A mutant is a copy of the code with one small bug planted on purpose; a test kills it when the
+test fails on that copy.
 
 Filters 4 and 5 are the course's own additions and are presented as such. The agent then reads the
 result table (one row per proposed test, with the first filter it failed and why) and reviews the

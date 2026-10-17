@@ -53,3 +53,7 @@ treated as correct. In the captured Section 4 demo run, that is how a correct te
    code does not, you found a bug, not a bad test.
 5. Try it on one module: `uv run shipharness testgen --help` lists the options, and each run prints
    one reason per discarded test.
+
+## Sources
+
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)

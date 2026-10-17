@@ -2,13 +2,13 @@
 
 ## The problem
 
-**Illustrative scenario.** A coding agent adds optimistic concurrency to issue edits: an `ETag` on
-read, and an `If-Match` check on write. The header is optional, so every existing test passes whether
+**Illustrative scenario.** A coding agent adds optimistic concurrency (refusing an edit made from a
+stale copy) to issue edits: an `ETag` on read, and an `If-Match` check on write. The header is optional, so every existing test passes whether
 the check works or not. The agent tests the happy path, sees a green suite, and reports done. After
 release, two people who edit one issue still overwrite each other.
 
-This demo gives a live agent that ticket. TeamTrack's F4 asks for `ETag`, `If-Match`, and an issue
-history. The referee then scores the work with tests and planted faults the agent never sees.
+This demo gives a live agent that ticket. TeamTrack's version checks ticket asks for `ETag`,
+`If-Match`, and an issue history. The referee then scores the work with tests and planted faults the agent never sees.
 
 > **Terms on this page**
 >
@@ -23,12 +23,13 @@ history. The referee then scores the work with tests and planted faults the agen
 > - **Verify gate**: The checks that run in the agent's container when it claims done; a failure sends the claim back.
 > - **Test phase**: A short second phase in which the agent writes tests for the feature it built.
 > - **Test filters**: Five checks a test from the test phase must pass to be kept.
-> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
+> - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
 
 ## What you'll see
 
-`make show-4` runs the harness arm alone, live, with all four layers. You watch the agent build F4,
+`make show-4` runs the harness arm alone, live, with all four layers. You watch the agent build the feature,
 claim done, and pass the verify gate. Then it writes tests in the test phase, and the test filters
 keep some and discard others. Last, the referee runs 69 hidden tests and 4 referee mutants.
 
@@ -41,8 +42,8 @@ keep some and discard others. Last, the referee runs 69 hidden tests and 4 refer
 That is the lesson of the section in one screen. The gate checks what the agent can see. The referee
 checks what it cannot.
 
-This is not an A/B. The course already compared both arms on F4: both failed the primary measure in
-every test run ([evidence](../../docs/evidence/s4.md#section-4)). So class shows the verification layer
+This is not an A/B. The course already compared both arms on this ticket: both failed the primary
+measure in every test run ([evidence](../../docs/evidence/s4.md#section-4)). So class shows the verification layer
 at work, and screen 4 shows the comparison.
 
 ![The done claim goes to the verify gate, then the test phase, the five filters, the referee, and the verdict](../diagrams/verification-pipeline.svg)
@@ -90,7 +91,8 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 The script checks your keys, Docker, and the class date, then runs `make show-4`. Outside class, run
 `PURPOSE=pilot ./section-4-verification/demo/run.sh`. You can also call `make show-4` directly. At the end,
 terminal 2 prints the arm's record line and the cost line (cut where marked `...`; the full capture
-is in [expected/terminal.txt](expected/terminal.txt)):
+is in [expected/terminal.txt](expected/terminal.txt)). `F4` in the record line is the version
+checks feature:
 
 ```text
 A/B <run id> (F4, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
@@ -104,7 +106,8 @@ aborted arm is still judged, so its record is complete. One run costs at most $0
 plus the per-review cap.
 
 **In class**, the instructor launches the final A/B a minute later in a third terminal, with
-`make final FEATURES=<poll winner>`. It runs beside this demo and is read in the
+`make final FEATURES=<poll winner>`, for example `make final FEATURES=watchers`. It runs beside
+this demo and is read in the
 [final block](../../final-project/README.md).
 
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
@@ -120,7 +123,7 @@ Minutes count from the launch, in one real run on a quiet machine
 | 0 | 1 | Notes from all four layers; "gate baseline reused" from `make warm` |
 | 1 | 1 | Turn 1.15 patches `app/services/errors.py`; the scope layer blocks it |
 | 2-3 | 1 | Turn 1.31 is `finish done`; 11 gate pills appear, all pending |
-| 3-4 | 1 | Every pill passes; "F4 passes" is set; the test phase starts |
+| 3-4 | 1 | Every pill passes; `F4 passes` (version checks) is set; the test phase starts |
 | 5-8 | 3 | The filters run on 4 proposed tests, each up to 5 times |
 | 9 | 1 | "primary verdict ready: FAIL", hidden tests 68, mutants killed 0 |
 | 11 | 1 | Full verdict: hidden 68/69, mutants 0/4, "claim not supported" |
@@ -133,7 +136,7 @@ Minutes count from the launch, in one real run on a quiet machine
 
 *Minute 3. The agent claims done. The gate runs before the phase can end. Read the pills aloud.*
 
-![Screen 1 at minute 4: every gate pill passed, status set F4 passes, the test phase begins](expected/show-4-screen-1-t04m.png)
+![Screen 1 at minute 4: every gate pill passed, the feature marked as passing, the test phase begins](expected/show-4-screen-1-t04m.png)
 
 *Minute 4. All 11 items pass on the first try, with 190 visible tests. Only now is `passes` set.*
 
@@ -163,7 +166,7 @@ arm. Say: "Tonight's run is not a dot in the comparison."
 
 ![Screen 4: primary results, one dot per run, for each feature and arm](expected/show-4-screen-4-final.png)
 
-*Screen 4. F4 has no filled dot in either arm: no run passed both counts.*
+*Screen 4. The version checks ticket has no filled dot in either arm: no run passed both counts.*
 
 **Screen 5, Traces.** The first wrong turn, the live tail of referee events, and the LangSmith links.
 
@@ -173,12 +176,12 @@ arm. Say: "Tonight's run is not a dot in the comparison."
 
 ## What the result means
 
-The primary verdict answers one question: is F4 done, judged by checks the agent never saw? It passes
-only when all 69 hidden tests pass and the shipped tests catch all 4 referee mutants. PASS means both
+The primary verdict answers one question: is the feature done, judged by checks the agent never saw?
+It passes only when all 69 hidden tests pass and the shipped tests catch all 4 referee mutants. PASS means both
 counts are full. FAIL with `hidden_passed` and `mutants_killed` tells you which count fell short.
 
 A passed gate and a failed verdict can sit side by side. The gate runs the visible tests, the
-existing tests, R1 to R7, the board, and clean state. It never runs the hidden tests or the referee
+existing tests, the seven house rules, the board, and clean state. It never runs the hidden tests or the referee
 mutants, so they stay held out.
 
 The captured run shows why both are needed:
@@ -187,9 +190,10 @@ The captured run shows why both are needed:
   gave 422.
 - The agent had written a test for exactly that case. It failed: "assert 422 == 412". The test was
   right and the code was wrong.
-- Filter 2 keeps only tests that pass, so it discarded that test. The filters keep regression tests;
-  they treat the current code as correct. ACH's authors name this limit: "it cannot detect existing
-  faults residing in the code base" ([Meta, ACH](../../docs/evidence/s4.md#src-ach)).
+- Filter 2 keeps only tests that pass, so it discarded that test. The filters keep regression tests
+  (tests that guard current behaviour); they treat the current code as correct. ACH's authors name
+  this limit: "it cannot detect existing faults residing in the code base"
+  ([Meta, ACH](https://arxiv.org/abs/2501.12862)).
 - The one kept test caught none of the 4 referee mutants.
 
 ![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](../diagrams/mutation-testing.svg)
@@ -228,3 +232,7 @@ The [walkthrough](walkthrough.md) shows the gate's code.
 
 The demo never falls back to a recording or a stand-in model. Still stuck? See
 [docs/troubleshooting.md](../../docs/troubleshooting.md).
+
+## Sources
+
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)

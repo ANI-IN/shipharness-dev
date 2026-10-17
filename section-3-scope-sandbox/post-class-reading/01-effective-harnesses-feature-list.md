@@ -52,3 +52,7 @@ which still leaves the judgement with the agent.
    that rejects changes to it from the agent's branch.
 5. Compare with the course's version: open `section-3-scope-sandbox/demo/harness/feature_list.json` and
    `scope-rules.txt`. Which of the post's ideas made it into the scope text, word for word?
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)

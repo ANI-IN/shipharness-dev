@@ -9,6 +9,14 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Primary verdict**: the referee's answer to the one question the section asks.
 > - **Checkpoint**: a git tag that marks the TeamTrack code a section starts from.
+> - **Hidden tests**: tests the agent never sees; the referee runs them after the agent stops.
+> - **Mutant**: a copy of the code with one small bug planted on purpose; good tests catch it.
+> - **Turn budget**: the most turns (model replies) one session may use before it is stopped.
+> - **Gate**: the check that must pass before a feature counts as done.
+> - **Progressive disclosure**: the agent first sees only short names and pointers, and opens the
+>   full text when a task needs it.
+> - **Context reset**: a new session that starts with an empty context and carries over only what
+>   was written to files.
 
 This page shows how shipharness is put together: what runs on your machine, what runs in containers,
 how one A/B flows from the command to the console, and where each file ends up.
@@ -134,7 +142,7 @@ The code is in `platform/src/shipharness/`.
 | `harness/scope/` | `feature_list.json`, allowed paths per phase, blocks and reverts, the `passes` field |
 | `harness/verify/` | The test-phase filters and the gate on "done" |
 | `filters/` | The five test filters and the mutant runner |
-| `checks/` | House rules R1 to R7, existing and hidden tests, diff scope, flakiness |
+| `checks/` | The seven house rules, existing and hidden tests, diff scope, flakiness |
 | `reviewer/` | The blinded reviewer |
 | `ab/` | Arm setup, the referee, swap test, replay, warm, report, experiments |
 | `console/` | The five screens, streamed from the run log |
@@ -179,11 +187,12 @@ arm's diff applied. Neither arm ever sees the hidden tests or the referee's muta
 
 1. Apply the diff, and mark each changed file as allowed or out of scope for its phase.
 2. Run the existing tests: existing tests keep passing.
-3. Probe house rules R1 to R7 against every endpoint in the app's API description. "House rules" is
+3. Probe the seven house rules against every endpoint in the app's API description. "House rules" is
    the course's name for what OpenAI calls golden principles.
 4. Run the hidden tests for the feature; some combine features.
 5. Run the referee's mutants against the arm's own tests.
-6. Re-run each shipped test five times for flakiness, as TestGen-LLM does.
+6. Re-run each shipped test five times for flakiness (a test that passes on some runs and fails on
+   others), as TestGen-LLM does.
 7. Check the board, with screenshots.
 8. Measure continuity across sessions from the run log.
 9. Ask the blinded reviewer, which sees the diff and the ticket with arm names removed
@@ -191,7 +200,7 @@ arm's diff applied. Neither arm ever sees the hidden tests or the referee's muta
    verdict.
 10. Write one score record per arm, and a verdict with "agent said" next to the referee's result.
 
-Each section has one primary measure, fixed before any run: Section 1, new R1 violations; Section 2,
+Each section has one primary measure, fixed before any run: Section 1, new breaks of the tenant isolation rule; Section 2,
 a continuity failure; Section 3, out-of-scope files or source edits in the test phase; Section 4,
 hidden tests passed and referee mutants killed. The final features have none and are read as counts.
 
@@ -252,5 +261,16 @@ uv run shipharness ab --section demo-1 --feature F1   --purpose class \
   --profile class
 ```
 
+`F1` there is the id of the org-wide issue search feature, which `demo-1` runs.
+
 `make -n show-1` prints the same command with `--arms harness`. When a run fails, the messages and
 fixes are in [troubleshooting](troubleshooting.md#running-an-ab).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (TestGen-LLM; Alshahwan et al., Meta, 2024)
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (ACH; Foster et al., Meta, 2025)

@@ -55,3 +55,7 @@ explicit interface".)
 - Design decisions: [docs/design-docs/index.md](docs/design-docs/index.md)
 - Security rules: [docs/SECURITY.md](docs/SECURITY.md)
 - Reliability rules: [docs/RELIABILITY.md](docs/RELIABILITY.md)
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

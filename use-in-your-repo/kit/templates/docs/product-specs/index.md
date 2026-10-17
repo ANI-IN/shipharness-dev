@@ -1,4 +1,4 @@
-<!-- REPLACE: one row per product spec. The kit keeps TeamTrack's base spec and one feature spec (F1) as examples. -->
+<!-- REPLACE: one row per product spec. The kit keeps TeamTrack's base spec and one feature spec (`f1.md`, org-wide issue search, feature `F1`) as examples. -->
 # Product specs
 
 What TeamTrack does, from the user's side. Feature specs are added here as features are planned.

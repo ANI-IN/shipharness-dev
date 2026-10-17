@@ -10,7 +10,9 @@ and how it was captured is on the [evidence page](../../../docs/evidence/s1.md#s
 > - **Primary verdict**: The referee's answer to the one question the section asks.
 > - **Full verdict**: The primary verdict plus every other check: hidden tests, mutants, review.
 > - **Harness note**: A line the instructions layer adds to screen 1, such as "agent read ARCHITECTURE.md".
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; a good test catches (kills) it.
+> - **LangSmith**: The tracing service that records every model call of a run.
 
 ## Terminal output
 
@@ -34,7 +36,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 ![Screen 1 at minute 4: primary verdict PASS](screen-1-minute-4.png)
 
-*Minute 4: "primary verdict ready: PASS", new R1 violations 0, secondary checks still running.*
+*Minute 4: "primary verdict ready: PASS", no new tenant isolation violations, other checks still running.*
 
 ![Screen 1 after the full verdict](screen-1-final.png)
 

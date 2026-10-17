@@ -2,7 +2,7 @@
 
 <!-- Fill every TODO. Copy the numbers from the output of ab_summary.py; do not type them by hand.
      Counts, not percentages: "3/24", never "12.5%". The self-check compares the command, the runs
-     per arm, the R1 and R3 rows, and the links with the live evidence in live/. -->
+     per arm, the two Results rows, and the links with the live evidence in live/. -->
 
 ## Setup
 
@@ -15,11 +15,11 @@
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new R1 violation | TODO | TODO |
-| R3: runs with at least one new R3 failure | TODO | TODO |
+| R1: runs with at least one new violation of the tenant isolation rule | TODO | TODO | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R3: runs with at least one new failure of the API conventions rule | TODO | TODO | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
 
-Secondary (optional, not graded; you may delete this line): R1 leaks summed over runs, and the number
-of runs aborted or errored, copied from the ab_summary.py output.
+Secondary (optional, not graded; you may delete this line): tenant isolation leaks summed over runs,
+and the number of runs aborted or errored, copied from the ab_summary.py output.
 
 ## Links
 
@@ -34,9 +34,10 @@ of runs aborted or errored, copied from the ab_summary.py output.
 
 ## Reading the result
 
-TODO: at least 60 words. Compare the two arms on R1 and on R3, task by task where they differ. Say
-which tasks drove the difference (the trap task? the control task?), and whether your map and skill
-were read (the run logs list the files each harness run opened).
+TODO: at least 60 words. Compare the two arms on the tenant isolation rule (`R1`) and on the API
+conventions rule (`R3`), task by task where they differ. Say which tasks drove the difference (the
+trap task? the control task?), and whether your map and skill were read (the run logs list the files
+each harness run opened).
 
 ## Limits
 

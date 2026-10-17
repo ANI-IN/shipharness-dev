@@ -28,26 +28,26 @@ What is in this folder:
 ## The approach, step by step
 
 1. **Inventory the original.** The 899-line file has 70 tags: 66 active rules and 4 retired ones
-   (R2.5, R3.8, R7.5, CV-23). Everything else is background: history, incident notes, review comments,
-   questions and answers, a glossary.
+   (`R2.5`, `R3.8`, `R7.5`, `CV-23`). Everything else is background: history, incident notes, review
+   comments, questions and answers, a glossary.
 
 2. **Write the checker first, test first.** The visible tests failed against the starter stubs (12 of
    15). The checker was then written until they passed, and it ran after every document of the split.
    A split without a check is a guess. OpenAI's harness team runs "Dedicated linters and CI jobs" on
    its knowledge base for the same reason
-   ([OpenAI, Harness engineering](../../../docs/evidence/s1.md#src-openai-harness)).
+   ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 
 3. **Give each rule one home.** Each document answers one question an agent asks before it edits code:
 
    | Tags | Home | Question it answers |
    |---|---|---|
-   | R1.1-R1.6, R2.1-R2.4, R2.6, CV-22, CV-25 | `docs/SECURITY.md` | Who may see or change this data? |
-   | R3.1-R3.7, R3.9, CV-13 to CV-16 | `docs/design-docs/api-conventions.md` | What shape must the request and response have? |
-   | R4.1-R4.7, R5.1-R5.6, R7.1-R7.4, R7.6, CV-11 | `docs/RELIABILITY.md` | Is this write safe to repeat, audited, migrated? |
-   | R6.1-R6.5, CV-01, CV-02, CV-19 to CV-21, CV-24 | `ARCHITECTURE.md` | Where does this code go, and what may it import? |
-   | CV-04 to CV-07, CV-17, CV-18 | `docs/product-specs/teamtrack-base.md` | How does the product behave? |
-   | CV-03, CV-08 to CV-10 | `docs/QUALITY_SCORE.md` | How do I test it, and what must I not copy? |
-   | CV-12 | `docs/PLANS.md` | How big should this change be? |
+   | `R1.1`-`R1.6`, `R2.1`-`R2.4`, `R2.6`, `CV-22`, `CV-25` | `docs/SECURITY.md` | Who may see or change this data? |
+   | `R3.1`-`R3.7`, `R3.9`, `CV-13` to `CV-16` | `docs/design-docs/api-conventions.md` | What shape must the request and response have? |
+   | `R4.1`-`R4.7`, `R5.1`-`R5.6`, `R7.1`-`R7.4`, `R7.6`, `CV-11` | `docs/RELIABILITY.md` | Is this write safe to repeat, audited, migrated? |
+   | `R6.1`-`R6.5`, `CV-01`, `CV-02`, `CV-19` to `CV-21`, `CV-24` | `ARCHITECTURE.md` | Where does this code go, and what may it import? |
+   | `CV-04` to `CV-07`, `CV-17`, `CV-18` | `docs/product-specs/teamtrack-base.md` | How does the product behave? |
+   | `CV-03`, `CV-08` to `CV-10` | `docs/QUALITY_SCORE.md` | How do I test it, and what must I not copy? |
+   | `CV-12` | `docs/PLANS.md` | How big should this change be? |
 
    The counts add up to 66 (13 + 12 + 19 + 11 + 6 + 4 + 1). The retired rules appear only as history,
    in `docs/design-docs/decisions.md`.
@@ -56,11 +56,11 @@ What is in this folder:
    seven house rules as pointers with anchored links, a "do not copy" warning for the legacy handler,
    the commands, the layout, and a short "before you finish" list. It defines no rule.
 
-5. **Build one skill for the measured task.** Seven of the eight `section-1` tasks are variants of F1,
-   an org-wide list endpoint, and the A/B reports R1 and R3. So the skill is `add-list-endpoint`. Its
-   description says what it does and when to use it ("Use when a ticket adds a list, a search, an
-   org-wide view, or a new filter on an existing list"). That description is all the agent sees until
-   it opens the skill.
+5. **Build one skill for the measured task.** Seven of the eight `section-1` tasks are variants of the
+   org-wide issue search, a list endpoint, and the A/B reports the tenant isolation and API
+   conventions rules (`R1` and `R3`). So the skill is `add-list-endpoint`. Its description says what
+   it does and when to use it ("Use when a ticket adds a list, a search, an org-wide view, or a new
+   filter on an existing list"). That description is all the agent sees until it opens the skill.
 
 6. **Run the A/B once, live.** The command from the spec, with `--batch a1-reference`, after the tree
    was final. The evidence was collected with `live_evidence.py` and the report filled from
@@ -72,8 +72,9 @@ What is in this folder:
   itself to mechanical checks (coverage, freshness, ownership, cross-links)". Tags make coverage
   countable. The overlap floor stops a bare list of ids from passing as coverage.
 - **Overlap on content words, threshold 0.5.** It needs no model, gives the same answer every time,
-  allows rewording, and catches a rule cut down to its first sentence. The stopword list is fixed in
-  the starter, so every checker computes the same numbers.
+  allows rewording, and catches a rule cut down to its first sentence. The stopword list (common
+  words such as "the", which do not count) is fixed in the starter, so every checker computes the
+  same numbers.
 - **Links resolve through the workspace overlay.** The layer copies the tree onto TeamTrack's root.
   A link from `docs/product-specs/index.md` to `../features/` is correct when it resolves in TeamTrack.
   The checker looks in the tree first, then at the same path in the product.
@@ -83,7 +84,7 @@ What is in this folder:
   the A/B a test of organisation: the bare arm can read every fact in the handbook and the code.
 - **Error lines say what to fix.** OpenAI's team writes lint messages "to inject remediation
   instructions into agent context". Each `ERROR` line names the rule or link and where it is.
-- **The report is checked against the evidence.** The report's command, runs per arm, R1 and R3
+- **The report is checked against the evidence.** The report's command, runs per arm, `R1` and `R3`
   counts, and links must equal what the score records and exports say. `ab_summary.py` reads only the
   exports, so no number comes from memory.
 
@@ -105,8 +106,9 @@ What is in this folder:
 ## Alternatives considered
 
 - **Coverage by id only.** Rejected: a file listing 66 ids would pass.
-- **Similarity by embeddings or a model judge.** Rejected: it needs keys, costs money, and gives
-  different answers on different runs. The self-check must run offline.
+- **Similarity by embeddings (number vectors that stand for a text's meaning) or a model judge.**
+  Rejected: it needs keys, costs money, and gives different answers on different runs. The
+  self-check must run offline.
 - **Verbatim rules.** Rejected: it forbids the rewording that makes focused documents readable.
 - **A third arm with the 899-line file injected as `AGENTS.md`.** It would separate "rules in
   context" from "rules organised", but it doubles the A/B cost beyond the $2.50 budget.
@@ -164,3 +166,7 @@ The instructor's grade of this folder is in
 `make grade-assignment-1 SUBMISSION=section-1-instructions/assignment/solution/work`; the grader is not in
 this repository. Dates, batch, and run ids are on the
 [evidence page](../../../docs/evidence/s1.md#s1-a1-solution).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

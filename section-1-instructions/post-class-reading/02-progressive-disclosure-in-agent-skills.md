@@ -1,7 +1,7 @@
 # Agent Skills Specification
 
 Reading time: about 5 minutes.
-Source: Agent Skills project, "Agent Skills Specification", undated, <https://agentskills.io/specification> ([evidence](../../docs/evidence/s1.md#src-agent-skills-spec)); also "What are skills?" and the skills-ref validator.
+Source: Agent Skills project, [Agent Skills Specification](https://agentskills.io/specification), undated ([evidence](../../docs/evidence/s1.md#src-agent-skills-spec)); also [What are skills?](https://agentskills.io/what-are-skills) and the [skills-ref validator](https://github.com/agentskills/agentskills).
 
 > **Terms on this page**
 >
@@ -60,3 +60,9 @@ decides from one line whether to open a skill, and most weak skills fail at that
    the skill body and none opened `references/tests.md`
    ([evidence](../../docs/evidence/s1.md#s1-reads)). If tier 3 is never read, the body says enough or the
    pointer to it is too weak.
+
+## Sources
+
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
+- [What are skills?](https://agentskills.io/what-are-skills) (Agent Skills project)
+- [agentskills repository (skills-ref)](https://github.com/agentskills/agentskills) (Agent Skills project, the reference validator)

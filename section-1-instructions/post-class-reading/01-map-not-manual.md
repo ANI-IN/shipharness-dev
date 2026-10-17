@@ -1,7 +1,7 @@
 # Harness engineering: leveraging Codex in an agent-first world
 
 Reading time: about 15 minutes.
-Source: Ryan Lopopolo (OpenAI), "Harness engineering: leveraging Codex in an agent-first world", 2026-02-11, <https://openai.com/index/harness-engineering/> ([evidence](../../docs/evidence/s1.md#src-openai-harness)).
+Source: Ryan Lopopolo (OpenAI), [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/), 2026-02-11 ([evidence](../../docs/evidence/s1.md#src-openai-harness)).
 
 > **Terms on this page**
 >
@@ -49,3 +49,7 @@ structure, then measures it.
    stops the day someone forgets the line.
 6. Compare `platform/teamtrack/docs/HANDBOOK.md` with `platform/teamtrack/harness/instructions/AGENTS.md`.
    In the handbook, the legacy warning starts at line 136 of 150. Where does the map put it?
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

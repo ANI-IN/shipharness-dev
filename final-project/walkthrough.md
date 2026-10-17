@@ -11,7 +11,7 @@
 
 ## What this code does
 
-`make final FEATURES=F5` calls `shipharness ab --section final`. That one command runs the whole
+`make final FEATURES=bulk-close` calls `shipharness ab --section final`. That one command runs the whole
 course in one A/B: both arms start at the same time, the harness arm gets all four layers, and the
 referee judges each arm as soon as it stops. This page follows one run through the code, in the
 order things happen, with one short excerpt per step.
@@ -95,7 +95,8 @@ container before the agent's first turn, and that time counts against `HARNESS_T
 
 ### Step 3: sessions end with a handoff
 
-F6 and F7 stop the build after the first session's turn budget; every feature ends its build with a
+Watchers and labels stop the build after the first session's turn budget (the most turns a session
+may take); every feature ends its build with a
 session stop before the test phase. The state layer writes the handoff and commits it:
 
 ```python
@@ -154,8 +155,8 @@ and the first failure discards it:
                 break  # discarded: later (more expensive) filters never run
 ```
 
-The five filters: it imports and runs, it passes five runs, it adds coverage or kills a mutant, it
-has real assertions, and it changed no source file. Only kept tests ship.
+The five filters: it imports and runs, it passes five runs, it adds coverage or kills a mutant (a
+copy of the code with one planted bug), it has real assertions, and it changed no source file. Only kept tests ship.
 
 ### Step 6: the gate runs when the agent says done
 
@@ -173,7 +174,7 @@ has real assertions, and it changed no source file. Only kept tests ship.
     result = GateResult(gate_id=gate_id, items=items, passed=passed, feedback=feedback)
 ```
 
-Before these lines, the gate runs the visible tests and, in the build phase, R1 to R7. If any item
+Before these lines, the gate runs the visible tests and, in the build phase, the seven house rules. If any item
 fails, the agent gets the feedback instead of a finished run. The item names per phase are in
 [harness/gate-items-build.txt](harness/gate-items-build.txt) and
 [harness/gate-items-test.txt](harness/gate-items-test.txt).

@@ -11,16 +11,18 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Done claim**: The agent's call `finish(claim="done")`, which says the phase's work is complete.
 > - **Verify gate**: The checks that run in the agent's container when it claims done; a failure sends the claim back.
 > - **Test filters**: Five checks a test from the test phase must pass to be kept.
-> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
+> - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
+> - **Reward hacking**: Passing the checks without doing the task they stand for.
 
 ## What we showed
 
 | Block | What happened | Read it again |
 |---|---|---|
-| Poll | Which arm passes more hidden tests and catches more mutants on F4? | [demo/README.md](demo/README.md) |
-| Launch | `make show-4`: the harness arm alone on F4, with all four layers, live | [demo/README.md](demo/README.md) |
+| Poll | Version checks: which arm passes more hidden tests and catches more mutants? | [demo/README.md](demo/README.md) |
+| Launch | `make show-4`: the harness arm alone on that ticket, with all four layers, live | [demo/README.md](demo/README.md) |
 | Final launch | `make final` with the poll winner, read in the final block | [final-project/](../final-project/README.md) |
 | Concepts | The problem, the gate, the filters, held-out checks, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The gate in 38 lines: pending pills, items in the container, the verdict | [demo/walkthrough.md](demo/walkthrough.md) |
@@ -32,24 +34,24 @@ The class run's record stays on the instructor's machine. A captured run, with i
 ## Key ideas
 
 1. **The agent's "done" is a claim.** "agents reliably skew positive when grading their own work."
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) Treat a done
-   claim as the start of a check, not the end of the work.
+   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
+   Treat a done claim as the start of a check, not the end of the work.
 2. **Separate the doer from the judge.** "Separating the agent doing the work from the agent judging
    it proves to be a strong lever to address this issue." In shipharness, the gate decides whether a
    claim stands, and only the harness sets `passes`.
 3. **The verifier must be strict.** "it’s important that the task verifier is nearly perfect,
    otherwise Claude will solve the wrong problem."
-   ([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler)) One failed gate item fails
-   the claim.
+   ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)) One failed
+   gate item fails the claim.
 4. **Visible tests miss what held-out tests catch.** "while every frontier agent saturates the visible
-   suite, reward hacking persists" ([SpecBench](../docs/evidence/s4.md#src-specbench)). Most of the gap
+   suite, reward hacking persists" ([SpecBench](https://arxiv.org/abs/2605.21384)). Most of the gap
    is features that pass alone and fail together.
 5. **Keep tests that prove something.** Five filters, cheapest first: runs, passes five times, adds
    coverage or catches a mutant, has real assertions, and leaves the source alone
-   ([Meta, TestGen-LLM](../docs/evidence/s4.md#src-testgen-llm)). Filters 4 and 5 are the course's own.
+   ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)). Filters 4 and 5 are the course's own.
 6. **Filters trust the current code.** A failing test is discarded, even when the test is right. ACH's
    limit: it "cannot detect existing faults residing in the code base"
-   ([Meta, ACH](../docs/evidence/s4.md#src-ach)).
+   ([Meta, ACH](https://arxiv.org/abs/2501.12862)).
 7. **Score with what the agent never sees.** The gate leaves out the hidden tests and the referee
    mutants, so they still measure held-out behaviour.
 8. **A model reviewer is useful but lenient.** "the evaluator is still an LLM that is inclined to be
@@ -57,7 +59,7 @@ The class run's record stays on the instructor's machine. A captured run, with i
 
 ## What the result showed
 
-Before class, the course ran both arms on F4. The primary measure: a run passes only with all 69
+Before class, the course ran both arms on the version checks ticket. The primary measure: a run passes only with all 69
 hidden tests passed and all 4 referee mutants caught. Runs failing, per arm:
 
 | Setting | Bare arm | Harness arm |
@@ -70,7 +72,7 @@ Model gpt-6-luna. The reviewer rejected all 14 arms and agreed with the referee 
 ([evidence](../docs/evidence.md#section-4)).
 
 No measurable difference on this task with this model. The gate was not tested in these runs: no
-harness arm claimed done on F4. Six used all their build turns, and one stopped with `not_done`. Two
+harness arm claimed done on that ticket. Six used all their build turns, and one stopped with `not_done`. Two
 bare arms claimed done, and the referee failed both ([done claims](../docs/evidence/s4.md#s4-claims)).
 
 The captured demo run filled that gap once. The harness arm claimed done, and the gate passed all 11
@@ -80,15 +82,16 @@ that very case; it failed with "assert 422 == 412", and filter 2 discarded it.
 
 Measures chosen after the results, so they describe and do not test: over 34 runs per arm across all
 sections, harness arms claimed done in 10 and bare arms in 19. Harness arms shipped fewer tests
-(median 2.5 against 7.5; on F4, 0 against 15.5) ([post hoc measures](../docs/evidence/s4.md#s4-posthoc)).
+(median 2.5 against 7.5; on version checks, 0 against 15.5)
+([post hoc measures](../docs/evidence/s4.md#s4-posthoc)).
 
 ## Questions from class
 
 **The harness did not win. Was verification useless?**
-On F4 the runs barely tested it: the gate never ran in an A/B, and the filters saw few tests. That is
-a result about this task and this model. A separate judge "is worth the cost when the task sits
+On the version checks ticket the runs barely tested it: the gate never ran in an A/B, and the
+filters saw few tests. That is a result about this task and this model. A separate judge "is worth the cost when the task sits
 beyond what the current model does reliably solo."
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 
 **The bare arm caught more mutants. Does that mean the filters hurt?**
 The bare arm shipped more tests. A test nobody writes cannot catch a mutant, and the filters judge
@@ -98,8 +101,8 @@ only the tests the test phase proposes.
 They would stop being held out. Once the agent gets feedback from a check, the check becomes a
 target.
 
-**The gate and the referee both run R1 to R7. Is that fair?**
-It is a disclosed overlap. The harness arm is expected to do better on R1 to R7 by construction, so
+**The gate and the referee both run the seven house rules. Is that fair?**
+It is a disclosed overlap. The harness arm is expected to do better on those rules by construction, so
 the primary measure uses hidden tests and mutants, which the gate never runs.
 
 **Why does a broken test not count as catching a mutant?**
@@ -120,3 +123,11 @@ claims to test, and a test phase that edits the code until its test passes.
 4. Read the [post-class readings](post-class-reading/README.md), about 20 minutes in total.
 5. In your own repository, write one planted fault for the riskiest line, as an original line and a
    replacement. Apply it by hand and run your suite. If nothing fails, you have found a test to write.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
+- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)

@@ -28,8 +28,8 @@ query.
 > - **Progressive disclosure**: A small entry point first; the details only when the task needs them.
 > - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **House rules**: TeamTrack's seven rules for every endpoint, such as the tenant isolation rule.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 
 ## The idea in one sentence
@@ -43,7 +43,7 @@ OpenAI's harness team states the problem: "From the agent’s point of view, any
 in-context while running effectively doesn’t exist." Then the fix: "give Codex a map, not a 1,000-page
 instruction manual." The map is "a short AGENTS.md (roughly 100 lines)" that "is injected into context
 and serves primarily as a map, with pointers to deeper sources of truth elsewhere."
-([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness))
+([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 
 Why not paste every rule into the prompt? The same source answers: "Context is a scarce resource. A
 giant instruction file crowds out the task, the code, and the relevant docs." And: "Too much guidance
@@ -54,7 +54,7 @@ disclosure: "agents start with a small, stable entry point and are taught where 
 than being overwhelmed up front."
 
 Skills follow the same pattern, in three tiers
-([Agent Skills specification](../docs/evidence/s1.md#src-agent-skills-spec)):
+([Agent Skills Specification](https://agentskills.io/specification)):
 
 | Tier | What loads | When |
 |---|---|---|
@@ -77,14 +77,14 @@ for a TeamTrack variant. These are some of its headings, with the line where eac
 
 | Line | Heading |
 |---|---|
-| 1 | AGENTS.md: TeamTrack (read all of this before you change anything) |
-| 196 | 5. House rules (R1 to R7) |
-| 204 | R1 Tenant isolation |
-| 586 | 14. The legacy /v1 API |
-| 669 | 17. Team notes and history |
-| 787 | 18. Questions we keep getting |
+| 1 | `AGENTS.md: TeamTrack (read all of this before you change anything)` |
+| 196 | `5. House rules (R1 to R7)` |
+| 204 | `R1 Tenant isolation` |
+| 586 | `14. The legacy /v1 API` |
+| 669 | `17. Team notes and history` |
+| 787 | `18. Questions we keep getting` |
 
-The tenant rule starts at line 204, and the warning about the legacy endpoint at line 586. Four
+The file numbers its seven house rules `R1` to `R7`. The tenant isolation rule (`R1`) starts at line 204, and the warning about the legacy endpoint at line 586. Four
 retired rules are still in the file. An agent that reads it all pays for 899 lines on every task.
 
 **After: a map with progressive disclosure.** TeamTrack's harness map is a 94-line file. It is keyed
@@ -101,8 +101,8 @@ by what the agent is about to do, and each row names one file:
 - R1 Tenant isolation: another org's resource is 404, never 403. See `docs/SECURITY.md`.
 ```
 
-A section near the end, "Do not copy", names the legacy endpoint and its query. The full R1 text lives
-once, in the security document.
+A section near the end, "Do not copy", names the legacy endpoint and its query. The full text of the tenant
+isolation rule lives once, in the security document.
 
 ## How shipharness does it
 
@@ -143,7 +143,8 @@ harness docs is also in the handbook that both arms have, and a unit test checks
 
 Before class, the course ran both arms on the same ticket: `GET /issues`, with the legacy query in the
 repository and a ticket that points at the legacy code. The primary measure: a run fails if it adds at
-least one new R1 violation.
+least one new violation of the tenant isolation rule. Effort is the model's reasoning effort (how
+long it thinks before it answers); the fast tier is OpenAI's quicker, higher-priced service tier.
 
 | Setting | Bare arm: runs failing | Harness arm: runs failing |
 |---|---|---|
@@ -167,7 +168,7 @@ It helps when:
 - The rules are many, long, or far from the code that breaks them.
 - A rule is about something the code cannot show, such as "404, never 403".
 - Several people maintain the rules. Small focused files have owners and can be checked by a script,
-  while one big file "rots instantly" ([OpenAI](../docs/evidence/s1.md#src-openai-harness)).
+  while one big file "rots instantly" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 - The same task comes up again and again. A skill turns it into steps the agent loads only then.
 
 It does not help, or helps less, when:
@@ -180,7 +181,7 @@ It does not help, or helps less, when:
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an assumption
 about what the model can't do on its own, and those assumptions are worth stress testing."
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) The map assumes the
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)) The map assumes the
 model will not apply a rule it has not been pointed to. Measure that on your model.
 
 ## Key takeaways
@@ -189,7 +190,7 @@ model will not apply a rule it has not been pointed to. Measure that on your mod
   and the details on disk.
 - Progressive disclosure keeps context small: the map and the skill descriptions are always there;
   documents and skill bodies load on demand.
-- A map is a bet on what the model will miss. Check it with a measure, such as the referee's R1 check,
+- A map is a bet on what the model will miss. Check it with a measure, such as the referee's tenant isolation check,
   and keep it where it pays off.
 
 ## Check your understanding
@@ -244,6 +245,8 @@ model will not apply a rule it has not been pointed to. Measure that on your mod
   the specification, tier by tier.
 - [Skills in other agents](post-class-reading/03-instructions-in-other-agents.md): where Claude Code,
   Codex, and Cursor look.
-- The sources: [OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness);
-  [Agent Skills specification](../docs/evidence/s1.md#src-agent-skills-spec);
-  [Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design).
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo,
+  2026-02-11)
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
+  (Anthropic, Prithvi Rajasekaran, 2026-03-24)
