@@ -217,7 +217,7 @@ CASES = [
     (
         "SC09",
         "docs/guide.md",
-        "Agents copy patterns ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).\n",
+        "Agents copy patterns ([OpenAI, Harness engineering](https://openai.com/a1)).\n",
         "Agents copy patterns that already exist (A1, F-a-20).\n",
         {},
         1,
@@ -398,6 +398,30 @@ CASES = [
         {},
         4,
     ),
+    (
+        "SC21",
+        "docs/guide.md",
+        "Agents copy patterns ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).\n",
+        "Agents copy patterns (A1).\n",
+        {},
+        1,
+    ),
+    (
+        "SC21",
+        "docs/guide.md",
+        "Hand in Assignment 2 by Friday; the package is `a2_state`.\n",
+        "Text.\n\nHand in A2 by Friday.\n",
+        {},
+        3,
+    ),
+    (
+        "SC22",
+        "docs/guide.md",
+        "Section 1 adds the map; the slide shows anchor `S4:gate` and S4:gate.\n",
+        "Text.\n\nIn S1 the agent reads the map.\n",
+        {},
+        3,
+    ),
 ]
 
 
@@ -421,12 +445,12 @@ def test_check_pass_and_fail(
 
 def test_every_check_has_a_passing_and_a_failing_case() -> None:
     covered = {c[0] for c in CASES}
-    assert covered == {f"SC{n:02d}" for n in range(1, 19)}
+    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), 21, 22]}
 
 
 def test_severities_follow_the_first_version() -> None:
     errors = {"SC00", "SC01", "SC02", "SC03", "SC04", "SC05", "SC06", "SC07", "SC08", "SC09"}
-    errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20"}
+    errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20", "SC21", "SC22"}
     warnings = {"SC11", "SC16", "SC17", "SC18"}
     for check, (_, severity) in cs.CHECKS.items():
         assert severity == ("error" if check in errors else "warning"), check
@@ -602,7 +626,7 @@ def test_ids_outside_the_evidence_pages_fail(tmp_path: Path, rel: str) -> None:
 
 
 def test_style_guide_is_exempt_from_the_quoting_checks(tmp_path: Path) -> None:
-    text = "# Course style guide\n\nDo not write TODO, F-a-20, or the class host.\n"
+    text = "# Course style guide\n\nDo not write TODO, a finding id, or the class host.\n"
     assert problems(tmp_path, "docs/STYLE.md", text) == []
 
 
@@ -619,6 +643,8 @@ def test_default_targets(tmp_path: Path) -> None:
     every = ["README.md", "setup/linux.md", "section-1-instructions/concepts.md", "docs/a.md"]
     every += ["slides/README.md", "slides/deck.md", "docs/CHANGELOG.md", GRADER_MD]
     every += ["platform/x.md", "final-project/README.md", "use-in-your-repo/README.md"]
+    every += ["slides/module1-slides.md", "use-in-your-repo/skills/s/scripts/assess.py"]
+    every += ["use-in-your-repo/kit/templates/init.sh", "section-1-instructions/demo/run.sh"]
     for rel in every:
         write(tmp_path, rel, "Text.\n")
     files = [p.relative_to(tmp_path).as_posix() for p in cs.default_files(tmp_path)]
@@ -630,8 +656,11 @@ def test_default_targets(tmp_path: Path) -> None:
             "docs/a.md",
             "slides/README.md",
             "slides/deck.md",
+            "slides/module1-slides.md",
             "final-project/README.md",
             "use-in-your-repo/README.md",
+            "use-in-your-repo/skills/s/scripts/assess.py",
+            "use-in-your-repo/kit/templates/init.sh",
         ]
     )
 
@@ -733,7 +762,7 @@ def test_cli(tmp_path: Path) -> None:
     listed = run_cli(tmp_path, "--list-checks")
     assert listed.returncode == 0
     rows = [ln for ln in listed.stdout.splitlines() if re.match(r"^SC\d\d ", ln)]
-    assert len(rows) == len(cs.CHECKS) == 21
+    assert len(rows) == len(cs.CHECKS) == 23
 
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
@@ -994,3 +1023,87 @@ def test_starter_fill_in_templates_keep_their_markers(tmp_path: Path) -> None:
     assert {p.check for p in problems(tmp_path, rel, text)} == {"SC08"}
     readme = "section-4-verification/assignment/starter/README.md"
     assert "SC01" in {p.check for p in problems(tmp_path, readme, text)}
+
+
+# -- labels: source, assignment, finding, and section ids (SC09, SC21, SC22) ----------------------
+
+LABELS = "Agents copy patterns (A1, F-a-20); in S1 they read the map.\n"
+
+
+def label_checks(found) -> list[str]:
+    return sorted(p.check for p in found if p.check in ("SC08", "SC09", "SC21", "SC22"))
+
+
+def test_finding_ids_with_any_number_of_digits_fail(tmp_path: Path) -> None:
+    found = problems(tmp_path, "docs/guide.md", "Finding F-b-5 says so.\n")
+    assert label_checks(found) == ["SC09"]
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Run the A/B, then open `a2_state/layer.py`.\n",
+        "Fill the stubs `TODO(A1-3)` and `TODO(A4-1)`.\n",
+        "```bash\nuv run python -m a4_verification.run_r8 --feature A4\n```\n",
+        "Part A1 parses the diff; Part A2 checks it.\n",
+        "Show anchor S4:gate, then `S1:prefix`.\n",
+        "A B2B tool on a Mac M1, page A11y.\n",
+        "Requirements R-S1 to R-S4 cover the skill.\n",
+    ],
+)
+def test_identifiers_are_not_labels(tmp_path: Path, text: str) -> None:
+    assert label_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_ids_in_html_comments_fail(tmp_path: Path) -> None:
+    found = problems(tmp_path, "docs/guide.md", "Text.\n<!-- from A2 (F-a-08), see S2 -->\n")
+    assert label_checks(found) == ["SC09", "SC21", "SC22"]
+
+
+@pytest.mark.parametrize(
+    "rel",
+    [
+        "use-in-your-repo/skills/house-rules/SKILL.md",
+        "use-in-your-repo/skills/harness-setup/references/state.md",
+        "use-in-your-repo/skills/harness-setup/assets/templates/progress.md",
+        "use-in-your-repo/kit/templates/progress.md",
+    ],
+)
+def test_skills_and_kit_templates_carry_no_ids(tmp_path: Path, rel: str) -> None:
+    text = "# Progress\n\n<!-- golden principles (A1) -->\n" + LABELS
+    text += "Run ab-20261017-112101-c5d839.\n"
+    assert cs.is_agent_file(rel)
+    found = problems(tmp_path, rel, text)
+    assert label_checks(found) == ["SC08", "SC09", "SC21", "SC21", "SC22"]
+
+
+def test_other_agent_files_get_only_the_finding_id_check(tmp_path: Path) -> None:
+    # The demo harness copies come from the frozen TeamTrack harness; they keep its wording.
+    rel = "section-2-state-lifecycle/demo/harness/progress.md"
+    found = problems(tmp_path, rel, LABELS)
+    assert label_checks(found) == ["SC09"]
+
+
+def test_scripts_and_shell_templates_in_skills_and_kit_carry_no_ids(tmp_path: Path) -> None:
+    script = "use-in-your-repo/skills/harness-setup/scripts/assess.py"
+    text = 'CHECK = Check("S1", "State", "t", "fail", "e", "f", "A2 (F-a-50)")\n'
+    found = problems(tmp_path, script, text)
+    assert label_checks(found) == ["SC09", "SC21"]  # "S1" is a check id in code
+    ok = 'CHECK = Check("S1", "State", "t", "fail", "e", "f", "Anthropic, Effective harnesses")\n'
+    assert problems(tmp_path / "ok", script, ok) == []
+    shell = "use-in-your-repo/kit/templates/init.sh"
+    assert label_checks(problems(tmp_path, shell, "#!/bin/sh\n# Source: A2\n")) == ["SC21"]
+    write(tmp_path, "platform/x.py", "A1 = 1\n")
+    assert cs.check_paths(tmp_path, ["platform/x.py"]) == []
+
+
+@pytest.mark.parametrize("rel", ["docs/evidence.md", "docs/evidence/s1.md"])
+def test_evidence_pages_keep_every_label(tmp_path: Path, rel: str) -> None:
+    assert label_checks(problems(tmp_path, rel, LABELS)) == []
+
+
+def test_the_working_slide_file_is_checked_for_labels_only(tmp_path: Path) -> None:
+    rel = "slides/module1-slides.md"
+    assert cs.is_public(rel)
+    found = problems(tmp_path, rel, "## 1. Opening\n\nTODO " + LABELS)
+    assert sorted(p.check for p in found) == ["SC09", "SC21", "SC22"]
