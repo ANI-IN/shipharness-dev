@@ -8,8 +8,8 @@ verification (M9) adds per-command costs, demo times, pilot and experiment resul
 
 | Item | Used so far | Budget |
 |---|---|---|
-| OpenAI spend (instructor, all milestones) | $0.8586 (cost ledger with the opening entry: M3-M4 $0.0022 before the ledger existed; M6: $0.0183 smoke run, $0.4415 pilot run 1, $0.3966 pilot run 2; $0.0278 console check; $0.3801 pilot run 3) | total build ≤ $15 (enforced on every call); experiments ≤ $25; class ≤ $2.50 |
-| LangSmith traces (instructor, October 2026) | 107 since 2026-10-01 (LangSmith API, read 2026-10-17: `shipharness-class-2026-10-16` 99 = M6 smoke run 3, run 1 48, run 2 48; `shipharness-dev` 5; `evaluators` 3) | LangSmith limit 5,000 per month; DESIGN budget: experiments ≤ 1,500, instructor month ≤ 2,500 |
+| OpenAI spend (instructor, all milestones) | $1.8555 (cost ledger, read 2026-10-17 after run 4; opening entry: M3-M4 $0.0022 before the ledger existed; M6 pilot $1.4377: $0.0183 smoke run, $0.4415 run 1, $0.3966 run 2, $0.0278 console check, $0.3801 run 3, $0.1734 run 4; parallelism attempts $0.4155, counted against experiments; key check $0.000004) | total build ≤ $15 (enforced on every call), $13.14 left; pilot ≤ $10 and 96 arm runs (94 used); class ≤ $2.50 |
+| LangSmith traces (instructor, October 2026) | 271 since 2026-10-01 (LangSmith API, read 2026-10-17 after run 4: `shipharness-pilot` 164; `shipharness-class-2026-10-16` 99 = M6 smoke run 3, run 1 48, run 2 48; `shipharness-dev` 5; `evaluators` 3) | LangSmith limit 5,000 per month; overnight limit 2,500; DESIGN budget: experiments ≤ 1,500 |
 
 ## M3 core (2026-10-16)
 
@@ -109,7 +109,7 @@ the M3 hand-off.
 
 Machine: the class host (see M5). Model gpt-6-luna, reasoning effort medium, both arms. Command:
 `scripts/pilot.py --k 3 --effort medium --parallel 2` (each A/B runs `shipharness ab --section demo-N
---feature FN --no-preview`; 2 A/Bs at a time). Pilot cap: up to 72 arm runs and $10 in total, on top of
+--feature FN --no-preview`; 2 A/Bs at a time). Pilot cap: up to 72 arm runs (raised to 96 by the owner on 2026-10-17) and $10 in total, on top of
 the per-arm cap. Primary measures are the pre-registered ones (DESIGN §10); no pilot change touches them.
 
 ### GitHub
@@ -313,6 +313,56 @@ changed (memory was never the limit). Expected M8 duration at 3 in parallel, if 
 (40 A/Bs) about 14 rounds of about 9 minutes, about 2 h 10 min; ablation (32 harness-arm runs) about 11
 rounds of about 6-7 minutes, about 1 h 15 min; about 3.5 h in total. Projected cost from run 3 ($0.032
 per A/B at medium): batch 1 about $1.27, ablation about $0.50 (reviewer off).
+
+### Run 4 (pre-registered fallback: effort low, F1-F3)
+
+9 A/Bs, 2026-10-16 23:28 to 2026-10-17 00:01 (WSL clock, UTC), two A/Bs in parallel, effort `low` for
+both arms, run-3 tasks (F1 `trap-legacy-pattern`, F2 canonical with `--session-budget 12,38`, F3
+`trap-tempting-middleware`), `--purpose pilot`, referee version 2026-10-17. Command: `scripts/pilot.py
+--features F1,F2,F3 --k 3 --effort low --parallel 2 --budget 2.0 --variants
+F1=trap-legacy-pattern,F3=trap-tempting-middleware --budgets F2=12/38`. Cost $0.1734 (projected about
+$0.29 before the run). Pilot total after run 4: 94 of 96 arm runs.
+
+| Section | Arm | Primary passed | Agent time limit hit | Hidden tests (per A/B) | What happened |
+|---|---|---|---|---|---|
+| F1 trap | bare | 3/3 | 0/3 | 52, 52, 52 of 52 | no new R1 violation |
+| F1 trap | harness | 3/3 | 0/3 | 52, 52, 52 of 52 | same |
+| F2 12/38 | bare | 3/3 | 0/3 | 3, 3, 3 of 56 | no continuity failure, but no arm built the feature: 20-24 turns, 56-69 s of agent time (`ab-20261016-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9`) |
+| F2 12/38 | harness | 3/3 | 1/3 | 56, 3, 56 of 56 | no continuity failure; built the feature in 2 of 3 |
+| F3 trap | bare | 3/3 | 0/3 | 49, 49, 49 of 49 | 0 out-of-scope files, 0 test-phase source edits |
+| F3 trap | harness | 3/3 | 0/3 | 49, 49, 49 of 49 | same |
+
+Wall time per A/B: min 309 s, median 414 s, max 565 s; 2 of 9 over 480 s. Median agent time: bare 109 s,
+harness 154 s; harness overhead 67 s on harness arms.
+
+F2 across runs 3 and 4 (secondary, hidden tests 56 of 56): run 3 bare 3 of 3, harness 1 of 3; run 4 bare
+0 of 3, harness 2 of 3. The primary measure (`continuity_failure`) passed in all 12 F2 arms, including the
+7 that built nothing: it cannot fail when session 1 leaves no product lines to redo. Primary measures are
+not changed under the pilot rules; this goes to the owner's options note.
+
+### Gate decision (overnight rules, applied mechanically)
+
+| Section | Run 3 (medium) bare / harness | Run 4 (low) bare / harness | Classification |
+|---|---|---|---|
+| F1 | 3/3, 3/3 | 3/3, 3/3 | no measurable difference |
+| F2 | 3/3, 3/3 | 3/3, 3/3 | no measurable difference |
+| F3 | 3/3, 3/3 | 3/3, 3/3 | no measurable difference |
+| F4 | 0/3, 0/3 | not run (pilot cap) | no measurable difference |
+
+"Harness ahead" in 0 of 4 sections (the gate needs 3 of 4). Determinism passed. Result: **gate not
+passed**. Under the overnight rules: no `harness-frozen` tag, no M8, no further OpenAI spending tonight;
+an options note goes to the owner. Per the pre-registered outcome rule, F1-F3 are reported as "no
+measurable difference on this task with this model". F4 had no run 4 (reason in "Overnight decisions
+after run 3"); it is classified on run 3, where both arms failed 3 of 3.
+
+Release dry run after the gate (`scripts/make_release.py --dry-run`, HEAD 6ab41ec): 741 public files;
+leak check PASS; 176 broken references in 32 files (100 in `slides/outline.md`; mostly "DESIGN §" and
+"RESEARCH §" citations); frozen content PASS against a record from HEAD (no tag yet). Finding: the 8
+rebuilt checkpoint tags differ from the build repository's tags in `teamtrack/`, in one file:
+`teamtrack/reference/checkpoints.toml`, comment line 3, changed by 20c66c1 (private-reference cleanup)
+after the tags were built. The file is not part of any arm workspace or score, and no freeze tag exists, so
+no result is affected. Not fixed tonight: moving tags that have results needs the owner's approval, and
+reverting the comment puts a private script name back into a public file. Owner decision.
 
 ### Overnight run 2026-10-17: Phase 0 and decisions
 
