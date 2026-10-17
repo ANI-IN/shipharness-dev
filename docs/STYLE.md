@@ -11,8 +11,8 @@ uv run python platform/scripts/lint_prose.py
 ```
 
 `make check-style` runs `platform/scripts/check_style.py`. It checks placeholders, empty code
-blocks, images and captions, ids and course codes outside the evidence pages, empty links, sources
-named without a link, table width, the title line, and internal phrases; any of these is an error
+blocks, images and captions, ids and bare codes outside the evidence pages, names without their
+full form on first mention, sources named without a link, empty links, the Sources list, table width, the title line, and internal phrases; any of these is an error
 and fails the check. Length limits, template headings,
 the scenario label, and the glossary box are printed as warnings; they fail only with
 `make check-style CHECK_STYLE_OPTS=--strict`. `uv run python platform/scripts/check_style.py
@@ -36,10 +36,14 @@ Agent files are the files an agent reads, not a learner: `section-N-*/demo/harne
 instruction trees (`instructions/` and `original/` under `starter/` and `solution/`), skills
 (`use-in-your-repo/skills/`, a `skill/<name>/` folder in an assignment, any `.agents/skills/` or
 `.claude/skills/` folder), `use-in-your-repo/kit/templates/`, and `use-in-your-repo/kit/examples/*/filled/`.
-They follow their own format; only the image rules and the finding-id rule apply to them. The
-skills in `use-in-your-repo/skills/` and the kit templates are copied into learners' repositories,
-so every label rule of rule 5 applies to them too, in their scripts and other text files as well.
-So does a `skill/<name>/` folder in an assignment, which a learner reads as a worked example.
+They follow their own format; only the image rules and the finding-id rule apply to them, with
+these exceptions, which follow every label rule of rule 5: the skills in `use-in-your-repo/skills/`
+and the kit templates (copied into learners' repositories; their scripts and other text files are
+checked for ids too), a `skill/<name>/` folder in an assignment, and the harness docs that ship:
+the `.md` files under `section-N-*/demo/harness/` and `final-project/harness/`. Since 2026-10-18 the
+TeamTrack harness the agent reads uses the same names as the pages (see the disclosure in
+`docs/evidence/general.md`). Assignment 1's instruction trees keep their own wording, because a
+grader reads them.
 
 Folder rules (checked on a full run): every `section-N-*/` folder has `README.md`, `concepts.md`,
 `session-notes.md`, `demo/` (`README.md`, `run.sh`, `walkthrough.md`, `harness/`, `expected/`),
@@ -81,10 +85,10 @@ its own failure:
 
 | Section | The failure in the story |
 |---|---|
-| 1 Instructions | Agent copies a tenant leak from legacy code |
-| 2 State and lifecycle | A migration is rewritten across sessions |
-| 3 Scope and sandbox | Out-of-scope edits break old features |
-| 4 Verification | Agent says done when it is not |
+| Section 1: Instructions | Agent copies a tenant leak from legacy code |
+| Section 2: State and sessions | A migration is rewritten across sessions |
+| Section 3: Scope and sandbox | Out-of-scope edits break old features |
+| Section 4: Verification | Agent says done when it is not |
 
 The scenario contains no numbers. It is a story, not a measurement. After the scenario come: why it
 happens (cited), how the harness layer fixes it (and that the course measures whether it helps),
@@ -110,7 +114,8 @@ Each page defines the course terms it uses once, in one glossary box placed at t
 `## The problem`, after the scenario (or right after the H1 on pages without that section). Define a term in the box, then
 use it without explaining it again. Do not write sentences about labels, such as "this code is a
 course label, not a source term". If a code such as `R1` appears on screen or in quoted output,
-put it in a code span and explain it once in plain words right there: "`F4` (version checks)".
+put it in a code span and explain it once in plain words right there: "`F4` (Feature 4: Version
+checks on issue edits)".
 
 ```markdown
 > **Terms on this page**
@@ -123,51 +128,77 @@ put it in a code span and explain it once in plain words right there: "`F4` (ver
 
 Use the same wording for a term on every page. The standard wordings are at the end of this page.
 
-### 5. Evidence stays in the evidence pages, and labels stay plain
+### 5. Evidence stays in the evidence pages, and names follow one format
 
 Run ids, A/B ids, source ids (`A1` to `A7`, `B1` to `B14`), finding ids (`F-a-` or `F-b-` and a
 number), and commit hashes appear only in the evidence pages: `docs/evidence.md` (the index) and the
 files under `docs/evidence/`, one per section (`s1.md` to `s4.md`, `final.md`, and `general.md`).
 
-- Name a source by a short name with a link, such as (OpenAI, Harness engineering),
-  (Anthropic, Effective harnesses), (Anthropic, Harness design), (Anthropic, C compiler),
-  (Meta, TestGen-LLM), (Meta, ACH), or (SpecBench). List each source once, with its full title and
-  link, in a short `## Sources` list at the end of the page. That H2 may close any template; on a
-  concepts page, `## Further reading` is the list. A known source named on a page with no link to
-  it, or linked on a page without the list, fails the check (SC25). URLs come from the course's source
+Features, house rules, sections, assignments, and test filters are named "<Kind> N: <name>". The
+first mention on a page (on a slide, in a slide file) is the full form with the exact name; later
+mentions use the short form "Feature 4", "House rule 1" (SC22). Plurals such as "Sections 1 to 4"
+are not mentions. The exact names:
+
+- Feature 1: Org-wide issue search; Feature 2: Comments on issues; Feature 3: Safe retries for
+  issue creation; Feature 4: Version checks on issue edits; Feature 5: Bulk close; Feature 6:
+  Watchers; Feature 7: Labels.
+- House rule 1: Tenant isolation; House rule 2: Roles; House rule 3: API conventions; House rule 4:
+  Safe retries; House rule 5: Audit log; House rule 6: Layering; House rule 7: Migrations; House
+  rule 8: Deleted issues stay hidden.
+- Section 1: Instructions; Section 2: State and sessions; Section 3: Scope and sandbox; Section 4:
+  Verification. Assignment N has the name of Section N.
+- Filter 1: Builds and collects; Filter 2: Passes five runs; Filter 3: Adds coverage or catches a
+  mutant; Filter 4: Real assertions; Filter 5: No source changes; Filter 6: No duplicate tests.
+
+The same names are in `shipharness.datasets.names`, which the console and the CLI use, and a test
+keeps the checker's copy equal to it.
+
+- Never a bare `F1` to `F7`, `R1` to `R8`, `S1` to `S4`, `A1` to `A4`, or a source id in prose,
+  headings, link text, tables, or HTML comments (SC21). Code spans, fenced code, and commands are
+  identifiers and are not read: `make demo-3 FEATURE=version-checks`, the file `f1.md`, the slide
+  anchor `S4:gate`.
+- Commands use the readable aliases: `FEATURE=version-checks`, `FEATURE=safe-retries` (Feature 3;
+  `idempotent-create` and `F3` still work), `make final FEATURES=watchers,bulk-close`.
+- Other codes a learner can see (checkpoint tags such as `m1-s1-start`, task ids such as `F1-trap`,
+  mutant ids) go in a code span with a plain-words explanation where they appear; leave them out
+  where they are not needed.
+- Sources: in prose, cite the source by its linked title, such as
+  [Harness engineering](https://openai.com/index/harness-engineering/). Every mention of a source's
+  title is a link to it; after the first citation you may write "Source 2" (SC23). A page that
+  cites a source ends with a `## Sources` list, numbered per page in the order the page first cites
+  each source, one entry per source in exactly this form (SC25):
+
+  ```markdown
+  ## Sources
+
+  - Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+  ```
+
+  A long entry may wrap onto an indented line. That H2 may close any template; on a concepts page it
+  comes after `## Further reading`. URLs, titles, authors, and dates come from the course's source
   register (the Sources sections of the evidence pages), never from memory.
 - A link always has text and a target: no `[text]()`, no `[link]`, no malformed URL (SC24).
 - Where a page relies on a finding, keep the claim and link to the section of the evidence page.
-- Assignments are "Assignment 1" to "Assignment 4", never `A1` to `A4`, so they do not clash with
-  the source ids. Code identifiers such as `a2_state` or `make check-assignment-3` stay.
-- Sections are "Section 1" to "Section 4", never a bare `S1` to `S4` in prose. A walkthrough anchor
-  such as `S4:gate` is an identifier and stays.
-- Features and house rules go by their plain names, never a bare `F1` to `F7` or `R1` to `R7` in
-  prose (SC23): "the version checks feature", "the tenant isolation rule". The names are under
-  "Codes used in this course" in `docs/reference.md`. Commands use the readable aliases:
-  `make demo-3 FEATURE=version-checks`, `make final FEATURES=watchers,bulk-close`.
-- Tokens in code spans and fenced code are identifiers and are not checked (SC21 to SC23).
-  Captured terminal output (`expected/*.txt`, `captured/*.txt`) is real output: it is not edited,
-  and the check does not read it. A line a program parses (such as the `R1` row of Assignment 1's
-  report, read by its `check.py`) keeps its token with an allow marker that says so.
-- The skills and the kit templates carry no source, finding, run, or assignment ids at all. Where
-  a template keeps a house-rule id for cross-references, it is a code span next to the plain name:
-  "`R1` Tenant isolation".
+- Captured terminal output (`expected/*.txt`, `captured/*.txt`) is real output: it is not edited,
+  and the check does not read it. A line a program parses (such as a row of Assignment 1's report,
+  read by its `check.py`) keeps its token with an allow marker that says so.
+- The skills and the kit templates carry no source, finding, run, or assignment ids at all.
 
 Good:
 
 ```markdown
 Agents copy patterns that already exist in the repository, even poor ones
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+([Harness engineering](https://openai.com/index/harness-engineering/)).
 In our test runs, no arm leaked data on this ticket ([evidence](../docs/evidence/s1.md)).
-In Section 1 you hand in Assignment 1.
+In Section 1: Instructions you hand in Assignment 1: Instructions. House rule 1: Tenant isolation
+says another org's issue answers 404; Section 1 checks House rule 1 on every endpoint.
 ```
 
 Not this:
 
 ```markdown
 A1 reports that agents copy patterns (A1, F-a-NN); see run ab-20261016-181736-a07558.
-In S1 you hand in A1.
+In S1 you hand in A1. Section 1 checks R1, the tenant rule.
 ```
 
 ### 6. No internal language
