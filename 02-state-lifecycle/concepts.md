@@ -13,9 +13,9 @@ commit, and it leaves no note. Session 2 starts with an empty context and the sa
 no working endpoint, so it starts again: it writes a new migration from the old head and rewrites
 half of the endpoint.
 
-Now the repository has two migration heads, and the deploy stops. A reviewer has to untangle two
-versions of one change, and Marco paid for the same work twice. Nobody did anything wrong in a
-single session. The second session simply did not know what the first one had done.
+Now the repository has two migration heads, and the deploy stops. A reviewer untangles two
+versions of one change, and Marco pays for the same work twice. The second session simply did not
+know what the first one had done.
 
 > **Terms on this page**
 >
@@ -172,8 +172,8 @@ time limit in 4 of 9 runs, bare arms in 0 of 9. The state files cost turns
 It helps when:
 
 - A task is longer than one session, and sessions end before the work is done.
-- The work leaves traces that are hard to rediscover, such as an uncommitted migration or a
-  decision made after reading three documents.
+- The work leaves traces that are hard to find again, such as a decision made after reading three
+  documents.
 - Several agents or people pick up the same task. A handoff file works for both.
 
 It does not help, or helps less, when:
@@ -217,8 +217,8 @@ assume a fresh session cannot pick up the work from the repository alone. Measur
    whatever the agent did.
 3. Only that session 2 did not break or redo session 1's work. Here session 1 left almost no code,
    so there was nothing to redo. The hidden-test count says the feature was not built.
-4. To make the problem visible at a known point, the same for both arms. The part that holds for any
-   model is the files: when a session can end early, the next one needs them.
+4. To make the problem visible at a known point, the same for both arms. The files are the part
+   that holds for any model.
 
 </details>
 
