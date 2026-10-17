@@ -6,6 +6,11 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Console**: the browser page that shows a run live, on five screens.
 > - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
+> - **Primary verdict**: the referee's answer to the one question the section asks.
+> - **Baseline**: the referee's or gate's result on the app before the agent changes it, saved so
+>   each run is compared against it.
+> - **Gate**: the check that must pass before a feature counts as done.
+> - **Trace**: the record of one run's steps (each model call and tool call), stored in LangSmith.
 
 This page takes a Mac with nothing installed to a first live run, watched on the console.
 
@@ -118,7 +123,7 @@ subscription (same page).
 
 Option B, Colima, an open-source runtime started from the terminal
 ([Colima](https://github.com/abiosoft/colima)). Install Homebrew first with the command from
-https://brew.sh/, then:
+[Homebrew](https://brew.sh/), then:
 
 ```bash
 brew install colima docker
@@ -319,7 +324,7 @@ window, start the run:
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on feature F1, then the
+`make show-1` runs the harness arm alone with the instructions layer on the org-wide issue search feature, then the
 referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The newest run in the browser's run list; press `1` to watch it. The terminal
@@ -359,3 +364,15 @@ You are ready when:
 
 Next: the [Section 1 demo](../section-1-instructions/demo/README.md), which explains what you just ran,
 or the [module overview](../README.md).
+
+## Sources
+
+- [Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+- [Colima](https://github.com/abiosoft/colima)
+- [Homebrew](https://brew.sh/)
+- [Git, Install on macOS](https://git-scm.com/install/mac)
+- [uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)
+- [OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits)
+- [OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
+- [LangSmith, Billing](https://docs.langchain.com/langsmith/billing)
+- [LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)

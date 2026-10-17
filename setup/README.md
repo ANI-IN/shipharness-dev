@@ -6,6 +6,7 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Console**: the browser page that shows a run live, on five screens.
 > - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
+> - **Trace**: the record of one run's steps (each model call and tool call), stored in LangSmith.
 
 These pages take a machine with nothing installed to a first live run. At the end, a coding agent
 with the first harness layer works on TeamTrack in a Docker sandbox, the referee scores what it
