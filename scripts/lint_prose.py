@@ -27,6 +27,7 @@ DEFAULT_TARGETS = [
     "slides",
     "instructor",
     "skills",
+    "kit",
     "teamtrack/docs",
     "sandbox/README.md",
     "datasets/README.md",
