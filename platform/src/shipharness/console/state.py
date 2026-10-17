@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from shipharness.datasets.names import feature_label
 from shipharness.events import Event
 
 ARMS = ("bare", "harness")
@@ -559,7 +560,8 @@ def summarise(event: Event) -> str:
         case "run_end":
             return f"run end {d['status']}"
         case "run_start":
-            return f"run start {d['spec'].get('feature_id', '')}".strip()
+            feature = str(d["spec"].get("feature_id") or "")
+            return f"run start {feature_label(feature) if feature else ''}".strip()
     return event.type
 
 
@@ -600,6 +602,19 @@ class ConsoleState:
             if spec.get("profile"):
                 return str(spec["profile"])
         return None
+
+    @property
+    def feature(self) -> str | None:
+        """The feature code from the run_start spec (the same for both arms); None before."""
+        for spec in self._specs():
+            if spec.get("feature_id"):
+                return str(spec["feature_id"])
+        return None
+
+    @property
+    def feature_label(self) -> str | None:
+        """'F4 version checks': the code with its plain name, for the screen headers."""
+        return feature_label(self.feature) if self.feature else None
 
     @property
     def single_arm(self) -> bool:

@@ -344,6 +344,53 @@ def test_demo_3_runs_the_s3_confirmation_task_by_feature() -> None:
     assert "--feature $(FEATURE)" in " ".join(_rules()["demo-3"])
 
 
+# -- readable feature names ---------------------------------------------------------------------
+
+
+def _calls_with(target: str, **values: str) -> list[list[str]]:
+    """The target's shipharness calls with some make variables set to other values."""
+    saved = dict(SAMPLES)
+    SAMPLES.update(values)
+    try:
+        return _shipharness_calls(target)
+    finally:
+        SAMPLES.clear()
+        SAMPLES.update(saved)
+
+
+@pytest.mark.parametrize(
+    ("value", "code"),
+    [("version-checks", "F4"), ("Version-Checks", "F4"), ("F4", "F4"), ("idempotent-create", "F3")],
+)
+def test_demo_3_feature_takes_the_readable_name_or_the_code(value: str, code: str) -> None:
+    # make demo-3 FEATURE=version-checks passes the name straight to the CLI, which normalises it.
+    [call] = _calls_with("demo-3", **{"$(FEATURE)": value})
+    assert value in call
+    _, params = _parse(call)
+    assert params["feature"] == code
+
+
+@pytest.mark.parametrize(
+    ("value", "code"), [("watchers", "F6"), ("bulk-close", "F5"), ("F6", "F6")]
+)
+def test_final_features_take_the_readable_names_or_the_codes(value: str, code: str) -> None:
+    # make final FEATURES=watchers,bulk-close: the loop hands each name to the CLI unchanged.
+    recipe = " ".join(_rules()["final"])
+    assert "--feature $$f" in recipe and "tr ',' ' '" in recipe
+    [call] = _calls_with("final", **{"$$f": value})
+    _, params = _parse(call)
+    assert params["feature"] == code
+
+
+def test_make_help_names_the_readable_feature_names() -> None:
+    from shipharness.datasets.names import FEATURE_ALIASES
+
+    text = " ".join(_rules()["help"])
+    for code, alias in FEATURE_ALIASES.items():
+        assert alias in text and code in text, alias
+    assert "FEATURE=version-checks" in text and "FEATURES=watchers,bulk-close" in text
+
+
 # -- course style check ---------------------------------------------------------------------------
 
 

@@ -83,7 +83,10 @@ def test_report_command_reads_exports_and_prints_counts(tmp_path: Path) -> None:
     exports = fixture_exports(tmp_path)
     result = CliRunner().invoke(make_app(), ["report", "--exports", str(exports)])
     assert result.exit_code == 0, result.output
-    assert "F1 r1_new_violations: bare 2/3 failing, harness 1/3 failing" in result.output
+    # The score summary names the feature in plain words next to its code.
+    assert "F1 org search, r1_new_violations: bare 2/3 failing, harness 1/3 failing" in (
+        result.output
+    )
     assert (exports / "report.html").exists()
     assert result.output.strip().splitlines()[-1].startswith("Cost: $")
 
@@ -175,6 +178,58 @@ def test_ab_command_unknown_feature_exits_1(env) -> None:  # type: ignore[no-unt
     )
     assert result.exit_code == 1
     assert "no task" in result.output
+
+
+@pytest.mark.parametrize("name", ["org-search", "ORG-SEARCH", "Org-Search", "f1", "F1"])
+def test_ab_accepts_the_readable_name_or_the_code(env, name: str) -> None:  # type: ignore[no-untyped-def]
+    args = ["ab", "--feature", name, "--section", "demo-1", "--no-preview"]
+    result = CliRunner().invoke(make_app(), [*args, "--dataset", str(env.dataset)])
+    assert result.exit_code == 0, result.output
+    header = next(line for line in result.output.splitlines() if line.startswith("A/B "))
+    assert "(F1 org search, layers=" in header  # the plain name next to the code
+    scores = sorted(env.tmp.rglob("scores/*.json"))
+    assert scores
+    for path in scores:  # machine-readable records keep the code
+        assert json.loads(path.read_text(encoding="utf-8"))["feature_id"] == "F1"
+
+
+def test_ab_refuses_an_unknown_name_with_the_valid_names(env) -> None:  # type: ignore[no-untyped-def]
+    result = CliRunner().invoke(
+        make_app(), ["ab", "--feature", "versions", "--dataset", str(env.dataset)]
+    )
+    assert result.exit_code == 2
+    text = " ".join(result.output.split())
+    assert "versions" in text
+    assert "version-checks (F4)" in text and "org-search (F1)" in text and "labels (F7)" in text
+
+
+@pytest.mark.parametrize("command", ["ab", "run"])
+def test_feature_help_names_the_aliases(command: str) -> None:
+    group = typer.main.get_command(make_app())
+    [option] = [p for p in group.commands[command].params if p.name == "feature"]  # type: ignore[attr-defined]
+    assert "version-checks" in option.help and "bulk-close" in option.help
+    assert "F4" in option.help
+
+
+def test_run_command_accepts_the_readable_name(env, tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from shipharness.ab import demo
+
+    seen: list[str] = []
+    real = demo.run_arm
+
+    def spy(task, *a, **kw):  # type: ignore[no-untyped-def]
+        seen.append(task.feature_id)
+        return real(task, *a, **kw)
+
+    monkeypatch.setattr(demo, "run_arm", spy)
+    ticket = tmp_path / "ticket.md"
+    ticket.write_text("Add cursor pagination.", encoding="utf-8")
+    args = ["run", "--feature", "Org-Search", "--checkpoint", "m1-s1-start"]
+    result = CliRunner().invoke(
+        make_app(), [*args, "--ticket-file", str(ticket), "--layers", "none"]
+    )
+    assert result.exit_code == 0, result.output
+    assert seen == ["F1"]
 
 
 def test_run_command_runs_one_arm(env, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]

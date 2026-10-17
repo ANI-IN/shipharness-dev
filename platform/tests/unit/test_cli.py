@@ -27,6 +27,17 @@ def test_help_header_is_the_module_title() -> None:
     assert "Harness engineering for coding agents." not in result.output
 
 
+def test_help_names_the_readable_feature_names() -> None:
+    from shipharness.datasets.names import FEATURE_ALIASES
+
+    result = CliRunner().invoke(app, ["--help"])
+    assert result.exit_code == 0, result.output
+    text = " ".join(line.strip(" │") for line in strip_ansi(result.output).splitlines())
+    text = " ".join(text.split())
+    for code, alias in FEATURE_ALIASES.items():
+        assert f"{alias} ({code})" in text, alias
+
+
 def test_no_args_shows_the_module_title() -> None:
     result = CliRunner().invoke(app, [])
     assert MODULE_TITLE in strip_ansi(result.output)

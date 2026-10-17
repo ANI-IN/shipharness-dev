@@ -13,9 +13,31 @@ import typer
 from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
 from shipharness.config.profiles import PROFILE_HELP, PROFILES
+from shipharness.datasets.names import (
+    FEATURE_ALIASES,
+    UnknownFeature,
+    feature_code,
+    feature_label,
+)
 from shipharness.layout import DATASETS_DIR
 
 FEATURES_FILE = REPO_ROOT / DATASETS_DIR / "teamtrack-features-v1.jsonl"
+FEATURE_HELP = (
+    "Feature: a readable name ("
+    + ", ".join(FEATURE_ALIASES.values())
+    + ") or its code (F1-F7), in any case; e.g. version-checks or F4."
+)
+
+
+def _feature_option(value: str | None) -> str | None:
+    """--feature callback: an alias or a code becomes the code; an unknown name is refused (exit 2)
+    with every valid name and code."""
+    if value is None:
+        return None
+    try:
+        return feature_code(value)
+    except UnknownFeature as exc:
+        raise typer.BadParameter(str(exc)) from None
 
 
 def _settings() -> Settings:
@@ -155,7 +177,7 @@ def _print_record(record: Any) -> None:
 def register(app: typer.Typer) -> None:
     @app.command("run")
     def run_cmd(
-        feature: str = typer.Option(..., help="Feature id, e.g. F1."),
+        feature: str = typer.Option(..., help=FEATURE_HELP, callback=_feature_option),
         checkpoint: str = typer.Option(..., help="Checkpoint tag, e.g. m1-s1-start."),
         ticket_file: Path = typer.Option(..., exists=True, dir_okay=False),
         layers: str = typer.Option("all", help="none, all, a list, or -<layer> removals."),
@@ -225,7 +247,9 @@ def register(app: typer.Typer) -> None:
 
     @app.command("ab")
     def ab_cmd(
-        feature: str | None = typer.Option(None, help="Feature id (canonical variant)."),
+        feature: str | None = typer.Option(
+            None, help=f"{FEATURE_HELP} Runs its canonical variant.", callback=_feature_option
+        ),
         example: str | None = typer.Option(None, help="Dataset example id, e.g. F1-canonical."),
         variant: str = typer.Option("canonical"),
         section: str | None = typer.Option(None, help="demo-1..demo-4 or final: layer stack."),
@@ -292,7 +316,7 @@ def register(app: typer.Typer) -> None:
         for _ in range(k):
             result = run_ab(task, names, deps, section=section, arms=run_arms)  # type: ignore[arg-type]
             typer.echo(
-                f"A/B {result.ab_id} ({task.feature_id}, layers={sorted(names)}, "
+                f"A/B {result.ab_id} ({feature_label(task.feature_id)}, layers={sorted(names)}, "
                 f"profile={profile}{mode})"
             )
             for arm_run in result.arms.values():
@@ -425,8 +449,8 @@ def register(app: typer.Typer) -> None:
         result = run_example(scenario, task, deps, cost=cost, ab_id=ab_id)
         layers = sorted(result.arms["harness"].spec.layers)
         typer.echo(
-            f"A/B {result.ab_id} ({task.feature_id}, layers={layers}, profile={profile}, "
-            f"{CONSTRUCTED_MODE})"
+            f"A/B {result.ab_id} ({feature_label(task.feature_id)}, layers={layers}, "
+            f"profile={profile}, {CONSTRUCTED_MODE})"
         )
         for arm_run in result.arms.values():
             _print_record(arm_run.record)
@@ -449,7 +473,7 @@ def register(app: typer.Typer) -> None:
         report = build_report(exports, include_recorded)
         for group in report["groups"]:
             counts = ", ".join(f"{a} {i['failing']} failing" for a, i in group["arms"].items())
-            typer.echo(f"{group['feature_id']} {group['measure']}: {counts}")
+            typer.echo(f"{feature_label(group['feature_id'])}, {group['measure']}: {counts}")
         typer.echo(f"report: {path}")
         typer.echo(f"Cost: $0.000000 (no model calls; runs in exports ${report['cost_usd']:.6f})")
         raise typer.Exit(0)
