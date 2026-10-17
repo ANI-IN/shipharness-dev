@@ -12,9 +12,13 @@ taken from the layer's own code, so they match what the agent gets byte for byte
   the "## Scope" block of its context prefix (`scope-rules.txt`).
 - section-4-verification: the verify layer places no files; its text is the context prefix
   (`VerifyLayer.PREFIX`) and the gate's items per phase, in the order `run_gate` reports them.
+- final-project/harness/: the complete harness of `make final FEATURES=F5` (the default of
+  final-project/run.sh): all four layers' files together, each taken as above but for the F5 dataset
+  line and the final's layer stack.
 
-A section's README.md is its own page and is left alone. `platform/tests/unit/test_demo_harness.py`
-fails when a copy drifts, and when a section has a demo/harness/ folder with no entry here.
+A section's README.md is its own page and is left alone, and so is final-project/harness/README.md.
+`platform/tests/unit/test_demo_harness.py` fails when a copy drifts (the final project's copy
+included), and when a section has a demo/harness/ folder with no entry here.
 
 Usage (repository root):
   uv run python platform/scripts/sync_demo_harness.py           # rewrite every copy
@@ -78,11 +82,11 @@ def instructions_files(source: Path | None = None) -> dict[str, bytes]:
 # -- section 2: state -----------------------------------------------------------------------------
 
 
-def state_files() -> dict[str, bytes]:
-    """The four files StateLayer.prepare_workspace writes for the demo ticket (F2)."""
+def state_files(task: ABTask | None = None) -> dict[str, bytes]:
+    """The four files StateLayer.prepare_workspace writes for a ticket (default: the demo's F2)."""
     from shipharness.harness.state.templates import initial_files
 
-    task = load_task("F2")
+    task = task or load_task("F2")
     kwargs = task.harness_kwargs()
     spec = SimpleNamespace(feature_id=task.feature_id, ticket_text=task.ticket_text)
     return initial_files(spec, kwargs["feature_description"], kwargs["feature_steps"])  # type: ignore[arg-type]
@@ -93,8 +97,8 @@ def state_files() -> dict[str, bytes]:
 SCOPE_BLOCK = "scope-rules.txt"
 
 
-def scope_files(task: ABTask | None = None) -> dict[str, bytes]:
-    """What the scope layer gives the harness arm of `make demo-3 FEATURE=F4`."""
+def scope_files(task: ABTask | None = None, section: str = "demo-3") -> dict[str, bytes]:
+    """What the scope layer gives the harness arm of `section` (default: demo-3 on F4)."""
     from shipharness.ab.demo import arm_specs, section_layers
     from shipharness.config import Settings
     from shipharness.config.profiles import apply_profile
@@ -115,7 +119,7 @@ def scope_files(task: ABTask | None = None) -> dict[str, bytes]:
             task,
             apply_profile(Settings(_env_file=None), "class"),
             ab_id=None,
-            harness_layers=section_layers("demo-3"),
+            harness_layers=section_layers(section),
             workspaces={"harness": workspace},
             run_ids={"harness": "r-demo-copy"},
             profile="class",
@@ -181,6 +185,30 @@ def verify_files() -> dict[str, bytes]:
     }
 
 
+# -- final project: every layer at once ----------------------------------------------------------
+
+FINAL_FOLDER = "final-project"
+FINAL_FEATURE = "F5"  # the default of final-project/run.sh
+
+
+def final_files() -> dict[str, bytes]:
+    """The complete harness the final's harness arm gets on F5: the instructions tree, the state
+    files, the scope files, and the verify text, in layer order. No two layers write one path."""
+    task = load_task(FINAL_FEATURE)
+    files: dict[str, bytes] = {}
+    for part in (
+        instructions_files(),
+        state_files(task),
+        scope_files(task, "final"),
+        verify_files(),
+    ):
+        clash = sorted(files.keys() & part.keys())
+        if clash:
+            raise ValueError(f"two layers write the same file: {', '.join(clash)}")
+        files.update(part)
+    return files
+
+
 # -- every section --------------------------------------------------------------------------------
 
 
@@ -233,12 +261,22 @@ def write(want: dict[str, bytes], dest: Path, keep: frozenset[str] = frozenset()
     return len(want)
 
 
+FINAL = Section(final_files, README)
+
+
 def harness_dir(folder: str, root: Path = REPO) -> Path:
+    if folder == FINAL_FOLDER:
+        return root / FINAL_FOLDER / "harness"
     return root / folder / "demo" / "harness"
 
 
+def targets() -> dict[str, Section]:
+    """Every copy this script writes: the sections' demo/harness/ folders, then the final's."""
+    return {**SECTIONS, FINAL_FOLDER: FINAL}
+
+
 def section_drift(folder: str, root: Path = REPO) -> list[str]:
-    section = SECTIONS[folder]
+    section = targets()[folder]
     return drift(section.expected(), harness_dir(folder, root), section.keep)
 
 
@@ -248,7 +286,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--root", type=Path, default=REPO, help="repository root")
     args = parser.parse_args(argv)
     problems = 0
-    for folder, section in SECTIONS.items():
+    for folder, section in targets().items():
         dest = harness_dir(folder, args.root)
         if args.check:
             lines = drift(section.expected(), dest, section.keep)

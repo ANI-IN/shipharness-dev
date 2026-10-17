@@ -157,8 +157,55 @@ def test_the_instructions_copy_has_no_walkthrough_markers(tmp_path: Path) -> Non
 def test_check_mode_exits_1_on_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     section = sync.Section(lambda: {"AGENTS.md": b"# Map\n"}, frozenset())
     monkeypatch.setattr(sync, "SECTIONS", {"section-9-test": section})
+    monkeypatch.setattr(sync, "targets", lambda: {"section-9-test": section})
     args = ["--root", str(tmp_path), "--check"]
     assert sync.main(args) == 1
     assert sync.main(args[:-1]) == 0
     assert sync.main(args) == 0
     assert (tmp_path / "section-9-test" / "demo" / "harness" / "AGENTS.md").is_file()
+
+
+# -- final project: the complete harness ---------------------------------------------------------
+
+FINAL_COPY = REPO / "final-project" / "harness"
+
+
+def test_the_final_project_harness_has_no_drift() -> None:
+    assert sync.section_drift(sync.FINAL_FOLDER) == [], FIX
+
+
+def test_the_final_harness_is_every_layer_on_f5() -> None:
+    task = sync.load_task("F5")
+    want: dict[str, bytes] = {}
+    for part in (
+        sync.instructions_files(),
+        sync.state_files(task),
+        sync.scope_files(task, "final"),
+        sync.verify_files(),
+    ):
+        want.update(part)
+    assert sync.final_files() == want
+    have = _tree(FINAL_COPY, sync.FINAL.keep)
+    assert have == want, FIX
+    for rel in ("AGENTS.md", "progress.md", "docs/exec-plans/active/F5.md", "context-prefix.txt"):
+        assert rel in have
+    (feature,) = json.loads(have["feature_list.json"])["features"]
+    assert feature["id"] == "F5" and feature["passes"] is False
+    rules = have[sync.SCOPE_BLOCK].decode("utf-8")
+    for phase, paths in task.allowed_paths.items():
+        assert f"- {phase}: {', '.join(paths)}" in rules
+
+
+def test_the_final_harness_drift_check_fails_on_a_changed_copy(tmp_path: Path) -> None:
+    dest = sync.harness_dir(sync.FINAL_FOLDER, tmp_path)
+    assert dest == tmp_path / "final-project" / "harness"
+    sync.write(sync.final_files(), dest, sync.FINAL.keep)
+    assert sync.section_drift(sync.FINAL_FOLDER, tmp_path) == []
+    (dest / "AGENTS.md").write_text("# edited by hand\n", encoding="utf-8")
+    (dest / "notes.md").write_text("extra\n", encoding="utf-8")
+    (dest / "progress.md").unlink()
+    assert sync.section_drift(sync.FINAL_FOLDER, tmp_path) == [
+        "missing progress.md",
+        "extra notes.md",
+        "differs AGENTS.md",
+    ]
