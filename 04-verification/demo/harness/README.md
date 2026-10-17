@@ -15,7 +15,7 @@ taken from the layer's code in `platform/src/shipharness/harness/verify/`.
 > - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
 
 Do not edit the files here. A script writes them from the code
-(`platform/scripts/sync_demo_harness_s4.py`), and a unit test fails if they differ from what the
+(`platform/scripts/sync_demo_harness.py`), and a unit test fails if they differ from what the
 layer gives the agent. To change the text, change the code and run the script again.
 
 ## What is here

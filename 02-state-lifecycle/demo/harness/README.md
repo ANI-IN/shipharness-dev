@@ -13,12 +13,12 @@ Open them to see what a fresh session can read.
 > - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
 
 Do not edit the files here. A script renders them the way the layer does, from the same templates
-and the same F2 ticket (`02-state-lifecycle/demo/sync_harness.py`), and a test fails if they drift.
+and the same F2 ticket (`platform/scripts/sync_demo_harness.py`), and a test fails if they drift.
 To change what the agent gets, edit the templates in `platform/src/shipharness/harness/state/assets/`
 and run the script again:
 
 ```bash
-uv run python 02-state-lifecycle/demo/sync_harness.py
+uv run python platform/scripts/sync_demo_harness.py
 ```
 
 ## What is here
