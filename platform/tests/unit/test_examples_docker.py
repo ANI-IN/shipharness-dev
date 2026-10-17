@@ -16,7 +16,7 @@ import pytest
 
 from shipharness.ab.commands import FEATURES_FILE
 from shipharness.ab.demo import ABDeps, ABTask, arm_specs, run_arm, section_layers
-from shipharness.ab.workspace import create_arm_workspace, resolve_commit
+from shipharness.ab.workspace import app_dir_at, create_arm_workspace, resolve_commit
 from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
 from shipharness.events import EventBus, read_events
@@ -103,7 +103,13 @@ def test_demo_3_blocks_denies_and_applies_in_a_real_container(tmp_path: Path) ->
     [claim] = [e for e in events if e.type == "claim"]
     assert claim.data["claim"] == "done"
     original = subprocess.run(
-        ["git", "-C", str(REPO_ROOT), "show", f"{sha}:teamtrack/app/api/middleware.py"],
+        [
+            "git",
+            "-C",
+            str(REPO_ROOT),
+            "show",
+            f"{sha}:{app_dir_at(REPO_ROOT, sha)}/app/api/middleware.py",
+        ],
         capture_output=True,
         check=True,
     ).stdout
