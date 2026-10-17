@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib.util
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -1011,3 +1012,16 @@ def test_a_commit_by_another_identity_or_with_a_trailer_is_reported(
     assert any("committer t <t@t.invalid>" in p for p in problems)
     assert any("Co-authored-by trailer" in p for p in problems)
     assert len([p for p in problems if "more" in p]) == 1  # one line per offending commit
+
+
+def test_scripts_the_public_makefile_and_ci_run_are_learner_scripts() -> None:
+    # A public Makefile target or CI step that runs an internal script would break the release.
+    texts = [(REPO / "Makefile").read_text(encoding="utf-8")]
+    texts.append((REPO / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8"))
+    named = set()
+    for text in texts:
+        named |= set(re.findall(r"platform/scripts/[\w-]+\.py", text))
+    assert "platform/scripts/check_style.py" in named
+    assert sorted(named - set(mr.LEARNER_SCRIPTS)) == []
+    assert mr.classify("platform/scripts/check_style.py") is None
+    assert mr.classify("docs/STYLE.md") is None  # the guide the style check implements
