@@ -129,6 +129,31 @@ def test_task_from_dataset_line() -> None:
     assert task.harness_kwargs()["feature_steps"] == ["GET returns next_cursor"]
 
 
+def test_a_line_without_steps_lets_the_layers_take_the_ticket_steps() -> None:
+    # The dataset lines carry no metadata steps. Passing [] made the state and scope layers write a
+    # feature list and exec plan with no steps; None makes them use the ticket's bullet lines.
+    import copy
+
+    line = copy.deepcopy(LINE)
+    line.get("metadata", {}).pop("steps", None)
+    line.get("inputs", {}).get("metadata", {}).pop("steps", None)
+    task = ABTask.from_dataset_line(line)
+    assert "steps" not in task.metadata
+    assert task.harness_kwargs()["feature_steps"] is None
+
+
+def test_real_dataset_tickets_never_give_the_layers_an_empty_step_list() -> None:
+    import json
+
+    from shipharness.config.prices import REPO_ROOT
+
+    path = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
+    lines = [json.loads(x) for x in path.read_text(encoding="utf-8").splitlines() if x]
+    for line in lines:
+        steps = ABTask.from_dataset_line(line).harness_kwargs()["feature_steps"]
+        assert steps is None or steps, line["metadata"].get("example_id")
+
+
 @pytest.mark.parametrize(
     ("section", "modifier", "expected"),
     [
