@@ -36,6 +36,7 @@ CONTRACT_EVENT_TYPES = {
     "reviewer_output",
     "gate_result",
     "claim",
+    "primary_verdict",
     "verdict",
     "cost",
     "screenshot",

@@ -1,5 +1,13 @@
-{% from "screens/_macros.html" import screen_head %}
+{% from "screens/_macros.html" import screen_head, referee_line %}
 {{ screen_head(key, title, state) }}
+{% if state.arms.values()|selectattr("run_start")|list or state.arms.values()|selectattr("primary_view")|list %}
+<div class="this-run" aria-label="This run">
+  {% for arm in arms %}
+  {% set a = state.arm(arm) %}
+  <p class="referee"><span class="arm-name arm-{{ arm }}">{{ arm|upper }}</span> {{ referee_line(a) }}</p>
+  {% endfor %}
+</div>
+{% endif %}
 {% set comparison = safe_url(state.ab.traces.get("comparison")) %}
 {% if report.empty %}
 <div class="grid one">

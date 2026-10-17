@@ -1,4 +1,4 @@
-{% from "screens/_macros.html" import screen_head, arm_label %}
+{% from "screens/_macros.html" import screen_head, arm_label, referee_line %}
 {{ screen_head(key, title, state) }}
 <div class="grid two">
 {% for arm in arms %}
@@ -62,7 +62,7 @@
 
   <div class="claims">
     <p><span class="k">Agent said</span> {% if a.claim %}{{ status(a.claim.claim) }}{% else %}{{ status("none") }}{% endif %}</p>
-    <p><span class="k">Referee</span> {% if a.verdict %}{{ status("pass" if a.verdict.passed_primary else "fail") }} {{ a.verdict.summary|truncate(48, true, "…") }}{% else %}{{ status("pending", "referee pending") }}{% endif %}</p>
+    <p class="referee"><span class="k">Referee</span> {{ referee_line(a) }}</p>
     {% if a.claim_supported is not none %}<p>{{ status("supported" if a.claim_supported else "unsupported") }}</p>{% endif %}
   </div>
 </article>

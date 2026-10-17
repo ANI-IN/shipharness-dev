@@ -82,6 +82,10 @@ def test_replay_marks_events_recorded_and_rejudges(
     assert out.events_replayed > 0
     assert all(e.recorded for e in events)
     assert {e.arm for e in events if e.type == "verdict"} == {"bare", "harness"}
+    # The live referee's primary verdicts (run ids of the replay), marked recorded like the rest.
+    replayed = {r.run_id for r in out.records.values()}
+    early = [e for e in events if e.type == "primary_verdict" and e.run_id in replayed]
+    assert {e.arm for e in early} == {"bare", "harness"} and all(e.recorded for e in early)
     assert all(r.recorded for r in out.records.values())
     scores = read_exports("scores", tmp_path / "exports")
     assert sum(1 for s in scores if s["recorded"]) == 2

@@ -466,6 +466,23 @@ def build_fixture_run(runs_dir: Path, *, recorded: bool = False, ab_id: str = AB
                     "summary": "Looks fine.",
                 },
             )
+        for arm, passed, values in (
+            ("bare", False, {"r1_new_violations": 3, "r4_duplicates": 1}),
+            ("harness", True, {"r1_new_violations": 0, "r4_duplicates": 0}),
+        ):
+            emit(
+                arm,
+                "primary_verdict",
+                {
+                    "arm": arm,
+                    "run_id": RUN[arm],
+                    "feature_id": "F-07",
+                    "primary_measure": "r1_new_violations>=1 or r4_duplicates>=1",
+                    "passed": passed,
+                    "values": values,
+                    "elapsed_s": 41.0,
+                },
+            )
         emit(
             "bare",
             "verdict",

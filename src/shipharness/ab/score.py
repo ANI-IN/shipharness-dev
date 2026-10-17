@@ -113,6 +113,23 @@ def evaluate_primary(measure: str, fields: dict[str, Any]) -> tuple[dict[str, An
     return primary, not failed
 
 
+def primary_fields(measure: str) -> list[str]:
+    """The ScoreRecord fields `evaluate_primary` reads for `measure`, in order: each named field,
+    and for a co-primary count also the total it is compared with."""
+    text = measure.strip()
+    if not text:
+        return []
+    names: list[str] = []
+    if "," in text:
+        for name in (n.strip() for n in text.split(",") if n.strip()):
+            names += [name, _TOTALS[name]] if name in _TOTALS else [name]
+        return names
+    for term in re.split(r"\s+or\s+", text):
+        match = _TERM.match(term)
+        names.append(match.group(1) if match else term.strip())
+    return names
+
+
 # The 12 scores of the combined referee evaluator.
 SCORE_KEYS: tuple[str, ...] = (
     "r1_new_violations",
