@@ -1,4 +1,4 @@
-"""scripts/make_release.py: tree selection, guards, reference check, REFERENCES.md, build."""
+"""platform/scripts/make_release.py: tree selection, guards, reference check, REFERENCES, build."""
 
 from __future__ import annotations
 
@@ -24,15 +24,19 @@ _spec.loader.exec_module(mr)
 
 # -- selection ----------------------------------------------------------------------------------
 
-A1 = "submodules/01-instructions"
+A1 = "01-instructions"
 TRACKED = [
     ".github/workflows/ci.yml",
-    "kit/README.md",
-    "kit/templates/AGENTS.md",
-    "kit/examples/boltons-queueutils/README.md",
-    "docs/apply-to-your-repo.md",
+    "use-in-your-repo/kit/README.md",
+    "use-in-your-repo/kit/templates/AGENTS.md",
+    "use-in-your-repo/kit/examples/boltons-queueutils/README.md",
+    "use-in-your-repo/apply-to-your-repo.md",
+    "use-in-your-repo/README.md",
+    "use-in-your-repo/skills/harness-setup/SKILL.md",
     "docs/extras.md",
-    "scripts/build_slides.py",
+    "docs/CHANGELOG.md",
+    "setup/README.md",
+    "platform/scripts/build_slides.py",
     "slides/deck.md",
     "slides/img/show-1-screen-1.png",
     ".github/dependabot.yml",
@@ -50,7 +54,7 @@ TRACKED = [
     "README.md",
     "RESEARCH.md",
     "VERIFICATION.md",
-    "docs/setup-linux.md",
+    "setup/linux.md",
     "docs/scratch.md",
     "exports/scores.json",
     "instructor/run-sheet.md",
@@ -58,20 +62,20 @@ TRACKED = [
     "notes.txt",
     "pyproject.toml",
     "research/notes/R-a.md",
-    "scripts/anchors.py",
-    "scripts/fetch_testgen_libs.py",
-    "scripts/freeze_harness.py",
-    "scripts/grade_assignment.py",
-    "scripts/lint_prose.py",
-    "scripts/make_release.py",
-    "scripts/pilot.py",
-    "scripts/publish_solutions.py",
-    "setup/PRE-CLASS.md",
+    "platform/scripts/anchors.py",
+    "platform/scripts/fetch_testgen_libs.py",
+    "platform/scripts/freeze_harness.py",
+    "platform/scripts/grade_assignment.py",
+    "platform/scripts/lint_prose.py",
+    "platform/scripts/make_release.py",
+    "platform/scripts/pilot.py",
+    "platform/scripts/publish_solutions.py",
+    "setup/pre-class.md",
     "slides/outline.md",
     "slides/deck.pdf",
     "slides/deck.pptx",
     "slides/build.sh",
-    "src/shipharness/cli.py",
+    "platform/src/shipharness/cli.py",
     f"{A1}/README.md",
     f"{A1}/concepts.md",
     f"{A1}/session-notes.md",
@@ -83,15 +87,18 @@ TRACKED = [
     f"{A1}/assignment/starter/AGENTS.md",
     f"{A1}/assignment/visible_tests/test_visible.py",
     f"{A1}/scratch/idea.md",
-    f"{A1}/solution/README.md",
-    f"{A1}/solution/grader/tests/test_grade.py",
-    "submodules/02-state-lifecycle/solution/grader/hidden/case_1.py",
-    "submodules/03-scope-sandbox/assignment/hidden/cases.json",
-    "submodules/05-extra/concepts.md",
-    "teamtrack/reference/checkpoints.toml",
-    "teamtrack/mutants/m1.patch",
-    "teamtrack/tests/hidden/f1/test_f1_search.py",
-    "tests/unit/test_cli.py",
+    f"{A1}/assignment/solution/README.md",
+    f"{A1}/assignment/solution/work/AGENTS.md",
+    f"{A1}/assignment/solution/captured/grade-solution.txt",
+    f"{A1}/assignment/solution/grader/tests/test_grade.py",
+    f"{A1}/assignment/solution/grader/hidden/checker_cases.py",
+    "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+    "03-scope-sandbox/assignment/hidden/cases.json",
+    "05-extra/concepts.md",
+    "platform/teamtrack/reference/checkpoints.toml",
+    "platform/teamtrack/mutants/m1.patch",
+    "platform/teamtrack/tests/hidden/f1/test_f1_search.py",
+    "platform/tests/unit/test_cli.py",
     "uv.lock",
 ]
 
@@ -105,16 +112,16 @@ def test_selection_follows_the_owner_structure() -> None:
         "LICENSE",
         "Makefile",
         "README.md",
-        "docs/setup-linux.md",
+        "setup/linux.md",
         "pyproject.toml",
-        "scripts/anchors.py",
-        "scripts/fetch_testgen_libs.py",
-        "scripts/grade_assignment.py",
-        "scripts/lint_prose.py",
+        "platform/scripts/anchors.py",
+        "platform/scripts/fetch_testgen_libs.py",
+        "platform/scripts/grade_assignment.py",
+        "platform/scripts/lint_prose.py",
         "slides/outline.md",
         "slides/deck.pdf",
         "slides/deck.pptx",
-        "src/shipharness/cli.py",
+        "platform/src/shipharness/cli.py",
         f"{A1}/README.md",
         f"{A1}/concepts.md",
         f"{A1}/session-notes.md",
@@ -125,10 +132,19 @@ def test_selection_follows_the_owner_structure() -> None:
         f"{A1}/assignment/live_evidence.py",
         f"{A1}/assignment/starter/AGENTS.md",
         f"{A1}/assignment/visible_tests/test_visible.py",
-        "teamtrack/reference/checkpoints.toml",
-        "teamtrack/mutants/m1.patch",
-        "teamtrack/tests/hidden/f1/test_f1_search.py",
-        "tests/unit/test_cli.py",
+        # owner message 14: the reference solution ships next to the starter
+        f"{A1}/assignment/solution/README.md",
+        f"{A1}/assignment/solution/work/AGENTS.md",
+        f"{A1}/assignment/solution/captured/grade-solution.txt",
+        "setup/README.md",
+        "setup/pre-class.md",
+        "use-in-your-repo/README.md",
+        "use-in-your-repo/skills/harness-setup/SKILL.md",
+        "docs/CHANGELOG.md",
+        "platform/teamtrack/reference/checkpoints.toml",
+        "platform/teamtrack/mutants/m1.patch",
+        "platform/teamtrack/tests/hidden/f1/test_f1_search.py",
+        "platform/tests/unit/test_cli.py",
         "uv.lock",
     ]:
         assert path in sel.included, path
@@ -153,81 +169,101 @@ def test_selection_leaves_out_private_internal_and_unlisted_files() -> None:
         "instructor/engineering-notes/release-plan.md",
         "notes.txt",
         "research/notes/R-a.md",
-        "scripts/freeze_harness.py",
-        "scripts/make_release.py",
-        "scripts/pilot.py",
-        "scripts/publish_solutions.py",
-        "setup/PRE-CLASS.md",
+        "platform/scripts/freeze_harness.py",
+        "platform/scripts/make_release.py",
+        "platform/scripts/pilot.py",
+        "platform/scripts/publish_solutions.py",
         "slides/build.sh",
         f"{A1}/scratch/idea.md",
-        f"{A1}/solution/README.md",
-        f"{A1}/solution/grader/tests/test_grade.py",
-        "submodules/02-state-lifecycle/solution/grader/hidden/case_1.py",
-        "submodules/03-scope-sandbox/assignment/hidden/cases.json",
-        "submodules/05-extra/concepts.md",
+        f"{A1}/assignment/solution/grader/hidden/checker_cases.py",
+        f"{A1}/assignment/solution/grader/tests/test_grade.py",
+        "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+        "03-scope-sandbox/assignment/hidden/cases.json",
+        "05-extra/concepts.md",
     ]:
         assert path not in sel.included, path
         assert path in sel.excluded, path
-    assert sel.excluded[f"{A1}/solution/README.md"] == mr.REASON_SOLUTION
+    assert (
+        sel.excluded[f"{A1}/assignment/solution/grader/tests/test_grade.py"] == mr.REASON_SOLUTION
+    )
     assert sel.excluded["DESIGN.md"] == mr.REASON_PRIVATE
     assert sel.excluded["exports/scores.json"] == mr.REASON_PRIVATE
-    assert sel.excluded["scripts/pilot.py"] == mr.REASON_INTERNAL
-    assert sel.excluded["setup/PRE-CLASS.md"] == mr.REASON_NOT_ALLOWED
+    assert sel.excluded["platform/scripts/pilot.py"] == mr.REASON_INTERNAL
+    assert sel.excluded["notes.txt"] == mr.REASON_NOT_ALLOWED
 
 
 def test_leak_check_names_every_private_file_with_its_reason() -> None:
     public = [
         "README.md",
-        "src/shipharness/cli.py",
-        "scripts/anchors.py",
+        "platform/src/shipharness/cli.py",
+        "platform/scripts/anchors.py",
         "RESEARCH.md",
         "research/notes/R-a.md",
         "instructor/run-sheet.md",
-        f"{A1}/solution/README.md",
-        f"{A1}/solution/grader/tests/test_grade.py",
-        "scripts/pilot.py",
+        f"{A1}/assignment/solution/grader/tests/test_grade.py",
+        "platform/scripts/pilot.py",
         "exports/scores.json",
         ".shipharness/runs/r-1/run.json",
     ]
     found = dict(mr.leaks(public))
     assert sorted(found) == sorted(public[3:])
-    assert found["scripts/pilot.py"] == mr.REASON_INTERNAL
-    assert found[f"{A1}/solution/grader/tests/test_grade.py"] == mr.REASON_SOLUTION
+    assert found["platform/scripts/pilot.py"] == mr.REASON_INTERNAL
+    assert found[f"{A1}/assignment/solution/grader/tests/test_grade.py"] == mr.REASON_SOLUTION
 
 
 def test_missing_owner_files_are_listed_not_failed() -> None:
     sel = mr.select(TRACKED)
     missing = mr.missing_expected(sel.included)
-    assert "docs/setup-macos.md" in missing
-    assert "docs/setup-linux.md" not in missing
-    assert "CHANGELOG.md" in missing
+    assert "setup/macos.md" in missing
+    assert "setup/linux.md" not in missing
+    assert "setup/windows.md" in missing
+    assert "docs/CHANGELOG.md" not in missing
     assert f"{A1}/concepts.md" not in missing
-    assert "submodules/02-*/concepts.md" in missing
-    assert "submodules/02-*/assignment/check.py" in missing
+    assert "02-*/concepts.md" in missing
+    assert "02-*/assignment/check.py" in missing
+    assert "02-*/assignment/solution/" in missing
+    assert f"{A1}/assignment/solution/" not in missing
 
 
 def test_extra_exclusions_are_removed_with_their_reason() -> None:
-    sel = mr.select(TRACKED, extra_excluded={"tests/unit/test_cli.py": "uses scripts/pilot.py"})
-    assert "tests/unit/test_cli.py" not in sel.included
-    assert "pilot" in sel.excluded["tests/unit/test_cli.py"]
+    sel = mr.select(
+        TRACKED, extra_excluded={"platform/tests/unit/test_cli.py": "uses scripts/pilot.py"}
+    )
+    assert "platform/tests/unit/test_cli.py" not in sel.included
+    assert "pilot" in sel.excluded["platform/tests/unit/test_cli.py"]
 
 
 @pytest.mark.parametrize(
     "path",
     [
-        "submodules/01-instructions/solution/README.md",
-        "submodules/02-state-lifecycle/solution/grader/hidden/case_1.py",
-        "src/shipharness/grader/check.py",
-        "submodules/03-scope-sandbox/assignment/hidden/cases.json",
-        "skills/x/solution/answer.md",
+        "01-instructions/assignment/solution/grader/grade.py",
+        "02-state-lifecycle/assignment/solution/grader/hidden/case_1.py",
+        "platform/src/shipharness/grader/check.py",
+        "03-scope-sandbox/assignment/hidden/cases.json",
+        "use-in-your-repo/skills/x/solution/hidden/answer.md",
     ],
 )
-def test_guard_fails_on_any_solution_grader_or_submodule_hidden_path(path: str) -> None:
+def test_guard_fails_on_any_grader_or_hidden_grader_case(path: str) -> None:
     assert [p for p, _ in mr.leaks(["README.md", path])] == [path]
 
 
+def test_the_reference_solutions_are_public() -> None:
+    # Owner message 14 (reverses the old rule): every 0N-*/assignment/solution/ folder ships, its
+    # code, notes, captured outputs, and live evidence; only grader/ and hidden cases stay private.
+    solution = [
+        f"{A1}/assignment/solution/README.md",
+        f"{A1}/assignment/solution/SOLUTION_NOTES.md",
+        f"{A1}/assignment/solution/captured/grade-solution.txt",
+        "03-scope-sandbox/assignment/solution/live/scores/r-1.json",
+        "04-verification/assignment/solution/a4_verification/adapter.py",
+        "04-verification/assignment/solution/tests/test_tools.py",
+    ]
+    assert mr.leaks(solution) == []
+    assert mr.select(solution).included == sorted(solution)
+
+
 def test_guard_allows_the_referee_hidden_tests_under_teamtrack() -> None:
-    assert mr.leaks(["teamtrack/tests/hidden/f1/test_f1_search.py", "README.md"]) == []
+    assert mr.leaks(["platform/teamtrack/tests/hidden/f1/test_f1_search.py", "README.md"]) == []
 
 
 def _report(included: list[str], hits: list | None = None) -> object:
@@ -242,7 +278,7 @@ def _report(included: list[str], hits: list | None = None) -> object:
 
 
 def test_a_leak_fails_the_dry_run_and_the_build() -> None:
-    report = _report(["README.md", "submodules/01-x/solution/a.md"])
+    report = _report(["README.md", "01-x/assignment/solution/grader/a.md"])
     assert any("private" in p for p in report.dry_run_failures())
     assert any("private" in p for p in report.build_failures())
 
@@ -258,65 +294,85 @@ def test_broken_references_are_reported_in_the_dry_run_and_fail_the_build() -> N
 
 EXCLUDED = [
     "DESIGN.md",
-    "scripts/pilot.py",
-    "scripts/build_testgen_dataset.py",
+    "platform/scripts/pilot.py",
+    "platform/scripts/build_testgen_dataset.py",
     "instructor/README.md",
     "instructor/run-sheet.md",
+    "01-instructions/assignment/solution/grader/grade.py",
 ]
-INCLUDED = ["README.md", "scripts/lint_prose.py", "tests/unit/support.py"]
+INCLUDED = [
+    "README.md",
+    "platform/scripts/lint_prose.py",
+    "platform/tests/unit/support.py",
+    "01-instructions/assignment/solution/SOLUTION_NOTES.md",
+]
 
 TEST_SOURCES = {
-    "tests/unit/test_pilot.py": (
+    "platform/tests/unit/test_pilot.py": (
         "import importlib.util\nfrom pathlib import Path\nREPO = Path('.')\n"
-        "_spec = importlib.util.spec_from_file_location('pilot', REPO / 'scripts' / 'pilot.py')\n"
+        "_spec = importlib.util.spec_from_file_location(\n"
+        "    'pilot', REPO / 'platform' / 'scripts' / 'pilot.py'\n)\n"
     ),
-    "tests/unit/test_reads_design.py": "TEXT = (ROOT / 'DESIGN.md').read_text()\n",
-    "tests/unit/test_loads_by_stem.py": "mod = load_script('build_testgen_dataset')\n",
-    "tests/unit/test_run_sheet.py": "p = ROOT / 'instructor' / 'run-sheet.md'\n",
-    "tests/unit/test_docstring_only.py": (
+    "platform/tests/unit/test_reads_design.py": "TEXT = (ROOT / 'DESIGN.md').read_text()\n",
+    "platform/tests/unit/test_loads_by_stem.py": "mod = load_script('build_testgen_dataset')\n",
+    "platform/tests/unit/test_run_sheet.py": "p = ROOT / 'instructor' / 'run-sheet.md'\n",
+    "platform/tests/unit/test_docstring_only.py": (
         '"""Checks the layout in DESIGN.md §3 (scripts/pilot.py is not used)."""\n'
         "# DESIGN §4\nX = 'README.md'\n"
     ),
-    "tests/unit/test_fixture_tree.py": "p = tmp / 'instructor' / 'notes.md'\nq = 'instructor'\n",
-    "tests/unit/test_lint.py": "p = REPO / 'scripts' / 'lint_prose.py'\n",
+    "platform/tests/unit/test_fixture_tree.py": (
+        "p = tmp / 'instructor' / 'notes.md'\nq = 'instructor'\n"
+    ),
+    # owner message 14: a test that reads the public reference solution ships
+    "platform/tests/unit/test_reads_solution.py": (
+        "s = ROOT / '01-instructions' / 'assignment' / 'solution' / 'SOLUTION_NOTES.md'\n"
+    ),
+    "platform/tests/unit/test_reads_grader.py": (
+        "g = ROOT / '01-instructions' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
+    ),
+    "platform/tests/unit/test_lint.py": "p = REPO / 'platform' / 'scripts' / 'lint_prose.py'\n",
 }
 
 
 def test_tests_that_exercise_excluded_files_are_found_mechanically() -> None:
     found = mr.find_excluded_tests(TEST_SOURCES, EXCLUDED, INCLUDED)
     assert sorted(found) == [
-        "tests/unit/test_loads_by_stem.py",
-        "tests/unit/test_pilot.py",
-        "tests/unit/test_reads_design.py",
-        "tests/unit/test_run_sheet.py",
+        "platform/tests/unit/test_loads_by_stem.py",
+        "platform/tests/unit/test_pilot.py",
+        "platform/tests/unit/test_reads_design.py",
+        "platform/tests/unit/test_reads_grader.py",
+        "platform/tests/unit/test_run_sheet.py",
     ]
-    assert any("scripts/pilot.py" in r for r in found["tests/unit/test_pilot.py"])
+    assert any("platform/scripts/pilot.py" in r for r in found["platform/tests/unit/test_pilot.py"])
+    assert "platform/tests/unit/test_reads_solution.py" not in found
 
 
 def test_a_flagged_helper_excludes_the_tests_that_import_it() -> None:
     sources = {
-        "tests/unit/datasets/build_support.py": "S = REPO / 'scripts' / 'pilot.py'\n",
-        "tests/unit/datasets/test_uses_helper.py": "from .build_support import S\n",
-        "tests/unit/datasets/test_other.py": "import json\n",
+        "platform/tests/unit/datasets/build_support.py": (
+            "S = REPO / 'platform' / 'scripts' / 'pilot.py'\n"
+        ),
+        "platform/tests/unit/datasets/test_uses_helper.py": "from .build_support import S\n",
+        "platform/tests/unit/datasets/test_other.py": "import json\n",
     }
     found = mr.find_excluded_tests(sources, EXCLUDED, INCLUDED)
     assert sorted(found) == [
-        "tests/unit/datasets/build_support.py",
-        "tests/unit/datasets/test_uses_helper.py",
+        "platform/tests/unit/datasets/build_support.py",
+        "platform/tests/unit/datasets/test_uses_helper.py",
     ]
 
 
 # -- reference check ----------------------------------------------------------------------------
 
 
-def _hits(text: str, path: str = "submodules/01-x/concepts.md", **kw: object) -> list:
+def _hits(text: str, path: str = "01-x/concepts.md", **kw: object) -> list:
     return mr.scan_references(path, text, **kw)
 
 
 def test_a_design_section_reference_is_reported_with_line_and_text() -> None:
     hits = _hits("Intro line.\nSee DESIGN.md §3 for the layout.\n")
     assert [(h.line, h.kind, h.text) for h in hits] == [(2, "section-cite", "DESIGN.md §3")]
-    assert hits[0].path == "submodules/01-x/concepts.md"
+    assert hits[0].path == "01-x/concepts.md"
 
 
 def test_links_mentions_and_citations_of_excluded_files() -> None:
@@ -326,7 +382,7 @@ def test_links_mentions_and_citations_of_excluded_files() -> None:
         "Notes live in research/notes/R-a.md and R-b.\n"
         "Results come from VERIFICATION.md after M6.\n"
         "Run `uv run python scripts/build_features_dataset.py`.\n"
-        "| `solution/` | Reference solution |\n"
+        "| `grader/` | Grader |\n"
         "Read [the run sheet](../instructor/run-sheet.md).\n"
         "# picked by the class poll (Design §14.1)\n"
     )
@@ -347,7 +403,7 @@ def test_links_mentions_and_citations_of_excluded_files() -> None:
 def test_near_misses_are_not_reported() -> None:
     text = (
         "opts = RunOptions(research=False)\n"
-        "The solution: a harness.\n"
+        "The solution: a harness. See [the solution](./solution/) and `solution/README.md`.\n"
         "extend-exclude = ['.claude', 'research']\n"
         "Our research notes are summarised here.\n"
         "Instructors run the class; see the instructor notes.\n"
@@ -361,22 +417,22 @@ def test_near_misses_are_not_reported() -> None:
 
 
 def test_a_link_to_any_file_left_out_of_the_public_tree_is_reported() -> None:
-    existing = frozenset({"setup/PRE-CLASS.md", f"{A1}/solution/README.md"})
+    existing = frozenset({"docs/scratch.md", f"{A1}/assignment/solution/grader/grade.py"})
     public = frozenset({"README.md", f"{A1}/concepts.md", f"{A1}/README.md"})
     text = (
-        "Before class: [pre-class](../../setup/PRE-CLASS.md).\n"
+        "Before class: [notes](../docs/scratch.md).\n"
         "The folder: [module](./).\n"
         "Read [concepts](concepts.md).\n"
     )
     hits = _hits(text, path=f"{A1}/README.md", existing=existing, public=public)
-    assert [(h.line, h.kind, h.pattern) for h in hits] == [
-        (1, "link", "link to setup/PRE-CLASS.md")
-    ]
+    assert [(h.line, h.kind, h.pattern) for h in hits] == [(1, "link", "link to docs/scratch.md")]
 
 
 def test_internal_scripts_are_named_but_learner_scripts_are_not() -> None:
-    hits = _hits("Run scripts/freeze_harness.py, then scripts/grade_assignment.py.\n")
-    assert [(h.kind, h.text) for h in hits] == [("script", "scripts/freeze_harness.py")]
+    hits = _hits(
+        "Run platform/scripts/freeze_harness.py, then platform/scripts/grade_assignment.py.\n"
+    )
+    assert [(h.kind, h.text) for h in hits] == [("script", "platform/scripts/freeze_harness.py")]
 
 
 def test_a_sentence_end_does_not_hide_a_path_mention() -> None:
@@ -393,7 +449,7 @@ def test_research_corrections_count_as_citations() -> None:
 def test_folder_mentions_must_name_a_tracked_excluded_file_when_known() -> None:
     existing = frozenset({"instructor/run-sheet.md", "research/notes/R-a.md"})
     text = "fixture: 'instructor/notes.md'\nsee instructor/run-sheet.md and research/notes/\n"
-    hits = _hits(text, path="tests/unit/test_x.py", existing=existing)
+    hits = _hits(text, path="platform/tests/unit/test_x.py", existing=existing)
     assert [(h.line, h.text) for h in hits] == [
         (2, "instructor/run-sheet.md"),
         (2, "research/notes/"),
@@ -535,7 +591,7 @@ def test_references_text_passes_the_prose_lint_and_the_reference_check() -> None
 # -- build (miniature fixture repo) -------------------------------------------------------------
 
 
-def _git(cwd: Path, *args: str) -> str:
+def _git(cwd: Path, *args: str, input_text: str | None = None) -> str:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.update(
         GIT_CONFIG_NOSYSTEM="1",
@@ -545,7 +601,10 @@ def _git(cwd: Path, *args: str) -> str:
         GIT_COMMITTER_NAME="t",
         GIT_COMMITTER_EMAIL="t@t.invalid",
     )
-    done = subprocess.run(["git", *args], cwd=cwd, capture_output=True, env=env, check=True)
+    data = input_text.encode() if input_text is not None else None
+    done = subprocess.run(
+        ["git", *args], cwd=cwd, input=data, capture_output=True, env=env, check=True
+    )
     return done.stdout.decode().strip()
 
 
@@ -562,27 +621,35 @@ def mini_repo(tmp_path: Path) -> Path:
     files = {
         "README.md": "# mini\n\nAs A2 says (F-a-03).\n",
         "LICENSE": "MIT\n",
-        "src/pkg/__init__.py": "X = 1\n",
-        "teamtrack/app/x.py": "a = 1\n",
-        "teamtrack/reference/f1/f1.patch": (
+        "platform/src/pkg/__init__.py": "X = 1\n",
+        "platform/teamtrack/app/x.py": "a = 1\n",
+        "platform/teamtrack/reference/f1/f1.patch": (
             "diff --git a/app/x.py b/app/x.py\n--- a/app/x.py\n+++ b/app/x.py\n"
             "@@ -1 +1,2 @@\n a = 1\n+b = 2\n"
         ),
-        "teamtrack/reference/checkpoints.toml": (
+        "platform/teamtrack/reference/checkpoints.toml": (
             '[checkpoints."m1-s1-start"]\ntasks = []\n\n'
             '[checkpoints."m1-s2-start"]\ntasks = ["f1"]\n'
         ),
-        "teamtrack/tests/hidden/test_h.py": "def test_h():\n    assert True\n",
-        "submodules/01-x/README.md": "# one\n",
-        "submodules/01-x/solution/README.md": "# answer\n",
+        "platform/teamtrack/tests/hidden/test_h.py": "def test_h():\n    assert True\n",
+        "01-x/README.md": "# one\n",
+        "01-x/assignment/README.md": "# task\n\nThe reference solution: [solution](./solution/).\n",
+        "01-x/assignment/solution/README.md": "# answer\n",
+        "01-x/assignment/solution/grader/grade.py": "print(2)\n",
         "DESIGN.md": "# design\n",
         "RESEARCH.md": RESEARCH_MD,
         "research/notes/R-a.md": NOTES_A,
         "research/notes/R-b.md": NOTES_B,
         "VERIFICATION.md": "# verification\n",
-        "scripts/pilot.py": "print(1)\n",
-        "tests/unit/test_pilot.py": "P = ROOT / 'scripts' / 'pilot.py'\n",
-        "tests/unit/test_ok.py": "def test_ok():\n    assert True\n",
+        "platform/scripts/pilot.py": "print(1)\n",
+        "platform/tests/unit/test_pilot.py": "P = ROOT / 'platform' / 'scripts' / 'pilot.py'\n",
+        "platform/tests/unit/test_ok.py": "def test_ok():\n    assert True\n",
+        "platform/tests/unit/test_reads_solution.py": (
+            "S = ROOT / '01-x' / 'assignment' / 'solution' / 'README.md'\n"
+        ),
+        "platform/tests/unit/test_reads_grader.py": (
+            "G = ROOT / '01-x' / 'assignment' / 'solution' / 'grader' / 'grade.py'\n"
+        ),
     }
     for rel, text in files.items():
         _write(repo, rel, text)
@@ -591,7 +658,7 @@ def mini_repo(tmp_path: Path) -> Path:
     _git(repo, "config", "user.email", "t@t.invalid")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "first")
-    _write(repo, "src/pkg/later.py", "Y = 2\n")
+    _write(repo, "platform/src/pkg/later.py", "Y = 2\n")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "second")
     from shipharness.ab.checkpoints import build_commits
@@ -620,7 +687,7 @@ def test_dry_run_builds_one_commit_rebuilds_the_tags_and_writes_the_record(
         "m1-s1-start",
         "m1-s2-start",
     ]  # no harness-frozen: the build repository has no freeze record
-    assert "REFERENCES.md" in rel.public_files
+    assert "docs/REFERENCES.md" in rel.public_files
     assert "DESIGN.md" not in rel.public_files
     assert rel.tree_leaks == []
     by_name = {c.name: c for c in rel.checkpoints}
@@ -689,27 +756,42 @@ def test_dry_run_compares_against_the_build_repo_freeze_tag_when_it_exists(
 
 
 def test_a_frozen_path_that_differs_fails_the_dry_run(mini_repo: Path, tmp_path: Path) -> None:
-    _write(mini_repo, "teamtrack/reference/solution/notes.md", "private\n")
+    _write(mini_repo, "platform/teamtrack/reference/grader/notes.md", "private\n")
     _git(mini_repo, "add", "-A")
     _git(mini_repo, "commit", "-q", "-m", "private note under a frozen path")
     rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
-    assert rel.frozen.paths["teamtrack/reference"] is False
-    assert rel.frozen.paths["teamtrack/tests/hidden"] is True
-    assert any("teamtrack/reference" in f for f in rel.failures())
+    assert rel.frozen.paths["platform/teamtrack/reference"] is False
+    assert rel.frozen.paths["platform/teamtrack/tests/hidden"] is True
+    assert any("platform/teamtrack/reference" in f for f in rel.failures())
 
 
 def test_a_checkpoint_whose_teamtrack_tree_differs_is_reported(
     mini_repo: Path, tmp_path: Path
 ) -> None:
-    _write(mini_repo, "teamtrack/app/y.py", "c = 3\n")
+    _write(mini_repo, "platform/teamtrack/app/y.py", "c = 3\n")
     _git(mini_repo, "add", "-A")
     _git(mini_repo, "commit", "-q", "-m", "teamtrack changed after the tags")
     rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
     for c in rel.checkpoints:
         assert not c.app_match
-        assert "teamtrack/app/y.py" in c.differing
+        assert "platform/teamtrack/app/y.py" in c.differing
     assert rel.failures() == []  # reported in the dry run
     assert any("checkpoint" in f for f in rel.build_failures())
+
+
+def test_a_build_tag_in_the_layout_before_the_course_first_one_still_compares(
+    mini_repo: Path, tmp_path: Path
+) -> None:
+    # A build-repository tag made before the restructure has TeamTrack at teamtrack/; the same
+    # content under platform/teamtrack/ in the rebuilt public tag is the same tree, so it matches.
+    rel = mr.dry_run(mini_repo, "HEAD", tmp_path / "public")
+    app = _git(rel.public, "rev-parse", "refs/tags/m1-s1-start:platform/teamtrack")
+    legacy_tree = _git(mini_repo, "mktree", input_text=f"040000 tree {app}\tteamtrack\n")
+    legacy = _git(mini_repo, "commit-tree", legacy_tree, "-m", "old layout checkpoint")
+    _git(mini_repo, "tag", "-f", "m1-s1-start", legacy)
+    by_name = {c.name: c for c in mr.compare_checkpoints(mini_repo, rel.public, lambda p: True)}
+    assert by_name["m1-s1-start"].build_app == app
+    assert by_name["m1-s1-start"].app_match
 
 
 def test_push_commands_are_printed_for_the_target_and_never_run() -> None:
@@ -735,21 +817,28 @@ def test_build_makes_one_commit_plus_the_checkpoint_tags(mini_repo: Path, tmp_pa
     head = _git(dest, "rev-parse", "HEAD")
     assert sorted(result.tags) == ["m1-s1-start", "m1-s2-start"]
     assert _git(dest, "rev-parse", "m1-s2-start^") == head
-    assert _git(dest, "show", "m1-s2-start:teamtrack/app/x.py") == "a = 1\nb = 2"
+    assert _git(dest, "show", "m1-s2-start:platform/teamtrack/app/x.py") == "a = 1\nb = 2"
     assert sorted(_git(dest, "tag", "--list").split()) == ["class-v1", *sorted(result.tags)]
     tree = set(_git(dest, "ls-files").split())
-    assert {"README.md", "REFERENCES.md", "src/pkg/later.py"} <= tree
-    assert "teamtrack/tests/hidden/test_h.py" in tree
+    assert {"README.md", "docs/REFERENCES.md", "platform/src/pkg/later.py"} <= tree
+    # owner message 14: the solution and the tests that read it ship; graders do not
+    assert {
+        "01-x/assignment/solution/README.md",
+        "platform/tests/unit/test_reads_solution.py",
+    } <= tree
+    assert "platform/teamtrack/tests/hidden/test_h.py" in tree
     for gone in [
         "DESIGN.md",
         "RESEARCH.md",
         "research/notes/R-a.md",
-        "scripts/pilot.py",
-        "submodules/01-x/solution/README.md",
-        "tests/unit/test_pilot.py",
+        "platform/scripts/pilot.py",
+        "01-x/assignment/solution/grader/grade.py",
+        "platform/tests/unit/test_pilot.py",
+        "platform/tests/unit/test_reads_grader.py",
     ]:
         assert gone not in tree, gone
-    assert "F-a-03" in (dest / "REFERENCES.md").read_text(encoding="utf-8")
+    assert "F-a-03" in (dest / "docs" / "REFERENCES.md").read_text(encoding="utf-8")
+    assert not (dest / "REFERENCES.md").exists()
 
 
 def test_build_refuses_on_a_broken_reference(mini_repo: Path, tmp_path: Path) -> None:
@@ -790,13 +879,13 @@ def test_dry_run_cli_reports_broken_references_without_failing(
     assert done.returncode == 0, done.stdout + done.stderr
     out = done.stdout
     assert "README.md:3" in out and "DESIGN.md §3" in out
-    assert "tests/unit/test_pilot.py" in out  # the excluded-tests list
+    assert "platform/tests/unit/test_pilot.py" in out  # the excluded-tests list
     assert "ANI-IN/harness-engineering-session" in out
     assert "git push origin main" in out
     assert "harness-frozen: not written (no freeze record in the build repository)" in out
     assert "class-v1 tag written at" in out and "refs/tags/class-v1" in out
     assert "refs/tags/harness-frozen" not in out
-    assert "REFERENCES.md" in listing.read_text(encoding="utf-8").split()
+    assert "docs/REFERENCES.md" in listing.read_text(encoding="utf-8").split()
 
 
 def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
@@ -804,12 +893,12 @@ def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
     # Makefile's `make slides` runs scripts/build_slides.py on slides/deck.md.
     sel = mr.select(TRACKED)
     for path in [
-        "kit/README.md",
-        "kit/templates/AGENTS.md",
-        "kit/examples/boltons-queueutils/README.md",
-        "docs/apply-to-your-repo.md",
+        "use-in-your-repo/kit/README.md",
+        "use-in-your-repo/kit/templates/AGENTS.md",
+        "use-in-your-repo/kit/examples/boltons-queueutils/README.md",
+        "use-in-your-repo/apply-to-your-repo.md",
         "docs/extras.md",
-        "scripts/build_slides.py",
+        "platform/scripts/build_slides.py",
         "slides/deck.md",
     ]:
         assert path in sel.included, path
@@ -819,25 +908,25 @@ def test_a_word_that_equals_a_script_stem_is_not_a_reference_to_the_script() -> 
     # "pilot" is also a run purpose; only a path or a module name names scripts/pilot.py
     # (release candidate, 2026-10-17: tests/unit/ab/test_commands.py was left out for this).
     sources = {
-        "tests/unit/test_purpose.py": 'PURPOSES = ("class", "pilot")\n',
-        "tests/unit/test_path.py": 'SCRIPT = "scripts/pilot.py"\n',
-        "tests/unit/test_module.py": "import scripts.pilot\n",
+        "platform/tests/unit/test_purpose.py": 'PURPOSES = ("class", "pilot")\n',
+        "platform/tests/unit/test_path.py": 'SCRIPT = "platform/scripts/pilot.py"\n',
+        "platform/tests/unit/test_module.py": "import scripts.pilot\n",
     }
-    found = mr.find_excluded_tests(sources, ["scripts/pilot.py"], [])
-    assert "tests/unit/test_purpose.py" not in found
-    assert "tests/unit/test_path.py" in found
-    assert "tests/unit/test_module.py" in found
+    found = mr.find_excluded_tests(sources, ["platform/scripts/pilot.py"], [])
+    assert "platform/tests/unit/test_purpose.py" not in found
+    assert "platform/tests/unit/test_path.py" in found
+    assert "platform/tests/unit/test_module.py" in found
 
 
 def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
     sources = {
-        "tests/unit/ab/test_shared.py": (
-            'SCRIPT = "scripts/pilot.py"\n\ndef make_app():\n    pass\n'
+        "platform/tests/unit/ab/test_shared.py": (
+            'SCRIPT = "platform/scripts/pilot.py"\n\ndef make_app():\n    pass\n'
         ),
-        "tests/unit/ab/test_user.py": "from .test_shared import make_app\n",
+        "platform/tests/unit/ab/test_user.py": "from .test_shared import make_app\n",
     }
-    found = mr.find_excluded_tests(sources, ["scripts/pilot.py"], [])
-    assert "tests/unit/ab/test_user.py" in found
+    found = mr.find_excluded_tests(sources, ["platform/scripts/pilot.py"], [])
+    assert "platform/tests/unit/ab/test_user.py" in found
 
 
 def test_the_slide_screenshots_ship_with_the_deck() -> None:

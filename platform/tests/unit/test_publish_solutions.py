@@ -1,4 +1,4 @@
-"""scripts/publish_solutions.py: solutions are never published to the public course repository."""
+"""platform/scripts/publish_solutions.py: solution folders ship; graders and hidden cases do not."""
 
 from __future__ import annotations
 
@@ -21,15 +21,16 @@ ps = importlib.util.module_from_spec(_spec)
 sys.modules["publish_solutions"] = ps
 _spec.loader.exec_module(ps)
 
+S1 = "01-instructions/assignment/solution"
 PATHS = [
-    "submodules/01-instructions/README.md",
-    "submodules/01-instructions/assignment/README.md",
-    "submodules/01-instructions/solution/README.md",
-    "submodules/01-instructions/solution/AGENTS.md",
-    "submodules/01-instructions/solution/grader/check.py",
-    "submodules/01-instructions/solution/grader/tests/test_grade.py",
-    "submodules/01-instructions/solution/grader/hidden/case_1.py",
-    "submodules/02-state-lifecycle/solution/README.md",
+    "01-instructions/README.md",
+    "01-instructions/assignment/README.md",
+    f"{S1}/README.md",
+    f"{S1}/AGENTS.md",
+    f"{S1}/grader/check.py",
+    f"{S1}/grader/tests/test_grade.py",
+    f"{S1}/grader/hidden/case_1.py",
+    "02-state-lifecycle/assignment/solution/README.md",
 ]
 
 
@@ -37,24 +38,23 @@ def test_the_target_is_the_public_course_repository() -> None:
     assert ps.PUBLIC_REPO == "ANI-IN/harness-engineering-session"
 
 
-def test_the_plan_publishes_nothing_and_keeps_the_whole_solution_folder_private() -> None:
+def test_the_plan_ships_the_solution_and_keeps_graders_and_hidden_cases_private() -> None:
+    # Owner message 14 reverses the earlier rule: the solution folder is public.
     plan = ps.plan(PATHS, 1)
-    assert plan.folder == "submodules/01-instructions/solution/"
-    assert plan.publish == []
+    assert plan.folder == f"{S1}/"
+    assert plan.publish == [f"{S1}/AGENTS.md", f"{S1}/README.md"]
     assert plan.withheld == [
-        "submodules/01-instructions/solution/AGENTS.md",
-        "submodules/01-instructions/solution/README.md",
-        "submodules/01-instructions/solution/grader/check.py",
-        "submodules/01-instructions/solution/grader/hidden/case_1.py",
-        "submodules/01-instructions/solution/grader/tests/test_grade.py",
+        f"{S1}/grader/check.py",
+        f"{S1}/grader/hidden/case_1.py",
+        f"{S1}/grader/tests/test_grade.py",
     ]
 
 
 def test_unknown_or_ambiguous_assignment_is_an_error() -> None:
-    with pytest.raises(ps.PublishError, match="no submodule"):
+    with pytest.raises(ps.PublishError, match="no section folder"):
         ps.plan(PATHS, 7)
     with pytest.raises(ps.PublishError, match="no solution"):
-        ps.plan(["submodules/03-scope-sandbox/README.md"], 3)
+        ps.plan(["03-scope-sandbox/README.md"], 3)
 
 
 def _git(cwd: Path, *args: str) -> None:
@@ -82,9 +82,10 @@ def test_cli_dry_run_reports_the_rule_and_publish_refuses(tmp_path: Path) -> Non
     args = [sys.executable, str(script), "--repo", str(repo), "--assignment", "1"]
     done = subprocess.run([*args, "--dry-run"], capture_output=True, text=True, check=False)
     assert done.returncode == 0, done.stderr
-    assert "publishes nothing" in done.stdout
+    assert "owner message 14" in done.stdout
     assert "ANI-IN/harness-engineering-session" in done.stdout
-    assert "private: submodules/01-instructions/solution/AGENTS.md" in done.stdout
+    assert f"public: {S1}/AGENTS.md" in done.stdout
+    assert f"private: {S1}/grader/check.py" in done.stdout
     real = subprocess.run([*args, "--publish"], capture_output=True, text=True, check=False)
     assert real.returncode == 2
-    assert "never published" in real.stderr
+    assert "never pushes" in real.stderr
