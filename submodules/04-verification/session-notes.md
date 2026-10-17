@@ -99,9 +99,31 @@ and ab-20261016-191626-6100f6, in that order.
   tests in one batch. The batch gave the same pass or fail outcome as one-at-a-time runs on all 181
   shipped tests of run 2.
 
-### Still to come
+### Pilot run 3
 
-[[PENDING: F4 results of pilot run 3 (hidden of 69 and referee mutants of 4 per A/B, bare vs harness) with A/B ids | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16: three F4 A/Bs, effort medium, with change 9 in
+place. Both arms failed the primary measure in all three A/Bs.
+
+| Count per A/B (A/Bs 1, 2, 3 of pilot run 3) | Bare arm | Harness arm |
+|---|---|---|
+| Hidden tests passed, of 69 | 66, 66, 69 | 27, 69, 69 |
+| Referee mutants killed, of 4 | 4, 0, 3 | 0, 0, 0 |
+| Tests shipped (score records) | 23, 0, 5 | 0, 0, 0 |
+
+The three values in each cell come from A/Bs ab-20261016-212252-aa1644,
+ab-20261016-214151-ca9841, and ab-20261016-220010-c5b4bf, in that order.
+
+- The harness arm shipped no tests in any A/B, so it killed 0 of 4 mutants each time. Its test
+  phase proposed no test in any A/B, and no harness arm claimed done, so the gate never ran.
+- In ab-20261016-212252-aa1644 the harness arm built a broken change: hidden 27 of 69, 3 new R1
+  violations.
+- Every bare arm hit the agent time limit; its shipped tests killed 4, 0, and 3 mutants.
+- The reviewer rejected all six arms.
+- Pilot run 4 (effort low) ran F1-F3 only, so F4 has no run 4 result.
+
+Result: no measurable difference on this task with this model (course pilot, run 3).
+
+### Still to come
 
 [[PENDING: S4 batch 1 dots (hidden of 69 and referee mutants of 4 per run, bare vs harness, k=10) with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --batch batch-1, then uv run shipharness report]]
 
@@ -109,12 +131,12 @@ and ab-20261016-191626-6100f6, in that order.
 
 ## Common questions
 
-**The bare arm killed more mutants in the pilot. Does verification not work?** Pilot run 2 did not
-test the verification parts much. The gate never ran (no arm claimed done), and the filters saw one
-proposed test in three A/Bs. The harness arm lost on turn cost: it shipped almost no tests. Change
-9 is the fix being tested in run 3. If a section still shows no gap after the pre-registered
-levers, the course reports "no measurable difference on this task with this model" (the course's
-pre-registered decision rule).
+**The bare arm killed more mutants in the pilot. Does verification not work?** The pilot runs did
+not test the verification parts much. In pilot runs 2 and 3 the gate never ran on F4 (no harness
+arm claimed done), and the filters saw one proposed test in run 2 and none in run 3. In run 2 the
+harness arm shipped 0, 0, and 3 tests; after change 9, in run 3, it shipped none. Both arms failed
+the primary measure in 3 of 3 A/Bs in run 3, so the course reports F4 as "no measurable difference
+on this task with this model" (the course's pre-registered decision rule).
 
 **Why does a run need all 69 hidden tests and all 4 mutants?** That is the pre-registered primary
 measure (course design; `evaluate_primary` in `src/shipharness/ab/score.py`). The report also shows

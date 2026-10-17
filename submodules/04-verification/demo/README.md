@@ -34,6 +34,8 @@ decision recorded after run 3:
 
 [[PENDING: final F4 task for the class (canonical or another variant) after pilot run 3 | source: M6 pilot | how: course pilot (build repository)]]
 
+The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
+
 ## 2. Commands
 
 Run everything inside WSL2 from the repository root (`~/shipharness`).
@@ -159,8 +161,10 @@ only if it checks that a write moves the ETag, or that a save with the old versi
 
 What pilot run 2 showed (measured in the course pilot, run 2, 2026-10-16): none of A to C held in
 any of its three F4 A/Bs. The bare arm killed 3, 4, 3 mutants against the harness arm's 0, 0, 2,
-and passed 69, 66, 69 hidden tests against 69, 61, 69. Run 3 has the turn-cost change for the
-harness arm (section 5a).
+and passed 69, 66, 69 hidden tests against 69, 61, 69. Pilot run 3 added the turn-cost change for
+the harness arm (section 5a); measured in the course pilot, run 3, 2026-10-16, none of A to C held
+in any of its three F4 A/Bs either: the bare arm killed 4, 0, 3 mutants against the harness arm's
+0, 0, 0, and passed 66, 66, 69 hidden tests against 27, 69, 69 (section 7).
 
 Answer pattern from the experiments:
 
@@ -257,7 +261,26 @@ finishes; run the unmutated-pass step for all shipped tests in one batch) are me
 with no outcome change: the batch step gave the same pass or fail outcome as one-test-at-a-time on
 all 181 shipped tests of run 2.
 
-[[PENDING: what the harness arm did differently in pilot run 3 on F4 (tests written in the build phase and in the test phase, gate runs, filter discards) | source: M6 pilot | how: course pilot (build repository)]]
+What it did in pilot run 3, measured in the course pilot, run 3, 2026-10-16, A/Bs
+ab-20261016-212252-aa1644, ab-20261016-214151-ca9841, and ab-20261016-220010-c5b4bf (from each
+A/B's `events.jsonl`): with change 9 in place it still wrote no tests.
+
+| Harness arm, per A/B | aa1644 | ca9841 | c5b4bf |
+|---|---|---|---|
+| Build session 1: turns used, of 40 | 40 | 40 | 40 |
+| Build phase: patches to files under `tests/` | 0 | 0 | 0 |
+| Test phase (session 2): turns used, of 12 | 12 | 7 | 6 |
+| Test phase: tests proposed (filter decision) | 0 (`kept 0, discarded 0; no new tests to filter`) | 0 (same) | 0 (same) |
+| Gate runs (`finish(claim="done")` calls) | 0 | 0 | 0 |
+| Arm status | completed | ABORTED: timeout | ABORTED: timeout |
+
+In all three A/Bs the build session spent its 40 turns reading and then patching product files
+under `app/`, and never called `finish`, so the claim stayed `none` and the gate never ran. Each
+test phase began by reading progress.md, session-handoff.md, and the exec plan and running `bash
+init.sh` again; in ca9841 and c5b4bf the agent time limit ended the run during the test phase, and
+in aa1644 the test phase's only patch was to progress.md. The filters therefore discarded nothing:
+no test reached them. The harness arm shipped 0 tests in each A/B, so its tests killed 0 of 4
+referee mutants each time.
 
 ## 6. Captured output and screenshots
 
@@ -341,7 +364,25 @@ are 0, `board_ok` is true, `flaky_tests` is 0, and `reviewer_agrees` is true. Ev
 hidden tests in at least one A/B, so the hidden-test count alone does not separate the arms here;
 the mutant count does, in the bare arm's favour.
 
-[[PENDING: F4 dots of pilot run 3 (hidden of 69, referee mutants of 4, per A/B, bare vs harness) with run ids | source: M6 pilot | how: course pilot (build repository)]]
+### Pilot run 3 (2026-10-16, F4 canonical, three A/Bs)
+
+Measured in the course pilot, run 3, 2026-10-16, effort medium, two A/Bs in parallel, after changes
+7-13 of the pilot change log (change 9 is the turn-cost change in section 5a). One row per arm run,
+from the score records (captured on 2026-10-16, runs as listed in the table; your output will
+differ):
+
+| A/B | Arm | Run id | Status | Hidden of 69 | Referee mutants of 4 | Tests shipped | Out-of-scope files | R1 new | Reviewer |
+|---|---|---|---|---|---|---|---|---|---|
+| ab-20261016-212252-aa1644 | bare | r-20261016-212252-eb2cb4 | ABORTED: timeout | 66 | 4 | 23 | 2 | 0 | reject |
+| ab-20261016-212252-aa1644 | harness | r-20261016-212252-1623c9 | completed | 27 | 0 | 0 | 0 | 3 | reject |
+| ab-20261016-214151-ca9841 | bare | r-20261016-214151-23531c | ABORTED: timeout | 66 | 0 | 0 | 2 | 0 | reject |
+| ab-20261016-214151-ca9841 | harness | r-20261016-214151-c0e492 | ABORTED: timeout | 69 | 0 | 0 | 0 | 0 | reject |
+| ab-20261016-220010-c5b4bf | bare | r-20261016-220010-087344 | ABORTED: timeout | 69 | 3 | 5 | 1 | 0 | reject |
+| ab-20261016-220010-c5b4bf | harness | r-20261016-220010-aabcbb | ABORTED: timeout | 69 | 0 | 0 | 0 | 0 | reject |
+
+Both arms failed the primary measure in 3 of 3 A/Bs: no measurable difference on this task with
+this model (course pilot, run 3). No arm passed all 69 hidden tests and killed all 4 referee
+mutants in the same run. Pilot run 4 (effort low) ran F1-F3 only, so F4 has no run 4 result.
 
 ### Batch 1
 
@@ -385,7 +426,25 @@ will differ):
 
 Every arm stayed below the $0.20 arm cap and every review below the $0.04 review cap.
 
-[[PENDING: measured wall time and cost of make demo-4 per arm and per review in pilot run 3, after changes 8-11 | source: M6 pilot | how: course pilot (build repository)]]
+Measured in the course pilot, run 3, 2026-10-16 (F4 rows, after changes 7-13, two A/Bs in
+parallel), from the pilot summary (captured on 2026-10-16, runs as listed in the table; your output
+will differ):
+
+| A/B | Run id | Arm | Agent s | Harness s | Cost $ | Review $ | A/B wall s |
+|---|---|---|---|---|---|---|---|
+| ab-20261016-212252-aa1644 | r-20261016-212252-eb2cb4 | bare | 320 | 0 | 0.0166 | 0.0043 | 623.6 |
+| ab-20261016-212252-aa1644 | r-20261016-212252-1623c9 | harness | 270 | 91 | 0.0187 | 0.0032 | 623.6 |
+| ab-20261016-214151-ca9841 | r-20261016-214151-23531c | bare | 302 | 0 | 0.0136 | 0.0043 | 486.2 |
+| ab-20261016-214151-ca9841 | r-20261016-214151-c0e492 | harness | 321 | 67 | 0.0149 | 0.0023 | 486.2 |
+| ab-20261016-220010-c5b4bf | r-20261016-220010-087344 | bare | 328 | 0 | 0.0170 | 0.0046 | 535.6 |
+| ab-20261016-220010-c5b4bf | r-20261016-220010-aabcbb | harness | 316 | 61 | 0.0169 | 0.0041 | 535.6 |
+
+The agent time limit was hit in 3 of 3 bare runs and 2 of 3 harness runs. Every arm stayed below
+the $0.20 arm cap and every review below the $0.04 review cap. Across all 12 run-3 A/Bs (sections
+F1-F4), wall time from first event to last verdict was 384 s minimum, 512 s median, 620 s maximum
+(the maximum is ab-20261016-212252-aa1644; the pilot summary column above is a separate
+measurement and lists it as 623.6 s). All 12 run-3 A/Bs with reviews
+cost $0.3801. F4 was not part of pilot run 4.
 
 [[PENDING: wall time of make demo-4 on the class host with make final running in parallel, launch to Cost line | source: M6 pilot | how: course pilot (build repository)]]
 

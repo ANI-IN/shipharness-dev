@@ -310,7 +310,21 @@ session opens with "write the tests for the feature first" (`TEST_PHASE_FIRST` i
 process) are measurement changes for both arms with no outcome change; change 11 gave the same
 outcome on 181 shipped tests from 17 run-2 arms.
 
-[[PENDING: F4 results of pilot run 3 (hidden x/69 and referee mutants y/4 per A/B, bare vs harness, k=3) with A/B ids | source: M6 pilot | how: course pilot (build repository)]]
+Pilot run 3, measured in the course pilot, run 3, 2026-10-16 (F4 canonical, effort medium, k=3):
+both arms failed the primary measure in 3 of 3 A/Bs.
+
+| Count per A/B (A/Bs 1, 2, 3 of pilot run 3) | Bare arm | Harness arm |
+|---|---|---|
+| Hidden tests passed, of 69 | 66, 66, 69 | 27, 69, 69 |
+| Referee mutants killed, of 4 | 4, 0, 3 | 0, 0, 0 |
+| Tests shipped (score records) | 23, 0, 5 | 0, 0, 0 |
+
+The three values in each cell come from A/Bs ab-20261016-212252-aa1644,
+ab-20261016-214151-ca9841, and ab-20261016-220010-c5b4bf, in that order. The harness arm shipped no
+tests in any A/B; in ab-20261016-212252-aa1644 it also built a broken change (hidden 27 of 69, 3
+new R1 violations). Every bare arm hit the agent time limit. Pilot run 4 (effort low) ran F1-F3
+only, so F4 has no run 4 result. On the primary measure: no measurable difference on this task with
+this model (course pilot, run 3).
 
 [[PENDING: S4 co-primary dots from batch 1 (hidden x/69 and referee mutants y/4 per run, bare vs harness, k=10) with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --batch batch-1, then uv run shipharness report]]
 
