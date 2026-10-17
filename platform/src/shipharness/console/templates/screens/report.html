@@ -24,7 +24,7 @@
   <h2>Primary measures, one dot per run</h2>
   {% for g in report.groups %}
   <div class="dot-row">
-    <span class="dot-label"><span class="arm-name arm-{{ g.arm }}">{{ g.feature }} · {{ g.variant }} · {{ g.arm }}</span> <span class="muted">{{ g.layers }}</span></span>
+    <span class="dot-label"><span class="arm-name arm-{{ g.arm }}">{{ feature_label(g.feature) }} · {{ g.variant }} · {{ g.arm }}</span> <span class="muted">{{ g.layers }}</span></span>
     <span class="dots">{% for d in g.dots %}<span class="dot {{ 'pass' if d.passed else 'fail' }}" title="{{ d.run_id }}: {{ 'passed' if d.passed else 'failed' }}">{{ "●" if d.passed else "○" }}</span>{% endfor %}</span>
     <span class="count">{{ g.count_label }}</span>
   </div>

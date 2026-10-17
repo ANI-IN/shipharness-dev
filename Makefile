@@ -12,7 +12,10 @@ LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # demo-N: SESSION_BUDGET=12,38 overrides the task's session turn budget (pre-registered levers).
 SESSION_BUDGET ?=
 SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
-# final: comma-separated feature ids picked by the class poll, e.g. FEATURES=F5,F6.
+# FEATURE and FEATURES take readable names or codes (any case); the CLI turns names into codes:
+# org-search (F1), comments (F2), idempotent-create (F3), version-checks (F4), bulk-close (F5),
+# watchers (F6), labels (F7).
+# final: comma-separated features picked by the class poll, e.g. FEATURES=watchers,bulk-close.
 FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
@@ -24,7 +27,8 @@ PURPOSE ?= class
 # arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 # arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
 PROFILE ?= class
-# demo-3's ticket: F3 by default; FEATURE=F4 runs the S3 confirmation task as a live A/B.
+# demo-3's ticket: F3 by default; FEATURE=version-checks (or F4) runs the S3 confirmation task as a
+# live A/B.
 FEATURE ?= F3
 # images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
 AGENT_IMAGE ?= shipharness-agent:1
@@ -40,7 +44,10 @@ RUN ?=
 
 help:
 	@echo "setup doctor up console datasets lint format lint-prose check-style test test-all test-live test-docker"
-	@echo "demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
+	@echo "demo-N [LAYERS=-<layer>]  demo-3 [FEATURE=version-checks]  show-N  swap-N [AB=<id>]"
+	@echo "final [FEATURES=watchers,bulk-close]  replay RUN=<id>"
+	@echo "features (name or code): org-search F1, comments F2, idempotent-create F3, version-checks F4,"
+	@echo "  bulk-close F5, watchers F6, labels F7"
 	@echo "warm (before class: images, containers, referee and gate baselines; no model calls)"
 	@echo "experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help"
 

@@ -8,11 +8,13 @@ import typer
 
 from shipharness import __version__
 from shipharness.config import Settings
+from shipharness.datasets.names import valid_feature_names
 
 HELP_HEADER = "Module 1: Harness Engineering for Coding Agents"
 HELP = (
     f"{HELP_HEADER}\n\n"
     "Run a coding agent with and without a harness, judge both runs, and check your own repository."
+    f"\n\n--feature takes a readable name or its code: {valid_feature_names()}."
 )
 
 app = typer.Typer(

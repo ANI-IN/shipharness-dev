@@ -19,6 +19,7 @@ from markupsafe import Markup, escape
 
 from shipharness.console.report import Report, safe_url
 from shipharness.console.state import ARMS, ConsoleState, measure_values
+from shipharness.datasets.names import feature_label
 
 HERE = Path(__file__).parent
 
@@ -139,6 +140,7 @@ class ScreenRenderer:
             screens=SCREENS,
             escape=escape,
             measure_values=measure_values,
+            feature_label=feature_label,
         )
 
     def render(self, key: str, ctx: ScreenContext) -> str:

@@ -54,6 +54,7 @@ body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex
 .badge.single-arm { background: var(--info); color: #111111; }
 .badge.constructed { background: var(--constructed); color: #111111; }
 .badge.profile { border: 2px solid var(--muted); color: var(--text); font-weight: 700; }
+.badge.feature { border: 2px solid var(--muted); color: var(--text); font-weight: 700; letter-spacing: 0; }
 .seq { color: var(--muted); font-size: 20px; }
 
 /* Grid: at most three panels */
