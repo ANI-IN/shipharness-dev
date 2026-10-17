@@ -1,0 +1,122 @@
+{
+  "kind": "a2-live-run",
+  "ab_id": "ab-20261017-194743-ca51cc",
+  "example_id": "F2-a2-four-sessions",
+  "checkpoint_sha": "6d8102e7a4eacc2a32a3b8d591368bc45dcb9ea2",
+  "layer": {
+    "class": "a2_state.layer.ResumableStateLayer",
+    "impl": "solution",
+    "a2_state_sha256": "752f8e749c1c70336564f79a8ec83bf1bd03cbb2fce1921d2373fc8a3b740e2e"
+  },
+  "arms": {
+    "bare": {
+      "run_id": "r-20261017-194743-f27df9",
+      "model": "gpt-6-luna",
+      "layers": [],
+      "session_budget": [
+        10,
+        10,
+        10,
+        20
+      ],
+      "status": "completed",
+      "claim": "none",
+      "cost_usd": 0.017559,
+      "turns_total": 62,
+      "sessions": [
+        {
+          "index": 1,
+          "phase": "build",
+          "turns": 10,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 2,
+          "phase": "build",
+          "turns": 10,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 3,
+          "phase": "build",
+          "turns": 10,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 4,
+          "phase": "build",
+          "turns": 20,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 5,
+          "phase": "test",
+          "turns": 12,
+          "ended_by": "turn_budget"
+        }
+      ],
+      "session_stops": [
+        {
+          "session_index": 1,
+          "ended_by": "turn_budget"
+        },
+        {
+          "session_index": 2,
+          "ended_by": "turn_budget"
+        },
+        {
+          "session_index": 3,
+          "ended_by": "turn_budget"
+        }
+      ]
+    },
+    "harness": {
+      "run_id": "r-20261017-194743-28f3c8",
+      "model": "gpt-6-luna",
+      "layers": [
+        "instructions",
+        "state"
+      ],
+      "session_budget": [
+        10,
+        10,
+        10,
+        20
+      ],
+      "status": "ABORTED: timeout",
+      "claim": "none",
+      "cost_usd": 0.006891,
+      "turns_total": 28,
+      "sessions": [
+        {
+          "index": 1,
+          "phase": "build",
+          "turns": 10,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 2,
+          "phase": "build",
+          "turns": 10,
+          "ended_by": "turn_budget"
+        },
+        {
+          "index": 3,
+          "phase": "build",
+          "turns": 8,
+          "ended_by": "timeout"
+        }
+      ],
+      "session_stops": [
+        {
+          "session_index": 1,
+          "ended_by": "turn_budget"
+        },
+        {
+          "session_index": 2,
+          "ended_by": "turn_budget"
+        }
+      ]
+    }
+  }
+}

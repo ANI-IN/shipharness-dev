@@ -184,8 +184,11 @@ the grader is not in this repository.
 
 ### Live run evidence
 
-The live step ran once with this folder's layer, as in
+The live step ran with this folder's layer, as in
 [SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in). Its files are in [live/](live/):
-the task, the command, the full output, the run summary, and both score records. The grade that
-includes them is in `captured/grade-solution.txt`. Dates and run ids are on the
+the task, the command, the full output, the run summary, and both score records. The run is not
+valid evidence: the harness arm reached its agent time limit in session 3, so it had three
+sessions, not four. [live/README.md](live/README.md) shows where the time went. The grade with that
+run is 90/100 (`captured/grade-solution.txt`): every scenario criterion passes, and the live
+criterion gives 0. Dates and run ids are on the
 [evidence page](../../../docs/evidence/s2.md#s2-a2-solution).
