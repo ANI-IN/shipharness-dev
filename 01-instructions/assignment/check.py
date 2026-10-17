@@ -181,9 +181,7 @@ def _exists(rel_file: str, span: str, tree: Path, product: Path) -> bool:
 
 def check_layout(tree: Path) -> Result:
     missing = [rel for rel in REQUIRED if not (tree / rel).is_file()]
-    detail = (
-        f"missing {', '.join(missing)}; follow A1's layout (README, 'Expected project structure')"
-    )
+    detail = f"missing {', '.join(missing)}; follow A1's layout (SPEC.md, 'Files you must produce')"
     return _result("layout", (len(REQUIRED) - len(missing)) / len(REQUIRED), detail)
 
 
