@@ -10,9 +10,11 @@ For learners, after class. Reading time: about 7 minutes. Concepts in full:
 
 1. **Poll.** Building F4 (ETag, If-Match, issue history), which arm passes more of the 69 hidden
    tests and kills more of the 4 referee mutants? Then the final feature poll (F5, F6, or F7).
-2. **Two launches.** `make demo-4` (F4 from checkpoint `m1-s4-start`, bare arm vs the harness arm
-   with all four layers) and, a minute later, `make final FEATURES=<poll winner(s)>`. Both ran
-   while the concepts and the code were on screen.
+2. **Two launches.** `make show-4` (harness in action: the harness arm alone, with all four layers,
+   on F4 from checkpoint `m1-s4-start`; not an A/B) and, a minute later, `make final
+   FEATURES=<poll winner>`, the course's one live A/B. Both ran while the concepts and the code
+   were on screen. S4 has no live bare-against-harness A/B because the course's pilot data shows no
+   gap on F4 (below).
 3. **Concepts.** The problem (F4's `If-Match` header is optional, so every existing test keeps
    passing whether or not concurrency works), the cause (the agent judges its own work; visible
    tests miss what held-out tests catch), and the harness piece: the verify gate, R1-R7 checks,
@@ -22,16 +24,28 @@ For learners, after class. Reading time: about 7 minutes. Concepts in full:
    <id>`: `S4:filters` (`src/shipharness/filters/pipeline.py`), `S4:probe`
    (`src/shipharness/checks/r1_tenant.py`), `S4:blind` (`src/shipharness/reviewer/blind.py`),
    `S4:gate` (`src/shipharness/harness/verify/gate.py`).
-5. **Demo block.** Screen 1 (gate pills and "Agent said" vs "Referee"), screen 2 (the two-tab edit
-   conflict), screen 3 (filter table, mutant matrix, referee counters), the terminal verdicts,
-   screen 4 (dots per run), and `make swap-4`.
+5. **Demo block.** Four parts, each labelled on screen:
+   - harness in action: the `make show-4` run on screen 1 (session handoffs, the gate pills if the
+     agent claimed done, the primary verdict pill), screen 3 (the test filter table with discard
+     reasons), and screen 2 (the two-tab edit conflict);
+   - real run, replayed: `make replay RUN=ab-20261017-090903-926c02`, the class-profile round's F4
+     A/B, where the bare arm claimed done with 68 of 69 hidden tests passing and the referee failed
+     it (RECORDING badge on every screen);
+   - constructed example: `make example-4`, a scripted done claim with a failing test that the gate
+     refuses, then accepts after the fix (no model; CONSTRUCTED EXAMPLE badge);
+   - the results slide and screen 4: every section's result, "no measurable difference" included.
 
-Tonight's run:
-
-[[PENDING: tonight's demo-4 A/B id, both arms' hidden of 69 and referee mutants of 4, claims, two-tab marks, reviewer verdicts, and the swap-test line | source: live class | how: make demo-4, then make swap-4]]
+To read the same evidence on a run of your own: the live step of assignment A4 runs one F4 A/B
+(`--purpose assignment`), and each score record it writes carries the arm's `trace_url`. Open the
+harness arm's trace, find the test phase, and note which tests the agent proposed and which filter
+stopped each discarded one.
 
 ## Key ideas, with sources
 
+- **Each piece encodes an assumption about the model.** "every component in a harness encodes an
+  assumption about what the model can't do on its own, and those assumptions are worth stress
+  testing" (A3, F-a-124). The verification layer's, in the course's words: the agent's "done" and
+  its own tests cannot be trusted.
 - **The agent should not grade its own work.** "agents reliably skew positive when grading their
   own work." (A3, F-a-15). "Separating the agent doing the work from the agent judging it proves to
   be a strong lever to address this issue." (A3, F-a-110). In shipharness the verify gate decides
@@ -87,7 +101,7 @@ and ab-20261016-191626-6100f6, in that order.
 - No arm claimed done, so the verify gate never ran on F4 in this pilot run.
 - The reviewer rejected all six arms and agreed with the referee each time (`reviewer_agrees` in
   the score records).
-- Run ids, per-arm costs, and wall times: [demo/README.md](demo/README.md), sections 7 and 8.
+- Run ids, per-arm costs, and wall times: [demo/README.md](demo/README.md), sections 12 and 13.
 
 ### Changes before run 3
 
@@ -123,20 +137,45 @@ ab-20261016-214151-ca9841, and ab-20261016-220010-c5b4bf, in that order.
 
 Result: no measurable difference on this task with this model (course pilot, run 3).
 
-### Still to come
+### Class-profile round
 
-[[PENDING: S4 batch 1 dots (hidden of 69 and referee mutants of 4 per run, bare vs harness, k=10) with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --batch batch-1, then uv run shipharness report]]
+Measured in the course's class-profile round, 2026-10-17: one F4 A/B, ab-20261017-090903-926c02,
+effort low, OpenAI Fast tier, 2 CPUs per container. Both arms failed the primary measure again.
 
-[[PENDING: effect of removing the verify layer (leave-one-out) on the F4 task | source: M8 ablation | how: uv run shipharness experiments --split section-4 --layers=-verify --batch ablation, then uv run shipharness report]]
+| One A/B | Bare arm | Harness arm |
+|---|---|---|
+| Hidden tests passed, of 69 | 68 | 68 |
+| Referee mutants killed, of 4 | 4 | 1 |
+| Tests shipped | 16 | 4 |
+| Claim at the end of the build | `done` | `not_done` |
+
+- The bare arm claimed done ("Verified the complete visible suite (191 passing)") and the referee
+  failed it: one hidden test, `test_invalid_body_with_a_stale_version_is_412`, failed in both arms.
+- The harness arm's test phase proposed 6 tests; filter 2 discarded one (`failed on run 1 of 5:
+  AssertionError: assert 412 == 404`), filter 3 another (it added no coverage), and 4 shipped. Its
+  build ended with `not_done`, so the gate did not run.
+
+Over pilot run 3 and this round, F4 shows no measurable difference on this task with this model.
+Post hoc (measures chosen after the results; descriptive), over pilot runs 2-4 and the live console
+check, 34 runs per arm across all sections: no done claim came with failing hidden tests in either
+arm, harness arms shipped a median of 2.5 tests against 7.5, and on F4 no harness arm ever called
+`finish(claim="done")`. The course's planned 10-run experiment batch and the leave-one-out ablation
+were not run, because the pilot did not pass its pre-registered decision rule.
 
 ## Common questions
 
-**The bare arm killed more mutants in the pilot. Does verification not work?** The pilot runs did
-not test the verification parts much. In pilot runs 2 and 3 the gate never ran on F4 (no harness
-arm claimed done), and the filters saw one proposed test in run 2 and none in run 3. In run 2 the
-harness arm shipped 0, 0, and 3 tests; after change 9, in run 3, it shipped none. Both arms failed
-the primary measure in 3 of 3 A/Bs in run 3, so the course reports F4 as "no measurable difference
-on this task with this model" (the course's pre-registered decision rule).
+**The harness did not win. Was it useless?** On F4 the runs did not test the verification parts
+much: the gate never ran (no harness arm claimed done), and the filters saw one proposed test in
+run 2, none in run 3, and six in the class-profile round. A3's rule applies: an evaluator "is worth
+the cost when the task sits beyond what the current model does reliably solo." (A3, F-a-123). On
+this task, with this model, the result is "no measurable difference" (the course's pre-registered
+decision rule), which is a statement about this model and this task, not about every repository
+(A1, F-a-143).
+
+**The bare arm killed more mutants. Does verification not work?** The bare arm shipped more tests:
+30, 33, 8 in run 2, 23, 0, 5 in run 3, and 16 in the class-profile round, against the harness arm's
+0, 0, 3, then 0, 0, 0, then 4. A test that is never written cannot kill a mutant, and the filters
+judge only the tests the test phase proposes.
 
 **Why does a run need all 69 hidden tests and all 4 mutants?** That is the pre-registered primary
 measure (course design; `evaluate_primary` in `src/shipharness/ab/score.py`). The report also shows

@@ -518,6 +518,6 @@ points evenly over its tests. It makes no model calls and needs no keys.
 
 For scale, not a promise: in the course pilot's run 2 (2026-10-16) each of the six F4 arm runs
 cost less than $0.02 and each review less than $0.005 (score records listed in
-[the demo runbook](../demo/README.md), section 8).
+[the demo runbook](../demo/README.md), section 13).
 
 [[PENDING: measured cost of one testgen run and of the F4 A/B (k=1), and the LangSmith trace count of the live step | source: M6 pilot | how: uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen; uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview]]

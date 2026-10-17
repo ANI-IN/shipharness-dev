@@ -6,8 +6,8 @@ Reading time: about 15 minutes.
 source ID and finding ID, for example (A3, F-a-110); every ID resolves in
 [REFERENCES.md](../../REFERENCES.md). Quotes are verbatim and short.
 
-Order: the problem in the bare run, its cause, the harness piece, how `shipharness` builds it, and
-what the A/B measures.
+Order: the problem in the bare run, its cause, the harness piece, how `shipharness` builds it, what
+the A/B measures, and what the course pilot measured.
 
 ---
 
@@ -55,24 +55,11 @@ The A/Bs are ab-20261016-182828-c81fc0, ab-20261016-185422-8a8c2a, and ab-202610
 - **The bare arm** killed most referee mutants but missed something every time: A/B 2 failed 3
   hidden tests, and A/Bs 1 and 3 each left one mutant alive (in A/B 1, the lost-update mutant
   `app.services.issues-m401`). The measure needs all 69 and all 4.
-- **The harness arm** shipped 0, 0, and 3 tests and killed 0, 0, and 2 mutants. None of those
-  tests came from the 12-turn test phase: in A/Bs 1 and 2 it proposed no test (`test filters: kept
-  0, discarded 0; no new tests to filter`); in A/B 3 the three shipped tests were written in build
-  session 1, and the test phase's one proposed test was discarded (`test filters: kept 0, discarded
-  1`). Turns ran out because every session repeated A2's "Getting up to speed" steps (A2, F-a-58 to
-  F-a-62), re-read 3 to 7 instruction documents and about 15 product files, and updated state files
-  mid-session.
+- **The harness arm** shipped 0, 0, and 3 tests, none of them from the 12-turn test phase, and killed
+  0, 0, and 2 mutants. Turns ran out: every session repeated A2's "Getting up to speed" steps (A2,
+  F-a-58 to F-a-62) and re-read 3 to 7 instruction documents and about 15 product files.
 - **No arm called `finish(claim="done")`.** Every arm used its 40 build turns, so its claim was
-  `none` and the verify gate never ran. The pilot ran with `--no-preview`, so the two-tab panel
-  first appears in class.
-
-The referee's verdicts in A/B 1, cut to their key fields ("..." marks a cut; captured on
-2026-10-16, run ab-20261016-182828-c81fc0; your output will differ):
-
-```text
-{... "arm":"harness","seq":404, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 0/4, R1 new 0"} ...
-{... "arm":"bare","seq":436, ... "type":"verdict", ... "summary":"agent said none; referee: fails the primary measure; hidden tests 69/69, mutants killed 3/4, R1 new 0"} ...
-```
+  `none` and the verify gate never ran.
 
 ---
 
@@ -89,9 +76,8 @@ held-out tests catch.
 - "For autonomous systems, it is easy to see tests pass and assume the job is done, when this is
   rarely the case." (A4, F-a-17)
 
-A2's harness has a single agent told to "Self-verify all features. Only mark features as “passing”
-after careful testing." (A2, F-a-108), and lists separate testing and QA agents as future work
-(A2, F-a-109). The separate evaluator as a working design comes from A3.
+A2's single agent was told to "Self-verify all features." (A2, F-a-108); the separate evaluator as a
+working design comes from A3.
 
 ### Visible tests miss what held-out tests catch
 
@@ -104,9 +90,8 @@ close the gap (B13, F-b-51).
 
 F4 has this shape: the ETag, the If-Match check, and the edit form each work alone; the lost update
 appears only when two people edit one issue, and two hidden test files combine F4 with earlier
-features (`test_f4_with_f1.py`, `test_f4_with_f3.py`). In pilot run 2 the cause showed as shipped
-work nothing inside the arm had judged: the bare arm's own tests passed while a referee mutant or a
-few hidden tests still failed, and the separate reviewer rejected all six F4 arms.
+features (`test_f4_with_f1.py`, `test_f4_with_f3.py`). In pilot run 2 the bare arm's own tests
+passed while a referee mutant or a few hidden tests still failed.
 
 ---
 
@@ -138,20 +123,17 @@ summary, the first three failure lines, and "Fix these, commit your work, and ca
 (`_feedback` in `src/shipharness/harness/verify/gate.py`), following A4's advice to put the reason
 on the same line as the error (A4, F-a-132) and keep the context small (A4, F-a-131).
 
-Course design: A2 lets the agent set `passes` after "careful testing" (F-a-108). In shipharness the
-scope layer sets `passes: true` only after the gate passes, because "Separating the agent doing the
-work from the agent judging it proves to be a strong lever to address this issue." (A3, F-a-110).
+Only after the gate passes does the scope layer set `passes: true` (course design, explained in S3,
+after A3, F-a-110).
 
 ### 3.2 House-rule checks R1-R7
 
 "House rules" is the course label for what A1 calls "golden principles" encoded "directly into the
 repository" (A1, F-a-99) and taste invariants enforced "with custom lints" (A1, F-a-96). Both arms
-can read the rules in `docs/HANDBOOK.md`; the checks live in `src/shipharness/checks/`: R1 tenant
-isolation (foreign IDs get 404), R2 roles (viewer writes get 403), R3 conventions (Schemathesis with
-a fixed seed), R4 idempotent creates, R5 one audit row per write, R6 layering (`api` never imports
-`db`), R7 migrations (one head). Each reports **new** violations against the checkpoint baseline
-(`mark_baseline` in `src/shipharness/checks/base.py`), so the legacy `/v1/issues` leak counts only if
-an arm makes it worse.
+can read the rules in `docs/HANDBOOK.md`. The checks in `src/shipharness/checks/` cover R1
+tenant isolation (foreign IDs get 404), R2 roles, R3 conventions, R4 idempotent creates, R5 one audit
+row per write, R6 layering, and R7 migrations, each counting **new** violations against the
+checkpoint baseline (`mark_baseline` in `src/shipharness/checks/base.py`).
 
 ### 3.3 Five test filters
 
@@ -171,14 +153,12 @@ No source states filters 4 and 5. They guard against a test that asserts nothing
 code it claims to test, and a test phase that "fixes" the source until the new test passes.
 
 The filters judge only the tests proposed in the test phase
-(`src/shipharness/harness/verify/testphase.py`). Tests written in the build phase are part of the
-build and ship without them; that is how the harness arm of A/B 3 shipped 3 tests while its test
-phase kept 0. Every discard carries a reason: that arm's one test-phase test stopped at filter 2
-with `failed on run 1 of 5: assert None is not None` (captured on 2026-10-16, run
+(`src/shipharness/harness/verify/testphase.py`); tests written in the build phase ship without them.
+Every discard carries a reason: in A/B 3 of pilot run 2 the harness arm's one test-phase test stopped
+at filter 2 with `failed on run 1 of 5: assert None is not None` (captured on 2026-10-16, run
 ab-20261016-191626-6100f6, `test_filter_result` event; your output will differ). In `make demo-4`
-the test-phase context has no mutant list and no target module, so filter 3 decides by coverage and
-filter 4 checks assertions only; `shipharness testgen --target <id>` passes both
-(`src/shipharness/testgen/run.py`).
+and `make show-4` the test-phase context has no mutant list and no target module, so filter 3
+decides by coverage and filter 4 checks assertions only.
 
 ### 3.4 Targeted mutants with disjoint sets
 
@@ -187,16 +167,13 @@ ACH writes mutants that are "both relevant to the issue of concern and also curr
 "a large proportion (49%) of test cases that uniquely additionally kill a mutant, do not also add
 line coverage." (B12, F-b-40).
 
-shipharness uses hand-written mutant records applied one at a time (course design: mutmut cannot
-target chosen lines). Each file is split into a **filter set** (visible to filter 3) and a
-**referee set** (held out) that never share a mutation (`overlaps` in
-`src/shipharness/filters/mutant_sets.py`); otherwise a test written to kill a filter mutant would
-also kill its referee twin. F4's four referee mutants (`teamtrack/mutants/features/f4.jsonl`) target
-the risky lines: `app.services.issues-m401` turns `issue.version += 1` into `+= 0`, so "stale
-If-Match values still match (lost update)"; the others empty the issue history, let a deleted issue
-answer 428 or 412 instead of 404, and let viewers reach the precondition check. The referee counts a kill
-only with shipped tests that pass on the arm's unmutated build (`_passing_unmutated` in
-`src/shipharness/ab/referee.py`), so a broken test cannot "kill" anything.
+shipharness uses hand-written mutants applied one at a time (course design: mutmut cannot target
+chosen lines), split per file into a **filter set** (visible to filter 3) and a **referee set** (held
+out) that never share a mutation (`overlaps` in `src/shipharness/filters/mutant_sets.py`). F4's four
+referee mutants (`teamtrack/mutants/features/f4.jsonl`) target the risky lines:
+`app.services.issues-m401` turns `issue.version += 1` into `+= 0`, so "stale If-Match values still
+match (lost update)". A kill counts only with shipped tests that pass on the arm's unmutated build
+(`_passing_unmutated` in `src/shipharness/ab/referee.py`), so a broken test cannot "kill" anything.
 
 ### 3.5 The blinded reviewer with grading criteria
 
@@ -206,11 +183,10 @@ inclined to be generous towards LLM-generated outputs." (A3, F-a-112). So the re
 a secondary measure; the deterministic referee decides the primary counts.
 
 A3 grades against "grading criteria" (A3, F-a-114) with a hard threshold each (A3, F-a-119). The
-course reviewer takes its criteria from `docs/SECURITY.md` and `ARCHITECTURE.md` of the harness
-instructions (`src/shipharness/reviewer/criteria.py`), the same bytes for both arms. "Blinded" is
-A/B design, not a source term: the reviewer gets the ticket and a diff with every arm-identifying
-trace removed, and it runs on both final diffs as referee output, never inside the gate (course
-design).
+course reviewer takes its criteria from the harness's `docs/SECURITY.md` and `ARCHITECTURE.md`
+(`src/shipharness/reviewer/criteria.py`), the same for both arms. "Blinded" is A/B design, not a
+source term: the reviewer sees the ticket and a diff with every arm-identifying trace removed, and
+runs on both final diffs, never inside the gate (course design).
 
 ---
 
@@ -293,25 +269,32 @@ cost, turns, and wall time.
 The verify gate runs the same R1-R7 checks as the referee, so a better R1-R7 result for the harness
 arm is partly expected by construction. The co-primary counts do not overlap: hidden tests and
 referee-set mutants are not in `GATE_CHECKS`, not in the arm's exported repository, and share no
-mutation with the filter set. Two checks run in class: the **swap test** (`make swap-4`) judges each
-diff again under the other arm's label, and every judged measure must come out identical; the
-**layer switch** (`make demo-4 LAYERS=-verify`) removes the verify layer, A3's leave-one-out idea:
-"removing one component at a time and reviewing what impact it had on the final result." (A3,
-F-a-125).
+mutation with the filter set. Two fairness checks: the **swap test** (`make swap-4 AB=<id>`, no
+model calls) judges a recorded A/B's diffs again under the other arm's label, and every judged
+measure must come out identical; the **layer switch** (`make demo-4 LAYERS=-verify`, a new A/B)
+removes the verify layer, A3's leave-one-out idea (A3, F-a-125).
 
-### Results
+Section 6 gives the pilot results and what they say about the gate and the filters.
 
-Pilot run 2: both F4 arms failed the primary measure in 3 of 3 A/Bs (section 1). Before run 3 the
-course pilot logged change 9, a harness change for the harness arm only: the handoff's agent notes
-come before any document, state files are updated only in the wrap-up turns, and a test-phase
-session opens with "write the tests for the feature first" (`TEST_PHASE_FIRST` in
-`src/shipharness/harness/state/lifecycle.py`; the wording is course design). Changes 10 and 11
-(judge each arm as soon as it ends; run the unmutated-pass step for all shipped tests in one pytest
-process) are measurement changes for both arms with no outcome change; change 11 gave the same
-outcome on 181 shipped tests from 17 run-2 arms.
+---
 
-Pilot run 3, measured in the course pilot, run 3, 2026-10-16 (F4 canonical, effort medium, k=3):
-both arms failed the primary measure in 3 of 3 A/Bs.
+## 6. What the gate and filters assume, and what the pilot measured
+
+A3: "every component in a harness encodes an assumption about what the model can't do on its own,
+and those assumptions are worth stress testing" (A3, F-a-124). The verification layer's assumption,
+in the course's words: the agent's "done" and its own tests cannot be trusted. Its basis is cause 4
+(A3, F-a-15; A4, F-a-17; B13, F-b-45).
+
+### 6.1 Changes before run 3
+
+After run 2 the course changed the harness arm only: state files are updated only in the wrap-up
+turns, and a test-phase session opens with "write the tests for the feature first"
+(`TEST_PHASE_FIRST` in `src/shipharness/harness/state/lifecycle.py`; course wording).
+
+### 6.2 Run 3: the primary measure
+
+Measured in the course pilot, run 3, 2026-10-16 (F4 canonical, effort medium): both arms failed the
+primary measure in 3 of 3 A/Bs.
 
 | Count per A/B (A/Bs 1, 2, 3 of pilot run 3) | Bare arm | Harness arm |
 |---|---|---|
@@ -319,18 +302,45 @@ both arms failed the primary measure in 3 of 3 A/Bs.
 | Referee mutants killed, of 4 | 4, 0, 3 | 0, 0, 0 |
 | Tests shipped (score records) | 23, 0, 5 | 0, 0, 0 |
 
-The three values in each cell come from A/Bs ab-20261016-212252-aa1644,
-ab-20261016-214151-ca9841, and ab-20261016-220010-c5b4bf, in that order. The harness arm shipped no
-tests in any A/B; in ab-20261016-212252-aa1644 it also built a broken change (hidden 27 of 69, 3
-new R1 violations). Every bare arm hit the agent time limit. Pilot run 4 (effort low) ran F1-F3
-only, so F4 has no run 4 result. On the primary measure: no measurable difference on this task with
-this model (course pilot, run 3).
+Values in A/B order: ab-20261016-212252-aa1644, ab-20261016-214151-ca9841,
+ab-20261016-220010-c5b4bf. In the first, the harness arm also built a broken change (3 new R1
+violations). Run 4 (effort low) ran F1-F3 only. No measurable difference on this task with this model (course pilot, run 3).
 
-[[PENDING: S4 co-primary dots from batch 1 (hidden x/69 and referee mutants y/4 per run, bare vs harness, k=10) with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-4 --k 10 --batch batch-1, then uv run shipharness report]]
+### 6.3 The class-profile round
 
-[[PENDING: S4 secondary measures from batch 1 (existing tests, R1-R7 new violations, flaky tests, reviewer agreement) | source: M8 batch 1 | how: uv run shipharness report]]
+Measured in the course's class-profile round, 2026-10-17 (one F4 A/B, ab-20261017-090903-926c02;
+effort low, OpenAI Fast tier, 2 CPUs per container): both arms failed again, and both missed the same
+hidden test, `test_invalid_body_with_a_stale_version_is_412`.
 
-[[PENDING: effect of removing the verify layer (leave-one-out) on F4 tasks | source: M8 ablation | how: uv run shipharness experiments --split section-4 --layers=-verify --batch ablation, then uv run shipharness report]]
+| One A/B | Bare arm | Harness arm |
+|---|---|---|
+| Hidden tests passed, of 69 | 68 | 68 |
+| Referee mutants killed, of 4 | 4 | 1 |
+| Tests shipped | 16 | 4 |
+| Claim at the end of the build | `done` after 30 turns | `not_done` after 34 turns |
+
+The bare arm's claim ended "Verified the complete visible suite (191 passing)"; the referee failed it.
+The harness arm's test phase proposed 6 tests and the filters kept 4; the agent time limit ended
+the phase after 9 turns. Its gate did not run: a `not_done` claim skips it. One A/B is one dot, so
+F4 stays at no measurable difference on this task with this model.
+
+### 6.4 What the results say about the pieces
+
+These points use measures chosen after the results: post hoc and descriptive.
+
+- **Few false claims.** Over runs 2-4 and the console check (34 runs per arm, all sections), no
+  done claim came with failing hidden tests; the class-round bare F4 claim did.
+- **They ran out of time.** Over runs 2 and 3, each arm hit the agent time limit in 4 of 6 F4 runs;
+  in run 3 it ended two harness test phases after 7 and 6 turns.
+- **The harness arm shipped fewer tests.** On F4 a median of 0 against 15.5; over all sections, 2.5
+  against 7.5. The five filters cannot keep a test that is never proposed.
+
+A3 finds its evaluator worth the cost "when the task sits beyond what the current model does
+reliably solo." (A3, F-a-123). Here a "done" that the referee contradicts came up only in bare
+arms (the class-round claim, and ab-20261016-220010-c5b4bf: 69 of 69 hidden tests, one mutant
+alive), and the harness arm never reached its gate on F4. The planned 10-run experiment batch and the leave-one-out
+ablation were not run: the pilot did not pass its pre-registered decision rule. In class: `make
+show-4`, this A/B replayed, and a constructed example ([demo runbook](demo/README.md)).
 
 After class: [session-notes.md](session-notes.md). Further reading:
 [post-class-reading/](post-class-reading/README.md).
