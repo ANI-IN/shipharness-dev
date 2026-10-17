@@ -167,11 +167,7 @@ def run_gate(
         items += sorted(check_items, key=_order)
         lines += check_lines
     clean = clean_state_check(
-        sandbox,
-        base_sha,
-        cfg.limit(120),
-        migrations=cfg.migrations,
-        ruff_select=cfg.ruff_select,
+        sandbox, base_sha, cfg.limit(120), migrations=cfg.migrations, ruff_select=cfg.ruff_select
     )
     items.append(clean)
     if clean.status == "fail":

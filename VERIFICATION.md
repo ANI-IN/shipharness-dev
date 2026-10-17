@@ -457,6 +457,29 @@ before release, below).
 
 `shipharness ab` exits 2 when an arm aborted, so `make show-N` and `make final` exited 2 here.
 
+### Class commands re-timed (2026-10-17 11:18-12:17 UTC)
+
+One command at a time with `PURPOSE=pilot`, class profile, `make console` running, console screenshots
+every minute and of all five screens at the end (`.shipharness/pilot/quiet/`), after `make warm` (2 min
+21 s: images rebuilt for the new code). Docker was otherwise free; three content subagents were editing
+files and running lint and slide builds on the same machine, so the times are close to, but not exactly,
+an idle class host. Code: main with changes 20, 21, 22 and (from show-3 on) 23.
+
+| Command | A/B | Arm(s) | Result | Wall | Cost |
+|---|---|---|---|---|---|
+| `make show-1` | `ab-20261017-112101-c5d839` | harness | completed, primary pass (0 new R1), hidden 52/52, mutants 2/4 | 10 min 14 s | $0.0197 |
+| `make show-2 SESSION_BUDGET=12,38` | `ab-20261017-113213-fe89a3` | harness | agent time limit, primary pass (no continuity failure), hidden 56/56 | 10 min 7 s | $0.0295 |
+| `make show-3` | `ab-20261017-114259-b64f54` | harness | completed, primary pass (0, 0), hidden 49/49, mutants 4/4 | 7 min 43 s | $0.0172 |
+| `make show-4` | `ab-20261017-115138-c45d9d` | harness | claimed done; the gate passed on its first try (the first gate pass in any F4 run, after change 21); then the agent time limit in the test phase; primary fail (hidden 68/69, mutants 0/4) | 11 min 6 s | $0.0265 |
+| `make final FEATURES=F5` | `ab-20261017-120323-c97138` | both | bare completed, harness agent time limit; F5 has no pre-registered primary measure; hidden 46/46 both, mutants 2/3 both | 12 min 47 s | $0.0456 |
+
+After the last run no container was left running (change 23). Pilot total: 114 of 120 arm runs.
+
+Kit worked example, step 5 rerun after change 20 (`docs/apply-to-your-repo.md`): testgen
+`r-20261017-121823-aa1c4b` on the boltons queueutils repository kept 3 of 3 proposed tests,
+`Cost: $0.002031 (testgen, model gpt-6-luna)`, and wrote no Alembic files (the first run,
+`r-20261017-095514-ac8f1c`, before the fix: "kept 0 of 0", a fake Alembic setup committed to pass the gate).
+
 ### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
 
 Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
