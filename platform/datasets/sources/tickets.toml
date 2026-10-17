@@ -1,6 +1,6 @@
 # Ticket sources for teamtrack-features-v1.
 #
-# the course build repository's dataset builder reads this file together with the task manifests
+# The course's dataset script (not part of this repository) reads this file together with the task manifests
 # (teamtrack/reference/<task>/task.toml). Canonical tickets live in the manifests; this file holds
 # the variants:
 #   [[reworded]]        21 = F1-F7 x 3 styles: terse, pm (product-manager prose), bug (bug report)

@@ -80,9 +80,8 @@ fall back to a recorded or scripted run (source: `platform/src/shipharness/ab/co
 | `x unknown --arms '<value>': both or harness` | `--arms` takes `both` (an A/B) or `harness` (what `make show-N` runs) | Use one of the two |
 | `x unknown --profile '<value>': standard, class` | `--profile` takes `standard` or `class` | Use one of the two |
 
-`make experiments`, `make report`, and `make pilot` print one line that points to
-`uv run shipharness experiments --help` and `uv run shipharness report --help`, and exit 2. Run those
-commands directly.
+`make experiments` and `make report` only show the options of `uv run shipharness experiments` and
+`uv run shipharness report`. Run those commands directly with the options you need.
 
 ## Arm status and result lines
 

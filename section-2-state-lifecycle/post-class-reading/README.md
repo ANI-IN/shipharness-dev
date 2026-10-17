@@ -1,7 +1,8 @@
 # Module 1: Harness Engineering for Coding Agents - Section 2 reading list
 
 Three short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
-words and shows how to apply it to your own repository.
+words and shows how to apply it to your own repository. Each page takes about five minutes; the
+reading time in the table is for the full source, at 200 words a minute.
 
 > **Terms on this page**
 >
@@ -14,9 +15,9 @@ words and shows how to apply it to your own repository.
 
 | Reading | Reading time | Why read it |
 |---|---|---|
-| [01 Effective harnesses for long-running agents](01-effective-harnesses-for-long-running-agents.md) | 5 minutes | The files and routines that carry work from one session to the next |
-| [02 Harness design: context resets](02-harness-design-context-resets.md) | 5 minutes | Resets against compaction, and why the choice depends on the model |
-| [03 Using PLANS.md](03-exec-plans.md) | 5 minutes | A plan the next session can restart from |
+| [01 Effective harnesses for long-running agents](01-effective-harnesses-for-long-running-agents.md) | 10 minutes | The files and routines that carry work from one session to the next |
+| [02 Harness design: context resets](02-harness-design-context-resets.md) | 25 minutes | Resets against compaction, and why the choice depends on the model |
+| [03 Using PLANS.md](03-exec-plans.md) | 15 minutes | A plan the next session can restart from |
 
 ## How to use these
 

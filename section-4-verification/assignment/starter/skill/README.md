@@ -1,4 +1,4 @@
-# skill
+# Module 1: Harness Engineering for Coding Agents - Assignment 4 skill
 
 Put your own skill here: exactly one folder with a `SKILL.md`, copied from
 `use-in-your-repo/skills/skill-template` and renamed (see `use-in-your-repo/skills/skill-template/README.md`).

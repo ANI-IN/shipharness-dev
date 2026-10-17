@@ -9,9 +9,12 @@ taken from the layer's own code, so they match what the agent gets byte for byte
   ticket (F2, canonical, the dataset line `make show-2` runs).
 - section-3-scope-sandbox: what the scope layer gives the harness arm of `make demo-3 FEATURE=F4`:
   `feature_list.json` (written from the task), `feature_list.schema.json` (the layer's asset), and
-  the "## Scope" block of its context prefix (`scope-rules.txt`).
+  the "## Scope" block of its context prefix (`scope-rules.txt`); plus the sandbox policy every
+  container of the demo runs under (`sandbox-policy.toml`, the class profile's `default_policy`).
 - section-4-verification: the verify layer places no files; its text is the context prefix
-  (`VerifyLayer.PREFIX`) and the gate's items per phase, in the order `run_gate` reports them.
+  (`VerifyLayer.PREFIX`) and the gate's items per phase, in the order `run_gate` reports them;
+  plus the five test filters the test phase runs (`DEFAULT_FILTERS`, `test-filters.txt`) and the
+  house rules R1-R7 the gate checks, as the agent reads them in `AGENTS.md` (`house-rules.txt`).
 - final-project/harness/: the complete harness of `make final FEATURES=F5` (the default of
   final-project/run.sh): all four layers' files together, each taken as above but for the F5 dataset
   line and the final's layer stack.
@@ -29,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 import tempfile
 from collections.abc import Callable
@@ -41,6 +45,7 @@ from shipharness.layout import find_repo_root
 
 if TYPE_CHECKING:
     from shipharness.ab.demo import ABTask
+    from shipharness.sandbox.policy import SandboxPolicy
 
 REPO = find_repo_root(Path(__file__))
 README = frozenset({"README.md"})
@@ -138,7 +143,76 @@ def scope_files(task: ABTask | None = None, section: str = "demo-3") -> dict[str
             FEATURE_LIST: render(layer.feature(ctx)),
             FEATURE_SCHEMA: SCHEMA_ASSET.read_bytes(),
             SCOPE_BLOCK: block.encode("utf-8"),
+            POLICY_FILE: policy_toml(demo_policy()).encode("utf-8"),
         }
+
+
+POLICY_FILE = "sandbox-policy.toml"
+# The SandboxPolicy fields written as top-level keys, in the order of use-in-your-repo's template.
+POLICY_FIELDS = (
+    "version",
+    "network",
+    "cpus",
+    "memory_mb",
+    "swap_mb",
+    "pids_limit",
+    "user",
+    "read_only_root",
+    "cap_drop",
+    "no_new_privileges",
+    "workspace_mount",
+    "tool_timeout_s",
+    "run_timeout_s",
+)
+
+
+def demo_policy() -> SandboxPolicy:
+    """The policy of every container `make demo-3` starts (class profile, both arms alike)."""
+    from shipharness.config import Settings
+    from shipharness.config.profiles import apply_profile
+    from shipharness.sandbox.policy import default_policy
+
+    return default_policy(apply_profile(Settings(_env_file=None), "class"))
+
+
+def _toml_value(value: object) -> str:
+    if isinstance(value, bool):
+        return "true" if value else "false"
+    if isinstance(value, int | float):
+        return repr(value)
+    if isinstance(value, tuple | list):
+        return "[" + ", ".join(_toml_value(v) for v in value) + "]"
+    text = str(value)
+    if "'" not in text and "\n" not in text:
+        return f"'{text}'" if "\\" in text else json.dumps(text)
+    return json.dumps(text)
+
+
+def policy_toml(policy: SandboxPolicy) -> str:
+    """`policy` as TOML, laid out like the kit template `harness/sandbox-policy.toml`."""
+    from shipharness.sandbox.policy import docker_run_args
+
+    host = Path("/work-host")
+    command = " ".join(docker_run_args(policy, "<image>", host, "<name>"))
+    command = command.replace(str(host.resolve()), "<workspace>")
+    lines = [
+        "# Sandbox policy of every container `make demo-3` starts: both arms, the referee, and the",
+        "# board previews (SandboxPolicy and default_policy in platform/src/shipharness/sandbox/",
+        "# policy.py, with the class profile's values). Each agent container starts with:",
+        f"#   {command}",
+        "",
+    ]
+    lines += [f"{name} = {_toml_value(getattr(policy, name))}" for name in POLICY_FIELDS]
+    lines += ["", "[tmpfs]"]
+    lines += [f"{json.dumps(mount)} = {_toml_value(opts)}" for mount, opts in policy.tmpfs.items()]
+    for rule in policy.deny_command_patterns:
+        lines += ["", "[[deny]]", f"pattern = {_toml_value(rule.pattern)}"]
+        lines += [f"reason_code = {_toml_value(rule.reason_code)}"]
+        lines += [f"message = {_toml_value(rule.message)}"]
+    for rule in policy.detect_output_patterns:
+        lines += ["", "[[detect]]", f"pattern = {_toml_value(rule.pattern)}"]
+        lines += [f"reason_code = {_toml_value(rule.reason_code)}"]
+    return "\n".join(lines) + "\n"
 
 
 # -- section 4: verification ----------------------------------------------------------------------
@@ -174,14 +248,37 @@ def gate_items(phase: str) -> list[str]:
     raise RuntimeError("run_gate did not publish its pending items first")
 
 
+def test_filters() -> list[str]:
+    """The filters the test phase runs on each proposed test, in order: `N. name`."""
+    from shipharness.filters import DEFAULT_FILTERS
+
+    return [f"{f.number}. {f.name}" for f in DEFAULT_FILTERS]
+
+
+def house_rules() -> list[str]:
+    """The house rules R1-R7 as the agent reads them: the rule lines of the instructions
+    layer's AGENTS.md ("House rules at a glance"). The gate checks each one."""
+    agents = instructions_files()["AGENTS.md"].decode("utf-8")
+    rules = [line for line in agents.splitlines() if re.match(r"^- R\d+ ", line)]
+    if [line.split(" ", 2)[1] for line in rules] != [f"R{i}" for i in range(1, 8)]:
+        raise RuntimeError(f"AGENTS.md does not list R1 to R7 in order: {rules}")
+    return rules
+
+
 def verify_files() -> dict[str, bytes]:
-    """The verify block of the first message, and the gate's items for each phase."""
+    """The verify block of the first message, the gate's items for each phase, the test filters,
+    and the house rules the gate checks."""
     from shipharness.harness.verify.layer import PREFIX
+
+    def lines(items: list[str]) -> bytes:
+        return ("\n".join(items) + "\n").encode("utf-8")
 
     return {
         "context-prefix.txt": (PREFIX + "\n").encode("utf-8"),
-        "gate-items-build.txt": ("\n".join(gate_items("build")) + "\n").encode("utf-8"),
-        "gate-items-test.txt": ("\n".join(gate_items("test")) + "\n").encode("utf-8"),
+        "gate-items-build.txt": lines(gate_items("build")),
+        "gate-items-test.txt": lines(gate_items("test")),
+        "test-filters.txt": lines(test_filters()),
+        "house-rules.txt": lines(house_rules()),
     }
 
 
@@ -189,6 +286,9 @@ def verify_files() -> dict[str, bytes]:
 
 FINAL_FOLDER = "final-project"
 FINAL_FEATURE = "F5"  # the default of final-project/run.sh
+# Reference lists the Section 3 and 4 demo folders show next to the layer text: the sandbox
+# policy, the test filters, and the house rules. The final project's copy holds the layer text only.
+SECTION_ONLY = frozenset({POLICY_FILE, "test-filters.txt", "house-rules.txt"})
 
 
 def final_files() -> dict[str, bytes]:
@@ -196,12 +296,13 @@ def final_files() -> dict[str, bytes]:
     files, the scope files, and the verify text, in layer order. No two layers write one path."""
     task = load_task(FINAL_FEATURE)
     files: dict[str, bytes] = {}
-    for part in (
+    for whole in (
         instructions_files(),
         state_files(task),
         scope_files(task, "final"),
         verify_files(),
     ):
+        part = {rel: data for rel, data in whole.items() if rel not in SECTION_ONLY}
         clash = sorted(files.keys() & part.keys())
         if clash:
             raise ValueError(f"two layers write the same file: {', '.join(clash)}")

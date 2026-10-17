@@ -1,4 +1,4 @@
-"""Tenant app adapter (M4 I-2): the app-specific facts the generic checks need.
+"""Tenant app adapter (contract I-2): the app-specific facts the generic checks need.
 
 Checks are generic for FastAPI services. Everything that depends on one application (how to build
 it, how to authenticate as a role, which ids belong to which org) goes through an adapter. The

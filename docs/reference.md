@@ -81,8 +81,8 @@ aborted (cost cap or time limit; still judged and shown), 1 on an error.
 | `make lint-prose` | `uv run python platform/scripts/lint_prose.py` | Banned words and emoji in the course pages |
 | `make anchors` | `uv run python platform/scripts/anchors.py list` | Lists the code walkthrough anchors |
 
-`make experiments`, `make report`, and `make pilot` only print where to go and exit 2. Run
-`uv run shipharness experiments --help` and `uv run shipharness report` directly.
+`make experiments` and `make report` show the options of `uv run shipharness experiments` and
+`uv run shipharness report`; run those commands directly with the options you need.
 
 ### Other commands
 

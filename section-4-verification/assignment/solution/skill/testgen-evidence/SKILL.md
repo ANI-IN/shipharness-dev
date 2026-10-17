@@ -17,10 +17,10 @@ metadata:
 
 Generated tests are worth keeping only if they survive filters, and a reader should be able to
 check that claim. TestGen-LLM applies "a series of progressively demanding semantic filters" to
-candidate tests (B11, F-b-16), and the survivors "are thus guaranteed to improve the existing test
-class, and to provide reliable regression test signal" (B11, F-b-21). This skill runs those filters
+candidate tests (B11), and the survivors "are thus guaranteed to improve the existing test
+class, and to provide reliable regression test signal" (B11). This skill runs those filters
 through `shipharness testgen`, adds a duplicate-test filter (TestGen-LLM later added "an extra
-filter to remove previously seen test cases", B11, F-b-26), and writes the result down.
+filter to remove previously seen test cases", B11), and writes the result down.
 
 ## When to use
 
@@ -65,12 +65,15 @@ filter to remove previously seen test cases", B11, F-b-26), and writes the resul
 - [ ] Every command in the report was run as written; the report holds its real output.
 - [ ] Each discarded test is listed with its filter number and reason.
 - [ ] The Limits section says what the filters cannot prove: a kept test passed five runs and
-      added line coverage (B11, F-b-20) or killed a mutant no existing test kills (B12, F-b-32),
+      added line coverage (B11) or killed a mutant no existing test kills (B12),
       which does not make it a good specification. A4 warns
       that "it is easy to see tests pass and assume the job is done, when this is rarely the
-      case" (A4, F-a-17).
+      case" (A4).
 
 ## Sources
+
+Each quote above was checked against its source text; the checks are listed in the shipharness
+course repository, on its Section 4 evidence page ("Quotes used in Section 4").
 
 - B11: Alshahwan et al., "Automated Unit Test Improvement using Large Language Models at Meta",
   FSE 2024. https://arxiv.org/abs/2402.09171

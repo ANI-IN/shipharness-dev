@@ -426,7 +426,7 @@ def test_every_check_has_a_passing_and_a_failing_case() -> None:
 
 def test_severities_follow_the_first_version() -> None:
     errors = {"SC00", "SC01", "SC02", "SC03", "SC04", "SC05", "SC06", "SC07", "SC08", "SC09"}
-    errors |= {"SC10", "SC12", "SC13", "SC14", "SC15"}
+    errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20"}
     warnings = {"SC11", "SC16", "SC17", "SC18"}
     for check, (_, severity) in cs.CHECKS.items():
         assert severity == ("error" if check in errors else "warning"), check
@@ -460,11 +460,14 @@ def test_is_public() -> None:
         "docs/instructor-guide.md",
         "docs/STYLE.md",
         "slides/README.md",
+        "slides/deck.md",
+        "section-4-verification/assignment/solution/portfolio/case-study.md",
     ]
     private = [
         GRADER_MD,
         HIDDEN_MD,
-        "slides/deck.md",
+        "slides/img/notes.md",
+        "slides/outline.md",
         "CHANGELOG.md",
         "docs/CHANGELOG.md",
         "platform/sandbox/README.md",
@@ -534,6 +537,9 @@ def test_agent_files() -> None:
         "use-in-your-repo/kit/templates/AGENTS.md",
         "use-in-your-repo/kit/examples/boltons-queueutils/filled/progress.md",
         "use-in-your-repo/skills/house-rules/SKILL.md",
+        "section-1-instructions/assignment/starter/original/AGENTS.md",
+        "section-1-instructions/assignment/solution/work/instructions/.agents/skills/a/SKILL.md",
+        "section-4-verification/assignment/solution/skill/testgen-evidence/SKILL.md",
         "final-project/harness/AGENTS.md",
         "final-project/harness/docs/exec-plans/active/F5.md",
     ]
@@ -544,8 +550,15 @@ def test_agent_files() -> None:
         "section-1-instructions/assignment/starter/README.md",
         "section-1-instructions/assignment/solution/README.md",
         "section-1-instructions/assignment/solution/SOLUTION.md",
+        "section-1-instructions/assignment/solution/work/ab-report.md",
+        "section-1-instructions/assignment/solution/work/live/README.md",
+        "section-2-state-lifecycle/assignment/solution/live/README.md",
+        "section-4-verification/assignment/solution/live/README.md",
+        "section-4-verification/assignment/solution/portfolio/case-study.md",
+        "section-4-verification/assignment/starter/portfolio/langsmith.md",
         "use-in-your-repo/kit/README.md",
         "use-in-your-repo/README.md",
+        "slides/deck.md",
     ]
     for rel in agent:
         assert cs.is_agent_file(rel), rel
@@ -616,6 +629,7 @@ def test_default_targets(tmp_path: Path) -> None:
             "section-1-instructions/concepts.md",
             "docs/a.md",
             "slides/README.md",
+            "slides/deck.md",
             "final-project/README.md",
             "use-in-your-repo/README.md",
         ]
@@ -719,7 +733,7 @@ def test_cli(tmp_path: Path) -> None:
     listed = run_cli(tmp_path, "--list-checks")
     assert listed.returncode == 0
     rows = [ln for ln in listed.stdout.splitlines() if re.match(r"^SC\d\d ", ln)]
-    assert len(rows) == len(cs.CHECKS) == 19
+    assert len(rows) == len(cs.CHECKS) == 21
 
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
@@ -789,3 +803,194 @@ def test_the_root_readme_tells_its_story_without_the_scenario_label(tmp_path: Pa
         tmp_path, "section-1-instructions/README.md", text.replace("# Module", "# Module", 1)
     )
     assert [p.check for p in found if p.check == "SC17"] == ["SC17"]
+
+
+# -- every Markdown page, internal phrases, folders, images, diagram sources -------------------
+
+
+def test_solution_pages_get_every_check(tmp_path: Path) -> None:
+    rel = "section-4-verification/assignment/solution/portfolio/case-study.md"
+    found = problems(tmp_path, rel, "# Case study\n\nRun ab-20261017-112101-c5d839 passed.\n")
+    assert "SC08" in {p.check for p in found}
+
+
+def test_the_slide_deck_is_checked(tmp_path: Path) -> None:
+    found = problems(tmp_path, "slides/deck.md", "## 1. Opening\n\nFinding F-a-20 says so.\n")
+    assert "SC09" in {p.check for p in found}
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Follow the owner's instructions.",
+        "That is outside owner scope.",
+        "Then switch back to the build branch.",
+        "It lives in the build repository.",
+        "Run it on the class host.",
+        "The live run is not part of this release.",
+    ],
+)
+def test_internal_phrases_are_banned(tmp_path: Path, text: str) -> None:
+    found = problems(tmp_path, "docs/guide.md", text + "\n")
+    assert [p.check for p in found if p.check == "SC14"] == ["SC14"], found
+
+
+def test_the_teamtrack_owner_role_is_not_an_internal_phrase(tmp_path: Path) -> None:
+    text = (
+        "A project owner's token may archive it, and the owner's role is checked by R2.\n"
+        "Each rule file has an owner. The handoff has two owners.\n"
+    )
+    assert [p for p in problems(tmp_path, "docs/guide.md", text) if p.check == "SC14"] == []
+
+
+SVG = b'<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'
+
+
+def test_svg_images_on_relative_paths_must_exist(tmp_path: Path) -> None:
+    rel = "section-1-instructions/demo/README.md"
+    body = "![The flow of one run](../diagrams/flow.svg)\n\n*The flow of one run.*\n"
+    found = [p for p in problems(tmp_path / "bad", rel, demo_page(body)) if p.check == "SC06"]
+    assert found and "does not exist" in found[0].message
+    svg = {"section-1-instructions/diagrams/flow.svg": SVG}
+    found = problems(tmp_path / "good", rel, demo_page(body), svg)
+    assert [p for p in found if p.check == "SC06"] == []
+    empty = {"section-1-instructions/diagrams/flow.svg": b""}
+    found = problems(tmp_path / "empty", rel, demo_page(body), empty)
+    assert [p.message for p in found if p.check == "SC06"] == [
+        "image file ../diagrams/flow.svg is empty"
+    ]
+
+
+SECTION = "section-1-instructions"
+SECTION_FILES = [
+    "README.md",
+    "concepts.md",
+    "session-notes.md",
+    "demo/README.md",
+    "demo/run.sh",
+    "demo/walkthrough.md",
+    "demo/harness/AGENTS.md",
+    "demo/expected/terminal.txt",
+    "assignment/README.md",
+    "assignment/SPEC.md",
+    "assignment/starter/README.md",
+    "assignment/solution/SOLUTION.md",
+    "post-class-reading/README.md",
+]
+SECTION_ITEMS = [
+    "README.md",
+    "concepts.md",
+    "session-notes.md",
+    "demo/README.md",
+    "demo/run.sh",
+    "demo/walkthrough.md",
+    "demo/harness/",
+    "demo/expected/",
+    "assignment/README.md",
+    "assignment/SPEC.md",
+    "assignment/starter/",
+    "assignment/solution/SOLUTION.md",
+    "post-class-reading/",
+]
+
+
+def make_section(root: Path, skip: str = "") -> None:
+    for rel in SECTION_FILES:
+        if not skip or not (rel == skip or (skip.endswith("/") and rel.startswith(skip))):
+            write(root, f"{SECTION}/{rel}", "x\n")
+
+
+def folder_findings(found: list) -> list[tuple[str, str]]:
+    return [(p.path, p.check) for p in found]
+
+
+def test_a_complete_section_folder_passes(tmp_path: Path) -> None:
+    make_section(tmp_path)
+    assert cs.section_problems(tmp_path) == []
+
+
+@pytest.mark.parametrize("missing", SECTION_ITEMS)
+def test_a_section_folder_missing_an_item_fails(tmp_path: Path, missing: str) -> None:
+    make_section(tmp_path, skip=missing)
+    found = cs.section_problems(tmp_path)
+    assert folder_findings(found) == [(f"{SECTION}/{missing}", "SC19")]
+    assert found[0].severity == "error"
+
+
+def test_a_diagrams_folder_needs_its_readme(tmp_path: Path) -> None:
+    make_section(tmp_path)
+    write_bytes(tmp_path, f"{SECTION}/diagrams/flow.svg", SVG)
+    write(tmp_path, f"{SECTION}/diagrams/flow.excalidraw", "{}\n")
+    found = cs.section_problems(tmp_path)
+    assert folder_findings(found) == [(f"{SECTION}/diagrams/README.md", "SC19")]
+    write(tmp_path, f"{SECTION}/diagrams/README.md", "x\n")
+    assert cs.section_problems(tmp_path) == []
+
+
+FINAL_FILES = [
+    "README.md",
+    "run.sh",
+    "tasks/F5.md",
+    "harness/AGENTS.md",
+    "walkthrough.md",
+    "expected/terminal.txt",
+    "your-repo/README.md",
+    "CHECKLIST.md",
+]
+
+
+@pytest.mark.parametrize(
+    "missing", ["", "run.sh", "tasks/F5.md", "your-repo/README.md", "CHECKLIST.md"]
+)
+def test_the_final_project_folder_rule(tmp_path: Path, missing: str) -> None:
+    for rel in FINAL_FILES:
+        if rel != missing:
+            write(tmp_path, f"final-project/{rel}", "x\n")
+    found = cs.final_project_problems(tmp_path)
+    if not missing:
+        assert found == []
+    else:
+        item = missing.split("/")[0] + ("/" if "/" in missing else "")
+        assert folder_findings(found) == [(f"final-project/{item}", "SC19")]
+
+
+def test_every_diagram_needs_an_excalidraw_source(tmp_path: Path) -> None:
+    write_bytes(tmp_path, "section-2-state-lifecycle/diagrams/handoff.png", PNG)
+    write_bytes(tmp_path, "docs/diagrams/architecture.svg", SVG)
+    write(tmp_path, "docs/diagrams/architecture.excalidraw", "{}\n")
+    write_bytes(tmp_path, "docs/images/screen-1.png", PNG)  # a screenshot, not a diagram
+    found = cs.diagram_problems(tmp_path)
+    assert folder_findings(found) == [("section-2-state-lifecycle/diagrams/handoff.png", "SC20")]
+    assert "handoff.excalidraw" in found[0].message
+
+
+def test_the_default_run_adds_the_folder_checks_and_named_paths_do_not(tmp_path: Path) -> None:
+    make_section(tmp_path, skip="concepts.md")
+    write_bytes(tmp_path, f"{SECTION}/diagrams/flow.png", PNG)
+    found = folder_findings(cs.run(tmp_path, []).problems)
+    assert (f"{SECTION}/concepts.md", "SC19") in found
+    assert (f"{SECTION}/diagrams/flow.png", "SC20") in found
+    assert ("final-project/README.md", "SC19") in found
+    named = folder_findings(cs.run(tmp_path, [f"{SECTION}/README.md"]).problems)
+    assert not [f for f in named if f[1] in ("SC19", "SC20")]
+    assert not [f for f in folder_findings(cs.check_paths(tmp_path, [])) if f[1] == "SC19"]
+
+
+def test_every_section_folder_in_the_repo_is_complete() -> None:
+    assert cs.section_problems(REPO) == []
+
+
+def test_every_diagram_in_the_repo_has_its_source() -> None:
+    assert cs.diagram_problems(REPO) == []
+
+
+def test_the_final_project_folder_in_the_repo_is_complete() -> None:
+    assert cs.final_project_problems(REPO) == []
+
+
+def test_starter_fill_in_templates_keep_their_markers(tmp_path: Path) -> None:
+    text = "# Case study: <title>\n\nTODO: one paragraph.\n\nRun ab-20261017-112101-c5d839.\n"
+    rel = "section-4-verification/assignment/starter/portfolio/case-study.md"
+    assert {p.check for p in problems(tmp_path, rel, text)} == {"SC08"}
+    readme = "section-4-verification/assignment/starter/README.md"
+    assert "SC01" in {p.check for p in problems(tmp_path, readme, text)}

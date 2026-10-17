@@ -1,6 +1,6 @@
 # Building a C compiler with a team of parallel Claudes
 
-Reading time: about 5 minutes.
+Reading time: about 15 minutes.
 Source: Nicholas Carlini (Anthropic), "Building a C compiler with a team of parallel Claudes", 2026-02-05, <https://www.anthropic.com/engineering/building-c-compiler> ([evidence](../../docs/evidence/s3.md#src-anthropic-c-compiler)).
 
 > **Terms on this page**

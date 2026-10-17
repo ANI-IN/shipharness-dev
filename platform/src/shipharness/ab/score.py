@@ -10,8 +10,7 @@ from pydantic import BaseModel, ConfigDict
 from shipharness.events import Arm
 from shipharness.harness.decisions import LayerName
 
-# Bumped whenever a measurement change could change a score (the build repository's
-# verification log records each change).
+# Bumped whenever a measurement change could change a score.
 # The console's A/B report shows only records of the current version.
 REFEREE_VERSION = "2026-10-17"
 

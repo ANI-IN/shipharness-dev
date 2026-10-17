@@ -11,7 +11,7 @@ A mutation is identified by (file, original, replacement) after whitespace norma
 that are written differently but behave the same are not machine-detectable; the pairs found by
 review and how each was resolved are recorded below.
 
-Reviewed equivalent pairs (M5 fix pass; each resolved by replacing the filter-side record, since
+Reviewed equivalent pairs (each resolved by replacing the filter-side record, since
 filter sets never judge an arm):
 
 - `app.services.context-m1` (filter: viewer in WRITER_ROLES) behaved like the referee mutants that

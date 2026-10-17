@@ -83,7 +83,7 @@ extend-immutable-calls = [
 # starter and visible assignment tests (they fail on the unchanged starter by design; make
 # check-assignment-N runs them) and test folders with their own conftest.py (a second
 # `conftest` module would shadow the one TeamTrack's tests import by name). The graders' tests
-# are private: platform/tests/unit/test_section_graders.py runs them in the build repository.
+# are private and not in this repository.
 testpaths = [
     "platform/tests/unit",
     "platform/teamtrack/tests/visible",

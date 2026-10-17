@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/section-4-verification/solution` at commit 65d70a0 (no model calls); your output will differ.
-$ make grade-assignment-4 SUBMISSION=submodules/section-4-verification/solution
-uv run python scripts/grade_assignment.py 4 "submodules/section-4-verification/solution"
-A4 grade for /home/ani/wt/assign/submodules/section-4-verification/solution
+# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=section-4-verification/assignment/solution` at commit eba4c55 (no model calls); your output will differ.
+$ make grade-assignment-4 SUBMISSION=section-4-verification/assignment/solution
+uv run python platform/scripts/grade_assignment.py 4 "section-4-verification/assignment/solution"
+A4 grade for /home/ani/wt/gaps/section-4-verification/assignment/solution
 
 Criterion                     Points  Tests
 R8-interface                     5/5  5/5
@@ -21,5 +21,5 @@ live-evidence                  10/10  4/4
 
 Score: 100/100
 Cost: $0.000000 (no model calls)
-grading assignment 4: submodules/section-4-verification/solution
+grading assignment 4: section-4-verification/assignment/solution
 [exit code 0]

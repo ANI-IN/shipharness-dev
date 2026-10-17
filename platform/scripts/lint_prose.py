@@ -15,10 +15,10 @@ REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml"
 
 DEFAULT_TARGETS = [
     "README.md",
-    "DESIGN.md",  # build repository only, not included in the public release
-    "RESEARCH.md",  # build repository only, not included in the public release
-    "CONTRACTS.md",  # build repository only, not included in the public release
-    "VERIFICATION.md",  # build repository only, not included in the public release
+    "DESIGN.md",  # checked only where it exists (not in this repository's public copy)
+    "RESEARCH.md",  # checked only where it exists (not in this repository's public copy)
+    "CONTRACTS.md",  # checked only where it exists (not in this repository's public copy)
+    "VERIFICATION.md",  # checked only where it exists (not in this repository's public copy)
     "CHANGELOG.md",
     "setup",
     "docs",
@@ -90,7 +90,7 @@ def _documents(targets: list[str]) -> list[Path]:
                 sorted(
                     p
                     for p in path.rglob("*.md")
-                    # engineering-notes/ quotes the owner's instructions verbatim: never edited.
+                    # engineering-notes/ quotes instructions verbatim: never edited.
                     if ".venv" not in p.parts and "engineering-notes" not in p.parts
                 )
             )

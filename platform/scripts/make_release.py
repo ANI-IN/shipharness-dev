@@ -96,10 +96,8 @@ DOCS_FILES = tuple(
         "after-class",
         "extras",
         "STYLE",  # the course style guide that make check-style implements
-        "CHANGELOG",
         "reference",
         "evidence",
-        "STYLE",
     )
 )
 SETUP_FILES = tuple(
@@ -180,6 +178,7 @@ PRIVATE_FILES = (
     "VERIFICATION.md",
     "CODEOWNERS",
     "FREEZE-EXCEPTIONS.toml",
+    "docs/CHANGELOG.md",  # the build log of this repository, not course text
 )
 PRIVATE_DIRS = ("research/", "instructor/", "exports/", ".shipharness/")
 # Internal scripts the reference check knows by name (any other platform/scripts/ file is

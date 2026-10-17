@@ -1,18 +1,21 @@
-# live
+# Module 1: Harness Engineering for Coding Agents - Assignment 4 reference live evidence
 
 Live evidence of the reference solution, in the layout every submission uses (see
-[SPEC.md](../../SPEC.md#evidence-to-hand-in)). Two runs, both captured on 2026-10-17: the testgen run
-`r-20261017-093940-52dde8` with filter 6 applied to its report, and the F4 A/B
-`ab-20261017-094339-3b29e3`. The grader validates these files the same way as a learner's
-(`assignment/visible_tests/a4_live.py`) and re-runs nothing; `../portfolio/` reports what they show.
+[SPEC.md](../../SPEC.md#evidence-to-hand-in)). Two runs, both captured on 2026-10-17: one testgen
+run with filter 6 applied to its report, and one F4 A/B. Their run ids, A/B id, and results are on
+the [evidence page](../../../../docs/evidence/s4.md#s4-a4-solution). The grader validates these
+files the same way as a learner's (`assignment/visible_tests/a4_live.py`) and re-runs nothing;
+`../portfolio/` reports what they show.
 
-| File | What it holds |
-|---|---|
-| `testgen.txt` | captured on 2026-10-17, run `r-20261017-093940-52dde8`: `$ <testgen command>`, then everything the command printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests" |
-| `testgen-report.json` | captured on 2026-10-17, run `r-20261017-093940-52dde8`: `.shipharness/a4/testgen/testgen-report.json` after `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept test, 23 existing tests) |
-| `ab.txt` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: `$ <ab command>`, then everything the command printed (the A/B line, one line per arm, the `Cost:` line) |
-| `scores/r-20261017-094339-1abebd.json` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: the bare arm's ScoreRecord, copied from `exports/scores/` |
-| `scores/r-20261017-094339-f5e6af.json` | captured on 2026-10-17, run `ab-20261017-094339-3b29e3`: the harness arm's ScoreRecord, copied from `exports/scores/` |
+- `testgen.txt`: the testgen run. A `$ <testgen command>` line, then everything the command
+  printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests".
+- `testgen-report.json`: `.shipharness/a4/testgen/testgen-report.json` after
+  `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept
+  test, 23 existing tests).
+- `ab.txt`: the A/B. A `$ <ab command>` line, then everything the command printed (the A/B line,
+  one line per arm, the `Cost:` line).
+- `scores/`: the A/B's two ScoreRecords, bare arm and harness arm, copied from `exports/scores/`;
+  each file is named by its run id.
 
 The commands that produced them (from the repository root; keys in `.env`; Docker running for the
 A/B). The testgen command runs without `--image`, so its tests ran on the host and it printed an

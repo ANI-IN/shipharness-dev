@@ -1,0 +1,7 @@
+- R1 Tenant isolation: another org's resource is 404, never 403. See `docs/SECURITY.md`.
+- R2 Roles: viewers get 403 on every write; some writes are admin-only. See `docs/SECURITY.md`.
+- R3 API conventions: list envelope, error envelope, status codes. See `docs/design-docs/api-conventions.md`.
+- R4 Idempotent creates: honour `Idempotency-Key`. See `docs/RELIABILITY.md`.
+- R5 Audit log: one audit row per write. See `docs/RELIABILITY.md`.
+- R6 Layering: `app/api` never imports `app/db`. See `ARCHITECTURE.md`.
+- R7 Migrations: one Alembic head, upgrade works on an empty database. See `docs/RELIABILITY.md`.

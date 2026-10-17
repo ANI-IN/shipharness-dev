@@ -1,6 +1,6 @@
 # Harness engineering: leveraging Codex in an agent-first world
 
-Reading time: about 5 minutes.
+Reading time: about 15 minutes.
 Source: Ryan Lopopolo (OpenAI), "Harness engineering: leveraging Codex in an agent-first world", 2026-02-11, <https://openai.com/index/harness-engineering/> ([evidence](../../docs/evidence/s1.md#src-openai-harness)).
 
 > **Terms on this page**

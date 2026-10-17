@@ -1,8 +1,8 @@
 # Evidence report: generated tests for TeamTrack's issue repository, and R8
 
 Reference version. "Results" and "Filter 6 on the kept tests" come from the reference
-solution's live run, captured on 2026-10-17 (testgen run `r-20261017-093940-52dde8`, files in
-`../live/`); everything under "R8 on TeamTrack" is real output with no model call.
+solution's live run, captured on 2026-10-17 (files in `../live/`, run id on the
+[evidence page](../../../../docs/evidence/s4.md#s4-a4-solution)); everything under "R8 on TeamTrack" is real output with no model call.
 
 ## Target
 
@@ -37,13 +37,13 @@ the command's transcript and the report are the live evidence in `../live/`.
 
 ## Results
 
-Testgen run `r-20261017-093940-52dde8` (`../live/testgen.txt`): status `completed`, "kept 1 of 5
+The testgen run (`../live/testgen.txt`): status `completed`, "kept 1 of 5
 proposed tests". The table is the output of `summarize_report.py` on `../live/testgen-report.json`,
-the report after `apply_filter --update-report`:
+the report after `apply_filter --update-report`, with the run id moved to the evidence page:
 
 | Measure | Value |
 |---|---|
-| Run id | r-20261017-093940-52dde8 |
+| Run id | [on the evidence page](../../../../docs/evidence/s4.md#s4-a4-solution) |
 | Status | completed |
 | Proposed tests (evaluated) | 5 |
 | Kept by testgen (filters 1-5) | 1 |
@@ -101,7 +101,9 @@ Real output of the last command above on `platform/teamtrack/`; the full JSON do
 | `new_violations` | 1 |
 | `total_probes` | 15 |
 | Finding | `R8`, `leak`, `GET /v1/issues`, `detail_key` `deleted_list` |
-| `detail` | GET /v1/issues -> 200 lists soft-deleted issue(s) [1, 11]; add `deleted_at IS NULL` to the query (HANDBOOK: deleted issues are hidden from lists) |
+
+The finding's `detail` reads: "GET /v1/issues -> 200 lists soft-deleted issue(s) [1, 11]; add
+`deleted_at IS NULL` to the query (HANDBOOK: deleted issues are hidden from lists)".
 
 The one finding is the legacy `/v1/issues` handler, which reads every row through
 `list_all_legacy` with no `deleted_at` filter. It exists at the checkpoint, so it belongs in the
@@ -112,7 +114,7 @@ leaves it out of its list.
 ## Limits
 
 - Filters 1-3 show that a kept test builds, passed five runs, and added line coverage or killed a
-  filter-set mutant (B11, F-b-17 to F-b-20; B12, F-b-32). They do not show that the test checks the
+  filter-set mutant (B11 and B12; [evidence](../../../../docs/evidence/s4.md#s4-quotes)). They do not show that the test checks the
   behaviour a reviewer cares about.
 - Filter 6 compares syntax trees. Two tests that check the same thing with different calls both
   stay; it removes copies, not overlap.

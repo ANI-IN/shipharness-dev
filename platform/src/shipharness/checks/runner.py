@@ -1,4 +1,4 @@
-"""Check runner (M4 I-1): one entry point for the verify gate and the referee.
+"""Check runner (contract I-1): one entry point for the verify gate and the referee.
 
     python -m shipharness.checks.runner --build <dir> --checks r1_tenant,r2_roles,... \\
         --checkpoint <tag> --feature <id> --seed <int> [--params <json-file>] \\

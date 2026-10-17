@@ -81,7 +81,7 @@ The start of `run_gate`. It announces the items, then copies the work.
 ```
 
 - A build-phase gate has 11 items; a test-phase gate has only the visible tests and clean state.
-  The exact lists are in [harness/](harness/README.md).
+  The exact lists, the five test filters, and the house rules are in [harness/](harness/README.md).
 - The pending pills go out before any command runs. That is the row of waiting pills at minute 3 of
   the demo.
 - The checks run on a copy in `/tmp`, so they cannot change the agent's files.

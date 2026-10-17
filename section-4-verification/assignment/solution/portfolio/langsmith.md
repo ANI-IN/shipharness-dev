@@ -1,7 +1,7 @@
 # LangSmith traces: F4 A/B, bare vs harness
 
 Reference version. The links and the numbers come from the reference solution's live run,
-captured on 2026-10-17: A/B `ab-20261017-094339-3b29e3`, files in `../live/` (`ab.txt` and the two
+captured on 2026-10-17: one A/B ([A/B id and run ids](../../../../docs/evidence/s4.md#s4-a4-solution)), files in `../live/` (`ab.txt` and the two
 score records in `scores/`).
 
 ## Trace links
@@ -9,10 +9,10 @@ score records in `scores/`).
 From `trace_url` (agent root) and `referee_trace_url` in each score record, LangSmith project
 `shipharness-assignments`:
 
-- bare arm, run `r-20261017-094339-1abebd`:
+- bare arm:
   [agent trace](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/projects/p/a3d726fd-59b3-4715-836b-739793773f93/trace/01a1493e-e2d0-7ef1-b796-be92452e067b/run/01a1493e-e2d0-7ef1-b796-be92452e067b?start_time=2026-10-17T09%3A43%3A40.496300%2B00%3A00),
   [referee trace](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/projects/p/a3d726fd-59b3-4715-836b-739793773f93/trace/01a14943-b2b2-7681-8010-4b893400dca7/run/01a14943-b2b2-7681-8010-4b893400dca7?start_time=2026-10-17T09%3A48%3A55.859016%2B00%3A00)
-- harness arm, run `r-20261017-094339-f5e6af`:
+- harness arm:
   [agent trace](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/projects/p/a3d726fd-59b3-4715-836b-739793773f93/trace/01a1493e-e2ea-7c42-99e8-91d9b4e2361f/run/01a1493e-e2ea-7c42-99e8-91d9b4e2361f?start_time=2026-10-17T09%3A43%3A40.522986%2B00%3A00),
   [referee trace](https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/projects/p/a3d726fd-59b3-4715-836b-739793773f93/trace/01a14945-9948-7742-b36f-43eca834f874/run/01a14945-9948-7742-b36f-43eca834f874?start_time=2026-10-17T09%3A51%3A00.424150%2B00%3A00)
 
@@ -35,7 +35,7 @@ the `assignment` cost session (`_trace_target` in `platform/src/shipharness/ab/c
 
 Per-arm counts from the two score records:
 
-| Measure | bare (`r-20261017-094339-1abebd`) | harness (`r-20261017-094339-f5e6af`) |
+| Measure | bare | harness |
 |---|---|---|
 | Status | completed | ABORTED: timeout |
 | Agent's claim | none | none |
