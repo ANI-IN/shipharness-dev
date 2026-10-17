@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# REPLACE: TeamTrack's init.sh as the harness writes it for F1. Keep its two jobs: reach a known state, then run one basic end-to-end test. Run it before you commit. Source: Anthropic, "Effective harnesses for long-running agents" (2025-11-26), https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents.
-# init.sh for F1, written by the harness initializer step.
-# Anthropic, Effective harnesses: "an init.sh script that can run the development server", then
-# "run through a basic end-to-end test before implementing a new feature".
+# REPLACE: TeamTrack's init.sh as the harness writes it for Feature 1. Keep its two jobs: reach a known state, then run one basic end-to-end test. Run it before you commit.
+# init.sh for Feature 1: Org-wide issue search, written by the harness initializer step.
+# It runs a basic end-to-end test before you implement the feature, and can start the
+# development server.
 #
 #   bash init.sh          scratch database at head, then a basic end-to-end test
 #   bash init.sh serve    the same, then the development server in the background
@@ -15,7 +15,7 @@ export TEAMTRACK_DATABASE_URL="sqlite:////tmp/teamtrack-dev.db"
 export TEAMTRACK_SEED=true
 
 # REPLACE: your setup step (TeamTrack: Alembic shows one head, then upgrades an empty database). Delete it if you have no database.
-echo "== migrations (house rule R7: exactly one head)"
+echo "== migrations (exactly one head, House rule 7: Migrations)"
 python -m alembic heads
 python -m alembic upgrade head
 

@@ -19,6 +19,7 @@ import yaml
 from shipharness.checks.adapter import TenantAppAdapter
 from shipharness.checks.params import ALL_NAMES
 from shipharness.config.prices import REPO_ROOT
+from shipharness.datasets.names import rule_label
 from shipharness.kit import sources
 from shipharness.kit.files import TEMPLATES, template_files
 from shipharness.kit.markers import find_markers
@@ -28,7 +29,7 @@ OTHER_SOURCES = {
     "feature_list.json": "src/shipharness/harness/scope/features.py (build_feature, F1)",
     "feature_list.schema.json": "src/shipharness/harness/scope/assets/feature_list.schema.json",
     "docs/clean-state-checklist.md": "skills/harness-setup/assets/templates and verify/clean_state",
-    "docs/house-rules.md": "src/shipharness/checks/ (R1-R7) and checks/adapter.py",
+    "docs/house-rules.md": "src/shipharness/checks/ (House rules 1 to 7) and checks/adapter.py",
     "harness/shipharness_adapter.py": "src/shipharness/checks/adapter.py (TeamTrackAdapter)",
     "harness/check-params.json": "src/shipharness/checks/params.py",
     "harness/sandbox-policy.toml": "src/shipharness/sandbox/policy.py (SandboxPolicy)",
@@ -162,7 +163,7 @@ def test_clean_state_checklist_follows_the_template_and_the_gate() -> None:
 def test_house_rules_doc_covers_r1_to_r7_with_real_adapter_methods() -> None:
     text = kit("docs/house-rules.md")
     for rule in ("R1", "R2", "R3", "R4", "R5", "R6", "R7"):
-        assert f"| {rule} " in text, rule
+        assert f"| {rule_label(rule)} | yes |" in text, rule
     named = set(re.findall(r"`([a-z_]+)\(\)`", text))
     members = {n for n in dir(TenantAppAdapter) if not n.startswith("_")}
     members |= set(TenantAppAdapter.__annotations__)

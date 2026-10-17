@@ -1,11 +1,11 @@
 <!-- REPLACE: TeamTrack's security rules, kept as the example. Keep the shape: each rule says what, why, how it is checked, and which code shows the pattern. Delete rules that do not apply to your repository. -->
 # Security
 
-Who may see and change data. Two house rules live here: R1 Tenant isolation and R2 Roles. They apply
-to every endpoint, including new ones. Automated checks discover endpoints from the OpenAPI schema,
+Who may see and change data. Two house rules live here: House rule 1: Tenant isolation and House
+rule 2: Roles. They apply to every endpoint, including new ones. Automated checks discover endpoints from the OpenAPI schema,
 so a new endpoint is checked the moment it exists.
 
-## R1 Tenant isolation
+## House rule 1: Tenant isolation
 
 <!-- REPLACE: your tenant or owner boundary (TeamTrack: the org). Delete `R1` (tenant isolation) if every caller may see all data. The check is `shipharness check --rules R1` with your adapter (docs/house-rules.md). -->
 No org may see or change another org's data.
@@ -23,7 +23,7 @@ finds nothing.
 
 The check: for every endpoint and method, a request as an Acme user with Globex IDs must return 404.
 
-## R2 Roles
+## House rule 2: Roles
 
 <!-- REPLACE: your roles and which of them may write. Delete `R2` (roles) if every caller may write. -->
 Roles are `admin`, `member`, and `viewer`.

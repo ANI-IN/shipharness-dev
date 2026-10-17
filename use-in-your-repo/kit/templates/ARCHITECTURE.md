@@ -36,9 +36,9 @@ The code is layered. A layer may only call the layer below it.
 
 `app/main.py` wires everything together. `app/seed.py` creates the demo data.
 
-## R6 Layering
+## House rule 6: Layering
 
-<!-- REPLACE: your layering rule and the command that checks it. The same contract goes into layering_contract() in harness/shipharness_adapter.py for `shipharness check --rules R6` (`R6`, the layering rule). -->
+<!-- REPLACE: your layering rule and the command that checks it. The same contract goes into layering_contract() in harness/shipharness_adapter.py for `shipharness check --rules R6` (`R6` is the id of House rule 6). -->
 `app/api` never imports `app/db`, and neither does `app/web`.
 
 The check: the import-linter contract. Run `lint-imports --config .importlinter` from the TeamTrack
@@ -54,7 +54,7 @@ every endpoint and need a separate review; feature work should not touch it.
 
 <!-- REPLACE: your database and migration tool. Delete this section if it does not apply. -->
 SQLite is used for development and the demo. Keep queries portable. Every schema change gets an
-Alembic migration in `migrations/versions/` (R7, `docs/RELIABILITY.md`).
+Alembic migration in `migrations/versions/` (House rule 7: Migrations, `docs/RELIABILITY.md`).
 
 ## Legacy code
 

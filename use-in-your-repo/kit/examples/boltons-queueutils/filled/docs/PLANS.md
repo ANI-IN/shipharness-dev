@@ -7,7 +7,7 @@ for the current feature is in `docs/exec-plans/active/`; read it before you star
 
 | Item | Status | Where it shows up |
 |---|---|---|
-| F1: `peek` and `pop` docstrings name the error they raise | next | `boltons/queueutils.py`, `docs/product-specs/f1.md` |
+| Feature 1: `peek` and `pop` docstrings name the error they raise | next | `boltons/queueutils.py`, `docs/product-specs/f1.md` |
 | Make `BasePriorityQueue` a real abstract class | idea | `# TODO: make Base a real abstract class` in `boltons/queueutils.py` |
 | An automated check for BQ2 (guarded imports) | idea | `ARCHITECTURE.md`; the house-rules skill scaffolds the rule, check, and test |
 
