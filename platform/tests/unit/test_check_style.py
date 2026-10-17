@@ -25,7 +25,7 @@ sys.modules["check_style"] = cs
 _spec.loader.exec_module(cs)
 
 TITLE = "# Module 1: Harness Engineering for Coding Agents"
-DEMO = "01-instructions/demo/README.md"
+DEMO = "section-1-instructions/demo/README.md"
 PNG = b"\x89PNG\r\n\x1a\n" + b"0" * 16
 DEMO_H2 = [
     "The problem",
@@ -36,8 +36,8 @@ DEMO_H2 = [
     "If it fails",
 ]
 # Grader files and hidden test cases are not part of the course text (built by join, not literal).
-GRADER_MD = "/".join(["01-instructions", "assignment", "solution", "grader", "x.md"])
-HIDDEN_MD = "/".join(["03-scope-sandbox", "assignment", "hidden", "cases.md"])
+GRADER_MD = "/".join(["section-1-instructions", "assignment", "solution", "grader", "x.md"])
+HIDDEN_MD = "/".join(["section-3-scope-sandbox", "assignment", "hidden", "cases.md"])
 
 
 def write(root: Path, rel: str, text: str) -> Path:
@@ -66,7 +66,7 @@ def demo_page(body: str) -> str:
 
 
 IMG = "![Console screen 1 at minute 4](expected/screen-1-minute-4.png)"
-IMG_FILE = {"01-instructions/demo/expected/screen-1-minute-4.png": PNG}
+IMG_FILE = {"section-1-instructions/demo/expected/screen-1-minute-4.png": PNG}
 CAPTION = "*At minute 4 the primary verdict is ready, while the secondary checks still run.*"
 
 # (check, path, passing text, failing text, extra files for both, line of the failing problem)
@@ -240,7 +240,7 @@ CASES = [
     ),
     (
         "SC11",
-        "01-instructions/concepts.md",
+        "section-1-instructions/concepts.md",
         "word " * 1750 + "\n\n```mermaid\n" + "A --> B and more words here\n" * 30 + "```\n",
         "word " * 1801 + "\n",
         {},
@@ -249,7 +249,7 @@ CASES = [
     ("SC11", "README.md", TITLE + "\n" + "text\n" * 249, TITLE + "\n" + "text\n" * 250, {}, 1),
     (
         "SC11",
-        "01-instructions/demo/walkthrough.md",
+        "section-1-instructions/demo/walkthrough.md",
         "# Demo 1 walkthrough: x\n\n```python\n" + "x = 1\n" * 30 + "```\n",
         "# Demo 1 walkthrough: x\n\n```python\n" + "x = 1\n" * 41 + "```\n",
         {},
@@ -348,7 +348,7 @@ CASES = [
     ),
     (
         "SC16",
-        "01-instructions/assignment/README.md",
+        "section-1-instructions/assignment/README.md",
         f"{TITLE} - Assignment 1: Map\n\nTry it yourself first. The full solution is in "
         "[./solution/](solution/) with a step-by-step walkthrough.\n\n"
         "## The problem\n## What you'll build\n## Step by step\n## Grading criteria (100 points)\n"
@@ -361,7 +361,7 @@ CASES = [
     ("SC16", "docs/guide.md", "# Guide\n\n### Details\n", "# Guide\n\n#### Too deep\n", {}, 3),
     (
         "SC17",
-        "01-instructions/README.md",
+        "section-1-instructions/README.md",
         f"{TITLE} - Section 1: Instructions\n\n## The problem\n\n> **Terms on this page**\n>\n"
         "> - **Harness**: the files.\n\n"
         "**Illustrative scenario.** You ask an agent to add search.\n",
@@ -372,7 +372,7 @@ CASES = [
     ),
     (
         "SC17",
-        "01-instructions/README.md",
+        "section-1-instructions/README.md",
         f"{TITLE} - Section 1: Instructions\n\n## The problem\n\n"
         "**Illustrative scenario.** You ask an agent to add search.\n",
         f"{TITLE} - Section 1: Instructions\n\n## The problem\n\n"
@@ -440,7 +440,9 @@ def test_long_table_cells_missing_output_note_and_scenario_digits_only_warn(tmp_
     assert ("SC13", "warning") in {(p.check, p.severity) for p in found}
     assert not [p for p in found if p.severity == "error"], found
     scenario = "## The problem\n\n**Illustrative scenario.** You ask for 3 endpoints.\n"
-    found = problems(tmp_path, "01-instructions/README.md", f"{TITLE} - Section 1\n\n{scenario}")
+    found = problems(
+        tmp_path, "section-1-instructions/README.md", f"{TITLE} - Section 1\n\n{scenario}"
+    )
     assert ("SC17", "warning") in {(p.check, p.severity) for p in found}
     assert not [p for p in found if p.severity == "error"], found
 
@@ -450,9 +452,9 @@ def test_is_public() -> None:
         "README.md",
         "setup/windows.md",
         "setup/pre-class.md",
-        "01-instructions/concepts.md",
-        "01-instructions/assignment/solution/SOLUTION.md",
-        "04-verification/assignment/starter/README.md",
+        "section-1-instructions/concepts.md",
+        "section-1-instructions/assignment/solution/SOLUTION.md",
+        "section-4-verification/assignment/starter/README.md",
         "final-project/README.md",
         "use-in-your-repo/skills/house-rules/SKILL.md",
         "docs/instructor-guide.md",
@@ -475,19 +477,36 @@ def test_is_public() -> None:
         assert not cs.is_public(rel), rel
 
 
+def test_section_folders_are_named_section_n() -> None:
+    # The section folders are section-1-instructions to section-4-verification. Folders with the
+    # old 0N- prefix are no longer section folders: their pages are not public course files.
+    for name in (
+        "section-1-instructions",
+        "section-2-state-lifecycle",
+        "section-3-scope-sandbox",
+        "section-4-verification",
+    ):
+        assert re.fullmatch(cs._SECTION, name), name
+        assert cs.is_public(f"{name}/README.md"), name
+        assert cs.doc_type(f"{name}/concepts.md") == "concepts", name
+    for name in ("01-intro", "04-checks", "section-x", "section-1"):
+        assert not re.fullmatch(cs._SECTION, name), name
+    assert not cs.is_public("01-intro/README.md")
+
+
 def test_doc_type() -> None:
     table = {
         "README.md": "root-readme",
-        "01-instructions/README.md": "section-readme",
-        "01-instructions/concepts.md": "concepts",
-        "01-instructions/demo/README.md": "demo-readme",
-        "01-instructions/demo/walkthrough.md": "walkthrough",
-        "01-instructions/assignment/README.md": "assignment-readme",
-        "01-instructions/assignment/SPEC.md": "spec",
-        "01-instructions/assignment/solution/SOLUTION.md": "solution",
-        "01-instructions/post-class-reading/README.md": "reading-index",
-        "01-instructions/post-class-reading/01-map-not-manual.md": "reading",
-        "01-instructions/session-notes.md": "session-notes",
+        "section-1-instructions/README.md": "section-readme",
+        "section-1-instructions/concepts.md": "concepts",
+        "section-1-instructions/demo/README.md": "demo-readme",
+        "section-1-instructions/demo/walkthrough.md": "walkthrough",
+        "section-1-instructions/assignment/README.md": "assignment-readme",
+        "section-1-instructions/assignment/SPEC.md": "spec",
+        "section-1-instructions/assignment/solution/SOLUTION.md": "solution",
+        "section-1-instructions/post-class-reading/README.md": "reading-index",
+        "section-1-instructions/post-class-reading/01-map-not-manual.md": "reading",
+        "section-1-instructions/session-notes.md": "session-notes",
         "setup/README.md": "setup-index",
         "setup/windows.md": "setup-os",
         "setup/macos.md": "setup-os",
@@ -509,17 +528,17 @@ def test_doc_type() -> None:
 
 def test_agent_files() -> None:
     agent = [
-        "01-instructions/demo/harness/AGENTS.md",
-        "01-instructions/assignment/starter/instructions/AGENTS.md",
-        "01-instructions/assignment/solution/work/instructions/AGENTS.md",
+        "section-1-instructions/demo/harness/AGENTS.md",
+        "section-1-instructions/assignment/starter/instructions/AGENTS.md",
+        "section-1-instructions/assignment/solution/work/instructions/AGENTS.md",
         "use-in-your-repo/kit/templates/AGENTS.md",
         "use-in-your-repo/kit/examples/boltons-queueutils/filled/progress.md",
         "use-in-your-repo/skills/house-rules/SKILL.md",
     ]
     course = [
-        "01-instructions/assignment/starter/README.md",
-        "01-instructions/assignment/solution/README.md",
-        "01-instructions/assignment/solution/SOLUTION.md",
+        "section-1-instructions/assignment/starter/README.md",
+        "section-1-instructions/assignment/solution/README.md",
+        "section-1-instructions/assignment/solution/SOLUTION.md",
         "use-in-your-repo/kit/README.md",
         "use-in-your-repo/README.md",
     ]
@@ -530,7 +549,7 @@ def test_agent_files() -> None:
 
 
 def test_agent_files_get_only_the_image_checks(tmp_path: Path) -> None:
-    rel = "01-instructions/demo/harness/AGENTS.md"
+    rel = "section-1-instructions/demo/harness/AGENTS.md"
     text = "# Map\n\nTODO <placeholder> ab-20261017-112101-c5d839\n\n# Second\n"
     assert problems(tmp_path, rel, text) == []
     found = problems(tmp_path, rel, text + "\n![Board](missing.png)\n")
@@ -579,7 +598,7 @@ def test_private_files_skipped(tmp_path: Path) -> None:
 
 
 def test_default_targets(tmp_path: Path) -> None:
-    every = ["README.md", "setup/linux.md", "01-instructions/concepts.md", "docs/a.md"]
+    every = ["README.md", "setup/linux.md", "section-1-instructions/concepts.md", "docs/a.md"]
     every += ["slides/README.md", "slides/deck.md", "docs/CHANGELOG.md", GRADER_MD]
     every += ["platform/x.md", "final-project/README.md", "use-in-your-repo/README.md"]
     for rel in every:
@@ -589,7 +608,7 @@ def test_default_targets(tmp_path: Path) -> None:
         [
             "README.md",
             "setup/linux.md",
-            "01-instructions/concepts.md",
+            "section-1-instructions/concepts.md",
             "docs/a.md",
             "slides/README.md",
             "final-project/README.md",
@@ -666,12 +685,16 @@ def run_cli(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
 
 
 def test_cli(tmp_path: Path) -> None:
-    write(tmp_path, "01-instructions/session-notes.md", "# Section 1 session notes: x\n\nText.\n")
-    done = run_cli(tmp_path, "01-instructions/session-notes.md")
+    write(
+        tmp_path,
+        "section-1-instructions/session-notes.md",
+        "# Section 1 session notes: x\n\nText.\n",
+    )
+    done = run_cli(tmp_path, "section-1-instructions/session-notes.md")
     assert done.returncode == 0, done.stdout
-    assert re.search(r"^! 01-instructions/session-notes\.md:1: SC16 ", done.stdout, re.M)
+    assert re.search(r"^! section-1-instructions/session-notes\.md:1: SC16 ", done.stdout, re.M)
     assert done.stdout.splitlines()[-1] == "1 files checked, 0 errors, 1 warnings, 0 allowed lines"
-    assert run_cli(tmp_path, "--strict", "01-instructions/session-notes.md").returncode == 1
+    assert run_cli(tmp_path, "--strict", "section-1-instructions/session-notes.md").returncode == 1
 
     write(tmp_path, "docs/a.md", "TODO: finish\n")
     done = run_cli(tmp_path, "docs/a.md")
@@ -718,14 +741,14 @@ def test_a_marker_on_its_own_line_covers_the_code_block_after_it(tmp_path: Path)
 
 
 def test_screenshots_next_to_an_expected_page_count_as_captured_output(tmp_path: Path) -> None:
-    extra = {"01-instructions/demo/expected/shot.png": PNG}
+    extra = {"section-1-instructions/demo/expected/shot.png": PNG}
     text = (
         "# Module 1: Harness Engineering for Coding Agents - Demo 1: One run\n\n"
         "> Your output will differ: run times, ids, and the agent's wording change on every"
         " run.\n\n"
         "![Console screen 1 at minute 4](shot.png)\n\n*Console screen 1 at minute 4.*\n"
     )
-    found = problems(tmp_path, "01-instructions/demo/expected/README.md", text, extra)
+    found = problems(tmp_path, "section-1-instructions/demo/expected/README.md", text, extra)
     assert [p for p in found if p.check == "SC13"] == []
 
 

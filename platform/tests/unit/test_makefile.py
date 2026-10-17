@@ -321,8 +321,8 @@ def test_testpaths_hold_the_platform_and_the_section_assignment_tests() -> None:
     options = tomllib.loads(PYPROJECT.read_text(encoding="utf-8"))["tool"]["pytest"]["ini_options"]
     paths = options["testpaths"]
     assert paths[:2] == ["platform/tests/unit", "platform/teamtrack/tests/visible"]
-    for number in ("01", "02"):
-        assert any(p.startswith(f"{number}-") for p in paths), number
+    for number in ("1", "2"):
+        assert any(p.startswith(f"section-{number}-") for p in paths), number
     assert not [p for p in paths if "grader" in p.split("/")]  # private: not in the public file
     for path in paths:
         assert (REPO / path).is_dir(), path

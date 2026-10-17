@@ -69,7 +69,7 @@ aborted (cost cap or time limit; still judged and shown), 1 on an error.
 
 | Target | Runs | What it does |
 |---|---|---|
-| `make check-assignment-1` to `-4` | `uv run python 0N-*/assignment/check.py` | Offline self-check of your work |
+| `make check-assignment-1` to `-4` | `uv run python section-N-*/assignment/check.py` | Offline self-check of your work |
 | `make grade-assignment-1` to `-4` | `uv run python platform/scripts/grade_assignment.py N "<SUBMISSION>"` | The instructor's grader; the graders are not in this repository |
 | `make slides` | `uv run python platform/scripts/build_slides.py` | Builds `slides/dist/deck.html`, `.pdf`, and `.pptx` (needs Playwright's Chromium) |
 | `make test` | `uv run pytest` | The fast suite |
@@ -224,7 +224,7 @@ than $6 of OpenAI usage and 400 LangSmith traces.
 | Folder | What it holds |
 |---|---|
 | `setup/` | First-time setup for Windows, macOS, and Linux |
-| `01-instructions/` to `04-verification/` | One folder per section: concepts, demo, assignment, reading, session notes |
+| `section-1-instructions/` to `section-4-verification/` | One folder per section: concepts, demo, assignment, reading, session notes |
 | `final-project/` | The whole harness on a new feature, then your own repository |
 | `slides/` | The deck source and its builder |
 | `use-in-your-repo/` | The starter kit (`kit/`), four skills (`skills/`), and the guide |

@@ -496,8 +496,8 @@ step marked `x` and rerun; finished baselines stay cached.
 ### Step 13: Run the first live demo
 
 **Why.** This is the end-to-end check: a real agent run on TeamTrack with the first harness layer,
-scored by the referee and shown live on the console. It is the run that Section 1 of the class
-shows.
+scored by the referee and shown live on the console. It is the run that Section 1 of Module 1
+shows in class.
 
 **Do this.** Open two Ubuntu terminals, both in `~/shipharness`. In the first, start the console and leave
 it running:
@@ -535,7 +535,7 @@ Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; ses
 ```
 
 The `session` figure there includes earlier runs on that machine; your first session starts at $0.
-What each screen shows, minute by minute, is in the [Section 1 demo](../01-instructions/demo/README.md).
+What each screen shows, minute by minute, is in the [Section 1 demo](../section-1-instructions/demo/README.md).
 
 **Check it worked.** The console shows the run with a primary verdict, and the terminal shows a
 `Cost:` line. The exit code is 0 when the arm completed and 2 when it was aborted by a cap or time
@@ -571,5 +571,5 @@ You are ready when:
 - `make warm` ends with `warm: done`;
 - `make show-1` shows a run with a primary verdict on the console.
 
-Next: the [Section 1 demo](../01-instructions/demo/README.md), which explains what you just ran,
+Next: the [Section 1 demo](../section-1-instructions/demo/README.md), which explains what you just ran,
 or the [module overview](../README.md).

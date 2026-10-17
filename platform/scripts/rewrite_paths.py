@@ -9,11 +9,11 @@ and the kit and skill templates that describe a learner's repository), the scrip
 - resolves each relative link and image against the file's old location; when the target was a
   tracked file or folder in the old layout, the link is rewritten to the target's new location,
   relative to the file's new location (anchors and queries are kept);
-- rewrites path mentions in backticks (`scripts/lint_prose.py`, `submodules/01-instructions/`,
-  `src/shipharness/ab/referee.py:40-60`), in plain text, and in fenced commands that name a
-  tracked old path from the repository root (with a slash; bare words such as `skills` or
-  `datasets` are also command names) and do not also name a file next to the document; command
-  path arguments (`--app teamtrack`, `skills validate skills`) move too.
+- rewrites path mentions in backticks (`scripts/lint_prose.py`,
+  `submodules/section-1-instructions/`, `src/shipharness/ab/referee.py:40-60`), in plain text, and
+  in fenced commands that name a tracked old path from the repository root (with a slash; bare
+  words such as `skills` or `datasets` are also command names) and do not also name a file next
+  to the document; command path arguments (`--app teamtrack`, `skills validate skills`) move too.
 
 `--check` rewrites nothing and exits 1 when a file would change. Without FILE arguments every
 course Markdown file is processed.
@@ -34,7 +34,12 @@ from pathlib import Path
 REPO = next(p for p in Path(__file__).resolve().parents if (p / "pyproject.toml").is_file())
 
 # Old prefix -> new prefix, most specific first. Folder prefixes end with "/".
-_SECTIONS = ("01-instructions", "02-state-lifecycle", "03-scope-sandbox", "04-verification")
+_SECTIONS = (
+    "section-1-instructions",
+    "section-2-state-lifecycle",
+    "section-3-scope-sandbox",
+    "section-4-verification",
+)
 MAPPING: tuple[tuple[str, str], ...] = (
     *((f"submodules/{s}/solution/", f"{s}/assignment/solution/") for s in _SECTIONS),
     *((f"submodules/{s}/", f"{s}/") for s in _SECTIONS),
@@ -283,8 +288,8 @@ OTHER_TREE = (
     "use-in-your-repo/kit/templates/",
     "use-in-your-repo/kit/examples/boltons-queueutils/filled/",
     "use-in-your-repo/skills/harness-setup/assets/templates/",
-    "01-instructions/assignment/starter/instructions/",
-    "01-instructions/assignment/solution/work/instructions/",
+    "section-1-instructions/assignment/starter/instructions/",
+    "section-1-instructions/assignment/solution/work/instructions/",
     "platform/teamtrack/harness/instructions/",
 )
 

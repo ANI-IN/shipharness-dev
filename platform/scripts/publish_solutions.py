@@ -3,7 +3,7 @@
     uv run python platform/scripts/publish_solutions.py --assignment 1 --dry-run
 
 Owner message 14 (reverses the earlier rule): the public repository ANI-IN/harness-engineering-
-session includes every `0N-*/assignment/solution/` folder (code, solution notes, captured
+session includes every `section-N-*/assignment/solution/` folder (code, solution notes, captured
 outputs, live evidence), except the graders (`grader/`) and hidden grader cases (`hidden/`),
 which stay private. The dry run lists both groups for one assignment at --ref. The release build
 (platform/scripts/make_release.py) is what ships them; --publish refuses with exit 2 and writes
@@ -42,7 +42,7 @@ class Plan:
 
 
 def solution_folder(paths: Iterable[str], assignment: int) -> str:
-    prefix = f"{assignment:02d}-"
+    prefix = f"section-{assignment}-"
     sections = sorted({p.split("/")[0] for p in paths if p.startswith(prefix) and "/" in p})
     if not sections:
         raise PublishError(f"no section folder for assignment {assignment} ({prefix}*)")

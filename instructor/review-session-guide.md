@@ -10,13 +10,13 @@ what the grader saw.
 
 | Assignment | Brief and grading criteria | Starter | Solution | Self-check | Grader |
 |---|---|---|---|---|---|
-| A1 Instructions | `01-instructions/assignment/README.md` | `01-instructions/assignment/starter/` | `01-instructions/assignment/solution/` | `make check-assignment-1` | `make grade-assignment-1` |
-| A2 State and session lifecycle | `02-state-lifecycle/assignment/README.md` | `02-state-lifecycle/assignment/starter/` | `02-state-lifecycle/assignment/solution/` | `make check-assignment-2` | `make grade-assignment-2` |
-| A3 Scope and sandbox | `03-scope-sandbox/assignment/README.md` | `03-scope-sandbox/assignment/starter/` | `03-scope-sandbox/assignment/solution/` | `make check-assignment-3` | `make grade-assignment-3` |
-| A4 Verification and portfolio | `04-verification/assignment/README.md` | `04-verification/assignment/starter/` | `04-verification/assignment/solution/` | `make check-assignment-4` | `make grade-assignment-4` |
+| A1 Instructions | `section-1-instructions/assignment/README.md` | `section-1-instructions/assignment/starter/` | `section-1-instructions/assignment/solution/` | `make check-assignment-1` | `make grade-assignment-1` |
+| A2 State and session lifecycle | `section-2-state-lifecycle/assignment/README.md` | `section-2-state-lifecycle/assignment/starter/` | `section-2-state-lifecycle/assignment/solution/` | `make check-assignment-2` | `make grade-assignment-2` |
+| A3 Scope and sandbox | `section-3-scope-sandbox/assignment/README.md` | `section-3-scope-sandbox/assignment/starter/` | `section-3-scope-sandbox/assignment/solution/` | `make check-assignment-3` | `make grade-assignment-3` |
+| A4 Verification and portfolio | `section-4-verification/assignment/README.md` | `section-4-verification/assignment/starter/` | `section-4-verification/assignment/solution/` | `make check-assignment-4` | `make grade-assignment-4` |
 
 `make check-assignment-N` is the learner's offline self-check. `make grade-assignment-N
-SUBMISSION=<folder or git URL>` runs the private grader in `0N-*/assignment/solution/grader/`; in the
+SUBMISSION=<folder or git URL>` runs the private grader in `section-N-*/assignment/solution/grader/`; in the
 learner repository it stops with `no grader for assignment N: graders are private (build repository
 only)`. Reference scores (each solution's `captured/grade-solution.txt`, captured 2026-10-17): A1
 83/100, A2 90/100, A3 90/100 (FAIL: valid live evidence is a pass condition), A4 100/100 (20 of those
@@ -62,7 +62,7 @@ an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner 
 - The A/B keeps everything equal except the instructions layer and reports counts per arm, not
   percentages (DESIGN §8.3 rule 5).
 
-**Solution walkthrough (8 min).** Open `01-instructions/assignment/solution/` and walk, in this
+**Solution walkthrough (8 min).** Open `section-1-instructions/assignment/solution/` and walk, in this
 order: `work/instructions/AGENTS.md` (the map), `work/instructions/ARCHITECTURE.md`, one document
 under `work/instructions/docs/` (`SECURITY.md` holds R1), the `add-list-endpoint` skill (`work/instructions/.agents/skills/add-list-endpoint/SKILL.md`), and the
 checker `work/checker/check_docs.py` with its tests `work/checker/test_check_docs.py`. Then
@@ -110,7 +110,7 @@ heads, redone work, and progress-file integrity. Learner budget ≤ $1.50 and �
 - The exec plan moves from `active/` to `completed/` when the feature is done (A1, A7; F-a-45 to
   F-a-48).
 
-**Solution walkthrough (8 min).** Open `02-state-lifecycle/assignment/solution/a2_state/layer.py`
+**Solution walkthrough (8 min).** Open `section-2-state-lifecycle/assignment/solution/a2_state/layer.py`
 (the `ResumableStateLayer`), then `ledger.py` and `progress_log.py`, then `SOLUTION.md`. The
 grader's hidden scenarios (`grader/a2_hidden.py`, four scenarios and a hidden four-step feature) run
 a scripted stand-in agent, not a model. On the reference solution every scenario criterion passes, among them
@@ -152,7 +152,7 @@ budget ≤ $0.25 and ≤ 30 traces, mostly deterministic (DESIGN §11.5).
   `platform/src/shipharness/sandbox/policy.py`; CONTRACTS §9).
 
 **Reveal: the hidden diffs (10 min).** The diffs live with the A3 grader:
-`03-scope-sandbox/assignment/solution/grader/hidden/diffs/` (43 diffs: 26 named `bad-*`, 17 named
+`section-3-scope-sandbox/assignment/solution/grader/hidden/diffs/` (43 diffs: 26 named `bad-*`, 17 named
 `good-*`), with the expected verdict, phase, allow lists, and refusal reason of each in
 `grader/hidden/cases.json` (built by `make_hidden.py`). The pass condition is every bad diff rejected
 and zero false positives. Pairs that show where a false positive or a miss comes from:
@@ -208,7 +208,7 @@ skill. Learner budget ≤ $1.75 and ≤ 120 traces (DESIGN §11.5).
 - The evidence report gives counts per run, not percentages, and links the LangSmith experiment.
 
 **Solution walkthrough (8 min).** Open, in order:
-`04-verification/assignment/solution/a4_verification/r8_soft_delete.py` (the R8 check) with its
+`section-4-verification/assignment/solution/a4_verification/r8_soft_delete.py` (the R8 check) with its
 adapter `adapter.py` and `captured/r8-teamtrack.json` (R8 on TeamTrack, real output, no model call);
 `dedup_filter.py` (filter 6) and `apply_filter.py`; `portfolio/evidence-report.md`,
 `portfolio/case-study.md`, and `portfolio/langsmith.md`; the example learner skill

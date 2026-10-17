@@ -20,7 +20,7 @@ import pytest
 from shipharness.layout import find_repo_root
 
 REPO = find_repo_root(Path(__file__))
-SECTIONS = ("02-state-lifecycle", "03-scope-sandbox", "04-verification")
+SECTIONS = ("section-2-state-lifecycle", "section-3-scope-sandbox", "section-4-verification")
 
 
 @pytest.mark.slow

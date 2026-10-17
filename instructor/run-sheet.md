@@ -442,7 +442,7 @@ arm.
 **Discussion (0:55-1:00).**
 1. "The bare arm could read the same rules, and applied them. What would have to be true of a model
    or a ticket for the map to earn its place?" Tie back to cause 1 (A1, F-a-05).
-2. Transition: link `01-instructions/demo/README.md`; next problem: what happens when a session ends
+2. Transition: link `section-1-instructions/demo/README.md`; next problem: what happens when a session ends
    halfway.
 
 ---
@@ -497,7 +497,7 @@ fixed the continuity check.
 
 **Discussion (1:45-1:50).**
 1. "Which state file would you keep for this model, and how would you measure it?"
-2. Transition: `02-state-lifecycle/demo/README.md`.
+2. Transition: `section-2-state-lifecycle/demo/README.md`.
 
 ---
 
@@ -587,7 +587,7 @@ harness arms in 0 of 6; that post hoc count is why the S3 confirmation was regis
 1. "The guard won by construction. What would you measure next to it, so that a guard that blocks
    everything cannot look good?" Expected direction: hidden tests passed and existing tests that keep
    passing, next to out-of-scope files.
-2. Transition: `03-scope-sandbox/demo/README.md`.
+2. Transition: `section-3-scope-sandbox/demo/README.md`.
 
 ---
 
@@ -675,7 +675,7 @@ in two A/Bs.
 
 **Discussion (3:35-3:40).**
 1. "What would a gate need to catch to earn its turns on this model?"
-2. Transition: `04-verification/demo/README.md`; next, the final A/B launched at 2:55 (terminal C,
+2. Transition: `section-4-verification/demo/README.md`; next, the final A/B launched at 2:55 (terminal C,
    browser tab 4).
 
 ---
@@ -698,7 +698,7 @@ and starts no run. It is the class's measurement lesson: one A/B is one dot.
    the post hoc table labelled post hoc. Show `Final:dots`. A1 warns that its own results should "not
    be assumed to generalize without similar investment" (A1, F-a-143); the same holds for these runs:
    one model, one task per section, three runs per arm per round.
-5. **3:53 Assignments**: A1 to A4 in `0N-*/assignment/README.md`; learner budget ≤ $6 OpenAI and ≤ 400
+5. **3:53 Assignments**: A1 to A4 in `section-N-*/assignment/README.md`; learner budget ≤ $6 OpenAI and ≤ 400
    LangSmith traces in total (DESIGN §11.5).
 6. **3:56 Skills and the starter kit**: `use-in-your-repo/skills/harness-setup`,
    `use-in-your-repo/skills/assured-tests`, `use-in-your-repo/skills/house-rules`,

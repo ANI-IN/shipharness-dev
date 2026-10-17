@@ -87,9 +87,9 @@ extend-immutable-calls = [
 testpaths = [
     "platform/tests/unit",
     "platform/teamtrack/tests/visible",
-    "01-instructions/assignment/solution/work/checker",
-    "02-state-lifecycle/assignment/tests",
-    "02-state-lifecycle/assignment/solution/tests",
+    "section-1-instructions/assignment/solution/work/checker",
+    "section-2-state-lifecycle/assignment/tests",
+    "section-2-state-lifecycle/assignment/solution/tests",
 ]
 norecursedirs = [".claude", ".superpowers", ".venv", ".git", ".hypothesis", ".shipharness", "exports", "research", "node_modules"]
 pythonpath = ["platform/teamtrack"]

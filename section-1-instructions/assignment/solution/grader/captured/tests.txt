@@ -1,0 +1,5 @@
+# captured on 2026-10-17 at commit 0c3387d (offline commands, no model calls); your output will differ
+$ uv run python -m pytest -q -p no:cacheprovider -p no:randomly submodules/section-1-instructions/solution/grader/tests
+110 passed
+$ uv run python -m pytest -q -p no:cacheprovider -p no:randomly submodules/section-1-instructions/solution/work/checker
+15 passed

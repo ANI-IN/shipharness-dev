@@ -189,16 +189,16 @@ experiments report pilot:
 
 # check-assignment-N: offline self-check of your work (A1_WORK, A2_IMPL, A3_IMPL, A4_IMPL pick a folder).
 check-assignment-1:
-	$(UV) run python 01-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
+	$(UV) run python section-1-instructions/assignment/check.py $(if $(A1_WORK),--work $(A1_WORK))
 
 check-assignment-2:
-	$(UV) run python 02-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
+	$(UV) run python section-2-state-lifecycle/assignment/check.py $(if $(A2_IMPL),--impl $(A2_IMPL))
 
 check-assignment-3:
-	$(UV) run python 03-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
+	$(UV) run python section-3-scope-sandbox/assignment/check.py $(if $(A3_IMPL),--impl $(A3_IMPL))
 
 check-assignment-4:
-	$(UV) run python 04-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
+	$(UV) run python section-4-verification/assignment/check.py $(if $(A4_IMPL),--impl $(A4_IMPL))
 
 # grade-assignment-N SUBMISSION=<folder or git URL>: instructor only (graders are private).
 grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:

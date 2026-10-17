@@ -38,7 +38,7 @@ def test_each_grader_gets_its_submission_flag() -> None:
     for n, flag in ((1, "--work"), (2, "--impl"), (3, "--impl"), (4, "--impl")):
         cmd = ga.grader_command(n, Path("/tmp/sub"))
         assert cmd[-2:] == [flag, "/tmp/sub"]
-        assert cmd[1].endswith("solution/grader/grade.py") and f"0{n}-" in cmd[1]
+        assert cmd[1].endswith("solution/grader/grade.py") and f"section-{n}-" in cmd[1]
 
 
 def test_a_local_folder_is_used_in_place(tmp_path: Path) -> None:

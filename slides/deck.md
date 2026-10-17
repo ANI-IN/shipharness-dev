@@ -421,7 +421,7 @@ Runs: docs/evidence.md, Section 1.
 section: S1 Instructions
 minutes: 5
 
-- Runbook: `01-instructions/demo/README.md`
+- Runbook: `section-1-instructions/demo/README.md`
 - Discussion: the map changed nothing on this ticket. What would have to be true for it to earn its place?
 - Next: what happens when a session ends halfway
 
@@ -655,7 +655,7 @@ Runs: docs/evidence.md, Section 2.
 section: S2 State and session lifecycle
 minutes: 5
 
-- Runbook: `02-state-lifecycle/demo/README.md`
+- Runbook: `section-2-state-lifecycle/demo/README.md`
 - Discussion: the bare arm found its own state with `git status`. Which state file would you keep, and how would you measure it?
 - Next: a 10-minute break
 
@@ -822,7 +822,7 @@ Say: "The sandbox is the same for both arms. It is taught here, but it is never 
 Detailed sandbox design is a later module.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Source: docs/architecture.md (sandbox policy); 03-scope-sandbox/concepts.md.
+Source: docs/architecture.md (sandbox policy); section-3-scope-sandbox/concepts.md.
 
 ## 44. Code: allowed paths and evidence
 section: S3 Scope and sandbox
@@ -915,7 +915,7 @@ Runs: docs/evidence.md, Section 3.
 section: S3 Scope and sandbox
 minutes: 5
 
-- Runbook: `03-scope-sandbox/demo/README.md`
+- Runbook: `section-3-scope-sandbox/demo/README.md`
 - Discussion: the guard won by construction. What would you measure next to it, so a guard that blocks everything cannot look good?
 - Next: who decides that the work is done
 
@@ -1042,7 +1042,7 @@ Say at the filter table: "Filters 1 to 3 are TestGen-LLM's. 4 and 5 are this cou
 referee's flakiness check runs each shipped test five times, for both arms.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: 04-verification/concepts.md; docs/REFERENCES.md (TestGen-LLM).
+Source: section-4-verification/concepts.md; docs/REFERENCES.md (TestGen-LLM).
 
 ## 55. Mutants and hidden tests
 section: S4 Verification
@@ -1058,7 +1058,7 @@ notes:
 The referee-set mutants were never visible to the filters.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: 04-verification/concepts.md; docs/REFERENCES.md (ACH; SpecBench); counts in 04-verification/post-class-reading/04-held-out-tests-specbench.md.
+Source: section-4-verification/concepts.md; docs/REFERENCES.md (ACH; SpecBench); counts in section-4-verification/post-class-reading/04-held-out-tests-specbench.md.
 
 ## 56. A separate evaluator and a gate
 section: S4 Verification
@@ -1193,7 +1193,7 @@ Runs: docs/evidence.md, Section 4.
 section: S4 Verification
 minutes: 5
 
-- Runbook: `04-verification/demo/README.md`
+- Runbook: `section-4-verification/demo/README.md`
 - Discussion: one false "done" in 4 F4 runs per arm, from the bare arm. What would a gate need to catch to earn its turns on this model?
 - Next: the final results
 
@@ -1315,10 +1315,10 @@ Runs: docs/evidence.md, Results.
 section: Wrap-up
 minutes: 3
 
-- A1 Instructions: `01-instructions/assignment/`, at most $2.50 and 150 traces
-- A2 State and session lifecycle: `02-state-lifecycle/assignment/`, at most $0.40 and 4 traces
-- A3 Scope and sandbox: `03-scope-sandbox/assignment/`, at most $0.48 and 4 traces
-- A4 Verification and portfolio: `04-verification/assignment/`, at most $0.68
+- A1 Instructions: `section-1-instructions/assignment/`, at most $2.50 and 150 traces
+- A2 State and session lifecycle: `section-2-state-lifecycle/assignment/`, at most $0.40 and 4 traces
+- A3 Scope and sandbox: `section-3-scope-sandbox/assignment/`, at most $0.48 and 4 traces
+- A4 Verification and portfolio: `section-4-verification/assignment/`, at most $0.68
 - Each: grading criteria, a starter folder, `make check-assignment-N` offline, one live step, and a full solution
 - Total at most $6 and 400 traces; Thursday review
 
@@ -1327,7 +1327,7 @@ The budgets are the caps of each assignment's live step. Each assignment folder 
 folder with a step-by-step walkthrough. Tell learners to try first.
 
 Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up.
-Source: 01-instructions/assignment/README.md to 04-verification/assignment/README.md; Makefile `check-assignment-N`.
+Source: section-1-instructions/assignment/README.md to section-4-verification/assignment/README.md; Makefile `check-assignment-N`.
 
 ## 70. Skills and the starter kit to take home
 section: Wrap-up

@@ -45,7 +45,7 @@ def test_links_are_rewritten_to_the_file_that_holds_the_anchor(tmp_path: Path) -
     _tree(tmp_path)
     page = _put(
         tmp_path,
-        "01-x/README.md",
+        "section-1-x/README.md",
         "[a](../docs/evidence.md#src-openai) [b](../docs/evidence/general.md#run-ab-1-f1)\n"
         "[c](../docs/evidence.md#how-to-use-this-page) [d](../docs/evidence/general.md#gate-1)\n",
     )
@@ -56,7 +56,7 @@ def test_links_are_rewritten_to_the_file_that_holds_the_anchor(tmp_path: Path) -
         "[c](../docs/evidence.md#how-to-use-this-page) [d](../docs/evidence/general.md#gate-1)\n"
     )
     assert s3.read_text(encoding="utf-8") == "[e](s1.md#src-openai) [f](s1.md#src-openai)\n"
-    assert sorted(report.changed) == ["01-x/README.md", "docs/evidence/s3.md"]
+    assert sorted(report.changed) == ["section-1-x/README.md", "docs/evidence/s3.md"]
     assert report.missing == [] and report.ambiguous == []
     assert fel.fix(tmp_path).changed == []  # re-runnable: nothing left to do
 
@@ -76,7 +76,7 @@ def test_a_section_page_prefers_its_own_part_file(tmp_path: Path) -> None:
     _tree(tmp_path)
     _put(tmp_path, "docs/evidence/s3.md", '<a id="shared"></a>\n')
     _put(tmp_path, "docs/evidence/general.md", '<a id="shared"></a>\n')
-    s3 = _put(tmp_path, "03-x/README.md", "[a](../docs/evidence.md#shared)\n")
+    s3 = _put(tmp_path, "section-3-x/README.md", "[a](../docs/evidence.md#shared)\n")
     root = _put(tmp_path, "setup/README.md", "[a](../docs/evidence.md#shared)\n")
     final = _put(tmp_path, "final-project/README.md", "[a](../docs/evidence.md#dup)\n")
     report = fel.fix(tmp_path)
@@ -97,6 +97,6 @@ def test_page_structure_headings_shared_by_every_file_are_not_duplicates(tmp_pat
 def test_do_not_edit_paths_are_skipped(tmp_path: Path) -> None:
     _tree(tmp_path)
     text = "[a](../../../../docs/evidence.md#src-openai)\n"
-    live = _put(tmp_path, "01-x/assignment/solution/live/README.md", text)
+    live = _put(tmp_path, "section-1-x/assignment/solution/live/README.md", text)
     fel.fix(tmp_path)
     assert live.read_text(encoding="utf-8") == text

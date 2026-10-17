@@ -30,7 +30,7 @@ sync = importlib.util.module_from_spec(_spec)
 sys.modules["sync_demo_harness"] = sync  # dataclasses look their module up
 _spec.loader.exec_module(sync)
 
-PRESENT = sorted(p.parent.parent.name for p in REPO.glob("0[1-4]-*/demo/harness"))
+PRESENT = sorted(p.parent.parent.name for p in REPO.glob("section-[1-4]-*/demo/harness"))
 MARKER = "<!-- [walkthrough:S1:agents_md] start -->\n"
 
 
@@ -44,10 +44,10 @@ def _tree(root: Path, keep: frozenset[str] = frozenset()) -> dict[str, bytes]:
 
 def test_the_sections_with_a_demo_harness_are_found() -> None:
     assert {
-        "01-instructions",
-        "02-state-lifecycle",
-        "03-scope-sandbox",
-        "04-verification",
+        "section-1-instructions",
+        "section-2-state-lifecycle",
+        "section-3-scope-sandbox",
+        "section-4-verification",
     } <= set(PRESENT)
 
 
@@ -63,12 +63,12 @@ def test_the_demo_harness_has_no_drift(folder: str) -> None:
 
 def test_the_section_1_copy_equals_what_the_layer_places(tmp_path: Path) -> None:
     InstructionsLayer().prepare_workspace(make_ctx(tmp_path))
-    assert _tree(REPO / "01-instructions" / "demo" / "harness") == _tree(tmp_path), FIX
+    assert _tree(REPO / "section-1-instructions" / "demo" / "harness") == _tree(tmp_path), FIX
 
 
 def test_the_section_2_copy_has_the_four_initializer_files() -> None:
-    section = sync.SECTIONS["02-state-lifecycle"]
-    assert sorted(_tree(REPO / "02-state-lifecycle" / "demo" / "harness", section.keep)) == [
+    section = sync.SECTIONS["section-2-state-lifecycle"]
+    assert sorted(_tree(REPO / "section-2-state-lifecycle" / "demo" / "harness", section.keep)) == [
         "docs/exec-plans/active/F2.md",
         "init.sh",
         "progress.md",
@@ -100,14 +100,14 @@ def test_the_section_3_feature_files_equal_what_the_layer_writes(tmp_path: Path)
         sandbox=FakeSandbox(),
     )  # fmt: skip
     ScopeLayer(**task.harness_kwargs()).prepare_workspace(ctx)
-    copy = REPO / "03-scope-sandbox" / "demo" / "harness"
+    copy = REPO / "section-3-scope-sandbox" / "demo" / "harness"
     want = sync.scope_files(task)
     for rel in (FEATURE_LIST, FEATURE_SCHEMA):
         assert (tmp_path / rel).read_bytes() == want[rel] == (copy / rel).read_bytes(), FIX
 
 
 def test_the_section_3_copy_is_the_f4_ticket_with_passes_false() -> None:
-    copy = REPO / "03-scope-sandbox" / "demo" / "harness"
+    copy = REPO / "section-3-scope-sandbox" / "demo" / "harness"
     (feature,) = json.loads((copy / "feature_list.json").read_text(encoding="utf-8"))["features"]
     assert feature["id"] == "F4"
     assert feature["passes"] is False and feature["evidence"] is None
@@ -156,9 +156,9 @@ def test_the_instructions_copy_has_no_walkthrough_markers(tmp_path: Path) -> Non
 
 def test_check_mode_exits_1_on_drift(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     section = sync.Section(lambda: {"AGENTS.md": b"# Map\n"}, frozenset())
-    monkeypatch.setattr(sync, "SECTIONS", {"09-test": section})
+    monkeypatch.setattr(sync, "SECTIONS", {"section-9-test": section})
     args = ["--root", str(tmp_path), "--check"]
     assert sync.main(args) == 1
     assert sync.main(args[:-1]) == 0
     assert sync.main(args) == 0
-    assert (tmp_path / "09-test" / "demo" / "harness" / "AGENTS.md").is_file()
+    assert (tmp_path / "section-9-test" / "demo" / "harness" / "AGENTS.md").is_file()

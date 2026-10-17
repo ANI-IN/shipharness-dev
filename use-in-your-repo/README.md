@@ -77,7 +77,7 @@ uv run shipharness init --check ~/my-repo
 ## Where next
 
 - New to the course? Run the TeamTrack demos first, starting with
-  [Section 1](../01-instructions/README.md).
+  [Section 1 of Module 1](../section-1-instructions/README.md).
 - Ready for your own code? Follow [apply-to-your-repo.md](apply-to-your-repo.md) from step 1.
 - Building your portfolio? The [final project](../final-project/README.md) shows how the kit feeds
   Assignment 4.

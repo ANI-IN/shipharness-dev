@@ -21,16 +21,16 @@ ps = importlib.util.module_from_spec(_spec)
 sys.modules["publish_solutions"] = ps
 _spec.loader.exec_module(ps)
 
-S1 = "01-instructions/assignment/solution"
+S1 = "section-1-instructions/assignment/solution"
 PATHS = [
-    "01-instructions/README.md",
-    "01-instructions/assignment/README.md",
+    "section-1-instructions/README.md",
+    "section-1-instructions/assignment/README.md",
     f"{S1}/README.md",
     f"{S1}/AGENTS.md",
     f"{S1}/grader/check.py",
     f"{S1}/grader/tests/test_grade.py",
     f"{S1}/grader/hidden/case_1.py",
-    "02-state-lifecycle/assignment/solution/README.md",
+    "section-2-state-lifecycle/assignment/solution/README.md",
 ]
 
 
@@ -54,7 +54,7 @@ def test_unknown_or_ambiguous_assignment_is_an_error() -> None:
     with pytest.raises(ps.PublishError, match="no section folder"):
         ps.plan(PATHS, 7)
     with pytest.raises(ps.PublishError, match="no solution"):
-        ps.plan(["03-scope-sandbox/README.md"], 3)
+        ps.plan(["section-3-scope-sandbox/README.md"], 3)
 
 
 def _git(cwd: Path, *args: str) -> None:

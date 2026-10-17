@@ -20,10 +20,10 @@ SCAN_DIRS = (
     "platform/teamtrack",
     "platform/sandbox",
     "use-in-your-repo/skills",
-    "01-instructions",
-    "02-state-lifecycle",
-    "03-scope-sandbox",
-    "04-verification",
+    "section-1-instructions",
+    "section-2-state-lifecycle",
+    "section-3-scope-sandbox",
+    "section-4-verification",
     "final-project",
 )
 SUFFIXES = {".py", ".md", ".html", ".sh", ".toml", ".json", ".yml", ".yaml", ""}
