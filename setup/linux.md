@@ -14,7 +14,7 @@
 
 This page takes a Linux machine with nothing installed to a first live run, watched on the console.
 The commands are for Ubuntu and other systems that use `apt`. On another distribution, use its
-package manager for git and make, and [Docker's install pages](https://docs.docker.com/engine/install/).
+package manager for git and make, and [Install Docker Engine](https://docs.docker.com/engine/install/).
 
 Every command on this page was run in Ubuntu 26.04.1 LTS on the course machine, which runs Ubuntu
 inside WSL2. A native Linux install was not tested; the commands are the same.
@@ -22,7 +22,7 @@ inside WSL2. A native Linux install was not tested; the commands are the same.
 ## Before you start
 
 - A supported Ubuntu release. Docker lists 26.10, 26.04 (LTS), 24.04 (LTS), and 22.04 (LTS)
-  ([Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/), read 2026-10-17).
+  ([Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/), read 2026-10-17).
   Check yours:
 
   ```bash
@@ -68,10 +68,10 @@ If the key ever lands in a chat, an issue, or a screenshot, delete it and create
 ### Step 2: Add credit (Build tier)
 
 **Why.** The agent model has no free tier. Its model page lists the Free tier as "Not supported"
-([OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
+([gpt-6-luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
 The Build tier needs "$5 in total credit purchases", and "Your organization's usage tier upgrades
 automatically as its total credit purchases reach each threshold."
-([OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
+([Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
 
 **Do this.**
 
@@ -95,14 +95,14 @@ add credit and retry.` means the account is out of credit: add more. The message
 **Why.** Every run sends traces to LangSmith, where you can open the agent's steps one by one. The
 free Developer plan is enough: "Personal organizations are limited to 5,000 traces per month until
 a credit card is added."
-([LangSmith, Billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
+([LangSmith billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
 card there is nothing to bill. Do not add a card.
 
 **Do this.**
 
 1. Open https://smith.langchain.com and sign up. Stay on the free Developer plan.
 2. Go to Settings, then API Keys, then Create API Key
-   ([LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)).
+   ([Create an account and API key](https://docs.langchain.com/langsmith/create-account-api-key)).
 3. Choose a Personal Access Token with an expiry after the course, and create it.
 4. Copy the key right away: "LangSmith will display the API key only once."
 
@@ -120,7 +120,7 @@ step 9 adds one more line to `.env`.
 and only the workspace writable (`platform/sandbox/Dockerfile`).
 
 **Do this.** These are Docker's commands for Ubuntu, "Install using the apt repository"
-([Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/), read 2026-10-17):
+(Source 2, read 2026-10-17):
 
 ```bash
 # Add Docker's official GPG key:
@@ -145,7 +145,7 @@ sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin dock
 ```
 
 Then let your user run Docker without `sudo`
-([Docker, Post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/)):
+([Linux post-installation steps for Docker Engine](https://docs.docker.com/engine/install/linux-postinstall/)):
 
 ```bash
 sudo groupadd docker
@@ -210,7 +210,7 @@ git version 2.53.0
 through `uv run`. `.python-version` pins Python 3.12, and uv downloads it on first use.
 
 **Do this.** The course machine uses uv 0.13.1; this installs that version
-([uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)):
+([Installing uv](https://docs.astral.sh/uv/getting-started/installation/)):
 
 ```bash
 curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh
@@ -291,6 +291,13 @@ m1-s4-start
 shipharness-referee:1 2.81GB
 shipharness-agent:1 1.28GB
 ```
+
+The `m1-*` tags are checkpoints: each one marks the TeamTrack code a part of the course starts
+from. `m1-s1-start` is the start of Section 1: Instructions, `m1-s2-start` of
+Section 2: State and sessions, `m1-s3-start` of Section 3: Scope and sandbox, `m1-s4-start` of
+Section 4: Verification, and `m1-final-start` of the final project. `m1-base` is the app before any
+feature, `m1-complete` has every feature, and `m1-alt-a` and `m1-alt-b` are other starting points
+some tasks use.
 
 **If it fails.**
 
@@ -411,8 +418,8 @@ gate baseline final F7: cached (0.0 s)
 warm: done (140.6 s)
 ```
 
-`F1` to `F7` in these lines are the course's ids for the seven class features, from org-wide issue
-search to labels.
+`F1` to `F7` in these lines are the codes of Features 1 to 7, from Feature 1: Org-wide issue search
+to Feature 7: Labels.
 
 A first run with no cached baselines took 407 s on the course machine; a second run
 took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
@@ -454,8 +461,7 @@ Open http://127.0.0.1:8765/ in your browser. In the second terminal, start the r
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on the org-wide issue
-search feature, then the referee and one review. It costs at most $0.24 at the caps.
+`make show-1` runs the harness arm alone with the instructions layer on Feature 1, then the referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The first terminal prints the console's address:
 
@@ -514,11 +520,18 @@ or the [module overview](../README.md).
 
 ## Sources
 
-- [Docker, Install Docker Engine](https://docs.docker.com/engine/install/)
-- [Docker, Install on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
-- [Docker, Post-installation steps](https://docs.docker.com/engine/install/linux-postinstall/)
-- [uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)
-- [OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits)
-- [OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
-- [LangSmith, Billing](https://docs.langchain.com/langsmith/billing)
-- [LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)
+- Source 1: Install Docker Engine, <https://docs.docker.com/engine/install/>, Docker, n.d.
+- Source 2: Install Docker Engine on Ubuntu, <https://docs.docker.com/engine/install/ubuntu/>,
+  Docker, n.d.
+- Source 3: gpt-6-luna model page, <https://developers.openai.com/api/docs/models/gpt-6-luna>,
+  OpenAI (API docs), n.d.
+- Source 4: Rate limits, <https://developers.openai.com/api/docs/guides/rate-limits>,
+  OpenAI (API docs), n.d.
+- Source 5: LangSmith billing, <https://docs.langchain.com/langsmith/billing>,
+  LangChain (LangSmith docs), n.d.
+- Source 6: Create an account and API key,
+  <https://docs.langchain.com/langsmith/create-account-api-key>, LangChain (LangSmith docs), n.d.
+- Source 7: Linux post-installation steps for Docker Engine,
+  <https://docs.docker.com/engine/install/linux-postinstall/>, Docker, n.d.
+- Source 8: Installing uv, <https://docs.astral.sh/uv/getting-started/installation/>,
+  Astral (uv docs), n.d.

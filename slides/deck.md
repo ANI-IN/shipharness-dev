@@ -34,12 +34,13 @@ Format, one block per slide:
   Speaker notes until the next "## N." line. The build adds "Slide N of 72 | section | minutes"
   at the top of the PPTX notes.
 
-Writing rules: docs/STYLE.md (plain short sentences, counts not percentages, short source names).
+Writing rules: docs/STYLE.md (plain short sentences, counts not percentages, "Kind N: name" on
+first use per slide).
 Run ids, A/B ids, finding ids, and commit hashes stay out of this file: numbers on the slides come
-from the runs listed in docs/evidence.md, and sources are named by a short name whose link is in
-the Sources list at the end of this file. The rounds are named by their settings: the medium-effort round, the
+from the runs listed in docs/evidence.md. Slide text cites a source as "Source N"; the notes link
+its title, and the numbered Sources list at the end of this file gives each one in full. The rounds are named by their settings: the medium-effort round, the
 low-effort round, the class-settings round (one A/B per section, class profile), and the Section 3
-confirmation (three A/Bs on the version checks ticket, class profile with the 420 s agent time limit). Console
+confirmation (three A/Bs on the Feature 4 ticket, class profile with the 420 s agent time limit). Console
 screenshots in img/ come from timed runs of the class commands on 2026-10-17, cut to the panels
 that matter; slides/outline.md lists which run each one shows.
 -->
@@ -48,10 +49,10 @@ that matter; slides/outline.md lists which run each one shows.
 flowchart LR
   TK["Same ticket, model, tools, budgets"] --> BA["Bare arm: agent loop"]
   TK --> HA["Harness arm: agent loop"]
-  HA --- L1["Section 1 Instructions"]
-  HA --- L2["Section 2 State and session lifecycle"]
-  HA --- L3["Section 3 Scope"]
-  HA --- L4["Section 4 Verification"]
+  HA --- L1["Section 1: Instructions"]
+  HA --- L2["Section 2: State and sessions"]
+  HA --- L3["Section 3: Scope and sandbox"]
+  HA --- L4["Section 4: Verification"]
   BA --> SB1["Sandbox"]
   HA --> SB2["Sandbox, identical"]
   SB1 --> REF["Referee: same checks, fresh container"]
@@ -70,7 +71,7 @@ subtitle: Instructions, state, scope, and verification: what each piece assumes 
 
 notes:
 Welcome. Tonight you see each harness piece at work on a real feature. You see the results of the
-runs we made before class. Section 3 and the final are live A/Bs: both arms, side by side.
+runs we made before class. Section 3: Scope and sandbox and the final are live A/Bs: both arms, side by side.
 Everything you see is in the course repository.
 
 Guide: docs/instructor-guide.md, "Section by section", Opening.
@@ -88,7 +89,7 @@ minutes: 2.5
 notes:
 Read the four failures. Then say: "Before class, no bare arm on the issue-search ticket shipped a
 new tenant leak, so there is no screenshot of one to show. We come back to what that means at the
-end." Runs: docs/evidence.md, Section 1.
+end." Runs: docs/evidence.md, Section 1: Instructions.
 
 Guide: docs/instructor-guide.md, "Section by section", Opening.
 
@@ -96,27 +97,27 @@ Guide: docs/instructor-guide.md, "Section by section", Opening.
 section: Opening
 minutes: 2
 
-- "anything it can’t access in-context while running effectively doesn’t exist" (OpenAI, Harness engineering)
-- "each new session begins with no memory of what came before." (Anthropic, Effective harnesses)
-- Agents copy patterns and take hard-to-undo actions: four sources, side by side (Section 3)
-- "agents reliably skew positive when grading their own work" (Anthropic, Harness design)
+- "anything it can’t access in-context while running effectively doesn’t exist" (Source 1)
+- "each new session begins with no memory of what came before." (Source 2)
+- Agents copy patterns and take hard-to-undo actions: four sources, side by side (Section 3: Scope and sandbox)
+- "agents reliably skew positive when grading their own work" (Source 3)
 
 notes:
 One sourced line per cause. Cause 3 has no single source that says both halves, so Section 3 shows
 its four sources side by side and does not merge them. Cause 4 also has a second source: in
-SpecBench, the visible suite passes while held-out tests (tests kept from the agent) that combine
+Source 4, the visible suite passes while held-out tests (tests kept from the agent) that combine
 features fail.
 
 Guide: docs/instructor-guide.md, "Section by section", Opening.
-Sources: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); [SpecBench](https://arxiv.org/abs/2605.21384).
+Sources: [Harness engineering](https://openai.com/index/harness-engineering/); [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps); [SpecBench](https://arxiv.org/abs/2605.21384).
 
 ## 4. A harness encodes assumptions about the model
 section: Opening
 minutes: 2
 diagram: architecture now=L1,L2,L3,L4,SB1,SB2
 
-- The work: "design environments, specify intent, and build feedback loops" (OpenAI)
-- "every component in a harness encodes an assumption about what the model can't do on its own" (Anthropic, Harness design)
+- The work: "design environments, specify intent, and build feedback loops" (Source 1)
+- "every component in a harness encodes an assumption about what the model can't do on its own" (Source 3)
 - Assumptions change with the model: the same author later dropped context resets
 - Four parts, Sections 1 to 4, plus a sandbox that is the same for both arms
 - The course's claim: measure each piece, keep what earns its place
@@ -128,7 +129,7 @@ and the word "now" mark all four parts and the sandbox. "Keep what earns its pla
 course puts it.
 
 Guide: docs/instructor-guide.md, "Section by section", Opening.
-Sources: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps).
+Based on: Source 1; Source 3.
 
 ## 5. shipharness, TeamTrack, console
 section: Opening
@@ -155,7 +156,7 @@ minutes: 1
 - The seven house rules: the course's name for OpenAI's "golden principles"
 - One primary measure per section, registered before any run; results are counts
 - No gap is reported as "no measurable difference on this task with this model"
-- One piece at a time: "removing one component at a time" (Anthropic, Harness design)
+- One piece at a time: "removing one component at a time" (Source 3)
 
 notes:
 The bare arm gets every rule in docs/HANDBOOK.md; nothing is withheld. A section's A/B tests the
@@ -165,7 +166,7 @@ harness so far against the bare arm. Only taking one piece out tests that piece.
 
 Guide: docs/instructor-guide.md, "Section by section", Opening.
 Sources: platform/teamtrack/docs/HANDBOOK.md (the seven house rules); platform/datasets/README.md;
-[Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps).
+Source 3.
 
 ## 7. Check your setup
 section: Opening
@@ -189,7 +190,7 @@ section: Section 1: Instructions
 minutes: 3
 live: the room's poll result
 
-- Org-wide issue search; rule at risk: tenant isolation
+- Feature 1: Org-wide issue search; rule at risk: House rule 1: Tenant isolation
 - The ticket: a legacy handler without the tenant filter sits next to the right pattern
 - Before class, 7 bare-arm runs took this ticket. How many shipped a new tenant leak?
 - A) 0-1   B) 2-3   C) 4-5   D) 6-7
@@ -201,12 +202,12 @@ and the class-settings round (1), all on the legacy-pattern ticket.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 
-## 9. Launching harness in action: org-wide issue search
+## 9. Launching harness in action: Feature 1: Org-wide issue search
 section: Section 1: Instructions
 minutes: 2
 
 - Now: run `make show-1` in terminal B; it runs during slides 10-18, back on slide 19
-- Harness in action: the harness arm alone on issue search, live; not an A/B
+- Harness in action: the harness arm alone on Feature 1, live; not an A/B
 - Watch for: which documents does it open before it writes code?
 - The referee judges it live: tenant probes first ("primary verdict ready"), then the other checks
 
@@ -232,7 +233,7 @@ differ. Runs: docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Source: Makefile `show-1`; platform/teamtrack/reference/f1/task.toml.
 
-## 10. Section 1: what the agent knows
+## 10. Section 1: Instructions, what the agent knows
 section: Section 1: Instructions
 minutes: 1.5
 diagram: architecture now=L1
@@ -252,8 +253,8 @@ Guide: docs/instructor-guide.md, "Section by section", Section 1.
 section: Section 1: Instructions
 minutes: 2
 
-- The ticket builds `GET /issues`, an org-wide issue search
-- Tenant isolation rule: another org's resource is 404, never 403
+- The ticket builds `GET /issues`, Feature 1: Org-wide issue search
+- House rule 1: Tenant isolation: another org's resource is 404, never 403
 - The rule is in `docs/HANDBOOK.md`, and both arms can read it
 - Nothing is withheld from the bare arm
 
@@ -262,7 +263,7 @@ Both arms get every rule. The question is not whether the rule exists, but wheth
 applies it.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Source: platform/teamtrack/docs/HANDBOOK.md (the tenant isolation rule); platform/teamtrack/docs/features/f1.md.
+Source: platform/teamtrack/docs/HANDBOOK.md (House rule 1); platform/teamtrack/docs/features/f1.md.
 
 ## 12. Cause: what is not in context does not exist
 section: Section 1: Instructions
@@ -275,19 +276,19 @@ minutes: 2.5
 - Agents copy patterns that already exist, even uneven ones
 
 notes:
-Cause 1 from the opening. All five lines are from OpenAI, Harness engineering. A handbook the agent
+Cause 1 from the opening. All five lines are from Source 1. A handbook the agent
 never opens does not exist for it.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Source: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/).
+Based on: Source 1.
 
 ## 13. Harness piece: AGENTS.md as a map
 section: Section 1: Instructions
 minutes: 3
 
-- "roughly 100 lines", "a map", "the table of contents" (OpenAI)
+- "roughly 100 lines", "a map", "the table of contents" (Source 1)
 - `docs/` is the system of record
-- OpenAI's layout: ARCHITECTURE.md at the root; SECURITY.md, RELIABILITY.md, QUALITY_SCORE.md, PLANS.md in docs/
+- The layout in Source 1: ARCHITECTURE.md at the root; SECURITY.md, RELIABILITY.md, QUALITY_SCORE.md, PLANS.md in docs/
 - Also in docs/: design-docs/, product-specs/, references/
 
 notes:
@@ -295,13 +296,13 @@ TeamTrack's harness instructions follow this layout: platform/teamtrack/harness/
 map points. The documents hold the rules.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Source: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); platform/teamtrack/harness/instructions/.
+Based on: Source 1; platform/teamtrack/harness/instructions/.
 
 ## 14. Progressive disclosure
 section: Section 1: Instructions
 minutes: 3
 
-- Docs: "agents start with a small, stable entry point and are taught where to look next" (OpenAI)
+- Docs: "agents start with a small, stable entry point and are taught where to look next" (Source 1)
 - Skills load in three tiers: name and description, then the instructions, then resources
 - Tier sizes from the Agent Skills spec: "< 5000 tokens recommended" for the instructions
 - SKILL.md needs `name` and `description`
@@ -312,13 +313,13 @@ rest when a task needs it. That is progressive disclosure: short pointers first,
 when needed.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Source: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, What are skills](https://agentskills.io/what-are-skills).
+Based on: Source 1; [Agent Skills Specification](https://agentskills.io/specification); [What are skills?](https://agentskills.io/what-are-skills).
 
 ## 15. Keep the map true
 section: Section 1: Instructions
 minutes: 3
 
-- Linters and CI jobs check the docs (OpenAI)
+- Linters and CI jobs check the docs (Source 1)
 - Lint messages that teach: the error carries the fix into the agent's context
 - Fairness: the bare arm gets every rule in `docs/HANDBOOK.md`
 - A unit test checks that both forms carry each rule id
@@ -329,7 +330,7 @@ with one giant instruction file. Our bare arm has the rules in a handbook on dis
 not test OpenAI's comparison.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Source: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); platform/tests/unit/harness_instructions/test_parity.py.
+Based on: Source 1; platform/tests/unit/harness_instructions/test_parity.py.
 
 ## 16. Code: the map
 section: Section 1: Instructions
@@ -391,7 +392,7 @@ app/services/issues.py. By minute 3 the test phase had run and the agent said do
 showed "primary verdict ready: PASS" with 0 new tenant leaks. The secondary checks finished at
 10:00. Its harness decisions: 31 instruction files placed (the AGENTS.md map, docs, skills); the
 agent read ARCHITECTURE.md and the add-endpoint skill. Its third tool call opened docs/HANDBOOK.md.
-Screen 2 shows one board frame: issue search changes no board pixels. The picture is cut to the harness panel.
+Screen 2 shows one board frame: Feature 1: Org-wide issue search changes no board pixels. The picture is cut to the harness panel.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 Runs: docs/evidence.md, Captures.
@@ -437,11 +438,11 @@ every piece encodes an assumption about the model.
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
 
 ## 22. Poll
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 3
 live: the room's poll result
 
-- Comments on issues, over two sessions; at risk: continuity and the migrations rule
+- Feature 2: Comments on issues, over two sessions; at risk: continuity and House rule 7: Migrations
 - Before class, both arms stopped after 12 turns and restarted with an empty context
 - In those 7 A/Bs, which arms failed the continuity measure?
 - A) No arm   B) Only bare arms   C) Only harness arms   D) Some of both
@@ -453,12 +454,12 @@ and the class-settings round (1). Each ran a 12-turn first session and a 38-turn
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 
-## 23. Launching harness in action: comments on issues
-section: Section 2: State and session lifecycle
+## 23. Launching harness in action: Feature 2: Comments on issues
+section: Section 2: State and sessions
 minutes: 2
 
 - Now: run `make show-2 SESSION_BUDGET=12,38` in terminal B; back on slide 32
-- Harness in action: the harness arm alone on comments, first session 12 turns; not an A/B
+- Harness in action: the harness arm alone on Feature 2, first session 12 turns; not an A/B
 - Watch for: the handoff written at the end of session 1, and session 2 resuming from it
 - Harness arm layers: instructions, state
 
@@ -473,7 +474,7 @@ flowchart LR
 ```
 
 notes:
-Continuity failure, the primary measure: the migrations rule fails, a second migration creates the same table, or
+Continuity failure, the primary measure: House rule 7: Migrations fails, a second migration creates the same table, or
 30% or more of session 1's added lines are removed in session 2.
 
 Timing: in a timed run on 2026-10-17, before class (agent time limit then 300 s; now 420 s), the primary verdict
@@ -484,8 +485,8 @@ docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: Makefile `show-2`; platform/teamtrack/reference/f2/task.toml.
 
-## 24. Section 2: what the agent remembers
-section: Section 2: State and session lifecycle
+## 24. Section 2: State and sessions, what the agent remembers
+section: Section 2: State and sessions
 minutes: 2
 diagram: architecture now=L2
 
@@ -495,18 +496,18 @@ diagram: architecture now=L2
 - The assumption the state files encode: a fresh session cannot pick up the work from the repository alone
 
 notes:
-The first three bullets are the section's objectives. Anthropic, Effective harnesses, states the
+The first three bullets are the section's objectives. Source 2 states the
 problem. The one-line assumption is the course's wording. An exec plan is a plan file the agent
 keeps up to date while it works, so another session can pick it up.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
-Source: [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [OpenAI, Exec plans](https://cookbook.openai.com/articles/codex_exec_plans).
+Based on: Source 2; [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans).
 
 ## 25. Cause: every session starts empty
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 2.5
 
-- "each new session begins with no memory of what came before." (Anthropic, Effective harnesses)
+- "each new session begins with no memory of what came before." (Source 2)
 - "However, compaction isn’t sufficient." (same source)
 - What the last session knew must be written down where the next one reads it
 
@@ -514,13 +515,13 @@ notes:
 Cause 2 from the opening.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
-Source: [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+Based on: Source 2.
 
 ## 26. Harness piece: state on disk
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 3.5
 
-- An initializer agent and a coding agent (Anthropic, Effective harnesses)
+- An initializer agent and a coding agent (Source 2)
 - `init.sh` and a progress file; the course names it `progress.md`
 - Git history as state, and as a way back
 - In this course, the initializer is a fixed harness step, not an agent
@@ -530,28 +531,28 @@ In the source, the two agents differ only by their first prompt. In the course, 
 the initial files itself.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
-Source: [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); docs/architecture.md.
+Based on: Source 2; docs/architecture.md.
 
 ## 27. Getting up to speed, and ending a session
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 3
 
 - The routine: `pwd`, progress and git log, the feature list, `init.sh`, a basic test
-- "End the session by writing a git commit and progress update." (Anthropic, Effective harnesses)
+- "End the session by writing a git commit and progress update." (Source 2)
 - Both steps are the same in every session
 
 notes:
 "Getting up to speed" is the source's own name for the routine.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
-Source: [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+Based on: Source 2.
 
 ## 28. Exec plans and the structured handoff
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 4
 
-- Exec plans move from active to completed (OpenAI; OpenAI, PLANS.md)
-- A context reset: a fresh agent "combined with a structured handoff" (Anthropic, Harness design)
+- Exec plans move from active to completed (Source 1; Source 7)
+- A context reset: a fresh agent "combined with a structured handoff" (Source 3)
 - The course's mechanism is the session turn budget, the same for both arms
 - A reset has a price: "orchestration complexity, token overhead, and latency"
 - Later, a newer model "largely removed that behavior", so the author dropped context resets
@@ -563,14 +564,14 @@ the weakness is there." The session turn budget is the most turns (model replies
 use before the harness stops it.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
-Source: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [OpenAI, Exec plans](https://cookbook.openai.com/articles/codex_exec_plans); [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps).
+Based on: Source 1; Source 7; Source 3.
 
 ## 29. Code: init.sh
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 3
 code: S2:init 14-19
 
-- Migrations first: the migrations rule, exactly one Alembic head
+- Migrations first: House rule 7: Migrations, exactly one Alembic head
 - Then a basic end-to-end test that stops at the first failure
 
 notes:
@@ -581,7 +582,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: anchor S2:init.
 
 ## 30. Code: stop and resume
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 4
 code: S2:stop_resume 28-36
 
@@ -597,7 +598,7 @@ Guide: docs/instructor-guide.md, "Section by section".
 Source: anchor S2:stop_resume.
 
 ## 31. Code: the session log
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 3
 code: S2:write 1-11
 
@@ -611,7 +612,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Source: anchor S2:write.
 
 ## 32. Demo block: what to watch
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 8
 image: img/s2-watch.png
 live: `make show-2`: the primary verdict and the file session 2 read first
@@ -635,7 +636,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Runs: docs/evidence.md, Captures.
 
 ## 33. Demo block: reading the result
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 7
 image: img/s2-result.png
 
@@ -661,7 +662,7 @@ Guide: docs/instructor-guide.md, "Section by section", Section 2.
 Runs: docs/evidence.md, Section 2.
 
 ## 34. Runbook and next
-section: Section 2: State and session lifecycle
+section: Section 2: State and sessions
 minutes: 5
 
 - Runbook: `section-2-state-lifecycle/demo/README.md`
@@ -669,7 +670,7 @@ minutes: 5
 - Next: a 10-minute break
 
 notes:
-Section 3 launches its live A/B right after its poll. Nothing runs over the break.
+Section 3: Scope and sandbox launches its live A/B right after its poll. Nothing runs over the break.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 2.
 
@@ -691,7 +692,7 @@ section: Section 3: Scope and sandbox
 minutes: 3
 live: the room's poll result
 
-- Version checks on issue edits, tonight's live A/B; at risk: scope
+- Feature 4: Version checks on issue edits, tonight's live A/B; at risk: scope
 - The build may change the issue, audit, and web files; `app/services/errors.py` is not on the list
 - Before class, 3 A/Bs ran this ticket. In how many did the bare arm ship a file outside the list?
 - (a) 0 of 3   (b) 1 of 3   (c) 2 of 3   (d) 3 of 3
@@ -706,7 +707,7 @@ version is refused, so two people cannot overwrite each other.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 
-## 37. Launching a live A/B: version checks, scope
+## 37. Launching a live A/B: Feature 4: Version checks on issue edits, scope
 section: Section 3: Scope and sandbox
 minutes: 2
 
@@ -737,7 +738,7 @@ limit after shipping its change. Your output will differ. Runs: docs/evidence.md
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
 Source: Makefile `demo-3`; platform/teamtrack/reference/f4/task.toml.
 
-## 38. Section 3: what the agent may change and reach
+## 38. Section 3: Scope and sandbox, what the agent may change and reach
 section: Section 3: Scope and sandbox
 minutes: 2
 diagram: architecture now=L3
@@ -757,34 +758,34 @@ Guide: docs/instructor-guide.md, "Section by section", Section 3.
 section: Section 3: Scope and sandbox
 minutes: 2.5
 
-- "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones" (OpenAI)
-- "(Run this in a container, not your actual machine)"; the agent once ran `pkill -9 bash` (Anthropic, C compiler)
+- "Codex replicates patterns that already exist in the repository—even uneven or suboptimal ones" (Source 1)
+- "(Run this in a container, not your actual machine)"; the agent once ran `pkill -9 bash` (Source 8)
 - File operations "to the project directory only" (Anthropic, Coding agent demo)
-- Actions "that are difficult to reverse or affect shared systems" (Anthropic, Prompting best practices)
+- Actions "that are difficult to reverse or affect shared systems" (Source 10)
 
 notes:
 Four sources side by side, not merged: no single source states cause 3. The last one is
 supplementary.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Sources: [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler); [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding); [Anthropic, Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows).
+Based on: Source 1; [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler); [Autonomous Coding Agent Demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding); [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows).
 
 ## 40. Harness piece: one feature list, one feature
 section: Section 3: Scope and sandbox
 minutes: 3.5
 
-- `feature_list.json` as the source of truth; JSON over Markdown (Anthropic)
+- `feature_list.json` as the source of truth; JSON over Markdown (Source 2)
 - The `passes` field, and one feature at a time
 - "It is unacceptable to remove or edit tests because this could lead to missing or buggy functionality."
 - In this course, only the harness sets `passes`, with `evidence` and `testedAt`
 
 notes:
-In Anthropic, Effective harnesses, the agent sets `passes` itself. The course follows Anthropic,
-Harness design, which separates the agent that does the work from the one that judges it. That
+In Source 2, the agent sets `passes` itself. The course follows Source 3,
+which separates the agent that does the work from the one that judges it. That
 choice is the course's.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Sources: [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding).
+Based on: Source 2; Source 3; Source 9.
 
 ## 41. Allowed paths per phase
 section: Section 3: Scope and sandbox
@@ -794,21 +795,21 @@ minutes: 3
 - A patch outside the list is rejected
 - A command's change outside the list is reverted
 - The agent reads the reason, which names the phase and the list
-- The version checks build list leaves out `app/services/errors.py`
+- The build list of Feature 4: Version checks on issue edits leaves out `app/services/errors.py`
 
 notes:
 OpenAI: "enforce boundaries centrally, allow autonomy locally." Allow lists per phase combine that
 idea with the coding agent demo's project-directory limit; no single source describes them.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Source: docs/architecture.md; platform/teamtrack/reference/f4/task.toml; [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/); [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding).
+Source: docs/architecture.md; platform/teamtrack/reference/f4/task.toml; Source 1; Source 9.
 
 ## 42. Sandbox 1: why a container
 section: Section 3: Scope and sandbox
 minutes: 2
 diagram: architecture now=SB1,SB2
 
-- "for each agent, a Docker container is spun up", with no internet access (Anthropic, C compiler)
+- "for each agent, a Docker container is spun up", with no internet access (Source 8)
 - A three-layer security model (Anthropic, Coding agent demo)
 - "By default, the agent runs with network access turned off." (Codex docs)
 
@@ -816,7 +817,7 @@ notes:
 The sandbox is highlighted on the diagram: one per arm, identical.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Sources: [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler); [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding); [Codex sandbox](https://developers.openai.com/codex/agent-approvals-security).
+Based on: Source 8; Source 9; [Agent approvals & security](https://developers.openai.com/codex/agent-approvals-security).
 
 ## 43. Sandbox 2: the same limits for both arms
 section: Section 3: Scope and sandbox
@@ -900,23 +901,23 @@ image: img/s3-result.png
 - Harness ahead, by construction: the guard enforces what this measures
 - New: on this ticket the bare agent edits a shared file every time
 - The pill on screen 1 is the ticket's own bar, and every arm failed it
-- Section 3's own ticket, idempotent creation: no measurable difference, 7 of 7 each
+- Section 3's own ticket, Feature 3: Safe retries for issue creation: no measurable difference, 7 of 7 each
 - Picture: screen 1 of the same A/B, the verdict lines
 
 notes:
 Read tonight's `diff_scope` lines first, then this slide. If tonight's bare arm stays in scope, say
 so: one A/B is one dot.
 
-The Section 3 confirmation was registered before any of its runs: the version checks ticket, the Section 3 layer stack, class
+The Section 3 confirmation was registered before any of its runs: the ticket for Feature 4: Version checks on issue edits, the Section 3 layer stack, class
 profile with the 420 s agent time limit, 3 A/Bs, primary measure for this confirmation only: one or
 more out-of-scope files fails. Every bare arm changed app/services/errors.py. Every harness arm was
 refused that edit. The harness arms stopped at the harness's own 120 s limit, each after shipping
-its change. The version checks measure needs all 69 hidden tests and all 4 referee mutants; the arms passed 62
+its change. The Feature 4 measure needs all 69 hidden tests and all 4 referee mutants; the arms passed 62
 to 68 of 69 hidden tests, so all six failed it.
 
-The idempotent creation result: the medium-effort round, the low-effort round, and the class-settings round, 7 runs
+The Feature 3 result: the medium-effort round, the low-effort round, and the class-settings round, 7 runs
 per arm, on the ticket with the tempting shared middleware. Post hoc, before the confirmation, bare
-arms on version checks had left the allowed paths in 6 of 6 runs, harness arms in 0 of 6. That count led to the
+arms on Feature 4 had left the allowed paths in 6 of 6 runs, harness arms in 0 of 6. That count led to the
 registered confirmation.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
@@ -941,7 +942,7 @@ section: Section 4: Verification
 minutes: 3
 live: the room's poll result
 
-- Version checks again, now with all four layers; at stake: hidden tests (69) and referee mutants (4)
+- Feature 4: Version checks on issue edits again, now with all four layers; at stake: hidden tests (69) and referee mutants (4)
 - A run passes only with all 69 hidden tests passing and all 4 mutants killed
 - Before class, 4 A/Bs ran this ticket with all four layers in the harness arm. Which arm passed more often?
 - A) Harness arm   B) Bare arm   C) Both, equally often   D) Neither arm passed once
@@ -960,9 +961,9 @@ section: Section 4: Verification
 minutes: 1
 live: the room's poll result
 
-- Bulk close: one session of 30 turns; 46 hidden tests, 3 referee mutants
-- Watchers: two sessions, so a context reset; 54 hidden tests, 3 mutants
-- Labels: two sessions, so a context reset; 64 hidden tests, 3 mutants
+- Feature 5: Bulk close: one session of 30 turns; 46 hidden tests, 3 referee mutants
+- Feature 6: Watchers: two sessions, so a context reset; 54 hidden tests, 3 mutants
+- Feature 7: Labels: two sessions, so a context reset; 64 hidden tests, 3 mutants
 - The winner runs as the final live A/B, and the runner-up after it if the session figure allows
 - Close the poll before the launch
 
@@ -972,13 +973,13 @@ Some hidden tests combine the new feature with an earlier one.
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: final-project/README.md; platform/teamtrack/reference/f5/task.toml to f7.
 
-## 51. Launching harness in action on version checks, and the final A/B
+## 51. Launching harness in action on Feature 4: Version checks on issue edits, and the final A/B
 section: Section 4: Verification
 minutes: 2
 
 - Now: `make show-4` in terminal B, then `make final FEATURES=<poll winner>` in terminal C
 - show-4 runs during slides 52-60, back on slide 61; the final returns on slides 64-67
-- show-4: the harness arm alone on version checks; watch the gate, the test phase, and the filters
+- show-4: the harness arm alone on Feature 4; watch the gate, the test phase, and the filters
 - The final: both arms, all four layers, the blinded reviewer on both diffs
 
 ```mermaid
@@ -1008,7 +1009,7 @@ block. Your output will differ. Runs: docs/evidence.md, Captures.
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
 Source: Makefile `show-4`, `final`; platform/teamtrack/reference/f4/task.toml; platform/teamtrack/mutants/features/f4.jsonl.
 
-## 52. Section 4: what proves the work is done
+## 52. Section 4: Verification, what proves the work is done
 section: Section 4: Verification
 minutes: 1
 diagram: architecture now=L4
@@ -1020,76 +1021,76 @@ diagram: architecture now=L4
 
 notes:
 The first three bullets are the section's objectives. The one-line assumption is the course's
-wording, based on Anthropic, Harness design, and Anthropic, C compiler. Held-out tests are tests
+wording, based on Source 3 and Source 8. Held-out tests are tests
 kept from the agent; here they are the hidden tests.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Sources: [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler).
+Based on: Source 3; Source 8.
 
 ## 53. Cause: self-grading and visible tests
 section: Section 4: Verification
 minutes: 2.5
 
-- "agents reliably skew positive when grading their own work" (Anthropic, Harness design)
-- "while every frontier agent saturates the visible suite, reward hacking persists" (SpecBench)
-- Mostly features that pass alone and fail when combined (SpecBench)
-- "it is easy to see tests pass and assume the job is done, when this is rarely the case." (Anthropic, C compiler)
+- "agents reliably skew positive when grading their own work" (Source 3)
+- "while every frontier agent saturates the visible suite, reward hacking persists" (Source 4)
+- Mostly features that pass alone and fail when combined (Source 4)
+- "it is easy to see tests pass and assume the job is done, when this is rarely the case." (Source 8)
 
 notes:
 Cause 4 from the opening. Reward hacking: the agent passes the checks it can see without doing the
 real work.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Sources: [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); [SpecBench](https://arxiv.org/abs/2605.21384); [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler).
+Based on: Source 3; Source 4; Source 8.
 
 ## 54. Harness piece: test filters
 section: Section 4: Verification
 minutes: 3
 
-- Filters 1-3 from TestGen-LLM (Meta): builds, passes reliably, adds coverage
+- Filters 1-3 from Source 12 (Meta): builds, passes reliably, adds coverage
 - Passes reliably: "every one of five executions"; the referee also re-runs shipped tests five times
 - Filters 4 and 5 are the course's own: real assertions, no source change in the test phase
 - A test is kept only if it passes every filter
 
 notes:
-Say at the filter table: "Filters 1 to 3 are TestGen-LLM's. 4 and 5 are this course's." The
+Say at the filter table: "Filters 1 to 3 are Source 12's. 4 and 5 are this course's." The
 referee's flakiness check runs each shipped test five times, for both arms.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: section-4-verification/concepts.md; [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171).
+Source: section-4-verification/concepts.md; [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171).
 
 ## 55. Mutants and hidden tests
 section: Section 4: Verification
 minutes: 3
 
-- ACH (Meta): mutants for the fault you care about, then tests that catch them
-- ACH reports that 49% of tests that uniquely kill a mutant add no line coverage
+- Source 13 (Meta): mutants for the fault you care about, then tests that catch them
+- Source 13 reports that 49% of tests that uniquely kill a mutant add no line coverage
 - Filter-set and referee-set mutants never overlap (course design)
-- Hidden tests that combine features (SpecBench)
-- 441 hidden tests across the seven features and controls; 69 for version checks
+- Hidden tests that combine features (Source 4)
+- 441 hidden tests across the seven features and controls; 69 for Feature 4: Version checks on issue edits
 
 notes:
 The referee-set mutants were never visible to the filters.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: section-4-verification/concepts.md; [Meta, ACH](https://arxiv.org/abs/2501.12862); [SpecBench](https://arxiv.org/abs/2605.21384); counts in section-4-verification/post-class-reading/04-held-out-tests-specbench.md.
+Source: section-4-verification/concepts.md; [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862); Source 4; counts in section-4-verification/post-class-reading/04-held-out-tests-specbench.md.
 
 ## 56. A separate evaluator and a gate
 section: Section 4: Verification
 minutes: 3
 
-- A blinded reviewer with grading criteria (Anthropic, Harness design)
-- A clean-state gate (Anthropic, Effective harnesses; Anthropic, C compiler)
+- A blinded reviewer with grading criteria (Source 3)
+- A clean-state gate (Source 2; Source 8)
 - The seven house rules, checked by code
-- "It is worth the cost when the task sits beyond what the current model does reliably solo." (Anthropic, Harness design)
+- "It is worth the cost when the task sits beyond what the current model does reliably solo." (Source 3)
 
 notes:
-Anthropic, Harness design, calls the separation of doer and judge "a strong lever", but notes that
+Source 3 calls the separation of doer and judge "a strong lever", but notes that
 the evaluator still tends to be generous. The quoted sentence starts: "The practical implication is
 that the evaluator is not a fixed yes-or-no decision."
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: docs/architecture.md; [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents); [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler).
+Source: docs/architecture.md; Source 3; Source 2; Source 8.
 
 ## 57. Measure each piece
 section: Section 4: Verification
@@ -1105,7 +1106,7 @@ The course planned a batch that leaves out one layer at a time. It was not run, 
 registered before the runs did not pass, so the course has no per-layer result to show.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 4.
-Source: [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps); docs/architecture.md.
+Based on: Source 3; docs/architecture.md.
 
 ## 58. Code: the filter pipeline
 section: Section 4: Verification
@@ -1164,7 +1165,7 @@ live: `make show-4`: the gate pills and the filter table
 
 notes:
 In the timed run before class (your output will differ): minute 1, turn 1.15 tried to patch
-app/services/errors.py and the scope layer blocked it, the same edit as in Section 3. Minute 3, turn
+app/services/errors.py and the scope layer blocked it, the same edit as in Section 3: Scope and sandbox. Minute 3, turn
 1.31 called `finish done` and the gate ran, every pill ✓ (visible tests, existing tests, the seven
 house rules, board, clean state). The harness then set the feature's `passes` with its evidence and moved the exec plan to
 completed. Minutes 4-8, the test phase: one new test file and the filters. Minute 9, the agent time
@@ -1190,8 +1191,8 @@ image: img/s4-result.png
 notes:
 The timed run's arm line (your output will differ): `harness ABORTED: timeout claim=done
 primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4
-reviewer=reject cost=$0.0233`. Filter table: 4 proposed tests, 1 kept; two discarded by filter 3 (no
-new line coverage) and one by filter 2 ("failed on run 1 of 5: assert 422 == 412"). This is a
+reviewer=reject cost=$0.0233`. Filter table: 4 proposed tests, 1 kept; two discarded by Filter 3: Adds coverage or catches a mutant (no
+new line coverage) and one by Filter 2: Passes five runs ("failed on run 1 of 5: assert 422 == 412"). This is a
 harness-in-action run, so it is not part of the counts on the slide.
 
 The 4 A/Bs: in the medium-effort round, bare hidden tests 66, 66, and 69 of 69, with mutants killed
@@ -1208,7 +1209,7 @@ section: Section 4: Verification
 minutes: 5
 
 - Runbook: `section-4-verification/demo/README.md`
-- Discussion: one false "done" in 4 version checks runs per arm, from the bare arm. What would a gate need to catch to earn its turns on this model?
+- Discussion: one false "done" in 4 runs per arm on Feature 4: Version checks on issue edits, from the bare arm. What would a gate need to catch to earn its turns on this model?
 - Next: the final results
 
 notes:
@@ -1237,7 +1238,7 @@ flowchart LR
 ```
 
 notes:
-The final A/B was launched on slide 51 and ran during Section 4. No run starts here. This is the
+The final A/B was launched on slide 51 and ran during Section 4: Verification. No run starts here. This is the
 class's measurement lesson: one run per arm cannot show a difference. Before class we ran 3 A/Bs per
 section per round, and still report "no measurable difference" where the arms tie.
 
@@ -1258,7 +1259,7 @@ notes:
 Both arms, side by side. Show tonight's final live. The picture is the timed run before class (your
 output will differ): the bare arm completed and claimed done, with its verdicts at 3:27 and 6:50.
 The harness arm hit the agent time limit without a claim, at 9:48 and 12:32. Hidden tests 46 of 46
-and mutants killed 2 of 3 in both arms. Bulk close has no primary measure, so read those counts. The harness
+and mutants killed 2 of 3 in both arms. Feature 5: Bulk close has no primary measure, so read those counts. The harness
 arm's second turn read session-handoff.md.
 
 Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up.
@@ -1302,16 +1303,16 @@ section: Final results
 minutes: 2
 subtitle: Primary measure, runs passing per arm, before class
 
-- Section 1, issue search, no new tenant leak: bare 7 of 7, harness 7 of 7
-- Section 2, comments, no continuity failure: bare 7 of 7, harness 7 of 7
-- Section 3, idempotent creation, scope: 7 of 7 each; confirmation on version checks, no out-of-scope file: bare 0 of 3, harness 3 of 3
-- Section 4, version checks, all hidden tests and mutants: bare 0 of 4, harness 0 of 4
+- Section 1: Instructions, Feature 1: Org-wide issue search, no new tenant leak: bare 7 of 7, harness 7 of 7
+- Section 2: State and sessions, Feature 2: Comments on issues, no continuity failure: bare 7 of 7, harness 7 of 7
+- Section 3: Scope and sandbox, Feature 3: Safe retries for issue creation, scope: 7 of 7 each; confirmation on Feature 4: Version checks on issue edits, no out-of-scope file: bare 0 of 3, harness 3 of 3
+- Section 4: Verification, Feature 4, all hidden tests and mutants: bare 0 of 4, harness 0 of 4
 - One harness lead, on scope, by construction; elsewhere no measurable difference on this task with this model
 - Post hoc, 34 runs per arm: outside the allowed paths, harness 0, bare 9; done claimed 10 against 19, none false
 
 notes:
 Sections 1 to 3 on their own tickets: the medium-effort round, the low-effort round, and the class-settings
-round. Version checks: the medium-effort round and the class-settings round. The Section 3 confirmation: 3 A/Bs,
+round. Feature 4: Version checks on issue edits: the medium-effort round and the class-settings round. The Section 3 confirmation: 3 A/Bs,
 registered before its runs. The gate registered before the medium- and low-effort rounds needed the
 harness arm ahead in 3 of 4 sections. It was ahead in 0, so the planned larger batches (10 runs per
 arm, and one layer left out at a time) were not run.
@@ -1329,10 +1330,10 @@ Runs: docs/evidence.md, Results.
 section: Wrap-up
 minutes: 3
 
-- Assignment 1, Instructions: `section-1-instructions/assignment/`, at most $2.50 and 150 traces
-- Assignment 2, State and session lifecycle: `section-2-state-lifecycle/assignment/`, at most $0.40 and 4 traces
-- Assignment 3, Scope and sandbox: `section-3-scope-sandbox/assignment/`, at most $0.48 and 4 traces
-- Assignment 4, Verification and portfolio: `section-4-verification/assignment/`, at most $0.68
+- Assignment 1: Instructions: `section-1-instructions/assignment/`, at most $2.50 and 150 traces
+- Assignment 2: State and sessions: `section-2-state-lifecycle/assignment/`, at most $0.40 and 4 traces
+- Assignment 3: Scope and sandbox: `section-3-scope-sandbox/assignment/`, at most $0.48 and 4 traces
+- Assignment 4: Verification, with the portfolio: `section-4-verification/assignment/`, at most $0.68
 - Each: grading criteria, a starter folder, `make check-assignment-N` offline, one live step, and a full solution
 - Total at most $6 and 400 traces; Thursday review
 
@@ -1365,12 +1366,12 @@ Source: use-in-your-repo/kit/README.md; anchor Final:skill_template.
 section: Wrap-up
 minutes: 1
 
-- OpenAI, Harness engineering: leveraging Codex in an agent-first world · Ryan Lopopolo · 2026-02-11
-- Anthropic, Effective harnesses for long-running agents · Justin Young · 2025-11-26
-- Anthropic, Harness design for long-running application development · Prithvi Rajasekaran · 2026-03-24
-- Anthropic, Building a C compiler with a team of parallel Claudes · Nicholas Carlini · 2026-02-05
-- Anthropic, Autonomous Coding Agent Demo (README) · 2025-11-26
-- Anthropic, Prompting best practices (living page); OpenAI, Using PLANS.md · Aaron Friel · 2025-10-07
+- Source 1 · Ryan Lopopolo (OpenAI) · 2026-02-11: harness engineering with Codex
+- Source 2 · Justin Young (Anthropic) · 2025-11-26: harnesses for long-running agents
+- Source 3 · Prithvi Rajasekaran (Anthropic) · 2026-03-24: harness design for long-running apps
+- Source 8 · Nicholas Carlini (Anthropic) · 2026-02-05: a C compiler built by parallel agents
+- Source 9 · Anthropic · 2025-11-26: the autonomous coding agent demo
+- Source 10 · Anthropic, a living page: prompting; Source 7 · Aaron Friel · 2025-10-07: PLANS.md
 
 notes:
 The links are in the Sources list at the end of the notes of slide 72.
@@ -1381,12 +1382,12 @@ Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up
 section: Wrap-up
 minutes: 1
 
-- Agent Skills: Specification; What are skills?; How to add skills support · agentskills.io
-- The skills-ref validator; Claude Code, Codex, and Cursor skills docs
-- TestGen-LLM · Alshahwan et al., Meta · 2024
-- ACH, mutation-guided test generation · Foster et al., Meta · 2025
-- SpecBench · Zhao, Srikanth, Wu, Jiang (Weco AI) · 2026, and its repository
-- Codex docs on sandboxing and network access
+- Sources 5, 6, and 14 · agentskills.io: the skills format, what skills are, adding skills support
+- Sources 15 to 18: the skills-ref validator; Claude Code, Codex, and Cursor skills docs
+- Source 12 · Alshahwan et al. (Meta) · 2024-02-14: automated unit test improvement
+- Source 13 · Foster et al. (Meta) · 2025-01-22: mutation-guided test generation
+- Source 4 · Zhao, Srikanth, Wu, Jiang (Weco AI) · 2026: reward hacking in long coding tasks
+- Source 11 · OpenAI: Codex docs on sandboxing and network access
 
 notes:
 The links for both References slides are in the Sources list below.
@@ -1395,21 +1396,42 @@ Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
-- [Autonomous Coding Agent Demo (README)](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding) (Anthropic, 2025-11-26)
-- [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows) (Anthropic, living page)
-- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI Cookbook, Aaron Friel, 2025-10-07)
-- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
-- [What are skills?](https://agentskills.io/what-are-skills) (Agent Skills project)
-- [How to add skills support to your agent](https://agentskills.io/client-implementation/adding-skills-support.md) (Agent Skills project)
-- [agentskills repository (skills-ref)](https://github.com/agentskills/agentskills) (Agent Skills project)
-- [Extend Claude with skills](https://code.claude.com/docs/en/skills) (Claude Code docs, Anthropic)
-- [Build skills (Codex)](https://learn.chatgpt.com/docs/build-skills) (OpenAI)
-- [Agent Skills (Cursor docs)](https://cursor.com/docs/skills) (Anysphere)
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (TestGen-LLM; Alshahwan et al., Meta, 2024)
-- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (ACH; Foster et al., Meta, 2025)
-- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384) (Zhao, Srikanth, Wu, Jiang, Weco AI, 2026), and its [repository](https://github.com/WecoAI/SpecBench)
-- [Codex: agent approvals and security](https://developers.openai.com/codex/agent-approvals-security) (OpenAI; Codex docs on sandboxing and network access)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Effective harnesses for long-running agents,
+  <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>,
+  Justin Young (Anthropic), 2025-11-26
+- Source 3: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 4: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents,
+  <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, Jiang (Weco AI), 2026-09-09
+- Source 5: Agent Skills Specification, <https://agentskills.io/specification>,
+  Agent Skills project, n.d.
+- Source 6: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 7: Using PLANS.md for multi-hour problem solving,
+  <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07
+- Source 8: Building a C compiler with a team of parallel Claudes,
+  <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic),
+  2026-02-05
+- Source 9: Autonomous Coding Agent Demo (README in claude-quickstarts),
+  <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic,
+  2025-11-26
+- Source 10: Prompting best practices,
+  <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows>,
+  Anthropic (Claude docs), n.d.
+- Source 11: Agent approvals & security,
+  <https://developers.openai.com/codex/agent-approvals-security>, OpenAI (Codex docs), n.d.
+- Source 12: Automated Unit Test Improvement using Large Language Models at Meta (TestGen-LLM),
+  <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
+- Source 13: Mutation-Guided LLM-based Test Generation at Meta (ACH),
+  <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22
+- Source 14: How to add skills support to your agent,
+  <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project,
+  n.d.
+- Source 15: skills-ref, the reference validator (source and README),
+  <https://github.com/agentskills/agentskills>, Agent Skills project, PyPI package 0.1.1, 2026-01-10
+- Source 16: Extend Claude with skills, <https://code.claude.com/docs/en/skills>,
+  Anthropic (Claude Code docs), n.d.
+- Source 17: Build skills, <https://learn.chatgpt.com/docs/build-skills>, OpenAI (Codex docs), n.d.
+- Source 18: Agent Skills (Cursor docs), <https://cursor.com/docs/skills>, Cursor, n.d.

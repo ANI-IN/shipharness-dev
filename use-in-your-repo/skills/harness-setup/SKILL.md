@@ -11,22 +11,22 @@ description: >
 license: MIT
 metadata:
   course: shipharness
-  sources: OpenAI, Harness engineering; Anthropic, Effective harnesses; Anthropic, Harness design; Anthropic, Autonomous coding demo; OpenAI, Exec plans; Agent Skills, Specification
+  sources: the numbered Sources list at the end of this file
 ---
 
 # Harness setup
 
 The course calls the harness "the environment around the agent": what the agent can read, what it
-remembers between sessions, what it may change, and what proves its work is done. The basis is [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/):
+remembers between sessions, what it may change, and what proves its work is done. The basis is [Harness engineering](https://openai.com/index/harness-engineering/):
 engineers "design environments, specify intent, and build feedback loops". This skill checks a
 repository for each part and fills the gaps from templates.
 
 ## When to use
 
 - Before handing a repository to a coding agent for work that spans more than one session.
-- When an agent breaks rules that are written down somewhere it does not look ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "anything it
+- When an agent breaks rules that are written down somewhere it does not look (Source 1: "anything it
   can’t access in-context while running effectively doesn’t exist").
-- When a new session repeats or undoes the last session's work ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): "each new session begins with
+- When a new session repeats or undoes the last session's work ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): "each new session begins with
   no memory of what came before").
 
 ## Step 1: assess
@@ -58,39 +58,48 @@ Where the files go: [docs layout](references/docs-layout.md). What each part pre
 
 ## Rules for filling the templates
 
-1. Keep AGENTS.md a map. [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "we treat it as the table of contents", "roughly 100 lines". Move each
+1. Keep AGENTS.md a map. Source 1: "we treat it as the table of contents", "roughly 100 lines". Move each
    rule into the document it belongs to and point to it. Do not paste a long handbook into AGENTS.md
-   ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "Too much guidance becomes non-guidance.").
+   (Source 1: "Too much guidance becomes non-guidance.").
 2. Replace every `<placeholder>`. Delete a section that does not apply instead of leaving it empty.
 3. Write facts that are true of this repository today. Run each command you put in AGENTS.md,
    init.sh, and the clean-state checklist before you commit it.
-4. Keep the feature list in JSON ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): the model is "less likely to inappropriately change or
+4. Keep the feature list in JSON (Source 2: the model is "less likely to inappropriately change or
    overwrite JSON files compared to Markdown files"). Every entry starts with `"passes": false`.
-   [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) lets the agent change only the `passes` field. `evidence` and `testedAt` are shipharness
+   Source 2 lets the agent change only the `passes` field. `evidence` and `testedAt` are shipharness
    additions; in shipharness only the harness sets them, after the checks pass.
-5. Point AGENTS.md at the pattern to copy and mark legacy code as legacy in ARCHITECTURE.md ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/):
+5. Point AGENTS.md at the pattern to copy and mark legacy code as legacy in ARCHITECTURE.md (Source 1:
    agents replicate "patterns that already exist in the repository—even uneven or suboptimal
    ones").
 6. Commit the harness files together in one commit so the history shows what was added (the
-   initializer in [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) ends with "an initial git commit that shows what files were added").
+   initializer in Source 2 ends with "an initial git commit that shows what files were added").
 
 ## Step 3: assess again
 
-Run the script again and compare the reports. Every pointer in AGENTS.md should resolve (check I3)
+Run the script again and compare the reports. Every pointer in AGENTS.md should resolve (check `I3`)
 and every area should show no failures, or a written reason in `progress.md` for each one left.
 
 ## What this skill does not do
 
 The templates write rules down; they do not enforce them. Enforcement is code: a layering contract,
-a scope guard, tests, and a gate before "done" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "When documentation falls short, we promote the
+a scope guard, tests, and a gate before "done" (Source 1: "When documentation falls short, we promote the
 rule into code"). Use the house-rules skill to turn a rule into a check, and the assured-tests skill
 to add tests that are kept only when they prove something.
 
 ## Sources
 
-- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
-- [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
-- [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps): Prithvi Rajasekaran, "Harness design for long-running application development", Anthropic, 2026-03-24.
-- [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding): Anthropic, "Autonomous Coding Agent Demo" (README in claude-quickstarts), 2025-11-26.
-- [OpenAI, Exec plans](https://cookbook.openai.com/articles/codex_exec_plans): Aaron Friel, "Using PLANS.md for multi-hour problem solving", OpenAI Cookbook, 2025-10-07.
-- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Effective harnesses for long-running agents,
+  <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>,
+  Justin Young (Anthropic), 2025-11-26
+- Source 3: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 4: Autonomous Coding Agent Demo (README in claude-quickstarts),
+  <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic,
+  2025-11-26
+- Source 5: Using PLANS.md for multi-hour problem solving,
+  <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07
+- Source 6: Agent Skills Specification, <https://agentskills.io/specification>,
+  Agent Skills project, n.d.

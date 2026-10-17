@@ -1,4 +1,4 @@
-# Watchers
+# Feature 6: Watchers
 
 A final feature over two build sessions, then a test phase. Run it with
 `FEATURES=watchers ./final-project/run.sh` or `make final FEATURES=watchers`.
@@ -17,10 +17,10 @@ Users follow the issues they care about and see them in one list.
 
 | House rule | What can go wrong |
 |---|---|
-| Tenant isolation rule | An admin adds another org's user as a watcher |
-| Roles rule | A member manages other people's watching; a viewer writes |
-| Audit log rule | One row per real change; none for a no-op or a refused write |
-| Migrations rule | Exactly one new migration on the current head (the latest migration) |
+| House rule 1: Tenant isolation | An admin adds another org's user as a watcher |
+| House rule 2: Roles | A member manages other people's watching; a viewer writes |
+| House rule 5: Audit log | One row per real change; none for a no-op or a refused write |
+| House rule 7: Migrations | Exactly one new migration on the current head (the latest migration) |
 
 The session stop matters here: the first session ends after 20 turns, partway through the feature.
 The second session starts with an empty context and must pick up the work from the repository.

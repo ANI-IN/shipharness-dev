@@ -1,8 +1,8 @@
 # Security
 
-<!-- Place this file at docs/SECURITY.md (the layout in OpenAI, Harness engineering, https://openai.com/index/harness-engineering/). That article names the file but does not describe its
+<!-- Place this file at docs/SECURITY.md (the layout in [Harness engineering](https://openai.com/index/harness-engineering/), https://openai.com/index/harness-engineering/). That article names the file but does not describe its
 contents; the structure below is the course's: every rule says why it exists, how it is checked, and
-which code shows the correct pattern. Reviewers use these rules as grading criteria (the term in Anthropic, Harness design, https://www.anthropic.com/engineering/harness-design-long-running-apps), and
+which code shows the correct pattern. Reviewers use these rules as grading criteria (the term in [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps), https://www.anthropic.com/engineering/harness-design-long-running-apps), and
 any violation fails the review. Replace every <placeholder>; delete rules that do not apply. -->
 
 ## How to read this file
@@ -53,5 +53,8 @@ file, so it gets its own feature and its own review.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24

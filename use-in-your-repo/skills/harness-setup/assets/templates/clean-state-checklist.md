@@ -1,6 +1,6 @@
 # Clean-state checklist
 
-<!-- Place this file at docs/clean-state-checklist.md. Anthropic, Effective harnesses: "By “clean state” we mean the kind of
+<!-- Place this file at docs/clean-state-checklist.md. [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): "By “clean state” we mean the kind of
 code that would be appropriate for merging to a main branch". Go through it before ending a session
 and before saying a feature is done. Replace every <placeholder> with this repository's command. -->
 

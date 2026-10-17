@@ -43,4 +43,7 @@ license: MIT
 
 ## Sources
 
-<Where the method comes from: papers, docs, or your team's decisions, with links.>
+<!-- Where the method comes from: papers, docs, or your team's decisions. One line per
+source, numbered in the order the body first links them. -->
+
+- Source 1: <title>, <https://example.org/replace-with-the-source-link>, <author>, n.d.

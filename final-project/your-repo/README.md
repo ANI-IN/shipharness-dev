@@ -126,8 +126,8 @@ the map's "Where to look" table exists.
 
 ## Step 3: Set the house rules
 
-Record today's violations once as the baseline, then check against it. The worked example keeps the layering
-rule (`R6` in the commands: `queueutils` above `listutils` above `typeutils`) and the check that
+Record today's violations once as the baseline, then check against it. The worked example keeps
+House rule 6: Layering (`R6` in the commands: `queueutils` above `listutils` above `typeutils`) and the check that
 existing tests keep passing:
 
 ```bash

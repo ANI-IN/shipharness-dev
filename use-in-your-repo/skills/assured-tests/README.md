@@ -10,35 +10,36 @@ meant to test.
 ## Why it happens
 
 - Agents grade their own work kindly: "agents reliably skew positive when grading their own work."
-  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
+  ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 - A generated test can fail on correct code, pass by luck, or pass without checking anything. Meta's
-  TestGen-LLM keeps a test only after "progressively demanding semantic filters" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)).
+  [TestGen-LLM](https://arxiv.org/abs/2402.09171) keeps a test only after "progressively demanding semantic filters".
 
 ## How this skill helps
 
 An Agent Skill that generates unit tests for one Python module and keeps only the tests that pass
 five filters. A skill is a folder with a `SKILL.md` file (YAML frontmatter, then Markdown
-instructions) and optional `scripts/`, `references/`, and `assets/` folders ([Agent Skills, Specification](https://agentskills.io/specification)). This page
+instructions) and optional `scripts/`, `references/`, and `assets/` folders ([Agent Skills Specification](https://agentskills.io/specification)). This page
 says what the skill does, how to install it in Claude Code, Codex, and Cursor, how to call it, and
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
-Sources are named in short form with a link, and listed in full at the end of this page.
+Sources are cited by their linked title, then as "Source N", and listed in full at the end of
+this page.
 
 ## What it does and when to use it
 
 A generated test can fail on correct code, pass by luck, or pass without checking anything.
-TestGen-LLM at Meta runs every candidate through "progressively demanding semantic filters" and
-keeps only the survivors ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)). This skill applies the same idea. Its script runs
+[TestGen-LLM](https://arxiv.org/abs/2402.09171) at Meta runs every candidate through "progressively
+demanding semantic filters" and keeps only the survivors. This skill applies the same idea. Its script runs
 `shipharness testgen`, which proposes tests with a model and keeps a test only if it passes all
 five filters, cheapest first:
 
-| # | Filter | Source |
+| Filter | What it checks | Source |
 |---|---|---|
-| 1 | Imports and runs: pytest collects it with no errors | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171), "buildable" |
-| 2 | Passes on every one of five runs | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171) |
-| 3 | Adds line coverage, or kills a mutant no existing test kills | [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862) |
-| 4 | Has real assertions and does not mock the unit under test | Course filter; no direct source |
-| 5 | No source file changed during the test phase | Course filter, built on [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
+| Filter 1: Builds and collects | pytest collects the test with no errors | Source 2, "buildable" |
+| Filter 2: Passes five runs | The test passes on every one of five runs | Source 2 |
+| Filter 3: Adds coverage or catches a mutant | New line coverage, or a mutant no existing test kills | Source 2; [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) |
+| Filter 4: Real assertions | An assertion that can fail; the unit under test is not mocked | Course filter; no direct source |
+| Filter 5: No source changes | No source file changed during the test phase | Course filter, built on Source 2; [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) |
 
 A mutant is a copy of the code with one small bug planted on purpose; a test kills it when the
 test fails on that copy.
@@ -49,7 +50,7 @@ kept tests as code.
 
 Use it when a module has thin coverage and you want tests that are proven to add something; when
 you want to protect a specific behaviour (tenant isolation, permission checks) against a known
-kind of fault by writing mutants for that fault ([Meta, ACH](https://arxiv.org/abs/2501.12862)); or when you want to compare filtered tests
+kind of fault by writing mutants for that fault (Source 4); or when you want to compare filtered tests
 with what an agent writes unfiltered (`--layers none`).
 
 ## What is in the folder
@@ -59,33 +60,33 @@ with what an agent writes unfiltered (`--layers none`).
 | `SKILL.md` | The instructions the agent loads when the skill is used |
 | `scripts/run_testgen.py` | Builds and runs the `shipharness testgen` command; `--dry-run` prints it without running; Python 3.10+ standard library only |
 | `references/filters.md` | Why each filter exists and what it cannot catch |
-| `references/testgen-llm.md`, `references/ach.md` | Short summaries of the two papers ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862)) |
+| `references/testgen-llm.md`, `references/ach.md` | Short summaries of the two papers (Source 2; Source 4) |
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, What are skills](https://agentskills.io/what-are-skills)).
+needs them (Source 3; [What are skills?](https://agentskills.io/what-are-skills)).
 
 ## What you need
 
 - Python 3.12+, uv, and the shipharness CLI with an OpenAI key (the skill's `compatibility` field).
   The script calls `shipharness` if it is on your PATH and `uv run shipharness` otherwise, which
   works from inside the shipharness checkout.
-- A repository with a pytest suite, and coverage.py configured (filter 3 measures line coverage).
+- A repository with a pytest suite, and coverage.py configured (Filter 3 measures line coverage).
 - Docker, if you want generated tests to run in a container (`--sandbox docker --image <image>`).
   Without it, generated tests run on your machine with your permissions, and both the script and
   shipharness say UNSANDBOXED. Use a container for any repository you do not trust.
 
 ## Install
 
-The Agent Skills specification does not say where skills live; each agent has its own folders
-([Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md)). These are the folders each tool documents, checked on its official page on
+The [Agent Skills Specification](https://agentskills.io/specification) does not say where skills live; each agent has its own folders
+([How to add skills support to your agent](https://agentskills.io/client-implementation/adding-skills-support.md)). These are the folders each tool documents, checked on its official page on
 2026-10-17.
 
 | Tool | Project folder | User-level folder | Skill folders it reads |
 |---|---|---|---|
 | Claude Code | `.claude/skills/assured-tests/` | `~/.claude/skills/assured-tests/` | `.claude/skills/` (`.agents/skills/` not documented) |
 | Codex | `.agents/skills/assured-tests/` | `$HOME/.agents/skills/assured-tests/` | `.agents/skills/` (`.claude/skills/` not documented) |
-| Cursor 2.4 or later | `.agents/skills/assured-tests/` or `.cursor/skills/assured-tests/` | `~/.agents/skills/assured-tests/` or `~/.cursor/skills/assured-tests/` | Both |
+| [Cursor 2.4](https://cursor.com/changelog/2-4) or later | `.agents/skills/assured-tests/` or `.cursor/skills/assured-tests/` | `~/.agents/skills/assured-tests/` or `~/.cursor/skills/assured-tests/` | Both |
 
 What each page says:
 
@@ -94,18 +95,18 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17.)
+  `/reload-skills`. The page does not mention `.agents/skills/`. ([Extend Claude with skills](https://code.claude.com/docs/en/skills), read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), redirected
+  mention `.claude/skills/`. ([Build skills](https://learn.chatgpt.com/docs/build-skills), redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. ([Cursor, Skills](https://cursor.com/docs/skills), redirected from
+  starts. ([Agent Skills (Cursor docs)](https://cursor.com/docs/skills), redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
-  Cursor 2.4, released 2026-01-22, "in the editor and CLI" ([Cursor 2.4 changelog](https://cursor.com/changelog/2-4), read 2026-10-17). The page does not say whether a skill added
+  [Cursor 2.4](https://cursor.com/changelog/2-4), released 2026-01-22, "in the editor and CLI" (changelog read 2026-10-17). The page does not say whether a skill added
   while Cursor is open appears without a restart (not documented as of 2026-10-17); restart Cursor
   if it does not appear.
 
@@ -156,7 +157,7 @@ Cost: $0.000000 (no model calls)
 
 `shipharness skills validate` runs the checks of skills-ref, the reference validator, and adds
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
-referenced files ([Agent Skills, Specification](https://agentskills.io/specification); [Agent Skills, skills-ref](https://github.com/agentskills/agentskills)). The skill uses only the six frontmatter
+referenced files (Source 3; [skills-ref](https://github.com/agentskills/agentskills)). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
 `uv run agentskills validate use-in-your-repo/skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/assured-tests`).
 
@@ -167,9 +168,9 @@ next section.
 
 | Tool | Call it by name | Let the agent choose it | See that it loaded |
 |---|---|---|---|
-| Claude Code | `/assured-tests` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/assured-tests` ([Claude Code, Skills](https://code.claude.com/docs/en/skills), read 2026-10-17) |
-| Codex (CLI or IDE extension) | Type `$assured-tests`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list ([Codex, Skills](https://learn.chatgpt.com/docs/build-skills), read 2026-10-17) |
-| Cursor | Type `/` in Agent chat and search for `assured-tests` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** ([Cursor, Skills](https://cursor.com/docs/skills), read 2026-10-17) |
+| Claude Code | `/assured-tests` | Claude uses a skill when the task matches its description | Ask "What skills are available?", or type `/` and look for `/assured-tests` (Source 9, read 2026-10-17) |
+| Codex (CLI or IDE extension) | Type `$assured-tests`, or run `/skills` and pick it | Codex can choose a skill when the task matches its description | Run `/skills` and look for it in the list (Source 10, read 2026-10-17) |
+| Cursor | Type `/` in Agent chat and search for `assured-tests` | The agent applies a skill when it judges it relevant | Open **Customize** in the sidebar, then **Skills** (Source 11, read 2026-10-17) |
 
 Example prompt, the same in all three tools (prefix `/assured-tests` in Claude Code or
 `$assured-tests` in Codex to call it by name):
@@ -209,7 +210,7 @@ Kept tests and report: .shipharness/a4/testgen
 Cost: $0.003287 (testgen, model gpt-6-luna)
 ```
 
-The other three proposed tests were discarded by filter 3 for the same reason: on a module the
+The other three proposed tests were discarded by Filter 3 for the same reason: on a module the
 existing suite already covers, most proposals add nothing, as the Limits section below says.
 
 ## What it costs
@@ -230,11 +231,11 @@ $0.003287; that is one measured run, not a typical cost.
 
 - The current code is the oracle. A kept test asserts what the code does today, so it protects
   against future regressions, but it "cannot detect existing faults residing in the code base"
-  ([Meta, ACH](https://arxiv.org/abs/2501.12862)).
-- Five runs catch most flaky tests, not all of them. The number five is TestGen-LLM's ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)).
+  (Source 4).
+- Five runs catch most flaky tests, not all of them. The number five comes from Source 2.
 - The filters prove a test runs reliably and adds coverage or catches a mutant. They do not prove
   that its name and assertions describe the behaviour you want; review kept tests as code.
-- On a well-tested module most proposals fail filter 3. That is expected; add mutants for the
+- On a well-tested module most proposals fail Filter 3. That is expected; add mutants for the
   faults you care about and run again.
 - Without `--sandbox docker`, generated tests run with your permissions on your machine.
 - The tool facts above come from each vendor's documentation as read on 2026-10-17. The course did
@@ -242,20 +243,31 @@ $0.003287; that is one measured run, not a typical cost.
   pages, so check them again if a skill does not appear.
 
 Related skills: [harness-setup](../harness-setup/README.md) checks whether coverage is configured
-(check V5); [house-rules](../house-rules/README.md) turns a rule into a check with a seeded
+(its coverage check, `V5`); [house-rules](../house-rules/README.md) turns a rule into a check with a seeded
 violation.
 
 ## Sources
 
-- [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): Justin Young, "Effective harnesses for long-running agents", Anthropic, 2025-11-26.
-- [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps): Prithvi Rajasekaran, "Harness design for long-running application development", Anthropic, 2026-03-24.
-- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
-- [Agent Skills, What are skills](https://agentskills.io/what-are-skills): Agent Skills project, "What are skills?".
-- [Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md): Agent Skills project, "How to add skills support to your agent".
-- [Agent Skills, skills-ref](https://github.com/agentskills/agentskills): Agent Skills project, skills-ref, the reference validator (source and README; PyPI package 0.1.1, 2026-01-10).
-- [Claude Code, Skills](https://code.claude.com/docs/en/skills): Anthropic, Claude Code docs, "Extend Claude with skills".
-- [Codex, Skills](https://learn.chatgpt.com/docs/build-skills): OpenAI, Codex docs, "Build skills" (redirected from https://developers.openai.com/codex/skills).
-- [Cursor, Skills](https://cursor.com/docs/skills): Cursor docs, "Agent Skills" (redirected from https://cursor.com/docs/context/skills).
-- [Cursor 2.4 changelog](https://cursor.com/changelog/2-4): Cursor, 2.4 changelog, 2026-01-22.
-- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
-- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.
+- Source 1: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Automated Unit Test Improvement using Large Language Models at Meta (TestGen-LLM),
+  <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
+- Source 3: Agent Skills Specification, <https://agentskills.io/specification>,
+  Agent Skills project, n.d.
+- Source 4: Mutation-Guided LLM-based Test Generation at Meta (ACH),
+  <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22
+- Source 5: Effective harnesses for long-running agents,
+  <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>,
+  Justin Young (Anthropic), 2025-11-26
+- Source 6: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 7: How to add skills support to your agent,
+  <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project,
+  n.d.
+- Source 8: Cursor 2.4 changelog, <https://cursor.com/changelog/2-4>, Cursor, 2026-01-22
+- Source 9: Extend Claude with skills, <https://code.claude.com/docs/en/skills>,
+  Anthropic (Claude Code docs), n.d.
+- Source 10: Build skills, <https://learn.chatgpt.com/docs/build-skills>, OpenAI (Codex docs), n.d.
+- Source 11: Agent Skills (Cursor docs), <https://cursor.com/docs/skills>, Cursor, n.d.
+- Source 12: skills-ref, the reference validator (source and README),
+  <https://github.com/agentskills/agentskills>, Agent Skills project, PyPI package 0.1.1, 2026-01-10

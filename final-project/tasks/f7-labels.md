@@ -1,4 +1,4 @@
-# Labels
+# Feature 7: Labels
 
 The largest final feature: two build sessions, then a test phase. Run it with
 `FEATURES=labels ./final-project/run.sh` or `make final FEATURES=labels`.
@@ -17,12 +17,12 @@ Teams tag issues with their own labels, such as "bug", and filter issue lists by
 
 | House rule | What can go wrong |
 |---|---|
-| Idempotent creates rule | A reused key with a different body must give 409, not a replay |
-| Roles rule | Viewers must get 403 on every label write |
-| Audit log rule | Five audit actions, one row per successful write |
-| Tenant isolation rule | Another org's label id in a body or a filter must give 404 |
+| House rule 4: Safe retries | A reused key with a different body must give 409, not a replay |
+| House rule 2: Roles | Viewers must get 403 on every label write |
+| House rule 5: Audit log | Five audit actions, one row per successful write |
+| House rule 1: Tenant isolation | Another org's label id in a body or a filter must give 404 |
 
-The idempotent creates rule: a create sent again with the same `Idempotency-Key` header returns the
+House rule 4: a create sent again with the same `Idempotency-Key` header returns the
 first result instead of making a duplicate.
 
 Labels touches the most files of the three, including the existing issue endpoints, so the existing
@@ -35,7 +35,7 @@ The referee is the program that scores each arm after the agent stops.
 - **Hidden tests:** 64, in four files under
   [platform/teamtrack/tests/hidden/f7/](../../platform/teamtrack/tests/hidden/f7/). 55 test labels
   and their endpoints; 3 check that existing lists, creates, and tenant checks still work; 4 check the
-  label filter on org-wide search; 2 check the issue history.
+  label filter on Feature 1: Org-wide issue search; 2 check the issue history.
 - **Referee-set mutants:** 3 planted bugs: a reused idempotency key with a new body replays, viewers
   can write labels, and label writes add no audit rows.
 - **Allowed paths:** the build phase may change the new label files under `app/api/`,

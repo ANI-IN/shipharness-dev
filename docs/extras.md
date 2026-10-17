@@ -6,7 +6,7 @@
 > - **Referee**: the program that scores each run after the agent stops.
 > - **Console**: the browser page that shows a run live, on five screens.
 > - **Constructed example**: a run whose agent turns are scripted steps, with no model.
-> - **Tenant isolation rule**: the house rule that a user sees only their own organization's data.
+> - **House rule 1: Tenant isolation**: a user sees only their own organization's data.
 > - **Gate**: the check that must pass before a feature counts as done.
 > - **Hidden tests**: tests the agent never sees; the referee runs them after the agent stops.
 > - **Mutant**: a copy of the code with one small bug planted on purpose; good tests catch it.
@@ -43,7 +43,7 @@ and never reaches `exports/`, so no report counts it.
 
 | Command | Layers | The scripted mistake | What catches it |
 |---|---|---|---|
-| `make example-1` | instructions | Ships a search query without the org filter | The referee's tenant isolation check, and `⚠ other org` marks on screen 2 |
+| `make example-1` | instructions | Ships a search query without the org filter | The referee's check for House rule 1, and `⚠ other org` marks on screen 2 |
 | `make example-2` | instructions, state | Runs out of turns in session 1 | The handoff at the stop; session 2 resumes from it |
 | `make example-3` | instructions, state, scope | Edits shared middleware, then runs `pip install requests` | The scope layer blocks the patch; the sandbox denies the network command |
 | `make example-4` | all four | Claims done while its own test fails | The gate refuses the first claim and accepts the second |
@@ -73,7 +73,7 @@ What it demonstrates: the referee's R1 check reports the cross-org leak, and the
 Cost: $0.000000 (constructed example: scripted steps, no model calls)
 ```
 
-`R1` and `r1_new_violations` in this output stand for the tenant isolation rule: the check counts
+`R1` and `r1_new_violations` in this output stand for House rule 1: the check counts
 new places where one org can see another org's data.
 
 The key lines of `make example-2` and `make example-3`, from the same day:

@@ -1,7 +1,7 @@
 # Final project checklist
 
 The final project is done when you can show the five items below. There is no grader for the
-final project; [Assignment 4](../section-4-verification/assignment/README.md) asks for the same
+final project; [Assignment 4: Verification](../section-4-verification/assignment/README.md) asks for the same
 pieces as part of its portfolio.
 
 ## What to show

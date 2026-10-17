@@ -19,7 +19,8 @@ no evidence for keeping or dropping any part of the harness.
 > - **REPLACE marker**: a line in a kit template that says what to write in place of the example value.
 > - **House rule**: a team convention written as one checkable sentence, with a check that finds violations.
 > - **Baseline**: the violations that exist today, recorded once, so only new ones fail.
-> - **The seven house rules**: TeamTrack's rules, from tenant isolation to one migration head. The kit files and the `--rules` option name them by id, `R1` to `R7`.
+> - **House rules 1 to 7**: TeamTrack's rules, from House rule 1: Tenant isolation to
+>   House rule 7: Migrations. The kit files and the `--rules` option name them by code, `R1` to `R7`.
 > - **Mutant**: a copy of the code with one small bug planted on purpose; a good test fails on it ("kills" it).
 > - **Doctest**: an example in a docstring that runs as a test.
 
@@ -27,12 +28,12 @@ no evidence for keeping or dropping any part of the harness.
 
 - A long file hides the rules: "A giant instruction file crowds out the task, the code, and the
   relevant docs". OpenAI keeps `AGENTS.md` short: "we treat it as the table of contents", "roughly
-  100 lines" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+  100 lines" ([Harness engineering](https://openai.com/index/harness-engineering/)).
 - Unchecked docs rot. The same team checks them by machine: "Dedicated linters and CI jobs validate
   that the knowledge base is up to date, cross-linked, and structured correctly."
 - Every harness piece is a guess about the model: "every component in a harness encodes an
   assumption about what the model can't do on its own, and those assumptions are worth stress
-  testing" ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+  testing" ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 ## What the kit does
 
@@ -321,7 +322,7 @@ Compare [the filled map](kit/examples/boltons-queueutils/filled/AGENTS.md) with
 
 **What it is.** A house rule is the course's name for what OpenAI calls "golden principles": a
 convention checked by code, not by memory. Their reason: "When documentation falls short, we promote
-the rule into code" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+the rule into code" (Source 1).
 `shipharness check` runs TeamTrack's seven rules on any FastAPI app, with no model calls.
 
 Three files hold your version:
@@ -336,7 +337,7 @@ For a FastAPI service, keep the adapter's methods and change their values: two s
 a test client signs in as a role, the seeded ids, and how to count audit rows. The template answers
 exactly like TeamTrack's built-in adapter, so it is a working start.
 
-For a library, keep the layering rule (`R6`) for your packages, plus the check that existing tests
+For a library, keep House rule 6: Layering (`R6`) for your packages, plus the check that existing tests
 keep passing. The worked example keeps an import-linter layers contract: `queueutils` above `listutils`
 above `typeutils` ([its adapter](kit/examples/boltons-queueutils/filled/harness/shipharness_adapter.py)).
 
@@ -424,14 +425,16 @@ repository; change the repository name in it if you use a fork.
 **What it is.** The first command that puts a model to work on your code. `shipharness testgen` asks
 a model for tests of one module and keeps a proposed test only if it passes five filters:
 
-1. It imports and runs.
-2. It passes five runs in a row.
-3. It adds line coverage, or kills a mutant no existing test kills.
-4. It has real assertions and does not mock the unit under test.
-5. It changed no source file.
+1. Filter 1: Builds and collects. It imports and runs.
+2. Filter 2: Passes five runs. It passes five runs in a row.
+3. Filter 3: Adds coverage or catches a mutant. It adds line coverage, or kills a mutant no
+   existing test kills.
+4. Filter 4: Real assertions. It has real assertions and does not mock the unit under test.
+5. Filter 5: No source changes. It changed no source file.
 
-Filters 1 to 3 come from Meta's TestGen-LLM work
-([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)); filters 4 and 5 are the course's own. `--layers verify` gives the model the
+Filters 1 to 3 come from Meta's
+[Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171);
+Filters 4 and 5 are the course's own. `--layers verify` gives the model the
 course's verification layer. testgen works on any repository with a pytest suite, so it is the first
 harnessed run for a repository that is not TeamTrack.
 
@@ -520,9 +523,9 @@ Add `--json` for one JSON document with every finding; that is also the baseline
 
 **The testgen output.** A kept test asserts what the code does today. So it guards against future
 regressions, but it "cannot detect existing faults residing in the code base"
-([Meta, ACH](https://arxiv.org/abs/2501.12862), mutation-guided test generation).
+([Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862)).
 Review each kept test as code before you commit it. A discarded test's line names the filter that
-rejected it. Without mutants, filter 3 keeps only tests that add line coverage, so on a well-covered
+rejected it. Without mutants, Filter 3 keeps only tests that add line coverage, so on a well-covered
 module most proposals are discarded there.
 
 In the worked example, `testgen-report.json` lists the kept tests and one result per filter per
@@ -546,7 +549,7 @@ test id shortened to `...` and the run id replaced:
     {"test_id": "...", "filter": 5, "passed": true, "reason": "no source file changed during the test phase"},
 ```
 
-The other two kept tests passed filter 3 by adding 9 covered lines and 1 covered line. All three
+The other two kept tests passed Filter 3 by adding 9 covered lines and 1 covered line. All three
 are in one file, `tests/test_queueutils_generated.py`, under the `--out` folder.
 
 When a result surprises you, rerun the check alone (`--rules R6`) to see one rule's findings. For
@@ -557,7 +560,7 @@ testgen, open `testgen-report.json` and read the reason recorded for each test.
 **What it is.** The course's harness has four layers: instructions, state, scope, and verification.
 Not every repository needs all of them in full. Anthropic's method is "removing one component at a
 time and reviewing what impact it had on the final result"
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+(Source 2).
 On TeamTrack, `make demo-2 LAYERS=-state` does that for you, and it costs money
 ([after-class.md](../docs/after-class.md)). Your own repository has no A/B runner (the course tool
 that runs the same ticket with and without a layer), so decide each layer from what it prevents and
@@ -601,7 +604,12 @@ More on the kit itself: [kit/README.md](kit/README.md). More on the skills:
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM, 2024-02-14)
-- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH, 2025-01-22)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 3: Automated Unit Test Improvement using Large Language Models at Meta (TestGen-LLM),
+  <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
+- Source 4: Mutation-Guided LLM-based Test Generation at Meta (ACH),
+  <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22
