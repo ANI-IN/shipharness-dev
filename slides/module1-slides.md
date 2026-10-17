@@ -2736,3 +2736,23 @@ Thank you
 - Invite results from their own repos, reported as counts.
 - Stop the console (Ctrl+C in terminal A) only after the last screen is closed.
 - End on time at 4:00.
+
+## Sources
+
+- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "Harness engineering: leveraging Codex in an agent-first world", Ryan Lopopolo, 2026-02-11
+- [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents): "Effective harnesses for long-running agents", Justin Young, 2025-11-26
+- [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps): "Harness design for long-running application development", Prithvi Rajasekaran, 2026-03-24
+- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): "Building a C compiler with a team of parallel Claudes", Nicholas Carlini, 2026-02-05
+- [Anthropic, Autonomous coding demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding): "Autonomous Coding Agent Demo" (README), 2025-11-26
+- [OpenAI, Exec plans](https://cookbook.openai.com/articles/codex_exec_plans): "Using PLANS.md for multi-hour problem solving", Aaron Friel, 2025-10-07
+- [Agent Skills, Specification](https://agentskills.io/specification): "Agent Skills Specification"
+- [Agent Skills, What are skills](https://agentskills.io/what-are-skills): "What are skills?"
+- [Agent Skills, Client guide](https://agentskills.io/client-implementation/adding-skills-support.md): "How to add skills support to your agent"
+- [Claude Code, Skills](https://code.claude.com/docs/en/skills): "Extend Claude with skills"
+- [Codex, Skills](https://learn.chatgpt.com/docs/build-skills): "Build skills"
+- [Cursor, Skills](https://cursor.com/docs/skills): "Agent Skills"
+- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): "Automated Unit Test Improvement using Large Language Models at Meta", Alshahwan et al., FSE '24
+- [Meta, ACH](https://arxiv.org/abs/2501.12862): "Mutation-Guided LLM-based Test Generation at Meta", Foster et al., 2025
+- [SpecBench](https://arxiv.org/abs/2605.21384): "SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents", Zhao, Srikanth, Wu, Jiang (Weco AI), 2026; repository: https://github.com/WecoAI/SpecBench
+- [Docker, none network driver](https://docs.docker.com/engine/network/drivers/none/): Docker docs, the "none" network driver
+- [LangSmith, billing](https://docs.langchain.com/langsmith/billing): LangSmith docs, billing and trace retention

@@ -3,9 +3,9 @@
 # feature, then the referee scores both.
 #
 # Usage, from anywhere inside the repository:
-#   ./final-project/run.sh                               # class run, F5 (needs SHIPHARNESS_CLASS_DATE)
+#   ./final-project/run.sh                               # class run, bulk close (needs SHIPHARNESS_CLASS_DATE)
 #   PURPOSE=pilot ./final-project/run.sh                 # practice run outside class
-#   FEATURES=F6 PURPOSE=pilot ./final-project/run.sh     # another final feature: F5, F6, or F7
+#   FEATURES=watchers PURPOSE=pilot ./final-project/run.sh  # another final feature: bulk-close, watchers, or labels
 #
 # What it does: checks that both API keys are set, that a class run has its class date, that Docker
 # answers, and whether the console is up; then runs `make final FEATURES=<feature>`. Every run is
@@ -24,15 +24,15 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 PURPOSE="${PURPOSE:-class}"
-FEATURES="${FEATURES:-F5}"
+FEATURES="${FEATURES:-bulk-close}"
 CONSOLE_PORT="${CONSOLE_PORT:-8765}"
 fail() { echo "x $1" >&2; exit 2; }
 
 # 1. The feature. Only the three final features run here; F1 to F4 belong to the section demos.
 for feature in $(echo "$FEATURES" | tr ',' ' '); do
   case "$feature" in
-    F5|F6|F7) ;;
-    *) fail "FEATURES=$FEATURES: the final project runs F5, F6, or F7 (for example FEATURES=F6)" ;;
+    F5|F6|F7|f5|f6|f7|bulk-close|watchers|labels) ;;
+    *) fail "FEATURES=$FEATURES: the final project runs bulk-close, watchers, or labels (codes F5, F6, F7 also work; for example FEATURES=watchers)" ;;
   esac
 done
 echo "+ features: $FEATURES"
