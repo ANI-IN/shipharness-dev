@@ -25,6 +25,10 @@ from style import (
     INK,
     LINE_HEIGHT,
     MARGIN,
+    MAX_FIT,
+    MAX_WORDS,
+    MAX_WORDS_FOOTNOTE,
+    MAX_WORDS_TITLE,
     MIN_FONT,
     PANEL,
     PANEL_RADIUS,
@@ -226,14 +230,18 @@ class Scene:
         size: float = FONT_BODY,
         color: str = INK,
         align: str = "left",
+        role: str = "label",
     ) -> dict:
         """Free text, always in the text colour (colour is carried by shapes, never by text).
-        For align='center', x is the centre; for 'right', x is the right edge."""
+        For align='center', x is the centre; for 'right', x is the right edge. role is
+        "label" (5 words at most), "title" or "footnote" (8 words, one line, one each)."""
         _ = color
         m = metrics()
         w = m.width(text, size)
         left = x - w / 2 if align == "center" else x - w if align == "right" else x
-        return self._text_el(left, y, text, size, align)
+        el = self._text_el(left, y, text, size, align)
+        el["customData"] = {"role": role}
+        return el
 
     def box(
         self,
@@ -465,12 +473,12 @@ class Scene:
         return min(xs), min(ys), max(xs), max(ys)
 
     def finalize(self) -> None:
-        """Centre the drawing on the canvas (shrink only if it does not fit inside the margin),
+        """Fit the drawing to the canvas inside the margin (grow up to MAX_FIT, or shrink), centred,
         then put the light rounded panel, the full canvas, under it in every frame. Every frame
         of a build-up therefore exports at the same size, with every element in place."""
         x0, y0, x1, y1 = self.bounds()
         aw, ah = self.W - 2 * MARGIN, self.H - 2 * MARGIN
-        s = min(1.0, aw / (x1 - x0), ah / (y1 - y0))
+        s = min(MAX_FIT, aw / (x1 - x0), ah / (y1 - y0))
         self.fit_scale = s
         ox = (self.W - (x1 - x0) * s) / 2 - x0 * s
         oy = (self.H - (y1 - y0) * s) / 2 - y0 * s
@@ -503,6 +511,28 @@ class Scene:
         small = [e for e in self.els if e["type"] == "text" and e["fontSize"] < MIN_FONT - 0.01]
         for e in small:
             self.problems.append(f"text {e['text']!r} is {e['fontSize']:.1f} (< {MIN_FONT:.0f})")
+        counts = {"title": 0, "footnote": 0}
+        for e in self.els:
+            if e["type"] != "text":
+                continue
+            role = (e.get("customData") or {}).get("role", "label")
+            words = len(e["text"].split())
+            limit = {"title": MAX_WORDS_TITLE, "footnote": MAX_WORDS_FOOTNOTE}.get(role, MAX_WORDS)
+            if words > limit:
+                self.problems.append(f"{role} {e['text']!r} has {words} words (> {limit})")
+            if role in counts:
+                counts[role] += 1
+                if "\n" in e["text"] or counts[role] > 1:
+                    self.problems.append(f"more than one {role} line: {e['text']!r}")
+        self.max_words = max(
+            (
+                len(e["text"].split())
+                for e in self.els
+                if e["type"] == "text"
+                and (e.get("customData") or {}).get("role", "label") == "label"
+            ),
+            default=0,
+        )
 
     @property
     def min_font(self) -> float:

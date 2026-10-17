@@ -37,10 +37,10 @@
     {
       "id": "checker-flow-text-1",
       "type": "text",
-      "x": 638.88,
-      "y": 76.25,
-      "width": 642.24,
-      "height": 45.0,
+      "x": 640.31,
+      "y": 78.31,
+      "width": 639.39,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -62,22 +62,25 @@
       "link": null,
       "locked": false,
       "text": "Mechanical checks keep the map true",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Mechanical checks keep the map true",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "title"
+      }
     },
     {
       "id": "checker-flow-rectangle-2",
       "type": "rectangle",
-      "x": 60.0,
-      "y": 456.25,
-      "width": 360.0,
-      "height": 170.0,
+      "x": 64.0,
+      "y": 456.62,
+      "width": 358.4,
+      "height": 169.24,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -125,10 +128,10 @@
     {
       "id": "checker-flow-text-3",
       "type": "text",
-      "x": 124.52,
-      "y": 506.25,
-      "width": 230.97,
-      "height": 70.0,
+      "x": 128.23,
+      "y": 506.4,
+      "width": 229.94,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -150,7 +153,7 @@
       "link": null,
       "locked": false,
       "text": "AGENTS.md map,\ndocs, skills",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -162,10 +165,10 @@
     {
       "id": "checker-flow-rectangle-4",
       "type": "rectangle",
-      "x": 560.0,
-      "y": 196.25,
-      "width": 560.0,
-      "height": 170.0,
+      "x": 561.78,
+      "y": 197.78,
+      "width": 557.51,
+      "height": 169.24,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -205,10 +208,10 @@
     {
       "id": "checker-flow-text-5",
       "type": "text",
-      "x": 709.06,
-      "y": 228.75,
-      "width": 261.88,
-      "height": 105.0,
+      "x": 713.75,
+      "y": 247.56,
+      "width": 253.56,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -229,23 +232,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "check_docs.py\nlinks, rule coverage,\nno retired rules",
-      "fontSize": 28.0,
+      "text": "check_docs.py\nlinks, rule coverage",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-4",
-      "originalText": "check_docs.py\nlinks, rule coverage,\nno retired rules",
+      "originalText": "check_docs.py\nlinks, rule coverage",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "checker-flow-rectangle-6",
       "type": "rectangle",
-      "x": 560.0,
-      "y": 456.25,
-      "width": 560.0,
-      "height": 170.0,
+      "x": 561.78,
+      "y": 456.62,
+      "width": 557.51,
+      "height": 169.24,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -285,10 +288,10 @@
     {
       "id": "checker-flow-text-7",
       "type": "text",
-      "x": 727.27,
-      "y": 506.25,
-      "width": 225.46,
-      "height": 70.0,
+      "x": 728.3,
+      "y": 506.4,
+      "width": 224.46,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -310,7 +313,7 @@
       "link": null,
       "locked": false,
       "text": "skills validate\nskill frontmatter",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -322,10 +325,10 @@
     {
       "id": "checker-flow-rectangle-8",
       "type": "rectangle",
-      "x": 560.0,
-      "y": 716.25,
-      "width": 560.0,
-      "height": 170.0,
+      "x": 561.78,
+      "y": 715.47,
+      "width": 557.51,
+      "height": 169.24,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -365,10 +368,10 @@
     {
       "id": "checker-flow-text-9",
       "type": "text",
-      "x": 691.78,
-      "y": 766.25,
-      "width": 296.44,
-      "height": 70.0,
+      "x": 692.97,
+      "y": 765.24,
+      "width": 295.12,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -390,7 +393,7 @@
       "link": null,
       "locked": false,
       "text": "test_parity.py\nrules still in handbook",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -402,10 +405,10 @@
     {
       "id": "checker-flow-diamond-10",
       "type": "diamond",
-      "x": 1210.0,
-      "y": 426.25,
-      "width": 280.0,
-      "height": 230.0,
+      "x": 1208.89,
+      "y": 426.76,
+      "width": 278.76,
+      "height": 228.98,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -457,10 +460,10 @@
     {
       "id": "checker-flow-text-11",
       "type": "text",
-      "x": 1312.69,
-      "y": 506.25,
-      "width": 74.62,
-      "height": 70.0,
+      "x": 1311.12,
+      "y": 506.4,
+      "width": 74.29,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -482,7 +485,7 @@
       "link": null,
       "locked": false,
       "text": "All\npass?",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -494,10 +497,10 @@
     {
       "id": "checker-flow-rectangle-12",
       "type": "rectangle",
-      "x": 1560.0,
-      "y": 196.25,
-      "width": 300.0,
-      "height": 200.0,
+      "x": 1557.33,
+      "y": 197.78,
+      "width": 298.67,
+      "height": 199.11,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -533,10 +536,10 @@
     {
       "id": "checker-flow-text-13",
       "type": "text",
-      "x": 1629.05,
-      "y": 243.75,
-      "width": 161.9,
-      "height": 105.0,
+      "x": 1618.27,
+      "y": 262.49,
+      "width": 176.79,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -557,23 +560,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "OK: 13 files,\n147 links,\n66 rules",
-      "fontSize": 28.0,
+      "text": "OK: 147 links,\n66 rules",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-12",
-      "originalText": "OK: 13 files,\n147 links,\n66 rules",
+      "originalText": "OK: 147 links,\n66 rules",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "checker-flow-rectangle-14",
       "type": "rectangle",
-      "x": 1560.0,
-      "y": 716.25,
-      "width": 300.0,
-      "height": 170.0,
+      "x": 1557.33,
+      "y": 715.47,
+      "width": 298.67,
+      "height": 169.24,
       "angle": 0,
       "strokeColor": "#E46962",
       "backgroundColor": "#E4696233",
@@ -613,10 +616,10 @@
     {
       "id": "checker-flow-text-15",
       "type": "text",
-      "x": 1638.72,
-      "y": 766.25,
-      "width": 142.55,
-      "height": 70.0,
+      "x": 1635.7,
+      "y": 765.24,
+      "width": 141.92,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -638,7 +641,7 @@
       "link": null,
       "locked": false,
       "text": "ERROR:\nbroken link",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -650,10 +653,10 @@
     {
       "id": "checker-flow-arrow-16",
       "type": "arrow",
-      "x": 428.0,
-      "y": 541.25,
-      "width": 124.0,
-      "height": 260.0,
+      "x": 430.36,
+      "y": 541.24,
+      "width": 123.45,
+      "height": 258.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -680,8 +683,8 @@
           0.0
         ],
         [
-          124.0,
-          -260.0
+          123.45,
+          -258.84
         ]
       ],
       "lastCommittedPoint": null,
@@ -702,10 +705,10 @@
     {
       "id": "checker-flow-arrow-17",
       "type": "arrow",
-      "x": 1128.0,
-      "y": 281.25,
-      "width": 74.0,
-      "height": 260.0,
+      "x": 1127.25,
+      "y": 282.4,
+      "width": 73.67,
+      "height": 258.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -732,8 +735,8 @@
           0.0
         ],
         [
-          74.0,
-          260.0
+          73.67,
+          258.84
         ]
       ],
       "lastCommittedPoint": null,
@@ -754,9 +757,9 @@
     {
       "id": "checker-flow-arrow-18",
       "type": "arrow",
-      "x": 428.0,
-      "y": 541.25,
-      "width": 124.0,
+      "x": 430.36,
+      "y": 541.24,
+      "width": 123.45,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
@@ -784,7 +787,7 @@
           0.0
         ],
         [
-          124.0,
+          123.45,
           0.0
         ]
       ],
@@ -806,9 +809,9 @@
     {
       "id": "checker-flow-arrow-19",
       "type": "arrow",
-      "x": 1128.0,
-      "y": 541.25,
-      "width": 74.0,
+      "x": 1127.25,
+      "y": 541.24,
+      "width": 73.67,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
@@ -836,7 +839,7 @@
           0.0
         ],
         [
-          74.0,
+          73.67,
           0.0
         ]
       ],
@@ -858,10 +861,10 @@
     {
       "id": "checker-flow-arrow-20",
       "type": "arrow",
-      "x": 428.0,
-      "y": 541.25,
-      "width": 124.0,
-      "height": 260.0,
+      "x": 430.36,
+      "y": 541.24,
+      "width": 123.45,
+      "height": 258.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -888,8 +891,8 @@
           0.0
         ],
         [
-          124.0,
-          260.0
+          123.45,
+          258.84
         ]
       ],
       "lastCommittedPoint": null,
@@ -910,10 +913,10 @@
     {
       "id": "checker-flow-arrow-21",
       "type": "arrow",
-      "x": 1128.0,
-      "y": 801.25,
-      "width": 74.0,
-      "height": 260.0,
+      "x": 1127.25,
+      "y": 800.09,
+      "width": 73.67,
+      "height": 258.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -940,8 +943,8 @@
           0.0
         ],
         [
-          74.0,
-          -260.0
+          73.67,
+          -258.84
         ]
       ],
       "lastCommittedPoint": null,
@@ -962,10 +965,10 @@
     {
       "id": "checker-flow-arrow-22",
       "type": "arrow",
-      "x": 1350.0,
-      "y": 418.25,
-      "width": 202.0,
-      "height": 122.0,
+      "x": 1348.27,
+      "y": 418.79,
+      "width": 201.1,
+      "height": 121.46,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -998,11 +1001,11 @@
         ],
         [
           0.0,
-          -122.0
+          -121.46
         ],
         [
-          202.0,
-          -122.0
+          201.1,
+          -121.46
         ]
       ],
       "lastCommittedPoint": null,
@@ -1023,10 +1026,10 @@
     {
       "id": "checker-flow-text-23",
       "type": "text",
-      "x": 1327.46,
-      "y": 278.75,
-      "width": 45.08,
-      "height": 35.0,
+      "x": 1325.83,
+      "y": 279.91,
+      "width": 44.88,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1048,7 +1051,7 @@
       "link": null,
       "locked": false,
       "text": "yes",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -1060,10 +1063,10 @@
     {
       "id": "checker-flow-arrow-24",
       "type": "arrow",
-      "x": 1350.0,
-      "y": 664.25,
-      "width": 202.0,
-      "height": 137.0,
+      "x": 1348.27,
+      "y": 663.7,
+      "width": 201.1,
+      "height": 136.39,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1096,11 +1099,11 @@
         ],
         [
           0.0,
-          137.0
+          136.39
         ],
         [
-          202.0,
-          137.0
+          201.1,
+          136.39
         ]
       ],
       "lastCommittedPoint": null,
@@ -1121,10 +1124,10 @@
     {
       "id": "checker-flow-text-25",
       "type": "text",
-      "x": 1334.23,
-      "y": 783.75,
-      "width": 31.53,
-      "height": 35.0,
+      "x": 1332.57,
+      "y": 782.67,
+      "width": 31.39,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1146,7 +1149,7 @@
       "link": null,
       "locked": false,
       "text": "no",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -1158,10 +1161,10 @@
     {
       "id": "checker-flow-arrow-26",
       "type": "arrow",
-      "x": 1710.0,
-      "y": 894.25,
-      "width": 1470.0,
-      "height": 352.0,
+      "x": 1706.67,
+      "y": 892.68,
+      "width": 1463.47,
+      "height": 350.44,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1194,15 +1197,15 @@
         ],
         [
           0.0,
-          92.0
+          91.59
         ],
         [
-          -1470.0,
-          92.0
+          -1463.47,
+          91.59
         ],
         [
-          -1470.0,
-          -260.0
+          -1463.47,
+          -258.84
         ]
       ],
       "lastCommittedPoint": null,
@@ -1223,10 +1226,10 @@
     {
       "id": "checker-flow-text-27",
       "type": "text",
-      "x": 847.43,
-      "y": 968.75,
-      "width": 255.14,
-      "height": 35.0,
+      "x": 847.93,
+      "y": 966.84,
+      "width": 254.01,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1248,7 +1251,7 @@
       "link": null,
       "locked": false,
       "text": "fix in the same PR",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -1260,10 +1263,10 @@
     {
       "id": "checker-flow-text-28",
       "type": "text",
-      "x": 86.28,
-      "y": 356.25,
-      "width": 307.45,
-      "height": 65.0,
+      "x": 117.05,
+      "y": 357.07,
+      "width": 252.29,
+      "height": 64.71,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1284,15 +1287,18 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "you write check_docs.py\nin Assignment 1",
-      "fontSize": 26.0,
+      "text": "Assignment 1: you\nwrite check_docs.py",
+      "fontSize": 25.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "you write check_docs.py\nin Assignment 1",
+      "originalText": "Assignment 1: you\nwrite check_docs.py",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     }
   ],
   "appState": {

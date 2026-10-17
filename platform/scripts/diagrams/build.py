@@ -85,7 +85,8 @@ def main(argv: list[str]) -> int:
                 frames += 1
         print(
             f"{folder}/{stem}: {canvas}, {len(scene.els)} elements, {frames} frames, "
-            f"fit {scene.fit_scale:.2f}, smallest label {px:.1f} px on the slide"
+            f"fit {scene.fit_scale:.2f}, smallest label {px:.1f} px on the slide, "
+            f"longest label {scene.max_words} words"
         )
     print(f"smallest label on any slide: {smallest:.1f} px at 1080p")
     if metrics().missing:

@@ -20,21 +20,21 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                 (
                     None,
                     [
-                        "The ticket lists\nfiles to change",
+                        "The ticket lists\nfiles",
                         "The handbook points\nto errors.py",
-                        "The agent edits\nthe shared module",
+                        "Agent edits the\nshared module",
                     ],
                 ),
                 (
                     None,
                     [
                         "Ticket tests pass,\ndiff approved",
-                        "Another team changes\nthe error mapping",
+                        "Another team changes\nthe mapping",
                         "Wrong status,\nnobody links it",
                     ],
                 ),
             ],
-            note="In the pilot, every bare arm changed app/services/errors.py.",
+            note="pilot: every bare arm changed errors.py",
         )
 
     # Source: slides "Scope: Is the ticket's file list enough?" (builds 1-2); docs/evidence/s3.md.
@@ -42,12 +42,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def socratic_s3(s: Scene) -> None:
         socratic(
             s,
-            "Is the ticket's\nfile list enough?",
-            "No: text is only a request",
+            "Is the file\nlist enough?",
+            "No: text is a request",
             [
                 "Nothing checks\nthe list",
                 '"Less likely" is\nnot "never"',
-                "The bare arm left it\nin 3 of 3 runs",
+                "Bare arm left\nit: 3/3",
             ],
             "What can we use instead?",
             2,
@@ -58,14 +58,14 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     @diagram(S3, "feature-list-lifecycle")
     def feature_list_lifecycle(s: Scene) -> None:
         title(s, "One feature at a time: feature_list.json")
-        b1 = s.box(60, 150, 520, 160, "The harness writes it\npasses: false", role="harness")
-        b2 = s.box(700, 150, 520, 160, "The agent reads it;\na patch is BLOCKED", role="plain")
+        b1 = s.box(60, 150, 520, 160, "Harness writes\npasses: false", role="harness")
+        b2 = s.box(700, 150, 520, 160, "Agent reads;\npatch BLOCKED", role="plain")
         b3 = s.box(
             1340,
             150,
             520,
             160,
-            'The agent says done\nfinish(claim="done")',
+            'Agent says done\nfinish(claim="done")',
             role="accent",
             stroke_width=3,
         )
@@ -75,23 +75,23 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             485,
             520,
             150,
-            "The harness sets\npasses: true, commits",
+            "Harness sets\npasses: true",
             role="harness",
             stroke_width=3,
         )
         b7 = s.box(60, 485, 480, 150, "Set once,\nnever again", role="harness")
-        bad = s.box(1400, 820, 400, 150, "passes stays false,\nthe reason noted", role="fail")
+        bad = s.box(1400, 820, 400, 150, "passes stays false", role="fail")
         s.arrow(b1, b2, start="right", end="left")
         s.arrow(b2, b3, start="right", end="left")
         s.arrow(b3, d, start="bottom", end="top")
-        s.text(1580, 345, "Section 3: visible tests\nSection 4: the gate", FONT_SMALL, INK, "right")
+        s.text(1580, 345, "visible tests\nor the gate", FONT_SMALL, INK, "right")
         s.arrow(d, b6, "yes", start="left", end="right")
         s.arrow(b6, b7, start="left", end="right")
         s.arrow(d, bad, "no", start="bottom", end="top")
         s.text(
             60,
             800,
-            "Captured run, 2026-10-17:\nthe harness set passes at 4:30.",
+            "captured: passes set at 4:30",
             FONT_BODY,
             INK,
         )
@@ -118,8 +118,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                     "harness",
                     [
                         (76, "errors.py patch\nblocked", "harness"),
-                        (270, "sets passes:\nvisible tests", "harness"),
-                        (442, "ABORTED: timeout,\n39 turns", "plain"),
+                        (270, "sets passes", "harness"),
+                        (442, "timeout,\n39 turns", "plain"),
                         (530, "primary\nverdict", "plain"),
                         (678, "full\nverdict", "plain"),
                     ],
@@ -127,7 +127,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             ],
             690,
             "11:30",
-            "captured 2026-10-17 (run 3, alone); agent limit 420 s",
+            "captured 2026-10-17, run 3; limit 420 s",
         )
 
     @diagram(S3, "cheat-sheet-s3")
@@ -136,9 +136,9 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s,
             "Four boundaries for one feature",
             [
-                ("Feature list", "one feature;\nthe harness\nsets passes", "checklist", "harness"),
+                ("Feature list", "one feature;\nharness sets passes", "checklist", "harness"),
                 ("Allowed paths", "patch blocked,\ncommand reverted", "fence", "harness"),
-                ("Sandbox", "no network,\nkeys on the host", "globe", "harness"),
+                ("Sandbox", "no network,\nkeys on host", "globe", "harness"),
                 ("Least privilege", "non-root,\ncapabilities\ndropped", "lock", "harness"),
             ],
             tags=["harness arm only", "harness arm only", "both arms", "both arms"],
@@ -154,7 +154,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                 (
                     None,
                     [
-                        "Adds the If-Match\ncheck",
+                        "Adds the\nIf-Match check",
                         "Writes one\nhappy-path test",
                         "Runs the suite:\nall green",
                     ],
@@ -168,7 +168,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                     ],
                 ),
             ],
-            note="If-Match is optional, and no test sends a stale one.",
+            note="If-Match is optional; no test sends one",
         )
 
     # Source: slides "Verification: The suite is green. Is F4 done?" (builds 1-2);
@@ -177,12 +177,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def socratic_s4(s: Scene) -> None:
         socratic(
             s,
-            "The suite is green.\nAre version checks (F4) done?",
-            "No: 68 of 69 hidden tests",
+            "Green suite:\nis it done?",
+            "No: 68/69 hidden tests",
             [
-                "The visible suite\nmissed a case",
-                "Stale If-Match plus\nan invalid body",
-                "The agent graded\nits own work",
+                "Visible suite\nmissed a case",
+                "Stale If-Match\nplus bad body",
+                "The agent\ngraded itself",
             ],
             "Who should decide done?",
             2,
@@ -203,8 +203,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                         (55, "scope blocks\nerrors.py", "harness"),
                         (138, 'finish "done",\ngate pending', "plain"),
                         (204, "gate passes,\n190 tests", "harness"),
-                        (351, "test filters: 4\nproposed, 1 kept", "plain"),
-                        (514, "ABORTED: timeout,\n43 turns", "plain"),
+                        (351, "filters\nkeep 1/4", "plain"),
+                        (514, "timeout,\n43 turns", "plain"),
                         (559, "primary verdict\nFAIL", "fail"),
                         (655, "hidden 68/69,\nmutants 0/4", "plain"),
                         (666, "command\nfinished", "plain"),
@@ -213,7 +213,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             ],
             666,
             "11:06",
-            "captured 2026-10-17; harness arm only; agent limit then 300 s",
+            "captured 2026-10-17; harness only; limit 300 s",
         )
 
     @diagram(S4, "cheat-sheet-s4")
@@ -222,10 +222,10 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s,
             "Four checks the agent does not own",
             [
-                ("Verify gate", "at done: tests,\nrules, clean state", "gate", "harness"),
+                ("Verify gate", "at done:\ntests, rules", "gate", "harness"),
                 ("Test filters", "keep tests that\nprove something", "funnel", "harness"),
                 ("Hidden tests", "run after\nthe agent stops", "vault", "harness"),
-                ("Referee mutants", "would the tests\nnotice a fault?", "bug", "harness"),
+                ("Referee mutants", "would tests\nnotice faults?", "bug", "harness"),
             ],
             tags=["feedback to the agent", "feedback to the agent", "held out", "held out"],
         )
@@ -235,11 +235,11 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def house_rules(s: Scene) -> None:
         title(s, "TeamTrack house rules R1 to R7")
         rules = [
-            ("R1 tenant isolation", "another org's issue:\n404, never 403"),
+            ("R1 tenant isolation", "other org:\n404, not 403"),
             ("R2 roles", "a viewer's write:\n403 forbidden"),
-            ("R3 API conventions", "keyset cursor lists,\none error envelope"),
+            ("R3 API conventions", "cursor lists,\nerror envelope"),
             ("R4 idempotent creates", "same Idempotency-Key:\none record"),
-            ("R5 audit log", "every write adds\none audit row"),
+            ("R5 audit log", "one audit row\nper write"),
             ("R6 layering", "app/api never\nimports app/db"),
             ("R7 migrations", "exactly one\nAlembic head"),
         ]
@@ -261,13 +261,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         title(s, "Eight words we use all session")
         terms = [
             ("Arm", "one run: bare\nor harness"),
-            ("Referee", "scores runs after\nthe agents stop"),
+            ("Referee", "scores runs after\nagents stop"),
             ("Primary measure", "one result,\nchosen first"),
             ("Hidden tests", "tests the agent\nnever sees"),
             ("Mutant", "code with one\nplanted fault"),
-            ("Allowed paths", "files it may\nchange in a phase"),
+            ("Allowed paths", "files changeable\nper phase"),
             ("Gate", "checks the\ndone claim"),
-            ("Harness in action", "one harness arm,\nnot an A/B"),
+            ("Harness in action", "one harness arm,\nno A/B"),
         ]
         w, gap = 420, 40
         for i, (term, line) in enumerate(terms):
@@ -301,7 +301,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             620,
             870,
             300,
-            "Measured: one gap\nscope, version checks (F4)\nharness 3 of 3, bare 0 of 3",
+            "Scope (F4):\n3/3 vs 0/3",
             role="accent",
             stroke_width=3,
         )
@@ -310,6 +310,6 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             620,
             870,
             300,
-            "Everywhere else:\nno measurable difference",
+            "Elsewhere: no\nmeasurable difference",
             role="neutral",
         )

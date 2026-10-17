@@ -203,8 +203,10 @@ The diagrams are drawn by code, so the style stays the same everywhere:
 To change a diagram:
 
 1. Edit its function (or a value in `style.py` to change every diagram).
-2. Build the `.excalidraw` files. The build stops with an error if a label overflows its shape or
-   would show smaller than 20 px on the slide:
+2. Build the `.excalidraw` files. The build stops with an error if a label overflows its shape,
+   would show smaller than 20 px on the slide, or has more than 5 words (a title may have 8, and
+   one small footnote line is allowed). Explanations belong in the slide notes, not the diagram.
+   Each drawing is scaled to fill its panel with even margins, and centred:
 
    ```bash
    cd platform/scripts/diagrams

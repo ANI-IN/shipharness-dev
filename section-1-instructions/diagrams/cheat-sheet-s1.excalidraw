@@ -37,10 +37,10 @@
     {
       "id": "cheat-sheet-s1-text-1",
       "type": "text",
-      "x": 640.83,
-      "y": 142.5,
-      "width": 638.35,
-      "height": 45.0,
+      "x": 642.25,
+      "y": 84.53,
+      "width": 635.51,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -62,22 +62,25 @@
       "link": null,
       "locked": false,
       "text": "The instructions layer in four moves",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "The instructions layer in four moves",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "title"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-2",
       "type": "rectangle",
-      "x": 60.0,
-      "y": 252.5,
-      "width": 405.0,
-      "height": 600.0,
+      "x": 64.0,
+      "y": 184.09,
+      "width": 403.2,
+      "height": 726.76,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -104,10 +107,10 @@
     {
       "id": "cheat-sheet-s1-text-3",
       "type": "text",
-      "x": 88.0,
-      "y": 272.5,
-      "width": 15.37,
-      "height": 45.0,
+      "x": 91.88,
+      "y": 204.0,
+      "width": 15.3,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -129,22 +132,25 @@
       "link": null,
       "locked": false,
       "text": "1",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "1",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-line-4",
       "type": "line",
-      "x": 182.5,
-      "y": 348.5,
-      "width": 160.0,
-      "height": 160.0,
+      "x": 176.0,
+      "y": 291.61,
+      "width": 179.2,
+      "height": 179.2,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -171,32 +177,32 @@
           0.0
         ],
         [
-          48.0,
-          -16.0
+          53.76,
+          -17.92
         ],
         [
-          112.0,
+          125.44,
           0.0
         ],
         [
-          160.0,
-          -16.0
+          179.2,
+          -17.92
         ],
         [
-          160.0,
-          128.0
+          179.2,
+          143.36
         ],
         [
-          112.0,
-          144.0
+          125.44,
+          161.28
         ],
         [
-          48.0,
-          128.0
+          53.76,
+          143.36
         ],
         [
           0.0,
-          144.0
+          161.28
         ],
         [
           0.0,
@@ -213,10 +219,10 @@
     {
       "id": "cheat-sheet-s1-line-5",
       "type": "line",
-      "x": 230.5,
-      "y": 332.5,
+      "x": 229.76,
+      "y": 273.69,
       "width": 0.0,
-      "height": 144.0,
+      "height": 161.28,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -244,7 +250,7 @@
         ],
         [
           0.0,
-          144.0
+          161.28
         ]
       ],
       "lastCommittedPoint": null,
@@ -257,10 +263,10 @@
     {
       "id": "cheat-sheet-s1-line-6",
       "type": "line",
-      "x": 294.5,
-      "y": 348.5,
+      "x": 301.44,
+      "y": 291.61,
       "width": 0.0,
-      "height": 144.0,
+      "height": 161.28,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -288,7 +294,7 @@
         ],
         [
           0.0,
-          144.0
+          161.28
         ]
       ],
       "lastCommittedPoint": null,
@@ -301,10 +307,10 @@
     {
       "id": "cheat-sheet-s1-text-7",
       "type": "text",
-      "x": 211.16,
-      "y": 552.5,
-      "width": 102.67,
-      "height": 45.0,
+      "x": 214.49,
+      "y": 522.58,
+      "width": 102.21,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -326,22 +332,25 @@
       "link": null,
       "locked": false,
       "text": "A map",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "A map",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-text-8",
       "type": "text",
-      "x": 180.43,
-      "y": 652.5,
-      "width": 164.14,
-      "height": 105.0,
+      "x": 202.1,
+      "y": 632.09,
+      "width": 127.0,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -362,23 +371,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "a short file\nthat points\nto the docs",
-      "fontSize": 28.0,
+      "text": "points to\nthe docs",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "a short file\nthat points\nto the docs",
+      "originalText": "points to\nthe docs",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-9",
       "type": "rectangle",
-      "x": 525.0,
-      "y": 252.5,
-      "width": 405.0,
-      "height": 600.0,
+      "x": 526.93,
+      "y": 184.09,
+      "width": 403.2,
+      "height": 726.76,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -405,10 +417,10 @@
     {
       "id": "cheat-sheet-s1-text-10",
       "type": "text",
-      "x": 553.0,
-      "y": 272.5,
-      "width": 25.2,
-      "height": 45.0,
+      "x": 554.81,
+      "y": 204.0,
+      "width": 25.09,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -430,22 +442,25 @@
       "link": null,
       "locked": false,
       "text": "2",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "2",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-11",
       "type": "rectangle",
-      "x": 647.5,
-      "y": 364.5,
-      "width": 160.0,
-      "height": 32.0,
+      "x": 638.93,
+      "y": 309.53,
+      "width": 179.2,
+      "height": 35.84,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -472,10 +487,10 @@
     {
       "id": "cheat-sheet-s1-rectangle-12",
       "type": "rectangle",
-      "x": 663.5,
-      "y": 406.1,
-      "width": 128.0,
-      "height": 32.0,
+      "x": 656.85,
+      "y": 356.12,
+      "width": 143.36,
+      "height": 35.84,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -502,10 +517,10 @@
     {
       "id": "cheat-sheet-s1-rectangle-13",
       "type": "rectangle",
-      "x": 679.5,
-      "y": 447.7,
-      "width": 96.0,
-      "height": 32.0,
+      "x": 674.77,
+      "y": 402.71,
+      "width": 107.52,
+      "height": 35.84,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -532,10 +547,10 @@
     {
       "id": "cheat-sheet-s1-text-14",
       "type": "text",
-      "x": 638.65,
-      "y": 552.5,
-      "width": 177.7,
-      "height": 45.0,
+      "x": 640.08,
+      "y": 522.58,
+      "width": 176.91,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -557,22 +572,25 @@
       "link": null,
       "locked": false,
       "text": "Disclosure",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Disclosure",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-text-15",
       "type": "text",
-      "x": 616.61,
-      "y": 652.5,
-      "width": 221.79,
-      "height": 70.0,
+      "x": 618.14,
+      "y": 632.09,
+      "width": 220.8,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -594,22 +612,25 @@
       "link": null,
       "locked": false,
       "text": "skill names first,\nbodies later",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "skill names first,\nbodies later",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-16",
       "type": "rectangle",
-      "x": 990.0,
-      "y": 252.5,
-      "width": 405.0,
-      "height": 600.0,
+      "x": 989.87,
+      "y": 184.09,
+      "width": 403.2,
+      "height": 726.76,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -636,10 +657,10 @@
     {
       "id": "cheat-sheet-s1-text-17",
       "type": "text",
-      "x": 1018.0,
-      "y": 272.5,
-      "width": 21.89,
-      "height": 45.0,
+      "x": 1017.74,
+      "y": 204.0,
+      "width": 21.79,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -661,22 +682,25 @@
       "link": null,
       "locked": false,
       "text": "3",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "3",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-ellipse-18",
       "type": "ellipse",
-      "x": 1152.5,
-      "y": 332.5,
-      "width": 80.0,
-      "height": 96.0,
+      "x": 1146.67,
+      "y": 273.69,
+      "width": 89.6,
+      "height": 107.52,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -703,10 +727,10 @@
     {
       "id": "cheat-sheet-s1-rectangle-19",
       "type": "rectangle",
-      "x": 1128.5,
-      "y": 396.5,
-      "width": 128.0,
-      "height": 96.0,
+      "x": 1119.79,
+      "y": 345.37,
+      "width": 143.36,
+      "height": 107.52,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D266",
@@ -733,10 +757,10 @@
     {
       "id": "cheat-sheet-s1-rectangle-20",
       "type": "rectangle",
-      "x": 1182.9,
-      "y": 428.5,
-      "width": 19.2,
-      "height": 32.0,
+      "x": 1180.71,
+      "y": 381.21,
+      "width": 21.5,
+      "height": 35.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#212121",
@@ -763,10 +787,10 @@
     {
       "id": "cheat-sheet-s1-text-21",
       "type": "text",
-      "x": 1099.28,
-      "y": 552.5,
-      "width": 186.44,
-      "height": 45.0,
+      "x": 1098.66,
+      "y": 522.58,
+      "width": 185.61,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -788,22 +812,25 @@
       "link": null,
       "locked": false,
       "text": "The prefix",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "The prefix",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-text-22",
       "type": "text",
-      "x": 1079.07,
-      "y": 652.5,
-      "width": 226.86,
-      "height": 70.0,
+      "x": 1078.54,
+      "y": 632.09,
+      "width": 225.85,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -825,22 +852,25 @@
       "link": null,
       "locked": false,
       "text": "fixed, read-only,\nat session start",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "fixed, read-only,\nat session start",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-23",
       "type": "rectangle",
-      "x": 1455.0,
-      "y": 252.5,
-      "width": 405.0,
-      "height": 600.0,
+      "x": 1452.8,
+      "y": 184.09,
+      "width": 403.2,
+      "height": 726.76,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -867,10 +897,10 @@
     {
       "id": "cheat-sheet-s1-text-24",
       "type": "text",
-      "x": 1483.0,
-      "y": 272.5,
-      "width": 21.06,
-      "height": 45.0,
+      "x": 1480.68,
+      "y": 204.0,
+      "width": 20.97,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -892,22 +922,25 @@
       "link": null,
       "locked": false,
       "text": "4",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "4",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-rectangle-25",
       "type": "rectangle",
-      "x": 1577.5,
-      "y": 332.5,
-      "width": 160.0,
-      "height": 160.0,
+      "x": 1564.8,
+      "y": 273.69,
+      "width": 179.2,
+      "height": 179.2,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -934,10 +967,10 @@
     {
       "id": "cheat-sheet-s1-line-26",
       "type": "line",
-      "x": 1609.5,
-      "y": 415.7,
-      "width": 99.2,
-      "height": 83.2,
+      "x": 1600.64,
+      "y": 366.87,
+      "width": 111.1,
+      "height": 93.18,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -964,12 +997,12 @@
           0.0
         ],
         [
-          35.2,
-          38.4
+          39.42,
+          43.01
         ],
         [
-          99.2,
-          -44.8
+          111.1,
+          -50.18
         ]
       ],
       "lastCommittedPoint": null,
@@ -982,10 +1015,10 @@
     {
       "id": "cheat-sheet-s1-text-27",
       "type": "text",
-      "x": 1597.87,
-      "y": 552.5,
-      "width": 119.27,
-      "height": 45.0,
+      "x": 1595.04,
+      "y": 522.58,
+      "width": 118.74,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1007,22 +1040,25 @@
       "link": null,
       "locked": false,
       "text": "Checks",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Checks",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-text-28",
       "type": "text",
-      "x": 1546.65,
-      "y": 652.5,
-      "width": 221.7,
-      "height": 105.0,
+      "x": 1544.04,
+      "y": 632.09,
+      "width": 220.71,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1043,23 +1079,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "links and rule\ncoverage,\nchecked by code",
-      "fontSize": 28.0,
+      "text": "links, rules,\nchecked by code",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "links and rule\ncoverage,\nchecked by code",
+      "originalText": "links, rules,\nchecked by code",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s1-text-29",
       "type": "text",
-      "x": 773.43,
-      "y": 902.5,
-      "width": 373.13,
-      "height": 35.0,
+      "x": 774.26,
+      "y": 960.62,
+      "width": 371.47,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1081,14 +1120,17 @@
       "link": null,
       "locked": false,
       "text": "It informs. It never blocks.",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "It informs. It never blocks.",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     }
   ],
   "appState": {

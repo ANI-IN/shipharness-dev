@@ -60,6 +60,9 @@ FONT_TITLE = 36
 FONT_BODY = 28
 FONT_SMALL = 26  # footnotes such as "captured 2026-10-17" (20.8 px on the slide)
 MIN_SLIDE_PX = 20  # at 1080p, on the slide, at the placed size
+MAX_WORDS = 5  # every label: no sentences inside a diagram
+MAX_WORDS_TITLE = 8  # the one title line
+MAX_WORDS_FOOTNOTE = 8  # one small footnote line, such as the capture date
 
 # -- canvases -----------------------------------------------------------------------------
 # name: (width, height, placed width on a 1920x1080 slide). Both place at 864 px high.
@@ -68,7 +71,8 @@ CANVAS: dict[str, tuple[int, int, int]] = {
     "wide": (1920, 1080, 1536),  # 16:9, 80% of the slide width
     "std": (1440, 1080, 1152),  # 4:3, 60% of the slide width
 }
-MARGIN = 56  # empty panel around the content
+MARGIN = 64  # empty panel around the content, the same on the tighter axis
+MAX_FIT = 1.5  # a small drawing grows to fill the panel, up to this factor
 SLIDE_W, SLIDE_H = 1920, 1080
 PNG_SCALE = 2
 

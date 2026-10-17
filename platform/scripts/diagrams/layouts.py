@@ -25,11 +25,11 @@ CENTRE = 960
 
 
 def title(s: Scene, text: str, y: float = 50) -> None:
-    s.text(CENTRE, y, text, FONT_TITLE, INK, "center")
+    s.text(CENTRE, y, text, FONT_TITLE, INK, "center", role="title")
 
 
 def footnote(s: Scene, text: str, y: float = 985) -> None:
-    s.text(RIGHT, y, text, FONT_SMALL, INK, "right")
+    s.text(RIGHT, y, text, FONT_SMALL, INK, "right", role="footnote")
 
 
 # -- story strip ---------------------------------------------------------------------------------
@@ -46,8 +46,8 @@ def story_strip(
     total = sum(len(r[1]) for r in rows)
     n = 0
     prev = None
-    top = 190
-    row_gap = 340
+    top = 170
+    row_gap = 430
     for r, (row_label, steps) in enumerate(rows):
         y = top + r * row_gap
         if row_label:
@@ -64,11 +64,12 @@ def story_strip(
                 x,
                 y,
                 w,
-                190,
-                f"{n}\n{label}",
+                280,
+                label,
                 role="fail" if last else "plain",
                 stroke_width=STROKE_WIDTH_BOLD if last else 2,
             )
+            s.text(x + 24, y + 14, str(n), FONT_TITLE, INK)
             if prev is not None:
                 if i == 0:
                     py = prev["y"] + prev["height"] + 8
@@ -163,7 +164,7 @@ def timeline(
                 if placed.get(key, -1e9) + 24 <= left:
                     break
             placed[key] = left + tw
-            dist = 70 + tier * 125
+            dist = 90 + tier * 125
             by = ly - dist - th if side < 0 else ly + dist
             b = s.box(left, by, tw, th, text, role=trole, pad=18)
             s.box(cx - 9, ly - 9, 18, 18, shape="ellipse", stroke=INK, fill=INK)
@@ -294,12 +295,12 @@ def cheat_sheet(
     for i, (label, sub, kind, role) in enumerate(items):
         x = LEFT + i * (w + gap)
         color = {"harness": BLUE, "bare": GREY, "accent": AMBER, "fail": RED}.get(role, INK)
-        s.box(x, 160, w, 660 if tags else 600, role="plain", stroke=color, stroke_width=3)
-        s.text(x + 28, 180, str(i + 1), FONT_TITLE, INK)
-        icon(s, kind, x + w / 2 - 80, 240, 160, color)
-        s.text(x + w / 2, 460, label, FONT_TITLE, INK, "center")
-        s.text(x + w / 2, 560, sub, FONT_BODY, INK, "center")
+        s.box(x, 150, w, 780 if tags else 730, role="plain", stroke=color, stroke_width=3)
+        s.text(x + 28, 170, str(i + 1), FONT_TITLE, INK)
+        icon(s, kind, x + w / 2 - 90, 240, 180, color)
+        s.text(x + w / 2, 490, label, FONT_TITLE, INK, "center")
+        s.text(x + w / 2, 600, sub, FONT_BODY, INK, "center")
         if tags:
-            s.box(x + 30, 715, w - 60, 70, tags[i], role="neutral", size=FONT_SMALL, pad=8)
+            s.box(x + 30, 830, w - 60, 70, tags[i], role="neutral", size=FONT_SMALL, pad=8)
     if note:
-        s.text(CENTRE, 860 if tags else 810, note, FONT_BODY, INK, "center")
+        s.text(CENTRE, 930, note, FONT_BODY, INK, "center")

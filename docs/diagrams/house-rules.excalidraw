@@ -37,10 +37,10 @@
     {
       "id": "house-rules-text-1",
       "type": "text",
-      "x": 668.67,
-      "y": 100.0,
-      "width": 582.66,
-      "height": 45.0,
+      "x": 669.96,
+      "y": 101.96,
+      "width": 580.07,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -62,22 +62,25 @@
       "link": null,
       "locked": false,
       "text": "TeamTrack house rules R1 to R7",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "TeamTrack house rules R1 to R7",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "title"
+      }
     },
     {
       "id": "house-rules-rectangle-2",
       "type": "rectangle",
-      "x": 60.0,
-      "y": 220.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 64.0,
+      "y": 221.42,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -104,10 +107,10 @@
     {
       "id": "house-rules-text-3",
       "type": "text",
-      "x": 139.17,
-      "y": 260.0,
-      "width": 261.66,
-      "height": 35.0,
+      "x": 142.82,
+      "y": 261.24,
+      "width": 260.5,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -129,21 +132,24 @@
       "link": null,
       "locked": false,
       "text": "R1 tenant isolation",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R1 tenant isolation",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-4",
       "type": "line",
-      "x": 90.0,
-      "y": 330.0,
-      "width": 360.0,
+      "x": 93.87,
+      "y": 330.93,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -171,7 +177,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -185,10 +191,10 @@
     {
       "id": "house-rules-text-5",
       "type": "text",
-      "x": 135.91,
-      "y": 380.0,
-      "width": 268.18,
-      "height": 70.0,
+      "x": 183.49,
+      "y": 380.71,
+      "width": 179.16,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -209,23 +215,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "another org's issue:\n404, never 403",
-      "fontSize": 28.0,
+      "text": "other org:\n404, not 403",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "another org's issue:\n404, never 403",
+      "originalText": "other org:\n404, not 403",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-6",
       "type": "rectangle",
-      "x": 520.0,
-      "y": 220.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 521.96,
+      "y": 221.42,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -252,10 +261,10 @@
     {
       "id": "house-rules-text-7",
       "type": "text",
-      "x": 671.86,
-      "y": 260.0,
-      "width": 116.28,
-      "height": 35.0,
+      "x": 673.14,
+      "y": 261.24,
+      "width": 115.76,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -277,21 +286,24 @@
       "link": null,
       "locked": false,
       "text": "R2 roles",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R2 roles",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-8",
       "type": "line",
-      "x": 550.0,
-      "y": 330.0,
-      "width": 360.0,
+      "x": 551.82,
+      "y": 330.93,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -319,7 +331,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -333,10 +345,10 @@
     {
       "id": "house-rules-text-9",
       "type": "text",
-      "x": 620.97,
-      "y": 380.0,
-      "width": 218.06,
-      "height": 70.0,
+      "x": 622.48,
+      "y": 380.71,
+      "width": 217.09,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -358,22 +370,25 @@
       "link": null,
       "locked": false,
       "text": "a viewer's write:\n403 forbidden",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "a viewer's write:\n403 forbidden",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-10",
       "type": "rectangle",
-      "x": 980.0,
-      "y": 220.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 979.91,
+      "y": 221.42,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -400,10 +415,10 @@
     {
       "id": "house-rules-text-11",
       "type": "text",
-      "x": 1053.54,
-      "y": 260.0,
-      "width": 272.92,
-      "height": 35.0,
+      "x": 1053.12,
+      "y": 261.24,
+      "width": 271.71,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -425,21 +440,24 @@
       "link": null,
       "locked": false,
       "text": "R3 API conventions",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R3 API conventions",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-12",
       "type": "line",
-      "x": 1010.0,
-      "y": 330.0,
-      "width": 360.0,
+      "x": 1009.78,
+      "y": 330.93,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -467,7 +485,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -481,10 +499,10 @@
     {
       "id": "house-rules-text-13",
       "type": "text",
-      "x": 1058.16,
-      "y": 380.0,
-      "width": 263.68,
-      "height": 70.0,
+      "x": 1094.24,
+      "y": 380.71,
+      "width": 189.47,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -505,23 +523,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "keyset cursor lists,\none error envelope",
-      "fontSize": 28.0,
+      "text": "cursor lists,\nerror envelope",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "keyset cursor lists,\none error envelope",
+      "originalText": "cursor lists,\nerror envelope",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-14",
       "type": "rectangle",
-      "x": 1440.0,
-      "y": 220.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 1437.87,
+      "y": 221.42,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -548,10 +569,10 @@
     {
       "id": "house-rules-text-15",
       "type": "text",
-      "x": 1494.07,
-      "y": 260.0,
-      "width": 311.86,
-      "height": 35.0,
+      "x": 1491.7,
+      "y": 261.24,
+      "width": 310.47,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -573,21 +594,24 @@
       "link": null,
       "locked": false,
       "text": "R4 idempotent creates",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R4 idempotent creates",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-16",
       "type": "line",
-      "x": 1470.0,
-      "y": 330.0,
-      "width": 360.0,
+      "x": 1467.73,
+      "y": 330.93,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -615,7 +639,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -629,10 +653,10 @@
     {
       "id": "house-rules-text-17",
       "type": "text",
-      "x": 1493.05,
-      "y": 380.0,
-      "width": 313.91,
-      "height": 70.0,
+      "x": 1490.68,
+      "y": 380.71,
+      "width": 312.51,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -654,22 +678,25 @@
       "link": null,
       "locked": false,
       "text": "same Idempotency-Key:\none record",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "same Idempotency-Key:\none record",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-18",
       "type": "rectangle",
-      "x": 290.0,
-      "y": 640.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 292.98,
+      "y": 639.56,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -696,10 +723,10 @@
     {
       "id": "house-rules-text-19",
       "type": "text",
-      "x": 415.16,
-      "y": 680.0,
-      "width": 169.68,
-      "height": 35.0,
+      "x": 417.58,
+      "y": 679.38,
+      "width": 168.93,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -721,21 +748,24 @@
       "link": null,
       "locked": false,
       "text": "R5 audit log",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R5 audit log",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-20",
       "type": "line",
-      "x": 320.0,
-      "y": 750.0,
-      "width": 360.0,
+      "x": 322.84,
+      "y": 749.07,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -763,7 +793,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -777,10 +807,10 @@
     {
       "id": "house-rules-text-21",
       "type": "text",
-      "x": 386.48,
-      "y": 800.0,
-      "width": 227.05,
-      "height": 70.0,
+      "x": 408.74,
+      "y": 798.84,
+      "width": 186.6,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -801,23 +831,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "every write adds\none audit row",
-      "fontSize": 28.0,
+      "text": "one audit row\nper write",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "every write adds\none audit row",
+      "originalText": "one audit row\nper write",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-22",
       "type": "rectangle",
-      "x": 750.0,
-      "y": 640.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 750.93,
+      "y": 639.56,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -844,10 +877,10 @@
     {
       "id": "house-rules-text-23",
       "type": "text",
-      "x": 884.66,
-      "y": 680.0,
-      "width": 150.67,
-      "height": 35.0,
+      "x": 884.99,
+      "y": 679.38,
+      "width": 150.0,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -869,21 +902,24 @@
       "link": null,
       "locked": false,
       "text": "R6 layering",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R6 layering",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-24",
       "type": "line",
-      "x": 780.0,
-      "y": 750.0,
-      "width": 360.0,
+      "x": 780.8,
+      "y": 749.07,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -911,7 +947,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -925,10 +961,10 @@
     {
       "id": "house-rules-text-25",
       "type": "text",
-      "x": 857.48,
-      "y": 800.0,
-      "width": 205.04,
-      "height": 70.0,
+      "x": 857.94,
+      "y": 798.84,
+      "width": 204.13,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -950,22 +986,25 @@
       "link": null,
       "locked": false,
       "text": "app/api never\nimports app/db",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "app/api never\nimports app/db",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-rectangle-26",
       "type": "rectangle",
-      "x": 1210.0,
-      "y": 640.0,
-      "width": 420.0,
-      "height": 340.0,
+      "x": 1208.89,
+      "y": 639.56,
+      "width": 418.13,
+      "height": 338.49,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -992,10 +1031,10 @@
     {
       "id": "house-rules-text-27",
       "type": "text",
-      "x": 1327.46,
-      "y": 680.0,
-      "width": 185.08,
-      "height": 35.0,
+      "x": 1325.83,
+      "y": 679.38,
+      "width": 184.26,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1017,21 +1056,24 @@
       "link": null,
       "locked": false,
       "text": "R7 migrations",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "R7 migrations",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "house-rules-line-28",
       "type": "line",
-      "x": 1240.0,
-      "y": 750.0,
-      "width": 360.0,
+      "x": 1238.76,
+      "y": 749.07,
+      "width": 358.4,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#3896D2",
@@ -1059,7 +1101,7 @@
           0.0
         ],
         [
-          360.0,
+          358.4,
           0.0
         ]
       ],
@@ -1073,10 +1115,10 @@
     {
       "id": "house-rules-text-29",
       "type": "text",
-      "x": 1334.76,
-      "y": 800.0,
-      "width": 170.49,
-      "height": 70.0,
+      "x": 1333.09,
+      "y": 798.84,
+      "width": 169.73,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1098,14 +1140,17 @@
       "link": null,
       "locked": false,
       "text": "exactly one\nAlembic head",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "exactly one\nAlembic head",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     }
   ],
   "appState": {

@@ -37,10 +37,10 @@
     {
       "id": "teamtrack-data-model-rectangle-1",
       "type": "rectangle",
-      "x": 767.36,
-      "y": 56.0,
-      "width": 385.27,
-      "height": 105.95,
+      "x": 765.22,
+      "y": 64.0,
+      "width": 389.57,
+      "height": 107.13,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -66,15 +66,15 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-22"
-        },
-        {
-          "type": "arrow",
           "id": "teamtrack-data-model-arrow-23"
         },
         {
           "type": "arrow",
           "id": "teamtrack-data-model-arrow-24"
+        },
+        {
+          "type": "arrow",
+          "id": "teamtrack-data-model-arrow-25"
         }
       ],
       "updated": 1,
@@ -84,10 +84,10 @@
     {
       "id": "teamtrack-data-model-text-2",
       "type": "text",
-      "x": 874.56,
-      "y": 75.26,
-      "width": 170.88,
-      "height": 67.42,
+      "x": 873.6,
+      "y": 83.48,
+      "width": 172.78,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -109,7 +109,7 @@
       "link": null,
       "locked": false,
       "text": "orgs\nid, name, slug",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -121,10 +121,10 @@
     {
       "id": "teamtrack-data-model-rectangle-3",
       "type": "rectangle",
-      "x": 93.13,
-      "y": 200.48,
-      "width": 1733.73,
-      "height": 732.02,
+      "x": 83.48,
+      "y": 210.09,
+      "width": 1753.04,
+      "height": 759.65,
       "angle": 0,
       "strokeColor": "#FFAB40",
       "backgroundColor": "transparent",
@@ -151,10 +151,10 @@
     {
       "id": "teamtrack-data-model-rectangle-4",
       "type": "rectangle",
-      "x": 150.93,
-      "y": 258.27,
-      "width": 443.06,
-      "height": 115.58,
+      "x": 141.91,
+      "y": 268.52,
+      "width": 448.0,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -180,11 +180,11 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-22"
+          "id": "teamtrack-data-model-arrow-23"
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-25"
+          "id": "teamtrack-data-model-arrow-26"
         }
       ],
       "updated": 1,
@@ -194,10 +194,10 @@
     {
       "id": "teamtrack-data-model-text-5",
       "type": "text",
-      "x": 258.93,
-      "y": 282.35,
-      "width": 227.05,
-      "height": 67.42,
+      "x": 251.12,
+      "y": 297.74,
+      "width": 229.58,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -219,7 +219,7 @@
       "link": null,
       "locked": false,
       "text": "users\norg_id, email, role",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -231,10 +231,10 @@
     {
       "id": "teamtrack-data-model-rectangle-6",
       "type": "rectangle",
-      "x": 738.47,
-      "y": 258.27,
-      "width": 443.06,
-      "height": 115.58,
+      "x": 736.0,
+      "y": 268.52,
+      "width": 448.0,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -260,15 +260,15 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-23"
-        },
-        {
-          "type": "arrow",
-          "id": "teamtrack-data-model-arrow-26"
+          "id": "teamtrack-data-model-arrow-24"
         },
         {
           "type": "arrow",
           "id": "teamtrack-data-model-arrow-27"
+        },
+        {
+          "type": "arrow",
+          "id": "teamtrack-data-model-arrow-28"
         }
       ],
       "updated": 1,
@@ -278,10 +278,10 @@
     {
       "id": "teamtrack-data-model-text-7",
       "type": "text",
-      "x": 801.31,
-      "y": 282.35,
-      "width": 317.4,
-      "height": 67.42,
+      "x": 799.54,
+      "y": 297.74,
+      "width": 320.93,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -303,7 +303,7 @@
       "link": null,
       "locked": false,
       "text": "projects\norg_id, key, archived_at",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -315,10 +315,10 @@
     {
       "id": "teamtrack-data-model-rectangle-8",
       "type": "rectangle",
-      "x": 1326.01,
-      "y": 258.27,
-      "width": 443.06,
-      "height": 115.58,
+      "x": 1330.09,
+      "y": 268.52,
+      "width": 448.0,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -344,11 +344,11 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-24"
+          "id": "teamtrack-data-model-arrow-25"
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-31"
+          "id": "teamtrack-data-model-arrow-32"
         }
       ],
       "updated": 1,
@@ -358,10 +358,10 @@
     {
       "id": "teamtrack-data-model-text-9",
       "type": "text",
-      "x": 1466.03,
-      "y": 282.35,
-      "width": 163.03,
-      "height": 67.42,
+      "x": 1471.66,
+      "y": 297.74,
+      "width": 164.84,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -383,7 +383,7 @@
       "link": null,
       "locked": false,
       "text": "labels (F7)\norg_id, name",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -395,10 +395,10 @@
     {
       "id": "teamtrack-data-model-rectangle-10",
       "type": "rectangle",
-      "x": 150.93,
-      "y": 470.17,
-      "width": 443.06,
-      "height": 115.58,
+      "x": 141.91,
+      "y": 492.52,
+      "width": 448.0,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -424,11 +424,11 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-25"
+          "id": "teamtrack-data-model-arrow-26"
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-26"
+          "id": "teamtrack-data-model-arrow-27"
         }
       ],
       "updated": 1,
@@ -438,10 +438,10 @@
     {
       "id": "teamtrack-data-model-text-11",
       "type": "text",
-      "x": 248.32,
-      "y": 494.25,
-      "width": 248.28,
-      "height": 67.42,
+      "x": 240.4,
+      "y": 521.74,
+      "width": 251.05,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -463,7 +463,7 @@
       "link": null,
       "locked": false,
       "text": "project_members\nproject_id, user_id",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -475,10 +475,10 @@
     {
       "id": "teamtrack-data-model-rectangle-12",
       "type": "rectangle",
-      "x": 738.47,
-      "y": 441.27,
-      "width": 443.06,
-      "height": 173.37,
+      "x": 736.0,
+      "y": 473.04,
+      "width": 448.0,
+      "height": 165.57,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -504,10 +504,6 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-27"
-        },
-        {
-          "type": "arrow",
           "id": "teamtrack-data-model-arrow-28"
         },
         {
@@ -517,6 +513,10 @@
         {
           "type": "arrow",
           "id": "teamtrack-data-model-arrow-30"
+        },
+        {
+          "type": "arrow",
+          "id": "teamtrack-data-model-arrow-31"
         }
       ],
       "updated": 1,
@@ -526,10 +526,10 @@
     {
       "id": "teamtrack-data-model-text-13",
       "type": "text",
-      "x": 798.55,
-      "y": 460.54,
-      "width": 322.9,
-      "height": 134.85,
+      "x": 803.42,
+      "y": 504.7,
+      "width": 313.16,
+      "height": 102.26,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -550,23 +550,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "issues\norg_id, project_id,\nassignee_id, created_by,\nversion",
-      "fontSize": 26.97,
+      "text": "issues: org_id,\nproject_id, assignee_id,\nversion",
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "teamtrack-data-model-rectangle-12",
-      "originalText": "issues\norg_id, project_id,\nassignee_id, created_by,\nversion",
+      "originalText": "issues: org_id,\nproject_id, assignee_id,\nversion",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "teamtrack-data-model-rectangle-14",
       "type": "rectangle",
-      "x": 1326.01,
-      "y": 470.17,
-      "width": 443.06,
-      "height": 115.58,
+      "x": 1330.09,
+      "y": 492.52,
+      "width": 448.0,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -592,11 +592,11 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-30"
+          "id": "teamtrack-data-model-arrow-31"
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-31"
+          "id": "teamtrack-data-model-arrow-32"
         }
       ],
       "updated": 1,
@@ -606,10 +606,10 @@
     {
       "id": "teamtrack-data-model-text-15",
       "type": "text",
-      "x": 1436.59,
-      "y": 494.25,
-      "width": 221.9,
-      "height": 67.42,
+      "x": 1441.9,
+      "y": 521.74,
+      "width": 224.37,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -631,7 +631,7 @@
       "link": null,
       "locked": false,
       "text": "issue_labels (F7)\nissue_id, label_id",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -643,10 +643,10 @@
     {
       "id": "teamtrack-data-model-rectangle-16",
       "type": "rectangle",
-      "x": 324.3,
-      "y": 682.07,
-      "width": 539.38,
-      "height": 115.58,
+      "x": 317.22,
+      "y": 716.52,
+      "width": 545.39,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -672,7 +672,7 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-28"
+          "id": "teamtrack-data-model-arrow-29"
         }
       ],
       "updated": 1,
@@ -682,10 +682,10 @@
     {
       "id": "teamtrack-data-model-text-17",
       "type": "text",
-      "x": 417.23,
-      "y": 706.15,
-      "width": 353.54,
-      "height": 67.42,
+      "x": 411.18,
+      "y": 745.74,
+      "width": 357.47,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -707,7 +707,7 @@
       "link": null,
       "locked": false,
       "text": "comments (F2)\norg_id, issue_id, author_id",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -719,10 +719,10 @@
     {
       "id": "teamtrack-data-model-rectangle-18",
       "type": "rectangle",
-      "x": 1056.32,
-      "y": 682.07,
-      "width": 539.38,
-      "height": 115.58,
+      "x": 1057.39,
+      "y": 716.52,
+      "width": 545.39,
+      "height": 126.61,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -748,7 +748,7 @@
         },
         {
           "type": "arrow",
-          "id": "teamtrack-data-model-arrow-29"
+          "id": "teamtrack-data-model-arrow-30"
         }
       ],
       "updated": 1,
@@ -758,10 +758,10 @@
     {
       "id": "teamtrack-data-model-text-19",
       "type": "text",
-      "x": 1165.64,
-      "y": 706.15,
-      "width": 320.74,
-      "height": 67.42,
+      "x": 1167.93,
+      "y": 745.74,
+      "width": 324.31,
+      "height": 68.17,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -783,7 +783,7 @@
       "link": null,
       "locked": false,
       "text": "watchers (F6)\norg_id, issue_id, user_id",
-      "fontSize": 26.97,
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -795,10 +795,10 @@
     {
       "id": "teamtrack-data-model-text-20",
       "type": "text",
-      "x": 131.66,
-      "y": 821.73,
-      "width": 664.73,
-      "height": 101.13,
+      "x": 122.43,
+      "y": 882.09,
+      "width": 320.69,
+      "height": 34.09,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -819,23 +819,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Tenant boundary: every row in here carries org_id.\nAnother org's row answers 404, never 403\n(R1 tenant isolation).",
-      "fontSize": 26.97,
+      "text": "every row carries org_id",
+      "fontSize": 27.27,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Tenant boundary: every row in here carries org_id.\nAnother org's row answers 404, never 403\n(R1 tenant isolation).",
+      "originalText": "every row carries org_id",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "teamtrack-data-model-text-21",
       "type": "text",
-      "x": 1413.95,
-      "y": 850.63,
-      "width": 374.39,
-      "height": 67.42,
+      "x": 788.41,
+      "y": 882.09,
+      "width": 343.19,
+      "height": 34.09,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -856,23 +859,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Also scoped by org_id:\naudit_log, idempotency_keys",
-      "fontSize": 26.97,
+      "text": "other org: 404, never 403",
+      "fontSize": 27.27,
       "fontFamily": 5,
-      "textAlign": "right",
+      "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Also scoped by org_id:\naudit_log, idempotency_keys",
+      "originalText": "other org: 404, never 403",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
-      "id": "teamtrack-data-model-arrow-22",
-      "type": "arrow",
-      "x": 960.0,
-      "y": 169.66,
-      "width": 587.54,
-      "height": 80.91,
+      "id": "teamtrack-data-model-text-22",
+      "type": "text",
+      "x": 1316.74,
+      "y": 882.09,
+      "width": 480.82,
+      "height": 34.09,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -885,50 +891,34 @@
       "frameId": null,
       "index": "aM",
       "roundness": null,
-      "seed": 440213916,
+      "seed": 1866766671,
       "version": 1,
-      "versionNonce": 1821315476,
+      "versionNonce": 1777272600,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          -587.54,
-          40.45
-        ],
-        [
-          -587.54,
-          80.91
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "teamtrack-data-model-rectangle-1",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-4",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
+      "text": "audit_log, idempotency_keys: org_id",
+      "fontSize": 27.27,
+      "fontFamily": 5,
+      "textAlign": "right",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "audit_log, idempotency_keys: org_id",
+      "autoResize": true,
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "teamtrack-data-model-arrow-23",
       "type": "arrow",
       "x": 960.0,
-      "y": 169.66,
-      "width": 0.0,
-      "height": 80.91,
+      "y": 178.92,
+      "width": 594.09,
+      "height": 81.81,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -955,8 +945,12 @@
           0.0
         ],
         [
-          0.0,
-          80.91
+          -594.09,
+          40.9
+        ],
+        [
+          -594.09,
+          81.81
         ]
       ],
       "lastCommittedPoint": null,
@@ -966,7 +960,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-6",
+        "elementId": "teamtrack-data-model-rectangle-4",
         "focus": 0,
         "gap": 8.0
       },
@@ -978,9 +972,9 @@
       "id": "teamtrack-data-model-arrow-24",
       "type": "arrow",
       "x": 960.0,
-      "y": 169.66,
-      "width": 587.54,
-      "height": 80.91,
+      "y": 178.92,
+      "width": 0.0,
+      "height": 81.81,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1007,12 +1001,8 @@
           0.0
         ],
         [
-          587.54,
-          40.45
-        ],
-        [
-          587.54,
-          80.91
+          0.0,
+          81.81
         ]
       ],
       "lastCommittedPoint": null,
@@ -1022,7 +1012,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-8",
+        "elementId": "teamtrack-data-model-rectangle-6",
         "focus": 0,
         "gap": 8.0
       },
@@ -1033,10 +1023,10 @@
     {
       "id": "teamtrack-data-model-arrow-25",
       "type": "arrow",
-      "x": 372.46,
-      "y": 381.56,
-      "width": 0.0,
-      "height": 80.91,
+      "x": 960.0,
+      "y": 178.92,
+      "width": 594.09,
+      "height": 81.81,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1063,18 +1053,22 @@
           0.0
         ],
         [
-          0.0,
-          80.91
+          594.09,
+          40.9
+        ],
+        [
+          594.09,
+          81.81
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "teamtrack-data-model-rectangle-4",
+        "elementId": "teamtrack-data-model-rectangle-1",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-10",
+        "elementId": "teamtrack-data-model-rectangle-8",
         "focus": 0,
         "gap": 8.0
       },
@@ -1085,10 +1079,10 @@
     {
       "id": "teamtrack-data-model-arrow-26",
       "type": "arrow",
-      "x": 730.76,
-      "y": 316.06,
-      "width": 129.07,
-      "height": 211.9,
+      "x": 365.91,
+      "y": 402.92,
+      "width": 0.0,
+      "height": 81.81,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1115,21 +1109,13 @@
           0.0
         ],
         [
-          -64.53,
-          0.0
-        ],
-        [
-          -64.53,
-          211.9
-        ],
-        [
-          -129.07,
-          211.9
+          0.0,
+          81.81
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "teamtrack-data-model-rectangle-6",
+        "elementId": "teamtrack-data-model-rectangle-4",
         "focus": 0,
         "gap": 8.0
       },
@@ -1145,10 +1131,10 @@
     {
       "id": "teamtrack-data-model-arrow-27",
       "type": "arrow",
-      "x": 960.0,
-      "y": 381.56,
-      "width": 0.0,
-      "height": 52.01,
+      "x": 728.21,
+      "y": 331.83,
+      "width": 130.5,
+      "height": 224.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1175,8 +1161,16 @@
           0.0
         ],
         [
-          0.0,
-          52.01
+          -65.25,
+          0.0
+        ],
+        [
+          -65.25,
+          224.0
+        ],
+        [
+          -130.5,
+          224.0
         ]
       ],
       "lastCommittedPoint": null,
@@ -1186,7 +1180,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-12",
+        "elementId": "teamtrack-data-model-rectangle-10",
         "focus": 0,
         "gap": 8.0
       },
@@ -1197,10 +1191,10 @@
     {
       "id": "teamtrack-data-model-arrow-28",
       "type": "arrow",
-      "x": 882.95,
-      "y": 622.35,
-      "width": 288.96,
-      "height": 52.01,
+      "x": 960.0,
+      "y": 402.92,
+      "width": 0.0,
+      "height": 62.33,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1227,18 +1221,18 @@
           0.0
         ],
         [
-          -288.96,
-          52.01
+          0.0,
+          62.33
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "teamtrack-data-model-rectangle-12",
+        "elementId": "teamtrack-data-model-rectangle-6",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-16",
+        "elementId": "teamtrack-data-model-rectangle-12",
         "focus": 0,
         "gap": 8.0
       },
@@ -1249,10 +1243,10 @@
     {
       "id": "teamtrack-data-model-arrow-29",
       "type": "arrow",
-      "x": 1037.05,
-      "y": 622.35,
-      "width": 288.96,
-      "height": 52.01,
+      "x": 882.09,
+      "y": 646.4,
+      "width": 292.17,
+      "height": 62.33,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1279,8 +1273,8 @@
           0.0
         ],
         [
-          288.96,
-          52.01
+          -292.17,
+          62.33
         ]
       ],
       "lastCommittedPoint": null,
@@ -1290,7 +1284,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-18",
+        "elementId": "teamtrack-data-model-rectangle-16",
         "focus": 0,
         "gap": 8.0
       },
@@ -1301,10 +1295,10 @@
     {
       "id": "teamtrack-data-model-arrow-30",
       "type": "arrow",
-      "x": 1189.24,
-      "y": 527.96,
-      "width": 129.07,
-      "height": 0.0,
+      "x": 1037.91,
+      "y": 646.4,
+      "width": 292.17,
+      "height": 62.33,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1331,8 +1325,8 @@
           0.0
         ],
         [
-          129.07,
-          0.0
+          292.17,
+          62.33
         ]
       ],
       "lastCommittedPoint": null,
@@ -1342,7 +1336,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "teamtrack-data-model-rectangle-14",
+        "elementId": "teamtrack-data-model-rectangle-18",
         "focus": 0,
         "gap": 8.0
       },
@@ -1353,10 +1347,10 @@
     {
       "id": "teamtrack-data-model-arrow-31",
       "type": "arrow",
-      "x": 1547.54,
-      "y": 381.56,
-      "width": 0.0,
-      "height": 80.91,
+      "x": 1191.79,
+      "y": 555.83,
+      "width": 130.5,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1383,8 +1377,60 @@
           0.0
         ],
         [
+          130.5,
+          0.0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "teamtrack-data-model-rectangle-12",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "teamtrack-data-model-rectangle-14",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
+    },
+    {
+      "id": "teamtrack-data-model-arrow-32",
+      "type": "arrow",
+      "x": 1554.09,
+      "y": 402.92,
+      "width": 0.0,
+      "height": 81.81,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aW",
+      "roundness": null,
+      "seed": 402456776,
+      "version": 1,
+      "versionNonce": 867783549,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
           0.0,
-          80.91
+          0.0
+        ],
+        [
+          0.0,
+          81.81
         ]
       ],
       "lastCommittedPoint": null,
@@ -1403,12 +1449,12 @@
       "elbowed": false
     },
     {
-      "id": "teamtrack-data-model-text-32",
+      "id": "teamtrack-data-model-text-33",
       "type": "text",
-      "x": 549.11,
-      "y": 956.58,
-      "width": 821.78,
-      "height": 67.42,
+      "x": 775.74,
+      "y": 984.35,
+      "width": 368.53,
+      "height": 31.65,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1419,25 +1465,28 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aW",
+      "index": "aX",
       "roundness": null,
-      "seed": 1613441005,
+      "seed": 397563299,
       "version": 1,
-      "versionNonce": 1385366540,
+      "versionNonce": 1140422015,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Arrow: one row has many rows. Tables marked (F2), (F6), (F7)\ncome from the comments, watchers, and labels tickets.",
-      "fontSize": 26.97,
+      "text": "arrow: one row has many rows",
+      "fontSize": 25.32,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "Arrow: one row has many rows. Tables marked (F2), (F6), (F7)\ncome from the comments, watchers, and labels tickets.",
+      "originalText": "arrow: one row has many rows",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "footnote"
+      }
     }
   ],
   "appState": {

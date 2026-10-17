@@ -37,10 +37,10 @@
     {
       "id": "cheat-sheet-s4-text-1",
       "type": "text",
-      "x": 636.07,
-      "y": 155.0,
-      "width": 647.86,
-      "height": 45.0,
+      "x": 637.51,
+      "y": 101.96,
+      "width": 644.98,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -62,22 +62,25 @@
       "link": null,
       "locked": false,
       "text": "Four checks the agent does not own",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Four checks the agent does not own",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "title"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-2",
       "type": "rectangle",
-      "x": 60.0,
-      "y": 265.0,
-      "width": 405.0,
-      "height": 660.0,
+      "x": 64.0,
+      "y": 201.51,
+      "width": 403.2,
+      "height": 776.53,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -104,10 +107,10 @@
     {
       "id": "cheat-sheet-s4-text-3",
       "type": "text",
-      "x": 88.0,
-      "y": 285.0,
-      "width": 15.37,
-      "height": 45.0,
+      "x": 91.88,
+      "y": 221.42,
+      "width": 15.3,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -129,22 +132,25 @@
       "link": null,
       "locked": false,
       "text": "1",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "1",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-4",
       "type": "rectangle",
-      "x": 182.5,
-      "y": 361.0,
-      "width": 25.6,
-      "height": 144.0,
+      "x": 176.0,
+      "y": 309.03,
+      "width": 28.67,
+      "height": 161.28,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D266",
@@ -171,10 +177,10 @@
     {
       "id": "cheat-sheet-s4-rectangle-5",
       "type": "rectangle",
-      "x": 316.9,
-      "y": 361.0,
-      "width": 25.6,
-      "height": 144.0,
+      "x": 326.53,
+      "y": 309.03,
+      "width": 28.67,
+      "height": 161.28,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D266",
@@ -201,10 +207,10 @@
     {
       "id": "cheat-sheet-s4-line-6",
       "type": "line",
-      "x": 227.3,
-      "y": 393.0,
+      "x": 226.18,
+      "y": 344.87,
       "width": 0.0,
-      "height": 112.0,
+      "height": 125.44,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -232,7 +238,7 @@
         ],
         [
           0.0,
-          112.0
+          125.44
         ]
       ],
       "lastCommittedPoint": null,
@@ -245,10 +251,10 @@
     {
       "id": "cheat-sheet-s4-line-7",
       "type": "line",
-      "x": 262.5,
-      "y": 393.0,
+      "x": 265.6,
+      "y": 344.87,
       "width": 0.0,
-      "height": 112.0,
+      "height": 125.44,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -276,7 +282,7 @@
         ],
         [
           0.0,
-          112.0
+          125.44
         ]
       ],
       "lastCommittedPoint": null,
@@ -289,10 +295,10 @@
     {
       "id": "cheat-sheet-s4-line-8",
       "type": "line",
-      "x": 297.7,
-      "y": 393.0,
+      "x": 305.02,
+      "y": 344.87,
       "width": 0.0,
-      "height": 112.0,
+      "height": 125.44,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -320,7 +326,7 @@
         ],
         [
           0.0,
-          112.0
+          125.44
         ]
       ],
       "lastCommittedPoint": null,
@@ -333,9 +339,9 @@
     {
       "id": "cheat-sheet-s4-line-9",
       "type": "line",
-      "x": 208.1,
-      "y": 393.0,
-      "width": 108.8,
+      "x": 204.67,
+      "y": 344.87,
+      "width": 121.86,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
@@ -363,7 +369,7 @@
           0.0
         ],
         [
-          108.8,
+          121.86,
           0.0
         ]
       ],
@@ -377,10 +383,10 @@
     {
       "id": "cheat-sheet-s4-text-10",
       "type": "text",
-      "x": 164.7,
-      "y": 565.0,
-      "width": 195.59,
-      "height": 45.0,
+      "x": 168.23,
+      "y": 540.0,
+      "width": 194.72,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -402,22 +408,25 @@
       "link": null,
       "locked": false,
       "text": "Verify gate",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Verify gate",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-text-11",
       "type": "text",
-      "x": 144.17,
-      "y": 665.0,
-      "width": 236.66,
-      "height": 70.0,
+      "x": 186.83,
+      "y": 649.51,
+      "width": 157.53,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -438,23 +447,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "at done: tests,\nrules, clean state",
-      "fontSize": 28.0,
+      "text": "at done:\ntests, rules",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "at done: tests,\nrules, clean state",
+      "originalText": "at done:\ntests, rules",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-12",
       "type": "rectangle",
-      "x": 90.0,
-      "y": 820.0,
-      "width": 345.0,
-      "height": 70.0,
+      "x": 93.87,
+      "y": 878.49,
+      "width": 343.47,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -486,10 +498,10 @@
     {
       "id": "cheat-sheet-s4-text-13",
       "type": "text",
-      "x": 118.19,
-      "y": 838.75,
-      "width": 288.63,
-      "height": 32.5,
+      "x": 121.93,
+      "y": 897.16,
+      "width": 287.35,
+      "height": 32.36,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -511,7 +523,7 @@
       "link": null,
       "locked": false,
       "text": "feedback to the agent",
-      "fontSize": 26.0,
+      "fontSize": 25.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -523,10 +535,10 @@
     {
       "id": "cheat-sheet-s4-rectangle-14",
       "type": "rectangle",
-      "x": 525.0,
-      "y": 265.0,
-      "width": 405.0,
-      "height": 660.0,
+      "x": 526.93,
+      "y": 201.51,
+      "width": 403.2,
+      "height": 776.53,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -553,10 +565,10 @@
     {
       "id": "cheat-sheet-s4-text-15",
       "type": "text",
-      "x": 553.0,
-      "y": 285.0,
-      "width": 25.2,
-      "height": 45.0,
+      "x": 554.81,
+      "y": 221.42,
+      "width": 25.09,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -578,22 +590,25 @@
       "link": null,
       "locked": false,
       "text": "2",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "2",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-line-16",
       "type": "line",
-      "x": 647.5,
-      "y": 345.0,
-      "width": 160.0,
-      "height": 160.0,
+      "x": 638.93,
+      "y": 291.11,
+      "width": 179.2,
+      "height": 179.2,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -620,24 +635,24 @@
           0.0
         ],
         [
-          160.0,
+          179.2,
           0.0
         ],
         [
-          96.0,
-          80.0
+          107.52,
+          89.6
         ],
         [
-          96.0,
-          160.0
+          107.52,
+          179.2
         ],
         [
-          64.0,
-          144.0
+          71.68,
+          161.28
         ],
         [
-          64.0,
-          80.0
+          71.68,
+          89.6
         ],
         [
           0.0,
@@ -654,10 +669,10 @@
     {
       "id": "cheat-sheet-s4-text-17",
       "type": "text",
-      "x": 621.28,
-      "y": 565.0,
-      "width": 212.44,
-      "height": 45.0,
+      "x": 622.79,
+      "y": 540.0,
+      "width": 211.5,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -679,22 +694,25 @@
       "link": null,
       "locked": false,
       "text": "Test filters",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Test filters",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-text-18",
       "type": "text",
-      "x": 616.59,
-      "y": 665.0,
-      "width": 221.82,
-      "height": 70.0,
+      "x": 618.12,
+      "y": 649.51,
+      "width": 220.83,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -716,22 +734,25 @@
       "link": null,
       "locked": false,
       "text": "keep tests that\nprove something",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "keep tests that\nprove something",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-19",
       "type": "rectangle",
-      "x": 555.0,
-      "y": 820.0,
-      "width": 345.0,
-      "height": 70.0,
+      "x": 556.8,
+      "y": 878.49,
+      "width": 343.47,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -763,10 +784,10 @@
     {
       "id": "cheat-sheet-s4-text-20",
       "type": "text",
-      "x": 583.18,
-      "y": 838.75,
-      "width": 288.63,
-      "height": 32.5,
+      "x": 584.85,
+      "y": 897.16,
+      "width": 287.35,
+      "height": 32.36,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -788,7 +809,7 @@
       "link": null,
       "locked": false,
       "text": "feedback to the agent",
-      "fontSize": 26.0,
+      "fontSize": 25.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -800,10 +821,10 @@
     {
       "id": "cheat-sheet-s4-rectangle-21",
       "type": "rectangle",
-      "x": 990.0,
-      "y": 265.0,
-      "width": 405.0,
-      "height": 660.0,
+      "x": 989.87,
+      "y": 201.51,
+      "width": 403.2,
+      "height": 776.53,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -830,10 +851,10 @@
     {
       "id": "cheat-sheet-s4-text-22",
       "type": "text",
-      "x": 1018.0,
-      "y": 285.0,
-      "width": 21.89,
-      "height": 45.0,
+      "x": 1017.74,
+      "y": 221.42,
+      "width": 21.79,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -855,22 +876,25 @@
       "link": null,
       "locked": false,
       "text": "3",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "3",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-23",
       "type": "rectangle",
-      "x": 1112.5,
-      "y": 361.0,
-      "width": 160.0,
-      "height": 144.0,
+      "x": 1101.87,
+      "y": 309.03,
+      "width": 179.2,
+      "height": 161.28,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -897,10 +921,10 @@
     {
       "id": "cheat-sheet-s4-ellipse-24",
       "type": "ellipse",
-      "x": 1160.5,
-      "y": 401.0,
-      "width": 64.0,
-      "height": 64.0,
+      "x": 1155.63,
+      "y": 353.83,
+      "width": 71.68,
+      "height": 71.68,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -927,10 +951,10 @@
     {
       "id": "cheat-sheet-s4-line-25",
       "type": "line",
-      "x": 1192.5,
-      "y": 401.0,
+      "x": 1191.47,
+      "y": 353.83,
       "width": 0.0,
-      "height": 64.0,
+      "height": 71.68,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -958,7 +982,7 @@
         ],
         [
           0.0,
-          64.0
+          71.68
         ]
       ],
       "lastCommittedPoint": null,
@@ -971,10 +995,10 @@
     {
       "id": "cheat-sheet-s4-text-26",
       "type": "text",
-      "x": 1080.56,
-      "y": 565.0,
-      "width": 223.88,
-      "height": 45.0,
+      "x": 1080.02,
+      "y": 540.0,
+      "width": 222.88,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -996,22 +1020,25 @@
       "link": null,
       "locked": false,
       "text": "Hidden tests",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Hidden tests",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-text-27",
       "type": "text",
-      "x": 1080.78,
-      "y": 665.0,
-      "width": 223.44,
-      "height": 70.0,
+      "x": 1080.24,
+      "y": 649.51,
+      "width": 222.45,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1033,22 +1060,25 @@
       "link": null,
       "locked": false,
       "text": "run after\nthe agent stops",
-      "fontSize": 28.0,
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "run after\nthe agent stops",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-28",
       "type": "rectangle",
-      "x": 1020.0,
-      "y": 820.0,
-      "width": 345.0,
-      "height": 70.0,
+      "x": 1019.73,
+      "y": 878.49,
+      "width": 343.47,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -1080,10 +1110,10 @@
     {
       "id": "cheat-sheet-s4-text-29",
       "type": "text",
-      "x": 1140.05,
-      "y": 838.75,
-      "width": 104.91,
-      "height": 32.5,
+      "x": 1139.25,
+      "y": 897.16,
+      "width": 104.44,
+      "height": 32.36,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1105,7 +1135,7 @@
       "link": null,
       "locked": false,
       "text": "held out",
-      "fontSize": 26.0,
+      "fontSize": 25.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
@@ -1117,10 +1147,10 @@
     {
       "id": "cheat-sheet-s4-rectangle-30",
       "type": "rectangle",
-      "x": 1455.0,
-      "y": 265.0,
-      "width": 405.0,
-      "height": 660.0,
+      "x": 1452.8,
+      "y": 201.51,
+      "width": 403.2,
+      "height": 776.53,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#ffffff",
@@ -1147,10 +1177,10 @@
     {
       "id": "cheat-sheet-s4-text-31",
       "type": "text",
-      "x": 1483.0,
-      "y": 285.0,
-      "width": 21.06,
-      "height": 45.0,
+      "x": 1480.68,
+      "y": 221.42,
+      "width": 20.97,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1172,22 +1202,25 @@
       "link": null,
       "locked": false,
       "text": "4",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "left",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "4",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-ellipse-32",
       "type": "ellipse",
-      "x": 1625.5,
-      "y": 385.0,
-      "width": 64.0,
-      "height": 104.0,
+      "x": 1618.56,
+      "y": 335.91,
+      "width": 71.68,
+      "height": 116.48,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -1214,10 +1247,10 @@
     {
       "id": "cheat-sheet-s4-ellipse-33",
       "type": "ellipse",
-      "x": 1638.3,
-      "y": 354.6,
-      "width": 38.4,
-      "height": 35.2,
+      "x": 1632.9,
+      "y": 301.86,
+      "width": 43.01,
+      "height": 39.42,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -1244,10 +1277,10 @@
     {
       "id": "cheat-sheet-s4-line-34",
       "type": "line",
-      "x": 1625.5,
-      "y": 409.0,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1618.56,
+      "y": 362.79,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1274,8 +1307,8 @@
           0.0
         ],
         [
-          -35.2,
-          -12.8
+          -39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1288,10 +1321,10 @@
     {
       "id": "cheat-sheet-s4-line-35",
       "type": "line",
-      "x": 1689.5,
-      "y": 409.0,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1690.24,
+      "y": 362.79,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1318,8 +1351,8 @@
           0.0
         ],
         [
-          35.2,
-          -12.8
+          39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1332,10 +1365,10 @@
     {
       "id": "cheat-sheet-s4-line-36",
       "type": "line",
-      "x": 1625.5,
-      "y": 437.8,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1618.56,
+      "y": 395.05,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1362,8 +1395,8 @@
           0.0
         ],
         [
-          -35.2,
-          -12.8
+          -39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1376,10 +1409,10 @@
     {
       "id": "cheat-sheet-s4-line-37",
       "type": "line",
-      "x": 1689.5,
-      "y": 437.8,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1690.24,
+      "y": 395.05,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1406,8 +1439,8 @@
           0.0
         ],
         [
-          35.2,
-          -12.8
+          39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1420,10 +1453,10 @@
     {
       "id": "cheat-sheet-s4-line-38",
       "type": "line",
-      "x": 1625.5,
-      "y": 466.6,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1618.56,
+      "y": 427.3,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1450,8 +1483,8 @@
           0.0
         ],
         [
-          -35.2,
-          -12.8
+          -39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1464,10 +1497,10 @@
     {
       "id": "cheat-sheet-s4-line-39",
       "type": "line",
-      "x": 1689.5,
-      "y": 466.6,
-      "width": 35.2,
-      "height": 12.8,
+      "x": 1690.24,
+      "y": 427.3,
+      "width": 39.42,
+      "height": 14.34,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1494,8 +1527,8 @@
           0.0
         ],
         [
-          35.2,
-          -12.8
+          39.42,
+          -14.34
         ]
       ],
       "lastCommittedPoint": null,
@@ -1508,10 +1541,10 @@
     {
       "id": "cheat-sheet-s4-text-40",
       "type": "text",
-      "x": 1510.71,
-      "y": 565.0,
-      "width": 293.58,
-      "height": 45.0,
+      "x": 1508.26,
+      "y": 540.0,
+      "width": 292.28,
+      "height": 44.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1533,22 +1566,25 @@
       "link": null,
       "locked": false,
       "text": "Referee mutants",
-      "fontSize": 36.0,
+      "fontSize": 35.84,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
       "originalText": "Referee mutants",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-text-41",
       "type": "text",
-      "x": 1547.5,
-      "y": 665.0,
-      "width": 220.0,
-      "height": 70.0,
+      "x": 1560.01,
+      "y": 649.51,
+      "width": 188.78,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1569,23 +1605,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "would the tests\nnotice a fault?",
-      "fontSize": 28.0,
+      "text": "would tests\nnotice faults?",
+      "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "top",
       "containerId": null,
-      "originalText": "would the tests\nnotice a fault?",
+      "originalText": "would tests\nnotice faults?",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "cheat-sheet-s4-rectangle-42",
       "type": "rectangle",
-      "x": 1485.0,
-      "y": 820.0,
-      "width": 345.0,
-      "height": 70.0,
+      "x": 1482.67,
+      "y": 878.49,
+      "width": 343.47,
+      "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#21212112",
@@ -1617,10 +1656,10 @@
     {
       "id": "cheat-sheet-s4-text-43",
       "type": "text",
-      "x": 1605.05,
-      "y": 838.75,
-      "width": 104.91,
-      "height": 32.5,
+      "x": 1602.18,
+      "y": 897.16,
+      "width": 104.44,
+      "height": 32.36,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -1642,7 +1681,7 @@
       "link": null,
       "locked": false,
       "text": "held out",
-      "fontSize": 26.0,
+      "fontSize": 25.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",

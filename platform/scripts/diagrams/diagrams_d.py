@@ -43,12 +43,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def socratic_s1(s: Scene) -> None:
         socratic(
             s,
-            "Paste every rule\ninto the prompt?",
+            "Paste every rule\ninto prompts?",
             "No: not the main mechanism",
             [
-                "Crowds out task and code\n(899 lines, every task)",
-                "Too much guidance is none\n(tenant rule at line 204)",
-                "Goes stale, nothing checks\n(four retired rules inside)",
+                "899 lines crowd\nout work",
+                "Tenant rule at\nline 204",
+                "Stale: four\nretired rules",
             ],
             "What can we use instead?",
             3,
@@ -65,7 +65,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             170,
             560,
             170,
-            "check_docs.py\nlinks, rule coverage,\nno retired rules",
+            "check_docs.py\nlinks, rule coverage",
             role="harness",
         )
         c2 = s.box(560, 430, 560, 170, "skills validate\nskill frontmatter", role="harness")
@@ -76,7 +76,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             170,
             300,
             200,
-            "OK: 13 files,\n147 links,\n66 rules",
+            "OK: 147 links,\n66 rules",
             role="harness",
             stroke_width=3,
         )
@@ -94,9 +94,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             end="bottom",
             via=[(1710, 960), (240, 960)],
         )
-        s.text(
-            240, 330, "you write check_docs.py\nin Assignment 1", FONT_SMALL, "#212121", "center"
-        )
+        s.text(240, 330, "Assignment 1: you\nwrite check_docs.py", FONT_SMALL, "#212121", "center")
 
     # Sources: docs/evidence/s1.md (the show-1 capture, run ab-20261017-112101-c5d839);
     # section-1-instructions/demo/expected/terminal.txt (real 10m14s).
@@ -110,11 +108,11 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                     None,
                     "harness",
                     [
-                        (60, "map and skill read,\nfirst patches", "plain"),
-                        (180, "test phase runs\nits own test", "plain"),
+                        (60, "map, skill read", "plain"),
+                        (180, "test phase runs", "plain"),
                         (233, "run ends,\n35 turns", "plain"),
                         (251, "primary verdict\nPASS", "harness"),
-                        (600, "full verdict: hidden\n52/52, mutants 2/4", "plain"),
+                        (600, "hidden 52/52,\nmutants 2/4", "plain"),
                         (614, "command\nfinished", "plain"),
                     ],
                 )
@@ -130,10 +128,10 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s,
             "The instructions layer in four moves",
             [
-                ("A map", "a short file\nthat points\nto the docs", "map", "harness"),
+                ("A map", "points to\nthe docs", "map", "harness"),
                 ("Disclosure", "skill names first,\nbodies later", "stack", "harness"),
                 ("The prefix", "fixed, read-only,\nat session start", "lock", "harness"),
-                ("Checks", "links and rule\ncoverage,\nchecked by code", "check", "harness"),
+                ("Checks", "links, rules,\nchecked by code", "check", "harness"),
             ],
             note="It informs. It never blocks.",
         )
@@ -146,18 +144,18 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "The second session redoes the first",
             [
                 (
-                    "Session 1 stops at its turn limit",
+                    "Session 1 hits turn limit",
                     [
                         "Migration for\nthe comments table",
                         "Half an endpoint,\nnever committed",
-                        "No note for\nthe next session",
+                        "No note for\nsession 2",
                     ],
                 ),
                 (
-                    "Session 2 starts with an empty context",
+                    "Session 2: empty context",
                     [
-                        "A second migration\nfrom the old head",
-                        "Two Alembic heads\nblock the deploy",
+                        "Second migration,\nold head",
+                        "Two Alembic heads\nblock deploy",
                         "The team\npays twice",
                     ],
                 ),
@@ -172,8 +170,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "Carry the old context over?",
             "Not on its own",
             [
-                "Compaction keeps a\nsqueezed copy",
-                "The repo holds it,\nbut nobody reads it",
+                "Compaction keeps\na squeezed copy",
+                "The repo holds\nit, unread",
             ],
             "What can we use instead?",
             3,
@@ -190,7 +188,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             160,
             480,
             190,
-            "Exec plan\ndocs/exec-plans/\nactive/F2.md",
+            "Exec plan\ndocs/exec-plans/active/F2.md",
             role="plain",
             stroke_width=3,
         )
@@ -203,10 +201,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             role="plain",
             stroke_width=3,
         )
-        agent = s.box(740, 470, 400, 170, "The agent\nworks, then wraps up", role="neutral")
-        done = s.box(
-            1440, 160, 420, 190, "Feature passes:\nplan moves to\ncompleted/", role="harness"
-        )
+        agent = s.box(740, 470, 400, 170, "Agent: work,\nthen wrap-up", role="neutral")
+        done = s.box(1440, 160, 420, 190, "On pass: moves\nto completed/", role="harness")
         nxt = s.box(1440, 470, 420, 170, "Next session\nreads both first", role="plain")
         stop = s.box(1440, 780, 420, 150, "Session stop\n(harness)", role="harness")
         s.arrow(init, plan, "template", start="top", end="left", via=[(250, 255)])
@@ -230,18 +226,18 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                     None,
                     "harness",
                     [
-                        (0, "initializer writes\nfour files", "plain"),
-                        (83, "session 1 stops,\nhandoff committed", "harness"),
-                        (396, "run ends: time\nlimit, 43 turns", "plain"),
+                        (0, "initializer\nwrites files", "plain"),
+                        (83, "session 1\nstops", "harness"),
+                        (396, "run ends,\n43 turns", "plain"),
                         (406, "primary verdict\nPASS", "harness"),
-                        (592, "full verdict: hidden\n56/56, mutants 0/4", "plain"),
+                        (592, "hidden 56/56,\nmutants 0/4", "plain"),
                         (607, "command\nfinished", "plain"),
                     ],
                 )
             ],
             607,
             "10:07",
-            "captured 2026-10-17; agent limit then 300 s; sessions of 12 and 31 turns",
+            "captured 2026-10-17; agent limit then 300 s",
             bars=[(0, 83, "session 1"), (83, 396, "session 2")],
         )
 
