@@ -126,3 +126,26 @@ def test_hidden_tests_export_is_separate(course_repo: Path, tmp_path: Path) -> N
     dest = tmp_path / "hidden"
     export_hidden_tests(course_repo, "m1-s1-start", dest)
     assert files(dest) == ["f1/test_secret.py"]
+
+
+def test_a_workspace_repo_never_starts_background_git_maintenance(tmp_path: Path) -> None:
+    # CI 2026-10-17: auto maintenance left objects/maintenance.lock behind while a test removed the
+    # workspace (FileNotFoundError in teardown). Every later commit in the workspace inherits this.
+    import subprocess
+
+    from shipharness.ab.workspace import init_repo
+
+    write(tmp_path / "ws" / "a.txt", "a")
+    init_repo(tmp_path / "ws", "start")
+
+    def config(key: str) -> str:
+        done = subprocess.run(
+            ["git", "-C", str(tmp_path / "ws"), "config", "--get", key],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return done.stdout.strip()
+
+    assert config("maintenance.auto") == "false"
+    assert config("gc.auto") == "0"

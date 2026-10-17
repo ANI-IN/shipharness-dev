@@ -194,6 +194,9 @@ def export_hidden_tests(
 def init_repo(path: Path, message: str) -> str:
     """git init + one commit of everything in `path`; returns the commit SHA."""
     _git(path, "init", "-q", "-b", "main")
+    # No background maintenance: it can hold a lock file while the workspace is removed.
+    _git(path, "config", "maintenance.auto", "false")
+    _git(path, "config", "gc.auto", "0")
     _git(path, "add", "-A", "-f")
     env = {**_env(), **_COMMIT_ENV}
     subprocess.run(
