@@ -1,142 +1,44 @@
-# Pre-class setup
+# Module 1: Harness Engineering for Coding Agents - Before class
 
-Do this before class. At the end, `make doctor` reports `result: + ready` and the TeamTrack board
-opens in your browser.
+> **Terms on this page**
+>
+> - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
+> - **Console**: the browser page that shows a run live, on five screens.
 
-How long it takes: the course has not timed these steps on a clean machine, so plan for an hour the
-first time. The slowest step is building the two sandbox images in step 4; on the course's class host
-(Ubuntu in WSL2) a rebuild of both images took 145 s on 2026-10-17. Downloads depend on your network.
+Do this in the days before the live class. It takes your machine from "installed" to "ready for
+class". If nothing is installed yet, start with the page for your system: [Windows](windows.md),
+[macOS](macos.md), or [Linux](linux.md).
 
-## Accounts you need
+## The checklist
 
-| Account | Plan | Why |
+| Check | Command | Ready when |
 |---|---|---|
-| OpenAI API | Paid, **Build tier or higher, with at least $5 of credit purchased** | The agent model, gpt-6-luna, lists API rate limits only for the paid tiers Build, Launch, and Grow; there is no Free row (https://developers.openai.com/api/docs/models/gpt-6-luna, read 2026-10-17). The four assignments are planned to use at most $6 in total, and no single command more than $2.50 ([README, section 12](../README.md#12-assignments)). |
-| LangSmith | **Free Developer plan, no card on file** | Traces and experiments. Without a card, a personal organization is limited to 5,000 traces per month; past the limit LangSmith refuses new traces instead of billing (https://docs.langchain.com/langsmith/billing, read 2026-10-17). The module plans at most 400 traces for you ([README, section 7](../README.md#7-prerequisites-and-accounts)). |
+| Both keys work | `make doctor` | The last line is `result: + ready` |
+| Images and baselines are ready | `make warm` | The last line before the cost line is `warm: done` |
+| The console opens | `make console` | http://127.0.0.1:8765/ shows the run list |
+| One live run works (optional, at most $0.24) | `make show-1` | The console shows a run with a primary verdict |
 
-Do not add a credit card to LangSmith. Create one API key in each account and keep both ready for
-step 5.
+Run every command in the repository folder (`~/shipharness`), in the Ubuntu terminal on Windows.
 
-## What runs where
+## Set the class date
 
-shipharness runs on Linux, macOS, or Windows through WSL2. Native Windows shells
-(PowerShell, cmd) are not supported for sandboxed commands, and the Makefile expects a POSIX shell.
+The class commands trace to the LangSmith project `shipharness-class-<date>` and share one $2.50
+session cap per date. They refuse to start without the date, and so do `make doctor` and
+`make warm`.
 
-| Your machine | Container runtime (any one) | Notes |
-|---|---|---|
-| Linux | Docker Engine or Podman | |
-| macOS | Docker Desktop or Colima | |
-| Windows | WSL2 with Ubuntu, then Docker Engine inside Ubuntu | Work only inside the Ubuntu terminal. Keep the repository in the WSL2 filesystem (for example `~/shipharness`), not under `/mnt/c` ([windows.md](windows.md)) |
+1. Open `.env` in the repository folder.
+2. Set the date to the day you run the commands, for example on the morning of class:
+   `SHIPHARNESS_CLASS_DATE=YYYY-MM-DD`, with the real date in place of `YYYY-MM-DD`.
+3. Run `make doctor` again. The `SHIPHARNESS_CLASS_DATE` line must start with `+ ok`.
 
-The class host is a Windows PC with Docker Engine inside the Ubuntu WSL2 distribution, systemd
-enabled, and nothing Docker-related installed on the Windows side
-([windows.md](windows.md)). That is the tested setup for Windows. Docker Desktop
-with the WSL2 backend was not tested for the course. On Linux, Podman was not tested either.
+For a test run on another day, set that day's date, or add `PURPOSE=pilot` to the command, for
+example `make show-1 PURPOSE=pilot`. A new date starts a new project and a new session cap.
 
-## Steps
+## What to bring
 
-### 1. Install git, make, and curl
+- A machine that passed the checklist, plugged in.
+- The exact text of any error you could not fix, from the terminal. Never share your `.env` or a
+  key.
 
-- Ubuntu, Debian, or WSL2 Ubuntu: `sudo apt update && sudo apt install -y git make curl`
-- macOS: `xcode-select --install` (installs git and make)
-
-On Windows, install WSL2 first from PowerShell with `wsl --install -d Ubuntu`, restart if asked, open
-the Ubuntu terminal, and run every later command there.
-
-### 2. Install uv
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-Open a new terminal afterwards so `uv` is on your `PATH`. You do not need to install Python yourself:
-the repository pins Python 3.12 in `.python-version`, and uv fetches it when needed.
-
-### 3. Install a container runtime
-
-| Runtime | Install | Check |
-|---|---|---|
-| Docker Engine (Linux, WSL2) | Docker's apt repository, exactly as in [step 3 of setup-linux.md](linux.md#3-install-docker-engine), then `sudo usermod -aG docker $USER` and open a new terminal (on WSL2, run `wsl --shutdown` from PowerShell first) | `docker info` |
-| Docker Desktop (macOS) | Install from docker.com ([macos.md](macos.md); not tested for the course) | `docker info` in the macOS terminal |
-| Colima (macOS) | `brew install colima docker && colima start --cpu 2 --memory 4` (not tested for the course) | `docker info` |
-| Podman (Linux, macOS) | Install from podman.io; on macOS run `podman machine init && podman machine start` (not tested for the course) | `podman info` |
-
-Docker Engine on WSL2 needs systemd: `/etc/wsl.conf` should contain `[boot]` and `systemd=true`
-([windows.md](windows.md#2-check-that-systemd-is-on)). More detail:
-[platform/sandbox/README.md](../platform/sandbox/README.md).
-
-### 4. Clone and run `make setup`
-
-```bash
-git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
-cd ~/shipharness
-make setup
-```
-
-`make setup` runs `uv sync --frozen` (pinned dependencies), builds the two sandbox images
-`shipharness-agent:1` and `shipharness-referee:1`, and creates `.env` from `.env.example` if it does
-not exist. If it prints `! docker not found: images not built`, your container runtime is not on the
-`PATH`; fix step 3 and run `make images`.
-
-Podman users: run `make setup RUNTIME=podman` instead, and in step 5 also set `SANDBOX_RUNTIME=podman`
-in `.env`.
-
-### 5. Put both keys in `.env`
-
-Open `.env` in the repository root and fill in the two required lines:
-
-```
-OPENAI_API_KEY=
-LANGSMITH_API_KEY=
-```
-
-If your LangSmith account is in the EU region, also set
-`LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` (no trailing slash).
-
-`.env` is git-ignored. Never commit it, paste it into an issue or chat, or share a screenshot of it.
-shipharness never prints, logs, traces, or passes the keys into a container
-([docs/architecture.md](../docs/architecture.md)).
-
-### 6. `make doctor`
-
-```bash
-make doctor
-```
-
-It checks Python, git, uv, the container runtime, both keys, the price table, and that `.env` is not
-tracked by git. Each key is reported on its own line as `ok`, `missing`, `invalid` (the provider
-rejected it), or `unreachable` (network error), with the next step to take; no part of a key is ever
-shown. It costs nothing: the OpenAI check lists models and uses no tokens (`platform/src/shipharness/doctor.py`).
-
-You are done with this step when the last line reads `result: + ready` **and** the
-`container runtime` line shows `+ ok`. A container-runtime warning does not fail the doctor, but
-without a runtime only the UNSANDBOXED fallback can run, and class runs need the sandbox. A captured
-`make doctor` output, line by line, is in
-[step 6 of setup-linux.md](linux.md#6-make-doctor).
-
-### 7. `make up`
-
-```bash
-make up
-```
-
-It prints `TeamTrack: http://127.0.0.1:8000/board  (API docs: /docs)` and the server's log (captured
-output in [step 7 of setup-linux.md](linux.md#7-make-up)). Open
-http://127.0.0.1:8000/board, pick a demo user on the sign-in page (for example `admin@acme.test`), and
-you should see the Acme project board. The demo data has two orgs, Acme and Globex
-(`platform/teamtrack/docs/HANDBOOK.md`). Stop the server with Ctrl+C. If port 8000 is taken, run
-`make up PORT=8001`.
-
-## If something fails
-
-| Symptom | Fix |
-|---|---|
-| `make: command not found` | Step 1. On Windows, you are in PowerShell instead of the Ubuntu terminal |
-| `uv: command not found` | Open a new terminal after step 2 |
-| `permission denied` on the Docker socket | Step 3: add yourself to the `docker` group and open a new terminal |
-| Doctor: a key line shows `x missing` | Step 5; the file must be `.env` in the repository root |
-| Doctor: a key line shows `x invalid` | The provider rejected the key: copy it again, check for spaces, and for OpenAI check that the account has Build-tier credit |
-| Doctor: a key line shows `! unreachable` | A network or proxy problem between you and the provider; try again on another network |
-| The board shows nothing | Make sure `make up` is still running and you picked a user on the login page |
-
-Bring any remaining error message (never your keys) to the start of class.
+If a check fails, the fix is in the "If it fails" part of the matching step on your system's page,
+or in [troubleshooting](../docs/troubleshooting.md).
