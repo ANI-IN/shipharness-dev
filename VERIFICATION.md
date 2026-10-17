@@ -421,9 +421,12 @@ F2 harness primary 6/9 includes run 2's 0/3, measured before change 7 fixed the 
 What the table shows (descriptive, not tested for significance; n is 6 to 10 per cell):
 
 - Out of scope: harness arms changed no file outside the allowed paths in 34 of 34 runs; bare arms did
-  in 9 of 34 (F4 6 of 6, two files each; F2 3 of 9). The scope layer's effect is visible on F2 and F4,
-  where it is not the primary measure, and absent on F3, the section that measures it, because the bare
-  arm never left scope there.
+  in 9 of 34 (F4 6 of 6, two files each; F2 3 of 9). The scope layer is in the harness stack of F3 and F4
+  only (demo-1: instructions; demo-2: instructions, state; demo-3: plus scope; demo-4: all four). On F4,
+  where scope is not the primary measure, bare arms left scope in 6 of 6 and harness arms in 0 of 6. On
+  F2 the harness arm has no scope layer, so its 0 of 9 is not the scope layer's doing. On F3, the
+  section that measures scope, the bare arm never left scope. (Corrected 2026-10-17: an earlier version
+  of this line credited the scope layer for F2.)
 - Claims: harness arms claimed done less often (10 of 34 against 19 of 34). No claim was false in either
   arm. One bare claim of done came with a failed primary measure: `ab-20261016-220010-c5b4bf` (run 3 F4),
   build complete (hidden 69 of 69), but one of four referee mutants survived its shipped tests.
