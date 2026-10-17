@@ -22,22 +22,25 @@ change, and a bill for the same work twice.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
+> - **Migration head**: The newest migration in the chain; two heads means two migrations each claim to be the newest.
+> - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
+> - **Compaction**: Squeezing an old context into a short summary for the next session.
 
 ## Why it happens
 
 - Every session starts from zero: "each new session begins with no memory of what came before."
-  ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
+  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 - Without a record, the next session has to guess. Anthropic's agents were left "to guess at what
-  had happened" ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
+  had happened" ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 - Squeezing the old context into the new session does not fix it: "However, compaction isn’t
-  sufficient." ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
+  sufficient." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 
 ## How this section fixes it
 
 The state layer keeps the work in the repository. Before session 1 it writes `init.sh`,
 `progress.md`, a structured handoff, and an exec plan. At every stop it writes the facts from git
 and the files on disk, keeps the agent's notes, and commits. Every session starts by reading them
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 ```mermaid
 flowchart LR
@@ -72,3 +75,8 @@ taught.
   [demo](demo/README.md).
 - Already set up? Start with [concepts.md](concepts.md).
 - Want state files in your own repository? See [use-in-your-repo/](../use-in-your-repo/README.md).
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)

@@ -46,3 +46,7 @@ reach, not which files in its own workspace it changes. That second limit is the
    command. The course's values are in `platform/src/shipharness/sandbox/policy.py`.
 5. Then ask the second question: inside the workspace, which files may this task change? A container
    does not answer it.
+
+## Sources
+
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)

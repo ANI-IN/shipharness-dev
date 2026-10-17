@@ -1,7 +1,7 @@
 # Module 1: Harness Engineering for Coding Agents - Demo 3: what real runs looked like
 
-This folder holds the output and the screenshots of the real `make demo-3 FEATURE=F4` A/Bs the course
-ran before class, with the class settings. Nothing here is staged or edited, except where a line says
+This folder holds the output and the screenshots of the real `make demo-3 FEATURE=version-checks`
+A/Bs the course ran before class, with the class settings. Nothing here is staged or edited, except where a line says
 it was cut. Use it to check that your run looks roughly like these, or to follow the demo without
 running it. When and how each file was captured is in the
 [evidence page](../../../docs/evidence/s3.md#s3-demo-capture).
@@ -21,7 +21,8 @@ running it. When and how each file was captured is in the
 | `terminal.txt` | Test run 3: the command, both record lines, the cost line |
 
 The run id and the running cost totals are cut from `terminal.txt` where it shows `...`. The command
-in it is the one `make demo-3 FEATURE=F4 PURPOSE=pilot` runs.
+in it is the one `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs; it shows the feature by
+its code, `F4` (version checks).
 
 ## Screenshots
 
@@ -32,7 +33,7 @@ come from test runs 1 and 2. All were taken after the runs ended.
 
 ![Screen 1 after both verdicts](screen-1-final.png)
 
-*Screen 1: both arms FAIL F4's own measure; the harness arm ended `ABORTED: timeout`; primary verdicts at 05:15 and 08:50.*
+*Screen 1: both arms FAIL the version checks feature's own measure; the harness arm ended `ABORTED: timeout`; primary verdicts at 05:15 and 08:50.*
 
 ![Screen 2: boards and the two-tab edit conflict](screen-2-final.png)
 
@@ -52,7 +53,7 @@ come from test runs 1 and 2. All were taken after the runs ended.
 
 ![Screen 4: primary results, one dot per run](screen-4-final.png)
 
-*Screen 4: one dot per run on each feature's own measure; the F4 rows are hollow for both arms.*
+*Screen 4: one dot per run on each feature's own measure; the version checks rows are hollow for both arms.*
 
 ![Screen 5: live tail, first wrong turn, LangSmith links](screen-5-final.png)
 

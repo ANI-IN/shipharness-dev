@@ -8,7 +8,9 @@
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Machine summary**: The part of the handoff that the harness writes from the repository, not from the agent.
-> - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
+> - **House rules**: TeamTrack's seven rules for every endpoint, from tenant isolation to migrations.
+> - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
+> - **Migration head**: The newest migration in the chain; two heads means two migrations each claim to be the newest.
 
 ## What this code does
 
@@ -54,7 +56,7 @@ The start of `prepare_workspace`, the initializer step.
 - `initial_files` renders the four templates in `assets/` with the ticket's id, title, and steps.
   The result is exactly what [harness/](harness/README.md) holds.
 - Anthropic's harness uses a model session for this, an "initializer agent"
-  ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)). Here it is
+  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)). Here it is
   plain code, because one ticket fixes the files. It costs no model call.
 - `write_file` never writes through a link, so an agent cannot redirect a harness write.
 - The commit runs inside the arm's sandbox and names its paths, so nothing the agent staged slips in.
@@ -86,7 +88,8 @@ The body of `session_stop`. The runner calls it after every session that ends.
   agent's turns.
 - If the agent deleted `progress.md`, the template comes back and the log line still lands.
 - The commit message is the one session 2 sees first in its git log:
-  "harness: session 1 handoff for F2" ([expected/](expected/README.md)).
+  `harness: session 1 handoff for F2`, where `F2` is the comments feature
+  ([expected/](expected/README.md)).
 
 ### handoff.py, lines 123-129
 
@@ -123,8 +126,8 @@ The end of `migration_heads`, one line of the summary.
 
 - The function reads `migrations/versions/*.py` as text and never runs them. A head is a revision
   that no other migration names as its `down_revision`.
-- Two heads is the failure this section is about. The line names house rule R7, so the next session
-  sees the problem before it writes another migration.
+- Two heads is the failure this section is about. The line names the migrations rule (`R7`), so
+  the next session sees the problem before it writes another migration.
 
 ### lifecycle.py, lines 123-131
 
@@ -163,3 +166,7 @@ build session after a spent turn budget or a `finish(claim="not_done")`.
 - Keep the resume message short and capped. The next session also needs room for the ticket.
 - Check your templates against what the agent will really find. In this demo, `progress.md` says
   to read `feature_list.json`, which only exists once the scope layer runs.
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)

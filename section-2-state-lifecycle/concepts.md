@@ -19,7 +19,7 @@ what the first one had done.
 
 ![A migration chain with one head, next to a fork where two migrations share one parent](diagrams/alembic-heads.svg)
 
-*Two migrations with the same down_revision make two heads, and house rule R7 needs exactly one.*
+*Two migrations with the same down_revision make two heads, and the migrations rule needs exactly one.*
 
 > **Terms on this page**
 >
@@ -28,13 +28,17 @@ what the first one had done.
 > - **Bare arm**: An agent run with the ticket and the repository, and no harness.
 > - **Harness arm**: The same run with the harness turned on.
 > - **Referee**: The program that scores each run after the agent stops.
-> - **Session**: One run of the agent with one context window, from its first turn to its stop.
+> - **Session**: One run of the agent with one context window.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Context reset**: Clearing the context and starting a fresh session, with a handoff.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Exec plan**: A plan checked into the repository, with its progress and its decisions.
-> - **House rules**: TeamTrack's seven rules for every endpoint, R1 to R7.
-> - **R7**: House rule 7, migrations: exactly one Alembic head, and a fresh upgrade works.
+> - **House rules**: TeamTrack's seven rules for every endpoint, from tenant isolation to migrations.
+> - **Migrations rule**: The seventh house rule: exactly one Alembic head, and a fresh upgrade works.
+> - **Alembic head**: The newest migration in TeamTrack's Alembic migration chain.
+> - **Compaction**: Squeezing an old context into a short summary for the next session.
+> - **Fast tier**: OpenAI's faster, pricier service tier, used in class.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
 
 ## The idea in one sentence
@@ -46,12 +50,12 @@ repository at every stop, and start every session by reading them.
 
 Anthropic's harness team states the problem of long tasks: "each new session begins with no memory
 of what came before." The next session then has to guess at what happened
-([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running)).
+([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 
 Compressing the old context is not enough: "compaction isn’t sufficient." The same team's later
 harness uses context resets instead: a fresh agent, "combined with a structured handoff that carries
 the previous agent's state and the next steps"
-([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
+([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 The state lives in a few files, each with one job:
 
@@ -63,9 +67,9 @@ The state lives in a few files, each with one job:
 | Exec plan | The plan, its progress, its decisions | OpenAI, Harness engineering; PLANS.md |
 | `session-handoff.md` | The last session's state and the next steps | Anthropic, Harness design |
 
-The exec plan comes from OpenAI ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)).
+The exec plan comes from OpenAI ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 Its recipe sets a high bar: "it should always be possible to restart from _only_ the ExecPlan and no
-other work." ([OpenAI, PLANS.md](../docs/evidence/s2.md#src-openai-exec-plans))
+other work." ([OpenAI, PLANS.md](https://cookbook.openai.com/articles/codex_exec_plans))
 
 Two routines wrap the files. At the start, "Getting up to speed": read the git log and the progress
 files, then run `init.sh` and a basic test, because a new feature on a broken app "would likely make
@@ -76,8 +80,8 @@ the problem worse." At the end: "End the session by writing a git commit and pro
 *Session 2 starts with an empty context; what it knows comes from the handoff, progress.md, and git.*
 
 The course needs the stop at a known point in every run, so it uses a **session turn budget**: the
-same fixed number of turns per session in both arms. This is the course's own mechanism, not a
-source term; it produces the context reset at turn 12.
+same fixed number of turns per session in both arms. It is the course's own mechanism, and it makes
+the context reset happen at turn 12.
 
 ### Before and after
 
@@ -87,9 +91,10 @@ the repository by itself.
 
 **After: a handoff with two owners.** The harness arm finds `session-handoff.md`. The harness writes
 its "Machine summary" at the stop: commits, files changed, visible tests, open TODO markers, and the
-migration heads, with "house rule R7 needs exactly one" when there are two. The agent writes "Notes
+migration heads, with `house rule R7 needs exactly one` (`R7` is the migrations rule) when there
+are two. The agent writes "Notes
 from the agent" in its wrap-up turns. These are real notes from a class-settings run, cut where
-marked `...`:
+marked `...` (`F2` is the comments feature):
 
 ![session-handoff.md with a machine summary from the harness and notes from the agent](diagrams/handoff-contents.svg)
 
@@ -181,7 +186,7 @@ It does not help, or helps less, when:
 - The task fits in one session. The files then cost turns and give nothing back.
 - The stop never comes. If the agent finishes in session 1, there is nothing to hand off.
 - The model changes. Anthropic's team dropped resets because "Opus 4.5 largely removed that
-  behavior on its own" ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)).
+  behavior on its own" ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 The same source gives the test to apply: "every component in a harness encodes an assumption about
 what the model can't do on its own, and those assumptions are worth stress testing." The state files
@@ -221,3 +226,10 @@ assume a fresh session cannot pick up the work from the repository alone.
 - [Harness design: context resets and handoffs](post-class-reading/02-harness-design-context-resets.md):
   resets against compaction, and why they depend on the model.
 - [Exec plans](post-class-reading/03-exec-plans.md): a plan the next session can restart from.
+
+Sources this page quotes:
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI Cookbook, Aaron Friel, 2025-10-07)

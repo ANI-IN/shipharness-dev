@@ -8,10 +8,13 @@ demo without running it. When and how it was captured is in the
 
 > **Terms on this page**
 >
+> - **Referee**: The program that scores each run after the agent stops.
 > - **Primary verdict**: The referee's answer to the one question the section asks.
 > - **Full verdict**: The primary verdict plus every other check: hidden tests, mutants, review.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 > - **Harness note**: A line a harness layer adds to screen 1, such as "session 1 handoff written to session-handoff.md".
 
 ## Terminal output

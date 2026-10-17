@@ -13,7 +13,7 @@ Source: Aaron Friel (OpenAI Cookbook), "Using PLANS.md for multi-hour problem so
 
 A progress file says what happened. A plan says what the work is, why it is shaped that way, and what
 is left. OpenAI's harness team keeps "execution plans with progress and decision logs that are
-checked into the repository" ([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness)),
+checked into the repository" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)),
 and this recipe is the one they link for how to write them. The course's exec plan template is built
 from it.
 
@@ -46,3 +46,8 @@ from it.
    the plan should answer, add the answers to the plan.
 5. When the work is done, move the plan to `docs/exec-plans/completed/` with its outcome. Old plans
    explain old decisions.
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI Cookbook, Aaron Friel, 2025-10-07)

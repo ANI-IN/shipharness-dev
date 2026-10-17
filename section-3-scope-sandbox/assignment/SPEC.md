@@ -14,6 +14,9 @@ page is the reference you check your work against.
 > - **Deny rule**: A pattern on a command's text that the sandbox refuses before the command runs.
 > - **Score record**: The file the referee writes for each run, with every measured result.
 > - **Live evidence**: The files your real A/B run wrote, collected into `live/`.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Hidden tests**: Tests the referee runs that the agent never sees.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 > Your output will differ: the examples on this page come from the course's own starter and reference
 > work, not from your files.
@@ -253,7 +256,8 @@ valid live evidence. A module that imports the reference implementation scores 0
 
 ## Evidence to hand in
 
-You run one A/B live on F3, the Section 3 task, through the real runner and the Docker sandbox, with
+You run one A/B live on the idempotent-creation ticket (`F3`: retried creates never duplicate), the
+Section 3 task, through the real runner and the Docker sandbox, with
 the class model (`gpt-6-luna`) and caps. Run it after Parts A to C are done, then collect right away:
 the arm workspaces live in a temporary folder and do not last.
 
@@ -308,7 +312,7 @@ counts. `collect` writes these files to `<dir>/live/`:
 Your verdicts and the referee's need not agree. The referee removes harness files before it counts
 (`strip_harness_artifacts` in `platform/src/shipharness/ab/artifacts.py`); your policy reads the
 whole diff. When the harness sets `passes`, the harness arm's diff includes `feature_list.json`: your
-rule 2 refuses it, while the referee does not count it. In the course's test runs on F3, every arm had
+rule 2 refuses it, while the referee does not count it. In the course's test runs on idempotent creation, every arm had
 0 out-of-scope files and 0 test-phase source edits.
 
 ## Limits

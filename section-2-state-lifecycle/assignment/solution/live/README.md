@@ -1,6 +1,6 @@
 # Module 1: Harness Engineering for Coding Agents - Assignment 2 reference live step
 
-This folder holds the files of the reference solution's live step: one A/B on the four-session F2
+This folder holds the files of the reference solution's live step: one A/B on the four-session comments
 task (`F2-a2-four-sessions`, session budget [10, 10, 10, 20]), with the reference
 `ResumableStateLayer` as the harness arm's state layer and gpt-6-luna as the agent model.
 
@@ -17,8 +17,8 @@ The script writes these files next to this README: `task.jsonl`, `command.txt`, 
 ## This run is not valid evidence
 
 The run in this folder finished, but it does not meet the live step's rule. The rule asks for four
-build sessions in the harness arm, the first three ended by their turn budget, and three session
-stops. In this run the harness arm reached its agent time limit (300 s) on turn 8 of session 3, so
+build sessions in the harness arm, the first three ended by their turn budget (the fixed number of
+turns a session gets), and three session stops. In this run the harness arm reached its agent time limit (300 s) on turn 8 of session 3, so
 it had three sessions, two session stops, and no session 4. The script says so at the end of
 `output.txt`:
 

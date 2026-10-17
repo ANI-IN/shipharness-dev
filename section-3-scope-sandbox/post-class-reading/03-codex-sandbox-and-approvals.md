@@ -1,12 +1,13 @@
 # Codex: agent approvals and security
 
 Reading time: about 20 minutes.
-Source: OpenAI, Codex documentation, "Agent approvals & security" <https://developers.openai.com/codex/agent-approvals-security>, with "Sandboxing concepts" and the "Configuration reference", read 2026-10-16 ([evidence](../../docs/evidence/s3.md#src-codex-security)).
+Source: OpenAI, Codex documentation, "Agent approvals & security" <https://developers.openai.com/codex/agent-approvals-security>, with "[Sandboxing concepts](https://developers.openai.com/codex/concepts/sandboxing)" and the "[Configuration reference](https://developers.openai.com/codex/config-reference)", read 2026-10-16 ([evidence](../../docs/evidence/s3.md#src-codex-security)).
 
 > **Terms on this page**
 >
 > - **Sandbox**: The container every tool command runs in, the same for both arms.
 > - **Approval policy**: When an agent must ask a person before it acts.
+> - **bwrap and seccomp**: Linux tools that limit which files a process sees and which system calls it may make.
 > - **Allowed paths**: The globs a ticket lists for each phase; the files the agent may change then.
 
 ## Why it matters
@@ -37,7 +38,7 @@ you see what your own agent already does, and what you still have to add.
    before it judges.
 
 What Codex does not decide is which files belong to this task. Its workspace boundary is the whole
-project. Per-task allowed paths, like the F4 list, are something you add on top, in your harness or
+project. Per-task allowed paths, like the version checks ticket's list, are something you add on top, in your harness or
 in review.
 
 ## Apply it to your repo
@@ -52,3 +53,9 @@ in review.
    `git diff --name-only` and count the files outside the list.
 5. If the count is often above zero, add a check that refuses those changes before they land, as
    `platform/src/shipharness/harness/scope/guard.py` does.
+
+## Sources
+
+- [Codex: agent approvals and security](https://developers.openai.com/codex/agent-approvals-security) (OpenAI, Codex docs)
+- [Sandboxing concepts](https://developers.openai.com/codex/concepts/sandboxing) (OpenAI, Codex docs)
+- [Configuration reference](https://developers.openai.com/codex/config-reference) (OpenAI, Codex docs)

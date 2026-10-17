@@ -19,8 +19,8 @@ re-run).
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new R1 violation | not captured | not captured |
-| R3: runs with at least one new R3 failure | not captured | not captured |
+| R1: runs with at least one new violation of the tenant isolation rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R3: runs with at least one new failure of the API conventions rule | not captured | not captured | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
 
 No counts: the reference live run was not captured (it is being re-run).
 
@@ -36,17 +36,18 @@ Budget for this command: at most $2.50 and 150 traces (the course budget); the r
 
 ## Reading the result
 
-The primary measure for section 1 is registered by the course: a run fails when it has at least one
-new R1 violation, and results are counts of failing runs out of k per task, summed over the eight
-tasks. R3 is the secondary measure this assignment adds: runs with at least one new R3 failure. With
-counts from a captured run, compare the arms on R1 first, then on R3, and look task by task at F1-trap
-(the legacy handler next to the right pattern) and at the control task C1, where both arms should
-pass. Check in the run logs that harness runs opened the map's targets and the skill; a harness run
-that never read `docs/SECURITY.md` or the skill did not test the restructuring.
+The primary measure for Section 1 is registered by the course: a run fails when it has at least one
+new violation of the tenant isolation rule (`R1`), and results are counts of failing runs out of k
+per task, summed over the eight tasks. The API conventions rule (`R3`) is the secondary measure this
+assignment adds: runs with at least one new failure of it. With counts from a captured run, compare
+the arms on `R1` first, then on `R3`, and look task by task at `F1-trap` (the legacy handler next to
+the right pattern) and at the control task `C1`, where both arms should pass. Check in the run logs
+that harness runs opened the map's targets and the skill; a harness run that never read
+`docs/SECURITY.md` or the skill did not test the restructuring.
 
 ## Limits
 
 Three runs per task is a small sample, so a difference of one or two runs between the arms is not
-evidence on its own. One model and one effort level are used. The referee counts only what the R1
-and R3 probes cover, and both arms read the same facts, so the comparison measures organisation, not
-content.
+evidence on its own. One model and one effort level are used. The referee counts only what the
+tenant isolation and API conventions probes (the requests the referee sends to test each rule)
+cover, and both arms read the same facts, so the comparison measures organisation, not content.

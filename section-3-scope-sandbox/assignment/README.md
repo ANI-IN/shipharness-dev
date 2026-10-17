@@ -15,7 +15,7 @@ Path checks go wrong in both directions. Before its measurement was fixed, the c
 counted the import linter's cache as out-of-scope files in every arm. You will build the checks so
 that they decide what a diff really changes before they decide whether it is allowed. The idea
 behind them is OpenAI's "enforce boundaries centrally, allow autonomy locally."
-([OpenAI, Harness engineering](../../docs/evidence/s1.md#src-openai-harness))
+([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 
 > **Terms on this page**
 >
@@ -38,7 +38,7 @@ flowchart LR
   P --> S["scope.py<br/>check_diff per phase"]
   E["Session end:<br/>done claim, gate, test run"] --> U["status.py<br/>update_status"]
   C["A git command"] --> R["policy.py<br/>history deny rule"]
-  S --> L["Live A/B on F3<br/>your verdicts per arm"]
+  S --> L["Live A/B on idempotent creation<br/>your verdicts per arm"]
   U --> L
   L --> V["live/<br/>evidence and verdicts"]
 ```
@@ -47,8 +47,8 @@ You build the three Section 3 controls in a small package of your own, `a3scope`
 parser and a per-phase diff-scope policy that finds every changed file, including renames, quoted
 names, `../` paths, and empty new files. Second, an update of `passes` that needs evidence, never the
 agent's word alone. Third, a sandbox rule that refuses git history rewrites, with a test that proves
-the denial. Then you run one live `demo-3` A/B on F3 and apply your code to what the two real arms
-changed. The exact requirements are in [SPEC.md](SPEC.md).
+the denial. Then you run one live `demo-3` A/B on the idempotent-creation ticket (retried creates
+never duplicate) and apply your code to what the two real arms changed. The exact requirements are in [SPEC.md](SPEC.md).
 
 ## Step by step
 
@@ -94,7 +94,8 @@ All commands run from the repository root. Steps 1 to 7 need no keys and no Dock
    row.
 
 8. **Run the A/B live, once.** It needs your keys and Docker. Finish steps 2 to 6 first: your
-   verdicts come from your code, and the grader re-runs it on the evidence.
+   verdicts come from your code, and the grader re-runs it on the evidence. `--feature F3` picks the
+   idempotent-creation ticket.
 
    ```bash
    uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment 2>&1 | tee ab-output.txt
@@ -130,7 +131,7 @@ All commands run from the repository root. Steps 1 to 7 need no keys and no Dock
 | 3. Evidence-gated status | `passes` set with the right evidence; unchanged otherwise | 15 | Both |
 | 4. History rule | Rewrites refused; ordinary and harness commands still run | 10 | Both |
 | 5. Denial test | Passes with the rule, fails without it, uses the real policy | 10 | Both |
-| 6. Live evidence | One valid live `demo-3` A/B on F3; your verdicts reproduced | 10 | Both |
+| 6. Live evidence | One valid live `demo-3` A/B on idempotent creation; your verdicts reproduced | 10 | Both |
 | **Total** | | **100** | |
 
 Criteria 2 to 4 multiply both sides, so a policy that refuses everything, or allows everything, earns
@@ -151,3 +152,7 @@ The reference solution is a finished work folder in [solution/](solution/). Its
 - what its live A/B measured, and the grade it earned.
 
 Read it after your own attempt, and compare your choices with its alternatives.
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)

@@ -8,8 +8,8 @@ The second session starts with an empty context. It cannot see what the first on
 a second migration for the same table from the old head. The deploy stops on two migration heads.
 
 Anthropic's harness team names the cause: "each new session begins with no memory of what came
-before." ([Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)) This
-demo stops a live agent at that point: TeamTrack's F2 ticket, comments on issues, with the first
+before." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) This
+demo stops a live agent at that point: TeamTrack's comments ticket (comments on issues), with the first
 session cut off after 12 turns.
 
 > **Terms on this page**
@@ -24,7 +24,9 @@ session cut off after 12 turns.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
-> - **R7**: House rule 7, migrations: exactly one Alembic head, and a fresh upgrade works.
+> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
+> - **Alembic head**: The newest migration in the chain; Alembic is the migration tool TeamTrack uses.
+> - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
 ## What you'll see
 
@@ -89,7 +91,8 @@ The script checks your keys, Docker, and the class date, then runs
 `make show-2 SESSION_BUDGET=12,38`. Outside class, run `PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh`.
 You can also call the make target directly; without `SESSION_BUDGET=12,38` the first session runs
 the ticket's 20 turns. At the end, terminal 2 prints the arm's record line and the cost line (cut
-where marked `...`; the full capture is in [expected/terminal.txt](expected/terminal.txt)):
+where marked `...`; the full capture is in [expected/terminal.txt](expected/terminal.txt)). `F2` in
+the record line is the comments feature:
 
 ```text
 A/B <run id> (F2, layers=['instructions', 'state'], profile=class, harness in action)
@@ -138,8 +141,8 @@ That is a runner fix at work: before it, that call ended the build phase, and th
 never ran ([evidence](../../docs/evidence/s2.md#s2-runner-fix)).
 
 What session 2 read first is in [expected/](expected/README.md): its git log starts with
-"harness: session 1 handoff for F2", and the agent's own notes list the house rules and files that
-matter.
+`harness: session 1 handoff for F2` (`F2` is the comments feature), and the agent's own notes list
+the house rules and files that matter.
 
 ![session-handoff.md with a machine summary from the harness and notes from the agent](../diagrams/handoff-contents.svg)
 
@@ -149,7 +152,7 @@ Then switch screens.
 
 **Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done" and "Session 2 · 31 turns".
 The referee list shows `continuity: 0 new` (the primary measure) and `r7_migrations: 0 new`. It also
-shows `diff_scope: 1 new`: the agent edited `app/api/issues.py`, outside F2's allowed paths. Nothing
+shows `diff_scope: 1 new`: the agent edited `app/api/issues.py`, outside the comments ticket's allowed paths. Nothing
 stopped it, because the scope layer starts in Section 3.
 
 ![Screen 3: sessions 12 and 31 turns, the diff map, continuity 0 new, diff_scope 1 new](expected/show-2-screen-3-final.png)
@@ -180,7 +183,7 @@ panel is on the issue page, which the preview does not open; the hidden board te
 ## What the result means
 
 The primary verdict answers one question: did session 2 break or redo session 1's work? It fails
-on two Alembic heads or a failed fresh upgrade (R7), on a table created by two migrations, or when
+on two Alembic heads or a failed fresh upgrade (the migrations rule), on a table created by two migrations, or when
 session 2 removes 30% or more of the lines session 1 added. PASS means none of the three happened.
 
 ![A migration chain with one head, next to a fork where two migrations share one parent](../diagrams/alembic-heads.svg)
@@ -221,3 +224,7 @@ the next session reads first. The [walkthrough](walkthrough.md) shows the code b
 
 The demo never falls back to a recording or a stand-in model. Still stuck? See
 [docs/troubleshooting.md](../../docs/troubleshooting.md).
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)

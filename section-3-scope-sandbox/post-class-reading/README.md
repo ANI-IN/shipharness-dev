@@ -25,7 +25,12 @@ reading time in the table is for the full source, at 200 words a minute.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the "Feature list" part of
-  [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running), then the
+  [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), then the
   sections on running agents in parallel in
-  [Anthropic, C compiler](../../docs/evidence/s3.md#src-anthropic-c-compiler).
+  [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler).
 - The class recap is in [session-notes.md](../session-notes.md).
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)

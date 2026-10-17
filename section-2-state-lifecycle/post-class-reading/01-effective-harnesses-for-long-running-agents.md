@@ -48,3 +48,7 @@ state layer follows it closely.
 4. Put the "Getting up to speed" steps at the top of your agent instructions.
 5. Before you add all of this, stop your agent in the middle of a task and start a fresh session.
    Watch its first five tool calls. If it finds the work with `git status`, you may need less.
+
+## Sources
+
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)

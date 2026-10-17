@@ -11,7 +11,7 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Progressive disclosure**: A small entry point first; the details only when the task needs them.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **R1**: House rule 1, tenant isolation: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 
 ## What we showed
@@ -31,31 +31,32 @@ The class run's record stays on the instructor's machine. A captured run, with i
 
 1. **What is not in context does not exist for the agent.** "From the agent’s point of view, anything
    it can’t access in-context while running effectively doesn’t exist."
-   ([OpenAI, Harness engineering](../docs/evidence/s1.md#src-openai-harness)) A rule in a file the agent
+   ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)) A rule in a file the agent
    never opens is not a rule for that run.
 2. **Agents copy what they find.** "Codex replicates patterns that already exist in the
    repository—even uneven or suboptimal ones." TeamTrack's legacy `GET /v1/issues` lists every org's
-   issues, next to the query F1 must write.
+   issues, next to the query the org-wide search must write.
 3. **One big file is not the fix.** It crowds out the task, buries each rule among the others, goes
    stale, and cannot be checked by a script.
 4. **AGENTS.md is a map.** About 100 lines, always in context, pointing to one focused document per
    topic in `docs/`. TeamTrack's map is 94 lines.
 5. **Progressive disclosure, for docs and skills.** The map and the skill descriptions are always
    there. Documents and skill bodies load only when the task needs them
-   ([Agent Skills specification](../docs/evidence/s1.md#src-agent-skills-spec)).
+   ([Agent Skills Specification](https://agentskills.io/specification)).
 6. **The prefix is fixed.** shipharness builds it from the course's copy, not the agent's workspace,
    so the agent cannot change what it is told.
 7. **Reorganise, never add.** Every rule in the harness docs is also in the handbook both arms have.
    A unit test checks it, so the comparison stays fair.
 8. **Every harness piece is a bet.** "every component in a harness encodes an assumption about what
    the model can't do on its own, and those assumptions are worth stress testing."
-   ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design)) The map bets that
+   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)) The map bets that
    the model will not apply a rule it was not pointed to.
 
 ## What the result showed
 
 Before class, the course ran both arms on the same ticket, with the legacy query in the repository.
-The primary measure: a run fails if it adds at least one new R1 violation. Runs failing, per arm:
+The primary measure: a run fails if it adds at least one new violation of the tenant isolation rule.
+Runs failing, per arm:
 
 | Setting | Bare arm | Harness arm |
 |---|---|---|
@@ -63,7 +64,9 @@ The primary measure: a run fails if it adds at least one new R1 violation. Runs 
 | Low effort | 0 of 3 | 0 of 3 |
 | Low effort, fast tier (class settings) | 0 of 1 | 0 of 1 |
 
-Model gpt-6-luna. Every arm passed 52 of 52 hidden tests ([evidence](../docs/evidence/s1.md#section-1)).
+Model gpt-6-luna. Effort is the model's reasoning effort (how long it thinks before it answers); the
+fast tier is OpenAI's quicker, higher-priced service tier. Every arm passed 52 of 52 hidden tests
+(tests the agent never sees) ([evidence](../docs/evidence/s1.md#section-1)).
 
 No measurable difference on this task with this model. The map's bet did not pay off here because the
 model did not need it: in the run with class settings, the bare arm did not open the handbook in its first
@@ -83,11 +86,12 @@ those maintenance reasons, and say which.
 
 **Is the harness arm not just given more information?**
 No. The harness may change how knowledge is organised and delivered, never add facts. Both arms get
-the same ticket, model, tools, turn budget, cost cap, and sandbox.
+the same ticket, model, tools, turn budget (the most model turns a run may take), cost cap, and
+sandbox (the container the agent works in).
 
 **Why not paste the whole handbook into the prompt?**
 A giant instruction file crowds out the task and the code. In OpenAI's words: "Too much guidance
-becomes non-guidance." ([OpenAI](../docs/evidence/s1.md#src-openai-harness))
+becomes non-guidance." ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
 
 **What does the agent see of a skill at the start?**
 One catalogue line: its name, its description, and the path to `SKILL.md`. The body loads when the
@@ -105,10 +109,17 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 1. Start [Assignment 1](assignment/README.md). Run `make check-assignment-1` first; on the unchanged
    starter it fails by design, and each FAIL line says what to fix.
 2. Open `platform/teamtrack/docs/HANDBOOK.md` and `platform/teamtrack/harness/instructions/AGENTS.md`
-   side by side. How many lines does an agent read before it reaches R1 in each?
+   side by side. How many lines does an agent read before it reaches the tenant isolation rule in
+   each?
 3. Validate the course skill:
    `uv run shipharness skills validate platform/teamtrack/harness/instructions/.agents/skills`.
 4. Read the [post-class readings](post-class-reading/README.md), about 20 minutes in total.
 5. In your own repository, count the lines of your agent instruction file and list the three rules
    your agent breaks most often. Where does each live, and does anything point to it before the agent
    writes code?
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
