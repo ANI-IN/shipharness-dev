@@ -2,7 +2,7 @@
 
 Reading time: about 10 minutes.
 
-In class you see one dot per run for `continuity_failure`. Before you trust a dot, know how it is
+Every pilot run gives one dot per arm for `continuity_failure`. Before you trust a dot, know how it is
 computed. This piece walks through the referee's continuity check and the host code that feeds it,
 shows a measurement bug the pilot found in it, and lists the cases the measure does not catch. The
 measure itself was registered before any run (course design); nothing here changes it.
@@ -122,9 +122,9 @@ session patches did not.
 | Session 1 leaves its work uncommitted | Counted: the snapshot patches compare working trees, so uncommitted lines are in session 1's patch. Without snapshots, the commit-based fallback would leave them out |
 | Session 2 moves code to another file | Removal is matched per file and per line text, so lines moved to a new file count as removed only from the old file; lines rewritten with different text in the same place count as removed |
 | Session 2 reformats lines | Leading and trailing spaces are stripped before matching, so re-indenting alone does not count as redone if the text is unchanged; any other text change does |
-| The build phase ends in one session | No stop happens. Patch 2 is then the test phase's session, which also starts with an empty context (`runner/loop.py`), so (c) compares the build session with the test session. Pilot run 2 had one such arm (`r-20261016-184318-fdee0c`) |
+| The build phase ends in one session | After `finish(claim="done")` in session 1 no stop happens. Patch 2 is then the test phase's session, which also starts with an empty context (`runner/loop.py`), so (c) compares the build session with the test session. Until a runner fix after pilot run 4, `finish(claim="not_done")` ended the build phase too: pilot run 2 had one such arm (`r-20261016-184318-fdee0c`), runs 3 and 4 had six. Since the fix, it ends only that session, for both arms |
 | The harness writes between sessions | The state layer's files are stripped before the check; a harness that wrote product files between sessions would still be counted |
-| Session 1 writes only harness files | After stripping, session 1 has no added lines, `redone_pct` returns 0.0, and (c) passes; (a) and (b) still judge the migrations |
+| Session 1 writes only harness files, or nothing | After stripping, session 1 has no added lines, `redone_pct` returns 0.0, and (c) passes; (a) and (b) still judge the migrations. In pilot runs 3 and 4 six arms passed this way while building nothing (3 of 56 hidden tests): a pass is not a built feature |
 | The second migration has a different table name | (b) does not fire; (a) fires only if the history now has two heads or fails to upgrade |
 
 None of these favour one arm: both arms go through the same code. They do mean a single dot can be a
@@ -176,13 +176,14 @@ The dataset has session-stop variants of F2 that move the stop
 
 A stop after a quarter of the turns tests whether session 2 can start from very little; a stop at
 three quarters tests whether a nearly finished feature survives. These variants belong to the
-full-dataset batch set (60 tasks, two arms, k=2), which the course plan defers until after the first
-class. `uv run shipharness report` groups dots by feature and measure
-(`src/shipharness/ab/report.py`), so these runs appear among the F2 dots; each score export
+course's full-dataset batch set (60 tasks, two arms, k=2), which was not run because the
+pre-registered pilot gate did not pass. `uv run shipharness report` groups dots by feature and measure
+(`src/shipharness/ab/report.py`), so runs of these variants would appear among the F2 dots; each score export
 (`exports/scores/<run_id>.json`) carries its `variant`, which is how to separate them.
 
-Pilot run 3 uses a fifth split that is not a dataset line: F2 canonical with `--session-budget
-12,38`, an override of the task's budget for one A/B (registered before run 3). Its score records
+Pilot runs 3 and 4 and the class-profile round use a fifth split that is not a dataset line: F2
+canonical with `--session-budget 12,38`, an override of the task's budget for one run (registered
+before run 3); the class uses it too. Its score records
 carry `variant` `canonical`, so keep the A/B ids of such runs if you compare them with the dataset's
 dots.
 

@@ -123,7 +123,8 @@ Then run the required live step once and keep its records in your folder (`live/
 
 ## Prerequisites
 
-- Section S2 in class (`make demo-2`) and the anchors above.
+- Section S2 in class (the state layer across a 12-turn session stop, [demo runbook](../demo/README.md))
+  and the anchors above.
 - Python 3.12, uv, and git; `make setup` (or `uv sync --frozen`) done once.
 - Read all of `src/shipharness/harness/state/` and the layer hooks of `BaseLayer` in
   `src/shipharness/harness/base.py`.
@@ -398,9 +399,10 @@ of two. The dataset's F2 tickets have one forced stop each (session budget [20, 
 task splits the same 50 build turns into [10, 10, 10, 20] (`LIVE_BUDGETS` in
 `a2_scenario/live_evidence.py`), and its ticket says "This task runs over four sessions." instead
 of two. Hidden tests, mutants, and the primary measure are unchanged. The runner starts the next
-session only when a session ends by its turn budget (`_run_phases` in
-`src/shipharness/runner/loop.py`), so a run that reaches session 4 has had three forced stops,
-each followed by a `session_stop` event.
+build session when a session ends by its turn budget or by `finish(claim="not_done")`
+(`_next_session_runs` in `src/shipharness/runner/loop.py`) and emits a `session_stop` event after
+each such session except the last. The live check counts a stop only when the session ended by its
+turn budget, so a valid run reaches session 4 after three forced stops.
 
 From the repository root, with keys, Docker, and the checkpoints (`make doctor` passes):
 
@@ -418,14 +420,14 @@ it runs, then writes `command.txt`, `output.txt`, `summary.json` (from
 it never overwrites an existing `live/summary.json`.
 
 The run does not count when the model ends a session before its turn budget (a `finish` call in
-sessions 1-3) or the run stops at a cap before session 4: the check reports the build sessions it
-found. Move `live/` away and run again; each attempt costs up to $0.40 at the caps.
+sessions 1-3, even `finish(claim="not_done")`, which now starts the next session) or the run stops
+at a cap before session 4: the check reports the build sessions it found. Move `live/` away and run
+again; each attempt costs up to $0.40 at the caps.
 
 This command calls OpenAI and LangSmith, so it was not run while this README was written; its
 options were checked with `uv run python submodules/02-state-lifecycle/assignment/live/run_live.py
---help`.
-
-[[PENDING: captured output of the required live step with the reference layer (Live step line, A/B header, two arm lines, Cost line, "+ live evidence written"), labelled with its A/B id | source: M6 pilot | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl <reference layer folder> --forced-stops]]
+--help`. The course has no captured run of this step to show: the output format is the one
+described above, and your own run's output is saved in `my-a2/live/output.txt`.
 
 Score records and runs stay in `exports/` and `.shipharness/runs/` as for any A/B, so
 `uv run shipharness replay <ab_id>` and the console work on them. The run's continuity result
