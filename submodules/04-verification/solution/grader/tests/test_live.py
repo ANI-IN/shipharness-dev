@@ -390,3 +390,12 @@ def test_visible_live_tests_fail_without_evidence(tmp_path: Path) -> None:
     assert len(live) == 4, output[-2000:]
     assert not any(o.passed for o in live)
     shutil.rmtree(impl)
+
+
+def test_the_ab_line_may_name_the_profile(root: Path) -> None:
+    # `shipharness ab` prints ", profile=<name>" after the layers since the class profile
+    # (2026-10-17); the real A4 capture has it.
+    path = root / "live" / "ab.txt"
+    line = f"A/B {fx.AB_ID} (F4, layers={fx.HARNESS_LAYERS})"
+    _edit_text(path, line, line[:-1] + ", profile=standard)")
+    assert not _has(a4_live.ab_run_problems(root), "one A/B")

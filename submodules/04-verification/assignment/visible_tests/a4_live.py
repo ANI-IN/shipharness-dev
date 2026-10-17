@@ -70,7 +70,8 @@ SHA = re.compile(r"^[0-9a-f]{40}$")
 COST = re.compile(r"^Cost: \$(\d+\.\d+) \((.*)\)\s*$")
 TESTGEN_SUMMARY = re.compile(r"^testgen (\S+): (\S+); kept (\d+) of (\d+) proposed tests\s*$")
 TESTGEN_NOTE = re.compile(r"^testgen, model (\S+)$")
-AB_LINE = re.compile(r"^A/B (\S+) \((\S+), layers=(\[.*\])\)\s*$")
+# Optional suffix after the layers, e.g. ", profile=standard" (shipharness since 2026-10-17).
+AB_LINE = re.compile(r"^A/B (\S+) \((\S+), layers=(\[[^\]]*\])(?:, [^)]*)?\)\s*$")
 AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+)\s+claim=")
 # The note of `cost_line` in src/shipharness/ab/runtime.py; the build part came later, so both
 # forms are accepted.
