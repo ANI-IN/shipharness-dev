@@ -46,9 +46,8 @@ def resolve_submission(value: str, clone_dir: Path) -> Path:
 
 
 def grader_command(n: int, submission: Path) -> list[str]:
-    found = sorted(
-        REPO.glob(f"section-{n}-*/assignment/solution/grader/grade.py")
-    )  # private, not shipped
+    grader = f"section-{n}-*/assignment/solution/grader/grade.py"  # private, not shipped
+    found = sorted(REPO.glob(grader))
     if not found:
         raise SubmissionError(
             f"no grader for assignment {n}: graders are private to the instructor"

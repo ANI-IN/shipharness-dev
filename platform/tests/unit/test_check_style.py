@@ -479,7 +479,7 @@ def test_is_public() -> None:
 
 def test_section_folders_are_named_section_n() -> None:
     # The section folders are section-1-instructions to section-4-verification. Folders with the
-    # old 0N- prefix are no longer section folders: their pages are not public course files.
+    # old two-digit prefix are no longer section folders: their pages are not public course files.
     for name in (
         "section-1-instructions",
         "section-2-state-lifecycle",
@@ -771,5 +771,7 @@ def test_the_root_readme_tells_its_story_without_the_scenario_label(tmp_path: Pa
         "Your team gives a week of tickets to a coding agent.\n"
     )
     assert [p for p in problems(tmp_path, "README.md", text) if p.check == "SC17"] == []
-    found = problems(tmp_path, "01-instructions/README.md", text.replace("# Module", "# Module", 1))
+    found = problems(
+        tmp_path, "section-1-instructions/README.md", text.replace("# Module", "# Module", 1)
+    )
     assert [p.check for p in found if p.check == "SC17"] == ["SC17"]

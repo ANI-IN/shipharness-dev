@@ -56,7 +56,7 @@ def test_links_are_rewritten_to_the_file_that_holds_the_anchor(tmp_path: Path) -
         "[c](../docs/evidence.md#how-to-use-this-page) [d](../docs/evidence/general.md#gate-1)\n"
     )
     assert s3.read_text(encoding="utf-8") == "[e](s1.md#src-openai) [f](s1.md#src-openai)\n"
-    assert sorted(report.changed) == ["section-1-x/README.md", "docs/evidence/s3.md"]
+    assert sorted(report.changed) == ["docs/evidence/s3.md", "section-1-x/README.md"]
     assert report.missing == [] and report.ambiguous == []
     assert fel.fix(tmp_path).changed == []  # re-runnable: nothing left to do
 
