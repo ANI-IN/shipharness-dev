@@ -199,10 +199,14 @@ mutants and passed 69, 66, 69 of 69 hidden tests; the harness arm shipped 0, 0, 
 killed 0, 0, 2 mutants. None of its shipped tests came from the 12-turn test phase: in the first
 two A/Bs the test phase proposed no test, and in `ab-20261016-191626-6100f6` the 3 shipped tests
 were written in build session 1 while the test phase's one new test was discarded by the filters
-("kept 0, discarded 1"). Change 9 (a test-phase session starts with the feature's tests) is the
-harness-arm fix; changes 10 and 11 (judge each arm when it finishes; one batched unmutated-pass
-step, shown equivalent on 181 tests) change referee speed, not outcomes. The live step is graded on
-its files, not on these results.
+("kept 0, discarded 1"). Change 9 (a test-phase session starts with the feature's tests) was the
+harness-arm change for run 3; changes 10 and 11 (judge each arm when it finishes; one batched
+unmutated-pass step, shown equivalent on 181 tests) change referee speed, not outcomes. Run 3
+(VERIFICATION.md, "Run 3"): both arms failed 3 of 3 again, and the harness arm shipped no tests (its
+test phase was cut short by the agent time limit, "F4 test phase (investigated, no bug)"). The
+class-profile round (VERIFICATION.md, "Class-profile round", `ab-20261017-090903-926c02`, class
+profile, which the assignment's A/B does not use): both arms 68 of 69 hidden tests, mutants 4 of 4
+(bare) and 1 of 4 (harness). The live step is graded on its files, not on these results.
 
 The live A/B command carries `--purpose assignment`. Without it `shipharness ab` uses the class
 purpose, which refuses to start unless `SHIPHARNESS_CLASS_DATE` is set and otherwise traces into
