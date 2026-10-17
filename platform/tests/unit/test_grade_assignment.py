@@ -1,4 +1,4 @@
-"""`make grade-assignment-N SUBMISSION=<folder or git URL>` (instructor, build repository only)."""
+"""`make grade-assignment-N SUBMISSION=<folder or git URL>` (instructor only; graders are private)."""
 
 from __future__ import annotations
 
@@ -66,5 +66,12 @@ def test_a_git_url_is_cloned_shallow(tmp_path: Path) -> None:
 
 def test_missing_grader_says_it_is_private(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(ga, "REPO", tmp_path)
-    with pytest.raises(ga.SubmissionError, match="private"):
+    with pytest.raises(ga.SubmissionError, match="private") as raised:
         ga.grader_command(1, Path("/tmp/sub"))
+    assert "build repository" not in str(raised.value)
+
+
+def test_no_internal_wording_in_the_script() -> None:
+    text = (REPO / "platform" / "scripts" / "grade_assignment.py").read_text(encoding="utf-8")
+    for phrase in ("build repository", "owner"):
+        assert phrase not in text.lower(), phrase

@@ -1,4 +1,4 @@
-"""Grade one assignment submission (instructor; the graders live in the private build repository).
+"""Grade one assignment submission (instructor only; the graders are private to the instructor).
 
     make grade-assignment-N SUBMISSION=<folder or git URL>
     uv run python platform/scripts/grade_assignment.py N <folder or git URL>
@@ -49,7 +49,7 @@ def grader_command(n: int, submission: Path) -> list[str]:
     found = sorted(REPO.glob(f"0{n}-*/assignment/solution/grader/grade.py"))  # private, not shipped
     if not found:
         raise SubmissionError(
-            f"no grader for assignment {n}: graders are private (build repository only)"
+            f"no grader for assignment {n}: graders are private to the instructor"
         )
     return [sys.executable, str(found[0]), FLAGS[n], str(submission)]
 

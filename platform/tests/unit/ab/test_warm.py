@@ -1,4 +1,4 @@
-"""`make warm` planning (owner, 2026-10-17): what would be built and what would be cached, decided
+"""`make warm` planning: what would be built and what would be cached, decided
 without a container runtime. A second warm-up after a complete one has nothing left to do."""
 
 from __future__ import annotations
@@ -93,11 +93,29 @@ def test_the_source_digest_follows_the_image_build_context(tmp_path: Path) -> No
 def test_the_class_tasks_are_the_canonical_demo_tasks_and_the_final_features() -> None:
     tasks = warm.class_tasks(REPO_ROOT / "platform" / "datasets" / "teamtrack-features-v1.jsonl")
     assert [(t.section, t.task.feature_id) for t in tasks] == [
-        ("demo-1", "F1"), ("demo-2", "F2"), ("demo-3", "F3"), ("demo-4", "F4"),
+        ("demo-1", "F1"), ("demo-2", "F2"), ("demo-3", "F4"), ("demo-4", "F4"),
         ("final", "F5"), ("final", "F6"), ("final", "F7"),
     ]  # fmt: skip
     assert {t.task.variant for t in tasks} == {"canonical"}
     assert [t.section for t in tasks if t.gate] == ["demo-4", "final", "final", "final"]
+
+
+def test_the_s3_class_task_shares_its_baselines_with_demo_4(setup, tmp_path: Path) -> None:  # type: ignore[no-untyped-def]
+    """S3 runs F4 on the demo-3 stack (no verify layer): its referee baseline is demo-4 F4's file,
+    and demo-4 F4 brings the F4 gate baseline, so warm computes nothing more for S3."""
+    deps, _tasks, _r, _g = setup
+    task = ABTask.from_dataset_line(LINE)
+    pairs = [warm.ClassTask("demo-3", task), warm.ClassTask("demo-4", task)]
+    plan = warm.plan_baselines(pairs, deps, tmp_path / "warm")
+    try:
+        assert [(b.kind, b.section, b.duplicate) for b in plan] == [
+            ("referee", "demo-3", False),
+            ("referee", "demo-4", True),
+            ("gate", "demo-4", False),
+        ]
+        assert plan[0].path == plan[1].path
+    finally:
+        warm.discard(plan)
 
 
 class NoOp(BaseLayer):

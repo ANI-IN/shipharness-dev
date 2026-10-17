@@ -2,8 +2,8 @@
 
 Steps, each timed: build the sandbox images only when their source changed (through the existing
 `make images` target), start and remove one container per image so its layers are paged in, and
-cache the referee baseline of every class task (the canonical demo-1..4 tasks and the final
-features F5-F7) and the gate baseline of every class task whose layer stack has the verify layer.
+cache the referee baseline of every class task (the canonical demo-1, demo-2 and demo-4 tasks, F4
+on the demo-3 stack for the S3 A/B, and the final features F5-F7) and the gate baseline of every class task whose layer stack has the verify layer.
 The caches are the ones a class run reads (`Runtime.ab_deps`), filled by the same code a run uses,
 so a second warm-up finds everything in place and does nothing but page the images in again.
 """
@@ -29,11 +29,14 @@ from shipharness.ab.workspace import create_arm_workspace, new_ab_id, new_run_id
 from shipharness.events import EventBus
 from shipharness.harness.base import Harness, LayerContext
 
-# (section, feature): the tasks class runs use (make demo-N, make final with the poll's features).
+# (section, feature): the tasks class runs use (make show-N, make final with the poll's features).
+# S3 is the live A/B `make demo-3 FEATURE=F4`: its referee baseline is the same file as demo-4 F4's
+# and the demo-3 stack has no verify layer, so it adds nothing to compute. F3 is left out: no class
+# step runs it, and its referee baseline would be one more container run on the class host.
 CLASS_TASKS: tuple[tuple[str, str], ...] = (
     ("demo-1", "F1"),
     ("demo-2", "F2"),
-    ("demo-3", "F3"),
+    ("demo-3", "F4"),
     ("demo-4", "F4"),
     ("final", "F5"),
     ("final", "F6"),

@@ -1,7 +1,7 @@
-"""instructor/run-sheet.md: every demo step is live (owner message 7: demo sections are live).
+"""instructor/run-sheet.md: every demo step is live.
 
 The run sheet's demo flow may only launch live model runs (`make show-N`, `make demo-N`,
-`make final`). Replays, recorded showcases, and constructed examples are fallbacks or optional
+`make final`). S3 runs a live A/B (`make demo-3 FEATURE=F4`), not the harness-only `make show-3`. Replays, recorded showcases, and constructed examples are fallbacks or optional
 extras: they may appear only under a `## Fallback: ...` heading, which this test skips.
 """
 
@@ -24,7 +24,7 @@ NOT_LIVE_ROW = re.compile(r"replay|example|recording|recorded", re.IGNORECASE)
 LIVE_LAUNCH = {
     "S1": "make show-1",
     "S2": "make show-2 SESSION_BUDGET=12,38",
-    "S3": "make show-3",
+    "S3": "make demo-3 FEATURE=F4",
     "S4": "make show-4",
 }
 
