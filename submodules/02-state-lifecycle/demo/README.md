@@ -35,7 +35,7 @@ piece doing its job, one real mistake, and one constructed example. So the S2 bl
 
 | Part | Label on screen and in speech | What it shows |
 |---|---|---|
-| `show` (section 3) | "harness in action" (console badge "▶ HARNESS IN ACTION — one arm, not an A/B") | The harness arm alone, live: the initializer step, the wrap-up, the handoff written at the stop, session 2 resuming from it |
+| The live run (section 3) | "harness in action" (console badge "▶ HARNESS IN ACTION — one arm, not an A/B") | The harness arm alone, live: the initializer step, the wrap-up, the handoff written at the stop, session 2 resuming from it |
 | `make replay RUN=ab-20261016-213317-9a0ec1` | "real run, replayed" (console badge "● RECORDING") | Pilot run 3: the harness arm gave up the build phase with `finish(claim="not_done")` after the 12-turn first session; the runner fix that followed is the lesson |
 | `make example-2` | "constructed example" (console badge "CONSTRUCTED EXAMPLE") | A scripted two-session run with no model: the handoff written at the turn budget, session 2 resuming from it |
 
