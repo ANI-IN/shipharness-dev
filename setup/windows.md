@@ -318,7 +318,7 @@ slow.
 **Do this.**
 
 ```bash
-git clone https://github.com/ANI-IN/harness-engineering-session-rc.git ~/shipharness
+git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
 cd ~/shipharness
 make setup
 ```

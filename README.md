@@ -142,7 +142,7 @@ If git, make, uv, and Docker are installed and you have an OpenAI key and a Lang
 commands take you to a live run. Run them in a Linux or macOS terminal, or in Ubuntu on WSL2.
 
 ```bash
-git clone https://github.com/ANI-IN/harness-engineering-session-rc.git ~/shipharness
+git clone https://github.com/ANI-IN/harness-engineering-session.git ~/shipharness
 cd ~/shipharness && make setup
 make doctor
 make console
