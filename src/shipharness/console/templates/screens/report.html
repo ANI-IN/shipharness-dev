@@ -23,6 +23,7 @@
   <p class="legend"><span class="dot pass-legend">●</span> passed the primary measures · <span class="dot fail-legend">○</span> failed</p>
   {% if report.unsandboxed %}<p>{{ status("unknown", report.unsandboxed ~ " runs unsandboxed: not official") }}</p>{% endif %}
   {% if report.recorded %}<p class="muted">{{ report.recorded }} runs are replays (recorded).</p>{% endif %}
+  {% if report.single_arm %}<p class="muted">{{ report.single_arm }} single-arm run{{ "s" if report.single_arm != 1 }} (harness in action) not compared: no bare run.</p>{% endif %}
 </article>
 
 <article class="panel">

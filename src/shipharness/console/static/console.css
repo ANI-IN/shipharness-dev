@@ -50,6 +50,8 @@ body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex
 .badge { font-size: 22px; font-weight: 800; padding: 4px 14px; border-radius: 8px; letter-spacing: 1px; }
 .badge.recording { background: var(--recording); color: var(--recording-text); }
 .badge.unsandboxed { background: var(--warn); color: #111111; }
+.badge.single-arm { background: var(--info); color: #111111; }
+.badge.profile { border: 2px solid var(--muted); color: var(--text); font-weight: 700; }
 .seq { color: var(--muted); font-size: 20px; }
 
 /* Grid: at most three panels */

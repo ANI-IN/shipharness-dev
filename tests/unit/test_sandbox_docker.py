@@ -232,3 +232,38 @@ def test_check_runner_judges_teamtrack_inside_the_referee_container(tmp_path: Pa
     assert set(by_check) == {"r6_layering", "r7_migrations", "regression"}
     assert all(r.passed for r in results), [(r.check, r.findings[:2]) for r in results]
     assert by_check["regression"].total_probes >= 100
+
+
+@pytest.mark.parametrize(
+    ("image", "profile", "cpus"),
+    [("agent", "standard", 1.0), ("agent", "class", 2.0), ("referee", "class", 2.0)],
+)
+def test_the_profile_cpu_limit_is_applied_in_a_real_container(
+    tmp_path: Path, image: str, profile: str, cpus: float
+) -> None:
+    """Class profile: every arm and referee container gets 2 CPUs; standard keeps 1."""
+    import subprocess
+
+    from shipharness.config.profiles import apply_profile
+
+    settings = apply_profile(Settings(_env_file=None), profile)
+    name = settings.sandbox_image_agent if image == "agent" else settings.sandbox_image_referee
+    workspace = tmp_path / "ws"
+    workspace.mkdir()
+    workspace.chmod(0o777)
+    box = DockerSandbox(default_policy(settings), name, workspace, None, "r-cpu", "harness")
+    box.start()
+    try:
+        result = box.exec("cat /sys/fs/cgroup/cpu.max", timeout_s=30)
+        assert result.exit_code == 0, result.output
+        quota, period = result.output.split()
+        assert int(quota) / int(period) == cpus  # the kernel's CPU bandwidth limit (cgroup v2)
+        inspect = subprocess.run(
+            ["docker", "inspect", "--format", "{{.HostConfig.NanoCpus}}", box.name],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        assert int(inspect.stdout.strip()) == int(cpus * 1e9)
+    finally:
+        box.stop()

@@ -31,6 +31,7 @@ class ModelResponse(BaseModel):
     status: str = "completed"
     text: str = ""
     incomplete_reason: str | None = None
+    service_tier: str | None = None  # the tier the response reports; it sets the call's price
 
 
 class ModelClient(Protocol):
@@ -75,12 +76,14 @@ class OpenAIModelClient:
         )
         items = [item.model_dump(exclude_none=True) for item in response.output]
         details = getattr(response, "incomplete_details", None)
+        tier = getattr(response, "service_tier", None)
         return ModelResponse(
             output_items=items,
             usage=usage_from_openai(response.usage),
             status=str(getattr(response, "status", "completed") or "completed"),
             text=str(getattr(response, "output_text", "") or ""),
             incomplete_reason=getattr(details, "reason", None) if details else None,
+            service_tier=str(tier) if tier else None,
         )
 
 
@@ -122,6 +125,7 @@ class Step:
     usage: Usage = field(default_factory=lambda: Usage(input_tokens=100, output_tokens=20))
     text: str = ""
     error: BaseException | None = None
+    service_tier: str | None = None  # the tier the scripted response reports
 
 
 def tool_step(name: str, usage: Usage | None = None, **arguments: Any) -> Step:
@@ -167,4 +171,9 @@ class ScriptedModelClient:
         step = self.steps.pop(0) if self.steps else text_step("(script exhausted)")
         if step.error is not None:
             raise step.error
-        return ModelResponse(output_items=step.output_items, usage=step.usage, text=step.text)
+        return ModelResponse(
+            output_items=step.output_items,
+            usage=step.usage,
+            text=step.text,
+            service_tier=step.service_tier,
+        )

@@ -12,6 +12,7 @@ import typer
 
 from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
+from shipharness.config.profiles import PROFILE_HELP, PROFILES
 
 FEATURES_FILE = REPO_ROOT / "datasets" / "teamtrack-features-v1.jsonl"
 
@@ -73,7 +74,7 @@ def _key_problem(settings: Settings) -> str | None:
     return None
 
 
-def _live_guard(settings: Settings, deps: Any) -> None:
+def _live_guard(settings: Settings, deps: Any, arm: str = "bare") -> None:
     """Every live A/B (demo-N, final, pilot) calls OpenAI: refuse before any arm starts when the key
     is missing or rejected, or the runtime would use a stand-in model client. Never falls back to a
     scripted or recorded run; replay (RECORDING) is the explicit fallback (owner, 2026-10-17)."""
@@ -91,7 +92,7 @@ def _live_guard(settings: Settings, deps: Any) -> None:
         typer.echo(f"x OpenAI refused the key: {problem}; no arm was started")
         raise typer.Exit(2)
     try:
-        client = deps.client_factory("bare")
+        client = deps.client_factory(arm)
     except Exception as exc:  # noqa: BLE001 - reported as one line
         typer.echo(f"x the live OpenAI client could not be created: {type(exc).__name__}")
         raise typer.Exit(2) from None
@@ -101,8 +102,18 @@ def _live_guard(settings: Settings, deps: Any) -> None:
 
 
 def _purpose_runtime(settings: Settings, purpose: str, **kw: Any) -> Any:
+    from shipharness.config import UnknownModelPrice
+
     project, session = _trace_target(settings, purpose)
-    return _runtime(settings, project, session_id=session, **kw)
+    try:
+        return _runtime(settings, project, session_id=session, **kw)
+    except UnknownModelPrice as exc:  # e.g. the Fast tier for a model without Fast rates
+        typer.echo(f"x {exc.args[0] if exc.args else exc}")
+        raise typer.Exit(2) from None
+
+
+ARMS_HELP = "both (A/B, default) or harness (the harness arm alone: harness in action)."
+ARMS_CHOICES: dict[str, tuple[str, ...]] = {"both": ("bare", "harness"), "harness": ("harness",)}
 
 
 def _load_task(dataset: Path, feature: str | None, example: str | None, variant: str) -> Any:
@@ -234,15 +245,24 @@ def register(app: typer.Typer) -> None:
             None,
             help="Override the task's session turn budget, e.g. 12,38 (pre-registered levers).",
         ),
+        profile: str = typer.Option("standard", help=PROFILE_HELP),
+        arms: str = typer.Option("both", help=ARMS_HELP),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
-        from shipharness.ab.demo import run_ab, section_layers
+        from shipharness.ab.demo import SINGLE_ARM_MODE, run_ab, section_layers
         from shipharness.ab.runtime import cost_line
         from shipharness.harness.base import parse_layers
 
         if replay or swap:
             _recorded(replay=replay, swap=swap, reviewer=reviewer, section=section, purpose=purpose)
             return
+        if profile not in PROFILES:
+            typer.echo(f"x unknown --profile {profile!r}: {', '.join(PROFILES)}")
+            raise typer.Exit(2)
+        if arms not in ARMS_CHOICES:
+            typer.echo(f"x unknown --arms {arms!r}: both or harness")
+            raise typer.Exit(2)
+        run_arms = ARMS_CHOICES[arms]
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
         if session_budget:
@@ -261,15 +281,19 @@ def register(app: typer.Typer) -> None:
             names = section_layers(section, modifier)
         else:
             names = parse_layers(layers or "all")
-        rt = _purpose_runtime(settings, purpose, final=section == "final")
+        rt = _purpose_runtime(settings, purpose, final=section == "final", profile=profile)
         extra: dict[str, Any] = {} if preview else {"preview_factory": None}
         ref = None if from_working_tree else task.checkpoint
         deps = rt.ab_deps(ref, reviewer=reviewer, **extra)
-        _live_guard(settings, deps)
+        _live_guard(settings, deps, run_arms[0])
+        mode = f", {SINGLE_ARM_MODE}" if run_arms == ("harness",) else ""
         statuses: list[str] = []
         for _ in range(k):
-            result = run_ab(task, names, deps, section=section)
-            typer.echo(f"A/B {result.ab_id} ({task.feature_id}, layers={sorted(names)})")
+            result = run_ab(task, names, deps, section=section, arms=run_arms)  # type: ignore[arg-type]
+            typer.echo(
+                f"A/B {result.ab_id} ({task.feature_id}, layers={sorted(names)}, "
+                f"profile={profile}{mode})"
+            )
             for arm_run in result.arms.values():
                 _print_record(arm_run.record)
                 statuses.append(arm_run.result.status)
@@ -286,6 +310,7 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         from shipharness.ab.recorded import (
             RecordedDeps,
+            SingleArmRecord,
             UnpinnedRecord,
             find_run_dir,
             load_ab,
@@ -323,7 +348,11 @@ def register(app: typer.Typer) -> None:
             container_paths=rt.sandboxed,
         )
         if swap:
-            report = run_swap(run_dir, deps)
+            try:
+                report = run_swap(run_dir, deps)
+            except SingleArmRecord as exc:
+                typer.echo(f"x {exc}")
+                raise typer.Exit(2) from None
             verdict = "identical" if report.identical else "DIFFERENT"
             typer.echo(f"Swap test on {report.ab_id}: judged measures {verdict}")
             for arm, diffs in report.differences.items():
@@ -365,6 +394,51 @@ def register(app: typer.Typer) -> None:
         typer.echo(f"report: {path}")
         typer.echo(f"Cost: $0.000000 (no model calls; runs in exports ${report['cost_usd']:.6f})")
         raise typer.Exit(0)
+
+    @app.command("warm")
+    def warm_cmd(
+        profile: str = typer.Option("class", help=PROFILE_HELP),
+        images_command: str | None = typer.Option(
+            None, help="Command that builds the images (default: make images RUNTIME=<runtime>)."
+        ),
+        jobs: int = typer.Option(4, min=1, help="Baselines computed at the same time."),
+        dataset: Path = typer.Option(FEATURES_FILE, help="Features JSONL (class tasks)."),
+    ) -> None:
+        """Prepare the class host: images, containers, and baselines. No model calls."""
+        from shipharness.ab import warm
+        from shipharness.ab.runtime import cost_line
+        from shipharness.ab.workspace import workspace_base
+        from shipharness.config import UnknownModelPrice
+
+        if profile not in PROFILES:
+            typer.echo(f"x unknown --profile {profile!r}: {', '.join(PROFILES)}")
+            raise typer.Exit(2)
+        settings = _settings().model_copy(update={"langsmith_tracing": False})
+        if settings.sandbox_mode != "docker":
+            typer.echo("x SANDBOX_MODE=none: there are no containers or images to warm up")
+            raise typer.Exit(2)
+        try:
+            rt = _runtime(settings, "shipharness-warm", session_id="warm", profile=profile)
+        except UnknownModelPrice as exc:
+            typer.echo(f"x {exc.args[0] if exc.args else exc}")
+            raise typer.Exit(2) from None
+        deps = rt.ab_deps(None, reviewer=False, preview_factory=None)
+        cache = Path(settings.runs_dir).parent / "cache"
+        ok = warm.warm_up(
+            images=[settings.sandbox_image_agent, settings.sandbox_image_referee],
+            digest=warm.image_source_digest(REPO_ROOT),
+            stamp_path=cache / warm.IMAGE_STAMP,
+            host=warm.WarmHost(runtime=settings.sandbox_runtime),
+            images_command=images_command or f"make images RUNTIME={settings.sandbox_runtime}",
+            repo=REPO_ROOT,
+            tasks=warm.class_tasks(dataset),
+            deps=deps,
+            base=workspace_base() / "warm",
+            jobs=jobs,
+            echo=typer.echo,
+        )
+        typer.echo(cost_line(rt.cost))
+        raise typer.Exit(0 if ok else 1)
 
     @app.command("experiments")
     def experiments_cmd(

@@ -22,7 +22,7 @@ from .test_demo import LINE, Clients, make_deps
 from .test_referee import Factory, all_green
 from .test_report import fixture_exports
 
-COMMANDS = ["run", "review", "ab", "replay", "report", "experiments"]
+COMMANDS = ["run", "review", "ab", "replay", "report", "experiments", "warm"]
 
 
 def make_app() -> typer.Typer:
@@ -285,34 +285,88 @@ def with_key(env) -> Settings:  # type: ignore[no-untyped-def]
     return env.settings.model_copy(update={"openai_api_key": SecretStr(fake_openai_key())})
 
 
-@pytest.mark.parametrize("section", ["demo-1", "final"])
-def test_live_ab_refuses_without_an_openai_key(env, monkeypatch, section) -> None:  # type: ignore[no-untyped-def]
+# The command paths of make demo-N, make final, and make show-N (the harness arm alone, class
+# profile): every one refuses the same way before any arm starts.
+LIVE_PATHS = {
+    "demo-N": ["--section", "demo-1"],
+    "final": ["--section", "final"],
+    "show-N": ["--section", "demo-1", "--arms", "harness", "--profile", "class"],
+}
+live_paths = pytest.mark.parametrize("path", list(LIVE_PATHS.values()), ids=list(LIVE_PATHS))
+
+
+@live_paths
+def test_live_ab_refuses_without_an_openai_key(env, monkeypatch, path) -> None:  # type: ignore[no-untyped-def]
     monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
     monkeypatch.setattr(commands, "_settings", lambda: env.settings)  # no key in the fixture
-    result = run_ab(env, "--feature", "F1", "--section", section, "--no-preview")
+    result = run_ab(env, "--feature", "F1", *path, "--no-preview")
     assert result.exit_code == 2, result.output
     assert "OPENAI_API_KEY" in result.output and "never" in result.output
     assert not list(Path(env.settings.runs_dir).glob("ab-*"))  # no arm started
 
 
-@pytest.mark.parametrize("section", ["demo-1", "final"])
-def test_live_ab_refuses_a_stand_in_model_client(env, monkeypatch, section) -> None:  # type: ignore[no-untyped-def]
+@live_paths
+def test_live_ab_refuses_a_stand_in_model_client(env, monkeypatch, path) -> None:  # type: ignore[no-untyped-def]
     monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
     monkeypatch.setattr(commands, "_settings", lambda: with_key(env))
     monkeypatch.setattr(commands, "_key_problem", lambda settings: None)
-    result = run_ab(env, "--feature", "F1", "--section", section, "--no-preview")  # scripted deps
+    result = run_ab(env, "--feature", "F1", *path, "--no-preview")  # scripted deps
     assert result.exit_code == 2, result.output
     assert "stand-in" in result.output
     assert not list(Path(env.settings.runs_dir).glob("ab-*"))
 
 
-def test_live_ab_refuses_a_key_openai_rejects(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+@live_paths
+def test_live_ab_refuses_a_key_openai_rejects(env, monkeypatch, path) -> None:  # type: ignore[no-untyped-def]
     monkeypatch.setattr(commands, "_live_guard", REAL_GUARD)
     monkeypatch.setattr(commands, "_settings", lambda: with_key(env))
     monkeypatch.setattr(commands, "_key_problem", lambda s: "invalid key (AuthenticationError)")
-    result = run_ab(env, "--feature", "F1", "--section", "demo-1", "--no-preview")
+    result = run_ab(env, "--feature", "F1", *path, "--no-preview")
     assert result.exit_code == 2
     assert "AuthenticationError" in result.output
+    assert not list(Path(env.settings.runs_dir).glob("ab-*"))
+
+
+def test_the_show_path_checks_the_client_of_the_arm_it_runs(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    asked: list[str] = []
+    monkeypatch.setattr(commands, "_live_guard", lambda s, deps, arm="bare": asked.append(arm))
+    result = run_ab(env, "--feature", "F1", *LIVE_PATHS["show-N"], "--no-preview")
+    assert result.exit_code == 0, result.output
+    assert asked == ["harness"]
+
+
+def test_ab_profile_reaches_the_runtime_and_unknown_profiles_are_refused(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    seen: list[dict] = []  # type: ignore[type-arg]
+    original = commands._runtime
+
+    def runtime(settings, project, **kw):  # type: ignore[no-untyped-def]
+        seen.append(kw)
+        return original(settings, project, **kw)
+
+    monkeypatch.setattr(commands, "_runtime", runtime)
+    for flag, profile in (([], "standard"), (["--profile", "class"], "class")):
+        result = run_ab(env, "--feature", "F1", "--no-preview", *flag)
+        assert result.exit_code in (0, 1), result.output
+        assert seen[-1]["profile"] == profile
+        assert f"profile={profile}" in result.output
+    bad = run_ab(env, "--feature", "F1", "--profile", "turbo")
+    assert bad.exit_code == 2 and "standard, class" in bad.output
+
+
+def test_a_tier_the_prices_cannot_price_is_one_line_at_startup(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from shipharness.ab.runtime import build_runtime
+
+    monkeypatch.setattr(
+        commands, "_runtime", lambda s, project, **kw: build_runtime(s, project=project, **kw)
+    )
+    monkeypatch.setattr(
+        commands,
+        "_settings",
+        lambda: env.settings.model_copy(update={"openai_model": "gpt-5.6-luna"}),
+    )
+    result = run_ab(env, "--feature", "F1", "--profile", "class", "--purpose", "pilot")
+    line = _one_line_error(result)
+    assert "Fast" in line and "gpt-5.6-luna" in line
 
 
 def test_key_problem_names_the_openai_error(monkeypatch) -> None:  # type: ignore[no-untyped-def]
@@ -380,3 +434,40 @@ def test_replay_traces_to_the_project_for_its_purpose(env, monkeypatch) -> None:
     replay = CliRunner().invoke(make_app(), ["replay", ab_id, "--purpose", "pilot"])
     assert replay.exit_code == 0, replay.output
     assert seen and seen[0] == ("shipharness-pilot", "pilot")
+
+
+def test_warm_refuses_without_containers(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    monkeypatch.setattr(
+        commands, "_settings", lambda: env.settings.model_copy(update={"sandbox_mode": "none"})
+    )
+    line = _one_line_error(CliRunner().invoke(make_app(), ["warm"]))
+    assert "SANDBOX_MODE=none" in line
+
+
+def test_warm_passes_the_profile_and_runs_the_warm_up(env, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from shipharness.ab import warm
+
+    seen: dict[str, Any] = {}
+    original = commands._runtime
+
+    def runtime(settings, project, **kw):  # type: ignore[no-untyped-def]
+        seen["runtime"] = (settings.langsmith_tracing, kw)
+        return original(settings, project, **kw)
+
+    def warm_up(**kw):  # type: ignore[no-untyped-def]
+        seen["warm"] = kw
+        kw["echo"]("warm: done (0.0 s)")
+        return True
+
+    monkeypatch.setattr(commands, "_runtime", runtime)
+    monkeypatch.setattr(warm, "warm_up", warm_up)
+    result = CliRunner().invoke(make_app(), ["warm", "--profile", "standard", "--jobs", "2"])
+    assert result.exit_code == 0, result.output
+    assert seen["runtime"][0] is False  # warm-up never traces
+    assert seen["runtime"][1]["profile"] == "standard"
+    kw = seen["warm"]
+    assert kw["images"] == ["shipharness-agent:1", "shipharness-referee:1"]
+    assert kw["images_command"] == "make images RUNTIME=docker"
+    assert [(t.section, t.task.feature_id) for t in kw["tasks"]][-1] == ("final", "F7")
+    assert kw["jobs"] == 2
+    assert "warm: done" in result.output and "Cost: $" in result.output

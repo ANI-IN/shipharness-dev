@@ -81,6 +81,7 @@ class Reservation:
     model: str
     amount_usd: float
     open: bool = True
+    service_tier: str | None = None  # the requested tier (the worst case used its rates)
 
 
 @dataclass(frozen=True)
@@ -237,20 +238,32 @@ class CostTracker:
             limits.append(("session", self.caps.session, self._session + shared))
         return limits
 
-    def worst_case(self, model: str, est_input_tokens: int, max_output_tokens: int) -> float:
-        """Upper bound on one call: all input at the dearer uncached rate, full max output."""
-        price = self.prices.get(model)
+    def worst_case(
+        self,
+        model: str,
+        est_input_tokens: int,
+        max_output_tokens: int,
+        service_tier: str | None = None,
+    ) -> float:
+        """Upper bound on one call: all input at the dearer uncached rate, full max output, at
+        the requested tier's rates (Fast for "fast", Standard otherwise)."""
+        price = self.prices.get(model, service_tier)
         return (
             est_input_tokens * max(price.input, price.cache_write)
             + max_output_tokens * price.output
         ) / 1e6
 
     def check_before_call(
-        self, scope: CostScope, model: str, est_input_tokens: int, max_output_tokens: int
+        self,
+        scope: CostScope,
+        model: str,
+        est_input_tokens: int,
+        max_output_tokens: int,
+        service_tier: str | None = None,
     ) -> None:
         """Raise CapExceeded if the worst case of the next call, on top of what is spent and what
         calls in flight hold, would cross any active cap."""
-        worst = self.worst_case(model, est_input_tokens, max_output_tokens)
+        worst = self.worst_case(model, est_input_tokens, max_output_tokens, service_tier)
         with self._lock:
             self._refresh_locked()
             for name, limit, spent in self._active_limits(scope, held=True):
@@ -258,18 +271,24 @@ class CostTracker:
                     raise CapExceeded(name, limit, spent)
 
     def reserve(
-        self, scope: CostScope, model: str, est_input_tokens: int, max_output_tokens: int
+        self,
+        scope: CostScope,
+        model: str,
+        est_input_tokens: int,
+        max_output_tokens: int,
+        service_tier: str | None = None,
     ) -> Reservation:
         """Check and hold the worst case of the next call against every cap, as one step under
         the lock, so concurrent arms cannot both pass the check for the last room under a shared
         cap. Every reservation ends with settle() (call made) or release() (no call or no usage).
+        `service_tier` is the requested tier: a Fast request holds its worst case at Fast rates.
         """
-        worst = self.worst_case(model, est_input_tokens, max_output_tokens)
+        worst = self.worst_case(model, est_input_tokens, max_output_tokens, service_tier)
         with self._lock:
-            self.check_before_call(scope, model, est_input_tokens, max_output_tokens)
+            self.check_before_call(scope, model, est_input_tokens, max_output_tokens, service_tier)
             scope.reserved_usd += worst
             self._reserved += worst
-        return Reservation(scope=scope, model=model, amount_usd=worst)
+        return Reservation(scope=scope, model=model, amount_usd=worst, service_tier=service_tier)
 
     def _release_locked(self, reservation: Reservation) -> None:
         if not reservation.open:
@@ -285,16 +304,23 @@ class CostTracker:
         with self._lock:
             self._release_locked(reservation)
 
-    def settle(self, reservation: Reservation, usage: Usage) -> float:
+    def settle(
+        self, reservation: Reservation, usage: Usage, service_tier: str | None = None
+    ) -> float:
         """Replace the reservation with the call's actual cost, in one step under the lock.
-        Same contract as record(): returns the call cost; raises CapExceeded after recording."""
+        `service_tier` is the tier the response reports. Same contract as record(): returns the
+        call cost; raises CapExceeded after recording."""
         with self._lock:
             self._release_locked(reservation)
-            return self.record(reservation.scope, reservation.model, usage)
+            return self.record(reservation.scope, reservation.model, usage, service_tier)
 
-    def record(self, scope: CostScope, model: str, usage: Usage) -> float:
-        """Record one call. Raises CapExceeded after recording if a cap is now crossed."""
-        cost = round(cost_of(self.prices.get(model), usage), 9)
+    def record(
+        self, scope: CostScope, model: str, usage: Usage, service_tier: str | None = None
+    ) -> float:
+        """Record one call, priced by the tier the response reports (`service_tier`): Fast rates
+        for "fast", Standard rates for anything else (a downgraded Fast request reports
+        "default"). Raises CapExceeded after recording if a cap is now crossed."""
+        cost = round(cost_of(self.prices.get(model, service_tier), usage), 9)
         entry = {
             "ts": datetime.now(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
             "session": self.session_id,
@@ -302,6 +328,7 @@ class CostTracker:
             "kind": scope.kind,
             "key": scope.key,
             "model": model,
+            "service_tier": service_tier,  # as reported by the response (None: not reported)
             **usage.model_dump(),
             "cost_usd": cost,
         }

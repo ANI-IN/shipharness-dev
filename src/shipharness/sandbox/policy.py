@@ -151,8 +151,11 @@ def _container_env(extra: dict[str, str] | None) -> dict[str, str]:
 
 
 def default_policy(settings: Settings) -> SandboxPolicy:
+    """One policy for every container of a command (both arms, referee, previews)."""
     return SandboxPolicy(
-        tool_timeout_s=settings.tool_timeout_s, run_timeout_s=settings.run_timeout_s
+        cpus=settings.sandbox_cpus,
+        tool_timeout_s=settings.tool_timeout_s,
+        run_timeout_s=settings.run_timeout_s,
     )
 
 

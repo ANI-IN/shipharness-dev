@@ -91,6 +91,7 @@ RUN_SETTINGS: tuple[str, ...] = (
     "sandbox_runtime",
     "sandbox_image_agent",
     "sandbox_image_referee",
+    "sandbox_cpus",
 )
 
 

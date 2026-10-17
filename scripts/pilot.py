@@ -108,15 +108,18 @@ def _settings() -> Any:
     return get_settings()
 
 
-def ab_command(feature: str, variant: str | None, budget: str | None = None) -> list[str]:
-    """`shipharness ab` for one section; `variant` picks a pre-registered dataset variant and
-    `budget` a pre-registered session budget override (e.g. "12,38")."""
+def ab_command(
+    feature: str, variant: str | None, budget: str | None = None, profile: str = "standard"
+) -> list[str]:
+    """`shipharness ab` for one section; `variant` picks a pre-registered dataset variant,
+    `budget` a pre-registered session budget override (e.g. "12,38"), and `profile` the run
+    profile (standard unless asked; class is for live class runs and sets the effort to low)."""
     cmd = ["uv", "run", "shipharness", "ab", "--section", SECTIONS[feature], "--feature", feature]
     if variant:
         cmd += ["--variant", variant]
     if budget:
         cmd += ["--session-budget", budget]
-    return [*cmd, "--purpose", "pilot", "--no-preview"]
+    return [*cmd, "--purpose", "pilot", "--no-preview", "--profile", profile]
 
 
 def parse_budgets(value: str) -> dict[str, str]:
@@ -138,9 +141,10 @@ def _one_ab(
     exports_dir: Path,
     variant: str | None = None,
     budget: str | None = None,
+    profile: str = "standard",
 ) -> list[dict[str, Any]]:
     env = {**os.environ, "OPENAI_REASONING_EFFORT": effort}
-    cmd = ab_command(feature, variant, budget)
+    cmd = ab_command(feature, variant, budget, profile)
     started = time.monotonic()
     done = subprocess.run(cmd, cwd=REPO, env=env, capture_output=True, text=True, check=False)
     wall = round(time.monotonic() - started, 1)
@@ -220,6 +224,7 @@ def run_pilot(args: argparse.Namespace) -> int:
                     exports_dir,
                     args.variants.get(feature),
                     args.budgets.get(feature),
+                    args.profile,
                 )
                 with lock:
                     results.extend(rows)
@@ -256,6 +261,7 @@ def run_pilot(args: argparse.Namespace) -> int:
     summary = {
         "started": start_ts,
         "effort": args.effort,
+        "profile": args.profile,
         "k": args.k,
         "parallel": args.parallel,
         "budget_usd": args.budget,
@@ -315,7 +321,7 @@ def run_determinism(args: argparse.Namespace) -> int:
     return 0 if identical == len(seen) else 1
 
 
-def main() -> int:
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     p = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
@@ -331,7 +337,17 @@ def main() -> int:
     p.add_argument("--max-ab-wall-s", type=float, default=360.0)
     p.add_argument("--determinism", type=int, default=0)
     p.add_argument("--ab", default="")
-    args = p.parse_args()
+    p.add_argument(
+        "--profile",
+        choices=("standard", "class"),
+        default="standard",
+        help="run profile passed to every A/B (class: low effort, Fast tier, 2 CPUs)",
+    )
+    return p.parse_args(argv)
+
+
+def main() -> int:
+    args = parse_args()
     if args.determinism:
         return run_determinism(args)
     return run_pilot(args)

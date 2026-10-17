@@ -14,6 +14,7 @@ from shipharness.ab.demo import ABDeps
 from shipharness.ab.referee import Reviewer
 from shipharness.config import Prices, Settings
 from shipharness.config.prices import REPO_ROOT
+from shipharness.config.profiles import apply_profile
 from shipharness.console.preview import BoardPreview
 from shipharness.cost import Caps, CostTracker
 from shipharness.events import Arm, EventBus
@@ -67,6 +68,7 @@ class Runtime:
     policy_summary: str
     course_repo: Path = REPO_ROOT
     preview_factory: Callable[[Arm, EventBus, AgentRunSpec], Any] | None = None
+    profile: str = "standard"  # run profile already applied to `settings` (config/profiles.py)
 
     def ab_deps(self, checkpoint_ref: str | None, *, reviewer: bool = True, **kw: Any) -> ABDeps:
         return ABDeps(
@@ -83,6 +85,7 @@ class Runtime:
             sandboxed=self.sandboxed,
             container_paths=self.sandboxed,
             policy_summary=self.policy_summary,
+            profile=kw.pop("profile", self.profile),
             preview_factory=kw.pop("preview_factory", self.preview_factory),
             baseline_cache_dir=kw.pop(
                 "baseline_cache_dir",
@@ -105,9 +108,17 @@ def build_runtime(
     experiment: bool = False,
     final: bool = False,
     session_id: str | None = None,
+    profile: str = "standard",
 ) -> Runtime:
+    """`profile` overrides settings for both arms alike (config/profiles.py); the reviewer keeps
+    its own model, effort, and the standard tier."""
+    settings = apply_profile(settings, profile)
+    prices = Prices.load(settings.prices_file)
+    # Startup error, before any call: a tier the prices file cannot price (OPENAI_SERVICE_TIER=fast
+    # for a model without Fast rates).
+    prices.check_tier(settings.openai_model, settings.openai_service_tier)
     cost = CostTracker(
-        Prices.load(settings.prices_file),
+        prices,
         Caps.from_settings(settings, final=final),
         LEDGER,
         session_id=session_id if session_id is not None else settings.shipharness_class_date,
@@ -197,6 +208,7 @@ def build_runtime(
         sandboxed=sandboxed,
         policy_summary=render_policy(policy),
         preview_factory=preview_factory if sandboxed else None,  # never run arm code on the host
+        profile=profile,
     )
 
 

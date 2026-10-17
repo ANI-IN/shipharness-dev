@@ -19,16 +19,25 @@ AB ?= latest
 # demo-N, swap-N, final: PURPOSE picks the LangSmith project. class needs
 # SHIPHARNESS_CLASS_DATE (the class day) in .env; PURPOSE=pilot traces to shipharness-pilot instead.
 PURPOSE ?= class
+# demo-N, final, show-N, warm: PROFILE=class (default) makes live class runs fast, identical for both
+# arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
+# arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
+PROFILE ?= class
+# images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
+AGENT_IMAGE ?= shipharness-agent:1
+REFEREE_IMAGE ?= shipharness-referee:1
 RUN ?=
 
 .PHONY: help setup images doctor up console datasets lint format lint-prose anchors test test-live \
-	test-docker demo-1 demo-2 demo-3 demo-4 swap-1 swap-2 swap-3 swap-4 final replay experiments \
+	test-docker demo-1 demo-2 demo-3 demo-4 show-1 show-2 show-3 show-4 swap-1 swap-2 swap-3 swap-4 \
+	final replay warm experiments \
 	report pilot check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
 	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4 slides
 
 help:
 	@echo "setup doctor up console datasets lint format lint-prose test test-all test-live test-docker"
-	@echo "demo-N [LAYERS=-<layer>]  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
+	@echo "demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>"
+	@echo "warm (before class: images, containers, referee and gate baselines; no model calls)"
 	@echo "experiments report pilot (later milestones)"
 
 setup:
@@ -38,8 +47,8 @@ setup:
 	@if [ ! -f .env ]; then cp .env.example .env && echo "+ created .env: fill in the two API keys"; fi
 
 images:
-	$(RUNTIME) build -f sandbox/Dockerfile --target agent -t shipharness-agent:1 .
-	$(RUNTIME) build -f sandbox/Dockerfile --target referee -t shipharness-referee:1 .
+	$(RUNTIME) build -f sandbox/Dockerfile --target agent -t $(AGENT_IMAGE) .
+	$(RUNTIME) build -f sandbox/Dockerfile --target referee -t $(REFEREE_IMAGE) .
 
 doctor:
 	$(UV) run shipharness doctor
@@ -87,16 +96,38 @@ test-docker:
 
 # Section demos: section N's canonical task is feature FN, canonical variant.
 demo-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
 
 demo-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
 
 demo-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-3 --feature F3 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
 
 demo-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE)
+	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
+
+# Harness in action: the harness arm alone on section N's canonical task, judged by the referee
+# (not an A/B; its records stay out of the bare-vs-harness comparison and of swap-N).
+show-1:
+	$(UV) run shipharness ab --section demo-1 --feature F1 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
+
+show-2:
+	$(UV) run shipharness ab --section demo-2 --feature F2 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
+
+show-3:
+	$(UV) run shipharness ab --section demo-3 --feature F3 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
+
+show-4:
+	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) --purpose $(PURPOSE) \
+	  --profile $(PROFILE)
 
 # Swap test on the section's most recent A/B (ab.json records the section); AB=<ab or run id>
 # picks another one.
@@ -115,12 +146,18 @@ swap-4:
 # One A/B per feature; every feature runs, and the exit code is the last non-zero one.
 final:
 	rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
-	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) --purpose $(PURPOSE) || rc=$$?; \
+	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) --purpose $(PURPOSE) \
+	    --profile $(PROFILE) || rc=$$?; \
 	done; exit $$rc
 
 replay:
 	@if [ -z "$(RUN)" ]; then echo "! replay needs RUN=<ab or run id>"; exit 2; fi
 	$(UV) run shipharness replay $(RUN) --purpose $(PURPOSE)
+
+# Before class, on the class host: build the images only if their source changed, page each image
+# in, and cache the referee and gate baselines of the class tasks. No model calls; safe to rerun.
+warm:
+	$(UV) run shipharness warm --profile $(PROFILE) --images-command "$(MAKE) images RUNTIME=$(RUNTIME)"
 
 experiments report pilot:
 	@echo "! $@ is available after milestones M6 and M8"; exit 2

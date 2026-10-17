@@ -66,6 +66,8 @@ class ScoreRecord(BaseModel):
     sandboxed: bool
     recorded: bool
     captured_at: str
+    # True: the harness arm ran alone (`ab --arms harness`); never in a bare-vs-harness comparison.
+    single_arm: bool = False
     referee_version: str = REFEREE_VERSION
 
 

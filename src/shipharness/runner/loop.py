@@ -163,6 +163,7 @@ class _Run:
             self.spec.model,
             estimate_input_tokens(items, TOOL_SCHEMAS),
             self.spec.max_output_tokens,
+            service_tier=self.spec.service_tier,  # worst case at the requested tier's rates
         )
         try:
             return self._respond(items), reservation
@@ -205,7 +206,7 @@ class _Run:
     ) -> None:
         usage = response.usage
         try:
-            call_usd = self.cost.settle(reservation, usage)
+            call_usd = self.cost.settle(reservation, usage, service_tier=response.service_tier)
         finally:
             excerpt = response.text[:200]
             if not excerpt:
