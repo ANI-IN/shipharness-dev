@@ -469,6 +469,13 @@ primary measure in more runs than bare); the class-profile round (k=1) cannot cr
 | S4 | run 3 0/3, 0/3; class round 0/1, 0/1 | harness in action: `make show-4` (handoffs, test phase, filters) | `ab-20261017-090903-926c02` (class round, F4): the bare arm claimed done with 68 of 69 hidden tests passing; the referee fails it | no gap (both fail) |
 | Final | not part of the pilot | one live A/B: `make final` (measurement lesson: one A/B is one dot; read it against the pilot's dots) | - | owner rule |
 
+Revised 2026-10-17 (owner message 7, "demo sections are 100% live"): every demo section uses only live
+model runs with the live checks and the live console. S1-S4 run `make show-N` (no section has a measured
+gap, so none runs `make demo-N`); the final runs `make final` (the live A/B). The showcases above and the
+constructed examples (`make example-N`, scripted steps, no model) are no longer part of any demo section:
+they are optional extras, labelled as such, in `docs/extras.md` and the instructor fallback. `make replay`
+is the emergency fallback only (RECORDING badge on every screen).
+
 Every section also shows the pilot results on one slide and on console screen 4: "no measurable
 difference on this task with this model" for S1-S4, with the exploratory (post hoc) secondary counts
 labelled as such.
