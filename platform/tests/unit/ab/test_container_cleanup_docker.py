@@ -17,7 +17,7 @@ import pytest
 
 from shipharness.ab.demo import ABTask, run_ab, section_layers
 from shipharness.ab.runtime import build_runtime
-from shipharness.config import Settings
+from shipharness.config import Settings, profiles
 from shipharness.layout import find_repo_root
 from shipharness.runner.model import ScriptedModelClient, tool_step
 
@@ -70,6 +70,9 @@ def test_a_timed_out_harness_run_leaves_no_container(
         if inspect.returncode != 0:
             pytest.skip(f"image {image} is not built")
     monkeypatch.chdir(tmp_path)  # the cost ledger is written relative to the working directory
+    # The class profile sets a 420 s agent time limit (change of 2026-10-17); keep this test's 20 s
+    # limit so the scripted agent (60 x 5 s) is still stopped by it.
+    monkeypatch.setitem(profiles.PROFILES["class"], "run_timeout_s", 20)
     runtime = build_runtime(settings, project="t", profile="class")
     busy = [tool_step("run", command="sleep 5", timeout_s=None) for _ in range(60)]
     runtime = dataclasses.replace(runtime, client_factory=lambda arm: ScriptedModelClient(busy))
