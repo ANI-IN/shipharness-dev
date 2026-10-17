@@ -217,7 +217,7 @@ def test_ab_previews_can_be_turned_off_for_batch_runs(env, flag, previews) -> No
     assert ("preview_factory" in seen[0] and seen[0]["preview_factory"] is None) is (not previews)
 
 
-# --- trace projects (owner, 2026-10-17; DESIGN 12) ---------------------------------------------
+# --- trace projects (owner, 2026-10-17) -------------------------------------------------------
 
 
 def _record_targets(monkeypatch: pytest.MonkeyPatch, runtime_factory: Any) -> list[tuple]:  # type: ignore[type-arg]

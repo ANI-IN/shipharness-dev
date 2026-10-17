@@ -806,3 +806,28 @@ def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
         "slides/deck.md",
     ]:
         assert path in sel.included, path
+
+
+def test_a_word_that_equals_a_script_stem_is_not_a_reference_to_the_script() -> None:
+    # "pilot" is also a run purpose; only a path or a module name names scripts/pilot.py
+    # (release candidate, 2026-10-17: tests/unit/ab/test_commands.py was left out for this).
+    sources = {
+        "tests/unit/test_purpose.py": 'PURPOSES = ("class", "pilot")\n',
+        "tests/unit/test_path.py": 'SCRIPT = "scripts/pilot.py"\n',
+        "tests/unit/test_module.py": "import scripts.pilot\n",
+    }
+    found = mr.find_excluded_tests(sources, ["scripts/pilot.py"], [])
+    assert "tests/unit/test_purpose.py" not in found
+    assert "tests/unit/test_path.py" in found
+    assert "tests/unit/test_module.py" in found
+
+
+def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
+    sources = {
+        "tests/unit/ab/test_shared.py": (
+            'SCRIPT = "scripts/pilot.py"\n\ndef make_app():\n    pass\n'
+        ),
+        "tests/unit/ab/test_user.py": "from .test_shared import make_app\n",
+    }
+    found = mr.find_excluded_tests(sources, ["scripts/pilot.py"], [])
+    assert "tests/unit/ab/test_user.py" in found

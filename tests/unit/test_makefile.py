@@ -94,9 +94,9 @@ def test_demo_target_runs_the_section_canonical_task(n: int) -> None:
     command, params = _parse(calls[0])
     assert command == "ab"
     assert params["section"] == f"demo-{n}"
-    assert params["feature"] == f"F{n}"  # section-N's canonical task is Fn canonical (DESIGN §10.1)
+    assert params["feature"] == f"F{n}"  # section N runs feature FN, canonical variant
     assert params["variant"] == "canonical"
-    assert params["layers"] == "-scope"  # LAYERS=-<layer> reaches the CLI (DESIGN §6.6)
+    assert params["layers"] == "-scope"  # LAYERS=-<layer> reaches the CLI
 
 
 def test_layers_option_is_empty_unless_layers_is_set() -> None:

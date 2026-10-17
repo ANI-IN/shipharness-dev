@@ -294,6 +294,22 @@ def _module_names(tree: ast.AST) -> list[str]:
     return [n for n in names if n]
 
 
+def _loading_call_args(tree: ast.AST) -> set[int]:
+    """Ids of string constants passed directly to a call whose name suggests it loads a module or
+    script (load_script, import_module, spec_from_file_location, ...)."""
+    ids: set[int] = set()
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        func = node.func
+        name = func.attr if isinstance(func, ast.Attribute) else getattr(func, "id", "")
+        if any(word in name.lower() for word in ("load", "import", "script", "spec")):
+            for arg in node.args:
+                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
+                    ids.add(id(arg))
+    return ids
+
+
 def _reason_key(reason: str) -> tuple[int, str]:
     m = re.match(r"line (\d+):", reason)
     return (int(m.group(1)) if m else 0), reason
@@ -319,7 +335,7 @@ def find_excluded_tests(
         if p.startswith("scripts/") and p.endswith(".py") and p.count("/") == 1
     }
 
-    def token_hit(token: str) -> str | None:
+    def token_hit(token: str, stem_ok: bool = False) -> str | None:
         token = token[2:] if token.startswith("./") else token
         folder = token.rstrip("/")
         is_excluded_folder = "/" in folder and classify(folder + "/x") in _PRIVATE_REASONS
@@ -331,7 +347,11 @@ def find_excluded_tests(
         base = posixpath.basename(token)
         if base in basenames:
             return basenames[base]
-        if token in stems:
+        # A module path names a script ("scripts.pilot"); a bare stem does only where it is passed
+        # to a loading call (load_script("build_testgen_dataset")): "pilot" is also a run purpose.
+        if token.startswith("scripts.") and token.split(".")[-1] in stems:
+            return stems[token.split(".")[-1]]
+        if stem_ok and token in stems:
             return stems[token]
         return None
 
@@ -343,13 +363,14 @@ def find_excluded_tests(
         except SyntaxError:
             continue
         docs = _docstring_ids(tree)
+        loaded = _loading_call_args(tree)
         reasons: list[str] = []
         for node in ast.walk(tree):
             if isinstance(node, ast.Constant) and isinstance(node.value, str):
                 if id(node) in docs:
                     continue
                 for token in _TOKEN.findall(node.value):
-                    hit = token_hit(token)
+                    hit = token_hit(token, stem_ok=id(node) in loaded)
                     if hit:
                         reasons.append(f"line {node.lineno}: names {hit}")
         modules = _module_names(tree)
@@ -369,7 +390,7 @@ def find_excluded_tests(
                 continue
             for name in modules:
                 last = name.rsplit(".", 1)[-1]
-                if last in helpers and not last.startswith("test_"):
+                if last in helpers:  # a helper, or a test module other tests import from
                     found[path] = [f"imports {helpers[last]}"]
                     changed = True
                     break
