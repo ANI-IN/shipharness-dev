@@ -398,7 +398,7 @@ applied. Steps, each emitting `check_progress` counters and a `check_result`:
 3. R1-R7 probes (in-process ASGI; Schemathesis with a fixed seed recorded per run).
 4. Hidden tests for the feature (some combine features, B13 F-b-42).
 5. Referee-set mutants against the arm's shipped tests.
-6. Shipped tests re-run 10 times for flakiness.
+6. Shipped tests re-run 5 times for flakiness (TestGen-LLM's five executions, B11, F-b-19; 10 before 2026-10-17).
 7. Playwright board checks with screenshots.
 8. Continuity measures from the run log (S2).
 9. Blinded reviewer on the diff.
@@ -499,7 +499,7 @@ target's metadata.
 ### 10.3 Referee inventory (design targets; no model cost)
 ≈400 hidden tests across F1-F7; R1 probes for every endpoint × method (100+); R2 probes (60+);
 Schemathesis cases per run (hundreds to thousands); R4-R7 probes (30+); existing tests (120+); ≈80
-TeamTrack mutants; 10× flakiness re-runs of shipped tests.
+TeamTrack mutants; 5× flakiness re-runs of shipped tests.
 
 ### 10.4 Experiment plan (instructor, before class)
 

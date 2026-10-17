@@ -118,7 +118,7 @@ flowchart LR
    only tool commands run in the containers, and no API key enters a container.
 4. The referee judges each arm's diff in its own container on a fresh copy of the checkpoint, as soon
    as that arm ends: existing tests, house-rule probes R1-R7, hidden tests, referee-set mutants
-   against the arm's shipped tests, ten re-runs for flakiness, board checks, and the blinded
+   against the arm's shipped tests, five re-runs for flakiness, board checks, and the blinded
    reviewer.
 5. One score record per arm is written to `exports/scores/<run_id>.json`, and the terminal prints one
    line per arm and a cost line.
@@ -242,7 +242,7 @@ one A/B:
 | `r1_new_violations`, `r1_leaks` | New tenant-isolation violations, and responses that returned another org's data |
 | `r2_new_violations`, `r3_new_failures`, `r4_duplicates`, `r5_audit_missing`, `r6_ok`, `r7_ok` | The other house rules |
 | `out_of_scope_files`, `test_phase_source_edits` | Files outside the task's allowed paths; source edits during the test phase |
-| `flaky_tests`, `shipped_tests` | Shipped tests flagged as flaky over ten re-runs; how many tests the arm shipped |
+| `flaky_tests`, `shipped_tests` | Shipped tests flagged as flaky over five re-runs; how many tests the arm shipped |
 | `continuity_failure`, `redone_lines_pct` | Whether the work broke across a session stop, and how much of session 1's work was redone; they matter for F6 and F7 |
 | `claim`, `reviewer_verdict`, `reviewer_agrees` | What the agent said, what the blinded reviewer said, and whether the reviewer matched the referee |
 | `status`, `cost_usd`, `review_cost_usd`, `turns_total`, `wall_s` | `completed`, `ABORTED: cap`, and so on; spend, review spend, turns, and agent time |
