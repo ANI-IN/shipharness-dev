@@ -1,34 +1,68 @@
-# Harness starter kit
+# Module 1: Harness Engineering for Coding Agents - Harness starter kit
 
-The kit is TeamTrack's harness, packaged as templates for your own repository: the AGENTS.md map,
-the docs it points to, the state files a session reads and writes, the feature list with its
-schema, house-rule checks, a sandbox policy, a CI workflow, and the four course skills. Every
-template holds TeamTrack's real, working values as the example, with a REPLACE marker next to each
-value that says what it means and what to write instead.
+## The problem
 
-`shipharness init` copies the kit into a repository and `shipharness init --check` lists the markers
-you have not filled yet. Both are deterministic: no model calls and no network. The step-by-step
-guide, with a worked example on a real repository, is
-[use-in-your-repo/apply-to-your-repo.md](../apply-to-your-repo.md).
+**Illustrative scenario.** You want your repository to have what TeamTrack had in class: a short
+map for the agent, session files, a feature list, house-rule checks, and a CI job. You start writing
+them from memory. Each file comes out a little different from the one that worked, nobody can say
+which values matter, and the first agent session trips over a command that was never run.
+
+The cost: a harness that looks right but was never tested, and hours spent rebuilding files that
+already exist.
+
+> **Terms on this page**
+>
+> - **Kit**: TeamTrack's harness as templates, copied into your repository by `shipharness init`.
+> - **Map**: a short `AGENTS.md` that says where each rule lives, instead of holding every rule.
+> - **REPLACE marker**: a line in a kit template that says what to write in place of the example value.
+> - **House rule**: a team convention written as one checkable sentence, with a check that finds violations.
+> - **R1 to R7**: TeamTrack's seven house rules, from tenant isolation (R1) to one migration head (R7).
+
+## Why it happens
+
+A harness is many small files that point at each other. The map points to the docs, the docs name
+the checks, and the checks need facts about your app. Written from scratch, one wrong path or one
+untested command breaks the chain, and the agent only finds out mid-session. The source behind the
+map puts it plainly: "From the agent’s point of view, anything it can’t access in-context while
+running effectively doesn’t exist."
+([OpenAI, Harness engineering](../../docs/evidence/final.md#quotes-used-on-these-pages))
+
+## What the kit does
+
+The kit is TeamTrack's harness, packaged as templates for your own repository: the map, the docs it
+points to, the state files a session reads and writes, the feature list with its schema, house-rule
+checks, a sandbox policy, a CI workflow, and the four course skills. Every template holds
+TeamTrack's real, working values as the example. A REPLACE marker next to each value says what it
+means and what to write instead. A test keeps each template equal to the TeamTrack file it came
+from, so the example values are the ones the course really ran.
+
+`shipharness init` copies the kit into a repository, and `shipharness init --check` lists the
+markers you have not filled yet. Both make no model calls and use no network. The step-by-step
+guide, with a worked example on a real repository, is [apply-to-your-repo.md](../apply-to-your-repo.md).
 
 ## Use it
 
+Run these from your shipharness checkout. Replace `~/my-repo` with your repository's path:
+
 ```bash
-uv run shipharness init --target <your-repo>            # copy the kit; existing files are skipped
-uv run shipharness init --target <your-repo> --skills claude   # skills only in .claude/skills
-uv run shipharness init --check <your-repo>             # list REPLACE markers still unfilled
+uv run shipharness init --target ~/my-repo
+uv run shipharness init --target ~/my-repo --skills claude
+uv run shipharness init --check ~/my-repo
 ```
 
-`--target` refuses to overwrite a file that exists with other content: it prints
+The first command copies the kit; files that already exist are skipped. The second installs the
+skills only in `.claude/skills/`. The third lists the REPLACE markers still unfilled.
+
+`--target` refuses to overwrite a file that exists with other content. It prints
 `! skipped <file>: exists with other content (--force overwrites)` and leaves the file alone. A
-second run on the same repository writes nothing. `--check` exits 1 while markers remain and 0
-when none are left; a kit file you deleted on purpose is listed as not present and does not count.
+second run on the same repository writes nothing. `--check` exits 1 while markers remain and 0 when
+none are left. A kit file you deleted on purpose is listed as not present and does not count.
 
 ## What gets copied, and where each file comes from
 
 | In your repository | What it is | Taken from (shipharness repository) |
 |---|---|---|
-| `AGENTS.md` | The map: where each rule lives, house rules at a glance, commands, the session start and end steps | `platform/teamtrack/harness/instructions/AGENTS.md`; session steps from `platform/src/shipharness/harness/state/lifecycle.py` |
+| `AGENTS.md` | The map: where each rule lives, house rules, commands, session steps | `platform/teamtrack/harness/instructions/AGENTS.md`; session steps from `platform/src/shipharness/harness/state/lifecycle.py` |
 | `ARCHITECTURE.md` | Domains, layers, what each layer may import | `platform/teamtrack/harness/instructions/ARCHITECTURE.md` |
 | `docs/SECURITY.md`, `docs/RELIABILITY.md`, `docs/QUALITY_SCORE.md`, `docs/PLANS.md` | The rules R1-R7, quality grades, plans and known debt | `platform/teamtrack/harness/instructions/docs/` |
 | `docs/design-docs/`, `docs/product-specs/`, `docs/references/` | Design decisions, product specs (the base product and F1), notes on tools | `platform/teamtrack/harness/instructions/docs/` |
@@ -85,8 +119,8 @@ changes, the test names the template to recopy. Print a fresh rendering with
 | `x no kit files in <dir>: run shipharness init --target <dir> first` | `--check` was pointed at a folder without the kit |
 | `x <n> REPLACE markers left in <m> files` (exit 1) | Fill or delete each listed line, then run `--check` again |
 
-More, with captured output: the "When something goes wrong" table in
-[use-in-your-repo/apply-to-your-repo.md](../apply-to-your-repo.md).
+More, with captured output: the "When something goes wrong" table in the
+[guide](../apply-to-your-repo.md#when-something-goes-wrong).
 
 ## What the kit does not do
 

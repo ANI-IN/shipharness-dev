@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# Build the starting repository of the worked example in docs/apply-to-your-repo.md: three boltons
+# Build the starting repository of the worked example in use-in-your-repo/apply-to-your-repo.md: three boltons
 # modules (typeutils, listutils, queueutils) and their tests, copied from the pinned boltons clone
-# (tag 26.2.0, commit 4332b35, BSD-3-Clause license) that scripts/fetch_testgen_libs.py fetches.
+# (tag 26.2.0, BSD-3-Clause license) that platform/scripts/fetch_testgen_libs.py fetches.
 #
-#   uv run python scripts/fetch_testgen_libs.py boltons
-#   bash kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
+#   uv run python platform/scripts/fetch_testgen_libs.py boltons
+#   bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/bq-example
 set -euo pipefail
 
 target="${1:?usage: make_repo.sh <new directory>}"
 here="$(cd "$(dirname "$0")" && pwd)"
-clone="$here/../../../.shipharness/libs/boltons/src"
+clone="$here/../../../../.shipharness/libs/boltons/src"
 
 if [ ! -f "$clone/boltons/queueutils.py" ]; then
-  echo "ERROR boltons clone not found at $clone: run uv run python scripts/fetch_testgen_libs.py boltons"
+  echo "ERROR boltons clone not found at $clone: run uv run python platform/scripts/fetch_testgen_libs.py boltons"
   exit 1
 fi
 if [ -e "$target" ]; then

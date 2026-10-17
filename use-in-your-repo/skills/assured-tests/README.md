@@ -1,29 +1,44 @@
-# assured-tests
+# Module 1: Harness Engineering for Coding Agents - Skill: assured-tests
+
+## The problem
+
+**Illustrative scenario.** You ask an agent to add tests to a module with thin coverage. It writes a
+dozen, they all pass, and the coverage number goes up. A month later a real bug ships in that module.
+Half of the new tests asserted almost nothing, and one passed only because it mocked the code it was
+meant to test.
+
+## Why it happens
+
+- Agents grade their own work kindly: "agents reliably skew positive when grading their own work."
+  (A3)
+- A generated test can fail on correct code, pass by luck, or pass without checking anything. Meta's
+  TestGen-LLM keeps a test only after "progressively demanding semantic filters" (B11).
+
+## How this skill helps
 
 An Agent Skill that generates unit tests for one Python module and keeps only the tests that pass
 five filters. A skill is a folder with a `SKILL.md` file (YAML frontmatter, then Markdown
-instructions) and optional `scripts/`, `references/`, and `assets/` folders (B1, F-b-01). This page
+instructions) and optional `scripts/`, `references/`, and `assets/` folders (B1). This page
 says what the skill does, how to install it in Claude Code, Codex, and Cursor, how to call it, and
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
-Source ids (B11, B12, ...) and finding ids (F-b-16, ...) refer to the course reference list,
-`docs/REFERENCES.md` in the course repository.
+Source codes such as (A1) or (B1) point to the Sources list at the end of this page.
 
 ## What it does and when to use it
 
 A generated test can fail on correct code, pass by luck, or pass without checking anything.
 TestGen-LLM at Meta runs every candidate through "progressively demanding semantic filters" and
-keeps only the survivors (B11, F-b-16, F-b-21). This skill applies the same idea. Its script runs
+keeps only the survivors (B11). This skill applies the same idea. Its script runs
 `shipharness testgen`, which proposes tests with a model and keeps a test only if it passes all
 five filters, cheapest first:
 
 | # | Filter | Source |
 |---|---|---|
-| 1 | Imports and runs: pytest collects it with no errors | B11, "buildable" (F-b-17) |
-| 2 | Passes on every one of five runs | B11 (F-b-18, F-b-19) |
-| 3 | Adds line coverage, or kills a mutant no existing test kills | B11 (F-b-20); B12 (F-b-29, F-b-32) |
+| 1 | Imports and runs: pytest collects it with no errors | B11, "buildable" |
+| 2 | Passes on every one of five runs | B11 |
+| 3 | Adds line coverage, or kills a mutant no existing test kills | B11; B12 |
 | 4 | Has real assertions and does not mock the unit under test | Course filter; no direct source |
-| 5 | No source file changed during the test phase | Course filter, built on B11 (F-b-22) and A2 (F-a-80) |
+| 5 | No source file changed during the test phase | Course filter, built on B11 and A2 |
 
 Filters 4 and 5 are the course's own additions and are presented as such. The agent then reads the
 result table (one row per proposed test, with the first filter it failed and why) and reviews the
@@ -45,7 +60,7 @@ with what an agent writes unfiltered (`--layers none`).
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them (B1, B2, F-b-05).
+needs them (B1, B2).
 
 ## What you need
 
@@ -60,14 +75,14 @@ needs them (B1, B2, F-b-05).
 ## Install
 
 The Agent Skills specification does not say where skills live; each agent has its own folders
-(B3, F-b-08). These are the folders each tool documents, checked on its official page on
+(B3). These are the folders each tool documents, checked on its official page on
 2026-10-17.
 
-| Tool | Project folder | User-level folder | Reads `.claude/skills/` | Reads `.agents/skills/` |
-|---|---|---|---|---|
-| Claude Code | `.claude/skills/assured-tests/` | `~/.claude/skills/assured-tests/` | Yes | Not documented as of 2026-10-17 |
-| Codex | `.agents/skills/assured-tests/` | `$HOME/.agents/skills/assured-tests/` | Not documented as of 2026-10-17 | Yes |
-| Cursor 2.4 or later | `.agents/skills/assured-tests/` or `.cursor/skills/assured-tests/` | `~/.agents/skills/assured-tests/` or `~/.cursor/skills/assured-tests/` | Yes | Yes |
+| Tool | Project folder | User-level folder | Skill folders it reads |
+|---|---|---|---|
+| Claude Code | `.claude/skills/assured-tests/` | `~/.claude/skills/assured-tests/` | `.claude/skills/` (`.agents/skills/` not documented) |
+| Codex | `.agents/skills/assured-tests/` | `$HOME/.agents/skills/assured-tests/` | `.agents/skills/` (`.claude/skills/` not documented) |
+| Cursor 2.4 or later | `.agents/skills/assured-tests/` or `.cursor/skills/assured-tests/` | `~/.agents/skills/assured-tests/` or `~/.cursor/skills/assured-tests/` | Both |
 
 What each page says:
 
@@ -76,17 +91,17 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. (B7, F-b-12;
+  `/reload-skills`. The page does not mention `.agents/skills/`. (B7;
   https://code.claude.com/docs/en/skills, read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. (B8, F-b-14; https://learn.chatgpt.com/docs/build-skills, redirected
+  mention `.claude/skills/`. (B8; https://learn.chatgpt.com/docs/build-skills, redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  starts. (B9; https://cursor.com/docs/skills, redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
@@ -109,8 +124,8 @@ cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 $Skill = "assured-tests"
 $Target = "C:\path\to\my-repo"   # your repository; use $Target = $HOME for a user-level install
 New-Item -ItemType Directory -Force "$Target\.claude\skills", "$Target\.agents\skills" | Out-Null
-Copy-Item -Recurse "skills\$Skill" "$Target\.claude\skills\"
-Copy-Item -Recurse "skills\$Skill" "$Target\.agents\skills\"
+Copy-Item -Recurse "use-in-your-repo\skills\$Skill" "$Target\.claude\skills\"
+Copy-Item -Recurse "use-in-your-repo\skills\$Skill" "$Target\.agents\skills\"
 ```
 
 With `TARGET=~` the same commands write `~/.claude/skills/assured-tests/` (Claude Code and Cursor)
@@ -140,9 +155,9 @@ Cost: $0.000000 (no model calls)
 
 `shipharness skills validate` runs the checks of skills-ref, the reference validator, and adds
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
-referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
+referenced files (B1, B5). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate use-in-your-repo/skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/assured-tests`; your output will differ).
+`uv run agentskills validate use-in-your-repo/skills/assured-tests` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/assured-tests`).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -170,7 +185,7 @@ The agent runs the script from the installed folder, for example
 Captured on 2026-10-17 against the course's TeamTrack app from
 `python3 use-in-your-repo/skills/assured-tests/scripts/run_testgen.py --repo platform/teamtrack --module app/services/members.py --max-tests 8 --dry-run`
 (run from the checkout root, with no `shipharness` on the PATH, so the script falls back to
-`uv run shipharness`); your output will differ:
+`uv run shipharness`):
 
 ```text
 command: uv run shipharness testgen --repo platform/teamtrack --module app/services/members.py --layers verify --max-tests 8
@@ -179,16 +194,14 @@ note: this calls a model and costs money; the command prints a Cost: line at the
 ```
 
 The dry run makes no model calls. The real run, without `--dry-run`, does. One real run of
-`shipharness testgen` on a TeamTrack module (the command the script wraps), captured on
-2026-10-17, run r-20261017-093940-52dde8; discarded-test lines cut to the first one; your output
-will differ:
+`shipharness testgen` on a TeamTrack module (the command the script wraps), captured on 2026-10-17 (the run id is
+replaced; the target line is cut); discarded-test lines cut to the first one:
 
 ```text
 $ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen
-target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in /home/ani/shipharness/teamtrack
 ! UNSANDBOXED — results not official: generated tests run on this machine
 Baseline: existing suite without doctests
-testgen r-20261017-093940-52dde8: completed; kept 1 of 5 proposed tests
+testgen <run id>: completed; kept 1 of 5 proposed tests
 + tests/visible/test_issue_repository.py::test_list_for_project_uses_ascending_keyset_pages
 - tests/visible/test_issue_repository.py::test_add_flushes_issue_with_requested_fields_and_database_defaults: filter 3: adds no line coverage over the existing suite and kills no filter-set mutant that the existing tests miss (0 checked)
 Kept tests and report: .shipharness/a4/testgen
@@ -216,7 +229,7 @@ $0.003287; that is one measured run, not a typical cost.
 
 - The current code is the oracle. A kept test asserts what the code does today, so it protects
   against future regressions, but it "cannot detect existing faults residing in the code base"
-  (B12, F-b-41).
+  (B12).
 - Five runs catch most flaky tests, not all of them. The number five is TestGen-LLM's (B11).
 - The filters prove a test runs reliably and adds coverage or catches a mutant. They do not prove
   that its name and assertions describe the behaviour you want; review kept tests as code.
@@ -249,3 +262,5 @@ violation.
 - B9: Agent Skills (Cursor docs). https://cursor.com/docs/skills (redirected from
   https://cursor.com/docs/context/skills on 2026-10-17)
 - B10: Cursor 2.4 changelog. https://cursor.com/changelog/2-4
+- A3: Prithvi Rajasekaran, "Harness design for long-running application development", Anthropic,
+  2026-03-24. https://www.anthropic.com/engineering/harness-design-long-running-apps

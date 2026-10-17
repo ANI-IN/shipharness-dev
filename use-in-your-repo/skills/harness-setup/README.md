@@ -1,20 +1,35 @@
-# harness-setup
+# Module 1: Harness Engineering for Coding Agents - Skill: harness-setup
+
+## The problem
+
+**Illustrative scenario.** You hand a repository to a coding agent for work that spans several
+sessions. The rules live in a wiki, there is no progress file, and the test command in the README
+is out of date. The agent breaks a rule it never saw. The next session redoes the last one's work.
+Nobody can say which parts of a harness the repository is missing.
+
+## Why it happens
+
+- The agent sees only its context: "From the agent’s point of view, anything it can’t access
+  in-context while running effectively doesn’t exist." (A1)
+- Sessions do not remember each other: "each new session begins with no memory of what came
+  before." (A2)
+
+## How this skill helps
 
 An Agent Skill that checks a repository's harness for coding agents and fills the gaps from
 templates. A skill is a folder with a `SKILL.md` file (YAML frontmatter, then Markdown
-instructions) and optional `scripts/`, `references/`, and `assets/` folders (B1, F-b-01). This page
+instructions) and optional `scripts/`, `references/`, and `assets/` folders (B1). This page
 says what the skill does, how to install it in Claude Code, Codex, and Cursor, how to call it, and
 how to check that it loaded. The instructions the agent follows are in [SKILL.md](SKILL.md).
 
-Source ids (A1, B1, ...) and finding ids (F-b-12, ...) refer to the course reference list,
-`docs/REFERENCES.md` in the course repository.
+Source codes such as (A1) or (B1) point to the Sources list at the end of this page.
 
 ## What it does and when to use it
 
 The course describes the harness as "the environment around the agent": what the agent can read,
 what it remembers between sessions, what it may change, and what proves its work is done. The cited
-basis is A1: engineers "design environments, specify intent, and build feedback loops" (A1,
-F-a-02). The skill works in three steps:
+basis is A1: engineers "design environments, specify intent, and build feedback loops" (A1).
+The skill works in three steps:
 
 1. Assess. `scripts/assess.py` reads the repository and writes an HTML report with one row per
    check across five areas (instructions, state, scope, verification, session lifecycle). The
@@ -28,9 +43,9 @@ Use it:
 
 - before you hand a repository to a coding agent for work that spans more than one session;
 - when an agent breaks rules that are written somewhere it does not look (A1: "anything it can’t
-  access in-context while running effectively doesn’t exist", F-a-05);
+  access in-context while running effectively doesn’t exist");
 - when a new session repeats or undoes the last session's work (A2: "each new session begins with
-  no memory of what came before", F-a-08).
+  no memory of what came before").
 
 ## What is in the folder
 
@@ -44,19 +59,19 @@ Use it:
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them (B1, B2, F-b-05).
+needs them (B1, B2).
 
 ## Install
 
 The Agent Skills specification does not say where skills live; each agent has its own folders
-(B3, F-b-08). These are the folders each tool documents, checked on its official page on
+(B3). These are the folders each tool documents, checked on its official page on
 2026-10-17.
 
-| Tool | Project folder | User-level folder | Reads `.claude/skills/` | Reads `.agents/skills/` |
-|---|---|---|---|---|
-| Claude Code | `.claude/skills/harness-setup/` | `~/.claude/skills/harness-setup/` | Yes | Not documented as of 2026-10-17 |
-| Codex | `.agents/skills/harness-setup/` | `$HOME/.agents/skills/harness-setup/` | Not documented as of 2026-10-17 | Yes |
-| Cursor 2.4 or later | `.agents/skills/harness-setup/` or `.cursor/skills/harness-setup/` | `~/.agents/skills/harness-setup/` or `~/.cursor/skills/harness-setup/` | Yes | Yes |
+| Tool | Project folder | User-level folder | Skill folders it reads |
+|---|---|---|---|
+| Claude Code | `.claude/skills/harness-setup/` | `~/.claude/skills/harness-setup/` | `.claude/skills/` (`.agents/skills/` not documented) |
+| Codex | `.agents/skills/harness-setup/` | `$HOME/.agents/skills/harness-setup/` | `.agents/skills/` (`.claude/skills/` not documented) |
+| Cursor 2.4 or later | `.agents/skills/harness-setup/` or `.cursor/skills/harness-setup/` | `~/.agents/skills/harness-setup/` or `~/.cursor/skills/harness-setup/` | Both |
 
 What each page says:
 
@@ -65,17 +80,17 @@ What each page says:
   parent folder up to the repository root. If the same name exists at both levels, the personal
   skill wins. Claude Code watches these folders and picks up added or edited skills without a
   restart; if the `.claude/skills/` folder did not exist when the session started, run
-  `/reload-skills`. The page does not mention `.agents/skills/`. (B7, F-b-12;
+  `/reload-skills`. The page does not mention `.agents/skills/`. (B7;
   https://code.claude.com/docs/en/skills, read 2026-10-17.)
 - Codex scans `.agents/skills` in every folder from the working directory up to the repository
   root, then `$HOME/.agents/skills` and `/etc/codex/skills`. It detects new skills automatically;
   if one does not appear, restart Codex. It follows symlinked skill folders. The page does not
-  mention `.claude/skills/`. (B8, F-b-14; https://learn.chatgpt.com/docs/build-skills, redirected
+  mention `.claude/skills/`. (B8; https://learn.chatgpt.com/docs/build-skills, redirected
   from https://developers.openai.com/codex/skills, read 2026-10-17.)
 - Cursor reads `.agents/skills/` and `.cursor/skills/` in the project and `~/.agents/skills/` and
   `~/.cursor/skills/` in your home folder, and for compatibility also `.claude/skills/`,
   `.codex/skills/`, `~/.claude/skills/`, and `~/.codex/skills/`. It discovers skills when it
-  starts. (B9, F-b-15; https://cursor.com/docs/skills, redirected from
+  starts. (B9; https://cursor.com/docs/skills, redirected from
   https://cursor.com/docs/context/skills, read 2026-10-17.) Skills arrived in
   Cursor 2.4, released 2026-01-22, "in the editor and CLI" (B10;
   https://cursor.com/changelog/2-4, read 2026-10-17). The page does not say whether a skill added
@@ -98,8 +113,8 @@ cp -r "use-in-your-repo/skills/$SKILL" "$TARGET/.agents/skills/"
 $Skill = "harness-setup"
 $Target = "C:\path\to\my-repo"   # your repository; use $Target = $HOME for a user-level install
 New-Item -ItemType Directory -Force "$Target\.claude\skills", "$Target\.agents\skills" | Out-Null
-Copy-Item -Recurse "skills\$Skill" "$Target\.claude\skills\"
-Copy-Item -Recurse "skills\$Skill" "$Target\.agents\skills\"
+Copy-Item -Recurse "use-in-your-repo\skills\$Skill" "$Target\.claude\skills\"
+Copy-Item -Recurse "use-in-your-repo\skills\$Skill" "$Target\.agents\skills\"
 ```
 
 With `TARGET=~` the same commands write `~/.claude/skills/harness-setup/` (Claude Code and Cursor)
@@ -129,9 +144,9 @@ Cost: $0.000000 (no model calls)
 
 `shipharness skills validate` runs the checks of skills-ref, the reference validator, and adds
 warnings for a `SKILL.md` over 500 lines, reference chains deeper than one level, and missing
-referenced files (B1, B5, F-b-06, F-b-07, F-b-10, F-b-11). The skill uses only the six frontmatter
+referenced files (B1, B5). The skill uses only the six frontmatter
 fields the specification allows, so it also passes the reference validator itself,
-`uv run agentskills validate use-in-your-repo/skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/harness-setup`; your output will differ).
+`uv run agentskills validate use-in-your-repo/skills/harness-setup` (captured on 2026-10-17 from that command: `Valid skill: use-in-your-repo/skills/harness-setup`).
 
 The validators check the files. They do not show that a tool loaded the skill; for that, see the
 next section.
@@ -160,7 +175,7 @@ Code or `python .agents/skills/harness-setup/scripts/assess.py . --out harness-a
 Codex. You can run it yourself first. This is the summary it printed for the course's TeamTrack
 app, cut to the first lines; captured on 2026-10-17 from
 `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out harness-assessment.html` (run
-from the checkout root); your output will differ:
+from the checkout root):
 
 ```text
 Instructions       pass 0  partial 1  fail 5
@@ -190,7 +205,7 @@ agent's own work reading the report and writing the files. The shipharness valid
 - The script reads files only. It never runs the repository's code, so it cannot tell whether
   `init.sh` or the test command works; rule 3 in `SKILL.md` asks the agent to run each one.
 - The templates write rules down; they do not enforce them. A1: "When documentation falls short,
-  we promote the rule into code" (F-a-43). Use [house-rules](../house-rules/README.md) to turn a
+  we promote the rule into code". Use [house-rules](../house-rules/README.md) to turn a
   rule into a check and [assured-tests](../assured-tests/README.md) to add tests that are kept only
   when they prove something.
 - `evidence` and `testedAt` in the feature list template are course additions to A2's design, as

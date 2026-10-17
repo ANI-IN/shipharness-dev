@@ -1,9 +1,22 @@
-# Worked example: the kit on three boltons modules
+# Module 1: Harness Engineering for Coding Agents - Worked example: the kit on boltons
 
-This folder is the end state of the worked example in
-[use-in-your-repo/apply-to-your-repo.md](../../../apply-to-your-repo.md): the kit installed with
-`shipharness init` and filled in for a small real repository, three modules of boltons 26.2.0
-(`typeutils`, `listutils`, `queueutils`) with their tests. boltons is BSD-3-Clause; the course
+## The problem
+
+**Illustrative scenario.** You copy a harness template into your repository and start filling it
+in. Halfway through, you are unsure what a finished file should look like for code that is not a
+multi-tenant web app. Should the security document stay? What does a house rule look like for a
+library? Without a filled example, you guess.
+
+> **Terms on this page**
+>
+> - **Kit**: TeamTrack's harness as templates, copied into your repository by `shipharness init`.
+> - **REPLACE marker**: a line in a kit template that says what to write in place of the example value.
+> - **House rule**: a team convention written as one checkable sentence, with a check that finds violations.
+
+This folder is that filled example. It is the end state of the worked example in
+[apply-to-your-repo.md](../../../apply-to-your-repo.md): the kit installed with `shipharness init`
+and filled in for a small real repository. The repository is three modules of boltons 26.2.0
+(`typeutils`, `listutils`, `queueutils`) with their tests. boltons is BSD-3-Clause. The course
 already pins it for `shipharness testgen` (`platform/datasets/sources/testgen.toml`), and
 `platform/scripts/fetch_testgen_libs.py` fetches it without a model call.
 
@@ -11,7 +24,7 @@ already pins it for `shipharness testgen` (`platform/datasets/sources/testgen.to
 
 ```bash
 uv run python platform/scripts/fetch_testgen_libs.py boltons
-bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/boltons-queueutils
+bash use-in-your-repo/kit/examples/boltons-queueutils/make_repo.sh /tmp/bq-example
 ```
 
 `make_repo.sh` copies the three modules, their tests, `LICENSE`, and `.gitignore` from the pinned
