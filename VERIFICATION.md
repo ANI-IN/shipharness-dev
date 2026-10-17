@@ -798,6 +798,28 @@ cache-write tokens at the input rate; `config/prices.toml` prices them at the ca
 ($0.125 against $0.10 per 1M for gpt-6-luna). Recomputed that way, the ledger gives LangSmith's
 figures exactly ($0.6629 and $0.1335). The ledger is the enforced figure.
 
+### Dependency and configuration audit (2026-10-18)
+
+Branch `deps-config` from main 0a98217. WSL Ubuntu, uv 0.13.1.
+
+- Vulnerabilities: `uv export --frozen --no-hashes --all-groups` (84 pinned packages, runtime and dev)
+  through `uvx pip-audit --no-deps`: no known vulnerabilities, so no package was updated and
+  `uv.lock` is unchanged. Sandbox image (`platform/sandbox/Dockerfile`): base `python:3.12-slim`
+  (a floating tag; the built `shipharness-agent:1` has Python 3.12.15 on Debian 13.7), uv from
+  `ghcr.io/astral-sh/uv:0.13.1`, apt `git` unpinned (2.47.3 in the image), Playwright 1.64.0 from the
+  lock. No other Dockerfile. No image change, so no image rebuild.
+- Consistency: Python 3.12 in `.python-version`, `requires-python >=3.12`, ruff `py312`, the
+  Dockerfile, and setup/*.md; CI takes it from `.python-version`. uv 0.13.1 in all four CI jobs
+  (`astral-sh/setup-uv@v6`), the Dockerfile, and setup/linux.md, macos.md, windows.md; the
+  `uv_build>=0.13,<0.14` build backend agrees. Actions `checkout@v4`, `setup-uv@v6`; no doc names them.
+- `.env.example` against `config/settings.py` and `config/profiles.py`: every default equal; the one
+  missing setting, `PRICES_FILE`, added as a commented line (the only file changed).
+- Config defaults against the public docs (timeouts, caps, class profile, models, effort, prices):
+  0 mismatches; the table with the code values is kept outside the repository for the doc owners.
+- Tests: `ruff check .` and `ruff format --check .` clean. `make test`: 2533 passed, 3 skipped,
+  1 failed (`test_every_public_page_passes_the_style_check_strictly`, 58 style findings in
+  use-in-your-repo pages; it fails the same on unchanged main 0a98217), 414 s.
+
 ## M5 features, datasets, checkpoints (2026-10-16)
 
 Machine: the class host. Windows 11 Pro with WSL2 Ubuntu 26.04.1 (systemd), Docker Engine 29.9.1 inside
