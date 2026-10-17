@@ -1,6 +1,6 @@
 """Summarise the A1 A/B from exports/: R1 and R3 runs failing per arm, ready to paste.
 
-Usage (from the repository root, after the A/B command in the README has finished):
+Usage (from the repository root, after the A/B command in SPEC.md has finished):
 
     uv run python 01-instructions/assignment/ab_summary.py --batch a1-<name>
         [--exports exports] [--bare NAME] [--harness NAME]

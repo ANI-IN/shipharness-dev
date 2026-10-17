@@ -1,12 +1,12 @@
 """Collect and check the live evidence of the A1 A/B (the required live step).
 
-Usage (from the repository root, on your work branch, after the A/B command in the README):
+Usage (from the repository root, on your work branch, after the A/B command in SPEC.md):
 
     uv run python 01-instructions/assignment/live_evidence.py --batch a1-<name>
         --output <file> [--work DIR] [--exports exports] [--runs .shipharness/runs]
 
-`--output` is the file you saved the command and its printed output to (README, task 6). The
-script copies, into `<work>/live/`:
+`--output` is the file you saved the command and its printed output to (SPEC.md, "Run the A/B").
+The script copies, into `<work>/live/`:
 
 - `output.txt`: that file (first line `$ <the exact command>`, last line `Cost: $...`);
 - `experiments/<name>.json`: the two experiment exports of the batch (one per arm);
@@ -62,7 +62,7 @@ MAX_RUN_COST_USD = 0.20  # MAX_RUN_COST_USD, per arm per run (settings.py)
 MAX_REVIEW_COST_USD = 0.04  # MAX_REVIEW_COST_USD, per review (settings.py)
 MAX_COMMAND_COST_USD = 2.50  # MAX_BATCH_COST_USD, per command (settings.py; the A1 budget)
 NAMES = ["live-files", "live-command", "live-caps", "live-tree", "live-report"]
-HOW = "collect it with live_evidence.py (README, task 6)"
+HOW = "collect it with live_evidence.py (SPEC.md, 'Run the A/B')"
 
 PENDING = re.compile(
     r"^\[\[PENDING: [^|\]]+ \| source: (?:M6 pilot|M8 batch 1|M8 ablation|live class)"
