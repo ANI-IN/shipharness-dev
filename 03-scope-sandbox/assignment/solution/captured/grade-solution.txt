@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution` at commit 65d70a0 (offline: no model calls, no containers); your output will differ
-$ make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/solution
-uv run python scripts/grade_assignment.py 3 "submodules/03-scope-sandbox/solution"
-A3 grade: submodules/03-scope-sandbox/solution
+# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution` (offline: no model calls, no containers); details in docs/evidence.md
+$ make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/solution
+uv run python platform/scripts/grade_assignment.py 3 "03-scope-sandbox/assignment/solution"
+A3 grade: 03-scope-sandbox/assignment/solution
   criterion                                              tests         points
   1 Diff parsing and path matching                               15.0 / 15
       diff parsing and path matching                   75/75
@@ -24,5 +24,5 @@ A3 grade: submodules/03-scope-sandbox/solution
   Total                                                         100.0 / 100
   Every out-of-scope diff rejected: yes; zero false positives: yes; live evidence valid: yes
 Result: PASS (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
-grading assignment 3: submodules/03-scope-sandbox/solution
+grading assignment 3: 03-scope-sandbox/assignment/solution
 (exit code 0)

@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution` at commit 65d70a0 (offline: no model calls, no containers); your output will differ
-$ make check-assignment-3 A3_IMPL=submodules/03-scope-sandbox/solution
-uv run python submodules/03-scope-sandbox/assignment/check.py --impl submodules/03-scope-sandbox/solution
-A3 self-check: submodules/03-scope-sandbox/solution
+# captured on 2026-10-17 from `make check-assignment-3 A3_IMPL=03-scope-sandbox/assignment/solution` (offline: no model calls, no containers); details in docs/evidence.md
+$ make check-assignment-3 A3_IMPL=03-scope-sandbox/assignment/solution
+uv run python 03-scope-sandbox/assignment/check.py --impl 03-scope-sandbox/assignment/solution
+A3 self-check: 03-scope-sandbox/assignment/solution
   check                                              visible tests  status  where
   diff parsing and path matching                             28/28  ok
   out-of-scope diffs rejected                                  8/8  ok

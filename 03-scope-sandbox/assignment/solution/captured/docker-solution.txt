@@ -1,4 +1,5 @@
-# captured on 2026-10-16, recorded in commit 3dcc7a1 (needs Docker and the shipharness-agent:1 image; not re-run on 2026-10-17, when containers were off limits during the pilot); your output will differ
-$ uv run python -m pytest -q -p no:cacheprovider -m docker submodules/03-scope-sandbox/solution/tests
+# captured on 2026-10-17 from `uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/solution/tests` (needs Docker and the shipharness-agent:1 image; no model calls); details in docs/evidence.md
+$ uv run python -m pytest -q -p no:cacheprovider -m docker 03-scope-sandbox/assignment/solution/tests
 ..                                                                       [100%]
-2 passed, 9 deselected in 2.30s
+2 passed, 9 deselected in 11.28s
+(exit code 0)

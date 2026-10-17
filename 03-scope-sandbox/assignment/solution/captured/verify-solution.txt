@@ -1,0 +1,6 @@
+# captured on 2026-10-17 from `uv run python 03-scope-sandbox/assignment/live.py verify --impl 03-scope-sandbox/assignment/solution` (offline: no model calls, no containers); details in docs/evidence.md
+$ uv run python 03-scope-sandbox/assignment/live.py verify --impl 03-scope-sandbox/assignment/solution
+A3 live evidence: 03-scope-sandbox/assignment/solution/live
+  evidence  ok
+  verdicts  ok
+(exit code 0)

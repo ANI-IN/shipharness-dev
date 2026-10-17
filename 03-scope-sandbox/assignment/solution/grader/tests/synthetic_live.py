@@ -3,7 +3,7 @@
 No model was called to make these files: every value below is written by hand so the tests can
 exercise `assignment/live.py` and the grader's live criterion offline. Run ids, the A/B id, and
 the banner in the A/B output all say "synthetic". The captured live run of the reference solution
-goes in `solution/live/` (see `solution/README.md`).
+goes in `solution/live/` (see `solution/SOLUTION.md`).
 
 `build(root)` writes, under `root`:
     runs/<ab_id>/ab.json, runs/<ab_id>/{bare,harness}/diff.patch   (as `shipharness ab` writes them)
