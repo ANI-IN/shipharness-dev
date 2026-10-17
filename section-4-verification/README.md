@@ -28,19 +28,22 @@ The cost is a shipped bug that every check approved, and a review that rested on
 
 - Agents grade their own work too kindly. Anthropic's harness team found that "agents reliably skew
   positive when grading their own work."
-  ([Anthropic, Harness design](../docs/evidence/s1.md#src-anthropic-harness-design))
+  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 - A later session sees progress and stops early: "a later agent instance would look around, see that
   progress had been made, and declare the job done."
-  ([Anthropic, Effective harnesses](../docs/evidence/s1.md#src-anthropic-long-running))
+  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 - Green tests look like a finished job: "it is easy to see tests pass and assume the job is done,
-  when this is rarely the case." ([Anthropic, C compiler](../docs/evidence/s4.md#src-anthropic-c-compiler))
-- Visible tests miss what held-out tests catch: "while every frontier agent saturates the visible
-  suite, reward hacking persists" ([SpecBench](../docs/evidence/s4.md#src-specbench)).
+  when this is rarely the case."
+  ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler))
+- Visible tests miss what held-out tests (the hidden tests above) catch: "while every frontier agent
+  saturates the visible suite, reward hacking persists" ([SpecBench](https://arxiv.org/abs/2605.21384)).
+  Reward hacking means passing the checks without doing the task they stand for.
 
 ## How this section fixes it
 
 The verification layer stops trusting the claim. When the agent says done, a gate runs the visible
-tests, the existing tests, house rules R1 to R7, a board check, and a clean-state check, in the
+tests, the existing tests, TeamTrack's seven house rules (tenant isolation, roles, API conventions,
+idempotent creates, audit log, layering, migrations), a board check, and a clean-state check, in the
 agent's own container. Tests the agent writes in a short test phase are kept only if they pass five
 filters. The referee then scores the work with hidden tests and planted faults the agent never sees.
 
@@ -78,3 +81,10 @@ taught. The final A/B is also launched here and read in the final block.
 - Already set up? Start with [concepts.md](concepts.md).
 - Want a verify gate in your own repository? See [use-in-your-repo/](../use-in-your-repo/README.md).
 - After this section: the [final project](../final-project/README.md).
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
+- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)

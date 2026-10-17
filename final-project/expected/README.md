@@ -1,15 +1,17 @@
 # Module 1: Harness Engineering for Coding Agents - Final project: what one real run looked like
 
 This folder holds the terminal output and the console screenshots of one real `make final` run on
-F5, started with `PURPOSE=pilot ./final-project/run.sh`, with the class profile. Nothing here is
+bulk close, started with `PURPOSE=pilot ./final-project/run.sh`, with the class profile. Nothing here is
 staged; the A/B id is cut from `terminal.txt` where it shows `...`, and the screenshots are cropped
 to the panels. When and how it was captured is on the
 [evidence page](../../docs/evidence/final.md#final-project-captures).
 
 > **Terms on this page**
 >
+> - **Referee**: the program that scores each run after the agent stops.
 > - **Primary verdict**: the referee's answer to the one question the section asks.
 > - **Full verdict**: the primary verdict plus every other check: hidden tests, mutants, review.
+> - **Mutant**: a copy of the code with one small planted bug; a test that fails on it catches it.
 > - **Gate**: the checks the verify layer runs when the agent says done; the agent cannot skip them.
 > - **Harness note**: a line a layer adds to screen 1, such as "placed 31 instruction files".
 
@@ -34,7 +36,7 @@ same checkout.
 
 ![Screen 1 at minute 5: bare arm judged](screen-1-minute-5.png)
 
-*Minute 5: the bare arm completed after 42 turns, primary verdict PASS; F5 has no primary measure, so PASS says nothing about the feature.*
+*Minute 5: the bare arm completed after 42 turns, primary verdict PASS; bulk close has no primary measure, so PASS says nothing about the feature.*
 
 ![Screen 1 at minute 7: harness gate failed and run aborted](screen-1-minute-7.png)
 
@@ -46,7 +48,7 @@ same checkout.
 
 ![Screen 2: both boards as an Acme user](screen-2-final.png)
 
-*Screen 2, Boards: F5 changes no board pixels, so both boards show only their own org's cards.*
+*Screen 2, Boards: bulk close changes no board pixels, so both boards show only their own org's cards.*
 
 ![Screen 3: files read, diff maps, sandbox denials, referee checks](screen-3-final.png)
 

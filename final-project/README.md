@@ -2,13 +2,11 @@
 
 ## The problem
 
-**Illustrative scenario.** You have a real feature to ship with an agent. Use the whole harness,
-measure it, and decide which layers earn their place. The easy path is to switch every layer on,
-run the feature once, and keep whatever looked better. A second run might have split the other way,
-and nobody runs one.
+**Illustrative scenario.** You have a real feature to ship with an agent. Use the whole harness and
+decide which layers earn their place. The easy path is to switch every layer on, run the feature
+once, and keep what looked better. A second run might split the other way; nobody runs one.
 
-The cost: every task pays the harness's extra time and money on the strength of one data point. Or a
-layer that helps is dropped after one bad run.
+The cost: every task pays for the harness on one data point, or a good layer goes after one bad run.
 
 > **Terms on this page**
 >
@@ -26,8 +24,7 @@ layer that helps is dropped after one bad run.
 Why it happens:
 
 - Each harness piece encodes an assumption about what the model cannot do on its own, and "those
-  assumptions are worth stress testing"
-  ([Anthropic, Harness design](../docs/evidence/final.md#quotes-used-on-these-pages)).
+  assumptions are worth stress testing" ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 - The way to find out is "removing one component at a time and reviewing what impact it had on the
   final result" (the same source). One run removes nothing and compares nothing.
 - Model output changes from run to run. The course ran `make final` on the same feature several
@@ -39,9 +36,10 @@ helps, and reports every result as measured.
 
 ## What you'll see
 
-You pick one feature, F5, F6, or F7, and run both arms on it at the same time. The harness arm gets
-all four layers; everything else is the same: ticket, model, tools, sandbox, turn budgets, and cost
-cap. One referee scores both arms, and you watch them side by side on console screen 1.
+You pick one feature, bulk close, watchers, or labels, and run both arms on it at the same time. The
+harness arm gets all four layers; everything else is the same: ticket, model, tools, sandbox, turn
+budgets (the most turns each session may take), and cost cap. One referee scores both arms, and you
+watch them side by side on console screen 1.
 
 ```mermaid
 flowchart LR
@@ -62,7 +60,7 @@ flowchart LR
 | Path | What it holds |
 |---|---|
 | [run.sh](run.sh) | The live run: checks, then `make final` |
-| [tasks/](tasks/f5-bulk-close.md) | F5, F6, and F7: the ask, the rules at risk, what the referee checks |
+| [tasks/](tasks/f5-bulk-close.md) | Bulk close, watchers, labels: the ask, the rules at risk, the referee's checks |
 | [harness/](harness/README.md) | Every file the harness arm gets, all four layers |
 | [walkthrough.md](walkthrough.md) | One run through the code, step by step |
 | [expected/](expected/README.md) | Real terminal output and all five screens from one run |
@@ -85,9 +83,9 @@ which house rules it puts at risk, and what the referee checks.
 
 | Feature | Task page | Build sessions (turns each) | Hidden tests |
 |---|---|---|---|
-| F5 Bulk close | [f5-bulk-close.md](tasks/f5-bulk-close.md) | 1 (30) | 46 |
-| F6 Watchers | [f6-watchers.md](tasks/f6-watchers.md) | 2 (20, then 30) | 54 |
-| F7 Labels | [f7-labels.md](tasks/f7-labels.md) | 2 (25, then 35) | 64 |
+| Bulk close | [f5-bulk-close.md](tasks/f5-bulk-close.md) | 1 (30) | 46 |
+| Watchers | [f6-watchers.md](tasks/f6-watchers.md) | 2 (20, then 30) | 54 |
+| Labels | [f7-labels.md](tasks/f7-labels.md) | 2 (25, then 35) | 64 |
 
 ### Step 3: Start the console
 
@@ -100,7 +98,7 @@ make console
 ### Step 4: Run the A/B
 
 In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console, then runs
-`make final FEATURES=F5`; `FEATURES=F6` or `F7` picks another feature:
+`make final FEATURES=bulk-close`; `FEATURES=watchers` or `FEATURES=labels` picks another feature:
 
 ```bash
 PURPOSE=pilot ./final-project/run.sh
@@ -108,7 +106,7 @@ PURPOSE=pilot ./final-project/run.sh
 
 In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
 line per arm and a cost line. The course's own run, with the A/B id cut (the full output is in
-[expected/terminal.txt](expected/terminal.txt)):
+[expected/terminal.txt](expected/terminal.txt)); `F5` in the A/B line is bulk close:
 
 ```text
 A/B ... (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
@@ -123,7 +121,7 @@ container, and on a busy machine two gate commands hit their time limits. The ga
 timeouts, the harness's own time ran out, and the arm ended `ABORTED: timeout` before a test phase.
 An aborted arm is still judged and shown, so the command exits 2: a result, not a failure.
 
-`make final FEATURES=F5 LAYERS=-scope` removes one layer from the harness arm. That is the
+`make final FEATURES=bulk-close LAYERS=-scope` removes one layer from the harness arm. That is the
 leave-one-out idea from the problem above, one layer and one feature at a time.
 
 ### Time and cost
@@ -133,24 +131,21 @@ per arm and $0.04 per review, so at most $0.58 per feature. The class profile gi
 agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 120 s for the
 harness's own work (`HARNESS_TIMEOUT_S`). Prices are in `platform/config/prices.toml`.
 
-The course's own F5 run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and cost
-$0.038253, with one other live batch running on the same machine. After the A/B's launch, the
+The course's own bulk close run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and
+cost $0.038253, with one other live batch running on the same machine. After the A/B's launch, the
 primary verdicts came at 4 min 27 s (bare) and 5 min 46 s (harness), and the full verdicts at
 11 min 39 s and 11 min 41 s ([evidence](../docs/evidence/final.md#final-project)).
 
 ## What to watch
 
-Minutes count from the launch of the course's own run.
-
-| Minute | Screen | What appears |
+| Minute after the course run's launch | Screen | What appears |
 |---|---|---|
 | 1 | 1 | Both arms at work; the harness arm shows its layer notes |
 | 5 | 1 | Bare: run completed after 42 turns, then "primary verdict ready: PASS" |
 | 7 | 1 | Harness: said done after 20 turns; gate items fail; "run ABORTED: timeout" |
 | 12 | 1 to 5 | Both full verdicts; terminal 2 prints both lines |
 
-Then switch screens with the keys `1` to `5`. Each screen of this run, and what to notice on it, is
-in [expected/](expected/README.md).
+Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) shows each screen and what to notice on it.
 
 ![Screen 1 at minute 1: both arms at work, harness notes for the placed files](expected/screen-1-minute-1.png)
 
@@ -166,7 +161,7 @@ in [expected/](expected/README.md).
 
 ## What the result means
 
-**F5 to F7 have no primary measure.** Their `task.toml` files set `primary_measure = ""`, so the
+**The three final features have no primary measure.** Their `task.toml` files set `primary_measure = ""`, so the
 referee marks every run as passed. On screen 1, "primary verdict ready: PASS" says nothing about the
 feature. Compare the counts instead:
 
@@ -178,9 +173,8 @@ feature. Compare the counts instead:
 | Out-of-scope files | Screen 3 diff map | Did it change files it should not? |
 
 Each arm's full record is in `exports/scores/`, one JSON file per run. "It is easy to see tests pass
-and assume the job is done, when this is rarely the case"
-([Anthropic, C compiler](../docs/evidence/final.md#quotes-used-on-these-pages)). So compare the claim
-with the counts, not with the agent's summary.
+and assume the job is done, when this is rarely the case" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
+So compare the claim with the counts, not with the agent's summary.
 
 **One A/B is one dot.** Read the three outcomes like this:
 
@@ -188,15 +182,16 @@ with the counts, not with the agent's summary.
 - **No measurable difference**: the counts are equal, or differ in a way one run can produce.
 - **Bare ahead**: the same as harness ahead, the other way round.
 
-![Dot chart: one dot per run per arm for F1 to F4, filled for passed, hollow for failed](../docs/diagrams/results-final.svg)
+![Dot chart: one dot per run per arm for the four section features, filled for passed, hollow for failed](../docs/diagrams/results-final.svg)
 
 *Tonight's A/B adds one dot per arm to rows like these.*
 
 The course's own run: both arms passed 46 of 46 hidden tests. The bare arm's tests killed 3 of 3
-mutants and the harness arm's 1 of 3, and the blinded reviewer rejected the harness arm's change
-over its audit row. The harness arm never reached its test phase, because its gate ran out of time
-on a busy machine. As one dot it reads bare ahead on mutants, for a reason that is about time, not
-about the layers. An earlier F5 run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
+mutants and the harness arm's 1 of 3, and the blinded reviewer (a separate model that reads the diff
+without knowing which arm wrote it) rejected the harness arm's change over its audit row. The
+harness arm never reached its test phase, because its gate ran out of time on a busy machine. As one
+dot it reads bare ahead on mutants, for a reason that is about time, not about the layers. An
+earlier bulk close run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
 arm, plus a confirmation on a second Section 3 ticket ([evidence](../docs/evidence/final.md#final-project)):
@@ -205,8 +200,8 @@ arm, plus a confirmation on a second Section 3 ticket ([evidence](../docs/eviden
 |---|---|---|
 | 1 Instructions | No new tenant leak | No measurable difference |
 | 2 State | Work survives a session stop | No measurable difference |
-| 3 Scope (F3, the section's ticket) | No file outside the allowed paths | No measurable difference |
-| 3 Scope (F4, the confirmation) | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
+| 3 Scope (idempotent creation, the section's ticket) | No file outside the allowed paths | No measurable difference |
+| 3 Scope (version checks, the confirmation) | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
 | 4 Verification | All hidden tests and mutants | No measurable difference (both fail) |
 
 To draw your own dots from every run in `exports/`, run the report. It makes no model calls and
@@ -224,7 +219,7 @@ uv run shipharness report
 | Harness arm `ABORTED: timeout` with 0 turns | Gate baseline not cached: setup used the 120 s | `make warm`, then run again |
 | `x OPENAI_API_KEY is not set` | The key is missing from `.env` | Add it, then `make doctor` |
 | `x SHIPHARNESS_CLASS_DATE is not set` | Class runs need the class day | Set it in `.env`, or use `PURPOSE=pilot` |
-| `x FEATURES=F4: the final project runs F5, F6, or F7` | F1 to F4 belong to the sections | Pick F5, F6, or F7 |
+| `x FEATURES=F4: the final project runs F5, F6, or F7` | The four section features are not final features | Pick `bulk-close`, `watchers`, or `labels` |
 | `x Docker is not running` | The Docker service is stopped | `sudo systemctl start docker`, then `make warm` |
 | `! console not reachable` | The console is not started | `make console` in another terminal |
 
@@ -248,3 +243,8 @@ printed on a worked example, a small library, in [your-repo/example/](your-repo/
 The four course skills package the same work for Claude Code, Codex, and Cursor; start at
 [use-in-your-repo/](../use-in-your-repo/README.md). When you are done, show the items in
 [CHECKLIST.md](CHECKLIST.md). Report results the way this page does: as counts, one dot per run.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
+- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)

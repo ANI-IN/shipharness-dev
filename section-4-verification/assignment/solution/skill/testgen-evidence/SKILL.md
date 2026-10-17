@@ -17,10 +17,11 @@ metadata:
 
 Generated tests are worth keeping only if they survive filters, and a reader should be able to
 check that claim. TestGen-LLM applies "a series of progressively demanding semantic filters" to
-candidate tests ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)), and the survivors "are thus guaranteed to improve the existing test
-class, and to provide reliable regression test signal" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)). This skill runs those filters
-through `shipharness testgen`, adds a duplicate-test filter (TestGen-LLM later added "an extra
-filter to remove previously seen test cases", [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)), and writes the result down.
+candidate tests, and the survivors "are thus guaranteed to improve the existing test class, and to
+provide reliable regression test signal" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)).
+This skill runs those filters through `shipharness testgen`, adds a duplicate-test filter
+(TestGen-LLM later added "an extra filter to remove previously seen test cases"), and writes the
+result down.
 
 ## When to use
 
@@ -65,10 +66,11 @@ filter to remove previously seen test cases", [Meta, TestGen-LLM](https://arxiv.
 - [ ] Every command in the report was run as written; the report holds its real output.
 - [ ] Each discarded test is listed with its filter number and reason.
 - [ ] The Limits section says what the filters cannot prove: a kept test passed five runs and
-      added line coverage ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)) or killed a mutant no existing test kills ([Meta, ACH](https://arxiv.org/abs/2501.12862)),
-      which does not make it a good specification. [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler) warns
-      that "it is easy to see tests pass and assume the job is done, when this is rarely the
-      case" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
+      added line coverage (TestGen-LLM) or killed a mutant, a copy of the code with one planted
+      fault, that no existing test kills ([Meta, ACH](https://arxiv.org/abs/2501.12862)). That does
+      not make it a good specification. Anthropic's compiler team warns that "it is easy to see
+      tests pass and assume the job is done, when this is rarely the case"
+      ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
 
 ## Sources
 

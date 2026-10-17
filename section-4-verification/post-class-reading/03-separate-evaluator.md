@@ -21,7 +21,8 @@ work is not the one that judges it.
 1. **Agents praise their own work.** "When asked to evaluate work they've produced, agents tend to
    respond by confidently praising the work—even when, to a human observer, the quality is obviously
    mediocre." Asking the same agent to self-verify, as an earlier Anthropic harness did ("Self-verify
-   all features", [Anthropic, Effective harnesses](../../docs/evidence/s1.md#src-anthropic-long-running)),
+   all features",
+   [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)),
    does not remove that bias.
 
 2. **A separate judge, with criteria, is the lever.** "Separating the agent doing the work from the
@@ -50,3 +51,8 @@ the harness arm gets no feedback the bare arm cannot get.
 4. Each month, read ten reviews where the reviewer and your tests disagreed. Change the criteria, not
    the tests, when the reviewer was wrong.
 5. Decide where it pays: add the reviewer to the tasks your agent gets wrong most, not to every task.
+
+## Sources
+
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)

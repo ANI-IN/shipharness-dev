@@ -2,7 +2,8 @@
 
 Reference version. "Results" and "Filter 6 on the kept tests" come from the reference
 solution's live run, captured on 2026-10-17 (files in `../live/`, run id on the
-[evidence page](../../../../docs/evidence/s4.md#s4-a4-solution)); everything under "R8 on TeamTrack" is real output with no model call.
+[evidence page](../../../../docs/evidence/s4.md#s4-a4-solution)); everything under "R8 on TeamTrack"
+is real output with no model call.
 
 ## Target
 
@@ -108,14 +109,15 @@ The finding's `detail` reads: "GET /v1/issues -> 200 lists soft-deleted issue(s)
 The one finding is the legacy `/v1/issues` handler, which reads every row through
 `list_all_legacy` with no `deleted_at` filter. It exists at the checkpoint, so it belongs in the
 baseline: rerunning with `--baseline` set to this output gives no new violations, like the legacy
-R1 leak in the R1 baseline. Every other endpoint in the OpenAPI schema answers 404 for a deleted issue or
-leaves it out of its list.
+tenant isolation leak in that rule's baseline. Every other endpoint in the OpenAPI schema answers
+404 for a deleted issue or leaves it out of its list.
 
 ## Limits
 
 - Filters 1-3 show that a kept test builds, passed five runs, and added line coverage or killed a
-  filter-set mutant ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862); [evidence](../../../../docs/evidence/s4.md#s4-quotes)). They do not show that the test checks the
-  behaviour a reviewer cares about.
+  filter-set mutant (a copy of the code with one planted fault)
+  ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862)).
+  They do not show that the test checks the behaviour a reviewer cares about.
 - Filter 6 compares syntax trees. Two tests that check the same thing with different calls both
   stay; it removes copies, not overlap.
 - R8 probes one deleted issue per endpoint with the home org's admin token. A list endpoint whose

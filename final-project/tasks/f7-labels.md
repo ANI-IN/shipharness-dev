@@ -1,7 +1,7 @@
-# F7 Labels
+# Labels
 
 The largest final feature: two build sessions, then a test phase. Run it with
-`FEATURES=F7 ./final-project/run.sh` or `make final FEATURES=F7`.
+`FEATURES=labels ./final-project/run.sh` or `make final FEATURES=labels`.
 
 ## What it asks for
 
@@ -17,15 +17,20 @@ Teams tag issues with their own labels, such as "bug", and filter issue lists by
 
 | House rule | What can go wrong |
 |---|---|
-| R4 Idempotent creates | A reused key with a different body must give 409, not a replay |
-| R2 Roles | Viewers must get 403 on every label write |
-| R5 Audit log | Five audit actions, one row per successful write |
-| R1 Tenant isolation | Another org's label id in a body or a filter must give 404 |
+| Idempotent creates rule | A reused key with a different body must give 409, not a replay |
+| Roles rule | Viewers must get 403 on every label write |
+| Audit log rule | Five audit actions, one row per successful write |
+| Tenant isolation rule | Another org's label id in a body or a filter must give 404 |
 
-F7 touches the most files of the three, including the existing issue endpoints, so the existing
+The idempotent creates rule: a create sent again with the same `Idempotency-Key` header returns the
+first result instead of making a duplicate.
+
+Labels touches the most files of the three, including the existing issue endpoints, so the existing
 tests that must keep passing are the most at risk here.
 
 ## What the referee checks
+
+The referee is the program that scores each arm after the agent stops.
 
 - **Hidden tests:** 64, in four files under
   [platform/teamtrack/tests/hidden/f7/](../../platform/teamtrack/tests/hidden/f7/). 55 test labels
@@ -44,7 +49,7 @@ tests that must keep passing are the most at risk here.
   [platform/teamtrack/docs/features/f7.md](../../platform/teamtrack/docs/features/f7.md).
 - The ticket text, session budget (25 turns, then 35), allowed paths, and hidden test files:
   [platform/teamtrack/reference/f7/task.toml](../../platform/teamtrack/reference/f7/task.toml).
-- The dataset line `make final FEATURES=F7` runs (feature `F7`, variant `canonical`):
+- The dataset line `make final FEATURES=labels` runs (feature `F7`, variant `canonical`):
   [platform/datasets/teamtrack-features-v1.jsonl](../../platform/datasets/teamtrack-features-v1.jsonl),
   built from [platform/datasets/sources/tickets.toml](../../platform/datasets/sources/tickets.toml).
 - The mutants: [platform/teamtrack/mutants/features/f7.jsonl](../../platform/teamtrack/mutants/features/f7.jsonl).

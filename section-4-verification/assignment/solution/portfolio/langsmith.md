@@ -1,4 +1,4 @@
-# LangSmith traces: F4 A/B, bare vs harness
+# LangSmith traces: version checks A/B, bare vs harness
 
 Reference version. The links and the numbers come from the reference solution's live run,
 captured on 2026-10-17: one A/B ([A/B id and run ids](../../../../docs/evidence/s4.md#s4-a4-solution)), files in `../live/` (`ab.txt` and the two
@@ -22,10 +22,10 @@ From `trace_url` (agent root) and `referee_trace_url` in each score record, Lang
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview
 ```
 
-The command runs the F4 ticket (example `F4-canonical` in `platform/datasets/teamtrack-features-v1.jsonl`,
-checkpoint `m1-s4-start`) in both arms: bare with no harness layer, harness with the demo-4 stack
+The command runs the version checks ticket (`F4` in the command; example `F4-canonical` in
+`platform/datasets/teamtrack-features-v1.jsonl`, checkpoint `m1-s4-start`) in both arms: bare with no harness layer, harness with the demo-4 stack
 (instructions, state, scope, verify; `SECTION_STACKS` in `platform/src/shipharness/ab/demo.py`). The
-referee judges both builds the same way and writes one score record per arm to
+referee, the program that scores each run after the agent stops, judges both builds the same way and writes one score record per arm to
 `exports/scores/<run_id>.json`. `--no-preview` skips the board preview containers. The command
 prints the A/B id, one line per arm, and the cost line. `--purpose assignment` traces each run
 to the LangSmith project `shipharness-assignments` (agent root and referee) and counts its spend in
@@ -43,14 +43,14 @@ Per-arm counts from the two score records:
 | Referee mutants killed | 4 of 4 | 0 of 4 |
 | Primary measure passed | false | false |
 | Existing tests that keep passing | 189 of 190 | 188 of 190 |
-| New R1-R7 violations | 0 | 0 |
+| New house rule violations | 0 | 0 |
 | Tests shipped | 34 | 0 |
 | Out-of-scope files | 1 | 0 |
 | Reviewer verdict | reject | reject |
 | Agent turns | 52 | 43 |
 | Agent cost, review cost | $0.018503, $0.00363 | $0.016211, $0.003794 |
 
-"New R1-R7 violations" is 0 in both records: `r1_new_violations`, `r2_new_violations`,
+"New house rule violations" is 0 in both records: `r1_new_violations`, `r2_new_violations`,
 `r3_new_failures`, `r4_duplicates`, and `r5_audit_missing` are 0, and `r6_ok` and `r7_ok` are true.
 Both reviewer verdicts agree with the referee (`reviewer_agrees` true).
 
@@ -60,12 +60,13 @@ The cost line printed by the ab command (last line of `../live/ab.txt`):
 Cost: $0.042138 (this command: gpt-5.6-luna $0.007424, gpt-6-luna $0.034714; session $0.063847 of $2.50; build $2.186817 of $15.00 ($12.813183 left))
 ```
 
-How to read it: F4's primary measure has two parts, hidden tests passed and mutants killed, each
-against its total (`primary_measure` in the F4 dataset line), and a run passes it only when both
+How to read it: the feature's primary measure has two parts, hidden tests passed and mutants killed
+(planted faults that a shipped test caught), each against its total (`primary_measure` in the
+feature's dataset line), and a run passes it only when both
 counts equal their totals (`evaluate_primary` in `platform/src/shipharness/ab/score.py`). Neither arm
 passed. The bare arm missed by one hidden test and killed every referee mutant with its 34 shipped
 tests. The harness arm stopped with `ABORTED: timeout` after 43 turns, before it shipped a test, so
 no test of its own could kill a referee mutant, and 26 hidden tests failed on its unfinished
-build. One A/B at k=1 is one run per arm, so a difference between the arms is a single
+build. One A/B at k=1 (one try per arm) is one run per arm, so a difference between the arms is a single
 observation; this page reports counts, not rates, and does not show that one arm does better in
 general.

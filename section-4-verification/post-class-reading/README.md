@@ -8,7 +8,8 @@ reading time in the table is for the full source, at 200 words a minute.
 >
 > - **Test filters**: Five checks a test from the test phase must pass to be kept.
 > - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
-> - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
+> - **Referee**: The program that scores each run after the agent stops.
+> - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
 
 ## Readings
 
@@ -26,6 +27,13 @@ reading time in the table is for the full source, at 200 words a minute.
 - After each reading, do the first step of its "Apply it to your repo" list on a repository you work
   on. It takes a few minutes and makes the idea stick.
 - Then read the primary sources. Start with the section on the evaluator in
-  [Anthropic, Harness design](../../docs/evidence/s1.md#src-anthropic-harness-design), then the filter
-  pipeline in [Meta, TestGen-LLM](../../docs/evidence/s4.md#src-testgen-llm).
+  [Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps),
+  then the filter pipeline in [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171).
 - The class recap is in [session-notes.md](../session-notes.md).
+
+## Sources
+
+- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)
+- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
+- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)

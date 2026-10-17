@@ -126,9 +126,9 @@ the map's "Where to look" table exists.
 
 ## Step 3: Set the house rules
 
-Record today's violations once as the baseline, then check against it. The worked example keeps R6
-(its layering: `queueutils` above `listutils` above `typeutils`) and the check that existing tests
-keep passing:
+Record today's violations once as the baseline, then check against it. The worked example keeps the layering
+rule (`R6` in the commands: `queueutils` above `listutils` above `typeutils`) and the check that
+existing tests keep passing:
 
 ```bash
 PYTHONPATH=harness uv run --project "$SHIPHARNESS" shipharness check --app . --adapter shipharness_adapter:HouseRulesAdapter --rules R6,regression --params harness/check-params.json --json > harness/check-baseline.json

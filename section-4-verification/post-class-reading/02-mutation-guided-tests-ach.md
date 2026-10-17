@@ -6,6 +6,7 @@ Source: Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta
 > **Terms on this page**
 >
 > - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
+> - **Referee**: The program that scores each run after the agent stops.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
 > - **Filter set**: Planted faults that filter 3 may use while the agent works; they never repeat a referee mutant.
 
@@ -33,7 +34,8 @@ way, with planted faults on the riskiest lines of each feature.
    test that fails on today's code is not kept, even when today's code is the one that is wrong.
 
 The course keeps the idea and changes the machinery. Its mutants are written by hand, one record per
-fault, so they can target chosen lines. One F4 record turns `issue.version += 1` into `+= 0`, so
+fault, so they can target chosen lines. One record for the version checks feature turns
+`issue.version += 1` into `+= 0`, so
 "stale If-Match values still match (lost update)". The faults are split into a filter set and a
 referee set that share no mutation. The referee then judges the shipped tests with faults they were
 never written against.
@@ -48,3 +50,7 @@ never written against.
 4. Keep the fault in a file next to your tests, and re-apply it in CI now and then.
 5. If you use faults to steer an agent's tests, keep a second set it never sees, and judge with that
    one.
+
+## Sources
+
+- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)

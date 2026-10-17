@@ -52,8 +52,8 @@ What is in this folder:
    same run is discarded too.
 
 6. **Run the live step once.** One testgen run on the pinned target
-   `TG-teamtrack-app-repositories-issues`, filter 6 over its kept tests, and one F4 A/B. The
-   portfolio was then written from those files.
+   `TG-teamtrack-app-repositories-issues`, filter 6 over its kept tests, and one A/B on the version
+   checks feature. The portfolio was then written from those files.
 
 ## Design choices and why
 
@@ -63,7 +63,8 @@ What is in this folder:
   appearance, at any depth and in any response shape. The brackets stop `[r8-deleted:1]` from
   matching inside `[r8-deleted:11]`.
 - **Database soft delete.** If R8 deleted through `DELETE /issues/{id}`, a build with a broken delete
-  endpoint would fail R8 for the wrong reason. R1, R2, and R5 already probe that endpoint. The cost
+  endpoint would fail R8 for the wrong reason. The tenant isolation, roles, and audit log rules
+  already probe that endpoint. The cost
   is that the adapter knows one table and one column; that knowledge stays in the adapter.
 - **Lists before writes.** A write probe that wrongly succeeds, such as a PATCH that renames the
   issue, would remove the marker. Lists run first, so every list sees every marker.
@@ -72,7 +73,8 @@ What is in this folder:
   `GET /v1/issues` finding matches across runs and counts as baseline.
 - **Remediation in the message.** Each `detail` says what to change, such as "add `deleted_at IS
   NULL` to the query". OpenAI's harness team writes its lint messages "to inject remediation
-  instructions into agent context" ([OpenAI, Harness engineering](../../../docs/evidence/s1.md#src-openai-harness)).
+  instructions into agent context"
+  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
 - **Filter 6 outside the default list.** The pipeline takes a list of filters, so filter 6 runs
   without a change under `platform/src/`. `apply_filter --update-report` adds its rows to the testgen
   report, so one file shows all six filters.
@@ -166,7 +168,8 @@ Cost: $0.003287 (testgen, model gpt-6-luna)
 Filter 6 then kept that one test: it repeats none of the 23 existing tests it was compared with
 (`filter6` in `live/testgen-report.json`).
 
-The live F4 A/B, from `live/ab.txt` (the A/B id is cut to `<run id>`, the running totals to `...`):
+The live A/B on the version checks feature (`F4` in the output), from `live/ab.txt` (the A/B id is
+cut to `<run id>`, the running totals to `...`):
 
 ```text
 $ uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview
@@ -205,3 +208,7 @@ Score: 100/100
 
 Dates, run ids, and the capture details for all of the above are on the
 [evidence page](../../../docs/evidence/s4.md#s4-a4-solution).
+
+## Sources
+
+- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
