@@ -662,3 +662,42 @@ def test_the_rule_is_the_same_for_the_harness_arm(tmp_path: Path) -> None:
         tmp_path, steps, harness=Harness([Quiet()]), arm="harness", session_budget=[3, 3]
     )
     assert [s.ended_by for s in result.sessions] == ["claim_not_done", "claim_done"]
+
+
+# --- the visible-test directory comes from the run ----------------------------------------------
+
+
+def test_teamtrack_runs_keep_the_tests_visible_prompts_tools_and_events(tmp_path: Path) -> None:
+    from shipharness.runner.prompts import CORE_SYSTEM_PROMPT, TEST_PHASE
+    from shipharness.runner.tools import TOOL_SCHEMAS
+
+    _result, events, client = run(tmp_path, [finish()], phases=("test",))
+    assert client.tools[0] == TOOL_SCHEMAS
+    developer, user = client.inputs[0][0], client.inputs[0][1]
+    assert developer["content"][0]["text"] == CORE_SYSTEM_PROMPT
+    assert user["content"][0]["text"].startswith(TEST_PHASE)
+    [start] = [e for e in events if e.type == "run_start"]
+    assert "visible_tests_dir" not in start.data["spec"]
+
+
+def test_a_run_with_tests_in_tests_names_that_directory_to_the_agent(tmp_path: Path) -> None:
+    _result, events, client = run(tmp_path, [finish()], phases=("test",), visible_tests_dir="tests")
+    [tool] = [t for t in client.tools[0] if t["name"] == "run_visible_tests"]
+    assert "tests/visible" not in json.dumps(tool)
+    developer, user = client.inputs[0][0], client.inputs[0][1]
+    assert "tests/visible" not in developer["content"][0]["text"]
+    assert "visible test suite in tests." in developer["content"][0]["text"]
+    assert "new test files under tests/." in user["content"][0]["text"]
+    [start] = [e for e in events if e.type == "run_start"]
+    assert start.data["spec"]["visible_tests_dir"] == "tests"
+
+
+@pytest.mark.parametrize("bad", ["/abs", "../up", "tests/../..", "a b", "x;rm", "", "C:/x"])
+def test_visible_tests_dir_must_be_a_plain_relative_directory(tmp_path: Path, bad: str) -> None:
+    with pytest.raises(ValueError):
+        spec(tmp_path, visible_tests_dir=bad)
+
+
+def test_visible_tests_dir_drops_a_trailing_slash(tmp_path: Path) -> None:
+    assert spec(tmp_path, visible_tests_dir="tests/").visible_tests_dir == "tests"
+    assert spec(tmp_path).visible_tests_dir == "tests/visible"

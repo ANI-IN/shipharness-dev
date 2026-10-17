@@ -1,6 +1,7 @@
 """Test-phase hook of the verify layer: every test the agent proposed in the test phase goes through
 the five filters (owned by the filters package); discarded tests are removed from
-the workspace with their reason, kept tests are committed.
+the workspace with their reason, kept tests are committed. Proposed tests are the new or changed
+test functions under the run's visible-test directory (TeamTrack: tests/visible).
 
 Workspace files are read and written on the host without following links (untrusted workspace).
 """
@@ -13,10 +14,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from shipharness.runner.models import TEAMTRACK_VISIBLE_TESTS
 from shipharness.runner.paths import resolve_in_workspace
 from shipharness.runner.tools import iter_workspace_files
 
-TEST_ROOT = "tests/visible/"
+TEST_ROOT = f"{TEAMTRACK_VISIBLE_TESTS}/"
 Pipeline = Callable[[list[dict[str, str]], Any, dict[str, str]], list[Any]]
 
 
@@ -24,16 +26,24 @@ class PipelineUnavailable(RuntimeError):
     """The filter pipeline cannot run (package or helper missing)."""
 
 
-def snapshot(workspace: Path) -> tuple[dict[str, str], dict[str, str]]:
+def visible_prefix(visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS) -> str:
+    """The path prefix of visible test files ("" when the directory is the repository root)."""
+    return "" if visible_tests_dir == "." else f"{visible_tests_dir}/"
+
+
+def snapshot(
+    workspace: Path, visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
+) -> tuple[dict[str, str], dict[str, str]]:
     """(sha256 of every workspace file, text of every visible test file)."""
     shas: dict[str, str] = {}
     texts: dict[str, str] = {}
     root = Path(workspace)
+    prefix = visible_prefix(visible_tests_dir)
     for path in iter_workspace_files(root):
         rel = path.relative_to(root).as_posix()
         data = path.read_bytes()
         shas[rel] = hashlib.sha256(data).hexdigest()
-        if rel.startswith(TEST_ROOT) and rel.endswith(".py"):
+        if rel.startswith(prefix) and rel.endswith(".py"):
             texts[rel] = data.decode("utf-8", errors="replace")
     return shas, texts
 
@@ -70,11 +80,11 @@ def _sources(text: str) -> dict[str, str]:
 
 
 def find_candidates(
-    workspace: Path, start_texts: dict[str, str]
+    workspace: Path, start_texts: dict[str, str], visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
 ) -> tuple[list[dict[str, str]], dict[str, str]]:
     """(candidates {test_id, file, source}, unparseable test files -> reason). A candidate is a
     test function that is new or changed since the start of the test phase."""
-    _shas, now_texts = snapshot(workspace)
+    _shas, now_texts = snapshot(workspace, visible_tests_dir)
     candidates: list[dict[str, str]] = []
     broken: dict[str, str] = {}
     for rel, text in sorted(now_texts.items()):
@@ -95,13 +105,16 @@ def find_candidates(
     return candidates, broken
 
 
-def remove_tests(workspace: Path, by_file: dict[str, list[str]]) -> list[str]:
+def remove_tests(
+    workspace: Path, by_file: dict[str, list[str]], visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
+) -> list[str]:
     """Remove the named tests (`name` or `Class::name`) from each file; delete a file left with no
     tests. Returns the files changed."""
     changed = []
+    prefix = visible_prefix(visible_tests_dir)
     for rel, names in by_file.items():
         path = resolve_in_workspace(workspace, rel)
-        if not rel.startswith(TEST_ROOT) or path.is_symlink() or not path.is_file():
+        if not rel.startswith(prefix) or path.is_symlink() or not path.is_file():
             raise ValueError(f"not a visible test file in the workspace: {rel!r}")
         text = path.read_bytes().decode("utf-8", errors="replace")
         tree = ast.parse(text)
@@ -131,10 +144,13 @@ def remove_tests(workspace: Path, by_file: dict[str, list[str]]) -> list[str]:
     return changed
 
 
-def delete_files(workspace: Path, rels: list[str]) -> None:
+def delete_files(
+    workspace: Path, rels: list[str], visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
+) -> None:
+    prefix = visible_prefix(visible_tests_dir)
     for rel in rels:
         path = resolve_in_workspace(workspace, rel)
-        if rel.startswith(TEST_ROOT) and path.is_file() and not path.is_symlink():
+        if rel.startswith(prefix) and path.is_file() and not path.is_symlink():
             path.unlink()
 
 
@@ -153,10 +169,13 @@ def filters_pipeline(
         from shipharness.filters.source import is_source_path, is_test_path
     except ImportError as exc:
         raise PipelineUnavailable(f"shipharness.filters is not available ({exc})") from None
+    prefix = visible_prefix(
+        getattr(getattr(ctx, "spec", None), "visible_tests_dir", TEAMTRACK_VISIBLE_TESTS)
+    )
     existing = sorted(
         rel
         for rel in source_shas
-        if rel.startswith(TEST_ROOT)
+        if rel.startswith(prefix)
         and rel.endswith(".py")
         and is_test_path(rel)
         and pathlib_name(rel).startswith("test_")

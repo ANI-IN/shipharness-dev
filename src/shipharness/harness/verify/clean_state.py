@@ -1,5 +1,6 @@
 """Clean-state check (A2, F-a-84): the work is committed, changed Python files are ruff clean,
-there is one migration head, and no debug output was added. Runs in the arm's own container."""
+there is one migration head (when the repository has migrations), and no debug output was added.
+Runs in the arm's own container."""
 
 from __future__ import annotations
 
@@ -53,7 +54,11 @@ def _debug_lines(diff: str) -> list[str]:
     return found
 
 
-def clean_state_check(sandbox: Sandbox, base_sha: str, timeout_s: int = 120) -> GateItem:
+def clean_state_check(
+    sandbox: Sandbox, base_sha: str, timeout_s: int = 120, *, migrations: bool = True
+) -> GateItem:
+    """`migrations=False` (a repository without alembic.ini or migrations/versions) skips the
+    migration head check: `alembic heads` would fail there for a reason the agent cannot fix."""
     problems: list[str] = []
     status = sandbox.exec("git status --porcelain --untracked-files=all", timeout_s)
     if status.exit_code != 0:
@@ -79,13 +84,17 @@ def clean_state_check(sandbox: Sandbox, base_sha: str, timeout_s: int = 120) -> 
         if debug := _debug_lines(diff.output):
             problems.append("debug output: " + "; ".join(debug[:3]))
 
-    heads = sandbox.exec("alembic heads", timeout_s)
-    count = heads.output.count("(head)")
-    if heads.exit_code != 0:
-        problems.append(f"alembic heads failed: {heads.output.strip()[-120:]}")
-    elif count != 1:
-        problems.append(f"migration heads: {count} (expected 1)")
+    if migrations:
+        heads = sandbox.exec("alembic heads", timeout_s)
+        count = heads.output.count("(head)")
+        if heads.exit_code != 0:
+            problems.append(f"alembic heads failed: {heads.output.strip()[-120:]}")
+        elif count != 1:
+            problems.append(f"migration heads: {count} (expected 1)")
 
     if problems:
         return GateItem(name="clean state", status="fail", detail="; ".join(problems))
+    if not migrations:
+        detail = "committed, ruff clean; migration heads skipped: no migrations configured"
+        return GateItem(name="clean state", status="pass", detail=detail)
     return GateItem(name="clean state", status="pass", detail="committed, ruff clean, one head")

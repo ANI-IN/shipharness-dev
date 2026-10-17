@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 from shipharness.events import Arm
 from shipharness.harness.decisions import LayerName
@@ -16,6 +17,20 @@ ToolName = Literal[
 ]
 ClaimValue = Literal["done", "not_done", "none"]
 RunStatus = Literal["completed", "ABORTED: cap", "ABORTED: timeout", "ERROR"]
+TEAMTRACK_VISIBLE_TESTS = "tests/visible"
+_PART = r"[A-Za-z0-9_.][A-Za-z0-9_.-]*"  # never starts with "-" (pytest would read an option)
+_RELATIVE_DIR = re.compile(rf"^{_PART}(/{_PART})*$")
+
+
+def checked_tests_dir(value: str) -> str:
+    """A repository-relative directory in POSIX form, safe to put in a shell command: no
+    absolute path, no `.` or `..` part (except "." alone), and only letters, digits, `_`, `.`,
+    `-` (not first), and `/`. A trailing `/` is dropped."""
+    text = value.rstrip("/") if value not in ("", "/") else value
+    parts = text.split("/")
+    if not _RELATIVE_DIR.match(text) or ".." in parts or (text != "." and "." in parts):
+        raise ValueError(f"not a repository-relative directory: {value!r}")
+    return text
 
 
 class AgentRunSpec(BaseModel):
@@ -41,11 +56,22 @@ class AgentRunSpec(BaseModel):
     single_arm: bool = False  # True: harness arm alone (`ab --arms harness`), not an A/B
     cost_limit_usd: float = 0.20
     workspace: Path
+    # Where the visible tests live: run_visible_tests, the verify gate, and the test-phase filters
+    # use it. TeamTrack keeps tests/visible; testgen sets the directory of the repo's tests.
+    visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
+
+    @field_validator("visible_tests_dir")
+    @classmethod
+    def _check_visible_tests_dir(cls, value: str) -> str:
+        return checked_tests_dir(value)
 
     def public_dict(self) -> dict[str, Any]:
-        """Spec for events and traces (no host paths)."""
+        """Spec for events and traces (no host paths). The visible-test directory is listed only
+        when it is not TeamTrack's tests/visible, so TeamTrack events keep their shape."""
         data = self.model_dump(mode="json", exclude={"workspace"})
         data["layers"] = sorted(self.layers)
+        if self.visible_tests_dir == TEAMTRACK_VISIBLE_TESTS:
+            del data["visible_tests_dir"]
         return data
 
 

@@ -156,6 +156,9 @@ class AgentRunSpec(BaseModel):
     test_phase_turns: int = 12       # test-phase turn budget (M6 may lower it to fit the run cap)
     service_tier: str = "auto"
     workspace: Path                  # host path of the arm's fresh repo
+    visible_tests_dir: str = "tests/visible"  # run_visible_tests, verify gate, test-phase filters;
+                                     # testgen: the directory of --tests (or --visible-tests);
+                                     # in run_start only when not "tests/visible"
 
 class SessionResult(BaseModel):
     index: int
@@ -265,7 +268,7 @@ with a trailer `[truncated: N more chars; the full output is kept in the run log
 | `search` | `pattern: str` (regex), `path: str \| null`, `max_results: int \| null` (default 50) | `path:line: text` rows |
 | `apply_patch` | `patch: str` (one or more files: the `*** Begin Patch` format or a unified diff; see §23) | `applied: <files>` or a precise rejection reason (hunk mismatch, path outside workspace, path blocked by scope) |
 | `run` | `command: str`, `timeout_s: int \| null` (≤ `TOOL_TIMEOUT_S`) | `exit=<code>` header + combined stdout/stderr; executed in the arm container under `/work` |
-| `run_visible_tests` | `selector: str \| null` (pytest node selector within `tests/visible`) | Summary first (`passed=x failed=y errors=z`), then one `FAILED <node>: <reason>` line per failure, grep-friendly (A4, F-a-132) |
+| `run_visible_tests` | `selector: str \| null` (pytest node selector within the run's `visible_tests_dir`, `tests/visible` for TeamTrack) | Summary first (`passed=x failed=y errors=z`), then one `FAILED <node>: <reason>` line per failure, grep-friendly (A4, F-a-132) |
 | `finish` | `claim: "done" \| "not_done"` (enum), `summary: str` (≤ 2,000 chars) | `accepted` (phase ends), or gate feedback when the verify layer is on and the gate fails (phase continues) |
 
 `finish` schema:
@@ -1015,6 +1018,12 @@ are folded in here) and the owner's pre-M6 decisions.
   `.pytest_cache`, `.ruff_cache`, `.mypy_cache`, `.hypothesis`).
 - The run-log reader (`shipharness.events.reader`) skips a malformed line with one warning that names the
   run, line, and reason, never the content; a partial last line is held and read again.
+- `shipharness testgen --visible-tests <dir>` (default: the directory holding the `--tests` paths, else
+  `tests`) sets `AgentRunSpec.visible_tests_dir`. With `--layers verify`, the layer's test-phase filters
+  use testgen's filter context and testgen evaluates only the tests the layer did not, so the report
+  and summary count every evaluated test once. The gate's clean-state item runs `alembic heads` only
+  when the checkpoint workspace has `alembic.ini` or `migrations/versions` (else
+  "skipped: no migrations configured"); a run without a build phase computes no gate baseline.
 - `shipharness testgen --doctest-modules/--no-doctest-modules` (default off; target metadata
   `baseline_includes_doctests` wins): doctests count in the existing-suite baseline, coverage, and mutant
   kills; generated tests run as plain ids.

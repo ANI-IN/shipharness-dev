@@ -5,6 +5,8 @@ Harness layers add their own blocks after this text; nothing here mentions the h
 
 from __future__ import annotations
 
+from shipharness.runner.models import TEAMTRACK_VISIBLE_TESTS
+
 CORE_SYSTEM_PROMPT = """\
 You are a software engineer working on a ticket in a git repository. The repository is your \
 working directory. You work only through the tools provided.
@@ -39,6 +41,20 @@ NEUTRAL_WRAPUP = "This session is ending soon."
 NEUTRAL_RESUME = "A previous session worked on this ticket and was stopped."
 
 REMINDER = "Call a tool, or call finish to end this phase."
+
+
+def core_system_prompt(visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS) -> str:
+    """CORE_SYSTEM_PROMPT naming the visible-test directory of the run (unchanged for
+    tests/visible)."""
+    old = f"visible test suite in {TEAMTRACK_VISIBLE_TESTS}."
+    return CORE_SYSTEM_PROMPT.replace(old, f"visible test suite in {visible_tests_dir}.")
+
+
+def phase_prompt_for_test(visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS) -> str:
+    """TEST_PHASE naming the visible-test directory of the run (unchanged for
+    tests/visible)."""
+    old = f"files under {TEAMTRACK_VISIBLE_TESTS}/."
+    return TEST_PHASE.replace(old, f"files under {visible_tests_dir}/.")
 
 
 def wrapup_message(turns_left: int, harness_text: str | None) -> str:
