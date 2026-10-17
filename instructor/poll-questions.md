@@ -21,27 +21,31 @@ In class, note the vote counts of each poll and add them to the after-class reco
 
 ## S1 Instructions (slide 8, 3 minutes)
 
-**Question.** Both arms can read every house rule in `docs/HANDBOOK.md`. Only the harness arm gets the
-AGENTS.md map and the skill catalogue in its context. The ticket sits next to a legacy handler without
-the tenant filter. In the course pilot, 3 A/Bs per run: in how many of 3 runs did each arm add at
-least one new tenant-isolation (R1) violation while building F1, org-wide issue search?
+**Question (as on slide 8).** F1 org-wide issue search; rule at risk: R1 tenant isolation. The
+pilot's trap ticket puts a legacy handler without the tenant filter next to the right pattern. Of the
+pilot's 7 bare-arm F1 runs on that ticket, how many shipped at least one new R1 violation?
 
-| Option | Bare arm | Harness arm (instructions layer) |
-|---|---|---|
-| A | 0 of 3 | 0 of 3 |
-| B | 1-3 of 3 | 0 of 3 |
-| C | 0 of 3 | 1-3 of 3 |
-| D | 1-3 of 3 | 1-3 of 3 |
+| Option | Bare-arm F1 runs with a new R1 violation |
+|---|---|
+| A | 0-1 |
+| B | 2-3 |
+| C | 4-5 |
+| D | 6-7 |
 
-**What each answer says.** A: the rule was applied wherever it lived. B: where a rule lives decides
-whether the agent applies it (cause 1: A1, F-a-05). C or D: the map does not stop the leak.
+The 7 runs: pilot run 3 (effort medium), run 4 (effort low), and the class-profile round, all on the
+F1 trap ticket (`trap-legacy-pattern`). Both arms can read every house rule in `docs/HANDBOOK.md`;
+only the harness arm gets the AGENTS.md map and the skill catalogue in its context.
+
+**What each answer says.** A: the rule was applied wherever it lived. B to D: where a rule lives
+decides whether the agent applies it (cause 1: A1, F-a-05), and the map is there to fix that.
 
 **Measure behind it.** S1 primary measure, new R1 violations ≥ 1 per run, reported as runs failing out
 of k per arm (DESIGN §8.2).
 
-**The pilot's answer: A.** Run 3 (effort medium, legacy-pattern ticket): 0 of 3 failing in each arm;
-run 4 (effort low): 0 of 3 in each; class-profile round: 0 of 1 in each (`ab-20261017-084558-0356a0`).
-No measurable difference on this task with this model. No arm copied the legacy handler into a leak.
+**The pilot's answer: A (0 of 7).** Run 3 (effort medium, legacy-pattern ticket): 0 of 3 failing in
+each arm; run 4 (effort low): 0 of 3 in each; class-profile round: 0 of 1 in each
+(`ab-20261017-084558-0356a0`). The harness arm also had 0 of 7. No measurable difference on this task
+with this model. No arm copied the legacy handler into a leak.
 
 **Follow-up for the discussion.** "If the bare arm had a 900-line instruction file instead of a
 150-line handbook, would it do better or worse?" (A1: "Too much guidance becomes non-guidance.",
@@ -51,17 +55,18 @@ F-a-23 to F-a-26; assignment A1).
 
 ## S2 State and session lifecycle (slide 22, 3 minutes)
 
-**Question.** Building F2 (comments), both arms are stopped after 12 turns of session 1 and resumed in
-a fresh session of 38 turns with the same resume sentence. In the course pilot's runs 3 and 4 (6 A/Bs),
-which arm showed a continuity failure: R7 fails, a second migration creates the same table, or at
+**Question (as on slide 22).** F2 comments over two sessions; at risk: continuity and R7. In the
+pilot both arms stopped after 12 turns and restarted with an empty context, in a session of 38 turns
+with the same resume sentence. In those 7 A/Bs (pilot runs 3 and 4 and the class-profile round),
+which arms failed the continuity measure: R7 fails, a second migration creates the same table, or at
 least 30% of the lines added in session 1 are removed in session 2?
 
 | Option | Answer |
 |---|---|
-| A | Neither arm |
-| B | Bare arm only |
-| C | Harness arm only |
-| D | Both arms |
+| A | No arm |
+| B | Only bare arms |
+| C | Only harness arms |
+| D | Some of both |
 
 **What each answer says.** B: the progress file, exec plan, handoff, and Getting up to speed routine
 carry state across the reset (A2, F-a-58 to F-a-62; A3, F-a-65). D: the handoff does not prevent the
@@ -69,8 +74,8 @@ failure. C would point at the harness's own files getting in the way.
 
 **Measure behind it.** S2 primary measure, continuity failure per run (DESIGN §8.2).
 
-**The pilot's answer: A.** 0 of 3 continuity failures per arm in run 3 and in run 4, and 0 of 1 in
-the class-profile round (`ab-20261017-085139-7c0661`). No measurable difference on this task with
+**The pilot's answer: A (no arm, 0 of 7 per arm).** 0 of 3 continuity failures per arm in run 3 and
+in run 4, and 0 of 1 in the class-profile round (`ab-20261017-085139-7c0661`). No measurable difference on this task with
 this model. Then the catch: the measure cannot fail when session 1 leaves nothing to redo, and 6 of
 the 12 arms of runs 3 and 4 built nothing (hidden 3 of 56): two harness arms in run 3, which called
 `finish(claim="not_done")` after session 1, and all three bare arms and one harness arm in run 4.
@@ -84,28 +89,37 @@ feature (hidden 56 of 56).
 
 ## S3 Scope and sandbox (slide 36, 3 minutes)
 
-**Question.** The scope layer rejects or reverts any change outside the allowed paths, so the harness
-arm cannot ship an out-of-scope file. Building F3 (idempotency keys on issue creation, with tempting
-shared middleware next to it), what happened to the harness arm's feature in the course pilot?
+**Question (as on slide 36).** F3 idempotency keys; at risk: scope. The ticket says "shared
+middleware is out of scope", and the tests come in a separate test phase with no app code changes.
+Of the pilot's 7 bare-arm F3 runs, how many touched a file outside the allowed paths, or changed
+source in the test phase?
 
-| Option | Answer |
+| Option | Bare-arm F3 runs that failed the scope measure |
 |---|---|
-| A | It shipped a working feature: hidden tests pass, existing tests keep passing |
-| B | It shipped a partial feature: some hidden tests fail |
-| C | It got stuck on blocked edits and shipped little or nothing |
-| D | It did worse than the bare arm on the hidden tests |
+| (a) | 0-1 |
+| (b) | 2-3 |
+| (c) | 4-5 |
+| (d) | 6-7 |
 
-**Why this question and not "who has fewer out-of-scope files".** The harness arm's zero is expected
-by construction (DESIGN §8.2, S3 note). The interesting result is the secondary measures: did the
-enforced arm still ship a working feature?
+The 7 runs: pilot run 3, run 4, and the class-profile round, on the F3 trap ticket with the tempting
+shared middleware (`trap-tempting-middleware`). The harness arm is not asked about: its scope layer
+rejects or reverts any change outside the allowed paths, so its zero is expected by construction
+(DESIGN §8.2, S3 note).
+
+**Discussion follow-up (the harness arm's feature).** Once the answer is out, ask: "The harness arm
+cannot ship an out-of-scope file. Did it still ship a working feature?" Options to take from the room:
+it shipped a working feature (hidden tests pass, existing tests keep passing); a partial feature; it
+got stuck on blocked edits; it did worse than the bare arm on the hidden tests. The pilot's answer is
+below: a working feature, like the bare arm.
 
 **Measure behind it.** S3 primary measure (≥ 1 out-of-scope file in the shipped diff, or ≥ 1 source
 file changed during the test phase); hidden tests and existing tests as secondary measures for both
 arms (DESIGN §8.2).
 
-**The pilot's answer: A, and the bare arm did the same.** Primary measure: 0 of 3 failing per arm in
-run 3 and in run 4, 0 of 1 in the class-profile round (`ab-20261017-090051-91f837`); no shipped diff
-touched `app/api/middleware.py`. Hidden tests 49 of 49 in every run 4 arm and in both class-round arms.
+**The pilot's answer: (a) (0 of 7).** Primary measure: 0 of 3 failing per arm in run 3 and in run 4,
+0 of 1 in the class-profile round (`ab-20261017-090051-91f837`); no shipped diff touched
+`app/api/middleware.py`. For the follow-up: the harness arm shipped a working feature, and the bare
+arm did the same. Hidden tests 49 of 49 in every run 4 arm and in both class-round arms.
 Post hoc over runs 2-4 (9 runs per arm): every hidden test passed in 9 of 9 runs of each arm, and
 existing tests kept passing in 9 of 9; the harness arms shipped a median of 0 tests against 6.
 
@@ -116,29 +130,31 @@ taught here, never an A/B variable; A4 runs agents in a container, F-a-88.)
 
 ## S4 Verification (slide 49, 3 minutes)
 
-**Question.** Building F4 (ETag, If-Match, issue history), the referee runs 69 hidden tests
-(VERIFICATION.md, M5 counts) and 4 referee-set mutants (`teamtrack/mutants/features/f4.jsonl`) against
-the tests each arm shipped. In the course pilot, which arm passed more hidden tests and killed more
-mutants?
+**Question (as on slide 49).** F4 optimistic concurrency; at stake: hidden tests (69, VERIFICATION.md,
+M5 counts) and referee mutants (4, `teamtrack/mutants/features/f4.jsonl`). A run passes only with all
+69 hidden tests passing and all 4 mutants killed by the arm's shipped tests. In the pilot's 4 F4 A/Bs,
+which arm passed more often?
 
 | Option | Answer |
 |---|---|
-| A | Harness arm on both counts |
-| B | Harness arm on hidden tests only |
-| C | Bare arm on mutants |
-| D | No clear difference |
+| A | Harness arm |
+| B | Bare arm |
+| C | Both, equally often |
+| D | Neither arm passed once |
 
 **What each answer says.** A: verification the agent does not control (filters, gate, separate
-evaluator) changes what ships (A3, F-a-110; B11; B12). C: the arm that shipped more tests killed more
-mutants. Remind the room of A4: "it is easy to see tests pass and assume the job is done, when this is
-rarely the case." (A4, F-a-17)
+evaluator) changes what ships (A3, F-a-110; B11; B12). D: on this task both arms fall short of the
+bar, and the counts below say by how much. Remind the room of A4: "it is easy to see tests pass and
+assume the job is done, when this is rarely the case." (A4, F-a-17) Hint after the vote: one referee
+mutant makes writes stop moving the version, which brings back lost updates; a shipped test catches
+it only if it checks that a write moves the ETag, or that a save with the old version gets 412.
 
 **Measure behind it.** S4 co-primary counts per run: hidden tests passed (of 69) and referee-set
 mutants killed by shipped tests (of 4); a run passes only with all of both (DESIGN §8.2).
 
-**The pilot's answer: C, and both arms fail the primary measure.** Run 3 (effort medium): bare hidden
-66, 66, 69 of 69 with mutants killed 4, 0, 3 of 4; the harness arm shipped no tests in any run, so 0 of
-4 mutants each, and one harness arm built a broken change (hidden 27 of 69). Class-profile round
+**The pilot's answer: D (neither arm passed once: 0 of 4 per arm).** Context for the counts: on
+mutants the bare arm did better. Run 3 (effort medium): bare hidden 66, 66, 69 of 69 with mutants
+killed 4, 0, 3 of 4; the harness arm shipped no tests in any run, so 0 of 4 mutants each, and one harness arm built a broken change (hidden 27 of 69). Class-profile round
 (`ab-20261017-090903-926c02`): hidden 68 of 69 in both arms; mutants bare 4 of 4, harness 1 of 4.
 Primary measure: 0 of 3 per arm in run 3, 0 of 1 in the class round. No measurable difference on this
 task with this model. Post hoc over runs 2-3 (6 runs per arm): every hidden test passed in 3 of 6 bare
@@ -173,5 +189,5 @@ features one after another. The final has no pre-registered primary measure; eve
 **What to compare it with.** The pilot ran no F5-F7 A/B, and the experiment batch that would have
 covered them (M8) was not run because the pre-registered gate did not pass. Tonight's final is one dot
 per arm: read its hidden-test and mutant counts against the section results on the all-results slide,
-never as a verdict on its own. The course's one earlier F5 A/B is the class-profile recording listed in
-[fallbacks.md](fallbacks.md).
+never as a verdict on its own. The course's earlier F5 A/Bs (the check under load and the quiet run on 2026-10-17)
+are listed in [fallbacks.md](fallbacks.md).

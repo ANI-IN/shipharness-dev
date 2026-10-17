@@ -1,31 +1,33 @@
-# Fallbacks and showcases: recorded runs and replay
+# Fallbacks and optional extras: recorded runs, replay, constructed examples
 
-What is recorded, where it lives, how to replay it with the RECORDING badge, and what to say. Two
-kinds of recordings are used in class:
+What is recorded, where it lives, how to replay it with the RECORDING badge, and what to say. Every
+demo section of the class is live (VERIFICATION.md, "Class plan per section", revised 2026-10-17 under
+owner message 7). This file holds everything that is not live, in two clearly separate groups:
 
-- **Showcases** ("real run, replayed"): one named pilot run per section, replayed in every demo
-  block on purpose (VERIFICATION.md, "Class plan per section").
 - **Fallbacks**: one recording per class command (`make show-1` to `make show-4`, `make final` per
   feature), replayed only when the live run failed for a reason outside the experiment.
+- **Optional extras** (not in the demo flow): the four real-mistake showcases from the pilot and the
+  constructed examples (`make example-N`). They are listed for learners in `docs/extras.md` and are
+  never part of a demo block, the run sheet's demo steps, or a demo README's main steps.
 
-The short version is in [run-sheet.md](run-sheet.md#replay-procedure).
+The short version of the replay is in [run-sheet.md](run-sheet.md#fallback-replay-procedure).
 
 ---
 
 ## Rules
 
 - A recording is always labelled. Replays show a red ● RECORDING badge on every screen (DESIGN §13);
-  say "real run, replayed" (showcase) or "recorded before class" (fallback) out loud as well.
-  Unlabelled recordings are forbidden (DESIGN §8.3).
+  say "recorded before class" out loud as well. Unlabelled recordings are forbidden (DESIGN §8.3).
 - A replay applies the recorded diffs and runs the referee live (DESIGN §13). The agent part is
   recorded; the judging is not.
-- No cherry-picking of fallbacks. For each command, the fallback is the first complete run recorded
-  with the class profile, whatever its result. A recording that ended in `ERROR` for an
-  infrastructure reason (for example Docker stopped) is kept and listed, and the next complete run is
-  recorded as well. The showcases were chosen for what they teach, and each is introduced with the
-  run it came from and the pilot result it sits in, so the room can weigh it (the all-results slide).
+- No cherry-picking of fallbacks. For each command, the fallback is the first complete run of that
+  exact command recorded with the class profile, whatever its result. A recording that ended in
+  `ERROR` for an infrastructure reason (for example Docker stopped) is kept and listed, and the next
+  complete run is recorded as well.
 - Use a fallback only when the live run failed for a reason outside the experiment (Docker, network,
   OpenAI errors, time). A live run with an unwelcome result is a result, not a failure: show it.
+- Never use an optional extra in place of a live run or a fallback. A constructed example is
+  scripted; a showcase is a different run from a different task.
 
 ---
 
@@ -58,23 +60,6 @@ copy each run directory and its score records from that machine to the same path
 
 ---
 
-## The showcases ("real run, replayed")
-
-| Section | Command | Recorded run | What the referee found |
-|---|---|---|---|
-| S1 | `make replay RUN=ab-20261016-212252-aa1644` | Pilot run 3, F4 canonical, effort medium | Harness arm: 3 new R1 violations, hidden tests 27 of 69 (a broken change) (VERIFICATION.md, "Run 3") |
-| S2 | `make replay RUN=ab-20261016-213317-9a0ec1` | Pilot run 3, F2 with session budget 12, 38 | Harness arm: `finish(claim="not_done")` at the end of the 12-turn session 1 ended the build phase; the 38-turn session never ran; hidden tests 3 of 56. The runner fix for both arms is change 14 |
-| S3 | `make replay RUN=ab-20261016-214151-ca9841` | Pilot run 3, F4 canonical | Bare arm: 2 files outside the allowed paths; harness arm (all four layers): 0. In the harness arm the agent time limit cut the test session to 7 turns |
-| S4 | `make replay RUN=ab-20261017-090903-926c02` | Class-profile round, F4 canonical, class profile | Bare arm: claimed done, hidden 68 of 69, mutants 4 of 4: primary measure fails. Harness arm: hidden 68 of 69, mutants 1 of 4, test phase ended by the agent time limit; `shipharness ab` exited 2 |
-
-Check each once before class (T-1): `make replay RUN=<id> PURPOSE=pilot`. The referee is
-deterministic for a given build (VERIFICATION.md, "Referee determinism check"), so the replay's
-verdict should match the recording's.
-
-[[CAPTURE: wall time and result lines of make replay for each showcase id above | how: time make replay RUN=<id> PURPOSE=pilot]]
-
----
-
 ## The fallbacks: how to record them (before class, not on the class date)
 
 Make the recordings on the class host, inside WSL2, on a day other than the class date, with
@@ -82,8 +67,9 @@ Make the recordings on the class host, inside WSL2, on a day other than the clas
 pilot-purpose runs trace to `shipharness-pilot`, not the class project.
 
 1. `make doctor` passes; `make warm` ends with `warm: done`.
-2. Run each section's live command once, in order: `make show-1 PURPOSE=pilot` to `make show-4
-   PURPOSE=pilot`.
+2. Run each section's live command once, in order, exactly as the class runs it: `make show-1
+   PURPOSE=pilot`, `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot`, `make show-3 PURPOSE=pilot`,
+   `make show-4 PURPOSE=pilot`.
 3. Run each final feature once, because the poll can pick any of them: `make final FEATURES=F5
    PURPOSE=pilot`, then `F6`, then `F7`.
 4. For each command, copy the id from the first result line (`A/B <id> (<feature>, layers=[...],
@@ -102,23 +88,32 @@ class-profile round the harness arms cost $0.0135 to $0.0357 and their reviews $
 
 ## Recorded runs
 
-The course's recordings of `make show-1` to `make show-4` and `make final FEATURES=F5` are the
-class-profile runs made on 2026-10-17:
+On the machine that ran the pilot, each class command was first run once under load (VERIFICATION.md,
+"Live command check under load", 2026-10-17 09:28-10:26 UTC) and then once more on a quiet machine
+(the quiet runs, 2026-10-17, one command at a time, the source of the class timings in
+[run-sheet.md](run-sheet.md#how-long-the-runs-take)). Under the rule above, the fallback is the first
+complete run of the exact class command. The under-load `make show-2` ran the task's 20/30 budget,
+not the class command `make show-2 SESSION_BUDGET=12,38`, so it cannot be the S2 fallback.
 
-[[CAPTURE: run id, per-arm status line, Cost line, and date of make show-1, make show-2, make show-3, make show-4, and make final FEATURES=F5 (class profile, PURPOSE=pilot) | how: make show-1 PURPOSE=pilot (and show-2, show-3, show-4); make final FEATURES=F5 PURPOSE=pilot]]
-
-| Section | Command | Recorded |
+| Command | Fallback (first complete run of the exact command) | Quiet run (class timings) |
 |---|---|---|
-| S1 | `make show-1 PURPOSE=pilot` | the class-profile run above |
-| S2 | `make show-2 PURPOSE=pilot` | the class-profile run above |
-| S3 | `make show-3 PURPOSE=pilot` | the class-profile run above |
-| S4 | `make show-4 PURPOSE=pilot` | the class-profile run above |
-| Final F5 | `make final FEATURES=F5 PURPOSE=pilot` | the class-profile run above |
-| Final F6 | `make final FEATURES=F6 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) |
-| Final F7 | `make final FEATURES=F7 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) |
+| `make show-1 PURPOSE=pilot` | `ab-20261017-092810-c7fc7c` (under load: completed, primary pass, hidden 52/52, $0.0218) | `ab-20261017-112101-c5d839`: completed, primary pass, hidden 52/52, mutants 2/4; $0.0179 + $0.0019 review; exit 0 |
+| `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot` | `ab-20261017-113213-fe89a3` (the quiet run; the under-load `ab-20261017-093841-16d332` ran 20/30) | the same run: agent time limit in session 2, primary pass, hidden 56/56, mutants 0/4; $0.0268 + $0.0027 review; exit 2 |
+| `make show-3 PURPOSE=pilot` | `ab-20261017-095024-99bb7e` (under load: agent time limit in the test phase, primary pass, hidden 49/49, $0.0169) | `ab-20261017-114259-b64f54`: completed, primary pass, hidden 49/49, mutants 4/4; $0.0142 + $0.0030 review; exit 0 |
+| `make show-4 PURPOSE=pilot` | `ab-20261017-100107-4c2be8` (under load: agent time limit, primary fail, hidden 65/69, $0.0251) | `ab-20261017-115138-c45d9d`: claimed done, gate passed, agent time limit in the test phase, primary fail, hidden 68/69, mutants 0/4; $0.0233 + $0.0032 review; exit 2 |
+| `make final FEATURES=F5 PURPOSE=pilot` | `ab-20261017-101037-8e6924` (under load: both arms hit the agent time limit; hidden 46/46 both; mutants 1/3 bare, 3/3 harness; $0.0329) | `ab-20261017-120323-c97138`: bare completed, harness agent time limit; hidden 46/46 and mutants 2/3 in both; $0.0456 for the command; exit 2 |
+| `make final FEATURES=F6 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+| `make final FEATURES=F7 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+
+Under-load figures are from VERIFICATION.md, "Live command check under load"; quiet-run figures are
+from the runs' own result lines (captured on 2026-10-17).
+
+On another class host, record its own fallbacks on T-1 with the steps above; these ids are this
+machine's.
 
 There is no opening board screenshot to record: no pilot or class-round run leaked another org's
-cards (VERIFICATION.md, "Class-profile round"). The ⚠ marks are shown by S1's constructed example.
+cards (VERIFICATION.md, "Class-profile round"). No real run produced ⚠ marks; they are covered by the
+console tests, and the optional constructed example `make example-1` shows them (below).
 
 ---
 
@@ -156,16 +151,45 @@ A replay runs the referee in a container, so it needs Docker too. Last resort: o
 directly at `http://127.0.0.1:8765/run/<recorded ab id>`. These are the original events, so the console
 shows **no** RECORDING badge: put the "recorded before class" slide up and say it before switching
 screens. Do not switch to `SANDBOX_MODE=none` for class results; every screen would show
-"UNSANDBOXED — results not official" (DESIGN §9). The constructed examples (`make example-N`) run
-scripted steps with no model; they remain available while OpenAI is unreachable.
+"UNSANDBOXED — results not official" (DESIGN §9).
+
+---
+
+## Optional extras (not in the demo flow)
+
+Listed here so the instructor can answer questions about them; learners find them in
+`docs/extras.md`. None of them is shown in a demo block, and none is a result.
+
+### The real-mistake showcases (replays of pilot runs)
+
+| Section topic | Command | Recorded run | What the referee found |
+|---|---|---|---|
+| S1 | `make replay RUN=ab-20261016-212252-aa1644` | Pilot run 3, F4 canonical, effort medium | Harness arm: 3 new R1 violations, hidden tests 27 of 69 (a broken change) (VERIFICATION.md, "Run 3") |
+| S2 | `make replay RUN=ab-20261016-213317-9a0ec1` | Pilot run 3, F2 with session budget 12, 38 | Harness arm: `finish(claim="not_done")` at the end of the 12-turn session 1 ended the build phase; the 38-turn session never ran; hidden tests 3 of 56. The runner fix for both arms is change 14 |
+| S3 | `make replay RUN=ab-20261016-214151-ca9841` | Pilot run 3, F4 canonical | Bare arm: 2 files outside the allowed paths; harness arm (all four layers): 0. In the harness arm the agent time limit cut the test session to 7 turns |
+| S4 | `make replay RUN=ab-20261017-090903-926c02` | Class-profile round, F4 canonical, class profile | Bare arm: claimed done, hidden 68 of 69, mutants 4 of 4: primary measure fails. Harness arm: hidden 68 of 69, mutants 1 of 4, test phase ended by the agent time limit; `shipharness ab` exited 2 |
+
+Each is one run, chosen after the fact for what it shows; say so if a learner asks, and point to the
+all-results slide for where it sits.
+
+### Constructed examples
+
+`make example-1` to `make example-4` (`uv run shipharness example --section demo-N`) run section N's
+layer stack on its canonical task in the real sandbox, judged by the real referee, with the model
+replaced by scripted steps that make the mistake the layer exists to catch. They cost $0, need no API
+key, carry the `CONSTRUCTED EXAMPLE` badge on every screen, and are never counted
+(`src/shipharness/examples/`). They need Docker, but not OpenAI.
+
+| Command | What it shows (from the scenario's docstring) |
+|---|---|
+| `make example-1` | `GET /issues` written without the org filter: the board shows the other org's cards (⚠ "other org" on screen 2) and the referee's R1 check reports the new violation |
+| `make example-2` | A 3-turn session 1, the handoff written by the state layer, and session 2 reading `session-handoff.md` first and finishing without redoing session 1's work |
+| `make example-3` | A patch to the out-of-scope `app/api/middleware.py` rejected (BLOCKED), a package install denied by the sandbox (DENIED network), then the change in the allowed files |
+| `make example-4` | A wrong test of the agent's own, a done claim refused by the verify gate ("Not accepted"), then the fixed test and a passing gate |
 
 ---
 
 ## What to say
-
-**Showcase.** "Real run, replayed: this is <run id> from the course pilot. The agent's turns are
-recorded; the referee is judging its code live, right now. Every screen says RECORDING. It is one run;
-the all-results slide shows where it sits."
 
 **Fallback.** "The live run stopped for a reason that has nothing to do with the harness: <Docker /
 the network / the API / time>. Here is the same command recorded before class on this machine, run

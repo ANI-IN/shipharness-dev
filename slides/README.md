@@ -7,6 +7,7 @@ The Module 1 slides: 72 slides for the 240-minute class.
 | `deck.md` | The deck source and the single source of the slide content, one block per slide. Edit this file |
 | `outline.md` | The block table and the class plan per section; it points to `deck.md` for every slide's content |
 | `deck.pdf`, `deck.pptx` | The released build: copies of `dist/deck.pdf` and `dist/deck.pptx`, committed |
+| `img/` | Console screenshots from the quiet runs of the class commands (2026-10-17), cut to the harness panel and joined with the board view; each slide that shows one names its run id |
 | `dist/` | Build output (`deck.html`, `deck.pdf`, `deck.pptx`, cached diagram PNGs); not tracked |
 
 `outline.md` used to repeat every slide's content as a table. Keeping two copies of 72 slides in
@@ -25,6 +26,16 @@ The build needs Playwright's Chromium (`uv run playwright install chromium`) and
 diagram is drawn, network access to load Mermaid 11.4.1 from cdn.jsdelivr.net. Diagram PNGs are cached
 in `dist/diagrams/` by content hash, so later builds work offline until a diagram changes.
 
+### If the build fails
+
+| What you see (exact text) | Cause | Fix |
+|---|---|---|
+| `x Chromium did not start (uv run playwright install chromium): ...` or `x playwright is not installed: ...`, exit code 3 | Playwright's Chromium is missing | `uv run playwright install chromium`, then `make slides` again |
+| `x browser step failed: <error type>: ...`, exit code 3, while a new or changed diagram is drawn | The first render of that diagram cannot load Mermaid from cdn.jsdelivr.net | Connect to the network and rerun; diagrams already cached in `dist/diagrams/` need no network |
+| `x slide N (line L): ...` lines, then `<n> validation errors; nothing built`, exit code 2 | A slide breaks a rule in the list of checks below (count, bullets, image path, code reference) | Fix that slide in `deck.md`; `uv run python scripts/build_slides.py --check` repeats the check without a browser |
+| `! slide N: text still overflows at <px>px; shorten it` or `! slide N: body text shrunk to <px>px to fit` | Too much text for one slide | Shorten that slide's bullets, or move detail to its notes |
+| `x --strict: open items remain`, exit code 1 | A PENDING or CAPTURE marker or an empty result slot is left | The report above that line lists each one with its slide; fill or remove it |
+
 The HTML page is the layout engine: each slide is a 1280 x 720 page, and text that does not fit is
 shrunk step by step. The PDF is printed from that page. The PPTX has native text boxes with the same
 font sizes, diagrams as pictures, and the speaker notes (each starting with "Slide N of 72 | section |
@@ -42,17 +53,17 @@ while any remain.
 The comment at the top of `deck.md` has the full reference. In short:
 
 ```text
-## 19. Demo block: harness in action    number, a dot, the title
+## 19. Demo block: what to watch       number, a dot, the title
 section: S1 Instructions                required, shown in the header
 minutes: 8                              speaker timing
+image: img/s1-watch.png                 a picture, path relative to this folder
 live: `make show-1`: the primary verdict   shown as "Filled in live: ..."
 
 - `make show-1`, finished: screen 1      3 to 6 bullets; `code` in backticks
-- Real run, replayed: `make replay RUN=<id>`
+- Screen 3: files read by category
 
 notes:
 Speaker notes until the next slide, with the run sheet section and the source.
-[[CAPTURE: wall time of make show-1 | how: make show-1]]
 ```
 
 Other fields: `layout:` (`default`, `title`, or `statement`), `subtitle:`, `image:` (path relative to
@@ -65,10 +76,12 @@ the top of `deck.md`, with the named nodes drawn with a thick border and the wor
 
 ## Markers and live values
 
-- `[[PENDING: what | source: ... | how: ...]]`: an open item; on a slide it shows as an amber box.
-- `[[CAPTURE: what | how: command]]`: output, a time, or a cost that comes from a real run of the
-  command named after `how:`. Replace the whole line with the captured text, labelled "captured on
-  <date>, run <id>; your output will differ", and rebuild.
+- A PENDING marker, written `PENDING: what | source: ... | how: ...` inside double square brackets:
+  an open item; on a slide it shows as an amber box.
+- A CAPTURE marker, written `CAPTURE: what | how: command` inside double square brackets: output, a
+  time, or a cost that comes from a real run of the command named after `how:`. Replace the whole
+  line with the captured text, labelled "captured on <date>, run <id>; your output will differ", and
+  rebuild.
 - `live: ...`: a value produced in class (a poll result, a show run's verdict, the final A/B). It shows
   as a grey "Filled in live" box and is never an open item.
 

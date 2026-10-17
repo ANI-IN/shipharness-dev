@@ -20,29 +20,31 @@ table and the class plan per section, so the two files cannot drift apart. Build
 ## Class plan per section
 
 The course pilot showed no measurable difference on any section's primary measure, so no section
-runs a live A/B. Each section shows its layer at work instead: "harness in action" (`make show-N`,
-the harness arm alone, live), one real pilot run replayed (`make replay RUN=<id>`, labelled "real
-run, replayed"), and one constructed example (`make example-N`, labelled "constructed example").
-The final keeps one live A/B (`make final`), launched in S4, as the measurement lesson. Slide 68
-shows every section's result, wins and "no measurable difference" alike.
+runs a live A/B. Each section shows its layer at work, live: harness in action (`make show-N`, the
+harness arm alone, live checks, live console). The final keeps one live A/B (`make final`), launched
+in S4, as the measurement lesson. Recorded showcases and constructed examples are optional extras in
+`docs/extras.md`, not part of any demo block. Slide 68 shows every section's
+result, wins and "no measurable difference" alike.
 
 | Position | Content | S1 | S2 | S3 | S4 |
 |---|---|---|---|---|---|
 | Opens the section | Poll: predict a pilot result (answer on the results slide) | 8 | 22 | 36 | 49 |
 | S4 only | Final feature poll | | | | 50 |
-| Right after the poll | Launch `make show-N` (S4: also `make final`) | 9 | 23 | 37 | 51 |
-| Demo block 1 | Harness in action on the console, then the real run, replayed | 19 | 32 | 46 | 61 |
-| Demo block 2 | Constructed example and what the pilot measured for the section | 20 | 33 | 47 | 62 |
+| Right after the poll | Launch `make show-N` (S4: also `make final`), with the section's Mermaid diagram of the demo | 9 | 23 | 37 | 51 |
+| Demo block 1 | What to watch: harness in action on the console (screens 1, 3, 5, 2), with real screenshots | 19 | 32 | 46 | 61 |
+| Demo block 2 | Reading the result: the show run's verdict and what the pilot measured for the section | 20 | 33 | 47 | 62 |
 | Closes the section | Runbook link, discussion, transition | 21 | 34 | 48 | 63 |
 
-| Section | Harness in action | Real run, replayed |
-|---|---|---|
-| S1 | `make show-1`: the map read first, then only the documents the ticket needs | `ab-20261016-212252-aa1644` (pilot run 3, F4): the harness arm's change added 3 new R1 violations |
-| S2 | `make show-2 SESSION_BUDGET=12,38`: the handoff at the end of session 1, the resume in session 2 | `ab-20261016-213317-9a0ec1` (pilot run 3, F2): `finish(not_done)` after session 1 ended the build phase |
-| S3 | `make show-3`: blocked or reverted edits with reasons, the sandbox policy | `ab-20261016-214151-ca9841` (pilot run 3, F4): the bare arm changed 2 files outside the allowed paths, the harness arm 0 |
-| S4 | `make show-4`: handoffs, the test phase, the filters, the gate | `ab-20261017-090903-926c02` (class-profile round, F4): the bare arm claimed done with 68 of 69 hidden tests |
+| Section | Harness in action (live) |
+|---|---|
+| S1 | `make show-1`: the map in context, then the documents the ticket needs |
+| S2 | `make show-2 SESSION_BUDGET=12,38`: the handoff at the end of session 1, the resume in session 2 |
+| S3 | `make show-3`: blocked or reverted edits with reasons, the sandbox policy |
+| S4 | `make show-4`: handoffs, the test phase, the filters, the gate |
 
-The concept and code slides sit between the launch and the demo block; the show run proceeds in
-terminal B while they are shown. "Filled in live" boxes mark values produced in class: slide 7
-(doctor and assessment), the polls (8, 22, 36, 49, 50), the show runs (19, 32, 46, 61), the break
-(35), and the final A/B (64-67).
+The screenshots on the demo-block slides (19, 20, 32, 33, 46, 47, 61, 62) and on the final results
+slides (65, 66) come from the quiet runs of the class commands on 2026-10-17; each slide names its
+run id. The concept and code slides sit between the launch and the demo block; the show run
+proceeds in terminal B while they are shown. "Filled in live" boxes mark values produced in class:
+slide 7 (doctor and assessment), the polls (8, 22, 36, 49, 50), the show runs (19, 32, 46, 61), the
+break (35), and the final A/B (64-67).
