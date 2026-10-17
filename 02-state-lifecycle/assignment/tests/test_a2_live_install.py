@@ -92,3 +92,12 @@ def test_forced_stops_without_an_ab_id_keeps_the_output_and_fails(
     assert code == 1
     assert "OPENAI_API_KEY" in (impl / "live" / "output.txt").read_text(encoding="utf-8")
     assert not (impl / "live" / "summary.json").exists()
+
+
+def test_the_live_step_gives_the_harness_enough_time_for_four_sessions() -> None:
+    # Each session end runs the visible suite for the handoff; with the default 120 s harness limit
+    # the four-session live step was cut in session 3 (2026-10-17, 142 s of harness work).
+    env = run_live.child_env({"PATH": "/usr/bin"})
+    assert env["HARNESS_TIMEOUT_S"] == "600"
+    assert env["PYTHONUNBUFFERED"] == "1"
+    assert run_live.child_env({"HARNESS_TIMEOUT_S": "900"})["HARNESS_TIMEOUT_S"] == "900"
