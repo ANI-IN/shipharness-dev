@@ -96,6 +96,24 @@ def test_changed_file_names_from_the_agent_are_quoted() -> None:
     assert "'app/x.py; touch /tmp/pwn.py'" in ruff
 
 
+def test_repository_without_migrations_skips_the_head_check() -> None:
+    """A repository with no Alembic configuration (the boltons worked example): `alembic heads`
+    never runs, so it cannot fail the gate or push the agent into adding a fake migration."""
+    sandbox = FakeSandbox(scripted(heads=fail("FAILED: No 'script_location' key found")))
+    item = clean_state_check(sandbox, BASE, migrations=False)
+    assert item.status == "pass", item.detail
+    assert "skipped: no migrations configured" in item.detail
+    assert not any(c.startswith("alembic") for c in sandbox.commands)
+
+
+def test_repository_with_migrations_still_needs_one_head() -> None:
+    sandbox = FakeSandbox(scripted(heads=ok("")))
+    item = clean_state_check(sandbox, BASE, migrations=True)
+    assert item.status == "fail"
+    assert "migration heads: 0 (expected 1)" in item.detail
+    assert "alembic heads" in sandbox.commands
+
+
 def test_without_a_base_commit_only_status_and_heads_are_checked() -> None:
     sandbox = FakeSandbox(scripted())
     item = clean_state_check(sandbox, "")

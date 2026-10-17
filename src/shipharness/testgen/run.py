@@ -3,6 +3,11 @@
 The runner runs the test phase only, in a fresh copy of the repo. Every test function the agent
 wrote then goes through the five filters; the kept tests are written to an output directory with a
 JSON report. The learner's repository is never modified.
+
+With `--layers verify`, the verify layer filters the new tests in the visible-test directory at the
+end of the test phase; it uses testgen's filter context, and testgen records those results and
+filters only the tests the layer did not evaluate, so each proposed test is evaluated once and the
+report counts every one of them.
 """
 
 from __future__ import annotations
@@ -12,6 +17,7 @@ import contextlib
 import hashlib
 import importlib
 import json
+import os
 import shutil
 import tempfile
 import uuid
@@ -23,7 +29,7 @@ from typing import Any, Literal
 from shipharness.config import Prices, Settings
 from shipharness.cost import Caps, CostTracker
 from shipharness.events import EventBus
-from shipharness.filters.models import FilterResult
+from shipharness.filters.models import CandidateTest, FilterContext, FilterResult
 from shipharness.filters.mutants import MutantError, load_mutants
 from shipharness.filters.pipeline import (
     FilterSetupError,
@@ -37,7 +43,7 @@ from shipharness.filters.source import is_test_path
 from shipharness.harness.base import Harness
 from shipharness.runner.loop import RunOptions, run_agent
 from shipharness.runner.model import ModelClient
-from shipharness.runner.models import AgentRunSpec
+from shipharness.runner.models import AgentRunSpec, checked_tests_dir
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
 from shipharness.runner.tools import iter_workspace_files
 from shipharness.sandbox import DockerSandbox, LocalSandbox, default_policy, render_policy
@@ -68,6 +74,9 @@ class TestgenOptions:
     # Metadata of a testgen-targets-v1 line, when the target comes from the dataset; its
     # `baseline_includes_doctests` overrides `doctest_modules`.
     target_metadata: dict[str, Any] | None = None
+    # Directory of the visible tests (run_visible_tests, the verify gate, the layer's filters).
+    # None: the directory of the existing tests (see visible_tests_dir).
+    visible_tests_dir: str | None = None
 
 
 @dataclass
@@ -106,6 +115,25 @@ def baseline_tests(existing: list[str], module_rel: str, doctests: bool) -> list
     if doctests and tests and module_rel not in tests:
         tests.append(module_rel)
     return tests
+
+
+def visible_tests_dir(repo: Path, existing: list[str], explicit: str | None = None) -> str:
+    """The run's visible-test directory: `explicit` when given, else the deepest directory that
+    holds every existing test path (`tests/test_queueutils.py` gives `tests`), else `tests` when
+    the repository has one, else the repository root (`.`)."""
+    if explicit:
+        return checked_tests_dir(explicit.replace("\\", "/"))
+    dirs = []
+    for entry in existing:
+        rel = entry.split("::", 1)[0].replace("\\", "/").rstrip("/")
+        if not rel:
+            continue
+        is_dir = (Path(repo) / rel).is_dir() or not PurePosixPath(rel).suffix
+        dirs.append(rel if is_dir else str(PurePosixPath(rel).parent))
+    if dirs:
+        common = os.path.commonpath(dirs).replace("\\", "/")
+        return checked_tests_dir(common or ".")
+    return "tests" if (Path(repo) / "tests").is_dir() else "."
 
 
 def module_to_dotted(module: str) -> str:
@@ -200,7 +228,48 @@ def _write_outputs(out_dir: Path, workspace: Path, result: TestgenResult, files:
     (out_dir / "testgen-report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
 
 
-def _harness(layers: str) -> Harness:
+@dataclass
+class FilterRun:
+    """The five filters for one testgen run, evaluated at most once per proposed test, whichever
+    component asks: the verify layer at the end of the test phase (as its pipeline), then testgen
+    for the tests the layer did not see. At most `max_tests` tests are evaluated; the rest are
+    listed as not evaluated."""
+
+    max_tests: int
+    bus: EventBus | None
+    run_id: str
+    arm: Literal["bare", "harness"]
+    workspace: Path
+    ctx: FilterContext | None = None
+    results: list[FilterResult] = field(default_factory=list)
+    evaluated: list[str] = field(default_factory=list)
+    not_evaluated: list[str] = field(default_factory=list)
+
+    def evaluate(self, cands: list[CandidateTest]) -> list[FilterResult]:
+        if self.ctx is None:
+            raise FilterSetupError("the filter context is not ready")
+        seen = set(self.evaluated) | set(self.not_evaluated)
+        new = [c for c in cands if c.test_id not in seen]
+        room = max(0, self.max_tests - len(self.evaluated))
+        now, later = new[:room], new[room:]
+        self.not_evaluated += [c.test_id for c in later]
+        results = run_pipeline(now, self.ctx, self.bus, run_id=self.run_id, arm=self.arm)
+        self.evaluated += [c.test_id for c in now]
+        self.results += results
+        return results
+
+    def __call__(
+        self, candidates: list[dict[str, str]], _layer_ctx: Any, _shas: dict[str, str]
+    ) -> list[FilterResult]:
+        """The verify layer's test-phase pipeline. Candidates are rebuilt from their files, the
+        same way testgen collects them (a candidate's source is its whole test file)."""
+        wanted = [c["test_id"] for c in candidates]
+        files = sorted({c["file"] for c in candidates})
+        by_id = {c.test_id: c for c in collect_candidates(self.workspace, files)}
+        return self.evaluate([by_id[t] for t in wanted if t in by_id])
+
+
+def _harness(layers: str, pipeline: FilterRun | None = None) -> Harness:
     if layers == "none":
         return Harness([])
     if layers != "verify":
@@ -208,7 +277,7 @@ def _harness(layers: str) -> Harness:
     with contextlib.suppress(ModuleNotFoundError):  # the integrator adds this module (I-4)
         importlib.import_module("shipharness.harness.layers")  # registers the layers
     try:
-        return Harness.from_names(frozenset({"verify"}))
+        return Harness.from_names(frozenset({"verify"}), pipeline=pipeline)
     except ValueError as exc:
         raise ValueError(f"the verify layer is not available in this build: {exc}") from None
 
@@ -233,11 +302,15 @@ def run_testgen(
     run_id = new_run_id()
     result = TestgenResult(exit_code=1, run_id=run_id, unsandboxed=options.sandbox == "local")
     repo = Path(options.repo)
+    arm: Literal["bare", "harness"] = "harness" if options.layers != "none" else "bare"
+    workspace = Path(tempfile.gettempdir()) / "shipharness-ws" / run_id / "ws"
+    filter_run = FilterRun(options.max_tests, None, run_id, arm, workspace)
     try:
         module_path = resolve_in_workspace(repo, options.module)
-        harness = _harness(options.layers)
+        harness = _harness(options.layers, filter_run)
+        visible = visible_tests_dir(repo, options.existing_tests, options.visible_tests_dir)
     except (PathOutsideWorkspace, ValueError) as exc:
-        result.error = f"invalid --module or --layers: {exc}"
+        result.error = f"invalid --module, --layers, or --visible-tests: {exc}"
         return result
     if not module_path.is_file():
         result.error = f"module not found: {options.module}"
@@ -255,10 +328,8 @@ def run_testgen(
 
     doctests = baseline_doctests(options)
     result.baseline_includes_doctests = doctests
-    arm: Literal["bare", "harness"] = "harness" if options.layers != "none" else "bare"
 
     run_dir = Path(settings.runs_dir) / run_id
-    workspace = Path(tempfile.gettempdir()) / "shipharness-ws" / run_id / "ws"
     result.events_path = run_dir / "events.jsonl"
     result.out_dir = Path(options.out_dir) if options.out_dir else run_dir / "kept"
     tracker = CostTracker(
@@ -304,10 +375,11 @@ def run_testgen(
                 timeout_s=settings.tool_timeout_s,
                 doctest_modules=doctests,
             )
+            filter_run.ctx, filter_run.bus = ctx, bus
             before = _test_hashes(workspace)
             spec = AgentRunSpec(
                 run_id=run_id,
-                arm="harness" if options.layers != "none" else "bare",
+                arm=arm,
                 feature_id=f"TG-{dotted}",
                 checkpoint="testgen",
                 ticket_text=_ticket(module_rel, options.max_tests),
@@ -320,6 +392,7 @@ def run_testgen(
                 service_tier=settings.openai_service_tier,
                 cost_limit_usd=settings.max_run_cost_usd,
                 workspace=workspace,
+                visible_tests_dir=visible,
             )
             run = run_agent(
                 spec,
@@ -343,10 +416,10 @@ def run_testgen(
             result.cost_usd = run.cost_usd
             after = _test_hashes(workspace)
             files = sorted(rel for rel, sha in after.items() if before.get(rel) != sha)
-            cands = collect_candidates(workspace, files)
-            result.not_evaluated = [c.test_id for c in cands[options.max_tests :]]
-            cands = cands[: options.max_tests]
-            result.results = run_pipeline(cands, ctx, bus, run_id=run_id, arm=spec.arm)
+            # Tests the verify layer already evaluated (and removed when discarded) count once.
+            filter_run.evaluate(collect_candidates(workspace, files))
+            result.results = filter_run.results
+            result.not_evaluated = filter_run.not_evaluated
             result.kept = kept_tests(result.results)
             result.discarded = discarded(result.results)
             _write_outputs(result.out_dir, workspace, result, files)

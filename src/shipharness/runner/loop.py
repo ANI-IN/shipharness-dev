@@ -27,13 +27,13 @@ from shipharness.runner.models import (
 )
 from shipharness.runner.prompts import (
     BUILD_PHASE,
-    CORE_SYSTEM_PROMPT,
     NEUTRAL_RESUME,
     REMINDER,
-    TEST_PHASE,
+    core_system_prompt,
+    phase_prompt_for_test,
     wrapup_message,
 )
-from shipharness.runner.tools import TOOL_NAMES, TOOL_SCHEMAS, ToolBox, patch_paths
+from shipharness.runner.tools import TOOL_NAMES, ToolBox, patch_paths, tool_schemas
 from shipharness.sandbox.base import Sandbox
 from shipharness.tracing import Tracer
 
@@ -139,7 +139,10 @@ class _Run:
             guard=lambda call: harness.before_tool(self.ctx, call),
             tool_log_dir=options.tool_log_dir,
             tool_timeout_s=options.tool_timeout_s,
+            visible_tests_dir=spec.visible_tests_dir,
         )
+        # Fixed for the run (cached prompt prefix); equal to TOOL_SCHEMAS for tests/visible.
+        self.tools = tool_schemas(spec.visible_tests_dir)
         self.scope: CostScope = cost.scope("run", spec.run_id, spec.cost_limit_usd)
         self.started = options.clock()
         self.sessions: list[SessionResult] = []
@@ -169,7 +172,7 @@ class _Run:
         reservation = self.cost.reserve(
             self.scope,
             self.spec.model,
-            estimate_input_tokens(items, TOOL_SCHEMAS),
+            estimate_input_tokens(items, self.tools),
             self.spec.max_output_tokens,
             service_tier=self.spec.service_tier,  # worst case at the requested tier's rates
         )
@@ -185,7 +188,7 @@ class _Run:
             try:
                 return self.client.respond(
                     items,
-                    TOOL_SCHEMAS,
+                    self.tools,
                     model=self.spec.model,
                     effort=self.spec.reasoning_effort,
                     max_output_tokens=self.spec.max_output_tokens,
@@ -357,8 +360,9 @@ class _Run:
     # -- sessions ------------------------------------------------------------------------------
 
     def base_items(self, phase: Phase, resume: bool) -> list[dict[str, Any]]:
-        prefix = "\n\n".join([CORE_SYSTEM_PROMPT, *self.harness.context_prefix(self.ctx)])
-        phase_text = BUILD_PHASE if phase == "build" else TEST_PHASE
+        where = self.spec.visible_tests_dir
+        prefix = "\n\n".join([core_system_prompt(where), *self.harness.context_prefix(self.ctx)])
+        phase_text = BUILD_PHASE if phase == "build" else phase_prompt_for_test(where)
         items = [
             _text_item("developer", prefix),
             _text_item("user", f"{phase_text}\n\nTicket:\n{self.spec.ticket_text}"),

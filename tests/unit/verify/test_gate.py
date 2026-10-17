@@ -139,6 +139,39 @@ def test_test_phase_gate_runs_only_visible_tests_and_clean_state() -> None:
     assert not any("checks.runner" in c for c in sandbox.commands)
 
 
+def test_teamtrack_gate_runs_tests_visible_and_the_head_check() -> None:
+    sandbox = FakeSandbox(script())
+    run_gate(sandbox, config(), gate_id="g7", base_sha="", phase="test")
+    [pytest_cmd] = [c for c in sandbox.commands if "-m pytest" in c]
+    assert "python -m pytest tests/visible -q -rfE --no-header -p no:cacheprovider" in pytest_cmd
+    assert "alembic heads" in sandbox.commands
+
+
+def test_gate_on_a_repository_with_tests_in_tests_and_no_migrations() -> None:
+    """The boltons worked example: visible tests are the run's directory (tests/), and the clean
+    state item skips the migration head check instead of failing on a missing alembic.ini."""
+
+    def run(command: str) -> ExecResult:
+        if "-m pytest tests/visible" in command:
+            return fail(
+                "ERROR: file or directory not found: tests/visible\n\nno tests ran in 0.01s"
+            )
+        if "-m pytest" in command:
+            return ok("6 passed in 0.30s\n")
+        if command.startswith("alembic"):
+            return fail("FAILED: No 'script_location' key found in configuration.")
+        return ok("")
+
+    sandbox = FakeSandbox(run)
+    cfg = config(visible_tests_dir="tests", migrations=False)
+    result = run_gate(sandbox, cfg, gate_id="g8", base_sha="", phase="test")
+    assert result.passed, result.feedback
+    visible, clean = result.items
+    assert visible.detail == "passed=6 failed=0 errors=0"
+    assert "skipped: no migrations configured" in clean.detail
+    assert not any(c.startswith("alembic") for c in sandbox.commands)
+
+
 def test_updates_start_pending_and_progress_is_reported() -> None:
     updates: list[GateResult] = []
     progress: list[dict] = []

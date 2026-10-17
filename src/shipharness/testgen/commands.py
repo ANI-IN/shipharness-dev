@@ -63,6 +63,12 @@ def register(app: typer.Typer) -> None:
         tests: list[str] = typer.Option(  # noqa: B008
             [], "--tests", help="Existing test paths (default: the repo's configured suite)."
         ),
+        visible_tests: str | None = typer.Option(
+            None,
+            "--visible-tests",
+            help="Directory of the tests the agent runs with run_visible_tests and the verify "
+            "gate runs (default: the directory that holds the --tests paths, else tests).",
+        ),
         python: str | None = typer.Option(
             None,
             help="Python command inside the sandbox (default: python, or the library's venv "
@@ -141,6 +147,7 @@ def register(app: typer.Typer) -> None:
             out_dir=out,
             doctest_modules=doctest_modules,
             target_metadata=metadata,  # its baseline_includes_doctests wins
+            visible_tests_dir=visible_tests,
         )
         result = run_testgen(options, settings, client=client)
         if result.baseline_includes_doctests:

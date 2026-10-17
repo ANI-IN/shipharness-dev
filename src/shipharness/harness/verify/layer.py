@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shlex
 from pathlib import Path
 from typing import Any, ClassVar
 
@@ -30,6 +31,19 @@ phase can end: the visible tests, the existing tests, house rules R1-R7, the boa
 state check (all work committed, ruff clean on changed Python files, one migration head, no debug \
 output). If any item fails, finish returns the first three failures and the phase continues. Tests \
 you write in the test phase are kept only if they pass the test filters."""
+# The same text for a repository without migrations (no alembic.ini, no migrations/versions).
+PREFIX_NO_MIGRATIONS = PREFIX.replace(" one migration head,", "")
+
+
+def has_migrations(workspace: Path) -> bool:
+    """Whether the repository has a migration configuration: an alembic.ini at its root, or the
+    migrations/versions directory TeamTrack's adapter uses. Links are not followed."""
+    root = Path(workspace)
+    ini = root / "alembic.ini"
+    versions = root / "migrations" / "versions"
+    return (ini.is_file() and not ini.is_symlink()) or (
+        versions.is_dir() and not versions.is_symlink()
+    )
 
 
 def default_seed(feature_id: str, checkpoint: str) -> int:
@@ -68,6 +82,10 @@ class VerifyLayer(BaseLayer):
             Path(gate_baseline_cache_dir) if gate_baseline_cache_dir is not None else None
         )
         self.existing_tests: list[str] = []
+        # Decided from the checkpoint workspace in prepare_workspace, so files the agent adds or
+        # deletes later cannot switch the migration head check on or off. None: not decided yet
+        # (the check runs, as on TeamTrack).
+        self.migrations: bool | None = None
         self.gate_count = 0
         self._phase_start: dict[str, tuple[dict[str, str], dict[str, str]]] = {}
 
@@ -97,6 +115,8 @@ class VerifyLayer(BaseLayer):
             baseline_json=self.baseline_json,
             timeout_s=self.gate_timeout_s,
             time_left=ctx.time_left,
+            visible_tests_dir=ctx.spec.visible_tests_dir,
+            migrations=self.migrations is not False,
         )
 
     def _publish(self, ctx: LayerContext, type_: str, data: Any) -> None:
@@ -111,22 +131,27 @@ class VerifyLayer(BaseLayer):
     # -- hooks ---------------------------------------------------------------------------------
 
     @staticmethod
-    def _visible_tests(root: Path) -> list[str]:
+    def _visible_tests(root: Path, visible_tests_dir: str) -> list[str]:
         return sorted(
             p.relative_to(root).as_posix()
-            for p in iter_workspace_files(root / "tests" / "visible")
+            for p in iter_workspace_files(root / visible_tests_dir)
             if p.suffix == ".py"
         )
 
     def cached_baseline_path(self, ctx: LayerContext) -> Path | None:
         """Where prepare_workspace reads and writes this workspace's gate baseline (`make warm`
         plans with it before any container starts)."""
-        self.existing_tests = self._visible_tests(ctx.workspace)
+        self.existing_tests = self._visible_tests(ctx.workspace, ctx.spec.visible_tests_dir)
         return self._baseline_cache_path(ctx)
 
     def prepare_workspace(self, ctx: LayerContext) -> list[HarnessDecision]:
-        self.existing_tests = self._visible_tests(ctx.workspace)
+        self.existing_tests = self._visible_tests(ctx.workspace, ctx.spec.visible_tests_dir)
+        self.migrations = has_migrations(ctx.workspace)
         if self.baseline_json is not None or not self.compute_baseline:
+            return []
+        if "build" not in ctx.spec.phases:
+            # The baseline serves the house-rule checks, which only the build-phase gate runs
+            # (a testgen run has the test phase only).
             return []
         cached = self._baseline_cache_path(ctx)
         if cached is not None and cached.is_file():
@@ -206,8 +231,10 @@ class VerifyLayer(BaseLayer):
 
     def context_prefix(self, ctx: LayerContext) -> list[str]:
         if ctx.phase not in self._phase_start:  # first hook of each phase: remember its start
-            self._phase_start[ctx.phase] = testphase.snapshot(ctx.workspace)
-        return [PREFIX]
+            self._phase_start[ctx.phase] = testphase.snapshot(
+                ctx.workspace, ctx.spec.visible_tests_dir
+            )
+        return [PREFIX if self.migrations is not False else PREFIX_NO_MIGRATIONS]
 
     def on_claim_done(self, ctx: LayerContext) -> HarnessDecision | None:
         self.gate_count += 1
@@ -240,9 +267,10 @@ class VerifyLayer(BaseLayer):
     def on_phase_end(self, ctx: LayerContext) -> list[HarnessDecision]:
         if ctx.phase != "test":
             return []
-        shas, texts = self._phase_start.get("test") or testphase.snapshot(ctx.workspace)
-        candidates, broken = testphase.find_candidates(ctx.workspace, texts)
-        testphase.delete_files(ctx.workspace, list(broken))
+        where = ctx.spec.visible_tests_dir
+        shas, texts = self._phase_start.get("test") or testphase.snapshot(ctx.workspace, where)
+        candidates, broken = testphase.find_candidates(ctx.workspace, texts, where)
+        testphase.delete_files(ctx.workspace, list(broken), where)
         discarded = {f"{rel}::<file>": reason for rel, reason in broken.items()}
         if not candidates:
             return [self._filter_note(ctx, [], discarded, "no new tests to filter")]
@@ -256,7 +284,7 @@ class VerifyLayer(BaseLayer):
         for c in candidates:
             if c["test_id"] in reasons:
                 by_file.setdefault(c["file"], []).append(c["test_id"].split("::", 1)[1])
-        testphase.remove_tests(ctx.workspace, by_file)
+        testphase.remove_tests(ctx.workspace, by_file, where)
         kept = [c["test_id"] for c in candidates if c["test_id"] not in reasons]
         discarded.update(reasons)
         return [self._filter_note(ctx, kept, discarded, "")]
@@ -266,7 +294,7 @@ class VerifyLayer(BaseLayer):
     ) -> HarnessDecision:
         if kept or discarded:
             ctx.sandbox.exec(
-                "git add -A tests/visible && git commit -q -m "
+                f"git add -A {shlex.quote(ctx.spec.visible_tests_dir)} && git commit -q -m "
                 f"'test: keep {len(kept)} tests that passed the filters' || true",
                 120,
             )

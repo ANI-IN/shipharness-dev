@@ -17,7 +17,12 @@ from shipharness.harness.decisions import HarnessDecision
 from shipharness.log_setup import mask_keys
 from shipharness.runner import patch_format
 from shipharness.runner.git import workspace_git_dir
-from shipharness.runner.models import ToolCall, ToolResult
+from shipharness.runner.models import (
+    TEAMTRACK_VISIBLE_TESTS,
+    ToolCall,
+    ToolResult,
+    checked_tests_dir,
+)
 from shipharness.runner.paths import PathOutsideWorkspace, resolve_in_workspace
 from shipharness.sandbox.base import Sandbox
 
@@ -78,69 +83,81 @@ def _fn(name: str, description: str, properties: dict[str, Any]) -> dict[str, An
 _NULL_INT = {"type": ["integer", "null"]}
 _NULL_STR = {"type": ["string", "null"]}
 
-# Order and text are fixed: the tool list is part of the cached prompt prefix.
-TOOL_SCHEMAS: list[dict[str, Any]] = [
-    _fn(
-        "list_dir",
-        "List files and directories under a workspace path. Directories end with '/'.",
-        {
-            "path": {"type": "string", "description": "Workspace-relative directory, e.g. '.'"},
-            "depth": {**_NULL_INT, "description": "Levels to descend (1-3, default 1)."},
-        },
-    ),
-    _fn(
-        "read_file",
-        "Read a UTF-8 text file from the workspace, with line numbers.",
-        {
-            "path": {"type": "string", "description": "Workspace-relative file path."},
-            "start_line": {**_NULL_INT, "description": "First line to show (default 1)."},
-            "max_lines": {**_NULL_INT, "description": "Lines to show (default 400)."},
-        },
-    ),
-    _fn(
-        "search",
-        "Search workspace text files with a regular expression. Returns path:line: text rows.",
-        {
-            "pattern": {"type": "string", "description": "Python regular expression."},
-            "path": {**_NULL_STR, "description": "Workspace-relative directory (default '.')."},
-            "max_results": {**_NULL_INT, "description": "Maximum rows (default 50)."},
-        },
-    ),
-    _fn(
-        "apply_patch",
-        "Apply a patch to the workspace: the '*** Begin Patch' format (*** Add File, "
-        "*** Update File, *** Delete File sections; @@ hunks are found by their context lines) "
-        "or a unified diff.",
-        {"patch": {"type": "string", "description": "Patch text for one or more files."}},
-    ),
-    _fn(
-        "run",
-        "Run a shell command in the workspace sandbox (no network). Returns exit code and output.",
-        {
-            "command": {"type": "string", "description": "Command line, run with bash -lc."},
-            "timeout_s": {**_NULL_INT, "description": "Seconds before the command is stopped."},
-        },
-    ),
-    _fn(
-        "run_visible_tests",
-        "Run the visible tests (tests/visible); returns a summary plus one line per failure.",
-        {
-            "selector": {
-                **_NULL_STR,
-                "description": "Optional pytest node selector inside tests/visible.",
-            }
-        },
-    ),
-    _fn(
-        "finish",
-        "End the current phase. Use claim=done only when the ticket's work for this phase is "
-        "complete; use not_done to stop without completing it.",
-        {
-            "claim": {"type": "string", "enum": ["done", "not_done"]},
-            "summary": {"type": "string", "description": "What was done and how it was checked."},
-        },
-    ),
-]
+
+def tool_schemas(visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS) -> list[dict[str, Any]]:
+    """The seven tool schemas. Order and text are fixed: the tool list is part of the cached
+    prompt prefix. Only run_visible_tests names the run's visible-test directory; for TeamTrack
+    (tests/visible) the list is byte-identical to TOOL_SCHEMAS."""
+    where = visible_tests_dir
+    return [
+        _fn(
+            "list_dir",
+            "List files and directories under a workspace path. Directories end with '/'.",
+            {
+                "path": {"type": "string", "description": "Workspace-relative directory, e.g. '.'"},
+                "depth": {**_NULL_INT, "description": "Levels to descend (1-3, default 1)."},
+            },
+        ),
+        _fn(
+            "read_file",
+            "Read a UTF-8 text file from the workspace, with line numbers.",
+            {
+                "path": {"type": "string", "description": "Workspace-relative file path."},
+                "start_line": {**_NULL_INT, "description": "First line to show (default 1)."},
+                "max_lines": {**_NULL_INT, "description": "Lines to show (default 400)."},
+            },
+        ),
+        _fn(
+            "search",
+            "Search workspace text files with a regular expression. Returns path:line: text rows.",
+            {
+                "pattern": {"type": "string", "description": "Python regular expression."},
+                "path": {**_NULL_STR, "description": "Workspace-relative directory (default '.')."},
+                "max_results": {**_NULL_INT, "description": "Maximum rows (default 50)."},
+            },
+        ),
+        _fn(
+            "apply_patch",
+            "Apply a patch to the workspace: the '*** Begin Patch' format (*** Add File, "
+            "*** Update File, *** Delete File sections; @@ hunks are found by their context lines) "
+            "or a unified diff.",
+            {"patch": {"type": "string", "description": "Patch text for one or more files."}},
+        ),
+        _fn(
+            "run",
+            "Run a shell command in the workspace sandbox (no network). "
+            "Returns exit code and output.",
+            {
+                "command": {"type": "string", "description": "Command line, run with bash -lc."},
+                "timeout_s": {**_NULL_INT, "description": "Seconds before the command is stopped."},
+            },
+        ),
+        _fn(
+            "run_visible_tests",
+            f"Run the visible tests ({where}); returns a summary plus one line per failure.",
+            {
+                "selector": {
+                    **_NULL_STR,
+                    "description": f"Optional pytest node selector inside {where}.",
+                }
+            },
+        ),
+        _fn(
+            "finish",
+            "End the current phase. Use claim=done only when the ticket's work for this phase is "
+            "complete; use not_done to stop without completing it.",
+            {
+                "claim": {"type": "string", "enum": ["done", "not_done"]},
+                "summary": {
+                    "type": "string",
+                    "description": "What was done and how it was checked.",
+                },
+            },
+        ),
+    ]
+
+
+TOOL_SCHEMAS: list[dict[str, Any]] = tool_schemas()
 TOOL_NAMES: tuple[str, ...] = tuple(tool["name"] for tool in TOOL_SCHEMAS)
 
 
@@ -193,7 +210,17 @@ ARG_MODELS: dict[str, type[_Args]] = {
     "finish": FinishArgs,
 }
 
-_SELECTOR = re.compile(r"^tests/visible(/[\w.\-/]*)?(::[\w\[\]\-.]+)*$")
+_NODE_PARTS = r"(::[\w\[\]\-.]+)*$"
+
+
+def selector_pattern(visible_tests_dir: str) -> re.Pattern[str]:
+    """Selectors run_visible_tests accepts: a path inside the visible-test directory, with
+    optional ::node parts (tests/visible gives the TeamTrack pattern)."""
+    if visible_tests_dir == ".":
+        return re.compile(r"^(?![/-])[\w.\-/]+" + _NODE_PARTS)
+    return re.compile("^" + re.escape(visible_tests_dir) + r"(/[\w.\-/]*)?" + _NODE_PARTS)
+
+
 _SUMMARY_COUNT = re.compile(r"(\d+) (passed|failed|errors?)\b")
 _FAILURE_LINE = re.compile(r"^(FAILED|ERROR) (\S+)(?: - (.*))?$")
 
@@ -250,6 +277,7 @@ class ToolBox:
         tool_log_dir: Path | None = None,
         tool_timeout_s: int = 120,
         search_time_budget_s: float = SEARCH_TIME_BUDGET_S,
+        visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS,
     ) -> None:
         self.workspace = Path(workspace)
         self.sandbox = sandbox
@@ -266,6 +294,8 @@ class ToolBox:
             raise ValueError("tool_log_dir must be outside the workspace (the agent can edit it)")
         self.tool_timeout_s = tool_timeout_s
         self.search_time_budget_s = search_time_budget_s
+        self.visible_tests_dir = checked_tests_dir(visible_tests_dir)
+        self._selector = selector_pattern(self.visible_tests_dir)
 
     # -- public ------------------------------------------------------------------------------
 
@@ -445,9 +475,10 @@ class ToolBox:
     def _tool_run_visible_tests(
         self, _call: ToolCall, a: RunVisibleTestsArgs
     ) -> tuple[bool, str, int | None, list[str]]:
-        if a.selector is not None and not _SELECTOR.match(a.selector):
-            return False, "selector must be a pytest node inside tests/visible", None, []
-        command = "python -m pytest tests/visible -q -rfE --no-header -p no:cacheprovider"
+        where = self.visible_tests_dir
+        if a.selector is not None and not self._selector.match(a.selector):
+            return False, f"selector must be a pytest node inside {where}", None, []
+        command = f"python -m pytest {where} -q -rfE --no-header -p no:cacheprovider"
         if a.selector:
             command += f" {a.selector}"
         result = self.sandbox.exec(command, self.tool_timeout_s)

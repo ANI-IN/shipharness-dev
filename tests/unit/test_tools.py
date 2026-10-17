@@ -227,6 +227,51 @@ def test_run_visible_tests_rejects_selector_outside_visible(repo: Path) -> None:
     assert result.ok is False
 
 
+def test_run_visible_tests_on_teamtrack_runs_tests_visible_as_before(repo: Path) -> None:
+    sandbox = FakeSandbox(lambda _cmd: ExecResult(exit_code=0, output="3 passed", duration_ms=1))
+    selector = "tests/visible/test_a.py::test_one"
+    result = box(repo, sandbox=sandbox).execute(call("run_visible_tests", selector=selector))
+    assert result.ok
+    assert sandbox.commands == [
+        "python -m pytest tests/visible -q -rfE --no-header -p no:cacheprovider " + selector
+    ]
+    refused = box(repo).execute(call("run_visible_tests", selector="tests/test_a.py"))
+    assert refused.output == "selector must be a pytest node inside tests/visible"
+
+
+def test_run_visible_tests_uses_the_runs_test_directory(repo: Path) -> None:
+    """A repository whose tests live in tests/ (the boltons worked example): the selector the
+    agent gives for its new test file is accepted and pytest runs tests/, not tests/visible."""
+    sandbox = FakeSandbox(lambda _cmd: ExecResult(exit_code=0, output="6 passed", duration_ms=1))
+    toolbox = ToolBox(
+        repo,
+        sandbox,
+        None,
+        "r-1",
+        "harness",
+        tool_log_dir=repo.parent / "tool-logs",
+        visible_tests_dir="tests",
+    )
+    selector = "tests/test_queueutils_generated.py"
+    result = toolbox.execute(call("run_visible_tests", selector=selector))
+    assert result.ok, result.output
+    assert sandbox.commands == [
+        "python -m pytest tests -q -rfE --no-header -p no:cacheprovider " + selector
+    ]
+    refused = toolbox.execute(call("run_visible_tests", selector="other/test_x.py"))
+    assert refused.output == "selector must be a pytest node inside tests"
+
+
+def test_tool_schemas_name_the_runs_test_directory() -> None:
+    from shipharness.runner.tools import tool_schemas
+
+    assert json.dumps(tool_schemas("tests/visible")) == json.dumps(TOOL_SCHEMAS)
+    [tool] = [t for t in tool_schemas("tests") if t["name"] == "run_visible_tests"]
+    text = json.dumps(tool)
+    assert "tests/visible" not in text
+    assert "(tests)" in tool["description"]
+
+
 # --- apply_patch ----------------------------------------------------------------------------
 
 NEW_FILE_PATCH = """\

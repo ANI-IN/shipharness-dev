@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
@@ -25,6 +26,7 @@ from shipharness.harness.verify.checkrun import (
 )
 from shipharness.harness.verify.clean_state import clean_state_check
 from shipharness.harness.verify.models import GateItem, GateResult
+from shipharness.runner.models import TEAMTRACK_VISIBLE_TESTS
 from shipharness.runner.tools import summarise_pytest
 from shipharness.sandbox.base import Sandbox
 
@@ -54,6 +56,10 @@ class GateConfig:
     timeout_s: int = 600
     # Seconds of harness work left (HARNESS_TIMEOUT_S); every gate command fits inside it.
     time_left: Callable[[], float | None] = field(default=lambda: None)
+    # The run's visible tests (TeamTrack: tests/visible; testgen: the repository's test directory).
+    visible_tests_dir: str = TEAMTRACK_VISIBLE_TESTS
+    # False when the repository has no migrations: the clean-state item skips the head check.
+    migrations: bool = True
 
     def limit(self, own_s: int) -> int:
         """A command's time limit: its own, capped by the harness time left (at least 1 s)."""
@@ -61,10 +67,12 @@ class GateConfig:
         return own_s if left is None else max(1, min(own_s, int(left)))
 
 
-def _visible_tests(sandbox: Sandbox, build: str, timeout_s: int) -> tuple[GateItem, list[str]]:
+def _visible_tests(sandbox: Sandbox, build: str, cfg: GateConfig) -> tuple[GateItem, list[str]]:
+    """The run's visible tests on the copy (TeamTrack: tests/visible)."""
+    where = shlex.quote(cfg.visible_tests_dir)
     result = sandbox.exec(
-        f"cd {build} && python -m pytest tests/visible -q -rfE --no-header -p no:cacheprovider",
-        timeout_s,
+        f"cd {build} && python -m pytest {where} -q -rfE --no-header -p no:cacheprovider",
+        cfg.limit(cfg.timeout_s),
     )
     summary = summarise_pytest(result.output)
     head, *failures = summary.splitlines()
@@ -150,13 +158,13 @@ def run_gate(
     sandbox.exec(
         f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", cfg.limit(300)
     )
-    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg.limit(cfg.timeout_s))
+    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg)
     items = [visible]
     if phase == "build":
         check_items, check_lines = _check_items(sandbox, cfg, root, on_progress)
         items += sorted(check_items, key=_order)
         lines += check_lines
-    clean = clean_state_check(sandbox, base_sha, cfg.limit(120))
+    clean = clean_state_check(sandbox, base_sha, cfg.limit(120), migrations=cfg.migrations)
     items.append(clean)
     if clean.status == "fail":
         lines.append(f"FAIL clean state: {clean.detail}")
