@@ -12,7 +12,7 @@ Reference solution and hidden grader for assignment A2 (brief: `../assignment/RE
 | `tests/` | Unit tests of the solution's ledger and progress-file helpers |
 | `class_s2_layer/` | The class's S2 layer under the name the grader loads (a baseline) |
 | `captured/` | Captured output of the self-check and the grader |
-| `live/` | The captured live run of the reference solution (pending) and the command that records it |
+| `live/` | The command that records the reference solution's live run; that run is not captured (owner scope, 2026-10-17) |
 
 ```
 make check-assignment-2 A2_IMPL=submodules/02-state-lifecycle/solution
@@ -31,8 +31,10 @@ uv run python submodules/02-state-lifecycle/solution/grader/grade.py --impl <sub
 ```
 
 The scenarios run the test stand-in agent (not a model). The `live_run` criterion checks the files
-in `<submission>/live/` and never runs a model. Until `live/` holds the reference solution's
-captured run, the reference solution scores 90.0/100 (`captured/grade-solution.txt`).
+in `<submission>/live/` and never runs a model. The reference solution's live run is not being
+captured: the owner listed only the A3 and A4 reference live runs for capture (owner scope,
+2026-10-17). So the reference solution scores 90.0/100 (`captured/grade-solution.txt`), and that
+stays its recorded score.
 
 Recording the reference solution's live run (keys, Docker, checkpoints; `make doctor` passes):
 

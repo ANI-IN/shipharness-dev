@@ -1,31 +1,37 @@
 # S2 session notes: state and session lifecycle
 
 Notes for learners after the S2 block. They summarise what was shown, the key ideas with their
-sources, what the A/B showed (the pilot and experiment dots, not only tonight's run), the questions
-that usually come up, and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
+sources, what the pilot measured (every run, not only tonight's), the questions that usually come up,
+and what to try next. Source ids (A1-A7) and finding ids (F-a-NN) point to
 [REFERENCES.md](../../REFERENCES.md). The full material is in [concepts.md](concepts.md) and the
 [demo runbook](demo/README.md).
 
 ## What was shown
 
-1. **Poll**, before anything ran: both agents stop after the first session's turn budget and start
-   again with an empty context; which arm ships one migration head, one `comments` table, and most of
-   session 1's work?
-2. **The live A/B**, launched right after the poll: F2, comments on issues, in two arms (bare, and
-   instructions + state), each in its own container, judged by the same referee. The class task
-   follows the pilot's decision after run 3 (F2 canonical with a [20, 30] session turn budget, or the
-   run-3 lever [12, 38]).
-3. **Concepts** while the A/B ran: why a fresh session has no memory, why compaction is not the fix,
-   A3's context reset, and the files that carry state across it.
+1. **Poll**, before anything ran: in the course pilot, with a first session stopped after 12 turns,
+   which arm had more continuity failures over six A/Bs? (Answer: neither had any; see below.)
+2. **Harness in action**, launched right after the poll: the harness arm alone (instructions and
+   state) building F2, comments on issues, with a 12-turn first session and a 38-turn second one
+   (`shipharness ab --section demo-2 --feature F2 --arms harness --session-budget 12,38`). It was not
+   an A/B: the pilot had found no gap between the arms on this task, so the class watched the state
+   layer do its job instead.
+3. **Concepts** while it ran: why a fresh session has no memory, why compaction is not the fix, A3's
+   context reset, and the files that carry state across it.
 4. **Code walkthrough**: the anchors `S2:init` (`init.sh`), `S2:stop_resume` (`session_stop` and
    `resume_text`), and `S2:write` (the session-log line). Print any of them with
    `uv run python scripts/anchors.py extract S2:stop_resume`.
-5. **Demo block** on the finished A/B: screen 1 (the session stop and resume markers, the first tool
-   calls of each session), screen 3 (sessions per arm and the referee's `continuity` and
-   `r7_migrations` rows), screen 2 (the boards), screen 5 (first wrong turn and trace), the verdicts,
-   screen 4 (the dots), and `make swap-2`.
+5. **Demo block**, in three parts, each labelled on screen:
+   - the finished live run (screens 1, 3, 5): the initializer step, the wrap-up, "Session 1
+     stopped", the handoff written, "Session 2 resumed", and the referee's primary verdict;
+   - "real run, replayed": pilot run 3's A/B `ab-20261016-213317-9a0ec1`, where the harness arm called
+     `finish(claim="not_done")` at the end of the 12-turn first session and the build phase ended;
+   - "constructed example" (`make example-2`): a scripted two-session run with no model, showing the
+     handoff at the turn budget and the resume.
+6. **Every result** on one slide and console screen 4, wins and "no measurable difference" alike.
 
-[[PENDING: tonight's S2 A/B id, both arms' status, continuity_failure, redone_lines_pct, hidden tests passed, cost, and the poll result | source: live class | how: make demo-2]]
+For your own notes from the live run, take from screens 1 and 3: the run id, how session 1 ended
+(`ended_by`), whether session 2 read the handoff before writing code, whether it ran `alembic heads`
+before writing a migration, and the primary verdict.
 
 ## Key ideas
 
@@ -47,93 +53,72 @@ that usually come up, and what to try next. Source ids (A1-A7) and finding ids (
 - **The harness writes part of the handoff itself.** At every stop `shipharness` writes a machine
   summary (commits, files changed, visible tests, TODO markers, migration heads, documents read) and
   a session-log line, even if the agent wrote nothing (course design).
-- **Resets are model-dependent.** A3 dropped them for a later model: "Opus 4.5 largely removed that
-  behavior on its own, so I was able to drop context resets from this harness entirely." (A3,
-  F-a-69). The course teaches the part that holds for any model: if a session can end before the work
-  is done, the next one must be able to pick up from files.
+- **Each piece encodes an assumption about the model.** A3: "every component in a harness encodes an
+  assumption about what the model can't do on its own, and those assumptions are worth stress
+  testing" (A3, F-a-124). The state files assume, in the course's words, that a fresh session cannot
+  pick up the work from the repository alone. A3 dropped its resets once the model no longer needed
+  them: "Opus 4.5 largely removed that behavior on its own, so I was able to drop context resets from
+  this harness entirely." (A3, F-a-69).
 
-## What the A/B showed
+## What the pilot measured
 
-### Pilot run 2
+The course pilot ran F2 in four rounds before the class (gpt-6-luna). Primary measure:
+`continuity_failure`, runs passing out of k per arm.
 
-The course pilot ran each section's A/B three times before the class (gpt-6-luna, effort medium).
-Run 2's per-section results (measured in the course pilot, run 2, 2026-10-16):
+| Round | Session budget, effort | A/Bs | Bare passed | Harness passed | Hidden tests 56 of 56, bare / harness |
+|---|---|---|---|---|---|
+| Run 2, 2026-10-16 | 20/30, medium | `ab-20261016-181736-08a9c4`, `-184318-636e90`, `-190548-ae9abe` | 3/3 | 0/3 (measurement bug) | 1 of 3 / 0 of 3 |
+| Run 3, 2026-10-16 | 12/38, medium | `ab-20261016-211419-dfe06f`, `-213317-9a0ec1`, `-214959-de790f` | 3/3 | 3/3 | 3 of 3 / 1 of 3 |
+| Run 4, 2026-10-16/17 | 12/38, low | `ab-20261016-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9` | 3/3 | 3/3 | 0 of 3 / 2 of 3 |
+| Class-profile round, 2026-10-17 | 12/38, low, Fast tier | `ab-20261017-085139-7c0661` | 1/1 | 1/1 | 1 of 1 / 1 of 1 |
 
-| Section | Bare: primary passed | Harness: primary passed | Why the harness arm failed |
-|---|---|---|---|
-| F1 | 3/3 | 3/3 | (passed) |
-| F2 (this section) | 3/3 | 0/3 | continuity failure measured on harness files only (a measurement bug, fixed since) |
-| F3 | 3/3 | 3/3 | (passed) |
-| F4 | 0/3 | 0/3 | no test written in the 12-turn test phase survived the filters |
+On the primary measure: no measurable difference on this task with this model (course pilot, runs 3
+and 4 and the class-profile round). What stands behind that:
 
-For F2, two findings, both described in [concepts.md](concepts.md) §6:
+- **Run 2's 0 of 3 was the course's own bug.** The continuity check read session patches that
+  included the harness's `progress.md`, `session-handoff.md`, and exec plan, and scored their rewrite
+  in session 2 as 50-84% redone work. The fix strips the harness's files before the check, for both
+  arms. The same run showed the turn cost: harness sessions re-read 3 to 7 instruction documents and
+  about 15 product files, with 0 to 1 product patches in 50 build turns.
+- **The bare arm found its own state.** In `ab-20261016-181736-08a9c4` its session 2 ran
+  `git status`, saw session 1's uncommitted `migrations/versions/0002_comments.py`, read it, and
+  carried on. A6 says Claude models are "extremely effective at discovering state from the local
+  filesystem." (A6, F-a-76; a living page, accessed 2026-10-16); the pilot model, which is not a
+  Claude model, behaved that way here.
+- **The measure has a blind spot.** Six arms in runs 3 and 4 built nothing (3 of 56 hidden tests) and
+  still passed: the measure cannot fail when session 1 leaves no product lines to redo.
+- **The runner had a bug, in both arms.** Those six arms called `finish(claim="not_done")` after 9 to
+  12 turns of the first session, and the runner ended the build phase, so the 38-turn session never
+  ran: two harness arms in run 3; all three bare arms and one harness arm in run 4. The fix: before
+  the last build session, `finish(claim="not_done")` ends only that session. In the class-profile
+  round, run after the fix, both arms built the feature (56 of 56).
+- **Post hoc** (chosen after the results; descriptive; 9 runs per arm, runs 2 to 4): harness arms hit
+  the agent time limit in 4 runs, bare arms in 0; median arm wall time 361 s against 232 s; median
+  tests shipped 0 against 8.
 
-- **The bare arm did not forget.** It passed continuity in 3 of 3 runs. In
-  `ab-20261016-181736-08a9c4` its session 2 ran `git status`, saw session 1's uncommitted
-  `migrations/versions/0002_comments.py`, read it, and carried on. A6 says Claude models are
-  "extremely effective at discovering state from the local filesystem." (A6, F-a-76; a living page,
-  accessed 2026-10-16); the pilot model, which is not a Claude model, behaved that way on this task.
-- **The harness arm's 0 of 3 was the course's own problem.** The continuity check read session
-  patches that included the harness's `progress.md`, `session-handoff.md`, and exec plan, and scored
-  their rewrite in session 2 as 50-84% redone work. The fix strips the harness's files before the
-  check ("bug fix, applies to both arms"). Separately, the harness arms spent their turns re-reading
-  3 to 7 instruction documents and about 15 product files per session and updating their state files
-  mid-session, with 0 to 1 product patches in 50 build turns; a harness change for the harness arm
-  moved the bookkeeping to the wrap-up and put the handoff's agent notes ahead of any document.
-
-The dots per run, with run ids and per-run costs, are in the [demo runbook](demo/README.md) §7.
-
-### Pilot run 3 and the experiments
-
-With the bug fixed, F2 still had no gap in run 2, so the registered lever for run 3 is a tighter
-session turn budget: a 12-turn first session (`shipharness ab --session-budget 12,38`).
-
-Measured in the course pilot, run 3, 2026-10-16 (effort medium), A/Bs `ab-20261016-211419-dfe06f`,
-`ab-20261016-213317-9a0ec1`, `ab-20261016-214959-de790f`; and run 4, effort low, 2026-10-16/17, A/Bs
-`ab-20261016-232842-ac03b2`, `ab-20261016-234027-226a76`, `ab-20261016-235211-ea59a9`:
-
-| Run | Bare: primary passed | Harness: primary passed | Hidden tests 56 of 56, bare / harness |
-|---|---|---|---|
-| 3 | 3/3 | 3/3 | 3 of 3 / 1 of 3 |
-| 4, effort low | 3/3 | 3/3 | 0 of 3 / 2 of 3 |
-
-`continuity_failure` was false in all 12 arms, so none of parts (a), (b), (c) fired; the highest
-`redone_lines_pct` was 5.3 (bare arm, `ab-20261016-213317-9a0ec1`). On the primary measure: no
-measurable difference on this task with this model (course pilot, runs 3 and 4). The pass includes
-arms that built nothing (hidden tests 3 of 56: two harness arms in run 3, every bare arm and one
-harness arm in run 4): the measure cannot fail when session 1 leaves no product lines to redo. In
-run 3 the harness arm called `finish(claim="not_done")` at the end of the 12-turn first session in
-`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, which ended the build phase before the
-38-turn session. Run ids per arm are in the [demo runbook](demo/README.md) §7.
-
-[[PENDING: the S2 class task decision | source: M6 pilot | how: course pilot (build repository)]]
-
-The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
-
-[[PENDING: M8 batch 1 S2 dots: continuity_failure per arm out of k=10, components (a)/(b)/(c), redone_lines_pct, run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
-
-[[PENDING: M8 ablation, the stack without the state layer, S2 tasks, with run ids | source: M8 ablation | how: uv run shipharness experiments --split section-2 --k 2 --layers=-state --batch ablation, then uv run shipharness report]]
-
-If a section still shows no gap after the registered steps, the course reports it as "no measurable
-difference on this task with this model" and shows it that way (course design).
+The course's planned experiment batches (10 runs per arm per section, and a leave-one-layer-out
+ablation) were not run, because the pre-registered pilot gate did not pass; the runs above are the
+data. Run ids per arm are in the [demo runbook](demo/README.md) §9.
 
 ## Common questions
 
-**The bare arm passed. Does that mean state files are useless?**
-No. It means that on this model, at this effort, with a 20-turn first session, the agent rebuilt the
-picture from `git status` and the files on disk. A3 reports the same kind of result for a later model
-(F-a-69). The A/B tells you about one model and one task; the run-3 lever and the batch dots test
-other conditions.
+**The harness did not win. Was it useless?**
+It did not show an effect on this task with this model, which is what the course reports. The state
+files encode an assumption, that a fresh session cannot pick up the work from the repository alone,
+and here it did not hold: the bare arm found its own state. A3 dropped its resets for the same kind of
+reason (F-a-69). Keep a piece where your own measurement shows it earns its turns; the post hoc
+numbers show what it costs.
 
-**Why did the harness arm lose if the files help?**
+**Why did the harness arm lose in run 2 if the files help?**
 On the primary measure it lost because of a measurement bug, now fixed. On the work itself it built
-little in run 2 because the routine and the documents cost turns. State files are not free: A3 lists
+little because the routine and the documents cost turns. State files are not free: A3 lists
 "orchestration complexity, token overhead, and latency" for resets (F-a-68).
 
-**Is changing the measure after a run allowed?**
-The measure's definition did not change; the input was corrected so the check reads product work
-only, for both arms. The course's pilot rules require every pilot-driven change to be logged with its
-label, reason, the run that revealed it, and its commit, before the next run.
+**Is changing the measure or the runner after a run allowed?**
+The measure's definition did not change; its input was corrected so the check reads product work
+only, for both arms. The runner fix also applies to both arms. The course's pilot rules require every
+pilot-driven change to be logged with its label, reason, the run that revealed it, and its commit,
+before the next run.
 
 **Why does the harness write a machine summary when the agent writes notes anyway?**
 An agent that runs out of turns mid-edit may write nothing. Facts like commits, test status, and
@@ -151,11 +136,13 @@ A file changed in session 1 changed again later. It is a hint, not the measure; 
 
 ## What to try next
 
-- Read the [post-class reading](post-class-reading/README.md), especially 03 on the measurement bug.
+- Read the [post-class reading](post-class-reading/README.md), especially 03 on the measurement bug
+  and the measure's blind spot.
 - Start assignment A2 ([assignment/README.md](assignment/README.md)): a state layer that carries a
   three-step feature across three forced stops. Run `make check-assignment-2` first; on the starter it
   reports "Self-check: 2 of 28 checks pass."
 - In your own repository, stop your coding agent mid-task and start a fresh session. Count the tool
-  calls it spends before its first change, then add a handoff file and count again.
+  calls it spends before its first change, then add a handoff file and count again. If the count does
+  not drop, the handoff is not earning its turns.
 - Write down, for your own tickets, which facts a script could put in a handoff (git state, test
   status, schema heads) and which only the agent knows (decisions, dead ends).

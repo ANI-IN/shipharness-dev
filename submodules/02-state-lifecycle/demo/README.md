@@ -1,336 +1,363 @@
-# S2 demo: F2 across a forced session stop
+# S2 demo: the state layer across a 12-turn session stop
 
-Runbook for the S2 live A/B (`make demo-2`): purpose, commands, screen sequence and anchors, poll,
-what to watch, what the harness arm does differently, captured output, pilot and experiment results,
-time and cost, troubleshooting and replay. The 50-minute S2 block follows the class's section pattern
-([instructor guide, "Section pattern"](../../../docs/instructor-guide.md#section-pattern)): poll
-(3 min), launch of `make demo-2` (2 min), concepts (15 min) and code walkthrough (10 min) while the
-A/B runs in the background, then the demo block (15 min) on the finished A/B and discussion (5 min).
-Source ids (A1-A7, F-a-NN) point to [REFERENCES.md](../../../REFERENCES.md).
+Runbook for the S2 class block (50 minutes). It covers what the demo shows and why, the commands,
+the order in class, the console screens, what to watch, the real run that is replayed, the
+constructed example, the results to show, time and cost, troubleshooting, and the fallback. Source ids
+(A1-A7, F-a-NN) point to [REFERENCES.md](../../../REFERENCES.md).
 
-Everything marked PENDING needs real run output and is filled from pilot run 3, the experiment
-batches, or the class itself. Captured output is labelled "captured on <date>, run <id>; your output
-will differ". The captured blocks below come from pilot run 2 (2026-10-16), before the fixes that
-followed it; where a fix since then changes what you will see, the text says so.
+Captured output is labelled "captured on <date>, run <id>; your output will differ". Everything
+quoted comes from recorded pilot runs on the class host (`.shipharness/runs/<ab id>/events.jsonl` and
+`exports/scores/<run id>.json`).
 
 ---
 
-## 1. Purpose and the problem this demo shows
+## 1. What this demo shows, and why
 
-Both arms build F2, comments on issues
-([teamtrack/docs/features/f2.md](../../../teamtrack/docs/features/f2.md)), from checkpoint
-`m1-s2-start` (base + F1). The task's session turn budget is `[20, 30]`
-([teamtrack/reference/f2/task.toml](../../../teamtrack/reference/f2/task.toml)): if an arm has not
-called `finish` after 20 turns, the session stops, and a second session of 30 turns starts with an
-empty context. The session turn budget is the course's mechanism, not a source term; it produces
-A3's context reset at a fixed point in both arms (A3, F-a-65).
+**The task.** F2, comments on issues ([teamtrack/docs/features/f2.md](../../../teamtrack/docs/features/f2.md)),
+from checkpoint `m1-s2-start` (base + F1). The task file sets a session turn budget of `[20, 30]`
+([teamtrack/reference/f2/task.toml](../../../teamtrack/reference/f2/task.toml)); the class runs it with
+`--session-budget 12,38`: the first session stops after 12 turns and a 38-turn session starts with an
+empty context. The session turn budget is the course's mechanism, not a source term; it produces A3's
+context reset at a fixed point (A3, F-a-65).
 
-The problem: a session that "begins with no memory of what came before." (A2, F-a-08) has to work
+**The problem.** A session that "begins with no memory of what came before." (A2, F-a-08) has to work
 out what the first session did. On F2 a wrong guess is visible: a second Alembic migration from the
-old head (two heads, breaking house rule R7; "house rules" is the course's label for what A1 calls
-"golden principles", A1, F-a-99), a second `create_table("comments")`, or session 2 removing and
-rewriting what session 1 wrote.
+old head (two heads, breaking house rule R7; "house rules" is the course's label for A1's "golden
+principles", A1, F-a-99), a second `create_table("comments")`, or session 2 removing and rewriting
+what session 1 wrote. The primary measure, `continuity_failure`, fails a run on any of the three
+([concepts.md](../concepts.md) §5).
 
-| Arm | Layers | What it gets at the stop |
+**Why the class does not run a live A/B here.** The pilot found no gap between the arms on this task
+(section 8): with the 12-turn first session, no arm of either kind had a continuity failure in run 3
+(effort medium, 3 A/Bs), run 4 (effort low, 3 A/Bs), or the class-profile round (1 A/B). The course's
+rule is a live A/B only where the pilot shows a real gap; otherwise the section shows the harness
+piece doing its job, one real mistake, and one constructed example. So the S2 block has three parts:
+
+| Part | Label on screen and in speech | What it shows |
 |---|---|---|
-| bare | none | "This session is ending soon. Turns left in this session: 3." then, in session 2, "A previous session worked on this ticket and was stopped." |
-| harness | instructions, state (`src/shipharness/ab/demo.py`, `SECTION_STACKS`) | The same two sentences, plus the wrap-up steps (progress, exec plan, handoff notes with the rules and files that matter, commit), a harness-written machine summary in `session-handoff.md`, a session-log entry in `progress.md`, and the Getting up to speed routine in every session |
+| `show` (section 3) | "harness in action" (console badge "▶ HARNESS IN ACTION — one arm, not an A/B") | The harness arm alone, live: the initializer step, the wrap-up, the handoff written at the stop, session 2 resuming from it |
+| `make replay RUN=ab-20261016-213317-9a0ec1` | "real run, replayed" (console badge "● RECORDING") | Pilot run 3: the harness arm gave up the build phase with `finish(claim="not_done")` after the 12-turn first session; the runner fix that followed is the lesson |
+| `make example-2` | "constructed example" (console badge "CONSTRUCTED EXAMPLE") | A scripted two-session run with no model: the handoff written at the turn budget, session 2 resuming from it |
 
-Everything else is identical: model, effort, tools, ticket, sandbox, turn budgets, wrap-up turns, cost
-cap. The bare arm has the same R7 rule in `docs/HANDBOOK.md`.
-
-Primary measure (registered before any run): `continuity_failure`, true if (a) R7 fails, (b) two
-migrations create the same table, or (c) 30% or more of session 1's added lines are removed in
-session 2. See [concepts.md](../concepts.md) §5.
-
-**Which task the class runs.** This runbook is written for F2 canonical. Pilot run 2 showed no gap on
-it (section 7), so pilot run 3 tests the registered lever: the same task with a 12-turn first session
-and 38 turns after it (`--session-budget 12,38`). The class task follows the pilot's decision after
-run 3.
-
-[[PENDING: final S2 class task (F2 canonical [20, 30] or F2 canonical with --session-budget 12,38) and the exact class command | source: M6 pilot | how: course pilot (build repository)]]
-
-The pilot gate did not pass (course pilot, 2026-10-17), so the class task is the instructor's decision.
+The harness arm runs the demo-2 stack, instructions and state (`SECTION_STACKS` in
+`src/shipharness/ab/demo.py`). The bare arm, in the pilot's A/Bs, got the same ticket, the same
+sentences at the stop ("This session is ending soon. Turns left in this session: 3." and "A previous
+session worked on this ticket and was stopped."), and the R7 rule in `docs/HANDBOOK.md`, with none of
+the state files.
 
 ---
 
-## 2. Commands
+## 2. Before class
 
-Run everything inside WSL2 from the repository root (`~/shipharness`). Before class: `make doctor`
-passes and `make setup` has built the two images.
+Run these from the repository root (`~/shipharness`) inside WSL2.
 
-| Step | Command | What it runs (`make -n`) |
+1. `make doctor` reports both keys and Docker ready, and `.env` sets `SHIPHARNESS_CLASS_DATE` to the
+   class day (`--purpose class` needs it).
+2. `make warm` builds the images if their source changed, starts the containers, and computes the
+   referee and gate baselines, with no model calls (it runs `uv run shipharness warm --profile class
+   --images-command "make images RUNTIME=docker"`).
+   Measured on the class host on 2026-10-17 before the class-profile round: first run 407 s (images
+   rebuilt 145 s, 7 referee and 4 gate baselines), second run 1.2 s.
+3. Check that the two recorded runs this block needs are on the host:
+
+   ```sh
+   ls .shipharness/runs/ab-20261016-213317-9a0ec1 .shipharness/runs/ab-20261017-085139-7c0661
+   ```
+
+   Each folder has `ab.json`, `events.jsonl`, `bare/`, and `harness/`. The first is the showcase
+   (section 6); the second is the fallback for the live run (section 11).
+4. Run `make replay RUN=ab-20261016-213317-9a0ec1 PURPOSE=pilot` once and note how long it takes on
+   this host (the referee judges both arms), so you know when to launch it in class (section 4).
+
+---
+
+## 3. Commands
+
+| Step | Command | What it runs |
 |---|---|---|
-| Console | `make console` (separate terminal) | `uv run shipharness console --port 8765`; open `http://127.0.0.1:8765/`, then the new A/B under its id |
-| Demo | `make demo-2` | `uv run shipharness ab --section demo-2 --feature F2 --purpose class`: F2 canonical, bare vs instructions + state, both arms in parallel, referee on both, the reviewer on both diffs (it does not see the arm labels) |
-| Demo with the run-3 lever | `uv run shipharness ab --section demo-2 --feature F2 --session-budget 12,38 --purpose class` | The same A/B with a 12-turn first session; only if the pilot decision picks it (section 1). `make demo-2` has no variable for the budget |
-| Swap test | `make swap-2` | `uv run shipharness ab --swap latest --section demo-2 --purpose class`: re-judges each arm's shipped diff under the other arm's label with the recorded seed and pinned checkpoint commit; no model calls. Prints `Swap test on <ab_id>: judged measures identical` (exit 0) or `DIFFERENT` with the fields that changed (exit 1). `AB=<ab or run id>` picks another A/B |
-| Layer switch | `make demo-2 LAYERS=-state` | `uv run shipharness ab --section demo-2 --feature F2 --layers=-state --purpose class`: the harness arm runs with `instructions` only (`ab/demo.py`, `section_layers`). A new live A/B under the same caps as `make demo-2` (at most $0.48) |
-| Replay fallback | `make replay RUN=<ab or run id>` | `uv run shipharness replay <id>`. Only if the live run fails on stage; see §9 |
+| Console | `make console` (terminal A) | `uv run shipharness console --port 8765`; open `http://127.0.0.1:8765/` |
+| Harness in action | `uv run shipharness ab --section demo-2 --feature F2 --arms harness --session-budget 12,38 --purpose class --profile class` (terminal B) | The harness arm alone (instructions + state) on F2 with a 12-turn first session, the class profile (effort low, OpenAI's Fast tier, 2 CPUs per container), the referee, and the reviewer. Not an A/B: its record stays out of the bare-vs-harness comparison and the swap test |
+| Real run, replayed | `make replay RUN=ab-20261016-213317-9a0ec1` | `uv run shipharness replay ab-20261016-213317-9a0ec1 --purpose class`: re-emits the recorded events (RECORDING on every screen), applies the recorded diffs to a fresh export of the pinned checkpoint commit, and runs the referee live. No agent model calls; the reviewer is off unless you pass `--reviewer` |
+| Constructed example | `make example-2` | `shipharness example --section demo-2`: scripted steps, no model, "CONSTRUCTED EXAMPLE" on every console screen |
+| Fallback for the live run | `make replay RUN=ab-20261017-085139-7c0661` | The class-profile round's F2 A/B, replayed (section 11) |
 
-The expansions in the third column were captured on 2026-10-17 from `make -n <target>` at commit
-5e8fb08 (offline command; your output will differ only if the Makefile changes). The
-`--session-budget` option is listed by `uv run shipharness ab --help`. `make demo-2`, `make swap-2`,
-`make replay`, and `make console` were not run for this runbook (they start containers or call
-OpenAI); the integrator verifies them live.
+**Why not `make show-2`.** `make show-2` runs `uv run shipharness ab --section demo-2 --feature F2
+--arms harness --purpose class --profile class`, and at this commit it does not pass
+`SESSION_BUDGET`: `make -n show-2 SESSION_BUDGET=12,38` prints the same line with no
+`--session-budget`, so the first session would be 20 turns. `make demo-2 SESSION_BUDGET=12,38` does
+pass it (`--session-budget=12,38`), but that is the two-arm A/B. Use the full command above.
 
-At the end `make demo-2` prints one header line and one line per arm (`ab/commands.py`,
-`_print_record`):
+Checked on 2026-10-17 at commit d132507, with commands that make no model calls: `make -n show-2
+SESSION_BUDGET=12,38`, `make -n demo-2 SESSION_BUDGET=12,38`, `make -n replay
+RUN=ab-20261016-213317-9a0ec1`, `make -n console`, `uv run shipharness ab --help` (lists `--arms`,
+`--session-budget`, `--profile`), and `uv run shipharness replay --help`. The live commands and
+`make example-2` were not run for this runbook.
+
+At the end the live command prints a header, one line for the harness arm, and the cost line
+(format from `src/shipharness/ab/commands.py`, `_print_record`, and `ab/runtime.py`, `cost_line`):
 
 ```text
-A/B <ab_id> (F2, layers=['instructions', 'state'])
-  <arm>  <status>  claim=<claim>  primary={"continuity_failure": ...} passed=<bool> hidden <x>/<N> mutants <k>/<M> reviewer=<verdict> cost=$<usd>
-Cost: $<usd> (this command: <model> $<usd>, ...; session $<usd> of $2.50)
+A/B <ab_id> (F2, layers=['instructions', 'state'], profile=class, harness in action)
+  harness  <status>  claim=<claim>  primary={"continuity_failure": ...} passed=<bool> hidden <x>/56 mutants <k>/4 reviewer=<verdict> cost=$<usd>
+Cost: $<usd> (this command: <model> $<usd>, ...; session $<usd> of $2.50; build $<usd> of $15.00 ($<usd> left))
 ```
 
-The line format comes from the code; the values do not exist until the run. Exit code: 0 when both
-arms completed, 2 when an arm ended `ABORTED` (cap or timeout), 1 on `ERROR`.
+Exit code: 0 when the arm completed, 2 when it ended `ABORTED` (cap or timeout), 1 on `ERROR`.
 
-Start the layer switch only if the session figure on the `Cost:` line leaves room for the rest of the
-class; `MAX_SESSION_COST_USD` ($2.50) blocks it otherwise. If it does not fit, show the ablation dots
-instead (§7).
+[[CAPTURE: terminal output of the S2 harness-in-action run (header, harness line, Cost line), its wall time from launch to the Cost line, and its cost | how: uv run shipharness ab --section demo-2 --feature F2 --arms harness --session-budget 12,38 --purpose class --profile class]]
 
 ---
 
-## 3. Screen sequence and code anchors
+## 4. Order in class
 
-### Order in class
+The block follows the class's section pattern ([instructor guide, "Section
+pattern"](../../../docs/instructor-guide.md#section-pattern)), with the live run in place of the A/B.
 
-| Section minutes | Block | Terminal B and console |
+| Section minutes | Block | Terminal and console |
 |---|---|---|
-| 0-3 | Poll (section 4) | Close the poll before the launch |
-| 3-5 | Launch | `make demo-2` at minute 3; open the new A/B on screen `1`; control glance |
-| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The A/B runs in the background |
-| 20-30 | Code walkthrough | The A/B runs; at minute 25 check terminal B for the `Cost:` line |
-| 30-45 | Demo block | The finished A/B: screens, verdicts, pilot and experiment dots, swap test |
-| 45-50 | Discussion and transition | |
+| 0-3 | Poll (section 5) | Close the poll before the launch |
+| 3-5 | Launch | Terminal B: the harness-in-action command. Open the newest run on screen `1`: the badges and the initializer step |
+| 5-20 | Concepts ([../concepts.md](../concepts.md)) | The run goes on in the background |
+| 20-30 | Code walkthrough (anchors below) | At minute 20, if terminal B shows the `Cost:` line, launch `make replay RUN=ab-20261016-213317-9a0ec1` so its referee runs during the walkthrough; otherwise launch it at minute 25 |
+| 30-36 | Demo block 1: harness in action | The finished run: screens `1`, `3`, `5` (section 6) |
+| 36-41 | Demo block 2: real run, replayed | The replay: screens `1` and `3`, then the runner code (section 7) |
+| 41-45 | Demo block 3: constructed example, and every result | `make example-2` (section 8); then screen `4` and the results slide (section 9) |
+| 45-50 | Discussion | Poll answer, follow-up question |
 
-The A/B must be finished by section minute 25. In pilot run 2 (12 A/Bs, F1-F4, two A/Bs in parallel
-on the class host, before the referee speed-ups) every A/B finished within 923 s (15.4 min); median
-641 s (10.7 min), minimum 485 s (8.1 min) (measured in the course pilot, run 2, 2026-10-16). The class
-runs one A/B at a time. If the A/B is still running at minute 25, open the demo block on the running
-A/B and run the swap test on the recorded fallback (`make swap-2 AB=<recorded ab id>`); if it failed
-on stage, use the replay (section 9). The instructor guide's "If it fails" rows cover both cases.
+Timing: in the class-profile round (2026-10-17, A/B `ab-20261017-085139-7c0661`), the F2 harness arm
+reached its primary verdict 358 s after launch and its full verdict 533 s after launch. A run started
+at section minute 3 at that pace finishes around minute 12. Run one live command at a time: the
+replay waits for the live run's `Cost:` line.
 
-While a run is live, screen `1` shows the last 8 turn rows and the last 3 harness decisions per arm;
-once the run has finished it lists every turn row and every harness decision in scrollable lists
-(`src/shipharness/console/templates/screens/live.html`). Show the first turns live at the launch; in
-the demo block, scroll the finished timeline on screen `1` or read screen `3`.
+### Code walkthrough (minutes 20-30)
 
-### Poll and launch (5 min, before the concepts)
-
-| When | Key | Screen | Point at |
-|---|---|---|---|
-| Section minutes 0-3 | | | Poll (§4); close it before the launch |
-| Minute 3 | | | `make demo-2`. If a layer switch from S1 is still running, wait for its `Cost:` line first |
-| First turns | `1` | Live Console | Harness arm: the `note` decision "initializer step: init.sh, progress.md, session-handoff.md, docs/exec-plans/active/F2.md"; its prompt asks for Getting up to speed before any change (`pwd`, `progress.md`, `git log`, the handoff's agent notes, `bash init.sh`). Bare arm: only the ticket and the repository |
-| Minutes 4-5 | | | Glance at the easy control task, C2 "Search projects by name" (`teamtrack/docs/features/c2.md`); then the concept slides |
-
-### Code walkthrough (10 min, while the A/B runs)
-
-Open the three S2 anchors (`uv run python scripts/anchors.py extract <id>`):
+Print each anchor with `uv run python scripts/anchors.py extract <id>`:
 
 | Anchor | File | Show |
 |---|---|---|
-| `S2:init` | `src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, one end-to-end test file (`tests/visible/test_issues.py`) with `-x`; the A2 sentence in the header comment |
-| `S2:stop_resume` | `src/shipharness/harness/state/lifecycle.py` (lines 95-134) | `session_stop`: machine summary, handoff merge, progress entry, commit, `session_stop` decision; `resume_text` |
-| `S2:write` | `src/shipharness/harness/state/progress.py` (lines 11-37) | `session_entry` (index, commits, `ended_by`, turns, files, tests) and `append_session_entry` (restores the heading) |
+| `S2:init` | `src/shipharness/harness/state/assets/init.sh` (lines 2-29) | Scratch database, `alembic heads` then `upgrade head`, one end-to-end test file with `-x` |
+| `S2:stop_resume` | `src/shipharness/harness/state/lifecycle.py` (lines 95-134) | `session_stop`: machine summary, handoff merge, progress entry, commit; `resume_text` |
+| `S2:write` | `src/shipharness/harness/state/progress.py` (lines 11-37) | `session_entry` and `append_session_entry` (restores the heading) |
 
-Also worth a glance: `getting_up_to_speed` and `wrapup_text` at the top of `lifecycle.py` (the agent
-notes first, bookkeeping only in the wrap-up: the harness change after pilot run 2);
-`StateLayer.prepare_workspace` in `src/shipharness/harness/state/layer.py` (the initializer step as
-deterministic code, course design); and `NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py` (the
-sentence both arms get).
+Also worth a glance: `getting_up_to_speed` and `wrapup_text` at the top of `lifecycle.py`, and
+`NEUTRAL_RESUME` in `src/shipharness/runner/prompts.py` (the sentence both arms get).
 
-### Demo block (15 min, after the walkthrough)
+---
 
-The wrap-up and the start of session 2 happen while the concepts are on screen. In the demo block
-they are read from the finished A/B, in this order (screens 1, 3, 2, 5, then the verdicts and
-screen 4):
+## 5. Poll question
+
+Ask before the launch:
+
+> In the course pilot both agents built F2 with a first session stopped after 12 turns and a fresh
+> 38-turn session after it. The bare agent had no progress file, no handoff, and no exec plan. Over
+> six A/Bs, which arm had more continuity failures (two migration heads, a second `comments` table,
+> or 30% of session 1's lines redone)?
+>
+> A. The bare arm. B. The harness arm. C. Neither arm had any. D. Both had several.
+
+Answer, after the demo block: C. `continuity_failure` was false in all 12 arms of runs 3 and 4, and
+in both arms of the class-profile round (section 9). Then say what the pass does not show: six of
+those arms built nothing (3 of 56 hidden tests), and the measure cannot fail when session 1 leaves no
+product lines to redo.
+
+Follow-up for the discussion: "The bare arm found session 1's work with `git status`. Which state
+file would you keep for this model, and how would you measure it?"
+
+---
+
+## 6. Harness in action: what to watch
+
+**Screens.** Every screen shows the badges "▶ HARNESS IN ACTION — one arm, not an A/B" and
+"profile: class". On screen `1` the bare panel reads "Not run: harness in action shows the harness
+arm alone. The bare-vs-harness comparison comes from the A/B runs (make demo-N)."
+(`src/shipharness/console/templates/screens/`). There are no BLOCKED lines and no gate pills: the
+scope layer starts in demo-3 and the verification gate in demo-4.
 
 | Key | Screen | Point at |
 |---|---|---|
-| `1` | Live Console | The full timeline per arm: the markers "■ Session 1 stopped" and "▶ Session 2 resumed", the first tool calls of each session, the harness arm's decisions |
-| `3` | Evidence | "Sessions" list per arm: turns and `ended_by` per session, and "↺ redone" lines for files changed again in a later session; then the referee list: `continuity` and `r7_migrations` results per arm |
-| `2` | Boards | Each arm's `/board` page as Acme, the last capture from the preview container |
-| `5` | Traces | First wrong turn per arm (a heuristic: the earliest turn that edited a file a failing check names) and the LangSmith trace link. In the trace, compare each arm's first five tool calls in session 2: does it read what session 1 left, and does it run `alembic heads` or look at `migrations/versions/` before writing a migration? |
-| | Terminal B | The A/B verdicts (one line per arm) and the session figure from the `Cost:` line |
-| `4` | A/B Report | S2 dots: tonight's run next to the pilot and batch-1 dots (§7). Every run is a dot; read counts, not percentages |
-| | | Then `make swap-2`, or `make demo-2 LAYERS=-state` if the session figure leaves room |
+| `1` | Live Console | The initializer step (decision "initializer step: init.sh, progress.md, session-handoff.md, docs/exec-plans/active/F2.md"), the Getting up to speed calls, the wrap-up at turn 10, the marker "■ Session 1 stopped", the decision "session 1 handoff written to session-handoff.md", the marker "▶ Session 2 resumed", and the first calls of session 2. Then the referee line: "primary verdict ready: PASS" (or FAIL) with `continuity_failure`, and the time from launch to the primary and full verdicts |
+| `3` | Evidence | The "Sessions" list: turns and `ended_by` per session, "↺ redone" hints; the referee rows `continuity` and `r7_migrations` |
+| `5` | Traces | The LangSmith trace link; in session 2, the first five tool calls: does the agent read what session 1 left before writing code? |
+| `2` | Boards | One frame of `/board`. The comments panel is on the issue page, which the preview does not open; the hidden board tests judge it |
 
-Screen 4 note: in the live console check (A/B `ab-20261016-210339-909651`, 2026-10-16) screen 4
-pooled all features and pre-fix records into one row per arm; it groups by feature from tonight's fix.
-
----
-
-## 4. Poll question
-
-Ask before `make demo-2`:
-
-> Both agents stop after 20 turns, before F2 is finished, and start again with an empty context. The
-> bare agent has the same house rules in its docs, including "exactly one migration head". After the
-> second session, which arm ships a migration history with one head and one `comments` table, and
-> keeps most of what session 1 wrote?
->
-> A. Both arms. B. Only the harness arm. C. Only the bare arm. D. Neither.
-
-If the class runs the 12-turn lever, say "after 12 turns" instead.
-
-What the pilot showed so far: in run 2 the bare arm passed in 3 of 3 runs; the harness arm's 0 of 3
-is not a valid measurement, because the continuity check counted the harness's own files, a bug fixed
-since (section 7). In runs 3 and 4 (12-turn first session) both arms passed in 3 of 3 runs, including
-arms that built nothing (section 7). Answer pattern from the experiments:
-
-[[PENDING: S2 poll answer pattern: continuity_failure counts per arm out of k=10, split by component (a) R7, (b) duplicate table, (c) redone >= 30%, with run ids | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
-
-After the run, ask one follow-up: "Which file did each arm's session 2 read first, and did it change
-what that session did next?"
-
----
-
-## 5. What to watch
-
-The initializer step and the first turns can be shown live at the launch. The rest is read in the
-demo block from the finished timeline on screen 1, screens 3 and 5, and the trace.
-
-- **No BLOCKED lines and no gate pills in demo-2.** The harness arm runs instructions and state only.
-  Only the scope layer rejects patches (`src/shipharness/harness/scope/layer.py`), and it starts in
-  demo-3; the verification gate starts in demo-4, so screen 1 shows "No gate" for both arms. The
-  three F2 A/Bs of pilot run 2 had 0 `blocked` events (their `events.jsonl`).
-- **The initializer step** (screen 1, harness decisions): one `note` listing the four files, and the
-  commit `harness: initializer step for F2`. Nothing like it in the bare arm.
-- **Getting up to speed** (screen 1, tool calls): `run pwd`, `read_file progress.md`, `run git log
-  --oneline -20`, `read_file session-handoff.md` (the agent notes first), `read_file
-  docs/exec-plans/active/F2.md`, `run bash init.sh`, and in session 1 only, `run_visible_tests`. The
-  prompt asks for this order; whether the agent follows it is the thing to watch.
-- **Documents read after that.** In pilot run 2 every harness session re-read 3 to 7 instruction
-  documents (section 6). Since the change that followed, the prompt says to open a document from the
-  AGENTS.md map only for a detail the handoff notes do not cover. Count the `read_file` calls on
-  documents before the first `apply_patch` in each session.
-- **`init.sh` output in session 2**: the line `== migrations (house rule R7: exactly one head)`
-  followed by the heads. If session 1 already added the comments migration, its revision is listed
-  here.
-- **Wrap-up**: both arms get "This session is ending soon. Turns left in this session: 3." Only the
-  harness arm's message continues with four numbered steps.
-- **The stop**: the marker "■ Session 1 stopped" (event `session_stop`, with `ended_by` and the end
-  commit); for the harness arm a `session_stop` decision "session 1 handoff written to
-  session-handoff.md" and the commit `harness: session 1 handoff for F2`.
-- **The handoff's machine summary**: the line `- Migration heads: ...`. With more than one head it
-  ends with "house rule R7 needs exactly one". The last line lists the harness documents read so
-  far.
-- **The resume**: "▶ Session 2 resumed" (event `session_resume`, with `prefix_blocks`: `core` for the
-  bare arm, `core, instructions, state` for the harness arm).
-- **The bare arm's session 2**: in pilot run 2 it found session 1's uncommitted work with `git status`
-  and read the migration before writing code (section 6). Watch for that call; it is the bare arm's
-  own way of getting up to speed.
-- **`migrations/versions/` in session 2**: a second new migration file in either arm is the moment to
-  point at; it is what parts (a) and (b) catch.
-- **Screen 3 "↺ redone"**: a file-level hint (a file changed in session 1 changed again later).
-  Working on the same file in session 2 is normal; the judged number is `redone_lines_pct` from the
-  referee (post-class reading 03).
-- **No stop at all**: an arm that calls `finish` in session 1, even on its last turn, has no stop
-  markers. Say so; parts (a) and (b) still judge its migrations.
-- **Exec plan**: in demo-2 the plan stays in `docs/exec-plans/active/`. It moves to `completed/` only
-  after the scope layer sets `passes`, which starts in demo-3.
-- **Screen 2**: the preview captures the `/board` page. The comments panel is on the issue page
-  (`/board/issues/{issue_id}`), which the preview's board view does not open; the referee's hidden
-  board tests for F2 (`tests/hidden/f2/test_f2_board.py`, 8 tests) judge the panel.
-
----
-
-## 6. What the harness arm does differently, and why
-
-The harness arm's answer to the problem is state written where the next session looks, by two
-writers:
-
-- **The agent**, in the wrap-up turns: what it was doing, what is left, what to watch out for, and the
-  house rules and file locations it already looked up, so session 2 does not look them up again.
-- **The harness**, at the stop, whatever the agent did: the machine summary (commits, files changed,
-  visible tests, TODO markers, migration heads, documents read) and one session-log line in
-  `progress.md`, committed.
-
-Session 2 then starts from those files instead of from a search of the repository. That is A2's
-"Getting up to speed" (F-a-59) with A3's structured handoff (F-a-65). The bare arm has to rebuild the
-same picture with its own tool calls.
-
-What pilot run 2 showed, before the turn-cost change: the harness arm followed the routine and wrote
-good notes, but spent most of its turns reading. In `ab-20261016-181736-08a9c4` the harness arm's
-session 1 was `pwd`/`git log`, the three state files, `init.sh`, the visible tests, the feature spec,
-the HANDBOOK, a skill, four instruction documents, two product files, and then the bookkeeping in
-turns 18-20; its first product patch came at turn 27 of session 2. The bare arm wrote its first
-product patch at turn 18 of session 1. The change after run 2 (a harness change, harness arm only)
-moved the bookkeeping to the wrap-up turns and put the agent's notes ahead of any document. Pilot
-runs 3 and 4 ran with that change (section 7); compare the first-patch turn per session with the
-run 2 timeline below.
-
----
-
-## 7. Captured output, screenshots, and results
-
-### Captured output from pilot run 2
-
-The harness arm's tool calls in sessions 1 and 2 (captured on 2026-10-16, run
-`r-20261016-181736-260803` in `ab-20261016-181736-08a9c4`; the `name` and `target` fields of the
-`tool_call` events in `events.jsonl`, with the session and turn of the preceding `turn` event, cut
-where `...` stands; your output will differ):
+**What it looked like in the class-profile round** (captured on 2026-10-17, run
+`r-20261017-085139-9dfb9d` in `ab-20261017-085139-7c0661`, the harness arm's events, cut where `...`
+stands; your output will differ):
 
 ```text
-s1 t 1 run pwd && git status --short && git log --oneline -20
+[decision] note state: initializer step: init.sh, progress.md, session-handoff.md, docs/exec-plans/active/F2.md
+s1 t 1 run pwd; cat progress.md; git log --oneline -20; cat session-handoff.md; cat docs/exec-pl ...
+s1 t 3 read_file docs/features/f2.md
+s1 t 4 read_file docs/HANDBOOK.md
 ...
-s1 t 3 read_file progress.md
-s1 t 4 read_file session-handoff.md
-s1 t 5 read_file docs/exec-plans/active/F2.md
-s1 t 6 run bash init.sh
-s1 t 7 run_visible_tests
-s1 t 8 read_file docs/features/f2.md
-s1 t 9 read_file docs/HANDBOOK.md
-s1 t10 read_file .agents/skills/add-endpoint/SKILL.md
-s1 t11 read_file ARCHITECTURE.md
+s1 t10 apply_patch progress.md
+s1 t11 apply_patch docs/exec-plans/active/F2.md
+s1 t12 apply_patch session-handoff.md
+[decision] session_stop state: session 1 handoff written to session-handoff.md
+[session_stop] {"session_index": 1, "ended_by": "turn_budget", "end_sha": "61d2480...", "handoff_path": "session-handoff.md"}
+[session_resume] {"session_index": 2, "start_sha": "e5de4b0...", "prefix_blocks": ["core", "instructions", "state"]}
+s2 t 1 run pwd && cat progress.md && git log --oneline -20 && cat session-handoff.md && cat docs ...
 ...
-s1 t19 apply_patch progress.md, docs/exec-plans/active/F2.md, session-handoff.md
-s1 t20 run git add progress.md docs/exec-plans/active/F2.md session-handoff.md && git commit -m "docs ...
-s2 t 1 run pwd && cat progress.md && git log --oneline -20
-s2 t 2 read_file session-handoff.md
+s2 t16 list_dir migrations/versions
 ...
-s2 t 7 read_file docs/HANDBOOK.md
-...
-s2 t26 read_file app/repositories/projects.py
-s2 t27 apply_patch app/db/models.py
-s2 t28 apply_patch progress.md, docs/exec-plans/active/F2.md, session-handoff.md
+s2 t22 run alembic heads && cat migrations/versions/0001_initial.py | head -30; cat app/api/deps ...
+s2 t23 apply_patch migrations/versions/0002_comments.py
 ```
 
-The agent's handoff notes after session 1 (captured on 2026-10-16, run `r-20261016-181736-260803`,
-`harness/sessions/session-1.patch`, added lines, cut; your output will differ):
+Things to point at, in that order:
+
+- **Session 1 spent its 12 turns reading and on the wrap-up.** Nine turns of orientation, then the
+  three wrap-up turns on `progress.md`, the exec plan, and the handoff. No product code yet. That is
+  the cost A3 names for resets, "orchestration complexity, token overhead, and latency" (A3, F-a-68).
+- **The stop.** `ended_by` is `turn_budget`, and the harness wrote its machine summary and session-log
+  line whatever the agent did (`session_stop`, anchor `S2:stop_resume`).
+- **The resume.** `prefix_blocks` lists `core, instructions, state`; the first call of session 2 reads
+  `progress.md`, the git log, the handoff, and the exec plan, A2's Getting up to speed (A2, F-a-59).
+- **The migration.** Before writing `0002_comments.py` the agent ran `alembic heads`: one head, so no
+  second migration. That is what parts (a) and (b) of the measure check.
+- **If the agent calls `finish(claim="not_done")` in session 1.** Since the runner fix (section 7),
+  session 2 still starts; the stop marker then shows `ended_by` `claim_not_done`. Say that this is the
+  fix working live. After `finish(claim="done")` in session 1 there is no stop: say so, and let the
+  constructed example show the stop instead.
+
+The class-profile round's harness arm then built the feature in session 2 (56 of 56 hidden tests,
+`continuity_failure` false; section 9).
+
+---
+
+## 7. Real run, replayed: the early finish in pilot run 3
+
+`make replay RUN=ab-20261016-213317-9a0ec1` replays A/B `ab-20261016-213317-9a0ec1` (pilot run 3,
+2026-10-16, F2 canonical with `--session-budget 12,38`, effort medium). Say "real run, replayed"; every
+screen shows "● RECORDING". The recorded events arrive at once; the referee then judges the recorded
+diffs again, live. Screen `2` stays empty: the pilot ran without board previews.
+
+The harness arm's events (captured on 2026-10-16, run `r-20261016-213317-a33b07`, cut where `...`
+stands; your output will differ):
 
 ```text
-+- What I was doing: Started F2 comments-on-issues work. Read the feature specification and handbook,
-+  plus the add-endpoint skill and architecture/security/API/reliability guidance. No implementation
-+  edits have been made yet.
+s1 t 1 run pwd && cat progress.md && printf '\n--- GIT LOG ---\n' && git log --oneline -20
 ...
-+- What to watch out for: The baseline is good (`bash init.sh`, 162 visible tests pass; current migration
-+  head is `0001_initial`). Follow the exact requirements in `docs/features/f2.md`, particularly the
+s1 t 5 run bash init.sh
+s1 t 6 run_visible_tests
+s1 t 7 read_file docs/features/f2.md
+s1 t 8 read_file docs/HANDBOOK.md
+s1 t 9 read_file .agents/skills/add-endpoint/SKILL.md
+s1 t10 apply_patch progress.md, docs/exec-plans/active/F2.md, session-handoff.md
+s1 t11 run git add progress.md docs/exec-plans/active/F2.md session-handoff.md && git commit -m  ...
+s1 t12 finish not_done
+[claim] {"phase": "build", "claim": "not_done", "summary": "Completed initial F2 orientation and recorded the next steps and implementation rules in progress.md, the execution plan, and session-handoff.md. ... No feature implementation has started; the handoff describes remaining work.", ...}
+[decision] session_stop state: session 1 handoff written to session-handoff.md
+s2 t 1 run pwd && git log --oneline -20 && ls
 ...
+[verdict] {"primary": {"continuity_failure": false}, "passed_primary": true, "summary": "agent said not_done; referee: passes the primary measure; hidden tests 3/56, mutants killed 0/4, R1 new 0"}
 ```
 
-The harness's session-log line in `progress.md` (captured on 2026-10-16, run
-`r-20261016-181736-260803`, a context line of `harness/sessions/session-2.patch`; your output will
-differ):
+What to say:
 
-```text
-- Session 1 (build): start ba50736, end 09c49c7, ended by turn_budget after 20 turns. 3 files changed; visible tests passed=162 failed=0 errors=0.
-```
+1. **What happened.** On its last turn of session 1 the agent called `finish(claim="not_done")`. Under
+   the runner's rule at the time, any `finish` ended the build phase, so the 38-turn session never
+   ran. The `s2` lines are the test phase, not a second build session. The arm built nothing: 3 of 56
+   hidden tests (the 3 that pass on the checkpoint).
+2. **What the measure said.** `continuity_failure` false: a pass. Session 1 left no product lines,
+   so nothing could be redone. A pass says nothing was broken or redone, not that the feature was
+   built.
+3. **It was not only the harness arm.** The same early finish ended the build phase in the harness arm
+   of `ab-20261016-214959-de790f` (run 3), and in run 4 (effort low) in all three bare arms
+   (`ab-20261016-232842-ac03b2`, `ab-20261016-234027-226a76`, `ab-20261016-235211-ea59a9`) and the
+   harness arm of `ab-20261016-234027-226a76`, after 9 to 12 turns. In this A/B the bare arm ran its
+   first session to the turn budget and built the feature in the second (56 of 56 hidden tests).
+4. **The fix, for both arms.** Before the last build session, `finish(claim="not_done")` ends only
+   that session; the next one starts as after a spent turn budget. The last build session and the
+   test phase keep the old rule. From `src/shipharness/runner/loop.py`, lines 99-104:
 
-The bare arm's session-2 look at the working tree is in [concepts.md](../concepts.md) §1 (same A/B,
-run `r-20261016-181736-a05ddb`).
+   ```python
+   def _next_session_runs(phase: Phase, ended_by: str) -> bool:
+       """Whether the phase goes on to its next session (if it has one). A spent turn budget always
+       does. In the build phase, a finish(claim="not_done") ends only that session: before the last
+       build session it means "out of turns here", not "give up" (pilot runs 3 and 4, F2, both arms).
+       Every other ending (done, timeout, cap, error, no tool call) ends the phase."""
+       return ended_by == "turn_budget" or (phase == "build" and ended_by == "claim_not_done")
+   ```
 
-### Pilot run 2 dots for F2
+   Its tests are in `tests/unit/test_loop.py` (`test_not_done_before_the_last_build_session_ends_only_that_session`
+   and the two tests after it). The replay shows the recorded run, so it still shows the old rule.
+5. **The lesson.** The harness was not the only code with an assumption about the model: the runner
+   assumed `finish` means "stop the phase". Reading the run, not only the verdict, found it.
 
-Every run of F2 canonical in pilot run 2, from the A/B records (`.shipharness/runs/<ab id>/ab.json`)
-and the score records (`exports/scores/<run id>.json`) (captured on 2026-10-16, runs as listed; your
-output will differ). The harness arm's `continuity_failure` and `redone_lines_pct` were scored before
-the continuity fix and count the harness's own files; they are the measurement bug, not a result.
+---
 
-| A/B | Arm | Run id | `continuity_failure` | `redone_lines_pct` | Hidden tests passed (of 56) | Build sessions, ended by | Cost (USD) |
+## 8. Constructed example: `make example-2`
+
+Say "constructed example": a scripted two-session run with no model. The first session ends at its
+turn budget, the state layer writes the handoff, and session 2 resumes from it. Every console screen
+shows "CONSTRUCTED EXAMPLE". Use it to show the stop and the resume step by step, or when the live
+run had no stop.
+
+[[CAPTURE: terminal output and wall time of the S2 constructed example, and the console screen 1 view of its stop and resume | how: make example-2]]
+
+Point at the handoff written at the stop (the decision "session 1 handoff written to
+session-handoff.md"), the "▶ Session 2 resumed" marker, and the first call of session 2 reading the
+handoff.
+
+---
+
+## 9. Every result, as measured
+
+Show these on screen `4` and the results slide, wins and "no measurable difference" alike. Screen 4
+lists the harness-in-action run under "single-arm run (harness in action) not compared: no bare run".
+
+| Round | Budget, effort | A/Bs | Bare: no continuity failure | Harness: no continuity failure | Hidden tests 56 of 56, bare / harness |
+|---|---|---|---|---|---|
+| Run 2, 2026-10-16 | 20/30, medium | 3 | 3/3 | 0/3 (measurement bug, fixed since) | 1 of 3 / 0 of 3 |
+| Run 3, 2026-10-16 | 12/38, medium | 3 | 3/3 | 3/3 | 3 of 3 / 1 of 3 |
+| Run 4, 2026-10-16/17 | 12/38, low | 3 | 3/3 | 3/3 | 0 of 3 / 2 of 3 |
+| Class-profile round, 2026-10-17 | 12/38, low, Fast tier | 1 | 1/1 | 1/1 | 1 of 1 / 1 of 1 |
+
+On the primary measure: no measurable difference on this task with this model (course pilot, runs 3
+and 4 and the class-profile round). The course's planned experiment batches (10 runs per arm, and a
+leave-one-layer-out ablation) were not run, because the pre-registered pilot gate did not pass; these
+runs are the data.
+
+Post hoc (chosen after the results; descriptive, 9 runs per arm, runs 2 to 4): harness arms hit the
+agent time limit in 4 runs, bare arms in 0; median arm wall time 361 s against 232 s; median tests
+shipped 0 against 8; median cost per arm $0.0132 against $0.0171.
+
+### Per-run dots, runs 3 and 4 and the class-profile round
+
+From the A/B records and score records (captured on 2026-10-16 and 2026-10-17, runs as listed; your
+output will differ). Sessions and turns count every session of the arm, the test phase included.
+
+| Round | A/B | Arm | Run id | Status | `continuity_failure` | `redone_lines_pct` | Hidden (of 56) | Sessions | Turns | Cost (USD) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | `ab-20261016-211419-dfe06f` | bare | `r-20261016-211419-22afc9` | completed | false | 0.0 | 56 | 3 | 62 | 0.0186 |
+| 3 | `ab-20261016-211419-dfe06f` | harness | `r-20261016-211419-3f4a1c` | ABORTED: timeout | false | 0.0 | 56 | 3 | 58 | 0.0186 |
+| 3 | `ab-20261016-213317-9a0ec1` | bare | `r-20261016-213317-97004c` | completed | false | 5.3 | 56 | 3 | 62 | 0.0171 |
+| 3 | `ab-20261016-213317-9a0ec1` | harness | `r-20261016-213317-a33b07` | completed | false | 0.0 | 3 | 2 | 24 | 0.0054 |
+| 3 | `ab-20261016-214959-de790f` | bare | `r-20261016-214959-c2f640` | completed | false | 0.0 | 56 | 3 | 62 | 0.0185 |
+| 3 | `ab-20261016-214959-de790f` | harness | `r-20261016-214959-1deb1e` | ABORTED: timeout | false | 0.0 | 3 | 2 | 22 | 0.0032 |
+| 4 | `ab-20261016-232842-ac03b2` | bare | `r-20261016-232842-16089d` | completed | false | 0.0 | 3 | 2 | 20 | 0.0050 |
+| 4 | `ab-20261016-232842-ac03b2` | harness | `r-20261016-232842-ee62c3` | ABORTED: timeout | false | 0.0 | 56 | 3 | 44 | 0.0132 |
+| 4 | `ab-20261016-234027-226a76` | bare | `r-20261016-234027-e3c2b2` | completed | false | 0.0 | 3 | 2 | 21 | 0.0058 |
+| 4 | `ab-20261016-234027-226a76` | harness | `r-20261016-234027-92eb41` | completed | false | 0.0 | 3 | 2 | 24 | 0.0064 |
+| 4 | `ab-20261016-235211-ea59a9` | bare | `r-20261016-235211-d597c7` | completed | false | 0.0 | 3 | 2 | 24 | 0.0056 |
+| 4 | `ab-20261016-235211-ea59a9` | harness | `r-20261016-235211-0b643c` | completed | false | 0.0 | 56 | 3 | 62 | 0.0183 |
+| class | `ab-20261017-085139-7c0661` | bare | `r-20261017-085139-93cdec` | completed | false | 0.0 | 56 | 3 | 57 | 0.0329 |
+| class | `ab-20261017-085139-7c0661` | harness | `r-20261017-085139-9dfb9d` | completed | false | 0.0 | 56 | 3 | 62 | 0.0357 |
+
+In the class-profile round the bare arm's build sessions ran 12 turns (turn budget) and 33 (claimed
+done); the harness arm's 12 and 38, both ended by the turn budget. The bare arm changed one file
+outside the allowed paths, the harness arm none (a secondary count; the demo-2 stack has no scope
+layer). Mutants killed: bare 2 of 4, harness 0 of 4.
+
+### Run 2 dots (before the continuity fix)
+
+Captured on 2026-10-16, runs as listed; your output will differ. The harness arm's
+`continuity_failure` and `redone_lines_pct` were scored before the fix and count the harness's own
+files; they are the measurement bug ([post-class reading 03](../post-class-reading/03-the-continuity-measure.md)),
+not a result.
+
+| A/B | Arm | Run id | `continuity_failure` | `redone_lines_pct` | Hidden (of 56) | Build sessions, ended by | Cost (USD) |
 |---|---|---|---|---|---|---|---|
 | `ab-20261016-181736-08a9c4` | bare | `r-20261016-181736-a05ddb` | false | 2.1 | 55 | 20 turn_budget, 30 claim_not_done | 0.018463 |
 | `ab-20261016-181736-08a9c4` | harness | `r-20261016-181736-260803` | true (bug) | 84.0 | 3 | 20 turn_budget, 30 turn_budget; ABORTED: timeout in the test phase | 0.016612 |
@@ -339,141 +366,49 @@ the continuity fix and count the harness's own files; they are the measurement b
 | `ab-20261016-190548-ae9abe` | bare | `r-20261016-190548-3c5d9d` | false | 0.0 | 55 | 20 turn_budget, 30 turn_budget | 0.017546 |
 | `ab-20261016-190548-ae9abe` | harness | `r-20261016-190548-9352c4` | true (bug) | 50.0 | 3 | 20 turn_budget, 30 turn_budget | 0.015149 |
 
-Hidden tests are secondary for S2; the gap in them (55-56 against 3) is the turn cost described in
-section 6, not a continuity failure. Every bare arm wrote `migrations/versions/0002_comments.py` in
-session 1 and none wrote a second migration (session patches in the same A/B folders).
+---
 
-### Pilot runs 3 and 4 dots for F2 (12-turn first session)
+## 10. Time and cost
 
-Every run of F2 canonical with `--session-budget 12,38`: measured in the course pilot, run 3,
-2026-10-16 (effort medium), A/Bs `ab-20261016-211419-dfe06f`, `ab-20261016-213317-9a0ec1`,
-`ab-20261016-214959-de790f`; and run 4, effort low, 2026-10-16/17, A/Bs `ab-20261016-232842-ac03b2`,
-`ab-20261016-234027-226a76`, `ab-20261016-235211-ea59a9`. Sessions and turns count every session of
-the arm, the test phase included.
+Limits for every arm (`src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20 per arm per
+run; `RUN_TIMEOUT_S` 300 s of agent time; `HARNESS_TIMEOUT_S` 120 s of harness work; `TOOL_TIMEOUT_S`
+120 s per tool command; `MAX_REVIEW_COST_USD` $0.04 per review; `MAX_SESSION_COST_USD` $2.50 for the
+class. The worst case for the harness-in-action run at the caps is $0.20 + $0.04 = $0.24. The
+replay and the constructed example make no model calls.
 
-| Run | A/B | Arm | Run id | Status | `continuity_failure` | `redone_lines_pct` | Hidden tests passed (of 56) | Sessions | Turns | Cost (USD) |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 3 | `ab-20261016-211419-dfe06f` | bare | `r-20261016-211419-22afc9` | completed | false | 0.0 | 56 | 3 | 62 | 0.0186 |
-| 3 | `ab-20261016-211419-dfe06f` | harness | `r-20261016-211419-3f4a1c` | ABORTED: timeout | false | 0.0 | 56 | 3 | 58 | 0.0186 |
-| 3 | `ab-20261016-213317-9a0ec1` | bare | `r-20261016-213317-97004c` | completed | false | 5.3 | 56 | 3 | 62 | 0.0171 |
-| 3 | `ab-20261016-213317-9a0ec1` | harness | `r-20261016-213317-a33b07` | completed | false | 0.0 | 3 | 2 | 24 | 0.0054 |
-| 3 | `ab-20261016-214959-de790f` | bare | `r-20261016-214959-c2f640` | completed | false | 0.0 | 56 | 3 | 62 | 0.0185 |
-| 3 | `ab-20261016-214959-de790f` | harness | `r-20261016-214959-1deb1e` | ABORTED: timeout | false | 0.0 | 3 | 2 | 22 | 0.0032 |
-| 4, effort low | `ab-20261016-232842-ac03b2` | bare | `r-20261016-232842-16089d` | completed | false | 0.0 | 3 | 2 | 20 | 0.0050 |
-| 4, effort low | `ab-20261016-232842-ac03b2` | harness | `r-20261016-232842-ee62c3` | ABORTED: timeout | false | 0.0 | 56 | 3 | 44 | 0.0132 |
-| 4, effort low | `ab-20261016-234027-226a76` | bare | `r-20261016-234027-e3c2b2` | completed | false | 0.0 | 3 | 2 | 21 | 0.0058 |
-| 4, effort low | `ab-20261016-234027-226a76` | harness | `r-20261016-234027-92eb41` | completed | false | 0.0 | 3 | 2 | 24 | 0.0064 |
-| 4, effort low | `ab-20261016-235211-ea59a9` | bare | `r-20261016-235211-d597c7` | completed | false | 0.0 | 3 | 2 | 24 | 0.0056 |
-| 4, effort low | `ab-20261016-235211-ea59a9` | harness | `r-20261016-235211-0b643c` | completed | false | 0.0 | 56 | 3 | 62 | 0.0183 |
-
-The primary measure passed in 3 of 3 runs per arm in run 3 and again in run 4: no measurable
-difference on this task with this model (course pilot, runs 3 and 4). `continuity_failure` was false
-in all 12 arms, so none of parts (a), (b), (c) fired, and `redone_lines_pct` stayed below the 30%
-threshold in every arm.
-
-That pass includes the arms that built nothing (hidden tests 3 of 56): the harness arms of
-`ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f` in run 3, and all three bare arms and the
-harness arm of `ab-20261016-234027-226a76` in run 4. The measure checks migrations and redone lines;
-it cannot fail when session 1 leaves no product lines to redo. A pass says no migration was broken or
-duplicated and nothing was redone, not that the feature was built.
-
-Secondary, hidden tests 56 of 56: run 3 bare 3 of 3, harness 1 of 3; run 4 bare 0 of 3, harness 2 of
-3. In run 3, in `ab-20261016-213317-9a0ec1` and `ab-20261016-214959-de790f`, the harness arm called
-`finish(claim="not_done")` at the end of the 12-turn first session, which ended the build phase: the
-38-turn session never ran. In run 4 no bare arm built the feature (20-24 turns).
-
-### Class-host screenshots and live output
-
-[[PENDING: terminal output of the S2 class command (header, two arm lines, cost line), labelled captured on <date>, run <id> | source: live class | how: make demo-2]]
-
-[[PENDING: screen 1 Live Console screenshot of a finished A/B showing the Session 1 stopped and Session 2 resumed markers for both arms | source: live class | how: make console, then make demo-2, key 1]]
-
-[[PENDING: screen 2 Boards screenshot of both arms' /board pages | source: live class | how: make console, then make demo-2, key 2]]
-
-[[PENDING: screen 3 Evidence screenshot with the Sessions list per arm (turns, ended_by, redone lines) and the continuity and r7_migrations referee rows | source: live class | how: make console, then make demo-2, key 3]]
-
-[[PENDING: screen 4 A/B Report screenshot with the S2 dots and this run highlighted | source: live class | how: make console after make demo-2, then key 4]]
-
-[[PENDING: screen 5 Traces screenshot with the first wrong turn per arm and the LangSmith link | source: live class | how: make console, then make demo-2, key 5]]
-
-[[PENDING: terminal output of make swap-2 | source: live class | how: make swap-2]]
-
-[[PENDING: terminal output of make demo-2 LAYERS=-state | source: live class | how: make demo-2 LAYERS=-state]]
-
-### Experiment results for this section
-
-Batch 1 of the course's experiment plan runs F1-F4 canonical, two arms, k=10 each, reviewer on; for
-S2 that is 10 runs per arm of F2 canonical with the demo-2 stack.
-
-[[PENDING: S2 dots from batch 1: continuity_failure per run per arm (k=10), components (a)/(b)/(c), redone_lines_pct, sessions, hidden tests passed of 56, run ids, LangSmith comparison link | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
-
-The ablation batch removes one layer at a time from the full stack (an ablation in A3's sense: remove
-one component and see what changes, F-a-125). The state row is the result to show if the live layer
-switch does not fit the budget:
-
-[[PENDING: ablation dots for the stack without the state layer on the S2 tasks (k=2), with run ids | source: M8 ablation | how: uv run shipharness experiments --split section-2 --k 2 --layers=-state --batch ablation, then uv run shipharness report]]
+Nearest measurement: the class-profile round's F2 harness arm (2026-10-17, A/B
+`ab-20261017-085139-7c0661`): 254 s of agent time, primary verdict 358 s and full verdict 533 s after
+launch, arm cost $0.0357 plus $0.0041 for the review. Harness work runs on its own clock after the
+agent's turns: each session-end handoff runs the visible suite, about 31-34 s on this host. Tonight's
+time and cost come from the capture in section 3.
 
 ---
 
-## 8. Measured time and cost
+## 11. Troubleshooting and fallback
 
-Limits that apply to every arm (from `src/shipharness/config/settings.py`): `MAX_RUN_COST_USD` $0.20
-per arm per run, build and test phases together; `RUN_TIMEOUT_S` 300 s of agent time per arm;
-`HARNESS_TIMEOUT_S` 120 s of harness work per arm; `TOOL_TIMEOUT_S` 120 s per tool command;
-`MAX_REVIEW_COST_USD` $0.04 per review. The worst case for one `make demo-2` at the caps is
-2 × $0.20 + 2 × $0.04 = $0.48. The course accepts up to 8 minutes (480 s) of wall time for a live
-demo; that is a limit, not a measurement, and all 12 A/Bs of pilot run 2 were over it.
-
-Pilot run 2, F2 (measured in the course pilot, run 2, 2026-10-16; per-run costs in the table in §7):
-agent time 215-242 s (bare) and 265-303 s (harness); harness time 54-64 s; arm cost $0.009195 to
-$0.018463. Pilot run 2 as a whole: 24 arm runs for $0.3966, A/B wall time 485-923 s with two A/Bs in
-parallel, before two referee speed-ups (each arm judged as soon as it ends; one pytest process for
-the unmutated pass step).
-
-The nearest measurement of one A/B alone with board previews is the live console check: `make demo-1
-PURPOSE=pilot` (F1, not F2) took 9 min 10 s and cost $0.027821 (A/B `ab-20261016-210339-909651`,
-2026-10-16).
-
-[[PENDING: measured wall time and cost per arm for F2 across batch 1 (worst case seen), from exports/scores | source: M8 batch 1 | how: uv run shipharness experiments --split section-2 --k 10 --reviewer --batch batch-1, then uv run shipharness report]]
-
-[[PENDING: tonight's wall time (launch to Cost line) and cost for make demo-2 on the class host | source: live class | how: make demo-2]]
-
----
-
-## 9. Troubleshooting and the replay fallback
-
-| Symptom | Cause in the code | What to do |
+| Symptom | Cause | What to do |
 |---|---|---|
-| `make doctor` reports a key as `missing`, `invalid`, or `unreachable` | `shipharness doctor` checks each key separately (`src/shipharness/doctor.py`) | Fix `.env` at the repo root as the message says; never paste keys on screen |
-| `make demo-2` exits 2 before any arm starts | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY` or a stand-in model client; there is no fallback to a recording (tests in `tests/unit/ab/test_commands.py`) | Fix the key with `make doctor`; if it cannot be fixed on stage, use the replay (below) and say it is a recording |
-| `! docker not found: images not built` during `make setup` | No container runtime | Install Docker Engine in WSL2 ([docs/setup-windows.md](../../../docs/setup-windows.md)). `SANDBOX_MODE=none` runs the UNSANDBOXED fallback; every screen then shows "UNSANDBOXED — results not official", so do not use it for the class result |
-| An arm line shows `ABORTED: cap` or `ABORTED: timeout` and the command exits 2 | The run hit `MAX_RUN_COST_USD`, `RUN_TIMEOUT_S`, or `HARNESS_TIMEOUT_S` | The referee still judged the run; it is a dot and stays in the results. Say so and go on. Pilot run 2 had one such F2 harness arm (`r-20261016-181736-260803`, timeout in the test phase) |
-| The layer switch refuses to start | The session cap (`MAX_SESSION_COST_USD` 2.50, counted from the shared cost ledger `.shipharness/ledger.jsonl`) has no room | Show the ablation dots (§7) instead |
-| An arm has no "Session 1 stopped" marker | It called `finish` in session 1; the loop starts a second session only after one that ended by its turn budget (`runner/loop.py`) | Point out that this arm never faced the reset; its migrations are still judged. Pilot run 2 had one (`r-20261016-184318-fdee0c`, `finish(claim="not_done")` on turn 20, the last turn of the budget) |
-| Screen 2 says "No board screenshot yet" | The preview container failed to start; this is logged and skipped | Carry on with screens 1 and 3; the referee does not depend on the preview |
-| A verdict reads "referee could not judge the build" | The referee container did not start | Check `docker ps` and disk space; rerun the referee with `make replay RUN=<ab_id>`, which judges the recorded diffs again |
-| `make swap-2` prints ``x no recorded A/B for section demo-2 under .shipharness/runs; run `make demo-2` first, or pass AB=<id>`` | No demo-2 A/B is recorded on this machine | Run `make demo-2` first, or pass `AB=<id>` |
-| `make swap-2` or `make replay` stops with an unpinned-record message | The A/B record has no `checkpoint_sha` | Use a record made after SHA pinning |
+| The live command exits 2 before the arm starts | `shipharness ab` refuses a missing or rejected `OPENAI_API_KEY` or a stand-in model client; there is no fallback to a recording (`tests/unit/ab/test_commands.py`) | Fix the key with `make doctor`; if that cannot be done on stage, use the fallback below and say it is a recording |
+| It refuses to start with a message about the class date | `--purpose class` needs `SHIPHARNESS_CLASS_DATE` in `.env` | Set it to today's date, or run with `--purpose pilot` and say the trace goes to the pilot project |
+| The first session runs 20 turns, not 12 | The run was started with `make show-2`, which does not pass `SESSION_BUDGET` | Let it run (the stop still happens at turn 20), and use the full command next time |
+| No "Session 1 stopped" marker | The agent called `finish(claim="done")` in session 1, or the run hit a cap or the time limit | Say the arm never faced the reset; show the stop in the constructed example |
+| The arm line shows `ABORTED: timeout` or `ABORTED: cap` and the command exits 2 | `RUN_TIMEOUT_S`, `HARNESS_TIMEOUT_S`, or `MAX_RUN_COST_USD` | The referee still judges the run. In run 3 two of three F2 harness arms hit the agent time limit (section 9). Say so and go on |
+| `make replay` says it cannot find the run | The recorded folder is not under `.shipharness/runs/` on this host | Check with the `ls` in section 2; copy the folder from the machine that recorded it |
+| `make replay` stops with an unpinned-record message | The record has no `checkpoint_sha` | Both runs named here are pinned; check the id |
+| `make example-2` is not found | The Makefile on this host predates the target | Skip the constructed example; show screen `1` of the live run's stop instead |
+| Screen 2 says "No board screenshot yet" | The preview did not start, or the run had no previews (the replayed pilot run) | Carry on with screens `1` and `3`; the referee does not use the preview |
+| The session cap blocks a command | `MAX_SESSION_COST_USD` counted from `.shipharness/ledger.jsonl` | The replay and the constructed example need no budget; use them |
 
-### Replay fallback
-
-Use it only when the live run fails on stage:
+**Fallback when the live run fails on stage.** Say "this run failed for a reason outside the
+experiment; here is the recorded run from the class-profile round", then:
 
 ```sh
-ls .shipharness/runs/            # A/B ids start with a sortable time stamp
-make replay RUN=<ab or run id>
+make replay RUN=ab-20261017-085139-7c0661
 ```
 
-`shipharness replay` re-emits the recorded events with `recorded=True`, so every console screen
-shows a red "● RECORDING" badge; applies the recorded diffs to a fresh export of the pinned
-checkpoint commit; and runs the referee live with the recorded seed
-(`src/shipharness/ab/recorded.py`). No agent model calls are made; the reviewer is off unless you
-pass `--reviewer` to `uv run shipharness replay` (listed by `uv run shipharness replay --help`). The
-terminal prints `RECORDING: replay <new ab_id> of <source ab_id> (<n> events)` and one line per arm.
-Say out loud that it is a recording.
-
-The pilot run 2 A/Bs above predate the continuity fix, so a replay re-judges them with the fixed
-check; they are not the class fallback until the integrator picks one. The recorded S2 run to replay
-in class:
-
-[[PENDING: run id of the recorded S2 fallback A/B (the class task, demo-2 stack) and the date it was captured | source: M6 pilot | how: course pilot (build repository)]]
+It replays both arms of that A/B (RECORDING on every screen): the harness arm's sessions of 12 and
+38 turns, the stop and resume shown in section 6, and the bare arm next to it. If Docker is down, the
+replay cannot run (the referee needs a container): open `http://127.0.0.1:8765/run/ab-20261017-085139-7c0661`
+instead. Those are the original events, so there is no RECORDING badge; say it before you switch.
+The instructor guide's [replay procedure](../../../docs/instructor-guide.md#replay-procedure) has the
+full steps.

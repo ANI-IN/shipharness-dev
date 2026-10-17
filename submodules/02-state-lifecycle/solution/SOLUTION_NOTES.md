@@ -17,17 +17,16 @@ run id; commit hashes in the output change on every run).
 | Class S2 layer (`submodules/02-state-lifecycle/solution/class_s2_layer`) | not run | 27.6/100 | `grade-class-s2-layer.txt` |
 
 The reference solution loses exactly the 10 `live_run` points, and that is expected: its live run is
-not captured yet (`live/README.md` holds the PENDING marker). Every scenario criterion earns full
-points.
+not captured, and will not be (owner scope, 2026-10-17: only the A3 and A4 reference live runs are
+captured). Every scenario criterion earns full points.
 
 The scenarios are deterministic (the test stand-in agent and the scripted token counts never
 vary), so the scores repeat; only commit hashes and timestamps differ between runs. The test
 stand-in agent is a program that follows fixed rules, not a model; it is used for grading only.
 
-The `live_run` criterion (10 points) needs the captured live run of the reference solution in
-`live/` (see `live/README.md` for the command and the PENDING marker). The grader's tests give the
-reference layer 100/100 with a synthetic, labelled evidence fixture
-(`assignment/tests/a2_live_fixture.py`), never presented as a real run.
+The `live_run` criterion (10 points) needs a captured live run in `live/` (see `live/README.md` for
+the command). The grader's tests give the reference layer 100/100 with a synthetic, labelled
+evidence fixture (`assignment/tests/a2_live_fixture.py`), never presented as a real run.
 
 ## Approach
 
@@ -133,15 +132,24 @@ never runs a model and scores nothing else from the model's output.
 
 Why [10, 10, 10, 20]: the dataset's F2 lines all give the build phase 50 turns in two sessions
 ([20, 30], [13, 37], [25, 25], [38, 12]); the live task keeps 50 and splits it into four sessions.
-The runner starts session n+1 only when session n ends by its turn budget, and emits a
-`session_stop` event after each such session except the last (`_run_phases` in
-`src/shipharness/runner/loop.py`), so reaching session 4 means three forced stops. A model that
-calls `finish` in sessions 1-3, or a cap that stops the run before session 4, makes the evidence
-invalid; the learner moves `live/` away and runs again.
+Since change 14 (VERIFICATION.md, "Changes after the gate") the runner starts the next build session
+when a session ends by its turn budget or by `finish(claim="not_done")` (`_next_session_runs` in
+`src/shipharness/runner/loop.py`), and emits a `session_stop` event after each such session except
+the last. The live check still requires the first three build sessions to end by the turn budget
+(`live_evidence.py`, `FORCED_STOPS`), so a `finish` call of any kind in sessions 1-3, or a cap that
+stops the run before session 4, makes the evidence invalid; the learner moves `live/` away and runs
+again.
 
-[[PENDING: share of real gpt-6-luna runs of F2-a2-four-sessions that reach session 4 (three forced stops) and their cost per A/B | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution --forced-stops]]
-
-[[PENDING: measured cost per A/B and continuity result per arm for the reference solution layer on the optional variant (F2-reworded-pm, F2-alt-a) | source: M8 batch 1 | how: uv run python submodules/02-state-lifecycle/assignment/live/run_live.py --impl submodules/02-state-lifecycle/solution -- ab --example <id> --layers instructions,state --no-reviewer --purpose assignment]]
+No real run of `F2-a2-four-sessions` exists: the reference live run is not captured (owner scope,
+2026-10-17), and M8 was not run because the pre-registered gate did not pass (VERIFICATION.md, "Gate
+decision"). The nearest data is the pilot's F2 runs with a 12-turn first session (VERIFICATION.md,
+"Run 3", "Run 4", "Class-profile round", and change 14): 6 of the 14 arm runs ended session 1 with
+`finish(claim="not_done")` after 9 to 12 turns (run 3 harness `ab-20261016-213317-9a0ec1`,
+`-214959-de790f`; run 4 bare `ab-20261016-232842-ac03b2`, `-234027-226a76`, `-235211-ea59a9`, and
+harness `-234027-226a76`); both arms of the class-profile round (`ab-20261017-085139-7c0661`) ended
+session 1 by the turn budget. Expect some learner attempts to need a second run. Cost per F2 arm in
+that round: bare $0.0329, harness $0.0357 (class profile); no measurement exists for the optional
+variants (F2-reworded-pm, F2-alt-a) with the reference layer.
 
 ## Review notes for the Thursday session
 
