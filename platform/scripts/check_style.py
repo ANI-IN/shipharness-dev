@@ -889,7 +889,8 @@ def _check_glossary(page: Page, c: _Collector) -> None:
             j += 1
 
 
-_SCENARIO_TYPES = {"root-readme", "section-readme", "concepts", "demo-readme", "assignment-readme"}
+# The root README tells its story without the label (owner edit, 2026-10-18).
+_SCENARIO_TYPES = {"section-readme", "concepts", "demo-readme", "assignment-readme"}
 
 
 def check_text(rel: str, text: str, root: Path) -> list[Problem]:
