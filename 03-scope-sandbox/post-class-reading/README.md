@@ -1,23 +1,30 @@
-# post-class-reading
+# Module 1: Harness Engineering for Coding Agents - Section 3 reading list
 
-Three short pieces that go further than class time allows. Read them after
-[../concepts.md](../concepts.md). Each ends with "Why it matters for your own repo".
+Three short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
+words and shows how to apply it to your own repository.
 
-| Piece | Reading time | What it covers |
+> **Terms on this page**
+>
+> - **Feature list**: `feature_list.json`, the one feature of the run and its `passes` field.
+> - **Sandbox**: The container every tool command runs in, the same for both arms.
+> - **Allowed paths**: The globs a ticket lists for each phase; the files the agent may change then.
+
+## Readings
+
+| Reading | Reading time | Why read it |
 |---|---|---|
-| [01-sandboxes-compared.md](01-sandboxes-compared.md) | about 10 min | The shipharness container policy next to A4's per-agent containers, A5's three-layer security model, and Codex's sandbox modes and approval policies (official docs, including bwrap plus seccomp on Linux); why the pilot saw no denials |
-| [02-scope-layer-source-tour.md](02-scope-layer-source-tour.md) | about 12 min | The scope layer's source with commentary: what the agent is told, how patches and commands are checked and reverted, the evidence behind `passes`, how the referee counts the S3 measure, and the two measurement fixes from the course pilot |
-| [03-reading-the-s3-results.md](03-reading-the-s3-results.md) | about 8 min | What the course pilot found on F3 and, post hoc, on F4; how to read a measure one arm meets by construction; the `section-3` variants; how to run the comparison without the scope layer yourself |
+| [01 Effective harnesses for long-running agents](01-effective-harnesses-feature-list.md) | 5 minutes | Where the feature list, one feature at a time, and `passes` come from |
+| [02 Building a C compiler with parallel Claudes](02-c-compiler-containers.md) | 5 minutes | Why unattended agents run in a container with no internet |
+| [03 Codex: agent approvals and security](03-codex-sandbox-and-approvals.md) | 5 minutes | How another coding agent sets its sandbox, and what it leaves to you |
 
-Primary sources behind these pieces, in the order they matter for S3:
+## How to use these
 
-- A2, "Effective harnesses for long-running agents": the feature list section (`passes`, the strongly
-  worded instruction, JSON over Markdown) and "work on only one feature at a time".
-  https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents
-- A4, "Building a C compiler with a team of parallel Claudes": the sections on running Claude in
-  parallel (one Docker container per agent) and on evaluation (no internet access).
-  https://www.anthropic.com/engineering/building-c-compiler
-- A5, "Autonomous Coding Agent Demo" README: the security model and the generated project structure.
-  https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding
-- D21-D23, the Codex docs on agent approvals and security, sandboxing, and configuration.
-  https://developers.openai.com/codex/agent-approvals-security
+- Read them in order. The first is about files in scope, the second about what the machine allows,
+  the third puts both next to an agent you may already use.
+- After each reading, do the first step of its "Apply it to your repo" list on a repository you work
+  on. It takes a few minutes and makes the idea stick.
+- Then read the primary sources. Start with the "Feature list" part of
+  [Anthropic, Effective harnesses](../../docs/evidence.md#src-anthropic-long-running), then the
+  sections on running agents in parallel in
+  [Anthropic, C compiler](../../docs/evidence.md#src-anthropic-c-compiler).
+- The class recap is in [session-notes.md](../session-notes.md).

@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter` at commit e7287f4 (offline: no model calls, no containers); your output will differ
-$ make grade-assignment-3 SUBMISSION=submodules/03-scope-sandbox/assignment/starter
-uv run python scripts/grade_assignment.py 3 "submodules/03-scope-sandbox/assignment/starter"
-A3 grade: submodules/03-scope-sandbox/assignment/starter
+# captured on 2026-10-17 from `make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/starter` (offline: no model calls, no containers); details in docs/evidence.md
+$ make grade-assignment-3 SUBMISSION=03-scope-sandbox/assignment/starter
+uv run python platform/scripts/grade_assignment.py 3 "03-scope-sandbox/assignment/starter"
+A3 grade: 03-scope-sandbox/assignment/starter
   criterion                                              tests         points
   1 Diff parsing and path matching                                0.0 / 15
       diff parsing and path matching                    0/75
@@ -21,7 +21,7 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
   6 Live A/B evidence (live/)                                     0.0 / 10
       evidence valid (6)                                    no
       verdicts reproduced by your policy (4)                no
-        - no live/ folder at submodules/03-scope-sandbox/assignment/starter/live
+        - no live/ folder at 03-scope-sandbox/assignment/starter/live
   Total                                                           0.0 / 100
   Every out-of-scope diff rejected: no; zero false positives: no; live evidence valid: no
   Failed tests (218; first 15):
@@ -41,6 +41,6 @@ A3 grade: submodules/03-scope-sandbox/assignment/starter
     - test_bad_diff_rejected[bad-feature-list-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
     - test_bad_diff_rejected[bad-test-phase-source-edit]: NotImplementedError: TODO(A3 Part A2): check_diff
 Result: FAIL (needs >= 80 points, every out-of-scope diff rejected, zero false positives, and valid live evidence)
-grading assignment 3: submodules/03-scope-sandbox/assignment/starter
-make: *** [Makefile:141: grade-assignment-3] Error 1
+grading assignment 3: 03-scope-sandbox/assignment/starter
+make: *** [Makefile:199: grade-assignment-3] Error 1
 (exit code 2)
