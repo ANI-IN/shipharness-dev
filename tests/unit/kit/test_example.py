@@ -110,8 +110,8 @@ def test_guide_links_and_anchors_resolve(guide: Path) -> None:
 
 def test_guide_pending_markers_use_the_course_form() -> None:
     text = (REPO_ROOT / "docs" / "apply-to-your-repo.md").read_text(encoding="utf-8")
+    # Before release the guide holds no PENDING marker; any that remains uses the course form.
     markers = [line for line in text.splitlines() if "[[PENDING" in line]
-    assert markers
     for line in markers:
         assert _PENDING.match(line), line
 
