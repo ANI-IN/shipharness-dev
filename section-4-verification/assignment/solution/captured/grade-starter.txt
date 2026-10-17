@@ -1,12 +1,12 @@
-# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=submodules/section-4-verification/assignment/starter` at commit 155dc77 (no model calls); your output will differ.
-$ make grade-assignment-4 SUBMISSION=submodules/section-4-verification/assignment/starter
-uv run python scripts/grade_assignment.py 4 "submodules/section-4-verification/assignment/starter"
-A4 grade for /home/ani/wt/f04/submodules/section-4-verification/assignment/starter
+# captured on 2026-10-17 from `make grade-assignment-4 SUBMISSION=section-4-verification/assignment/starter` at commit bba422b (no model calls); your output will differ.
+$ make grade-assignment-4 SUBMISSION=section-4-verification/assignment/starter
+uv run python platform/scripts/grade_assignment.py 4 "section-4-verification/assignment/starter"
+A4 grade for /home/ani/wt/gaps/section-4-verification/assignment/starter
 
 Criterion                     Points  Tests
 R8-interface                     1/5  1/5
     FAIL test_result_has_probes_and_r8_findings_with_detail_keys: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
-    FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['/home/ani/wt/f04/.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-of...ey": "crashed", "baseline": false}], "duration_ms": 364, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
+    FAIL test_cli_wrapper_exit_codes_with_and_without_baseline: AssertionError: assert 1 == 3 + where 1 = CompletedProcess(args=['/home/ani/wt/gaps/.venv/bin/python', '-m', 'a4_verification.run_r8', '--build', '/tmp/pytest-o...ey": "crashed", "baseline": false}], "duration_ms": 594, "seed": null, "artifacts": [], "metrics": {}}]}\n', stderr='').returncode
     FAIL test_shipharness_runner_runs_the_check_with_a_baseline: assert (not True)
     FAIL test_progress_is_reported: NotImplementedError: TODO(A4-1): TeamTrackSoftDeleteAdapter.soft_delete
 R8-visible                       0/9  0/2
@@ -50,7 +50,7 @@ F6-hidden                       0/13  0/12
     FAIL test_a_file_that_does_not_parse_is_discarded_with_a_reason: NotImplementedError: TODO(A4-7): NoDuplicateTest.evaluate
 own-tests                        0/5  0/2
     FAIL test_at_least_eight_own_tests: AssertionError: tests/ has 2 test functions: ['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue'] assert 2 >= 8 + where 2 = len(['test_dedup_filter.py::test_the_function_name_is_ignored', 'test_r8_soft_delete.py::test_issue
-    FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.46s; FAILED submodules/section-4-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED submodules/section-4-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 +
+    FAIL test_own_tests_pass: AssertionError: tests/: 2 failed in 0.74s; FAILED section-4-verification/assignment/starter/tests/test_dedup_filter.py::test_the_function_name_is_ignored; FAILED section-4-verification/assignment/starter/tests/test_r8_soft_delete.py::test_issue_id_parameter_addresses_an_issue assert 1 == 0 + where 1
 skill                            0/6  0/1
     FAIL test_own_skill_is_valid_and_not_the_template: AssertionError: skill/: expected exactly one folder with a SKILL.md, found [] assert not ['skill/: expected exactly one folder with a SKILL.md, found []']
 portfolio-evidence               0/5  0/1
@@ -67,5 +67,5 @@ live-evidence                   0/10  0/4
 
 Score: 3/100
 Cost: $0.000000 (no model calls)
-grading assignment 4: submodules/section-4-verification/assignment/starter
+grading assignment 4: section-4-verification/assignment/starter
 [exit code 0]
