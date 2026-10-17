@@ -113,7 +113,7 @@ def test_budgets_option_adds_the_session_budget_override() -> None:
 
 
 def test_profile_option_passes_through_and_defaults_to_standard() -> None:
-    # Owner, 2026-10-17: pilot runs keep the standard profile unless asked.
+    # Pilot runs keep the standard profile unless asked.
     assert pilot.ab_command("F1", None)[-2:] == ["--profile", "standard"]
     assert pilot.ab_command("F3", None, None, "class")[-2:] == ["--profile", "class"]
     args = pilot.parse_args([])

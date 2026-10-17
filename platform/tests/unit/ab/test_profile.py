@@ -1,4 +1,4 @@
-"""Run profiles (owner, 2026-10-17): `class` makes live class runs fast and is identical for both
+"""Run profiles: `class` makes live class runs fast and is identical for both
 arms (reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 arms, a 420 s agent time limit; the reviewer keeps its own effort and the standard tier).
 `standard` keeps the settings as loaded (300 s) and is the default everywhere except the class
@@ -57,7 +57,7 @@ def test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else(tmp_pat
     assert applied.openai_reasoning_effort == "low"
     assert applied.openai_service_tier == "fast"
     assert applied.sandbox_cpus == 2.0
-    assert applied.run_timeout_s == 420  # owner message 9.2: fits the 25-minute class window
+    assert applied.run_timeout_s == 420  # fits the 25-minute class window
     # The reviewer's own settings and everything else stay as loaded.
     assert applied.openai_eval_reasoning_effort == loaded.openai_eval_reasoning_effort
     assert applied.openai_eval_model == loaded.openai_eval_model

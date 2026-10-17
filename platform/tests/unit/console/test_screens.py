@@ -270,7 +270,7 @@ def test_screen_updates_follow_new_events_and_send_only_changed_screens(
     assert update["seq"] == first["seq"] + 1  # type: ignore[operator]
 
 
-# --- screen 1 after the run (owner, 2026-10-17): the full timeline, scrollable ------------------
+# --- screen 1 after the run: the full timeline, scrollable ------------------
 
 
 def _long_run(runs: Path, *, finished: bool) -> None:

@@ -3,7 +3,8 @@
 Steps, each timed: build the sandbox images only when their source changed (through the existing
 `make images` target), start and remove one container per image so its layers are paged in, and
 cache the referee baseline of every class task (the canonical demo-1, demo-2 and demo-4 tasks, F4
-on the demo-3 stack for the S3 A/B, and the final features F5-F7) and the gate baseline of every class task whose layer stack has the verify layer.
+on the demo-3 stack for the S3 A/B, and the final features F5-F7) and the gate baseline of every
+class task whose layer stack has the verify layer.
 The caches are the ones a class run reads (`Runtime.ab_deps`), filled by the same code a run uses,
 so a second warm-up finds everything in place and does nothing but page the images in again.
 """

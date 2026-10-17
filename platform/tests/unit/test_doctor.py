@@ -197,7 +197,7 @@ def test_real_langsmith_probe_maps_connection_failure_to_unreachable(
     assert next(c for c in report.checks if c.name == "LANGSMITH_API_KEY").status == "unreachable"
 
 
-# -- class date (owner message 9.4) --------------------------------------------------------------
+# -- class date --------------------------------------------------------------
 
 
 def _date_check(report: DoctorReport):  # type: ignore[no-untyped-def]

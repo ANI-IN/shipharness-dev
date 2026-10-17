@@ -217,7 +217,7 @@ def test_ab_previews_can_be_turned_off_for_batch_runs(env, flag, previews) -> No
     assert ("preview_factory" in seen[0] and seen[0]["preview_factory"] is None) is (not previews)
 
 
-# --- trace projects (owner, 2026-10-17) -------------------------------------------------------
+# --- trace projects -------------------------------------------------------
 
 
 def _record_targets(monkeypatch: pytest.MonkeyPatch, runtime_factory: Any) -> list[tuple]:  # type: ignore[type-arg]
@@ -269,7 +269,7 @@ def test_class_commands_refuse_without_an_explicit_class_date(env, monkeypatch) 
     assert "SHIPHARNESS_CLASS_DATE" in result.output and "--purpose pilot" in result.output
 
 
-# --- no static class (owner, 2026-10-17) -----------------------------------------------------
+# --- no static class -----------------------------------------------------
 # Every live A/B (make demo-N, make final, pilot runs) calls OpenAI. `shipharness ab` refuses before
 # any arm starts when the key is missing or rejected, or when the runtime would use a stand-in model
 # client; it never falls back. Replay stays the fallback and is always marked RECORDING.
@@ -400,7 +400,7 @@ def test_the_runtime_builds_the_live_openai_client(tmp_path: Path) -> None:
 
 
 def test_session_budget_override_reaches_both_arms_and_the_record(env) -> None:  # type: ignore[no-untyped-def]
-    # Pre-registered F2 lever (owner, 2026-10-17): first session 12 turns, total unchanged.
+    # Pre-registered F2 lever: first session 12 turns, total unchanged.
     result = CliRunner().invoke(
         make_app(),
         ["ab", "--feature", "F1", "--session-budget", "2,3", "--no-preview",

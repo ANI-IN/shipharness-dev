@@ -1,4 +1,4 @@
-"""Total build budget (owner, 2026-10-17): $15 for all model spend while the course is built,
+"""Total build budget: $15 for all model spend while the course is built,
 counted from the first ledger entry (plus the recorded pre-ledger spend), enforced on every call."""
 
 from __future__ import annotations

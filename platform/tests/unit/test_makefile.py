@@ -198,7 +198,7 @@ def test_conftest_slow_list_names_existing_test_files() -> None:
 
 
 def test_demo_targets_pass_the_purpose_and_an_optional_session_budget() -> None:
-    # Owner, 2026-10-17: PURPOSE picks the LangSmith project; SESSION_BUDGET=12,38 applies the
+    # PURPOSE picks the LangSmith project; SESSION_BUDGET=12,38 applies the
     # pre-registered F2 lever through make.
     assert _variables()["SESSION_BUDGET_OPT"] == (
         "$(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))"
@@ -214,7 +214,7 @@ def test_replay_target_passes_the_purpose() -> None:
     assert params["purpose"] == "pilot"
 
 
-# -- class profile, show-N, warm (owner, 2026-10-17) --------------------------------------------
+# -- class profile, show-N, warm --------------------------------------------
 
 
 def test_class_targets_run_the_class_profile_by_default() -> None:
@@ -290,7 +290,7 @@ def test_make_n_warm_is_a_dry_run() -> None:
     assert not any("$(MAKE)" in line or "${MAKE}" in line for line in _rules()["warm"])
 
 
-# -- constructed examples (owner, 2026-10-17) -----------------------------------------------------
+# -- constructed examples -----------------------------------------------------
 
 
 @pytest.mark.parametrize("n", [1, 2, 3, 4])

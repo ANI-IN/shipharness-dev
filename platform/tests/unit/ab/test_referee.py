@@ -678,7 +678,7 @@ def test_session_patches_reach_continuity_without_harness_files(
     assert "progress.md" in first.read_text(encoding="utf-8")  # the arm's record is unchanged
 
 
-# --- batched unmutated-pass step (owner-approved after pilot run 2) ---------------------------
+# --- batched unmutated-pass step (approved after pilot run 2) ---------------------------
 
 
 def _batched_box(lines: dict[str, str], *, summary_only: bool = False) -> FakeSandbox:

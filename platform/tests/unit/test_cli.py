@@ -18,7 +18,7 @@ def test_version_flag_prints_version() -> None:
 
 
 def test_help_header_is_the_module_title() -> None:
-    # Owner message 12.1: Module 1 of a multi-module program; the CLI help header carries the title.
+    # Module 1 of a multi-module program; the CLI help header carries the title.
     result = CliRunner().invoke(app, ["--help"])
     assert result.exit_code == 0, result.output
     lines = [line.strip(" │") for line in strip_ansi(result.output).splitlines()]

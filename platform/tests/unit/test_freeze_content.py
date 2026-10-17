@@ -1,4 +1,4 @@
-"""Freeze rules 1 and 2 (owner, M6): content hashes per frozen path, and no silent changes."""
+"""Freeze rules 1 and 2: content hashes per frozen path, and no silent changes."""
 
 from __future__ import annotations
 

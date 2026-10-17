@@ -1,4 +1,4 @@
-"""Caps hold across concurrent commands that share one ledger (owner plan, 2026-10-17: `make demo-4`
+"""Caps hold across concurrent commands that share one ledger (`make demo-4`
 and `make final` launched together; the pilot runs several `shipharness ab` processes at once).
 
 Each command has its own CostTracker. Before each check and before each write, a tracker reads the

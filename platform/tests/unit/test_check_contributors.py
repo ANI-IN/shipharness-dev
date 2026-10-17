@@ -1,5 +1,5 @@
 """platform/scripts/check_contributors.py: every commit's author and committer is ANI-IN, with no
-co-author or generated-by trailer (owner message 10.3)."""
+co-author or generated-by trailer."""
 
 from __future__ import annotations
 

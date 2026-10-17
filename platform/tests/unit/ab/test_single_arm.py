@@ -1,4 +1,4 @@
-"""`shipharness ab --arms harness` (owner, 2026-10-17): the harness arm alone, judged by the same
+"""`shipharness ab --arms harness`: the harness arm alone, judged by the same
 referee with the same events ("harness in action", `make show-N`). Its records are marked single-arm
 and are left out of every bare-vs-harness comparison; swap tests skip them."""
 

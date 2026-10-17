@@ -180,7 +180,7 @@ def test_allowed_paths_are_non_empty_relative_globs(repo: Path, paths: dict[str,
     assert any("allowed_paths" in e for e in errors)
 
 
-# -- referee mutants apply at the line's checkpoint (M5 fix pass, owner decision) ---------------
+# -- referee mutants apply at the line's checkpoint (M5 fix pass) ---------------
 
 SOURCE = "def f():\n    return 1\n"
 MUTANT = {

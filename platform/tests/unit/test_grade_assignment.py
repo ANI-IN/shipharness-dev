@@ -1,4 +1,4 @@
-"""`make grade-assignment-N SUBMISSION=<folder or git URL>` (instructor only; graders are private)."""
+"""`make grade-assignment-N SUBMISSION=<folder or git URL>` (instructor only, graders private)."""
 
 from __future__ import annotations
 

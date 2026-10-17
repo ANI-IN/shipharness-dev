@@ -1,4 +1,4 @@
-"""Constructed examples (owner decision 2026-10-17): `shipharness example --section demo-N` runs the
+"""Constructed examples: `shipharness example --section demo-N` runs the
 harness arm with section N's layer stack on its canonical task, driven by scripted steps that make
 the mistake the layer exists to catch. These tests run each scenario with the real layers and a fake
 sandbox, and check that a constructed run is never counted where a real run is counted."""

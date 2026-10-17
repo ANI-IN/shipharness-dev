@@ -258,7 +258,7 @@ def test_a_second_warm_up_builds_nothing_and_computes_nothing(setup, tmp_path: P
     assert lines and all(line.endswith(" s)") for line in lines)  # every step with its timing
 
 
-# -- class date (owner message 9.4) --------------------------------------------------------------
+# -- class date --------------------------------------------------------------
 
 
 def _warm_app(monkeypatch: pytest.MonkeyPatch, day: str | None):  # type: ignore[no-untyped-def]

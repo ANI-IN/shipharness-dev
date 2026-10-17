@@ -17,7 +17,7 @@ def exports(tmp_path: Path) -> Path:
 
 
 def test_dot_groups_per_feature_variant_and_arm_with_counts(exports: Path) -> None:
-    # Owner, 2026-10-17: screen 4 groups by feature; records scored before the current referee
+    # Screen 4 groups by feature; records scored before the current referee
     # version are left out (and counted).
     report = load_report(exports)
     rows = [(g.feature, g.variant, g.arm, g.count_label) for g in report.groups]

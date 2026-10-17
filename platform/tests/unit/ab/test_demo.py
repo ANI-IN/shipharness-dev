@@ -421,7 +421,7 @@ def test_test_phase_files_ignore_uncommitted_build_work(tmp_path: Path) -> None:
 
 
 def test_each_arm_is_judged_as_soon_as_it_finishes(course_repo: Path, tmp_path: Path) -> None:
-    # Owner-approved after pilot run 2: no idle wait for the other arm before judging.
+    # Approved after pilot run 2: no idle wait for the other arm before judging.
     from .test_referee import Factory as RefereeFactory
     from .test_referee import all_green
 

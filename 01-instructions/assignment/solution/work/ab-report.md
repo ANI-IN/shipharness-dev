@@ -1,7 +1,7 @@
 # A1 A/B report: the instructions layer on section-1 (reference tree)
 
 This is the reference solution's report. Its structure is what a learner's report must have. The
-reference live run was not captured: the owner's FOCUS instructions of 2026-10-17 required a real
+reference live run was not captured: the course plan of 2026-10-17 required a real
 captured live run for assignments A3 and A4 only, so the A1 reference A/B was left out of scope.
 Every value below that needs the run says so instead of giving a number.
 
@@ -12,8 +12,8 @@ Every value below that needs the run says so instead of giving a number.
 - Model and reasoning effort: `OPENAI_MODEL` and `OPENAI_REASONING_EFFORT` from the settings
   (the course defaults), recorded in each experiment's metadata
 
-Instructions tree commit: none, because the reference live run was not captured (owner scope,
-2026-10-17).
+Instructions tree commit: none, because the reference live run was not captured (not part of
+this release).
 
 ## Results
 
@@ -22,17 +22,17 @@ Instructions tree commit: none, because the reference live run was not captured 
 | R1: runs with at least one new R1 violation | not captured | not captured |
 | R3: runs with at least one new R3 failure | not captured | not captured |
 
-No counts: the reference live run was not captured (owner scope, 2026-10-17).
+No counts: the reference live run was not captured (not part of this release).
 
 ## Links
 
-No LangSmith experiment links: the reference live run was not captured (owner scope, 2026-10-17).
+No LangSmith experiment links: the reference live run was not captured (not part of this release).
 
 ## Cost and traces
 
 Budget for this command: at most $2.50 and 150 traces (the course budget); the run stops cleanly at
 `MAX_BATCH_COST_USD`. No measured cost or trace count: the reference live run was not captured
-(owner scope, 2026-10-17).
+(not part of this release).
 
 ## Reading the result
 

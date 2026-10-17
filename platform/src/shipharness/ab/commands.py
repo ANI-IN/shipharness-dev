@@ -78,7 +78,7 @@ def _key_problem(settings: Settings) -> str | None:
 def _live_guard(settings: Settings, deps: Any, arm: str = "bare") -> None:
     """Every live A/B (demo-N, final, pilot) calls OpenAI: refuse before any arm starts when the key
     is missing or rejected, or the runtime would use a stand-in model client. Never falls back to a
-    scripted or recorded run; replay (RECORDING) is the explicit fallback (owner, 2026-10-17)."""
+    scripted or recorded run; replay (RECORDING) is the explicit fallback."""
     from shipharness.runner.model import OpenAIModelClient
 
     key = settings.openai_api_key.get_secret_value().strip() if settings.openai_api_key else ""

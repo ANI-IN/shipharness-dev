@@ -109,9 +109,9 @@ All notable changes to this project are recorded here.
   against the repository and uploaded to LangSmith.
 - Mutants located by exact text and re-validated at every checkpoint; filter and referee sets
   checked to be disjoint across all files.
-- Owner decisions: regression covers the checkpoint's existing tests only; agent-only run budget with
+- Decisions: regression covers the checkpoint's existing tests only; agent-only run budget with
   `HARNESS_TIMEOUT_S`; F4 If-Match optional; export inspection tests; checkpoint SHA pinned in A/B
-  records, score records, and experiment summaries; tags move only with owner approval once results exist.
+  records, score records, and experiment summaries; tags move only with approval once results exist.
 - Runner, console, testgen: final cap reaches the loop; cost reservation; malformed run-log lines skipped;
   `--doctest-modules`; `testgen --target`; `make demo-N`, `swap-N` (latest of the section), `final`,
   `replay`; fast default suite and parallel `make test-all`.

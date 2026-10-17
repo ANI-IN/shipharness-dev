@@ -1,4 +1,4 @@
-"""CLI output in tests is plain text on any host, including GitHub Actions (owner, 2026-10-17).
+"""CLI output in tests is plain text on any host, including GitHub Actions.
 
 On GitHub Actions typer and rich print ANSI colour codes (GITHUB_ACTIONS, FORCE_COLOR) and wrap at
 the runner's width, so an assertion such as `"--target" in result.output` failed there while it

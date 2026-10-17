@@ -27,7 +27,7 @@ package_prefix = "boltons."
 known_failures = ["tests/test_jsonutils.py::test_reverse_iter_lines"]
 
 [repos.boltons.metadata]
-# G-19 (owner, 2026-10-16): doctests are part of the baseline suite, as upstream runs them.
+# G-19: doctests are part of the baseline suite, as upstream runs them.
 baseline_includes_doctests = true
 test_command = "pytest --doctest-modules boltons tests"
 
@@ -42,7 +42,7 @@ package_prefix = "wtforms."
 known_failures = ["tests/fields/test_date.py::test_basic"]
 
 [repos.wtforms.metadata]
-# G-20 (owner, 2026-10-16): keep upstream `filterwarnings = ["error"]`; a generated test that
+# G-20: keep upstream `filterwarnings = ["error"]`; a generated test that
 # triggers a warning is discarded with the warning as the reason.
 pytest_config = "upstream"
 warnings_are_errors = true

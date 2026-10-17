@@ -5,7 +5,7 @@ solution walkthrough, common mistakes, discussion questions), then 20 minutes of
 A3 hidden diffs are revealed in this session.
 
 The "likely mistakes" lists below come from the design, the section concepts, and each solution's
-`SOLUTION_NOTES.md`; extend them with each assignment README's "Common mistakes" section and with
+`SOLUTION.md`; extend them with each assignment README's "Common mistakes" section and with
 what the grader saw.
 
 | Assignment | Brief and grading criteria | Starter | Solution | Self-check | Grader |
@@ -66,7 +66,7 @@ an A/B on the `section-1` subset with k=3 and report R1 and R3 results. Learner 
 order: `work/instructions/AGENTS.md` (the map), `work/instructions/ARCHITECTURE.md`, one document
 under `work/instructions/docs/` (`SECURITY.md` holds R1), the `add-list-endpoint` skill (`work/instructions/.agents/skills/add-list-endpoint/SKILL.md`), and the
 checker `work/checker/check_docs.py` with its tests `work/checker/test_check_docs.py`. Then
-`SOLUTION_NOTES.md`, "Design choices" and "Known limits". The reference A/B on `section-1` (k=3) has
+`SOLUTION.md`, "Design choices and why" and "Trade-offs and known limits". The reference A/B on `section-1` (k=3) has
 not been run: `work/ab-report.md` has the full structure with its values still marked pending, and the
 reference scores 83/100 because criterion E (A/B values, 5 points) and criterion F (live run evidence,
 12 points) need that run (`captured/grade-solution.txt`). Say so, and show the report's structure,
@@ -111,7 +111,7 @@ heads, redone work, and progress-file integrity. Learner budget â‰¤ $1.50 and â‰
   F-a-48).
 
 **Solution walkthrough (8 min).** Open `02-state-lifecycle/assignment/solution/a2_state/layer.py`
-(the `ResumableStateLayer`), then `ledger.py` and `progress_log.py`, then `SOLUTION_NOTES.md`. The
+(the `ResumableStateLayer`), then `ledger.py` and `progress_log.py`, then `SOLUTION.md`. The
 grader's hidden scenarios (`grader/a2_hidden.py`, four scenarios and a hidden four-step feature) run
 a scripted stand-in agent, not a model. On the reference solution every scenario criterion passes, among them
 "progress.md logs every session exactly once, in order", "Exec plan moved to
@@ -214,7 +214,7 @@ adapter `adapter.py` and `captured/r8-teamtrack.json` (R8 on TeamTrack, real out
 `portfolio/case-study.md`, and `portfolio/langsmith.md`; the example learner skill
 `skill/testgen-evidence/SKILL.md`. The portfolio's model-run sections and `live/` hold pending
 markers until the reference live run is captured; the grader accepts them for the reference folder
-only, so its 100/100 includes 20 points that rest on those markers (`SOLUTION_NOTES.md`, "Known
+only, so its 100/100 includes 20 points that rest on those markers (`SOLUTION.md`, "Known
 limits"). Say so when you show the score.
 
 **Likely mistakes (5 min).**

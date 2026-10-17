@@ -942,7 +942,7 @@ def test_the_slide_screenshots_ship_with_the_deck() -> None:
     assert "slides/img/show-1-screen-1.png" in mr.select(TRACKED).included
 
 
-# -- contributors (owner message 10.3) ------------------------------------------------------------
+# -- contributors ------------------------------------------------------------
 
 
 def test_contributors_pass_for_the_built_repository(mini_repo: Path, tmp_path: Path) -> None:

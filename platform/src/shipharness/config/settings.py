@@ -45,7 +45,7 @@ class Settings(BaseSettings):
     max_session_cost_usd: float = 2.50
     max_batch_cost_usd: float = 2.50
     max_experiment_total_usd: float = 25.00
-    # Every model call in this ledger, from its first entry (owner, 2026-10-17).
+    # Every model call in this ledger, from its first entry.
     max_build_total_usd: float = 15.00
 
     # Run limits
@@ -74,7 +74,7 @@ class Settings(BaseSettings):
     def _default_today(cls, value: object) -> str:
         """The class day, set explicitly in .env for class commands (they refuse without it); the
         class session cost cap and the class LangSmith project are keyed by it. Never today by
-        default (owner, 2026-10-17)."""
+        default."""
         return str(value).strip() if value is not None else ""
 
     @field_validator("openai_api_key", "langsmith_api_key", mode="before")

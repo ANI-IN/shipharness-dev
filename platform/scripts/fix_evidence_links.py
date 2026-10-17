@@ -31,7 +31,7 @@ from pathlib import Path
 INDEX = "docs/evidence.md"
 PARTS_DIR = "docs/evidence/"
 SKIP_DIRS = {".git", ".venv", "node_modules", ".shipharness", "exports", ".hypothesis", ".claude"}
-# Pages another owner fills or logs; never rewritten here.
+# Pages filled from live runs or kept as a log; never rewritten here.
 DO_NOT_EDIT = re.compile(
     r"(^|/)assignment/solution/live/|(^|/)solution/work/live/|(^|/)solution/captured/"
     r"|^VERIFICATION\.md$"

@@ -351,7 +351,7 @@ def test_getting_up_to_speed_reuses_the_handoff_test_status(tmp_path: Path) -> N
     assert "first session" in block
 
 
-# --- turn cost (harness change, harness arm only; owner-approved after pilot run 2) -------------
+# --- turn cost (harness change, harness arm only; approved after pilot run 2) -------------
 # In run 2 the harness arm re-read every instruction document and the product code in every
 # session and kept progress.md and the exec plan up to date mid-session; in F2 it wrote no product
 # code in 50 build turns, and in F4 almost no tests in the 12-turn test phase.
