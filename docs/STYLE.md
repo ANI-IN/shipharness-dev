@@ -24,14 +24,24 @@ If a line must break a rule, for example to quote real output, end it with
 line, right before a fenced block, covers the whole block.
 
 Public course files are: `README.md`, `setup/`, the section folders `section-1-*` to `section-4-*`,
-`final-project/`, `slides/README.md`, `use-in-your-repo/`, and `docs/`. The assignment graders and
-hidden test cases are not part of the course text.
-Files outside that list are not part of the course text either.
+`final-project/`, the Markdown pages in `slides/` (`README.md`, `deck.md`, `outline.md`),
+`use-in-your-repo/`, and `docs/`. Every Markdown page in them is checked, including the pages under
+an assignment's `starter/` and `solution/` folders. The assignment graders and hidden test cases are
+not part of the course text. Files outside that list are not part of the course text either.
 
-Agent files are the files an agent reads, not a learner: `section-N-*/demo/harness/`, the files in
-`section-N-*/assignment/starter/` and `section-N-*/assignment/solution/` other than their `README.md` and
-`SOLUTION.md`, `use-in-your-repo/kit/templates/`, `use-in-your-repo/kit/examples/*/filled/`, and
-`use-in-your-repo/skills/`. They follow their own format; only the image rules apply to them.
+Agent files are the files an agent reads, not a learner: `section-N-*/demo/harness/`, Assignment 1's
+instruction trees (`instructions/` and `original/` under `starter/` and `solution/`), skills
+(`use-in-your-repo/skills/`, a `skill/<name>/` folder in an assignment, any `.agents/skills/` or
+`.claude/skills/` folder), `use-in-your-repo/kit/templates/`, and `use-in-your-repo/kit/examples/*/filled/`.
+They follow their own format; only the image rules apply to them.
+
+Folder rules (checked on a full run): every `section-N-*/` folder has `README.md`, `concepts.md`,
+`session-notes.md`, `demo/` (`README.md`, `run.sh`, `walkthrough.md`, `harness/`, `expected/`),
+`assignment/` (`README.md`, `SPEC.md`, `starter/`, `solution/SOLUTION.md`), `post-class-reading/`,
+and `diagrams/README.md` once it has a `diagrams/` folder (SC19). `final-project/` has `README.md`,
+`run.sh`, `tasks/`, `harness/`, `walkthrough.md`, `expected/`, `your-repo/`, and `CHECKLIST.md`
+(SC19). Every `.png` or `.svg` in a `diagrams/` folder has an `.excalidraw` source with the same name
+next to it (SC20).
 
 ---
 
@@ -129,10 +139,10 @@ These words come from how the course was built. Learners do not know them. Never
 
 | Do not write | Write instead |
 |---|---|
-| "owner scope", "brief", "lead" (a role) | Say who does it: "you", "the instructor" |
+| "owner scope", "the owner's", "brief", "lead" (a role) | Say who does it: "you", "the instructor" |
 | "class host" | "the instructor's machine" |
-| "build repository" | Nothing: learners see only this repository |
-| "not a make target in this release" | The command to run instead |
+| "build repository", "build branch" | Nothing: learners see only this repository |
+| "not a make target in this release", "this release" | The command to run instead, or nothing |
 | "pilot run 3" (no context) | "a test run before class", with an evidence link |
 | `PENDING`, `CAPTURE` markers | Capture the real output, or cut the sentence |
 | "M6", "M8" (milestone codes) | Nothing |
