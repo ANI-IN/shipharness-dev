@@ -24,6 +24,15 @@ All notable changes to this project are recorded here.
 - `shipharness ab --arms harness` and `make show-N`: the harness arm alone ("harness in action"),
   judged by the referee and left out of every bare-vs-harness comparison, screen 4, and swap tests;
   `make replay` replays such runs.
+
+### Constructed examples (2026-10-17)
+- `shipharness example --section demo-N` and `make example-1` .. `make example-4`: the harness arm
+  with section N's layer stack on its canonical task, in the real sandbox and judged by the real
+  referee, driven by scripted steps that make the mistake the layer exists to catch (a cross-org
+  query, a session that runs out of turns, an out-of-scope patch and a network command, a claim of
+  done with a failing test). No model, no API key, $0. Every console screen shows CONSTRUCTED
+  EXAMPLE; the run record and score are marked `constructed`, the score stays in the run directory,
+  and the A/B report, screen 4, swap tests, and exports never count it.
 - `make warm`: images rebuilt only when their source changed, containers paged in, and the referee
   and gate baselines of the class tasks cached, with no model calls.
 - `shipharness ab` exits 2 when an arm was aborted (cost cap or time limit); the run is still judged.

@@ -40,7 +40,7 @@ SCENARIOS = [f"{feature}-{case}" for feature in MEASURES for case in CASES]
 # Not scored: when the record was written, the commit of the test's own course repo (it changes
 # with every fixture repo), and the referee version stamp.
 # Run metadata, not scored: single_arm marks a "harness in action" run (make show-N).
-UNSCORED = {"captured_at", "checkpoint_sha", "referee_version", "single_arm"}
+UNSCORED = {"captured_at", "checkpoint_sha", "referee_version", "single_arm", "constructed"}
 
 LEAK = {"rule": "R1", "severity": "leak", "endpoint": "GET /a", "detail": "x", "baseline": False}
 

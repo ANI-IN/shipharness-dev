@@ -606,6 +606,12 @@ class ConsoleState:
         """The harness arm runs alone (`make show-N`, harness in action): no bare arm starts."""
         return any(bool(spec.get("single_arm")) for spec in self._specs())
 
+    @property
+    def constructed(self) -> bool:
+        """A constructed example (`make example-N`): scripted steps drive the harness arm, no
+        model; every screen says so."""
+        return any(bool(spec.get("constructed")) for spec in self._specs())
+
     def apply(self, event: Event) -> None:
         self.seq = max(self.seq, event.seq)
         self.ab_id = self.ab_id or event.ab_id

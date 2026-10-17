@@ -377,6 +377,64 @@ def register(app: typer.Typer) -> None:
         """Replay a recorded A/B (RECORDING) and re-run the referee live."""
         _recorded(replay=run, swap=None, reviewer=reviewer, purpose=purpose)
 
+    @app.command("example")
+    def example_cmd(
+        section: str = typer.Option(..., help="demo-1..demo-4: whose layer stack and task."),
+        dataset: Path = typer.Option(FEATURES_FILE, help="Features JSONL (canonical tasks)."),
+        preview: bool = typer.Option(
+            True, "--preview/--no-preview", help="Board preview container (console screen 2)."
+        ),
+        profile: str = typer.Option("standard", help=PROFILE_HELP),
+    ) -> None:
+        """Constructed example: section N's layers on its canonical task, driven by scripted
+        steps that make the mistake the layer exists to catch. No model, no API key, $0."""
+        from shipharness.ab.demo import CONSTRUCTED_MODE
+        from shipharness.ab.workspace import new_ab_id
+        from shipharness.config import UnknownModelPrice
+        from shipharness.examples import CONSTRUCTED_BADGE, SCENARIOS
+        from shipharness.examples.run import (
+            EXAMPLE_LEDGER,
+            example_cost,
+            example_cost_line,
+            example_settings,
+            example_task,
+            run_example,
+            summary_lines,
+        )
+
+        scenario = SCENARIOS.get(section)
+        if scenario is None:
+            typer.echo(f"x unknown --section {section!r}: {', '.join(SCENARIOS)}")
+            raise typer.Exit(2)
+        if profile not in PROFILES:
+            typer.echo(f"x unknown --profile {profile!r}: {', '.join(PROFILES)}")
+            raise typer.Exit(2)
+        settings = example_settings(_settings())
+        task = example_task(scenario, _load_task(dataset, scenario.feature, None, "canonical"))
+        try:  # tracing is off: the project name is never used
+            rt = _runtime(settings, "shipharness-examples", session_id="example", profile=profile)
+        except UnknownModelPrice as exc:
+            typer.echo(f"x {exc.args[0] if exc.args else exc}")
+            raise typer.Exit(2) from None
+        ab_id = new_ab_id()
+        cost = example_cost(settings, Path(settings.runs_dir) / ab_id / EXAMPLE_LEDGER)
+        extra: dict[str, Any] = {} if preview else {"preview_factory": None}
+        deps = rt.ab_deps(task.checkpoint, reviewer=False, **extra)
+        typer.echo(f"{CONSTRUCTED_BADGE} ({section}: {scenario.title})")
+        result = run_example(scenario, task, deps, cost=cost, ab_id=ab_id)
+        layers = sorted(result.arms["harness"].spec.layers)
+        typer.echo(
+            f"A/B {result.ab_id} ({task.feature_id}, layers={layers}, profile={profile}, "
+            f"{CONSTRUCTED_MODE})"
+        )
+        for arm_run in result.arms.values():
+            _print_record(arm_run.record)
+        typer.echo(f"What it demonstrates: {scenario.demonstrates}.")
+        for line in summary_lines(result.run_dir):
+            typer.echo(f"  {line}")
+        typer.echo(example_cost_line(cost))
+        raise typer.Exit(_exit_code([r.result.status for r in result.arms.values()]))
+
     @app.command("report")
     def report_cmd(
         exports: Path = typer.Option(Path("exports"), help="Exports directory."),

@@ -180,12 +180,13 @@ def arm_specs(
     run_ids: Mapping[Arm, str],
     run_cost_limit_usd: float | None = None,
     profile: str = "standard",
+    constructed: bool = False,
 ) -> dict[Arm, AgentRunSpec]:
     """Both arms' specs from one set of values. `run_cost_limit_usd` is the per-arm run cap
     (both phases together); it defaults to MAX_RUN_COST_USD, and the A/B passes the cost
     tracker's run cap, which is MAX_FINAL_RUN_COST_USD for `--section final`. `profile` names the
     run profile already applied to `settings`. With only the harness arm in `workspaces`, the
-    spec is marked single-arm."""
+    spec is marked single-arm; `constructed` marks a constructed example (scripted steps)."""
     if run_cost_limit_usd is None:
         run_cost_limit_usd = settings.max_run_cost_usd
     shared: dict[str, Any] = dict(
@@ -204,6 +205,7 @@ def arm_specs(
         service_tier=settings.openai_service_tier,
         profile=profile,
         single_arm=set(workspaces) == {"harness"},
+        constructed=constructed,
         cost_limit_usd=run_cost_limit_usd,
     )
     return {
@@ -347,11 +349,16 @@ def run_ab(
     ab_id: str | None = None,
     section: str | None = None,
     arms: tuple[Arm, ...] = ARMS,
+    constructed: bool = False,
 ) -> ABResult:
     """Both arms (default), or the harness arm alone (`arms=("harness",)`: "harness in action",
-    judged the same way and marked single-arm, never compared with a bare run)."""
+    judged the same way and marked single-arm, never compared with a bare run). `constructed`:
+    a constructed example (`shipharness.examples`, scripted steps), harness arm alone, marked as
+    such and never exported where real runs are counted."""
     if tuple(arms) not in (ARMS, ("harness",)):
         raise ValueError(f"arms must be both arms or the harness arm alone, got {arms!r}")
+    if constructed and tuple(arms) != ("harness",):
+        raise ValueError("a constructed example runs the harness arm alone, never an A/B")
     arms = tuple(arms)
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
@@ -381,6 +388,7 @@ def run_ab(
         run_ids=run_ids,
         run_cost_limit_usd=deps.cost.caps.run,  # final section: MAX_FINAL_RUN_COST_USD
         profile=deps.profile,
+        constructed=constructed,
     )
     seed = task_seed(task, deps)
     referee = make_referee(
@@ -424,12 +432,15 @@ def run_ab(
         checkpoint_sha=checkpoint_sha,
         from_working_tree=deps.checkpoint_ref is None,
         profile=deps.profile,
+        constructed=constructed,
     )
     return ABResult(ab_id=ab_id, arms=runs, run_dir=run_dir)
 
 
 AB_RECORD = "ab.json"
 SINGLE_ARM_MODE = "harness in action"
+CONSTRUCTED_MODE = "constructed example"
+CONSTRUCTED_SCORE = "score.json"  # <run dir>/harness/score.json: a constructed run's ScoreRecord
 
 
 def write_ab_record(
@@ -442,13 +453,16 @@ def write_ab_record(
     checkpoint_sha: str | None = None,
     from_working_tree: bool = False,
     profile: str = "standard",
+    constructed: bool = False,
 ) -> Path:
     """Everything swap and replay need, without host paths or keys. `section` (demo-N or final)
     lets `make swap-N` find the section's most recent A/B. `checkpoint_sha` is the commit the
     arms started from (swap and replay export it, never the tag); a working-tree A/B records
     null and `from_working_tree: true`. `profile` is the run profile; `single_arm` (harness arm
-    alone, mode "harness in action") keeps the record out of swap tests and comparisons."""
+    alone, mode "harness in action") keeps the record out of swap tests and comparisons;
+    `constructed` (mode "constructed example") marks scripted steps instead of a model."""
     single_arm = set(arms) == {"harness"}
+    mode = CONSTRUCTED_MODE if constructed else SINGLE_ARM_MODE if single_arm else "A/B"
     data = {
         "task": asdict(task),
         "seed": seed,
@@ -457,7 +471,8 @@ def write_ab_record(
         "from_working_tree": from_working_tree,
         "profile": profile,
         "single_arm": single_arm,
-        "mode": SINGLE_ARM_MODE if single_arm else "A/B",
+        "constructed": constructed,
+        "mode": mode,
         "arms": {
             arm: {
                 "spec": run.spec.public_dict(),
@@ -516,6 +531,8 @@ def _judge(
         arm_ended=_ARM_ENDED.pop(spec.run_id, None),
         export=not spec.single_arm,
     )
+    if spec.constructed:
+        return keep_constructed(verdict.record, run_dir / spec.arm)
     if not spec.single_arm:
         return verdict.record
     return export_single_arm(verdict.record, referee.deps.exports_dir)
@@ -526,6 +543,15 @@ def export_single_arm(record: ScoreRecord, exports_dir: Path) -> ScoreRecord:
     ever counts it in a bare-vs-harness comparison)."""
     marked = record.model_copy(update={"single_arm": True})
     write_export("scores", marked.run_id, marked, exports_dir)
+    return marked
+
+
+def keep_constructed(record: ScoreRecord, arm_dir: Path) -> ScoreRecord:
+    """A constructed example's score, marked, kept in its run directory only: it never enters
+    `exports/`, which the A/B report, screen 4, and the experiments read."""
+    marked = record.model_copy(update={"single_arm": True, "constructed": True})
+    arm_dir.mkdir(parents=True, exist_ok=True)
+    (arm_dir / CONSTRUCTED_SCORE).write_text(marked.model_dump_json(indent=2), encoding="utf-8")
     return marked
 
 

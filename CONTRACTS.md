@@ -4,8 +4,9 @@ Interfaces between shipharness components. Builders in M4 code against these; a 
 needs a CONTRACTS.md edit in the same commit and a note in CHANGELOG.md. Design rationale is in
 [DESIGN.md](DESIGN.md).
 
-Contract version: `1.6` (2026-10-17: §24 records the class profile, harness in action, and the
-warm-up; where §24 and an earlier section differ, §24 wins). Version 1.5 (2026-10-16, M6 pilot: §23
+Contract version: `1.7` (2026-10-17: §25 records the constructed examples; where §25 and an
+earlier section differ, §25 wins). Version 1.6 (2026-10-17: §24 records the class profile, harness
+in action, and the warm-up; where §24 and an earlier section differ, §24 wins). Version 1.5 (2026-10-16, M6 pilot: §23
 records the fixes the pilot found; where §23 and an earlier section differ, §23 wins). Version 1.4 (2026-10-16, M5: §22 records features,
 datasets, checkpoints, and the pre-M6 fixes; where §22 and an earlier section differ, §22 wins).
 Version 1.3 (2026-10-16, M4: §21 records the interfaces added by the seven M4 builders;
@@ -1132,3 +1133,35 @@ Found by the M6 lite pilot (VERIFICATION, M6). Each fix has a test that failed f
   the verify layer (the harness arm's workspace and `Harness.prepare_workspace`, as at the start of a
   run; `VerifyLayer.cached_baseline_path(ctx)` names the file). `run_baselines` computes the missing
   ones in parallel; `warm_up` prints one line per step with its time.
+
+---
+
+## 25. Constructed examples (binding; owner decision 2026-10-17)
+
+- `shipharness.examples`: one module per scenario (`demo1_instructions`, `demo2_state`,
+  `demo3_scope`, `demo4_verify`), each with a docstring that says it is a constructed example and
+  what it demonstrates, and `SCENARIO: Scenario(section, feature, title, demonstrates, steps,
+  session_budget=None)`; `SCENARIOS` maps demo-N to its scenario; `CONSTRUCTED_BADGE = "CONSTRUCTED
+  EXAMPLE: scripted steps, no model"`. Steps are `ScriptedModelClient` steps with zero usage
+  (`examples.base.act`); in-scope code may come from `teamtrack/reference/<f>/<f>.patch`
+  (`reference_patch(feature, paths)`). demo-2 overrides the build-session budget to `(3, 4)`.
+- `examples.run.run_example(scenario, task, deps, *, cost=None, ab_id=None)` calls
+  `run_ab(..., arms=("harness",), constructed=True)` with the section's layers
+  (`section_layers`), a scripted client factory (harness arm only), no reviewer, and `NullTracer`.
+  `example_settings` turns LangSmith tracing off and raises `harness_timeout_s` to at least
+  `EXAMPLE_HARNESS_TIMEOUT_S = 1800` (not a measurement); `example_cost` is a `CostTracker` with its
+  own ledger in the run directory (`example-ledger.jsonl`).
+- Marking: `AgentRunSpec.constructed: bool = False` (in every run_start spec);
+  `run_ab(..., constructed=False)` refuses `constructed=True` with both arms; `ab.json` has
+  `constructed: true`, `single_arm: true`, `mode: "constructed example"` (otherwise `constructed:
+  false`); `ScoreRecord.constructed: bool = False`. A constructed run's record is written by
+  `demo.keep_constructed` to `<run dir>/harness/score.json` only, never to `exports/`. The A/B report
+  and screen 4 leave `constructed` records out (screen 4 counts them: `Report.constructed`);
+  `latest_ab_dir` skips them; `swap_test` refuses one (`SingleArmRecord`); `replay_ab` keeps it
+  constructed and out of `exports/`. `ConsoleState.constructed` (from the run_start spec) shows the
+  badge on every screen in place of the harness-in-action badge.
+- `shipharness example --section demo-N [--dataset] [--preview/--no-preview] [--profile]` prints the
+  badge, the A/B line with mode `constructed example`, the record, what the layers and the referee
+  did (from the run log), and `Cost: $0.000000 (constructed example: scripted steps, no model
+  calls)`. It never calls `_live_guard`, which stays in front of every live run unchanged.
+  `make example-N`: `shipharness example --section demo-N --profile $(PROFILE)`.

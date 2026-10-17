@@ -274,3 +274,21 @@ def test_make_n_warm_is_a_dry_run() -> None:
     # GNU make runs a recipe line that references $(MAKE) even under -n, so `make -n warm` used to
     # start `shipharness warm` (content audit, 2026-10-17).
     assert not any("$(MAKE)" in line or "${MAKE}" in line for line in _rules()["warm"])
+
+
+# -- constructed examples (owner, 2026-10-17) -----------------------------------------------------
+
+
+@pytest.mark.parametrize("n", [1, 2, 3, 4])
+def test_example_target_runs_the_section_constructed_example(n: int) -> None:
+    calls = _shipharness_calls(f"example-{n}")
+    assert len(calls) == 1
+    command, params = _parse(calls[0])
+    assert command == "example"  # never `ab`: no model, and the live guard is not involved
+    assert params["section"] == f"demo-{n}"
+    assert params["profile"] == "standard"  # PROFILE reaches the command
+    phony = " ".join(
+        line for line in MAKEFILE.read_text(encoding="utf-8").replace("\\n", " ").splitlines()
+        if line.startswith(".PHONY")
+    )  # fmt: skip
+    assert f" example-{n} " in f" {phony} "
