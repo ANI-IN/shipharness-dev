@@ -52,7 +52,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 ![Screen 3: files read, the diff map, referee checks, and the test filter table](show-4-screen-3-final.png)
 
-*Screen 3: one test kept after five filters; two stopped at filter 3, one at filter 2.*
+*Screen 3: one test kept after five filters; two stopped at Filter 3: Adds coverage or catches a mutant, one at Filter 2: Passes five runs.*
 
 ![Screen 4: primary results, one dot per run](show-4-screen-4-final.png)
 
