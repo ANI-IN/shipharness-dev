@@ -69,7 +69,7 @@ def test_repository_docs_pass() -> None:
 
 
 def test_verbatim_owner_notes_are_not_linted(tmp_path: Path) -> None:
-    # instructor/engineering-notes/ quotes the owner's instructions verbatim; the linter must not
+    # The private notes folder quotes the owner's instructions verbatim; the linter must not
     # force edits to them (CI failed on a banned word in a quoted message, 2026-10-17).
     notes = tmp_path / "instructor" / "engineering-notes"
     notes.mkdir(parents=True)
