@@ -196,7 +196,8 @@ def _apply(build: Path, patch: Path) -> str | None:
     env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     env.update({"GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull})
     done = subprocess.run(
-        ["git", "-c", "core.autocrlf=false", "apply", "--whitespace=nowarn", str(patch)],
+        # absolute: git runs inside `build`, where a relative patch path does not resolve
+        ["git", "-c", "core.autocrlf=false", "apply", "--whitespace=nowarn", str(patch.resolve())],
         cwd=build,
         capture_output=True,
         env=env,

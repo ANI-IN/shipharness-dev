@@ -112,6 +112,31 @@ def test_experiments_run_both_arms_with_k_repetitions_and_export_scores(
     assert harness["metadata"]["layers"] == ["instructions"]
 
 
+def test_a_relative_runs_dir_still_lets_the_referee_apply_the_patch(
+    course_repo: Path, tmp_path: Path, monkeypatch: Any
+) -> None:
+    # The CLI's default RUNS_DIR is relative (".shipharness/runs") and `shipharness experiments`
+    # sets no workspace base, so the referee's product.patch path was relative. `git apply` runs in
+    # the referee build folder, could not open it, and every run of an experiment was unjudged
+    # (hidden 0, "referee could not judge the build"). Bug fix, applies to both arms.
+    # The referee side is tested in test_referee.py
+    # (test_a_relative_referee_dir_still_applies_the_patch).
+    from shipharness.ab.experiments import ArmExperiment, _example_task
+    from shipharness.config import Settings
+
+    monkeypatch.chdir(tmp_path)
+    deps = make_deps(course_repo, tmp_path, Clients(), workspace_base=None)
+    deps.settings = Settings(
+        _env_file=None, runs_dir=Path(".shipharness/runs"), exports_dir=tmp_path / "exports"
+    )
+    plan = ExperimentPlan(dataset="d", k=1, harness_layers=frozenset({"instructions"}))
+    for arm in ("bare", "harness"):
+        experiment = ArmExperiment(arm, plan, deps, [example()])  # type: ignore[arg-type]
+        referee = experiment._referee(_example_task(example()))
+        assert referee.deps.base_dir.is_absolute(), referee.deps.base_dir
+        assert referee.deps.base_dir.is_relative_to(tmp_path.resolve() / ".shipharness" / "runs")
+
+
 def test_target_outputs_carry_no_host_paths(course_repo: Path, tmp_path: Path) -> None:
     deps = make_deps(course_repo, tmp_path, Clients())
     deps.client_factory = lambda arm: Clients()(arm)

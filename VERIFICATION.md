@@ -760,6 +760,27 @@ shorten the tool calls, but the four sessions' start-up calls alone come close t
 run likely needs the live step to raise RUN_TIMEOUT_S as it raises HARNESS_TIMEOUT_S (open, for a
 decision).
 
+A1 reference A/B, second attempt (2026-10-18 01:17-02:37 IST; worktree `~/wt/a1run`, branch
+a1-reference-run with main merged in, reference instructions tree committed):
+`shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference`, 48 arm
+runs (bare 24 completed; harness 23 completed, 1 agent time limit), `Cost: $0.544461`. Not valid: no
+run was judged. Every score record has hidden 0, mutants 0, regression 0, R6/R7 false, and
+`passed_primary` false, and every verdict reads "referee could not judge the build: error: can't open
+patch '.shipharness/runs/referee/.../product.patch': No such file or directory". The R1 and R3 counts
+(0 of 24 in both arms) are an artifact: the patch never applied, so the probes saw the checkpoint.
+Cause (bug, applies to both arms, measurement only): `shipharness experiments` sets no workspace base,
+so the referee folder came from the relative default RUNS_DIR (`.shipharness/runs`), and the referee
+runs `git apply <patch>` inside the build folder, where that relative path does not resolve. `shipharness
+ab` was not affected. Fix, test-first (both tests failed with the same "can't open patch" error before
+the change): `ArmExperiment._referee` resolves the base folder, and `_apply` passes the absolute patch
+path (`platform/src/shipharness/ab/experiments.py`, `referee.py`; tests
+`test_a_relative_runs_dir_still_lets_the_referee_apply_the_patch` and
+`test_a_relative_referee_dir_still_applies_the_patch`). The invalid evidence is not committed; it is
+kept in `~/a1-attempts/attempt-2/` and in the worktree. Check of earlier numbers: every one of the 156
+score records in `exports/scores/` carries an A/B id (from `shipharness ab`), no experiment export
+exists in this repository, and no evidence page, VERIFICATION entry, or slide cites an experiments
+batch or a LangSmith experiment link, so no published number came through the broken path.
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before

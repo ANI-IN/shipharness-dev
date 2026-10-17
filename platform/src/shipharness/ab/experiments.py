@@ -153,7 +153,9 @@ class ArmExperiment:
         key = f"{task.feature_id}|{task.checkpoint}|{task.variant}"
         with self._lock:
             if key not in self._referees:
-                base = Path(self.deps.workspace_base or Path(self.deps.settings.runs_dir))
+                # absolute: RUNS_DIR is relative by default, and the referee runs git and
+                # its checks in other working directories
+                base = Path(self.deps.workspace_base or self.deps.settings.runs_dir).resolve()
                 self._referees[key] = Referee(
                     task.referee_task(),
                     RefereeDeps(

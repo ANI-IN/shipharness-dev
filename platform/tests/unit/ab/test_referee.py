@@ -169,6 +169,21 @@ def test_referee_applies_only_product_changes(course_repo: Path, tmp_path: Path)
     assert verdict.record.out_of_scope_files == 0
 
 
+def test_a_relative_referee_dir_still_applies_the_patch(
+    course_repo: Path, tmp_path: Path, monkeypatch: Any
+) -> None:
+    # `git apply` runs inside the build folder; a relative product.patch path cannot be opened
+    # from there, so the run was not judged ("can't open patch"). Bug fix, applies to both arms.
+    monkeypatch.chdir(tmp_path)
+    factory = Factory(all_green())
+    referee = Referee(task(), deps(course_repo, tmp_path, factory, base_dir=Path("referee")))
+    verdict, _ = judge(referee, tmp_path, PRODUCT)
+    assert verdict.apply_error is None
+    build = verdict.referee_dir / "build"
+    assert '"filtered"' in (build / "app" / "api" / "issues.py").read_text(encoding="utf-8")
+    assert verdict.record.hidden_total > 0
+
+
 def test_hidden_tests_are_mounted_read_only_and_never_in_the_build(
     course_repo: Path, tmp_path: Path
 ) -> None:
