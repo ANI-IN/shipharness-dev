@@ -515,6 +515,16 @@ push to that private repository, minutes after it was created. Fresh clone: 1 co
 8 checkpoint trees", fast suite in the clone 2000 passed, 4 skipped. Build-repository tag
 `class-v1-source` marks c288c28.
 
+### Release candidate visibility (2026-10-17)
+
+The owner made `ANI-IN/harness-engineering-session-rc` public (GitHub records one PublicEvent, 13:00:17
+UTC, actor ANI-IN). While updating the repository description later, the lead read the API response as
+an accidental exposure and set the repository private for about 5 minutes; the owner's next message
+said the repository is public by the owner's choice, and the lead restored it to public. Traffic while
+public at that check: 0 forks, 0 stars, 0 watchers, 0 clones, 0 views. Repository description now:
+"Module 1: Harness Engineering for Coding Agents (release candidate)". The old public repository
+`ANI-IN/harness-engineering-session` is untouched (last push 2026-08-28).
+
 ### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
 
 Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
