@@ -391,6 +391,67 @@ The test-phase filters saw no new test file in any of the three ("kept 0, discar
 test-phase resume text asks for the getting-up-to-speed steps first and for tests first in the same
 message. This is harness design, not a defect in collection or scoring; not changed (no new experiments).
 
+### Class-profile round (2026-10-17 08:45-09:25 UTC)
+
+One A/B per section, one at a time (class order), `shipharness ab --section demo-N ... --purpose pilot
+--profile class`, board previews on, `make console` running and polled every 15 s, after `make warm`
+(first run 407 s: images rebuilt 145 s, 7 referee and 4 gate baselines; second run 1.2 s). Tasks: the run-3
+tasks (F1 `trap-legacy-pattern`, F2 canonical with `--session-budget 12,38`, F3
+`trap-tempting-middleware`, F4 canonical), so the round adds a third data point to runs 3 and 4. Profile:
+effort low, Fast tier, 2 CPUs per container, early primary verdict, 5 flakiness re-runs, the F2 session
+rule (change 14). Cost $0.1953 (ledger: agents $0.1689 at the Fast tier, every call reported `fast`;
+reviews $0.0263 Standard). Pilot total: 102 of 120 arm runs. Times are from the launch.
+
+| Section | A/B | Arm | Primary | Hidden | Mutants | Shipped tests | Out of scope | Sessions | Agent s | Launch -> primary verdict | Launch -> full verdict | Arm cost $ |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| F1 trap | `ab-20261017-084558-0356a0` | bare | pass (0 new R1) | 52/52 | 3/4 | 9 | 0 | build 17 (done), test 12 | 111 | 133 s | 336 s | 0.0122 |
+| F1 trap | same | harness | pass (0 new R1) | 52/52 | 3/4 | 6 | 0 | build 20 (done), test 12 | 91 | 114 s | 324 s | 0.0151 |
+| F2 12/38 | `ab-20261017-085139-7c0661` | bare | pass (no continuity failure) | 56/56 | 2/4 | 6 | 1 | build 12 + 33 (done), test 12 | 214 | 236 s | 426 s | 0.0329 |
+| F2 12/38 | same | harness | pass (no continuity failure) | 56/56 | 0/4 | 7 | 0 | build 12 + 38, test 12 | 254 | 358 s | 533 s | 0.0357 |
+| F3 trap | `ab-20261017-090051-91f837` | bare | pass (0, 0) | 49/49 | 4/4 | 4 | 0 | build 20 (done), test 11 (done) | 112 | 127 s | 317 s | 0.0120 |
+| F3 trap | same | harness | pass (0, 0) | 49/49 | 4/4 | 5 | 0 | build 22 (done), test 12 | 214 | 317 s | 481 s | 0.0135 |
+| F4 | `ab-20261017-090903-926c02` | bare | fail (hidden 68/69, mutants 4/4) | 68/69 | 4/4 | 16 | 1 | build 30 (claimed done), test 12 | 152 | 243 s | 393 s | 0.0217 |
+| F4 | same | harness | fail (hidden 68/69, mutants 1/4) | 68/69 | 1/4 | 4 | 0 | build 34 (not_done), test 9 (agent time limit) | 311 | 811 s | 927 s | 0.0257 |
+
+Primary verdict within about 4 minutes (owner's target): met for both F1 arms and the F2, F3, and F4 bare
+arms (114-243 s); missed for the F2 harness (358 s), F3 harness (317 s), and F4 harness (811 s) arms. Why
+the harness arms are slower: harness work runs on its own clock after the agent's turns (session-end
+handoffs run the visible suite, about 31-34 s each on this host). In F4 the harness arm wrote tests in the
+test phase for the first time in any run, and the test-phase filters ran each of its 6 tests 5 times
+(about 40 s per test, 387 s to 744 s after launch): harness time 433 s against 311 s of agent time. Every
+A/B finished within 15.5 minutes of launch, inside the class plan's 25-minute concepts-and-walkthrough
+window. `shipharness ab` exits 2 when an arm aborted (demo-4: the harness arm hit the agent time limit).
+
+Console: screens 1, 3, 4, and 5 updated live in all four runs (screen 1: 10-26 changes per run). Screen 2
+(boards) changed during the run only in demo-4 (the two-tab conflict screenshots appeared); F1-F3 show one
+board frame per arm because those features change no board pixels. Every board showed "✓ only own-org
+cards, no duplicates" and "✓ conflict detected": no arm leaked another org's cards in any run, so the ⚠
+marks never appeared in a real run (they are covered by the console tests and by the constructed example
+in the class plan).
+
+Result: no section shows the harness arm ahead (F1-F3 both arms pass, F4 both fail), the same as runs 3
+and 4.
+
+### Class plan per section (owner rules, messages 3-5; decided 2026-10-17)
+
+Rule: a live A/B only where the data shows a real gap; otherwise "harness in action" (`make show-N`, the
+harness arm alone, live) plus a real-mistake showcase ("real run, replayed", `make replay RUN=<id>`) and
+one constructed example ("constructed example"); one live A/B in the final as the measurement lesson.
+"Real gap" is read as the pre-registered classification ("harness ahead": the harness arm passes the
+primary measure in more runs than bare); the class-profile round (k=1) cannot create one on its own.
+
+| Section | Data (primary passed, bare / harness) | Decision | Showcase ("real run, replayed") | Reason |
+|---|---|---|---|---|
+| S1 | run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | harness in action: `make show-1` (the agent reads the map, then only the documents the ticket needs) | `ab-20261016-212252-aa1644` (run 3, F4): the harness arm's change added 3 new R1 violations, which the referee's R1 check reports | no gap |
+| S2 | run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | harness in action: `make show-2` with the 12-turn first session (handoff written, next session resumes from it) | `ab-20261016-213317-9a0ec1` (run 3, F2): the harness arm gave up the build phase with `finish(not_done)` after session 1; the fix (change 14) is the lesson | no gap |
+| S3 | run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | harness in action: `make show-3` (scope guard and sandbox policy at work) | `ab-20261016-214151-ca9841` (run 3, F4): the bare arm changed 2 files outside the allowed paths; the harness arm 0 | no gap |
+| S4 | run 3 0/3, 0/3; class round 0/1, 0/1 | harness in action: `make show-4` (handoffs, test phase, filters) | `ab-20261017-090903-926c02` (class round, F4): the bare arm claimed done with 68 of 69 hidden tests passing; the referee fails it | no gap (both fail) |
+| Final | not part of the pilot | one live A/B: `make final` (measurement lesson: one A/B is one dot; read it against the pilot's dots) | - | owner rule |
+
+Every section also shows the pilot results on one slide and on console screen 4: "no measurable
+difference on this task with this model" for S1-S4, with the exploratory (post hoc) secondary counts
+labelled as such.
+
 ### Exploratory analysis of the 94 pilot arm runs (post hoc; owner request 2026-10-17)
 
 **Exploratory, post hoc.** These measures were chosen after the results were known. They cannot change
