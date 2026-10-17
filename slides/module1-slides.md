@@ -47,7 +47,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 35 | 3) The context prefix: small, fixed, out of reach | Section 1 | section-1-instructions/diagrams/context-prefix.png |
 | 36 | 4) Mechanical checks keep the map true | Section 1 | section-1-instructions/diagrams/checker-flow.png |
 | 37 | Cheat Sheet: The instructions layer in four moves | Section 1 | section-1-instructions/diagrams/cheat-sheet-s1.png |
-| 38 | Section 1 - Implementation Notes: The map at work | Section 1 | screenshot: section-1-instructions/demo/expected/screen-1-final.png |
+| 38 | Section 1 - Implementation Notes: The map at work | Section 1 | none |
 | 39 | What just happened: The run, minute by minute | Section 1 | section-1-instructions/diagrams/timeline-s1.png |
 | 40 | Under the hood: How the prefix is built | Section 1 | code: platform/src/shipharness/harness/instructions/router.py (lines 37-47) |
 | 41 | What we measured: No measurable difference on org-wide search (F1) | Section 1 | section-1-instructions/diagrams/results-s1.png |
@@ -65,7 +65,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 53 | 3) The exec plan and the progress ledger | Section 2 | section-2-state-lifecycle/diagrams/exec-plan-ledger.png |
 | 54 | 4) Getting up to speed: `init.sh` before code | Section 2 | section-2-state-lifecycle/diagrams/alembic-heads.png |
 | 55 | Cheat Sheet: Four state pieces across a stop | Section 2 | section-2-state-lifecycle/diagrams/cheat-sheet-s2.png |
-| 56 | Section 2 - Implementation Notes: Stop and resume | Section 2 | screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png |
+| 56 | Section 2 - Implementation Notes: Stop and resume | Section 2 | none |
 | 57 | What just happened: One run, two sessions | Section 2 | section-2-state-lifecycle/diagrams/timeline-s2.png |
 | 58 | Under the hood: What runs at every stop | Section 2 | code: platform/src/shipharness/harness/state/lifecycle.py (lines 100-111) |
 | 59 | What we measured: No measurable difference on comments (F2) | Section 2 | section-2-state-lifecycle/diagrams/results-s2.png |
@@ -81,7 +81,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 69 | 3) The sandbox boundary: where the keys live | Section 3 | section-3-scope-sandbox/diagrams/sandbox-boundary.png |
 | 70 | 4) Least privilege: two refusals, two questions | Section 3 | section-3-scope-sandbox/diagrams/least-privilege.png |
 | 71 | Cheat Sheet: Four boundaries for one feature | Section 3 | section-3-scope-sandbox/diagrams/cheat-sheet-s3.png |
-| 72 | Section 3 - Implementation Notes: Scope at work | Section 3 | screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png |
+| 72 | Section 3 - Implementation Notes: Scope at work | Section 3 | none |
 | 73 | What just happened: Same pull, two arms | Section 3 | section-3-scope-sandbox/diagrams/timeline-s3.png |
 | 74 | Under the hood: One method decides every path | Section 3 | code: platform/src/shipharness/harness/scope/guard.py (lines 68-78) |
 | 75 | What we measured: Scope held on version checks (F4) | Section 3 | section-3-scope-sandbox/diagrams/results-s3.png |
@@ -91,7 +91,7 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 79 | Section 4: What proves the work is done | Section 4 | none |
 | 80 | Live Zoom Poll: F4 with all four layers | Section 4 | none |
 | 81 | Live Zoom Poll: Pick the final A/B feature | Final | none |
-| 82 | Launch: make show-4, the harness arm alone | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png |
+| 82 | Launch: make show-4, the harness arm alone | Section 4 | none |
 | 83 | Launch: make final, the poll winner first | Final | docs/diagrams/ab-referee.png |
 | 84 | The problem: Done, but two edits still collide | Section 4 | section-4-verification/diagrams/failure-story-s4.png |
 | 85 | Verification: Suite green. Are version checks (F4) done? (build 1/2) | Section 4 | section-4-verification/diagrams/socratic-s4-step-1.png |
@@ -101,15 +101,15 @@ class can be taught from the notes alone. Numbers come only from `docs/evidence.
 | 89 | 3) Mutation testing and hidden tests | Section 4 | section-4-verification/diagrams/mutation-testing.png |
 | 90 | 4) The gate on "done" and the separate referee | Section 4 | section-4-verification/diagrams/verification-pipeline-step-3.png |
 | 91 | Cheat Sheet: four checks the agent does not own | Section 4 | section-4-verification/diagrams/cheat-sheet-s4.png |
-| 92 | Section 4 - Implementation Notes: The gate at work | Section 4 | screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png |
+| 92 | Section 4 - Implementation Notes: The gate at work | Section 4 | none |
 | 93 | What just happened: eleven minutes of show-4 | Section 4 | section-4-verification/diagrams/timeline-s4.png |
 | 94 | Under the hood: the gate's verdict in six lines | Section 4 | code: platform/src/shipharness/harness/verify/gate.py (lines 176-181) |
 | 95 | What we measured: no measurable difference on version checks (F4) | Section 4 | section-4-verification/diagrams/results-s4.png |
 | 96 | Apply it Monday: check your agent's done | Section 4 | none |
 | 97 | Q&A: Section 4, Verification | Section 4 | none |
 | 98 | Final A/B: reading the arm lines | Final | code: final-project/README.md (terminal C output of the bulk close (F5) run) |
-| 99 | Final A/B: what to read on screens 1, 3, 5 | Final | screenshot: final-project/expected/screen-1-final.png |
-| 100 | Final A/B: the two boards | Final | screenshot: final-project/expected/screen-2-final.png |
+| 99 | Final A/B: what to read on screens 1, 3, 5 | Final | none |
+| 100 | Final A/B: the two boards | Final | none |
 | 101 | All results: four sections, one picture | Final | docs/diagrams/results-final.png |
 | 102 | Which layer when: match the layer to the failure | Final | docs/diagrams/which-layer-when.png |
 | 103 | Use it in your repo: the kit and four skills | Close | none |
@@ -935,22 +935,24 @@ It informs. It never blocks.
 - Time: 1.5 minutes. Next: the live run.
 
 ## Slide 38: Section 1 - Implementation Notes: The map at work
-**Block:** Section 1  **Time:** 8 min (0:37:30-0:45:30)  **Diagram:** screenshot: section-1-instructions/demo/expected/screen-1-final.png
+**Block:** Section 1  **Time:** 8 min (0:37:30-0:45:30)  **Diagram:** none
 **On the slide:**
 DEMO - 1
 Section 1 - Implementation Notes: The map at work
-**Visual:** The "DEMO - 1" badge top-left and the screenshot `screen-1-final.png` (screen 1 after the full verdict), with three callouts: arrow to the harness decisions list, "map and skill read"; arrow to the pill, "primary verdict PASS at 04:11"; arrow to the results row, "hidden 52/52, mutants 2/4".
+**Visual:** Template DEMO layout: "DEMO - 1" badge and the title only; no screenshot; switch to the console.
 **Speaker notes:**
-- Switch to browser tab 2, the live run of `make show-1` (terminal B) launched at section minute 3, class 0:13. It should be finished: full verdict about 10 min after launch, up to 2 min later with the 420 s limit. If it is finished, walk it; if not, walk the live screens and come back for the verdict.
-- Screen 1 (`1`): the badge "HARNESS IN ACTION"; the notes "placed 31 instruction files (AGENTS.md map, docs, skills)", "agent read ARCHITECTURE.md", "agent read skill add-endpoint (tier 2)"; patches to the issues service, route, and tests; "No gate."; the test phase; "primary verdict ready: PASS".
-- Read the verdict aloud. Pass: "No new tenant leak. One run shows the layer ran, not that it helped." Fail: "A leak shipped with the map in place. That is a result."
-- Screen 3 (`3`): files read, grouped as skill, harness doc, handbook, code, test; the five changed files; the referee line `r1_tenant: 0 new`. The old `/v1/issues` leak is part of the starting code and does not count.
-- Point out on screen 3: in the captured run the agent opened the skill, `ARCHITECTURE.md`, and the handbook, but not `docs/SECURITY.md`. Only `read_file` calls appear; a `cat` in a shell does not.
-- Screen 2 (`2`): the board as `admin@acme.test`: "only own-org cards, no duplicates". Org-wide search (F1) changes no board pixels, so there is one frame.
-- Screen 5 (`5`): the referee event tail and the LangSmith links; open one to show every model call.
+- Switch to browser tab 2, the live run of `make show-1` (terminal B), launched at class 0:13. The full verdict comes about 10 min after launch, up to 2 min later with the 420 s limit. If it is finished, walk the screens in the order 1, 3, 2, 5, 4; if not, walk screen 1 live and come back for the verdict.
+- Screen 1 (`1`), Live. Point at the badge "HARNESS IN ACTION", then the harness decisions list: "placed 31 instruction files (AGENTS.md map, docs, skills)", "agent read ARCHITECTURE.md", "agent read skill add-endpoint (tier 2)". Say: "Map and skill read before any code."
+- Screen 1, lower down: patches to the issues service, route, and tests; "No gate."; the test phase; then the pill "primary verdict ready: PASS" (04:11 in the captured run) and the results row (hidden 52/52, mutants 2/4 in the captured run). Read today's verdict aloud. Pass: "No new tenant leak. One run shows the layer ran, not that it helped." Fail: "A leak shipped with the map in place. That is a result."
+- Screen 3 (`3`), Evidence. Point at files read, grouped as skill, harness doc, handbook, code, test; then the five changed files; then the referee line `r1_tenant: 0 new`. Say: "The old `/v1/issues` leak is part of the starting code and does not count."
+- Screen 3, what to say: in the captured run the agent opened the skill, `ARCHITECTURE.md`, and the handbook, but not `docs/SECURITY.md`. Only `read_file` calls appear; a `cat` in a shell does not.
+- Screen 2 (`2`), Boards. Point at the board as `admin@acme.test` and its badge "only own-org cards, no duplicates". Say: "Org-wide search (F1) changes no board pixels, so there is one frame."
+- Screen 5 (`5`), Traces. Point at the referee event tail and the LangSmith links; open one to show every model call.
+- Screen 4 (`4`), A/B Report. Point at the dots from the test runs before class; this run's verdict sits at the top, not as a dot. Say: "One run in class is not a dot in the comparison."
 - What to say while the referee finishes: "The primary verdict comes first because R1 tenant isolation probes are quick; hidden tests, mutants, and the review take the remaining minutes."
-- If the live run failed for a reason outside the experiment: say so, run `make replay` with `RUN=` set to the fallback id recorded the day before (red RECORDING badge on every screen). If Docker itself is down, walk the captured run: the screenshots in `section-1-instructions/demo/expected/` in minute order, and `terminal.txt`.
+- If the live screen differs from the captured run (other files read, other turn count, other times): say so and read what is there; compare the order of events, not the minutes.
 - If the arm ended `ABORTED: timeout` or `ABORTED: cap`: it is still judged. Say which limit it hit and read the verdict.
+- If the run failed for a reason outside the experiment (Docker, network, OpenAI account): say so, then `make replay RUN=<id>` with the fallback id recorded the day before (red RECORDING badge on every screen). If Docker itself is down, walk the captured run in `section-1-instructions/demo/expected/`: the screen-1 frames in minute order, then screens 3, 2, 5, 4, and `terminal.txt`.
 - Time: 8 minutes. Next: the run as a timeline.
 
 ## Slide 39: What just happened: The run, minute by minute
@@ -963,7 +965,7 @@ What just happened: The run, minute by minute
 - 3:53: run ends after 35 turns
 - 4:11: primary verdict PASS, 0 new R1 tenant isolation
 - 10:00: full verdict, hidden 52/52, mutants 2/4
-**Visual:** The `timeline-s1` diagram, a horizontal timeline from launch to 10:14, six ticks with the labels above, and three thumbnails under the line: `screen-1-minute-1.png`, `screen-1-minute-3.png`, `screen-1-minute-4.png`. Footnote: "Captured run before class, 2026-10-17; agent limit then 300 s".
+**Visual:** The `timeline-s1` diagram, a horizontal timeline from launch to 10:14, six ticks with the labels above. Footnote: "Captured run before class, 2026-10-17; agent limit then 300 s".
 **Speaker notes:**
 - These times are from the captured run before class (evidence, Section 1 captures), not the run in class. Read today's times from screen 1 next to them; yours will differ.
 - Minute 1: the layer did its three jobs in order: placed the files, handed over the prefix, and logged the first two reads (`ARCHITECTURE.md`, then the skill body, tier 2).
@@ -1339,24 +1341,24 @@ Refer back to this slide when you add state files to your repo
 - Time and transition: 2 minutes. "The run should be done. Let's look at it."
 
 ## Slide 56: Section 2 - Implementation Notes: Stop and resume
-**Block:** Section 2  **Time:** 6 min (1:37-1:43)  **Diagram:** screenshot: section-2-state-lifecycle/demo/expected/show-2-screen-1-t02m.png
+**Block:** Section 2  **Time:** 6 min (1:37-1:43)  **Diagram:** none
 **On the slide:**
 DEMO - 2
 Section 2 - Implementation Notes: Stop and resume
-**Visual:** "DEMO - 2" badge top-left; screenshot of console screen 1 at minute 2. Callouts: (1) arrow to the pill "Session 1 stopped" with label "turn budget spent"; (2) arrow to "Session 2 resumed" with label "empty context"; (3) arrow to turn 2.1 `pwd; git log --oneline -20; cat progress.md` with label "reads state first".
+**Visual:** Template DEMO layout: "DEMO - 2" badge and the title only; no screenshot; switch to the console.
 **Speaker notes:**
-- Switch to browser tab 2, the class run of `make show-2 SESSION_BUDGET=12,38` (terminal B, launched at the poll). If it is still going, stay on screen 1 (`1`); "primary verdict ready" appears as soon as the continuity check is done.
-- Screen 1 (`1`): scroll to "Session 1 stopped" and "session 1 handoff written", then "Session 2 resumed · prefix: core, instructions, state". Then turn 2.1: the getting-up-to-speed call.
-- Screen 1, later: session 2 writes the model, service, route, seed, and one migration `0002_comments.py`. Then "primary verdict ready".
-- Screen 3 (`3`): Sessions table (in the capture "Session 1 · 12 turns · claim_not_done", "Session 2 · 31 turns"); referee list `continuity: 0 new` and `r7_migrations: 0 new`. Also `diff_scope: 1 new`: an edit to `app/api/issues.py`, outside F2's allowed paths. Nothing stopped it: the scope layer starts in Section 3.
-- Screen 2 (`2`): the board as an Acme user, own-org cards only. The comments panel is on the issue page; hidden tests judge it.
-- Screen 5 (`5`): the first wrong turn, named by the scope check (turn 2.16 in the capture), and the LangSmith trace links; open session 2's first calls.
-- Screen 4 (`4`): the dots from before class. Say: "Today's run is not a dot in the comparison."
-- Say at a PASS: "Session 2 picked up the work. No continuity failure." At a FAIL: "The handoff did not carry the work. Screen 3 shows how."
-- If no "Session 1 stopped" marker: the agent called `finish(claim="done")` in session 1 or hit a cap; say this arm never faced the stop and walk the captured screens.
-- If the run is not finished: read screen 1 live, then come back to screens 3 and 4 after the under-the-hood look.
-- Fallback if the run broke for a reason outside the experiment (Docker, network, account): `make replay` with `RUN=` set to the fallback id recorded the day before, or walk `section-2-state-lifecycle/demo/expected/` (screen files `show-2-screen-1-t01m.png` to `show-2-screen-5-final.png`), saying "recorded before class".
+- Switch to browser tab 2, the class run of `make show-2 SESSION_BUDGET=12,38` (terminal B, launched at about 1:14; it should finish by about 1:26). If it is still going, stay on screen 1; "primary verdict ready" appears as soon as the continuity check is done. Order: screens 1, 3, 2, 5, 4.
+- Screen 1 (`1`), Live. Scroll to the pill "Session 1 stopped" and say: "Turn budget spent: 12 turns." Point at "session 1 handoff written", then "Session 2 resumed · prefix: core, instructions, state". Say: "Session 2 starts with an empty context; only the files carry over."
+- Screen 1, turn 2.1: point at `pwd; git log --oneline -20; cat progress.md`. Say: "It reads state first, before any code." Then session 2 writes the model, service, route, seed, and one migration `0002_comments.py`; then "primary verdict ready". At a PASS: "Session 2 picked up the work. No continuity failure." At a FAIL: "The handoff did not carry the work. Screen 3 shows how."
+- Screen 3 (`3`), Evidence. Point at the Sessions table (in the capture "Session 1 · 12 turns · claim_not_done", "Session 2 · 31 turns"), then the referee list `continuity: 0 new` and `r7_migrations: 0 new`.
+- Screen 3, also point at `diff_scope: 1 new`: an edit to `app/api/issues.py`, outside F2's allowed paths. Say: "Nothing stopped it: the scope layer starts in Section 3."
+- Screen 2 (`2`), Boards. Point at the board as an Acme user, own-org cards only. Say: "The comments panel is on the issue page; hidden tests judge it."
+- Screen 5 (`5`), Traces. Point at the first wrong turn, named by the scope check (turn 2.16 in the capture), and the LangSmith links; open session 2's first calls to show what it read.
+- Screen 4 (`4`), A/B Report. Point at the dots from before class. Say: "Today's run is not a dot in the comparison."
 - What to say while it finishes: "The continuity check comes first because it needs only git and Alembic; hidden tests, mutants, and the review take the remaining minutes."
+- If the live screen differs: no "Session 1 stopped" marker means the agent called `finish(claim="done")` in session 1 or hit a cap; say this arm never faced the stop. Other turn numbers or times: read what is there.
+- If the run is not finished: read screen 1 live, then come back to screens 3 and 4 after the under-the-hood look.
+- If the run broke for a reason outside the experiment (Docker, network, account): `make replay RUN=<id>` with the fallback id recorded the day before, or walk `section-2-state-lifecycle/demo/expected/` (`show-2-screen-1-t01m.png` to `show-2-screen-5-final.png`, plus `session-1-notes.txt` and `session-2-first-call.txt`), saying "recorded before class".
 - Time and transition: 6 minutes. "Here is the same run on one line."
 
 ## Slide 57: What just happened: One run, two sessions
@@ -1711,23 +1713,23 @@ Refer back to this slide when you scope your next agent task
 - Time and transition: 2 minutes. "Both arms should be done or close. Let's look."
 
 ## Slide 72: Section 3 - Implementation Notes: Scope at work
-**Block:** Section 3  **Time:** 6 min (2:27-2:33)  **Diagram:** screenshot: section-3-scope-sandbox/demo/expected/screen-3-final.png
+**Block:** Section 3  **Time:** 6 min (2:27-2:33)  **Diagram:** none
 **On the slide:**
 DEMO - 3
 Section 3 - Implementation Notes: Scope at work
-**Visual:** "DEMO - 3" badge; console screen 3, bare panel left, harness panel right. Callouts: (1) bare diff map, arrow to `app/services/errors.py` "changed"; (2) harness diff map, arrow to the same file "blocked"; (3) referee rows, arrow to `diff_scope: 1 new` vs `0 new`.
+**Visual:** Template DEMO layout: "DEMO - 3" badge and the title only; no screenshot; switch to the console.
 **Speaker notes:**
-- Switch to browser tab 2, the class A/B from `make demo-3 FEATURE=F4` (terminal B, launched at the poll). Screen 3 (`3`) first, the middle column "Scope and sandbox": look for `changed app/services/errors.py` under bare and `blocked app/services/errors.py` under harness.
-- Screen 3, right column: `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness). Then "Sandbox denials: none" in both: the container refused nothing.
-- Screen 1 (`1`): the harness decision row `block` with the reason the agent read. Both pills likely say FAIL: that is F4's own bar (every hidden test and every referee mutant), which every arm failed before class. Say so; the scope result is on screen 3.
-- Screen 5 (`5`): "First wrong turn": in the capture, bare turn 1.14 edited `app/services/errors.py`; harness turn 1.12 was the blocked patch.
-- Screen 2 (`2`): both boards own-org only; the referee's two-tab capture where tab B's stale save gets a 409 page.
-- Screen 4 (`4`): version checks (F4) dots are hollow on F4's own measure. Say: "The scope count is on screen 3, not here."
-- Say at a pass: "No file outside the ticket's paths." At a fail: "This arm changed a file it was not asked to touch." If today's bare arm stays in scope, say so: it is one more dot.
-- If screen 3 lists a sandbox denial, show its reason code and command. If not, show the policy printout and say: "The sandbox is the same for both arms. It is taught here, but it is never the variable."
-- If the harness arm is still running: it often ends late on the harness's own time limit; show the bare arm's screen 3 now and return.
-- Fallback if the A/B broke for a reason outside the experiment: `make replay` with `RUN=` set to the fallback id recorded the day before, or walk `section-3-scope-sandbox/demo/expected/` (`screen-3-final.png`, then `screen-3-run-1.png` and `screen-3-run-2.png` for the other two runs), saying "recorded before class".
+- Switch to browser tab 2, the class A/B from `make demo-3 FEATURE=F4` (terminal B, launched at about 2:04). Bare arm left, harness arm right; `F` shows one arm full width. Order: screens 1, 3, 2, 5, 4.
+- Screen 1 (`1`), Live. Point at the harness decision row `block` for `app/services/errors.py`, with the reason the agent read. Both pills likely say FAIL: that is F4's own bar (every hidden test and every referee mutant), which every arm failed before class. Say: "The scope result is on screen 3, not in this pill."
+- Screen 3 (`3`), Evidence, middle column "Scope and sandbox". Point at the bare diff map, `changed app/services/errors.py`, then the harness diff map, `blocked app/services/errors.py`. Say: "Same file, same pull; only one arm was refused."
+- Screen 3, right column. Point at `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness). At a pass: "No file outside the ticket's paths." At a fail: "This arm changed a file it was not asked to touch." Then "Sandbox denials: none" in both: the container refused nothing.
+- Screen 3, sandbox: if it lists a denial, show its reason code and command. If not, show the policy printout and say: "The sandbox is the same for both arms. It is taught here, but it is never the variable."
+- Screen 2 (`2`), Boards. Point at both boards, own-org only, then the referee's two-tab capture where tab B's stale save gets a 409 page.
+- Screen 5 (`5`), Traces. Point at "First wrong turn": in the capture, bare turn 1.14 edited `app/services/errors.py`; harness turn 1.12 was the blocked patch.
+- Screen 4 (`4`), A/B Report. Point at the version checks (F4) rows: hollow dots for both arms on F4's own measure. Say: "The scope count is on screen 3, not here."
 - What to say while the harness arm finishes: "It spends extra minutes on handoffs and the visible-test run that sets `passes`; the scope answer is already on screen 3."
+- If the live screen differs: if today's bare arm stays in scope, say so: it is one more dot. If the harness arm is still running (it often ends late on the harness's own time limit), show the bare arm's screen 3 now and return.
+- If the A/B broke for a reason outside the experiment: `make replay RUN=<id>` with the fallback id recorded the day before, or walk `section-3-scope-sandbox/demo/expected/` (screens 1, 3, 2, 5, 4, then `screen-3-run-1.png` and `screen-3-run-2.png` for the other two runs), saying "recorded before class".
 - Time and transition: 6 minutes. "The same A/B on one timeline."
 
 ## Slide 73: What just happened: Same pull, two arms
@@ -1935,7 +1937,7 @@ Which feature runs as the final live A/B:
 - Time: 1 minute. Note the winner and the runner-up. Transition: "Two launches now: show-4 first, then the final."
 
 ## Slide 82: Launch: make show-4, the harness arm alone
-**Block:** Section 4  **Time:** 1 min (2:59-3:00)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-t03m.png
+**Block:** Section 4  **Time:** 1 min (2:59-3:00)  **Diagram:** none
 **On the slide:**
 Terminal B: `make show-4`
 Harness in action: one arm, not an A/B
@@ -1944,16 +1946,17 @@ Watch on screen 1:
 - `finish done`, then the gate pills
 - The test phase and its filters
 - The referee: hidden tests and mutants
-**Visual:** The minute-3 screenshot, small, on the right. Callouts: arrow to the row of pending pills, label "the gate runs before the phase can end"; arrow to "Agent said done", label "the claim".
+**Visual:** Text only: the command in a monospace chip, then the four watch items. No screenshot; after the launch, switch to the console.
 **Speaker notes:**
 - Exact command, terminal B, repository root: `make show-4`. It runs `shipharness ab --section demo-4 --feature F4 --arms harness --profile class`. Outside class add `PURPOSE=pilot`.
 - Then: reload the console run list at http://127.0.0.1:8765, open the newest run, press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 - Which screen when (captured run before class, 300 s agent limit; the class limit is now 420 s, so allow up to 2 minutes more): minute 1 screen 1, the scope layer blocks `app/services/errors.py`; minute 2-3, `finish done` and the gate pills; minute 3-4, every pill passes and the test phase starts; minutes 5-8, screen 3, the filters; minute 9, primary verdict; minute 11, full verdict.
 - Timed before class: primary verdict 9:19, full verdict 10:55, cost $0.0265, cap $0.24.
+- Around minute 3, glance at screen 1 live: point at "Agent said done" ("the claim") and the row of pending gate pills ("the gate runs before the phase can end").
 - What to say while waiting: "This is not an A/B. The comparison on version checks (F4) was run before class; we read it later. In class we watch what the gate and the filters do."
 - If it fails: `x OpenAI refused the key` means fix `OPENAI_API_KEY` and rerun `make doctor`; `x SHIPHARNESS_CLASS_DATE is not set` means set it in `.env` or add `PURPOSE=pilot`; `docker run failed` means `sudo systemctl start docker`, then `make warm`; port in use means `make console CONSOLE_PORT=8766`.
 - `ABORTED: timeout` is a result, not a failure: the arm is still judged. Exit 2 means an arm hit a time or cost limit.
-- Fallback: if a failure comes from outside the experiment (Docker, network, OpenAI account), say so and walk the captured run in `section-4-verification/demo/expected/` (screenshots plus `terminal.txt`); `make replay` with `RUN=` set to the fallback id recorded the day before only after an `ERROR`.
+- Fallback: if a failure comes from outside the experiment (Docker, network, OpenAI account), say so and walk the captured run in `section-4-verification/demo/expected/` (screenshots plus `terminal.txt`); `make replay RUN=<id>` with the fallback id recorded the day before only after an `ERROR`.
 - Analogy: starting a long CI job and then teaching while it runs; we come back to the result.
 - Load: the final runs at the same time. Two Section 3 A/Bs run at once took 15-17 min against 11 min 41 s alone. Launched at 2:59, show-4's full verdict comes about 3:10 alone and up to 3:12 with the 420 s limit; with the final running next to it, expect it nearer 3:15. The demo slide is at 3:20.
 - Time: 1 minute, class 2:59-3:00. Transition: "One more launch, in terminal C: the final."
@@ -2170,21 +2173,23 @@ The referee scores later, in its own container.
 - Time: 1 minute. Transition: "Let's see the finished run."
 
 ## Slide 92: Section 4 - Implementation Notes: The gate at work
-**Block:** Section 4  **Time:** 6 min (3:20-3:26)  **Diagram:** screenshot: section-4-verification/demo/expected/show-4-screen-1-final.png
+**Block:** Section 4  **Time:** 6 min (3:20-3:26)  **Diagram:** none
 **On the slide:**
 DEMO - 4
 Section 4 - Implementation Notes: The gate at work
-**Visual:** The template's DEMO layout: "DEMO - 4" badge, title, and the screen-1 screenshot after the full verdict. Callouts: (1) arrow to the row of green gate pills, "gate: every item passed"; (2) arrow to "Agent said done", "the claim"; (3) arrow to "primary verdict ready: FAIL, hidden tests passed 68, mutants killed 0", "the referee disagrees".
+**Visual:** Template DEMO layout: "DEMO - 4" badge and the title only; no screenshot; switch to the console.
 **Speaker notes:**
-- Switch to browser tab 2, the run of `make show-4` launched in terminal B at 2:59. Press `1` for the live screen. If the run is still going, screen 1 shows "primary verdict ready" as soon as the first check is done; work from what is there.
-- Screen 1, in order: harness notes from all four layers; turn 1.15 blocked by the scope layer; `finish done`; the 11 gate pills of the build phase (visible tests, existing tests, R1 to R7, board, clean state: `names` in `run_gate`, `gate.py`); then the referee lines.
-- Say at the verdict: "The agent said done. The hidden tests and mutants say no." If today's run passes: "Every hidden test and every mutant. The work is done."
-- Then press `3`, Evidence: the Verification panel has the filter table, one row per proposed test, a mark per filter, the reason per discard. Read the filter 2 reason aloud: "assert 422 == 412".
-- Then press `2`, Boards: the two-tab conflict panel. Tab A saves, tab B saves from a stale form, tab B gets HTTP 409 and a "changed by someone else" page. The board stops the lost update; one hidden test still fails.
-- Then press `4`, A/B Report: one dot per run before class. Say: "Today's run is not a dot in the comparison."
+- Switch to browser tab 2, the run of `make show-4` launched in terminal B at 2:59 (tab 3 holds the final). Press `1`. If the run is still going, screen 1 shows "primary verdict ready" as soon as the first check is done; work from what is there. Order: screens 1, 3, 2, 5, 4.
+- Screen 1 (`1`), Live, top to bottom. Point at the harness notes from all four layers, then turn 1.15, blocked by the scope layer. Say: "Section 3's layer, still on duty."
+- Screen 1, the claim: point at "Agent said done" and say: "That is the claim." Then the 11 gate pills of the build phase (visible tests, existing tests, R1 to R7, board, clean state: `names` in `run_gate`, `gate.py`), all green. Say: "The gate passed every item it can see."
+- Screen 1, the referee line: "primary verdict ready: FAIL, hidden tests passed 68, mutants killed 0" in the captured run. Say: "The agent said done. The hidden tests and mutants say no." If today's run passes: "Every hidden test and every mutant. The work is done."
+- Screen 3 (`3`), Evidence. Point at the Verification panel's filter table: one row per proposed test, a mark per filter, the reason per discard. Read the filter 2 reason aloud: "assert 422 == 412".
+- Screen 2 (`2`), Boards. Point at the two-tab conflict panel: tab A saves, tab B saves from a stale form, tab B gets HTTP 409 and a "changed by someone else" page. Say: "The board stops the lost update; one hidden test still fails."
+- Screen 5 (`5`), Traces. Point at the first wrong turn (the blocked write at turn 1.15 in the capture) and the LangSmith links for agent and referee.
+- Screen 4 (`4`), A/B Report. Point at the F4 rows, empty dots for both arms. Say: "Today's run is not a dot in the comparison."
 - What to say while switching: "The gate checks what the agent can see. The hidden tests and the referee's mutants stay out of its reach."
-- If no gate pills appear: the agent never claimed done; show the filter table and the referee counts instead. If every pill fails with `check runner failed`: the harness time limit ran out during the gate; keep the run and say so.
-- Fallback: if the live run broke for a reason outside the experiment, open the screenshots in `section-4-verification/demo/expected/` (screen-1 final, screen-3 final, screen-2 final, screen-4 final) and the arm line in `terminal.txt`.
+- If the live screen differs: no gate pills means the agent never claimed done; show the filter table and the referee counts instead. Every pill failing with `check runner failed` means the harness time limit ran out during the gate; keep the run and say so.
+- If the live run broke for a reason outside the experiment: `make replay RUN=<id>` with the fallback id recorded the day before, or walk `section-4-verification/demo/expected/` (the screen-1 frames in minute order, then screens 3, 2, 5, 4, and the arm line in `terminal.txt`), saying "recorded before class".
 - Time: 6 minutes. Transition: "Let's put the eleven minutes on a timeline."
 
 ## Slide 93: What just happened: eleven minutes of show-4
@@ -2197,7 +2202,7 @@ Section 4 - Implementation Notes: The gate at work
 - 8:34 run ends, `ABORTED: timeout`, 43 turns
 - 9:19 primary verdict: FAIL
 - 10:55 full verdict: hidden 68/69, mutants 0/4
-**Visual:** The `timeline-s4` diagram with the seven marks; four screenshot thumbnails above it (`show-4-screen-1-t01m.png`, `-t03m`, `-t04m`, `-t09m`) at 0:55, 2:18, 3:24 and 9:19. The 3:24 mark green, the 9:19 mark red, so the green gate and the red verdict stand out. Caption: "captured before class, 300 s agent limit".
+**Visual:** The `timeline-s4` diagram with the seven marks. The 3:24 mark green, the 9:19 mark red, so the green gate and the red verdict stand out. Caption: "captured before class, 300 s agent limit".
 **Speaker notes:**
 - These times are the captured run before class (300 s agent limit then; 420 s in class). Compare with today's run aloud: earlier or later, same order of events.
 - 0:55: the agent tried to patch `app/services/errors.py`, outside the build list. The scope layer from Section 3 refused it. The bare arms changed that same file in every confirmation run on version checks (F4).
@@ -2353,15 +2358,16 @@ A/B (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
 - Time: 2.5 minutes. Transition: "Now the same run on the console."
 
 ## Slide 99: Final A/B: what to read on screens 1, 3, 5
-**Block:** Final  **Time:** 2.5 min (3:42:30-3:45)  **Diagram:** screenshot: final-project/expected/screen-1-final.png
+**Block:** Final  **Time:** 2.5 min (3:42:30-3:45)  **Diagram:** none
 **On the slide:**
 - Screen 1: both arms, claims, verdict counts
 - Screen 3: diff maps, referee checks, filters
 - Screen 5: first wrong turn, trace links
-**Visual:** Screen 1 of the course's F5 run after the full verdict. Callouts: (1) bare "Agent said done" and "claim supported"; (2) harness "Agent said no claim"; (3) both referee lines "hidden tests 46/46, mutants killed 2/3".
+**Visual:** Text only: the three lines. No screenshot; switch to the console, browser tab 3 (the final's run).
 **Speaker notes:**
 - Browser tab 3, the final's run. Press `1`: both arms side by side. Read for each arm: run status and turns, harness decisions (map placed, handoff written), the gate, "Agent said", and the referee line.
 - In the captured bulk close (F5) run: bare completed, primary verdict at 3:27, full at 6:50; harness hit its time limit in the test phase, primary at 9:48, full at 12:32. Its test phase started by reading the handoff from the build session.
+- On screen 1, point at three things: the bare arm's "Agent said done" and "claim supported"; the harness arm's "Agent said no claim"; both referee lines (hidden tests 46/46, mutants killed 2/3 in that run).
 - Press `3`, Evidence: files read, diff maps (any `⊘ blocked` or out-of-scope file?), referee checks per rule, the filter table, the mutant table. In the F5 run both arms changed only allowed files and one mutant survived in each.
 - Press `5`, Traces: the first wrong turn per arm, the live tail of referee events, and LangSmith links. Open one link to show every model call.
 - For watchers (F6) or labels (F7) in class: look on screen 1 for "session stop" and the handoff, and on screen 3 for whether session 2 redid session 1's work.
@@ -2371,19 +2377,21 @@ A/B (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
 - Likely learner question: "Why did the harness arm run out of time?" Answer: its extra phases (handoff, test phase, gate) cost turns and wall time; post hoc, harness arm wall time had a median of 302 s against 190 s for bare.
 - Misconception: "The slower arm is the worse arm." Correction: time is a cost to weigh, not a quality measure; read the counts.
 - Point at callout 2, "Agent said no claim": the harness arm never claimed done, so its gate never ran.
+- If the final has not finished or broke: read whatever screen 1 shows, or walk `final-project/expected/` (screens 1, 3, 5). Those screenshots are from a later F5 capture: mutants killed 3 of 3 (bare) and 1 of 3 (harness), full verdicts at 11:39 and 11:41; read those counts from the screen, not the ones above.
 - Time: 2.5 minutes. Transition: "Screen 2, the boards."
 
 ## Slide 100: Final A/B: the two boards
-**Block:** Final  **Time:** 1.5 min (3:45-3:46:30)  **Diagram:** screenshot: final-project/expected/screen-2-final.png
+**Block:** Final  **Time:** 1.5 min (3:45-3:46:30)  **Diagram:** none
 **On the slide:**
 Screen 2: each arm's running board, as an Acme user.
 Look for:
 - ⚠ other-org cards
 - ⧉ duplicate cards
 - Anything the feature changed
-**Visual:** Screen 2 of the course's F5 run: both boards side by side. Callouts: arrow to each "✓ only own-org cards, no duplicates" badge, label "trusted check, not the agent's".
+**Visual:** Text only: the sentence and the look-for list. No screenshot; press `2` in the console.
 **Speaker notes:**
 - Press `2`. Each arm's TeamTrack runs with its own changes; the console logs in as an Acme user and screenshots the board.
+- Point at each arm's "✓ only own-org cards, no duplicates" badge and say: "A trusted check, not the agent's."
 - The marks come from trusted data attributes, not from anything the agent wrote, so an arm cannot fake a clean badge.
 - In the F5 run both boards stayed clean and unchanged: bulk close adds an API endpoint and changes no board pixels. Say so if F5 ran.
 - If watchers (F6) or labels (F7) ran: look for what the feature adds to the issue pages, and for a Globex card on an Acme board (a tenant leak, Section 1's failure).
@@ -2393,6 +2401,7 @@ Look for:
 - Likely learner question: "What would a leak look like?" Answer: a card with the ⚠ other-org mark. No run before class leaked another org's cards, so there is no leak screenshot to show.
 - Misconception: "A clean board means the feature works." Correction: it means no leak and no duplicates on that page; the hidden tests decide whether the feature works.
 - Point at the two boards side by side: same seed data, same Acme user, so any difference comes from the arm's change.
+- If the final has not finished or broke: walk `final-project/expected/screen-2-final.png`, saying "recorded before class".
 - Time: 1.5 minutes. Transition: "Now today's run next to everything we ran before class."
 
 ## Slide 101: All results: four sections, one picture
