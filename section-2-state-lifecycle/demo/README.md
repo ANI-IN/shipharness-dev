@@ -102,12 +102,12 @@ The script checks your keys, Docker, and the class date, then runs
 `make show-2 SESSION_BUDGET=12,38`. Outside class, run `PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh`.
 You can also call the make target directly; without `SESSION_BUDGET=12,38` the first session runs
 the ticket's 20 turns. At the end, terminal 2 prints the arm's record line and the cost line (cut
-where marked `...`; the full capture is in [expected/terminal.txt](expected/terminal.txt)). `F2` in
-the record line is the comments feature:
+where marked `...`; the full capture is in [expected/terminal.txt](expected/terminal.txt), captured before 2026-10-18 in
+the earlier wording):
 
 ```text
-A/B <run id> (F2, layers=['instructions', 'state'], profile=class, harness in action)
-  harness  ABORTED: timeout  claim=not_done primary={"continuity_failure": false} passed=True hidden 56/56 mutants 0/4 reviewer=reject cost=$0.0268
+A/B <run id> (Feature 2: Comments on issues, layers=['instructions', 'state'], profile=class, harness in action)
+  harness  ABORTED: timeout  agent said not done · continuity failure: no · primary measure passed · hidden tests 56 of 56 · mutants killed 0 of 4 · reviewer reject · cost $0.0268
 Cost: $0.029525 (this command: gpt-5.6-luna $0.002702, gpt-6-luna $0.026823; ...)
 make: *** [Makefile:169: show-2] Error 2
 ```
@@ -150,14 +150,14 @@ the house rules and files that matter.
 Then switch screens.
 
 **Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done", "Session 2 · 32 turns",
-and "Session 3 · 12 turns" (the test phase). The referee list shows `continuity, 0 new` (the primary
-measure) and `House rule 7, 0 new` (one migration head). In this run `diff_scope` is also 0 new: the
+and "Test phase · 12 turns" (the screenshot below, taken before 2026-10-18, still labels it
+"Session 3"). The referee list shows `continuity, 0 new` (the primary measure) and `House rule 7, 0 new` (one migration head). In this run `diff_scope` is also 0 new: the
 agent stayed in the comments ticket's allowed paths. Nothing would have stopped it otherwise, because
 the scope layer starts in Section 3: Scope and sandbox.
 
 ![Screen 3: sessions of 12, 32, and 12 turns, the diff map, continuity 0 new, diff_scope 0 new](expected/show-2-screen-3-final.png)
 
-*Screen 3. Three sessions, no continuity failure, and no file outside scope.*
+*Screen 3. Two build sessions and the test phase, no continuity failure, and no file outside scope.*
 
 **Screen 5, Traces.** The live tail, the LangSmith links, and the first wrong turn, which this run
 does not have. Open the agent's trace and look at session 2's first calls.

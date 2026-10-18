@@ -540,6 +540,20 @@ guide): show-1 `ab-20261018-045459-2efbfc`, show-2 `ab-20261018-040749-dad2e1`, 
 `ab-20261018-040352-f8c404` (the show-4 run with kept and discarded tests) gave
 `ab-20261018-050437-eaeab8`, 255 events, all five screens populated, $0.
 
+### Score records shipped with the course (2026-10-18)
+
+<a id="before-class-records"></a>
+
+Owner-directed. The score records of the runs this page and the section pages count (99 records:
+the current referee version, no constructed example, the run or A/B id named on an evidence page)
+are in [scores/](scores/), one JSON file per run. Their LangSmith links (`trace_url`,
+`referee_trace_url`) are removed, because they name the course's workspace; no record holds a key
+or a host path (`platform/tests/unit/test_before_class_records.py` checks both, and that the release
+build keeps the folder). [score-sections.json](score-sections.json) records which section each A/B
+ran as, so screen 4 judges Section 3 demo records by that demo's measure
+([s3.md](s3.md#s3-demo-measure)). Screen 4 always shows these records, labelled "measured before
+class"; runs scored after them, from `exports/`, are added next to them as new dots.
+
 ## Captures
 
 <a id="captures-root"></a>

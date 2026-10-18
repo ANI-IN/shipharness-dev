@@ -139,10 +139,14 @@ These call OpenAI live and never fall back to a recording. Each prints a `Cost:`
 
 | Target | Runs | What it does | At most, at the caps |
 |---|---|---|---|
-| `make show-1` to `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness ...` | The harness arm alone, judged by the referee | $0.24 |
-| `make demo-1` to `make demo-4` | `uv run shipharness ab --section demo-N --feature FN ...` | A/B: both arms, both judged | $0.48 |
-| `make demo-3 FEATURE=version-checks` | `uv run shipharness ab --section demo-3 --feature F4 ...` | The Section 3 live A/B in class, on Feature 4 | $0.48 |
+| `make show-1` to `make show-4` | `uv run shipharness ab --section demo-N --feature <name> --arms harness ...` | The harness arm alone, judged by the referee | $0.24 |
+| `make demo-1` to `make demo-4` | `uv run shipharness ab --section demo-N --feature <name> ...` | A/B: both arms, both judged | $0.48 |
+| `make demo-3 FEATURE=version-checks` | `uv run shipharness ab --section demo-3 --feature version-checks ...` | The Section 3 live A/B in class, on Feature 4 | $0.48 |
 | `make final` | one `uv run shipharness ab --section final --feature <f> ...` per feature | One A/B per feature in `FEATURES` | $0.58 per feature |
+
+`<name>` is the section's feature name: `org-search`, `comments`, `safe-retries`, or
+`version-checks`. `make final` prints one line per feature, for example `Final A/B: Feature 5: Bulk
+close`, then that A/B's output.
 
 The worst cases come from the caps in `.env.example`: one arm $0.20 plus one review $0.04; a final
 arm $0.25. A `make show-N` run is not an A/B, so its score stays out of every comparison, out of
@@ -215,8 +219,8 @@ Defaults from the `Makefile`.
 |---|---|---|---|
 | `PURPOSE` | `class` | live runs, swap, replay, doctor, warm | LangSmith project and cost session (table below) |
 | `PROFILE` | `class` | live runs, examples, warm | `class` or `standard` (the settings in `.env`) |
-| `FEATURE` | `F3` (Feature 3) | demo-3 | `version-checks` runs the Section 3 class A/B |
-| `FEATURES` | `F5,F6` (Features 5 and 6) | final | Comma-separated final features, for example `watchers` |
+| `FEATURE` | `safe-retries` (Feature 3) | demo-3 | `version-checks` runs the Section 3 class A/B |
+| `FEATURES` | `bulk-close,watchers` (Features 5 and 6) | final | Comma-separated final features, for example `watchers` |
 | `LAYERS` | empty | demo-N, show-N, final | `-<layer>` removes one layer, for example `-state` |
 | `SESSION_BUDGET` | empty | demo-N, show-N | Session turn budgets, for example `12,38` |
 | `AB` | `latest` | swap-N | The A/B or run id to re-judge |

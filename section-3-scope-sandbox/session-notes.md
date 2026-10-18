@@ -93,9 +93,11 @@ Not by itself. Adding a 412 error class to the shared module follows the handboo
 existing tests kept passing. It was outside what the ticket allowed, so a reviewer of a shared module
 never saw it. The count measures scope, not correctness.
 
-**Why did both pills say FAIL?**
-They score the version checks feature's own measure: every hidden test and every referee mutant. No arm met it in the test
-runs. The scope result is on screen 3, in the diff map and the `diff_scope` row.
+**What does the verdict pill measure in this demo?**
+Since 2026-10-18 the pill, the screen 4 dots, and the terminal line use the measure pre-registered for
+the Section 3 confirmation: files changed outside the allowed paths, where 1 or more fails. The
+version checks feature's own counts (hidden tests, referee mutants) follow as secondary results; no
+arm met that bar in the test runs. Screen 3's diff map shows which file left the allowed paths.
 
 **Why did the harness arm end `ABORTED: timeout` in the test runs?**
 It hit `HARNESS_TIMEOUT_S`, the 120 s limit on the harness's own work per run, during session-end

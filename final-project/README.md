@@ -104,14 +104,14 @@ In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console
 PURPOSE=pilot ./final-project/run.sh bulk-close
 ```
 
-In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
-line per arm and a cost line. The course's own run of 2026-10-17, with the A/B id cut (the full output is in
-[expected/terminal.txt](expected/terminal.txt)); `F5` in the A/B line is the code of Feature 5:
+Open the newest run and press `1`. Terminal 2 then prints, per arm, one line, and a cost line (the
+2026-10-17 run in the current wording; [expected/terminal.txt](expected/terminal.txt) is the original):
 
 ```text
-A/B ... (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
-  bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 3/3 reviewer=accept cost=$0.0196
-  harness  ABORTED: timeout  claim=done     primary={} passed=True hidden 46/46 mutants 1/3 reviewer=reject cost=$0.0139
+Final A/B: Feature 5: Bulk close
+A/B ... (Feature 5: Bulk close, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 3 of 3 · reviewer accept · cost $0.0196
+  harness  ABORTED: timeout  agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 1 of 3 · reviewer reject · cost $0.0139
 Cost: $0.038253 (this command: gpt-5.6-luna $0.004675, gpt-6-luna $0.033578; session $0.060114 of $2.50; build $0.060114 of $15.00 ($14.939886 left))
 make: *** [Makefile:211: final] Error 2
 ```

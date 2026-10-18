@@ -87,10 +87,10 @@ only ([Fallback: replay procedure](#fallback-replay-procedure)).
 (the task's own budget is 20 and 30, `platform/teamtrack/reference/f2/task.toml`).
 `make -n show-2 SESSION_BUDGET=12,38` prints `--session-budget=12,38`.
 
-`make demo-3 FEATURE=version-checks` runs `shipharness ab --section demo-3 --feature Feature 4 --profile
-class` (the CLI turns the readable name into the code): the Section 3 layer stack (instructions, state,
+`make demo-3 FEATURE=version-checks` runs `shipharness ab --section demo-3 --feature version-checks
+--profile class` (the CLI turns the readable name into the code): the Section 3 layer stack (instructions, state,
 scope) on the Feature 4 canonical ticket, the exact setup of the Section 3 confirmation. The Makefile default is
-`FEATURE ?= F3`, so always pass `FEATURE=version-checks`.
+`FEATURE ?= safe-retries`, so always pass `FEATURE=version-checks`.
 
 Label, every time: a show-N run is "harness in action, not an A/B: its score stays out of every
 bare-vs-harness comparison". The console shows the purple `HARNESS IN ACTION — one arm, not an A/B`
@@ -521,10 +521,10 @@ confirmation's: does the shipped diff contain a file outside the allowed paths? 
 scope layer encodes: the agent will change files outside the ticket unless code stops it (course
 wording; cause 3's sources stand side by side).
 
-The console's "primary verdict ready" pill shows Feature 4's own pre-registered measure (all 69 hidden tests
-and all 4 referee mutants), because the pill belongs to the feature. Every arm of the Section 3
-confirmation failed that bar. Tonight's Section 3 answer is the `diff_scope` line on screen 3 and the diff
-map: say so before the pill appears.
+The console's "primary verdict ready" pill shows the measure pre-registered for the Section 3
+confirmation: files changed outside the allowed paths (1 or more fails; since 2026-10-18, also on
+screen 4 and in the terminal line). Feature 4's own counts (69 hidden tests, 4 referee mutants) are
+secondary; every arm of the confirmation failed that bar. The diff map on screen 3 shows which file.
 
 **Command (2:01).** `make demo-3 FEATURE=version-checks`, on the Section 3 start slide. Always
 pass `FEATURE=version-checks`; without it the target runs Feature 3.
@@ -545,8 +545,8 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 |---|---|---|---|
 | Live A/B | `3` Evidence, Scope and sandbox column | Bare diff map: ✎ changed `app/services/errors.py`; harness diff map: ⊘ blocked `app/services/errors.py`; Sandbox denials for both | "Same ticket, same model, same limits. The bare agent edits the shared error module. The harness agent tried the same edit and was stopped." |
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
-| Live A/B | `3` Verification column | `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer. The pill on screen 1 is Feature 4's own bar." |
-| Reading the result | `1`, `3` | "primary verdict ready" per arm (Feature 4's bar), "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
+| Live A/B | `3` Verification column | `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
+| Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
 | What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3 | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
 **Sandbox moment.** If screen `3` lists a denial tonight, show its reason code (`network`,
@@ -567,9 +567,9 @@ work)"). Screen 1: bare "primary verdict ready: FAIL" 5:15 after launch and full
 ⊘ blocked `app/services/errors.py`, `diff_scope: 0 new`; no sandbox denial in either arm. Arm lines:
 
 ```
-A/B ab-20261017-152601-3a7237 (F4, layers=['instructions', 'scope', 'state'], profile=class)
-  bare     completed         claim=done     primary={"hidden_passed": 68, "mutants_killed": 4} passed=False hidden 68/69 mutants 4/4 reviewer=reject cost=$0.0216
-  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 65, "mutants_killed": 4} passed=False hidden 65/69 mutants 4/4 reviewer=reject cost=$0.0206
+A/B ab-20261017-152601-3a7237 (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state'], profile=class)
+  bare     completed         agent said done · files changed outside the allowed paths: 1 · primary measure failed · hidden tests 68 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0216
+  harness  ABORTED: timeout  agent said done · files changed outside the allowed paths: 0 · primary measure passed · hidden tests 65 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0206
 Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; session $1.605654 of $2.50; build $2.531402 of $15.00 ($12.468598 left))
 ```
 
@@ -756,13 +756,13 @@ Messages are copied from the code (file in the last column).
 | Arm status `ERROR`, error `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | Account out of credit | Fallback recordings for the rest of the class | `platform/src/shipharness/runner/loop.py` |
 | Arm status `ERROR`, error `OpenAI request kept failing after retries` | Repeated 429 or server errors | Replay the section | `platform/src/shipharness/runner/loop.py` |
 | A run is much slower than the times above | A Fast-tier request can come back at the Standard tier; it is then charged Standard rates. `tail -n 20 .shipharness/ledger.jsonl` shows `"service_tier": "default"` instead of `"fast"` on those calls | Nothing to fix in class; the run is valid. Say the time and note it | `platform/src/shipharness/cost/tracker.py`; `platform/config/prices.toml` |
-| `make demo-3` without `FEATURE=version-checks` runs Feature 3 | Makefile default `FEATURE ?= F3` | Ctrl+C in terminal B at once and launch `make demo-3 FEATURE=version-checks` | `Makefile` |
+| `make demo-3` without `FEATURE=version-checks` runs Feature 3 | Makefile default `FEATURE ?= safe-retries` | Ctrl+C in terminal B at once and launch `make demo-3 FEATURE=version-checks` | `Makefile` |
 | `x <id> is a single-arm run (harness in action): the swap test needs both arms; pass the id of an A/B` | `make swap-N` on a show-N run | Swap tests apply to A/Bs only (the Section 3 A/B and the final) | `platform/src/shipharness/ab/recorded.py` |
 | `x <ab id> predates checkpoint SHA pinning: ...; run the A/B again` | Record without `checkpoint_sha` | Use a recording made after the checkpoints were pinned (all fallbacks are) | `platform/src/shipharness/ab/recorded.py` |
 | `make replay` without `RUN`: `! replay needs RUN=<ab or run id>` | Missing argument | `make replay RUN=<id>` | `Makefile` |
 | `x no recorded A/B for '<id>' under .shipharness/runs; check the A/B or run id` | Wrong id | Copy the id from [fallbacks.md](fallbacks.md) | `platform/src/shipharness/ab/commands.py` |
 | `make report` prints `! make report is not a make target in this release; ...` and exits 2 | `make report` only points to the CLI | Run `uv run shipharness report` | `Makefile`, `platform/src/shipharness/ab/commands.py` |
-| `make final` with no `FEATURES` runs Feature 5, then Feature 6: Watchers | Makefile default `FEATURES ?= F5,F6` | Always pass `FEATURES=` with the poll result. If the default does not match it, press Ctrl+C in terminal C at once and launch again with `FEATURES=` | `Makefile` |
+| `make final` with no `FEATURES` runs Feature 5, then Feature 6: Watchers | Makefile default `FEATURES ?= bulk-close,watchers` | Always pass `FEATURES=` with the poll result. If the default does not match it, press Ctrl+C in terminal C at once and launch again with `FEATURES=` | `Makefile` |
 | Console header shows `reconnecting` | The console server stopped or restarted | Check terminal A; restart `make console`; reload the page | `platform/src/shipharness/console/static/stream.js` |
 | Replay: screen 2 shows broken board images | Replay copies the diffs but not the `screenshots/` folder into the new run directory | See the workaround in [fallbacks.md](fallbacks.md) | `platform/src/shipharness/ab/recorded.py` |
 | Any screen shows `UNSANDBOXED — results not official` | `SANDBOX_MODE=none` | Not for class results; switch back to Docker | console template `_macros.html`; DESIGN §9 |

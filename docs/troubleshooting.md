@@ -155,7 +155,7 @@ Source: `platform/src/shipharness/ab/commands.py` and `platform/src/shipharness/
 | The header shows `reconnecting` | The console server stopped | Restart `make console` and reload |
 | Port 8765 (or 8000) is in use | Another server uses it | `make console CONSOLE_PORT=8766`, `make up PORT=8001` |
 | Screen 2: `No board screenshot yet (the preview container takes one every 5 s).` all run long | The board preview container did not start | Display only; the referee's board checks still run |
-| Screen 4: `No exports yet` | Nothing in `exports/scores/` yet | Wait for the referee to finish the first arm |
+| Screen 4: `No results to compare yet` | Nothing in `exports/scores/` yet | Wait for the referee to finish the first arm |
 | Screen 4 does not show a `make show-N` run | Screen 4 compares arms, and a show-N run has one arm (`platform/src/shipharness/console/report.py`) | Expected; `uv run shipharness report` writes every record to `exports/report.html` |
 | Any screen shows `UNSANDBOXED — results not official` | `SANDBOX_MODE=none`, or no runtime was found | Fix Docker; unsandboxed results are for exploring only |
 
