@@ -615,6 +615,16 @@ class"; runs scored after them, from `exports/`, are added next to them as new d
 
 ### Root README screenshots
 
+Since 2026-10-18, 17:20 UTC, the five screenshots come from the live runs for the demo guide
+([above](#guide-runs-2026-10-18)), taken from the console with the demo guide's numbered callouts,
+scaled to 1920 wide: `screen-1-ab-live.png` (renamed from `screen-1-ab-minute-3.png`) is screen 1 of
+`ab-20261018-164951-bd677b` seconds after both arms started (taken live, event 62);
+`screen-1-primary-verdict.png` is the harness panel of screen 1 of `ab-20261018-162244-860638`
+after the run; `screen-2-boards.png` and `screen-4-report.png` are screens 2 and 4 of
+`ab-20261018-164951-bd677b` after the run; `screen-3-scope-blocked.png` is screen 3 of
+`ab-20261018-042848-b28607` (recorded before class), taken on 2026-10-18 in the current console,
+because the live demo-3 run had no out-of-scope edit in the bare arm. Before that:
+
 All from `make console` on the course machine, 2026-10-18, taken after the runs with a headless
 browser at 1920 by 1080. The two minute screens were taken from a console fed with the run's log cut
 at that minute of the console clock (see [s1.md](s1.md#s1-show-1-capture)).
