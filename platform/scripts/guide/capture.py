@@ -39,6 +39,7 @@ from typing import Any
 from callouts import Target, annotate
 from guidelib import (
     Box,
+    account_hits,
     box_in_crop,
     find_secrets,
     image_entry,
@@ -128,6 +129,33 @@ RESOLVE_JS = r"""
     out.push({x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height});
   }
   return out;
+}
+"""
+
+# LangSmith links carry workspace, project, and run ids (account details): every link and text
+# naming smith.langchain.com reads "smith.langchain.com/…" on the image, and its tooltip goes.
+NEUTRAL_JS = r"""
+() => {
+  const url = /https?:\/\/[^\s"'<>]*smith\.langchain\.com[^\s"'<>]*/g;
+  document.querySelectorAll('a').forEach(a => {
+    const href = a.getAttribute('href') || '', text = a.textContent || '';
+    if (href.includes('smith.langchain.com') || text.includes('smith.langchain.com')) {
+      a.textContent = 'smith.langchain.com/…';
+      a.removeAttribute('title');
+      a.setAttribute('href', '#');
+    }
+  });
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n => {
+    if (n.nodeValue.includes('smith.langchain.com')) {
+      n.nodeValue = n.nodeValue.replace(url, 'smith.langchain.com/…');
+    }
+  });
+  document.querySelectorAll('[title]').forEach(e => {
+    if (e.getAttribute('title').includes('smith.langchain.com')) e.removeAttribute('title');
+  });
 }
 """
 
@@ -414,6 +442,7 @@ class Console:
     def show(self, screen: int) -> None:
         self.page.keyboard.press(str(screen))
         self.page.wait_for_timeout(400)
+        self.neutralize()  # before the boxes are measured: the link text changes the layout
 
     def expand(self, ids: Iterable[str]) -> None:
         for i in ids:
@@ -422,8 +451,14 @@ class Console:
                 button.first.click()
                 self.page.wait_for_timeout(300)
 
+    def neutralize(self) -> None:
+        self.page.evaluate(NEUTRAL_JS)
+
     def check_private(self) -> None:
+        self.neutralize()
         text = self.page.evaluate(PRIVACY_JS)
+        if account_hits(text):
+            raise PrivacyError(f"LangSmith workspace link or UUID-like id on {self.page.url}")
         hits = personal_hits(text)
         if hits or find_secrets(text):
             kinds = sorted({"host path" if "/" in h or "\\" in h else "email" for h in hits})
@@ -668,6 +703,7 @@ RUNLIST_SPECS_TOP = [
 def capture_list(con: Console, out: Out, name: str, moment: str, run_id: str | None) -> None:
     con.goto("/")
     con.page.wait_for_timeout(500)
+    con.neutralize()
     nth = 0
     if run_id:
         ids = con.page.evaluate(

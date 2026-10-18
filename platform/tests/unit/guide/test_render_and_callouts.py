@@ -103,6 +103,32 @@ def test_annotate_returns_numbered_callouts(tmp_path: Path) -> None:
         assert img.getpixel((c["x"] - 18, c["y"]))[:3] == (127, 215, 255)
 
 
+def test_annotate_arrows_do_not_cross(tmp_path: Path) -> None:
+    src = _shot(tmp_path, size=(1600, 1000))
+    # A layout that invites crossings: a wide target at the top, small ones stacked below it.
+    targets = [
+        co.Target(gl.Box(700, 700, 200, 40), "low"),
+        co.Target(gl.Box(100, 100, 1400, 60), "wide top"),
+        co.Target(gl.Box(700, 400, 200, 40), "middle"),
+        co.Target(gl.Box(1200, 600, 200, 40), "right"),
+    ]
+    callouts = co.annotate(src, tmp_path / "a.png", targets)
+    r = gl.callout_radius(1600)
+    placements = []
+    for c, t in zip(callouts, targets, strict=True):
+        tx, ty = t.box.clamp(c["x"], c["y"])
+        placements.append(gl.Placement(c["x"], c["y"], tx, ty))
+    assert gl.conflicts(placements, r) == 0
+
+
+def test_conflicts_counts_crossing_arrows() -> None:
+    a = gl.Placement(0, 0, 100, 100)
+    b = gl.Placement(0, 100, 100, 0)
+    assert gl.conflicts([a, b], 10) >= 1
+    c = gl.Placement(300, 300, 400, 300)
+    assert gl.conflicts([a, c], 10) == 0
+
+
 def test_annotate_without_targets_copies_image(tmp_path: Path) -> None:
     src = _shot(tmp_path)
     out = tmp_path / "plain.png"

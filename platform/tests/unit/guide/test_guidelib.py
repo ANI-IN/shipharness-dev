@@ -43,6 +43,14 @@ def test_personal_hits_flags_real_mail_not_test_domains() -> None:
     assert gl.personal_hits("write to someone@gmail.com") == ["someone@gmail.com"]
 
 
+def test_account_hits_flag_workspace_links_and_uuids() -> None:
+    url = "https://smith.langchain.com/o/0a1b2c3d-1111-2222-3333-444455556666/projects/p/x"
+    assert gl.account_hits(url)
+    assert gl.account_hits("run 0a1b2c3d-1111-2222-3333-444455556666")
+    assert gl.account_hits("LangSmith trace (link) · ab-20261018-162244-860638") == []
+    assert gl.account_hits("container 39def2150923 · network none") == []
+
+
 def test_host_path_hits_ignores_redacted_text() -> None:
     assert gl.host_path_hits(gl.redact_paths("see /home/learner/guide-run/terminal.txt")) == []
 

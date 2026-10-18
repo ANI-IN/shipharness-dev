@@ -65,6 +65,18 @@ def personal_hits(text: str) -> list[str]:
     return host_path_hits(text) + [m for m in mails if not _RESERVED_MAIL.search(m)]
 
 
+_ACCOUNT = (
+    re.compile(r"smith\.langchain\.com/o/", re.IGNORECASE),
+    re.compile(r"\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b", re.IGNORECASE),
+)
+
+
+def account_hits(text: str) -> list[str]:
+    """LangSmith workspace links and UUID-like ids (org, project, run): account details that no
+    image may show."""
+    return [m.group(0) for pattern in _ACCOUNT for m in pattern.finditer(text)]
+
+
 def find_secrets(text: str) -> list[tuple[str, int]]:
     """(kind, line number) for each key-like string; never the string itself."""
     found = []
@@ -299,6 +311,8 @@ def place_callout(
             score += line_cost(cx, cy, tx, ty)  # arrows over empty background
         score += 300 * sum(1 for ox, oy in taken if _seg_dist((cx, cy), (tx, ty), (ox, oy)) < r + 4)
         score += 300 * sum(1 for a, b in segments if _crosses((cx, cy), (tx, ty), a, b))
+        # ... and the circle itself sits on no earlier arrow.
+        score += 300 * sum(1 for a, b in segments if a != b and _seg_dist(a, b, (cx, cy)) < r + 4)
         if best is None or score < best[0]:
             best = (score, cx, cy)
         if cost is None and not avoid and not taken and not segments:
@@ -340,6 +354,21 @@ def _crosses(
     d1, d2 = side(q1, q2, p1), side(q1, q2, p2)
     d3, d4 = side(p1, p2, q1), side(p1, p2, q2)
     return d1 * d2 < 0 and d3 * d4 < 0
+
+
+def conflicts(placements: Sequence[Placement], radius: float) -> int:
+    """Pairs where one arrow crosses another arrow or runs through another callout's circle."""
+    n = 0
+    for i, a in enumerate(placements):
+        for j, b in enumerate(placements):
+            if i == j:
+                continue
+            seg_a = ((a.cx, a.cy), (a.tx, a.ty))
+            if (a.tx, a.ty) != (a.cx, a.cy) and _seg_dist(*seg_a, (b.cx, b.cy)) < radius + 4:
+                n += 1
+            if i < j and _crosses(*seg_a, (b.cx, b.cy), (b.tx, b.ty)):
+                n += 1
+    return n
 
 
 def arrow_head(

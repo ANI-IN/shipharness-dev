@@ -12,11 +12,20 @@ from __future__ import annotations
 
 import re
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from guidelib import Box, arrow_head, callout_radius, font_path, place_callout
+from guidelib import (
+    Box,
+    Placement,
+    arrow_head,
+    callout_radius,
+    conflicts,
+    font_path,
+    place_callout,
+)
 from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 CONSOLE_CSS = Path("platform/src/shipharness/console/static/console.css")
@@ -83,16 +92,47 @@ def annotate(
         return total / 4
 
     boxes = [t.box for t in targets]
-    placed = []
-    taken: list[tuple[float, float]] = []
-    segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
-    for t in targets:
-        p = place_callout(
-            t.box, w, h, r, taken, avoid=boxes, cost=busy, segments=segments, line_cost=busy_line
-        )
-        taken.append((p.cx, p.cy))
-        segments.append(((p.cx, p.cy), (p.tx, p.ty)))
-        placed.append((t, p))
+
+    def layout(order: list[int]) -> list[Placement]:
+        taken: list[tuple[float, float]] = []
+        segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
+        out: dict[int, Placement] = {}
+        for i in order:
+            p = place_callout(
+                targets[i].box,
+                w,
+                h,
+                r,
+                taken,
+                avoid=boxes,
+                cost=busy,
+                segments=segments,
+                line_cost=busy_line,
+            )
+            taken.append((p.cx, p.cy))
+            segments.append(((p.cx, p.cy), (p.tx, p.ty)))
+            out[i] = p
+        return [out[i] for i in range(len(targets))]
+
+    # Numbers follow the targets' order; the circles are placed in the order that leaves no arrow
+    # crossing another arrow or circle (as given, top to bottom, left to right, reversed).
+    idx = list(range(len(targets)))
+    orders = [
+        idx,
+        sorted(idx, key=lambda i: (boxes[i].y, boxes[i].x)),
+        sorted(idx, key=lambda i: (boxes[i].x, boxes[i].y)),
+        idx[::-1],
+    ]
+    best: list[Placement] | None = None
+    for order in orders:
+        trial = layout(order)
+        if best is None or conflicts(trial, r) < conflicts(best, r):
+            best = trial
+        if conflicts(best, r) == 0:
+            break
+    placed = list(zip(targets, best or [], strict=True))
+    if best and conflicts(best, r):
+        print(f"! {out.name}: an arrow still crosses another arrow or circle", file=sys.stderr)
     # Outlines and arrows first, circles on top, so no arrow crosses a number.
     for t, p in placed:
         if outline:
