@@ -12,10 +12,6 @@ LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # demo-N: SESSION_BUDGET=12,38 overrides the task's session turn budget (pre-registered levers).
 SESSION_BUDGET ?=
 SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
-# show-4 only (a demo setting, not a comparison): the test filters run on the first MAX_TESTS
-# proposed tests; MAX_TESTS= filters them all.
-MAX_TESTS ?= 3
-MAX_TESTS_OPT = $(if $(MAX_TESTS),--max-tests=$(MAX_TESTS))
 # FEATURE and FEATURES take readable names or codes (any case); the CLI turns names into codes:
 # org-search (F1), comments (F2), safe-retries (F3), version-checks (F4), bulk-close (F5),
 # watchers (F6), labels (F7). The earlier name idempotent-create still works for F3.
@@ -257,3 +253,8 @@ grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
 SLIDES_OPTS ?=
 slides:
 	$(UV) run python platform/scripts/build_slides.py $(SLIDES_OPTS)
+
+# show-4 only (a demo setting, not a comparison): the test filters run on the first MAX_TESTS
+# proposed tests; MAX_TESTS= filters them all.
+MAX_TESTS ?= 3
+MAX_TESTS_OPT = $(if $(MAX_TESTS),--max-tests=$(MAX_TESTS))

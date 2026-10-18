@@ -14,6 +14,7 @@ from shipharness.filters.pipeline import (
     discarded,
     kept_tests,
     run_pipeline,
+    run_pipeline_parallel,
 )
 from shipharness.sandbox import ExecResult, FakeSandbox
 
@@ -188,7 +189,9 @@ def _filtered(tmp_path: Path, name: str, workers: int) -> tuple[list[dict], list
     cands = collect_candidates(repo, ["tests/test_new.py", "tests/test_more.py"])
     log = tmp_path / f"{name}.jsonl"
     with EventBus(log, ab_id=None) as bus:
-        results = run_pipeline(cands, ctx, bus, run_id="r-1", arm="harness", workers=workers)
+        results = run_pipeline_parallel(
+            cands, ctx, bus, workers=workers, run_id="r-1", arm="harness"
+        )
     events = sorted(
         (e.type, e.data.get("test_id"), e.data.get("filter"), e.data.get("passed"))
         for e in read_events(log)
@@ -234,7 +237,7 @@ def test_filter_set_mutants_keep_the_tests_one_at_a_time(
         ],
     )
     cands = [CandidateTest(test_id=f"t::{n}", file="t", source="") for n in "ab"]
-    results = run_pipeline(cands, ctx, None, filters=[Boom()], workers=2)
+    results = run_pipeline_parallel(cands, ctx, None, workers=2, filters=[Boom()])
     assert [r.test_id for r in results] == ["t::a", "t::b"]
 
 

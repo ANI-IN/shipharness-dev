@@ -93,14 +93,9 @@ def test_session_stop_after_a_passing_gate_reuses_its_run_with_the_same_line(
 ) -> None:
     ws = workspace(tmp_path)
     cached_box, state = FakeSandbox(scripted(PASSING)), {}
+    reuse = (state, suite_cache.content_key(ws))
     gate = run_gate(
-        cached_box,
-        config(),
-        gate_id="g1",
-        base_sha="",
-        phase="build",
-        suite_state=state,
-        workspace=ws,
+        cached_box, config(visible_reuse=reuse), gate_id="g1", base_sha="", phase="build"
     )
     assert gate.passed and pytest_runs(cached_box) == 1
     cached = handoff.visible_tests(cached_box, 60, state=state, workspace=ws)
@@ -112,9 +107,8 @@ def test_session_stop_after_a_passing_gate_reuses_its_run_with_the_same_line(
 def test_a_failing_gate_run_is_not_reused_in_the_workspace(tmp_path: Path) -> None:
     ws = workspace(tmp_path)
     box, state = FakeSandbox(scripted(FAILING, exit_code=1)), {}
-    gate = run_gate(
-        box, config(), gate_id="g1", base_sha="", phase="build", suite_state=state, workspace=ws
-    )
+    reuse = (state, suite_cache.content_key(ws))
+    gate = run_gate(box, config(visible_reuse=reuse), gate_id="g1", base_sha="", phase="build")
     assert not gate.passed
     line = handoff.visible_tests(box, 60, state=state, workspace=ws)
     assert pytest_runs(box) == 2  # failure text may name paths: run again in the workspace

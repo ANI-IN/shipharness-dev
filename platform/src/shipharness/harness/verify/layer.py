@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from shipharness.checks import params as P
+from shipharness.harness import suite_cache
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision, LayerName
 from shipharness.harness.verify import checkrun, testphase
@@ -269,17 +270,18 @@ class VerifyLayer(BaseLayer):
         def progress(item: dict[str, Any]) -> None:
             self._publish(ctx, "check_progress", item)
 
+        cfg = self._config(ctx)
+        # Taken just before the gate copies the workspace: the content its visible tests run on.
+        cfg.visible_reuse = (ctx.state, suite_cache.content_key(ctx.workspace))
         result = run_gate(
             ctx.sandbox,
-            self._config(ctx),
+            cfg,
             gate_id=gate_id,
             # The arm's own changes start after the harness setup commit (placed artifacts).
             base_sha=str(ctx.state.get("harness.setup_sha") or git.initial_sha(ctx.workspace)),
             phase=ctx.phase,
             on_update=update,
             on_progress=progress,
-            suite_state=ctx.state,
-            workspace=ctx.workspace,
         )
         ctx.state["verify.gate"] = result.model_dump(mode="json")
         data = {"gate_id": gate_id, "seed": self._seed(ctx)}

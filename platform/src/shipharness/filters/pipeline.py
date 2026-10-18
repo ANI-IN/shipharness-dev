@@ -8,7 +8,7 @@ import ast
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from shipharness.events import Arm, EventBus
 from shipharness.filters.coverage import measure_coverage
@@ -42,22 +42,16 @@ def run_pipeline(
     run_id: str | None = None,
     arm: Arm | None = None,
     phase: Literal["build", "test"] = "test",
-    workers: int = 1,
 ) -> list[FilterResult]:
     """Run each proposed test through the filters; stop at its first failure. 1 imports and runs,
     2 passes 5 runs, 3 adds coverage or kills a mutant, 4 real assertions and no mocking of the
-    unit under test, 5 no source change in the test phase.
-
-    With `workers` > 1, that many proposed tests go through the filters at the same time (each
-    test's filters still in order). Filter-set mutants are applied to the workspace in place, so
-    with any of them the tests go one at a time. Results come back in proposal order."""
-
-    def one(cand: CandidateTest) -> list[FilterResult]:
+    unit under test, 5 no source change in the test phase."""
+    results: list[FilterResult] = []
+    for cand in cands:
         if bus is not None:
             bus.publish(
                 "test_proposed", {"test_id": cand.test_id, "phase": phase}, run_id=run_id, arm=arm
             )
-        out: list[FilterResult] = []
         for flt in filters:
             try:
                 result = flt.evaluate(cand, ctx)
@@ -70,21 +64,34 @@ def run_pipeline(
                 )
             if not result.reason:
                 result = result.model_copy(update={"reason": f"filter {flt.number}: no reason"})
-            out.append(result)
+            results.append(result)
             if bus is not None:
                 bus.publish("test_filter_result", result, run_id=run_id, arm=arm)
             if not result.passed:
                 break  # discarded: later (more expensive) filters never run
-        return out
-
-    if workers <= 1 or len(cands) <= 1 or ctx.filter_mutants:
-        return [r for cand in cands for r in one(cand)]
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        per_test = list(pool.map(one, cands))
-    return [r for results in per_test for r in results]
+    return results
 
 
 # [walkthrough:S4:filters] end
+
+
+def run_pipeline_parallel(
+    cands: list[CandidateTest],
+    ctx: FilterContext,
+    bus: EventBus | None,
+    *,
+    workers: int = 1,
+    **kw: Any,
+) -> list[FilterResult]:
+    """`run_pipeline` with `workers` proposed tests going through the filters at the same time
+    (each test's filters still in order, stopping at its first failure). Filter-set mutants are
+    applied to the workspace in place, so with any of them the tests go one at a time. Results
+    come back in proposal order, the same list `run_pipeline` returns."""
+    if workers <= 1 or len(cands) <= 1 or ctx.filter_mutants:
+        return run_pipeline(cands, ctx, bus, **kw)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        per_test = list(pool.map(lambda cand: run_pipeline([cand], ctx, bus, **kw), cands))
+    return [result for results in per_test for result in results]
 
 
 def discarded(results: list[FilterResult]) -> dict[str, FilterResult]:

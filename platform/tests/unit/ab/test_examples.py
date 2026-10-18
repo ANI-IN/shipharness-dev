@@ -50,14 +50,24 @@ LEAK = {
 class ArmSandbox(FakeSandbox):
     """A fake arm sandbox that refuses what the real sandbox policy refuses (and reports it on the
     bus, as DockerSandbox does) and answers the commands the layers run. The visible tests fail
-    until `tests_pass_after` patches have been applied."""
+    until `tests_pass_after` patches have been applied. With a `workspace`, every applied patch
+    changes a file there, as a real `git apply` does (the harness reuses a visible-suite run only
+    while the workspace content is unchanged)."""
 
-    def __init__(self, bus: Any, run_id: str, arm: str, tests_pass_after: int = 0) -> None:
+    def __init__(
+        self,
+        bus: Any,
+        run_id: str,
+        arm: str,
+        tests_pass_after: int = 0,
+        workspace: Path | None = None,
+    ) -> None:
         super().__init__(self._answer)
         self.bus, self.run_id, self.arm = bus, run_id, arm
         self.policy = SandboxPolicy()
         self.tests_pass_after = tests_pass_after
         self.applied = 0
+        self.workspace = workspace
 
     def exec(self, command: str, timeout_s: int) -> ExecResult:
         denial = check_command(self.policy, command)
@@ -73,6 +83,10 @@ class ArmSandbox(FakeSandbox):
     def _answer(self, command: str) -> ExecResult:
         if command.startswith("git apply") and "--check" not in command:
             self.applied += 1
+            if self.workspace is not None:
+                marker = self.workspace / "tests" / "visible" / "applied_patches.txt"
+                marker.parent.mkdir(parents=True, exist_ok=True)
+                marker.write_text(f"{self.applied}\n", encoding="utf-8")
         if "checks.runner" in command:
             results = [check_result(c) for c in ALL_GATE_CHECKS]
             return ExecResult(
@@ -105,7 +119,7 @@ def example(course_repo: Path, tmp_path: Path, section: str, **referee: Any):  #
     sandboxes: list[ArmSandbox] = []
 
     def sandbox_factory(arm, ws, bus, run_id):  # type: ignore[no-untyped-def]
-        sandboxes.append(ArmSandbox(bus, run_id, arm, tests_pass_after=pass_after))
+        sandboxes.append(ArmSandbox(bus, run_id, arm, tests_pass_after=pass_after, workspace=ws))
         return sandboxes[-1]
 
     deps = make_deps(

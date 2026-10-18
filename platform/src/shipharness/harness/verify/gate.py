@@ -12,7 +12,6 @@ import re
 import shlex
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from shipharness.datasets.names import rule_label
@@ -65,6 +64,9 @@ class GateConfig:
     migrations: bool = True
     # None when the repository has its own ruff config: the clean-state item uses it as it is.
     ruff_select: str | None = DEFAULT_RUFF_SELECT
+    # (the run's state, the content key of the workspace the gate copies): the visible-test item
+    # reuses an identical harness run of the suite on that content. None: it always runs.
+    visible_reuse: tuple[dict[str, Any], str] | None = None
 
     def limit(self, own_s: int) -> int:
         """A command's time limit: its own, capped by the harness time left (at least 1 s)."""
@@ -72,14 +74,10 @@ class GateConfig:
         return own_s if left is None else max(1, min(own_s, int(left)))
 
 
-def _visible_tests(
-    sandbox: Sandbox,
-    build: str,
-    cfg: GateConfig,
-    reuse: tuple[dict[str, Any], str] | None = None,
-) -> tuple[GateItem, list[str]]:
-    """The run's visible tests on the copy (TeamTrack: tests/visible). With `reuse` (the run's
-    state and the content key of the copied workspace), an identical harness run is reused."""
+def _visible_tests(sandbox: Sandbox, build: str, cfg: GateConfig) -> tuple[GateItem, list[str]]:
+    """The run's visible tests on the copy (TeamTrack: tests/visible). With `cfg.visible_reuse`,
+    an identical harness run of the suite on the same content is reused (suite_cache)."""
+    reuse = cfg.visible_reuse
     where = shlex.quote(cfg.visible_tests_dir)
     args = f"{where} -q -rfE --no-header -p no:cacheprovider"
     result = suite_cache.lookup(reuse[0], reuse[1], args, "copy") if reuse else None
@@ -161,24 +159,17 @@ def run_gate(
     phase: str,
     on_update: Callable[[GateResult], None] | None = None,
     on_progress: Callable[[dict], None] | None = None,
-    suite_state: dict[str, Any] | None = None,
-    workspace: Path | None = None,
 ) -> GateResult:
-    """Verification the agent does not control: every item runs in the arm container. With the
-    run's `suite_state` and `workspace`, the visible-test item reuses an identical harness run of
-    the suite on the same content (suite_cache) instead of running it again."""
+    """Verification the agent does not control: every item runs in the arm container."""
     root = f"/tmp/shipharness-gate-{_SAFE.sub('_', gate_id)}"
     names = ["visible tests", *(_ITEM_ORDER if phase == "build" else []), "clean state"]
     if on_update:  # pending pills first, so the console shows the gate running
         pending = [GateItem(name=n, status="pending") for n in names]
         on_update(GateResult(gate_id=gate_id, items=pending, passed=False, feedback=""))
-    reuse = None
-    if suite_state is not None and workspace is not None:
-        reuse = (suite_state, suite_cache.content_key(workspace))  # the content being copied
     sandbox.exec(
         f"rm -rf {root} && mkdir -p {root}/build && cp -a ./. {root}/build/", cfg.limit(300)
     )
-    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg, reuse)
+    visible, lines = _visible_tests(sandbox, f"{root}/build", cfg)
     items = [visible]
     if phase == "build":
         check_items, check_lines = _check_items(sandbox, cfg, root, on_progress)

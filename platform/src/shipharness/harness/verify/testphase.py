@@ -165,7 +165,8 @@ def filters_pipeline(
     with phase-start fingerprints restricted to source files, the format filter 5 compares.
     """
     try:
-        from shipharness.filters import CandidateTest, build_context, run_pipeline
+        from shipharness.filters import CandidateTest, build_context
+        from shipharness.filters.pipeline import run_pipeline_parallel
         from shipharness.filters.source import is_source_path, is_test_path
     except ImportError as exc:
         raise PipelineUnavailable(f"shipharness.filters is not available ({exc})") from None
@@ -191,7 +192,7 @@ def filters_pipeline(
     cands = [CandidateTest(**c) for c in candidates]
     spec = getattr(ctx, "spec", None)
     return list(
-        run_pipeline(
+        run_pipeline_parallel(
             cands,
             fctx,
             ctx.bus,
