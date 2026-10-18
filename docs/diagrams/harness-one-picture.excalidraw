@@ -66,7 +66,7 @@
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-19"
+          "id": "harness-one-picture-arrow-17"
         }
       ],
       "updated": 1,
@@ -142,7 +142,7 @@
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-20"
+          "id": "harness-one-picture-arrow-18"
         }
       ],
       "updated": 1,
@@ -218,6 +218,14 @@
         },
         {
           "type": "arrow",
+          "id": "harness-one-picture-arrow-15"
+        },
+        {
+          "type": "arrow",
+          "id": "harness-one-picture-arrow-16"
+        },
+        {
+          "type": "arrow",
           "id": "harness-one-picture-arrow-17"
         },
         {
@@ -226,15 +234,7 @@
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-19"
-        },
-        {
-          "type": "arrow",
           "id": "harness-one-picture-arrow-20"
-        },
-        {
-          "type": "arrow",
-          "id": "harness-one-picture-arrow-22"
         }
       ],
       "updated": 1,
@@ -310,7 +310,7 @@
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-21"
+          "id": "harness-one-picture-arrow-19"
         }
       ],
       "updated": 1,
@@ -363,7 +363,7 @@
       "height": 217.07,
       "angle": 0,
       "strokeColor": "#212121",
-      "backgroundColor": "transparent",
+      "backgroundColor": "#ffffff",
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "dashed",
@@ -381,55 +381,24 @@
       "isDeleted": false,
       "boundElements": [
         {
-          "type": "arrow",
-          "id": "harness-one-picture-arrow-24"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false
-    },
-    {
-      "id": "harness-one-picture-rectangle-10",
-      "type": "rectangle",
-      "x": 1038.93,
-      "y": 281.07,
-      "width": 256.53,
-      "height": 108.53,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "#ffffff",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aA",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 1981658412,
-      "version": 1,
-      "versionNonce": 1662855119,
-      "isDeleted": false,
-      "boundElements": [
-        {
           "type": "text",
-          "id": "harness-one-picture-text-11"
+          "id": "harness-one-picture-text-10"
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-17"
+          "id": "harness-one-picture-arrow-15"
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-18"
+          "id": "harness-one-picture-arrow-16"
         },
         {
           "type": "arrow",
-          "id": "harness-one-picture-arrow-21"
+          "id": "harness-one-picture-arrow-19"
+        },
+        {
+          "type": "arrow",
+          "id": "harness-one-picture-arrow-22"
         }
       ],
       "updated": 1,
@@ -437,12 +406,12 @@
       "locked": false
     },
     {
-      "id": "harness-one-picture-text-11",
+      "id": "harness-one-picture-text-10",
       "type": "text",
-      "x": 1128.18,
-      "y": 318.07,
-      "width": 78.05,
-      "height": 34.53,
+      "x": 1047.65,
+      "y": 325.47,
+      "width": 239.11,
+      "height": 69.07,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -453,33 +422,72 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aB",
+      "index": "aA",
       "roundness": null,
-      "seed": 1749824850,
+      "seed": 1170340029,
       "version": 1,
-      "versionNonce": 796672767,
+      "versionNonce": 526822546,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Tools",
+      "text": "Tools in sandbox:\nboth arms",
       "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "harness-one-picture-rectangle-10",
-      "originalText": "Tools",
+      "containerId": "harness-one-picture-rectangle-9",
+      "originalText": "Tools in sandbox:\nboth arms",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
+      "id": "harness-one-picture-rectangle-11",
+      "type": "rectangle",
+      "x": 940.27,
+      "y": 527.73,
+      "width": 453.87,
+      "height": 128.27,
+      "angle": 0,
+      "strokeColor": "#3896D2",
+      "backgroundColor": "#3896D233",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aB",
+      "roundness": {
+        "type": 3
+      },
+      "seed": 250383212,
+      "version": 1,
+      "versionNonce": 664751446,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "harness-one-picture-text-12"
+        },
+        {
+          "type": "arrow",
+          "id": "harness-one-picture-arrow-20"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
       "id": "harness-one-picture-text-12",
       "type": "text",
-      "x": 1034.58,
-      "y": 407.36,
-      "width": 265.25,
-      "height": 34.53,
+      "x": 1048.25,
+      "y": 557.33,
+      "width": 237.9,
+      "height": 69.07,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -500,29 +508,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Sandbox, both arms",
+      "text": "Verification:\nwhat proves done",
       "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "Sandbox, both arms",
+      "verticalAlign": "middle",
+      "containerId": "harness-one-picture-rectangle-11",
+      "originalText": "Verification:\nwhat proves done",
       "autoResize": true,
-      "lineHeight": 1.25,
-      "customData": {
-        "role": "label"
-      }
+      "lineHeight": 1.25
     },
     {
       "id": "harness-one-picture-rectangle-13",
       "type": "rectangle",
-      "x": 940.27,
-      "y": 527.73,
-      "width": 453.87,
-      "height": 128.27,
+      "x": 1532.27,
+      "y": 281.07,
+      "width": 315.73,
+      "height": 157.87,
       "angle": 0,
-      "strokeColor": "#3896D2",
-      "backgroundColor": "#3896D233",
+      "strokeColor": "#212121",
+      "backgroundColor": "#ffffff",
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -555,9 +560,9 @@
     {
       "id": "harness-one-picture-text-14",
       "type": "text",
-      "x": 1048.25,
-      "y": 557.33,
-      "width": 237.9,
+      "x": 1585.96,
+      "y": 325.47,
+      "width": 208.33,
       "height": 69.07,
       "angle": 0,
       "strokeColor": "#212121",
@@ -579,26 +584,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Verification:\nwhat proves done",
+      "text": "Referee: hidden\ntests, mutants",
       "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "harness-one-picture-rectangle-13",
-      "originalText": "Verification:\nwhat proves done",
+      "originalText": "Referee: hidden\ntests, mutants",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "harness-one-picture-rectangle-15",
-      "type": "rectangle",
-      "x": 1532.27,
-      "y": 281.07,
-      "width": 315.73,
-      "height": 157.87,
+      "id": "harness-one-picture-arrow-15",
+      "type": "arrow",
+      "x": 879.09,
+      "y": 340.27,
+      "width": 92.75,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
-      "backgroundColor": "#ffffff",
+      "backgroundColor": "transparent",
       "fillStyle": "solid",
       "strokeWidth": 2,
       "strokeStyle": "solid",
@@ -607,34 +612,47 @@
       "groupIds": [],
       "frameId": null,
       "index": "aF",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 817342351,
+      "roundness": null,
+      "seed": 85611079,
       "version": 1,
-      "versionNonce": 179524439,
+      "versionNonce": 634529699,
       "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "harness-one-picture-text-16"
-        },
-        {
-          "type": "arrow",
-          "id": "harness-one-picture-arrow-24"
-        }
-      ],
+      "boundElements": null,
       "updated": 1,
       "link": null,
-      "locked": false
+      "locked": false,
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          92.75,
+          0.0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "harness-one-picture-ellipse-5",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "harness-one-picture-rectangle-9",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
-      "id": "harness-one-picture-text-16",
-      "type": "text",
-      "x": 1585.96,
-      "y": 325.47,
-      "width": 208.33,
-      "height": 69.07,
+      "id": "harness-one-picture-arrow-16",
+      "type": "arrow",
+      "x": 971.84,
+      "y": 379.73,
+      "width": 92.75,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -647,130 +665,41 @@
       "frameId": null,
       "index": "aG",
       "roundness": null,
-      "seed": 142334687,
+      "seed": 174371963,
       "version": 1,
-      "versionNonce": 1139298081,
+      "versionNonce": 1980288953,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Referee: hidden\ntests, mutants",
-      "fontSize": 27.63,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "harness-one-picture-rectangle-15",
-      "originalText": "Referee: hidden\ntests, mutants",
-      "autoResize": true,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          -92.75,
+          0.0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "harness-one-picture-rectangle-9",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "harness-one-picture-ellipse-5",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
       "id": "harness-one-picture-arrow-17",
-      "type": "arrow",
-      "x": 879.09,
-      "y": 340.27,
-      "width": 151.95,
-      "height": 24.67,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aH",
-      "roundness": null,
-      "seed": 1452446520,
-      "version": 1,
-      "versionNonce": 276570531,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          151.95,
-          -24.67
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "harness-one-picture-ellipse-5",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "harness-one-picture-rectangle-10",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "harness-one-picture-arrow-18",
-      "type": "arrow",
-      "x": 1031.04,
-      "y": 355.07,
-      "width": 151.95,
-      "height": 24.67,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aI",
-      "roundness": null,
-      "seed": 1996207101,
-      "version": 1,
-      "versionNonce": 1433414901,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          -151.95,
-          24.67
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "harness-one-picture-rectangle-10",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "harness-one-picture-ellipse-5",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "harness-one-picture-arrow-19",
       "type": "arrow",
       "x": 494.29,
       "y": 162.67,
@@ -786,11 +715,11 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aJ",
+      "index": "aH",
       "roundness": null,
-      "seed": 456785160,
+      "seed": 1452446520,
       "version": 1,
-      "versionNonce": 1372102583,
+      "versionNonce": 276570531,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -822,7 +751,7 @@
       "elbowed": false
     },
     {
-      "id": "harness-one-picture-arrow-20",
+      "id": "harness-one-picture-arrow-18",
       "type": "arrow",
       "x": 494.29,
       "y": 557.33,
@@ -838,11 +767,11 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aK",
+      "index": "aI",
       "roundness": null,
-      "seed": 775443052,
+      "seed": 1996207101,
       "version": 1,
-      "versionNonce": 1716739199,
+      "versionNonce": 1433414901,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -874,12 +803,12 @@
       "elbowed": false
     },
     {
-      "id": "harness-one-picture-arrow-21",
+      "id": "harness-one-picture-arrow-19",
       "type": "arrow",
       "x": 1167.2,
       "y": 200.16,
       "width": 0.0,
-      "height": 73.01,
+      "height": 43.41,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "transparent",
@@ -890,11 +819,11 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aL",
+      "index": "aJ",
       "roundness": null,
-      "seed": 666353558,
+      "seed": 456785160,
       "version": 1,
-      "versionNonce": 1990988417,
+      "versionNonce": 1372102583,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -907,7 +836,7 @@
         ],
         [
           0.0,
-          73.01
+          43.41
         ]
       ],
       "lastCommittedPoint": null,
@@ -917,7 +846,7 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "harness-one-picture-rectangle-10",
+        "elementId": "harness-one-picture-rectangle-9",
         "focus": 0,
         "gap": 8.0
       },
@@ -926,12 +855,114 @@
       "elbowed": false
     },
     {
-      "id": "harness-one-picture-arrow-22",
+      "id": "harness-one-picture-arrow-20",
       "type": "arrow",
       "x": 723.2,
       "y": 446.83,
       "width": 209.17,
       "height": 145.04,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aK",
+      "roundness": null,
+      "seed": 775443052,
+      "version": 1,
+      "versionNonce": 1716739199,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "harness-one-picture-text-21"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          145.04
+        ],
+        [
+          78.93,
+          145.04
+        ],
+        [
+          209.17,
+          145.04
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "harness-one-picture-ellipse-5",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "harness-one-picture-rectangle-11",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
+    },
+    {
+      "id": "harness-one-picture-text-21",
+      "type": "text",
+      "x": 687.76,
+      "y": 574.6,
+      "width": 149.82,
+      "height": 34.53,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aL",
+      "roundness": null,
+      "seed": 1183146836,
+      "version": 1,
+      "versionNonce": 165586837,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "claims done",
+      "fontSize": 27.63,
+      "fontFamily": 5,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "harness-one-picture-arrow-20",
+      "originalText": "claims done",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "harness-one-picture-arrow-22",
+      "type": "arrow",
+      "x": 1362.56,
+      "y": 360.0,
+      "width": 161.81,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -963,21 +994,13 @@
           0.0
         ],
         [
-          0.0,
-          145.04
-        ],
-        [
-          78.93,
-          145.04
-        ],
-        [
-          209.17,
-          145.04
+          161.81,
+          0.0
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "harness-one-picture-ellipse-5",
+        "elementId": "harness-one-picture-rectangle-9",
         "focus": 0,
         "gap": 8.0
       },
@@ -993,9 +1016,9 @@
     {
       "id": "harness-one-picture-text-23",
       "type": "text",
-      "x": 687.76,
-      "y": 574.6,
-      "width": 149.82,
+      "x": 1418.01,
+      "y": 342.73,
+      "width": 50.91,
       "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
@@ -1017,106 +1040,12 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "claims done",
-      "fontSize": 27.63,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "harness-one-picture-arrow-22",
-      "originalText": "claims done",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "harness-one-picture-arrow-24",
-      "type": "arrow",
-      "x": 1362.56,
-      "y": 360.0,
-      "width": 161.81,
-      "height": 0.0,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aO",
-      "roundness": null,
-      "seed": 1967444202,
-      "version": 1,
-      "versionNonce": 276828485,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "harness-one-picture-text-25"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          161.81,
-          0.0
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "harness-one-picture-rectangle-9",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "harness-one-picture-rectangle-15",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "harness-one-picture-text-25",
-      "type": "text",
-      "x": 1418.01,
-      "y": 342.73,
-      "width": 50.91,
-      "height": 34.53,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aP",
-      "roundness": null,
-      "seed": 149140491,
-      "version": 1,
-      "versionNonce": 23420071,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
       "text": "diff",
       "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "harness-one-picture-arrow-24",
+      "containerId": "harness-one-picture-arrow-22",
       "originalText": "diff",
       "autoResize": true,
       "lineHeight": 1.25

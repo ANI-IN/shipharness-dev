@@ -125,7 +125,7 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### The harness in one picture
 
-![The model and its tools in the centre, the tools inside the sandbox for both arms, the four layers around them (instructions and state feed the model, scope guards the tools, verification checks the done claim), and the referee outside scoring the diff](./harness-one-picture.svg)
+![The model in the centre, its tools in one dashed box for the sandbox of both arms, the four layers around them (instructions and state feed the model, scope guards the tools, verification checks the done claim), and the referee outside scoring the diff](./harness-one-picture.svg)
 
 *Each layer changes what the agent knows, remembers, may change, or must prove; the referee scores the diff after the stop.*
 
@@ -143,6 +143,8 @@ shows. You do not need to tell the colours apart to read a diagram.
 - **What it teaches**: how to choose a layer for your own repository.
 - **Slide topic**: use it in your repo, at the close.
 - **Files**: `which-layer-when`.
+- **Kept to five boxes**: the failures are plain text with an arrow, not boxes; the cost and
+  the signal for each layer are in the slide notes and the four `concepts.md` pages.
 - **Source**: the four `concepts.md` pages, and the scope result on Feature 4 (slide 70 notes).
 
 ### The results

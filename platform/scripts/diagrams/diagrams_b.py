@@ -303,9 +303,8 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         st = s.box(60, 480, 420, 160, "State:\nwhat it remembers", role="harness")
         model = s.box(570, 280, 300, 160, "Model", shape="ellipse", role="plain")
         sc = s.box(940, 60, 460, 130, "Scope:\nwhat it may change", role="harness")
-        sandbox = s.box(980, 250, 380, 220, dashed=True)
-        tools = s.box(1040, 280, 260, 110, "Tools", role="plain")
-        s.text(1170, 408, "Sandbox, both arms", B, INK, "center")
+        # One box for the tools and the sandbox (dashed = the sandbox), so the picture keeps 7 boxes.
+        tools = s.box(980, 250, 380, 220, "Tools in sandbox:\nboth arms", dashed=True, role="plain")
         ve = s.box(940, 530, 460, 130, "Verification:\nwhat proves done", role="harness")
         ref = s.box(1540, 280, 320, 160, "Referee: hidden\ntests, mutants", role="plain")
         s.arrow(model, tools, start="right", end="left", start_off=-20, end_off=-20)
@@ -314,7 +313,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         s.arrow(st, model, start="right", end="left", end_off=30, color=BLUE)
         s.arrow(sc, tools, start="bottom", end="top", color=BLUE)
         s.arrow(model, ve, "claims done", start="bottom", end="left", via=[(720, 595), (800, 595)])
-        s.arrow(sandbox, ref, "diff", start="right", end="left")
+        s.arrow(tools, ref, "diff", start="right", end="left")
 
     # Sources: docs/STYLE.md (the four failures); the four section concepts.md pages; slides
     # (slide 70 notes: scope is the only measured gap, on Feature 4).
@@ -332,11 +331,13 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "Scope: enforced paths",
             "Verification: check with code",
         ]
+        # The failures are plain text, the layers boxes: 4 layer boxes and the gap tag, 5 boxes.
         for i in range(4):
             y = 60 + i * 155
-            a = s.box(60, y, 560, 135, symptoms[i], role="plain")
+            cy = y + 135 / 2
+            s.text(620, cy - B * 0.65, symptoms[i], B, INK, "right")
             b = s.box(780, y, 600, 135, layers[i], role="harness")
-            s.arrow(a, b, start="right", end="left", color=BLUE)
+            s.path([(645, cy), (768, cy)], color=BLUE)
             if i == 2:
                 gap = s.box(1460, y + 20, 400, 95, "Measured gap: Feature 4", role="accent")
                 s.arrow(b, gap, start="right", end="left", color=AMBER, dashed=True)
