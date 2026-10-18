@@ -303,7 +303,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         st = s.box(60, 480, 420, 160, "State:\nwhat it remembers", role="harness")
         model = s.box(570, 280, 300, 160, "Model", shape="ellipse", role="plain")
         sc = s.box(940, 60, 460, 130, "Scope:\nwhat it may change", role="harness")
-        # One box for the tools and the sandbox (dashed = the sandbox), so the picture keeps 7 boxes.
+        # One box for the tools and the sandbox (dashed = the sandbox): 7 boxes in all.
         tools = s.box(980, 250, 380, 220, "Tools in sandbox:\nboth arms", dashed=True, role="plain")
         ve = s.box(940, 530, 460, 130, "Verification:\nwhat proves done", role="harness")
         ref = s.box(1540, 280, 320, 160, "Referee: hidden\ntests, mutants", role="plain")
