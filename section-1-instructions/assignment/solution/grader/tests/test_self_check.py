@@ -113,7 +113,8 @@ def test_learner_facing_files_never_depend_on_the_solution_folder() -> None:
     for path in files:
         text = path.read_text(encoding="utf-8")
         assert "solution/" not in text, path.relative_to(A1).as_posix()
-    assert "](./solution/)" in (assignment / "README.md").read_text(encoding="utf-8")
+    readme = (assignment / "README.md").read_text(encoding="utf-8")
+    assert "](./solution/)" in readme or "](solution/)" in readme
 
 
 def test_the_self_check_runs_in_a_learner_repository_without_solution(tmp_path: Path) -> None:
