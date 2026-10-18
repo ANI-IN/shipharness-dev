@@ -1064,8 +1064,17 @@ def _scanned(page: Page) -> Iterable[tuple[Line, str]]:
             yield ln, ln.text
 
 
-def _check_ids(page: Page, c: _Collector) -> None:
+# The Live Demo Guide (docs/walkthrough/) follows one recorded run per demo, so a reader types and
+# reads its run id: `make replay RUN=<id>`, the console's run list, terminal output. There, and only
+# there, a run id may stand in a code span or a fenced block; in plain prose it still fails SC08.
+WALKTHROUGH_DIR = "docs/walkthrough/"
+
+
+def _check_ids(page: Page, c: _Collector, rel: str = "") -> None:
+    ids_in_code_ok = rel.startswith(WALKTHROUGH_DIR)
     for ln, text in _scanned(page):
+        if ids_in_code_ok:
+            text = ln.nocode if ln.kind == "prose" else ""
         match = _RUN_ID.search(text)
         if match:
             c.add(ln.no, "SC08", f"run id {match.group(0)}: ids go in the evidence pages")
@@ -1707,7 +1716,7 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
         _check_markers(page, c)
         _check_prose_values(page, c)
         _check_fences(page, c)
-        _check_ids(page, c)
+        _check_ids(page, c, rel)
         _check_lengths(page, c, kind)
         _check_tables(page, c)
         _check_output_note(page, c)

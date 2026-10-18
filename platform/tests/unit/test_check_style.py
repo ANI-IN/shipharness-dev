@@ -1152,6 +1152,20 @@ def test_starter_fill_in_templates_keep_their_markers(tmp_path: Path) -> None:
     assert "SC01" in {p.check for p in problems(tmp_path, readme, text)}
 
 
+def test_walkthrough_run_ids_pass_only_in_code(tmp_path: Path) -> None:
+    rel = "docs/walkthrough/appendix.md"
+    code = (
+        "# Appendix\n\nRun `make replay RUN=ab-20261017-112101-c5d839`.\n\n"
+        "```text\nA/B ab-20261017-112101-c5d839\n```\n"
+    )
+    assert "SC08" not in {p.check for p in problems(tmp_path, rel, code)}
+    bare = "# Appendix\n\nThe run ab-20261017-112101-c5d839 passed.\n"
+    assert "SC08" in {p.check for p in problems(tmp_path, rel, bare)}
+    # Elsewhere a run id fails even in a code span.
+    other = "# Guide\n\nRun `make replay RUN=ab-20261017-112101-c5d839`.\n"
+    assert "SC08" in {p.check for p in problems(tmp_path, "docs/guide.md", other)}
+
+
 # -- labels: source, assignment, finding, and section ids (SC09, SC21, SC22) ----------------------
 
 LABELS = "Agents copy patterns (A1, F-a-20); in S1 they read the map.\n"
