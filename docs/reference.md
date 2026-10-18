@@ -239,6 +239,7 @@ both arms (`platform/src/shipharness/config/profiles.py`):
 | OpenAI service tier, agent | Fast | `OPENAI_SERVICE_TIER` (`auto`) |
 | CPUs per container | 2 | `SANDBOX_CPUS` (`1.0`) |
 | Agent time limit per arm | 420 s | `RUN_TIMEOUT_S` (300 s) |
+| Harness work limit per arm | 900 s | `HARNESS_TIMEOUT_S` (120 s) |
 
 The reviewer keeps `OPENAI_EVAL_REASONING_EFFORT` and the Standard tier. Each call is charged by the
 tier its response reports: a Fast request answered at the Standard tier is charged the Standard
@@ -287,12 +288,12 @@ still judges and shows it. Commands running at the same time share the caps.
 | `MAX_EXPERIMENT_TOTAL_USD` | $25.00 | All `shipharness experiments` batches |
 | `MAX_BUILD_TOTAL_USD` | $15.00 | Every model call in this machine's cost ledger |
 
-Time and turn limits (`.env.example`; the class profile changes the agent time limit only):
+Time and turn limits (`.env.example`; the class profile changes the agent and harness time limits):
 
 | Limit | Value | Scope |
 |---|---|---|
 | `RUN_TIMEOUT_S` | 300 s (class profile 420 s) | Agent time per arm per run |
-| `HARNESS_TIMEOUT_S` | 120 s | Harness work per arm per run |
+| `HARNESS_TIMEOUT_S` | 120 s (class profile 900 s) | Harness work per arm per run |
 | `TOOL_TIMEOUT_S` | 120 s | One tool command |
 | `MAX_TURNS_PER_SESSION` | 30 | Turns per session unless the task sets its own budget |
 

@@ -128,13 +128,13 @@ leave-one-out idea from the problem above, one layer and one feature at a time.
 
 The caps come from `.env.example` and `platform/src/shipharness/config/settings.py`: at most $0.25
 per arm and $0.04 per review, so at most $0.58 per feature. The class profile gives each arm an
-agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 120 s for the
-harness's own work (`HARNESS_TIMEOUT_S`). Prices are in `platform/config/prices.toml`.
+agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 900 s for the
+harness's own work (`HARNESS_TIMEOUT_S`; 120 s before 2026-10-18). Prices are in `platform/config/prices.toml`.
 
-The course's own Feature 5 run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and
-cost $0.038253, with one other live batch running on the same machine. After the A/B's launch, the
-primary verdicts came at 4 min 27 s (bare) and 5 min 46 s (harness), and the full verdicts at
-11 min 39 s and 11 min 41 s ([evidence](../docs/evidence/final.md#final-project)).
+Three runs of `make final FEATURES=bulk-close` on 2026-10-18 (class profile): bare primary verdict
+2:05 to 4:08 after launch, full 6:37 to 9:46; harness primary 16:48 to 18:39, full 20:15 to 23:33
+(its test filters run to the end); $0.046 to $0.051 each. Earlier runs:
+[evidence](../docs/evidence/final.md#final-project), [these runs](../docs/evidence/general.md#verification-runs-after-the-rename).
 
 ## What to watch
 

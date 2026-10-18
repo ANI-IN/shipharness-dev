@@ -298,9 +298,132 @@ checkpoint; after this move the trees differ, so the Assignment 4 grader also ac
 `m1-s4-start` commits listed here (a9d6be2, which the Assignment 4 reference run names, and
 d0b98d0), and nothing else. No result was changed.
 
+### Harness time limit raised for the class profile (2026-10-18)
+
+<a id="class-harness-limit"></a>
+
+During the verification runs below, the harness's own time limit (`HARNESS_TIMEOUT_S`, 120 s)
+ended harness arms on work the agent does not control: the visible-test run the state layer makes
+at each session end. `make show-2` (`ab-20261018-010650-5f281a`, a trial with session budget 12,20)
+ended `ABORTED: timeout` after 145 s of harness work, and `make demo-3`
+(`ab-20261018-010633-6bbb50`) after 131 s, both "during session end". On 2026-10-18 the class
+profile was given 420 s of harness work (commit a075474). The next `make show-4`
+(`ab-20261018-011929-bc578f`) still ended `ABORTED: timeout`, at phase end, after 572 s of harness
+work: the verify layer's five test filters take about one minute per proposed test (filter 2 alone
+runs each test five times). The class profile now gives 900 s (commit 868f7f7).
+
+- The limit is the same for both arms. The bare arm has no layers, so it does no harness work.
+- The agent time limit (`RUN_TIMEOUT_S`, 420 s in the class profile) did not change.
+- The standard profile keeps 120 s, so `make swap-N`, the experiments, and every recorded result
+  on these pages ran, and run, with 120 s. No result was changed.
+- Tests: `test_the_two_profiles_and_their_values`,
+  `test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else`, and
+  `test_the_runner_gets_the_profile_harness_time_limit` in
+  `platform/tests/unit/ab/test_profile.py`.
+
+The cost of the change is time. A harness arm that the 120 s limit used to stop before or during
+its test phase now runs the test phase and the filters to the end, so `make show-4` and the final's
+harness arm take about 20 minutes to their full verdict (table below).
+
 ### Verification runs after the rename
 
-The runs are listed below once they are complete.
+Run on 2026-10-18 from 00:37 UTC on main (14d89f8, then a075474 and 868f7f7 for the harness
+limit), class profile, `PURPOSE=pilot`, two runs at a time on the class machine. Times run from the
+make command's launch to the event in the run's log (`.shipharness/runs/<id>/events.jsonl`); the
+console's own "launch to verdict" counts from the A/B start, 10 to 20 s later. After the runs every
+screen was read back from the console (`/screens/<id>?follow=false`): all five populated, and
+screen 2 had a board frame for every arm that ran.
+
+Each line: A/B id, harness limit, status, primary and full verdict after launch, cost, and the
+first mechanism events after launch.
+
+`make show-1`:
+
+- `ab-20261018-003732-2a13d8`, 120 s: completed; 2:57, 8:31; $0.0208. Instruction files placed
+  0:16, `ARCHITECTURE.md` read 0:25; R1 0 new.
+- `ab-20261018-004619-bb8cb2`, 120 s: completed; 6:18, 10:58; $0.0232. Files placed 0:15, skill
+  read 0:21; R1 0 new.
+- `ab-20261018-005833-718ea6`, 120 s: completed; 3:02, 7:23; $0.0235. Files placed 0:19, skill
+  0:23, `ARCHITECTURE.md` 0:27; R1 0 new.
+
+`make show-2 SESSION_BUDGET=12,38` (two trials with other budgets marked):
+
+- `ab-20261018-003945-842302`, 120 s: `ABORTED: timeout` on the 420 s agent limit; 9:34, 14:43;
+  $0.0329. Session 1 stopped and handoff written 2:53; session 2 resumed 2:53 and its first call
+  read `progress.md`, the git log, and the handoff.
+- `ab-20261018-005812-b0d954`, trial `SESSION_BUDGET=12,16`, 120 s: completed; 4:43, 7:41;
+  $0.0186. Stop 1:26; session 2 read the state files first; hidden tests 3 of 56.
+- `ab-20261018-010650-5f281a`, trial `SESSION_BUDGET=12,20`, 120 s: `ABORTED: timeout` on harness
+  work (145 s); 8:34, 10:20; $0.0204. Stop 2:59; session 2 read `progress.md` and the handoff.
+- `ab-20261018-012038-4815f0`, 420 s: completed; 7:07, 10:13; $0.0415. Stop and resume 2:56;
+  session 2 read the state files first; no continuity failure.
+- `ab-20261018-013120-0b620d`, 420 s: completed; 7:20, 9:59; $0.0399. Stop and resume 1:28; state
+  files read first; hidden tests 56 of 56.
+- `ab-20261018-021724-ef20d2`, 900 s: completed; 6:27, 9:50; $0.0395. Stop and resume 1:13; state
+  files read first; hidden tests 56 of 56.
+
+`make demo-3 FEATURE=version-checks` (bare, then harness):
+
+- `ab-20261018-010633-6bbb50`, 120 s: bare completed, harness `ABORTED: timeout` on harness work
+  (131 s); primary 7:06 and 9:27, full 10:44 and 12:03; $0.0470. Harness patch to
+  `app/services/errors.py` blocked 2:29; `diff_scope` bare 1 new, harness 0.
+- `ab-20261018-014205-541b01`, 900 s: both completed; primary 4:19 and 7:21, full 7:25 and 9:47;
+  $0.0476. Blocked 0:57; `diff_scope` bare 1 new (`app/services/errors.py`), harness 0.
+- `ab-20261018-020453-c9bee1`, 900 s: both completed; primary 5:00 and 9:38, full 8:50 and 12:12;
+  $0.0509. Blocked 1:51; `diff_scope` bare 1, harness 0.
+- `ab-20261018-023110-345a31`, 900 s: both completed; primary 6:51 and 10:46, full 10:30 and
+  13:43; $0.0509. Blocked 2:16 (`app/services/errors.py`, `app/api/errors.py`); `diff_scope` bare
+  1, harness 0.
+
+`make show-4`:
+
+- `ab-20261018-011929-bc578f`, 420 s: `ABORTED: timeout` on harness work (572 s); 17:30, 19:58;
+  $0.0362. Blocked 3:37; no done claim in 40 turns, so no gate; 5 tests, 1 kept; 4 mutants.
+- `ab-20261018-014155-d91776`, 900 s: completed; 19:43, 22:26; $0.0341. Blocked 1:18; gate pills
+  4:39, gate pass and done claim 6:43; 7 tests, 0 kept; 4 mutants.
+- `ab-20261018-021613-d3d05f`, 900 s: completed with claim `not_done`; 11:47, 14:33; $0.0250.
+  Blocked 1:17; build ended `not_done` 3:01, so no gate; 5 tests, 2 kept; 4 mutants.
+- `ab-20261018-024513-403beb`, 900 s: completed; 16:10, 18:50; $0.0357. No blocked patch; gate
+  pills 4:32, done claim 6:34; 5 tests, 0 kept; 4 mutants.
+
+`make final FEATURES=bulk-close` (bare, then harness):
+
+- `ab-20261018-015223-8e30c7`, 900 s: both completed; primary 3:18 and 18:39, full 7:27 and
+  23:33; $0.0509. Both judged, hidden tests 46 of 46 each; two board frames; harness 5 tests, 1
+  kept.
+- `ab-20261018-022732-a363f6`, 900 s: both completed; primary 4:08 and 17:25, full 9:46 and
+  20:36; $0.0479. Harness gate pass and done claim 6:57; 3 tests, 0 kept.
+- `ab-20261018-024829-5baa13`, 900 s: both completed; primary 2:05 and 16:48, full 6:37 and
+  20:15; $0.0464. Hidden tests 46 of 46 and mutants 3 of 3 each.
+
+<a id="fallbacks-2026-10-18"></a>
+
+Fallbacks, the first complete run of each command after the harness-limit change: show-1
+`ab-20261018-003732-2a13d8`, show-2 `ab-20261018-012038-4815f0`, demo-3
+`ab-20261018-014205-541b01`, show-4 `ab-20261018-014155-d91776`, final (bulk-close)
+`ab-20261018-015223-8e30c7`. `make replay RUN=ab-20261018-003732-2a13d8 PURPOSE=pilot` gave
+replay `ab-20261018-030424-1a7452`: 183 events, the referee re-run, the RECORDING badge, $0.
+
+Against the bar set for these runs (no `ERROR`; primary verdict within about 6 minutes; full
+verdict within about 15 minutes; the mechanism on screen):
+
+- `make show-1`: passes in all three (one primary verdict at 6:18).
+- `make show-2`: the mechanism appears in every run, and with the higher harness limit all three
+  completed. The primary verdict comes at 6:27 to 7:20, above 6 minutes: three session ends each
+  run the visible suite (about 2 minutes of harness work in all), and 50 agent turns take 4 to 5
+  minutes.
+- `make demo-3`: the scope result appears in all four; the harness arm's primary verdict comes at
+  7:21 to 10:46, because the feature's primary measure needs the referee mutants.
+- `make show-4` and the final's harness arm: not within the times; the test filters take about one
+  minute per proposed test. `make show-4` showed the gate in two of three runs and kept tests in one.
+- Settings: no show-N setting was changed. `make show-2` keeps `SESSION_BUDGET=12,38`; the trials
+  with 12,16 and 12,20 were not adopted (session 2 built almost nothing, hidden tests 3 of 56). The
+  class profile's harness limit changed for every live target (above).
+
+With the renamed harness text the results follow the earlier measurements: no new tenant isolation
+violation in show-1, no continuity failure in show-2, the same shared file changed by the bare arm
+and blocked for the harness arm in demo-3, and the same Feature 4 shortfall in show-4 (hidden tests
+62 to 68 of 69).
 
 ## Captures
 

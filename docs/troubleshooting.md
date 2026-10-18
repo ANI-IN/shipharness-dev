@@ -111,7 +111,7 @@ other features and exits with the last non-zero code.
 |---|---|---|
 | `ABORTED: cap`, reason `cost cap reached: run $<x> of $0.20` (or `session $<x> of $2.50`) | A model call would have crossed a cap (source: `platform/src/shipharness/cost/tracker.py`) | Scored and shown; a session cap stops every live run under that class date |
 | `ABORTED: timeout`, reason `agent time limit: RUN_TIMEOUT_S 420 s` | The arm used its agent time (300 s outside the class profile) | Scored and shown, with whatever the arm shipped |
-| `ABORTED: timeout`, reason `harness time limit: HARNESS_TIMEOUT_S 120 s exceeded during ...` | The harness work used its 120 s | Scored and shown |
+| `ABORTED: timeout`, reason `harness time limit: HARNESS_TIMEOUT_S 900 s exceeded during ...` | The harness work used its 900 s (120 s outside the class profile) | Scored and shown |
 | `ERROR`, `OpenAI rejected the request: check OPENAI_API_KEY (authentication failed).` | The key stopped working mid-run (source: `platform/src/shipharness/runner/loop.py`) | Fix the key; the run says nothing about the harness |
 | `ERROR`, `OpenAI billing limit reached (quota or spend limit); add credit and retry.` | The account is out of credit or at its spend limit | Add credit |
 | `ERROR`, `OpenAI request kept failing after retries` | Repeated rate-limit or server errors | Try again later |

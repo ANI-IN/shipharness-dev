@@ -31,6 +31,11 @@ You watch the agent open the skill and the architecture document, write the code
 captured run, the referee's primary verdict on the tenant isolation rule arrived 4 minutes 11 seconds after launch, and the
 full verdict at 10 minutes.
 
+Times and cost measured on 2026-10-18 with the class profile, three runs: primary verdict 2:57 to
+6:18 after launch, full verdict 7:23 to 10:58, $0.021 to $0.023 per run. All three completed with
+no new tenant isolation violation; the agent opened the skill in two of the three runs and
+`ARCHITECTURE.md` in two ([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ![Console screen 1 after the full verdict: primary verdict PASS, hidden tests 52/52, claim supported](expected/screen-1-final.png)

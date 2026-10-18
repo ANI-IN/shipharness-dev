@@ -809,6 +809,41 @@ evidence; it now grades a copy with an empty `live/`. Attempt 5's `summary.json`
 its run folder (other fields unchanged); its session 2 stop step committed 1d5239c ("harness:
 session 2 state for F2"). Grade recaptured: 100/100.
 
+### Demo verification runs after the rename (2026-10-18)
+
+Every class demo run three times live, class profile, `PURPOSE=pilot`, 00:37 to 03:09 UTC, two runs
+at a time. Run ids, times, and the mechanism events per run:
+[evidence/general.md, verification runs](docs/evidence/general.md#verification-runs-after-the-rename).
+
+| Demo | Runs (after the fix) | Status | Primary | Full | Cost per run |
+|---|---|---|---|---|---|
+| `make show-1` | 3 | 3 completed | 2:57 to 6:18 | 7:23 to 10:58 | $0.021 to $0.023 |
+| `make show-2 SESSION_BUDGET=12,38` | 3 | 3 completed | 6:27 to 7:20 | 9:50 to 10:13 | $0.039 to $0.042 |
+| `make demo-3 FEATURE=version-checks` | 3 | 6 arms completed | bare 4:19 to 6:51, harness 7:21 to 10:46 | bare 7:25 to 10:30, harness 9:47 to 13:43 | $0.048 to $0.051 |
+| `make show-4` | 3 | 3 completed | 11:47 to 19:43 | 14:33 to 22:26 | $0.025 to $0.036 |
+| `make final FEATURES=bulk-close` | 3 | 6 arms completed | bare 2:05 to 4:08, harness 16:48 to 18:39 | bare 6:37 to 9:46, harness 20:15 to 23:33 | $0.046 to $0.051 |
+
+- Fix: the class profile's harness time limit (`HARNESS_TIMEOUT_S`) 120 s -> 420 s (a075474) ->
+  900 s (868f7f7), after harness arms of show-2, demo-3, and show-4 ended `ABORTED: timeout` on
+  harness work (145 s, 131 s, 572 s). Failing test first in `platform/tests/unit/ab/test_profile.py`
+  (3 failed, then 12 passed); `platform/tests/unit/ab`, `test_run_budget.py`, `test_freeze.py`:
+  460 passed. Disclosed in [general.md](docs/evidence/general.md#class-harness-limit).
+- Not met: primary within about 6 minutes for show-2 (6:27 to 7:20), demo-3's harness arm, show-4,
+  and the final's harness arm; full within about 15 minutes for show-4 and the final's harness arm.
+  Cause: the visible-suite run at each session end and the test filters (about one minute per
+  proposed test). show-4 showed the gate in 2 of 3 runs and kept tests in 1 of 3.
+- No show-N setting changed; two show-2 trials (`SESSION_BUDGET=12,16` and `12,20`) not adopted.
+- `make replay RUN=ab-20261018-003732-2a13d8 PURPOSE=pilot`: replay `ab-20261018-030424-1a7452`,
+  183 events, RECORDING badge, $0.
+- The console was stopped twice by other work on the machine and restarted; every screen of every
+  run was read back afterwards from `/screens/<id>?follow=false`.
+- `MAX_SESSION_COST_USD=3.00` was set in the environment for the runs from 01:52 on, because the
+  pilot session was at $1.99 of $2.50; `.env` was not changed.
+- Spend: $0.7330 in 1,194 model calls (all session `pilot`), 20 live A/Bs (27 arm runs) plus the
+  replay. Build total after: $3.3843 of $15.00 ($11.6157 left). Pilot session: $2.3387. Traces:
+  one LangSmith agent trace per arm run in `shipharness-pilot` (not counted from the API).
+- Screenshots and captured outputs in `section-N-*/demo/expected/` were not recaptured.
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before

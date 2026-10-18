@@ -42,21 +42,21 @@ Terminal B runs the section demos. Terminal C runs the final.
 After each launch, reload the console's run list and open the newest run. At section minute 15,
 look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
-Times and costs, measured on 2026-10-17, before class ([evidence](evidence.md#captures)):
+Times and costs, measured on 2026-10-18 with the class profile, three live runs each, launch to
+verdict ([evidence](evidence/general.md#verification-runs-after-the-rename)):
 
-| Run | Primary, then full verdict | Cost | Cap |
+| Run | Primary verdict | Full verdict | Cost (cap) |
 |---|---|---|---|
-| `make show-1` | 4:11, 10:00 | $0.0197 | $0.24 |
-| `make show-2` | 6:46, 9:52 | $0.0295 | $0.24 |
-| `make demo-3` | bare 5:15, 8:06; harness 8:50, 11:18 | $0.0487 | $0.48 |
-| `make show-4` | 9:19, 10:55 | $0.0265 | $0.24 |
-| `make final`, one feature | bare 4:27, 11:39; harness 5:46, 11:41 | $0.0383 | $0.58 |
+| `make show-1` | 2:57 to 6:18 | 7:23 to 10:58 | $0.021 to $0.023 ($0.24) |
+| `make show-2` | 6:27 to 7:20 | 9:50 to 10:13 | $0.039 to $0.042 ($0.24) |
+| `make demo-3` | bare 4:19 to 6:51; harness 7:21 to 10:46 | bare 7:25 to 10:30; harness 9:47 to 13:43 | $0.048 to $0.051 ($0.48) |
+| `make show-4` | 11:47 to 19:43 | 14:33 to 22:26 | $0.025 to $0.036 ($0.24) |
+| `make final`, one feature | bare 2:05 to 4:08; harness 16:48 to 18:39 | bare 6:37 to 9:46; harness 20:15 to 23:33 | $0.046 to $0.051 ($0.58) |
 
-Section 3 and the final ran with the class agent time limit, 420 s. The others ran with the earlier
-300 s, so a run that reaches the limit now takes up to 2 minutes longer. The final took 12 min 9 s
-to its `Cost:` line; its harness arm said done after 20 turns, two gate commands timed out, and the
-120 s harness limit ended the arm before a test phase, a known open item. The session cap is $2.50: run two final
-features only if the session figure on the Section 3 `Cost:` line is $1.10 or less.
+Every arm completed: the class profile now gives harness work 900 s (`HARNESS_TIMEOUT_S`). So
+`make show-4` and the final's harness arm run the test filters to the end, about a minute per
+test: start them first in their section. The session cap is $2.50: run two final features only if
+the session figure on the Section 3 `Cost:` line is $1.10 or less.
 
 What to say at each verdict:
 
@@ -124,6 +124,9 @@ make final FEATURES=bulk-close PURPOSE=pilot
 make final FEATURES=watchers PURPOSE=pilot
 make final FEATURES=labels PURPOSE=pilot
 ```
+
+The fallbacks recorded on 2026-10-18, one per command, and the replay check are listed on the
+[evidence page](evidence/general.md#fallbacks-2026-10-18).
 
 The first line of each result starts with `A/B` and the id. Write each id down. The fallback for a
 command is the first complete run, whatever its result. Do not run a command again to get a nicer

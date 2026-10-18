@@ -43,6 +43,14 @@ harness arm's patch to the shared errors module, while the bare arm changes it f
 
 *The bare arm changed the shared errors module; the harness arm was blocked on it (diff_scope 1 new, 0 new).*
 
+Times and cost measured on 2026-10-18 with the class profile, three live runs of
+`make demo-3 FEATURE=version-checks`: bare primary verdict 4:19 to 6:51 after launch and full
+verdict 7:25 to 10:30; harness primary verdict 7:21 to 10:46 and full verdict 9:47 to 13:43;
+$0.048 to $0.051 per A/B. All six arms completed. In all three, the bare arm changed
+`app/services/errors.py` (`diff_scope` 1 new) and the scope layer blocked the harness arm's patch
+to it (`diff_scope` 0 new)
+([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+
 This is a real A/B, because the course measured a gap on this ticket before class: in three test
 runs, every bare arm changed `app/services/errors.py` and every harness arm stayed inside the list
 ([evidence](../../docs/evidence/s3.md#s3-confirmation)). The files the scope layer gives the agent are in
@@ -219,6 +227,9 @@ What the result cannot tell you:
 - **Why the harness arm timed out.** It hit the harness's own limit on harness work, 120 s
   (`HARNESS_TIMEOUT_S`), not the 420 s agent limit. The handoffs and the visible-test run that sets
   `passes` count toward it. Each harness arm still shipped a change, and the referee scored it.
+  Since 2026-10-18 the class profile gives harness work 900 s, so in class the harness arm
+  completes; the three test runs above ran with 120 s
+  ([evidence](../../docs/evidence/general.md#class-harness-limit)).
 
 One A/B in class is one more dot. Read it against the three test runs, not alone. The
 [walkthrough](walkthrough.md) shows the code behind the block and the count.

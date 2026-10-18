@@ -35,6 +35,15 @@ keep some and discard others. Last, the referee runs 69 hidden tests and 4 refer
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
+Times and cost measured on 2026-10-18 with the class profile (900 s of harness work), three runs:
+primary verdict 11:47 to 19:43 after launch, full verdict 14:33 to 22:26, $0.025 to $0.036 per run.
+All three completed. Most of the time is the test filters: about one minute per proposed test,
+five to seven tests per run. What showed varied by run: the done claim and the gate pills in two
+of the three (in the other, the agent ended the build with `not_done` and no gate ran); kept tests
+in one (two kept, three discarded; the other two discarded every test); a blocked patch to
+`app/services/errors.py` in two; the referee mutant table in all three
+([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+
 ![Console screen 1 after the full verdict: every gate pill passed, primary verdict FAIL, hidden tests 68 of 69, mutants 0 of 4](expected/show-4-screen-1-final.png)
 
 *The end of a real run: the gate passed every item, and the referee still failed the run.*

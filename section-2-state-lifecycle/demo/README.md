@@ -49,6 +49,16 @@ job, and screen 4 shows the comparison.
 
 *At minute 2 you see this stop: the handoff is written, and session 2 reads it first.*
 
+Times and cost measured on 2026-10-18 with the class profile, three runs of
+`make show-2 SESSION_BUDGET=12,38`: session 1 stopped 1:13 to 2:56 after launch, primary verdict
+6:27 to 7:20, full verdict 9:50 to 10:13, $0.039 to $0.042 per run. All three completed with no
+continuity failure, and in each one session 2's first call read `progress.md`, the git log, and
+`session-handoff.md`. Those three ran after the class profile gave the harness's own work 900 s.
+Before that, the same day, one run ended `ABORTED: timeout` on the 420 s agent limit (primary 9:34,
+full 14:43), and a trial with `SESSION_BUDGET=12,20` ended `ABORTED: timeout` on the 120 s harness
+limit, during the session-end test runs
+([evidence](../../docs/evidence/general.md#class-harness-limit)).
+
 ## Run it
 
 Before the first run, follow [setup/](../../setup/README.md) until `make doctor` ends with
