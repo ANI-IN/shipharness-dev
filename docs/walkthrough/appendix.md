@@ -253,8 +253,8 @@ header:
 
 1. ← All runs: back to the run list
 2. Screen tabs 1 to 5
-3. Bare arm: Not run (harness in action)
-4. Harness arm line: its layers
+3. Harness arm line: its layers
+4. Bare arm: Not run (harness in action)
 
 **Look at:** the `● RECORDING` badge next to the screen title, on every screen.
 

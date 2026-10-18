@@ -94,10 +94,10 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *The run list, newest first. The image was taken after the run finished.*
 
-1. Run id: click it to open the run.
-2. Type: "A/B", not "harness in action".
-3. Status: running while the run goes, then "finished".
-4. Start time.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** The top entry: "Final project · Feature 5: Bulk close · A/B".
 
@@ -125,12 +125,12 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *About one minute in. Both arms are reading code; only the harness arm has harness decisions.*
 
-1. The feature badge: "Feature 5: Bulk close".
-2. Bare arm line: "no layers".
-3. Harness arm line: "instructions + scope + state + verify".
-4. Container line: container id and "network none".
-5. "Last turns".
-6. Harness decisions: the layer notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Bare arm line: no layers
+3. Harness arm line: its layers
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
 **Look at:** The harness arm's "Harness decisions":
 
@@ -207,9 +207,9 @@ event, a few seconds after the make command.
 
 *The bare arm is judged first. Its secondary checks still run, and the harness arm still builds.*
 
-1. Bare referee pill: "verdict ready: PASS".
-2. "judged on all checks", then "secondary checks running".
-3. The harness arm is still working ("Last turns").
+1. Harness still working
+2. Secondary checks running
+3. Bare referee pill
 
 **Look at:** The Referee block: "verdict ready: PASS", "judged on all checks", "secondary checks
 running", "launch to primary verdict 03:18". Next to it: "Agent said done" and "claim supported".
@@ -240,8 +240,8 @@ nothing yet about the feature. The counts come with the full verdict.
 
 *The gate passed every item at the first attempt. Only then did the agent's "done" count.*
 
-1. Gate list: every check passed.
-2. "gate pass".
+1. Gate passed
+2. Gate list: every check passed
 
 **Look at:** The decisions in order: "gate pass", "session stop: session 1 handoff written to
 session-handoff.md", `status set: F5 passes: … at 49704cd`,
@@ -278,11 +278,11 @@ phase, starts.
 
 *The harness arm after the run: its decisions end with the test filter result.*
 
-1. Harness arm line: its layers.
-2. Turns list.
-3. Harness decisions.
-4. Gate list.
-5. Referee pill.
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** The last decisions: "session 2 handoff written to session-handoff.md", then "test
 filters: kept 1, discarded 1".
@@ -315,13 +315,13 @@ five and was kept.
 
 *Both arms judged. The pills are the same; the counts are where the arms differ.*
 
-1. "← All runs": back to the run list.
-2. Screen tabs 1 to 5.
-3. Bare arm line: "no layers".
-4. Harness arm line: its layers.
-5. Gate list (harness).
-6. Referee pill (harness).
-7. Referee pill (bare).
+1. ← All runs: back to the run list
+2. Screen tabs 1 to 5
+3. Bare arm line: no layers
+4. Harness arm line: its layers
+5. Referee pill (bare)
+6. Gate list
+7. Referee pill (harness)
 
 **Look at:** Each Referee block, then read this table aloud:
 
@@ -368,10 +368,11 @@ on both arms means the agent said done and the referee agrees.
 
 *Feature 5 adds an endpoint, not a board view, so both boards look the same as before.*
 
-1. "← All runs": back to the run list.
-2. Harness board, signed in as one user (admin@acme.test).
-3. Board marks (harness): "only own-org cards, no duplicates".
-4. Bare board marks: the same pill.
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare board marks
+5. Harness board marks
 
 **Look at:** The pill above each board and the org badge on each card.
 
@@ -399,17 +400,15 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 *Evidence for all four layers: one column per section.*
 
-1. Sessions, including the test phase.
-2. Diff map (harness).
-3. Diff map (bare).
-4. Files outside the allowed paths (`diff_scope`), bare arm.
+1. Diff map (bare)
+2. Diff map (harness)
 
 ![Close-up of screen 3: files read and sessions per arm](../images/final/screen-3-sessions.png)
 
 *Files read and sessions.*
 
-1. Files read.
-2. Sessions.
+1. Files read
+2. Sessions
 
 **Look at:** "Section 1: Instructions · Section 2: State and sessions". The harness arm read
 `ARCHITECTURE.md` (harness doc), `docs/exec-plans/completed/F5.md` and `feature_list.json` (state),
@@ -442,9 +441,9 @@ from the build session into the test phase.
 
 *Both arms changed the same six files, all inside the allowed paths.*
 
-1. Diff map (bare).
-2. Diff map (harness).
-3. Sandbox denials.
+1. Diff map (bare)
+2. Diff map (harness)
+3. Sandbox denials (harness)
 
 **Look at:** "Section 3: Scope and sandbox". Both arms show "✎ changed" for `app/api/issues.py`,
 `app/api/schemas.py`, `app/repositories/issues.py`, `app/services/issues.py`,
@@ -475,20 +474,24 @@ to block. A "⊘ blocked" row would show an edit the scope layer refused.
 
 *The referee rows: every check "0 new" in both arms.*
 
-1. Files outside the allowed paths (`diff_scope`), bare.
-2. Files outside the allowed paths (`diff_scope`), harness.
-3. "hidden tests".
-4. The blinded reviewer's reason.
+1. Files outside the allowed paths (diff_scope), bare
+2. hidden tests (harness)
+3. Files outside the allowed paths (diff_scope), harness
+4. Blinded reviewer's reason (harness)
 
 ![Close-up of screen 3: the mutant table for both arms](../images/final/screen-3-mutants.png)
 
 *The mutant table: which planted bugs each arm's tests caught.*
 
+1. Mutants (bare): filter set and referee set
+2. Bare: a mutant the referee set killed
+3. Mutants (harness): filter set and referee set
+
 ![Close-up of screen 3: the test filter table with one discarded and one kept test](../images/final/screen-3-filters.png)
 
 *The harness arm's filter table: one row per test, one column per filter.*
 
-1. A test kept by the filters.
+1. A test kept by the filters
 
 **Look at:** The referee rows per arm: House rule 1 to House rule 7, "Existing tests (regression)",
 "hidden tests", "Files outside the allowed paths (diff_scope)", "Flaky tests (flakiness)", "Session
@@ -523,7 +526,7 @@ mutants are the one count that separates the arms in this run, by one planted bu
 
 *This run, both arms, at the top of the A/B Report.*
 
-1. This run.
+1. This run
 
 **Look at:** "This run": BARE "verdict ready: PASS · judged on all checks", hidden tests 46/46,
 mutants killed 1/3; HARNESS the same pill, hidden tests 46/46, mutants killed 0/3. Both: House rule
@@ -553,9 +556,9 @@ runs below.
 
 *One dot per run: filled passed, hollow failed; diamonds are new runs.*
 
-1. "Measured before class: 36 runs per arm".
-2. Dots per run.
-3. Legend.
+1. Measured before class
+2. Dots per run, Feature 5: Bulk close
+3. Legend
 
 **Look at:** The two Feature 5 rows. "Feature 5: Bulk close · canonical · bare": "8/8 before class ·
 1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Tonight's run is
@@ -587,11 +590,10 @@ the counts in steps 9 and 13 do, run by run.
 
 *The whole A/B Report.*
 
-1. This run.
-2. Measured before class.
-3. Dots per run.
-4. Cost per verified feature.
-5. Reviewer agreement.
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
 **Look at:** "Cost per verified feature": BARE "$0.03 per verified feature (27 verified, $0.68
 spent)", HARNESS "$0.02 per verified feature (36 verified, $0.76 spent)". "Reviewer agreement": BARE
@@ -623,9 +625,8 @@ referee agreed. Both pool every run in `exports/`, not only tonight's.
 
 *Traces: the event tail, the first wrong turn per arm, and the links to each model call.*
 
-1. Live tail.
-2. First wrong turn.
-3. LangSmith links: agent and referee, per arm.
+1. Live tail
+2. First wrong turn
 
 **Look at:** "First wrong turn": "no wrong turn found" for both arms. The tail ends with the harness
 arm's mutants "survived", "reviewer accept" and its verdict line.

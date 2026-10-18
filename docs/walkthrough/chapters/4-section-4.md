@@ -88,10 +88,10 @@ The `A/B ab-…` line and the result line come only at the end (Step 14).
 
 *The new run is the top card.*
 
-1. Run id: click it to open the run.
-2. Type: "harness in action" or "A/B".
-3. Status.
-4. Start time.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** The type on the top card. It says "harness in action", not "A/B".
 
@@ -119,14 +119,14 @@ The `A/B ab-…` line and the result line come only at the end (Step 14).
 
 *Screen 1, about one minute in.*
 
-1. The badge "HARNESS IN ACTION — one arm, not an A/B", and the feature.
-2. Bare arm: "Not run (harness in action)".
-3. Harness arm line: "instructions + scope + state + verify".
-4. Container line: container id and "network none".
-5. "Last turns".
-6. "Harness decisions": the layer notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Harness arm line: its layers
+3. Bare arm: Not run (harness in action)
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
-**Look at:** The four layer names next to HARNESS (callout 3).
+**Look at:** The four layer names next to HARNESS (callout 2).
 
 **What it means:** Every layer from the course is on. The verify layer is the new one in this section.
 
@@ -180,8 +180,7 @@ note instructions agent read ARCHITECTURE.md
 
 *Screen 1: the scope layer refuses a patch outside the allowed files.*
 
-1. Blocked edit: outside the allowed paths.
-2. Turns list.
+1. Turns list
 
 **Look at:** The block decision: `app/services/errors.py: outside the allowed paths for the build phase (...); patch not applied`.
 
@@ -260,8 +259,6 @@ refused Gate refused 'done' (build phase, attempt 1): clean state: ruff: app/web
 ![Screen 1 when the gate passed: every pill is green](../images/s4/screen-1-gate-passed.png)
 
 *Screen 1, the gate passed.*
-
-1. Gate passed.
 
 **Look at:** Eleven ✓ pills, and three decisions right after them:
 
@@ -366,11 +363,11 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 *Screen 1, the end of the run: the gate passed, and the referee failed the run.*
 
-1. Harness arm line: its layers.
-2. Turns list.
-3. Harness decisions.
-4. Gate list: eleven ✓ pills.
-5. Referee pill: "✗ primary verdict ready: FAIL", then "hidden tests 68/69", "mutants killed 0/4", "House rule 1: Tenant isolation, new violations 0", and "launch to primary verdict 04:29 · launch to full verdict 05:24".
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** "Agent said ✓ done" and, under the referee, "✗ claim not supported".
 
@@ -428,11 +425,9 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Screen 3: what the agent read and changed, and how the referee judged it.*
 
-1. Sessions: "Session 1 · 30 turns" and "Test phase · 12 turns".
-2. Diff map (harness): nine changed files and "⊘ blocked app/services/errors.py".
-3. Files outside the allowed paths (diff_scope): "✓ 0 new".
-4. Blinded reviewer's reason.
-5. Bare arm: "Not run (harness in action)".
+1. Bare arm: Not run (harness in action)
+2. Diff map (harness)
+3. Sessions, including the test phase
 
 **Look at:** The two session rows and the diff map.
 
@@ -459,9 +454,9 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Screen 3: the referee's checks, then the blinded reviewer.*
 
-1. Files outside the allowed paths (diff_scope).
-2. hidden tests.
-3. Blinded reviewer's reason.
+1. hidden tests (harness)
+2. Files outside the allowed paths (diff_scope), harness
+3. Blinded reviewer's reason (harness)
 
 **Look at:** Each row's pill: "hidden tests", "House rule 1" to "House rule 7", "Existing tests (regression)", "Files outside the allowed paths (diff_scope)", "Flaky tests (flakiness)", "Session continuity (continuity)", "board check", each "✓ 0 new". Hover over a row for the full name and the number of probes.
 
@@ -513,8 +508,8 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Recorded run, screen 3: one row per filtered test, five filter marks, and the result.*
 
-1. A test kept by the filters.
-2. "fails on the current code; this may be a real bug".
+1. A test kept by the filters
+2. fails on the current code; this may be a real bug
 
 **Look at:** Callout 1: `test_stale_or_malformed_if_match_refuses_write_without_audit`, ✓ ✓ ✓ ✓ ✓, kept.
 
@@ -592,7 +587,7 @@ Filter 2: Passes five runs (failed on run 1 of 5: assert 422 == 412) · fails on
 
 *Screen 3: the four referee mutants and what the shipped tests did to them.*
 
-1. Mutants: filter set and referee set.
+1. Mutants (harness): filter set and referee set
 
 ```text
 mutant                         filter set   referee set
@@ -631,13 +626,14 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 2: the board stops the lost update from a stale tab.*
 
-1. ← All runs: back to the run list.
-2. Harness board, signed in as one user (admin@acme.test).
-3. Board marks: "✓ only own-org cards, no duplicates".
-4. Bare arm: "Not run (harness in action)".
-5. Two-tab edit conflict: "✓ CONFLICT DETECTED: tab B got HTTP 409".
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare arm: Not run (harness in action)
+5. Harness board marks
+6. Two-tab edit conflict
 
-**Look at:** Callout 5, and tab B's page: "This issue was changed by someone else."
+**Look at:** Callout 6, and tab B's page: "This issue was changed by someone else."
 
 **What it means:** Tab A saves, then tab B saves from its stale form. Tab B gets HTTP 409 and a "changed by someone else" page. The board part of the feature works. The referee still found one hidden test failing at the API.
 
@@ -662,9 +658,8 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 5: where the run first went wrong, and where to read every model call.*
 
-1. Live tail: the last events, ending with the verdict ("agent said not_done; referee: fails the primary measure; ...") and the conflict screenshot.
-2. First wrong turn: "✗ turn 1.11 blocked", `apply_patch app/services/errors.py`.
-3. LangSmith links: one for the agent, one for the referee.
+1. Live tail
+2. First wrong turn
 
 **Look at:** The first wrong turn.
 
@@ -691,11 +686,10 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 4: this run on top, the runs measured before class below.*
 
-1. This run: "✗ primary verdict ready: FAIL", hidden tests 68/69, mutants killed 0/4.
-2. Measured before class: 36 runs per arm.
-3. Dots per run.
-4. Cost per verified feature.
-5. Reviewer agreement.
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
 **Look at:** The two rows "Feature 4: Version checks on issue edits · canonical · bare" and "Feature 4: Version checks on issue edits · canonical · harness": two hollow dots each (○, failed) and "0/2 before class". These rows score this section's measure, all hidden tests and all referee mutants. Below them are two more Feature 4 rows that end "judged by files changed outside the allowed paths", with filled dots: bare 1/10, harness 10/10. Those are Section 3's measure, the scope count from Chapter 3, not this one.
 

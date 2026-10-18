@@ -93,10 +93,10 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *The show-1 card after the run finished. It is second here because the next section's run had already started.*
 
-1. Run id: click it to open the run.
-2. Type: "harness in action" or "A/B".
-3. Status: "running", then "finished".
-4. Start time, in UTC.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** the type and the status on the new card.
 
@@ -124,10 +124,10 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *Screen 1 of this run. The left panel is the bare arm, the right panel the harness arm.*
 
-1. "← All runs": back to the run list.
-2. The screen tabs 1 to 5.
-3. Bare arm: "Not run (harness in action)".
-4. Harness arm line: its layers, here "instructions".
+1. ← All runs: back to the run list
+2. Screen tabs 1 to 5
+3. Harness arm line: its layers
+4. Bare arm: Not run (harness in action)
 
 **Look at:** the left panel, BARE: "Not run (harness in action): this run shows the harness arm alone. The bare-vs-harness comparison comes from the A/B runs (make demo-N)."
 
@@ -155,13 +155,12 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *About one minute in (the run's log replayed to that point): the agent has read the documents and starts writing code.*
 
-1. The badge "HARNESS IN ACTION — one arm, not an A/B".
-2. Bare arm: "Not run (harness in action)".
-3. Bare arm line: no layers.
-4. Harness arm line: its layers.
-5. The container line: network none.
-6. "Last turns": the newest tool calls, numbered session.turn.
-7. "Harness decisions": the layer's notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Harness arm line: its layers
+3. Bare arm: Not run (harness in action)
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
 **Look at:** the note "placed 31 instruction files".
 
@@ -274,11 +273,11 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *The harness panel at the end: two notes, no gate, the claim and the referee.*
 
-1. Harness arm line: its layers.
-2. The turns list, with "Expand".
-3. "Harness decisions".
-4. The gate list: "No gate." and the referee's checks.
-5. The referee pill.
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** the hidden tests count and "claim supported".
 
@@ -305,11 +304,9 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *Screen 3: what the agent read, what it changed, and every referee check.*
 
-1. Sessions, including the test phase.
-2. The diff map of the harness arm.
-3. "Files outside the allowed paths (diff_scope)".
-4. The blinded reviewer's reason.
-5. Bare arm: "Not run (harness in action)".
+1. Bare arm: Not run (harness in action)
+2. Diff map (harness)
+3. Sessions, including the test phase
 
 **Look at:** the first rows of "Files read": "harness doc ARCHITECTURE.md" and "handbook docs/HANDBOOK.md ×2". There is no skill row.
 
@@ -357,7 +354,7 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *The mutants table. Section 1 has no test filters, so the filter set column shows a dash.*
 
-1. Mutants: the filter set and the referee set.
+1. Mutants (harness): filter set and referee set
 
 **Look at:** the House rule 1 row, then the reviewer line.
 
@@ -385,10 +382,11 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *Screen 2: no card from another org on the board.*
 
-1. "← All runs": back to the run list.
-2. The harness board, signed in as one user.
-3. The board marks.
-4. Bare arm: "Not run (harness in action)".
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare arm: Not run (harness in action)
+5. Harness board marks
 
 **Look at:** the pill above the screenshot.
 
@@ -415,9 +413,8 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *Screen 5: where you look for the first wrong turn.*
 
-1. "Live tail": one line per event, newest first.
-2. "First wrong turn".
-3. The LangSmith links.
+1. Live tail
+2. First wrong turn
 
 **Look at:** "First wrong turn".
 
@@ -444,11 +441,10 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 *Screen 4: the comparison comes from the runs before class, not from this run.*
 
-1. "This run".
-2. "Measured before class".
-3. Dots per run.
-4. "Cost per verified feature".
-5. "Reviewer agreement".
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
 **Look at:** the two Feature 1 rows: 4/4 for the bare arm and 4/4 for the harness arm.
 

@@ -95,8 +95,8 @@ The `A/B ab-…` line and the result lines come only at the end (Step 21).
 
 *The run list after the run finished. The Section 2 card is the second one, because the next chapter's run had already started.*
 
-1. Run id: click it to open the run
-2. Type: "harness in action" for a single-arm run, "A/B" for a comparison
+1. Run id: open the run
+2. Type: harness in action or A/B
 3. Status
 4. Start time
 
@@ -126,9 +126,9 @@ The `A/B ab-…` line and the result lines come only at the end (Step 21).
 
 *Screen 1 during session 1, showing the first turns and the two layer notes.*
 
-1. "HARNESS IN ACTION — one arm, not an A/B"
-2. Bare arm: Not run (harness in action)
-3. Harness arm line, with its layers: instructions + state
+1. HARNESS IN ACTION badge, or the feature
+2. Harness arm line: its layers
+3. Bare arm: Not run (harness in action)
 4. Container line
 5. Last turns
 6. Harness decisions: the layer notes
@@ -193,8 +193,7 @@ The initializer step is plain code, so it makes no model call.
 
 *Screen 1 at the stop. The state layer has just written the handoff.*
 
-1. Handoff written to session-handoff.md
-2. Turns list
+1. Turns list
 
 **Look at:** "ended by turn_budget" and "handoff written to session-handoff.md".
 
@@ -265,9 +264,8 @@ exit=0
 
 *The key moment: session 1 stops, and session 2's first call reads the state files.*
 
-1. Session 1 stopped: ended by turn_budget; handoff session-handoff.md
-2. Session 2 resumed: prefix: core, instructions, state
-3. Handoff written to session-handoff.md
+1. Session 1 stopped
+2. Session 2 resumed
 
 **Look at:** the tool target of turn 2.1. It reads `progress.md`, the git log, `session-handoff.md`, and the exec plan, then runs `init.sh`.
 
@@ -375,8 +373,8 @@ PASS means none of the three happened. It does not mean the feature works; the h
 1. Harness arm line: its layers
 2. Turns list
 3. Harness decisions
-4. Gate list: "No gate." in this section, then the referee's checks
-5. Referee pill
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** "hidden tests 56/56", "mutants killed 1/4", and the "launch to full verdict" time. The full verdict came 7:11 after launch; the console's clock, which starts a few seconds later, shows 07:05.
 
@@ -403,11 +401,9 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 *Screen 3: two build sessions and the test phase, no continuity failure, and no file outside scope.*
 
-1. Sessions, including the test phase
+1. Bare arm: Not run (harness in action)
 2. Diff map (harness)
-3. Files outside the allowed paths (diff_scope)
-4. The blinded reviewer's reason
-5. Bare arm: Not run (harness in action)
+3. Sessions, including the test phase
 
 **Look at:** each session row, and whether any row has a "↺ redone" mark under it.
 
@@ -464,7 +460,7 @@ PASS means none of the three happened. It does not mean the feature works; the h
 *The diff map: one new migration, and no command refused by the sandbox.*
 
 1. Diff map (harness)
-2. Sandbox denials
+2. Sandbox denials (harness)
 
 **Look at:** `migrations/versions/0002_comments.py`. It is the only new migration.
 
@@ -500,9 +496,9 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 *The referee panel: every check at 0 new, and the reviewer accepts.*
 
-1. Files outside the allowed paths (diff_scope)
-2. hidden tests
-3. The blinded reviewer's reason
+1. hidden tests (harness)
+2. Files outside the allowed paths (diff_scope), harness
+3. Blinded reviewer's reason (harness)
 
 **Look at:** "Session continuity (continuity)", then "House rule 7", then "Files outside the allowed paths (diff_scope)", then the reviewer line.
 
@@ -530,9 +526,10 @@ PASS means none of the three happened. It does not mean the feature works; the h
 *Screen 2: no other org's data on the board.*
 
 1. ← All runs: back to the run list
-2. Harness board, signed in as admin@acme.test
-3. Board marks
+2. Bare board heading
+3. Harness board heading: signed in as one user
 4. Bare arm: Not run (harness in action)
+5. Harness board marks
 
 **Look at:** the mark above the screenshot.
 
@@ -563,7 +560,6 @@ PASS means none of the three happened. It does not mean the feature works; the h
 2. Measured before class
 3. Dots per run
 4. Cost per verified feature
-5. Reviewer agreement
 
 **Look at:** the two "Feature 2: Comments on issues · canonical" rows. Scroll down in the left panel to reach them.
 
@@ -596,7 +592,6 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 1. Live tail
 2. First wrong turn
-3. LangSmith links
 
 **Look at:** "First wrong turn", then the agent link under "LangSmith".
 

@@ -94,10 +94,10 @@ traced to the class day's project (Part 0 explains both).
 
 *The new A/B sits on top. While it runs, its status says running instead of finished.*
 
-1. The run id: click it to open the run.
-2. The type: "A/B", both arms.
-3. The status.
-4. The start time, a few seconds after you pressed Enter.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** The type "A/B" and the start time.
 
@@ -127,12 +127,12 @@ screen shows the bare arm on the left and the harness arm on the right.
 
 *About a minute in, both arms are reading the code. The harness arm has already hit the scope layer.*
 
-1. The feature both arms build: Feature 4: Version checks on issue edits.
-2. The bare arm line: "no layers".
-3. The harness arm line: "instructions + scope + state".
-4. The container line: its own container, "network none".
-5. The last turns of the harness arm.
-6. Harness decisions: the layer notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Bare arm line: no layers
+3. Harness arm line: its layers
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
 **Look at:** The two arm lines, then the three `note` rows under the harness arm's Harness decisions.
 The bare arm shows "None: bare arm has no layers."
@@ -165,9 +165,9 @@ wrote `feature_list.json` with this one feature and `passes: false`. Both contai
 
 *The scope layer refused the harness arm's patch to the shared errors module. Nothing was written.*
 
-1. The `block` row: `app/services/errors.py` is outside the allowed paths for the build phase.
-2. The harness arm's turns list.
-3. The bare arm line: "no layers", so no row like this can appear on the left.
+1. Bare arm line: no layers
+2. Turns list
+3. Blocked edit: outside the allowed paths
 
 **Look at:** The `block` row and its reason: "app/services/errors.py: outside the allowed paths for
 the build phase", then the allowed paths. The full text ends "patch not applied".
@@ -202,9 +202,9 @@ file on the list.
 
 *This time the bare arm finished without a patch to `app/services/errors.py`.*
 
-1. The bare arm line: "no layers".
-2. All turns: Expand shows every turn.
-3. The referee pill: "primary verdict ready: PASS".
+1. Bare arm line: no layers
+2. Turns list
+3. Referee pill (bare)
 
 **Look at:** The turns that name `app/services/errors.py`. In this run, turn 1.17 is a `read_file` of
 that file. No `apply_patch` turn names it.
@@ -238,7 +238,7 @@ shared file. Before class, most bare arms patched that file instead (Step 13).
 
 *The bare arm's primary verdict arrives first, while its secondary checks still run.*
 
-1. The bare arm's referee pill: "primary verdict ready: PASS".
+1. Referee pill (bare)
 
 **Look at:** Under Referee: "primary verdict ready: PASS", then "files changed outside the allowed
 paths 0", "secondary checks running" and "launch to primary verdict 03:01".
@@ -272,11 +272,11 @@ later, as secondary results.
 
 *The harness arm passes the scope measure too. Its secondary results differ from the bare arm's.*
 
-1. The harness arm line: "instructions + scope + state".
-2. The turns list.
-3. Harness decisions: the block, then the state layer's session stop and the scope layer's status set.
-4. The gate list: "No gate.", then the referee checks.
-5. The referee pill: "primary verdict ready: PASS".
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** On both arms: "Agent said done", "claim supported", and the secondary counts. Bare:
 hidden tests 68/69, mutants killed 1/4. Harness: hidden tests 68/69, mutants killed 4/4.
@@ -308,9 +308,9 @@ the harness, not the agent, set `passes` in `feature_list.json`, from its own vi
 
 *Read the middle panel, "Section 3: Scope and sandbox". Only the harness arm has a blocked file.*
 
-1. The bare arm's diff map: six changed files, all on the list.
-2. The harness arm's diff map: nine changed files, and `app/services/errors.py` marked blocked.
-3. Sandbox denials: none.
+1. Diff map (bare)
+2. Diff map (harness)
+3. Sandbox denials (harness)
 
 **Look at:** The middle panel. Under BARE, every row says `changed`, and `app/services/errors.py` is
 absent. Under HARNESS, one row says `blocked app/services/errors.py`. "Sandbox denials: none" under
@@ -344,10 +344,10 @@ either arm hit the container's limits.
 
 *The section's measure as a referee row: 0 new for both arms in this run.*
 
-1. Bare: "Files outside the allowed paths (diff_scope)", 0 new.
-2. Harness: "Files outside the allowed paths (diff_scope)", 0 new.
-3. Harness: hidden tests, 0 new.
-4. Harness: the blinded reviewer's reject and its one-line reason.
+1. Files outside the allowed paths (diff_scope), bare
+2. hidden tests (harness)
+3. Files outside the allowed paths (diff_scope), harness
+4. Blinded reviewer's reason (harness)
 
 **Look at:** The row "Files outside the allowed paths (diff_scope)" in each arm. Then the reviewer
 lines: both say "reviewer reject", because the version check "is not atomic".
@@ -380,9 +380,8 @@ so two writers can still overwrite each other.
 
 *The harness arm's first wrong turn is its refused patch. The bare arm has none.*
 
-1. Live tail: the newest events first.
-2. First wrong turn: bare "no wrong turn found"; harness "turn 1.12 blocked".
-3. LangSmith links for each arm's agent and referee.
+1. Live tail
+2. First wrong turn
 
 **Look at:** The middle panel. Bare: "no wrong turn found". Harness: "turn 1.12 blocked", then
 `apply_patch app/services/errors.py`.
@@ -413,11 +412,12 @@ first wrong turn is the moment the scope layer stopped the shared-file edit.
 
 *Both arms built the conflict page: tab B's stale save gets HTTP 409.*
 
-1. "← All runs": back to the runs list.
-2. The harness board, signed in as one Acme user.
-3. The harness board's marks: "only own-org cards, no duplicates".
-4. The bare board's marks: the same.
-5. The two-tab edit conflict panel.
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare board marks
+5. Harness board marks
+6. Two-tab edit conflict
 
 **Look at:** The pill above each board, then the green bar over each two-tab frame: "CONFLICT
 DETECTED: tab B got HTTP 409".
@@ -451,19 +451,18 @@ page in this run.
 
 *The top strip is this run. The left panel holds the runs measured before class.*
 
-1. This run: both arms, PASS, files changed outside the allowed paths 0.
-2. "Measured before class: 36 runs per arm", over all features.
-3. One dot per run.
-4. Cost per verified feature.
-5. Reviewer agreement.
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
 ![Close-up of screen 4's left panel: for Feature 4 judged by files changed outside the allowed paths, the bare row shows nine hollow dots and one filled dot, 1/10 before class, then a new filled diamond, 1/1 new; the harness row shows ten filled dots, 10/10 before class, then 1/1 new; the legend says filled passed, hollow failed](../images/s3/screen-4-report.png)
 
 *The scope rows: bare 1/10 before class and 1/1 new; harness 10/10 before class and 1/1 new.*
 
-1. "Measured before class: 36 runs per arm".
-2. One row of dots per feature and arm.
-3. The legend: a filled dot passed, a hollow dot failed; diamonds are new runs.
+1. Measured before class
+2. Dots per run, Feature 4: Version checks on issue edits
+3. Legend
 
 **Look at:** The two Feature 4 rows that end "judged by files changed outside the allowed paths".
 Bare: "1/10 before class · 1/1 new". Harness: "10/10 before class · 1/1 new".
