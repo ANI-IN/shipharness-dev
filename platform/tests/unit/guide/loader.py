@@ -9,7 +9,7 @@ from types import ModuleType
 
 from shipharness.layout import find_repo_root
 
-GUIDE = find_repo_root(Path(__file__)) / "platform" / "scripts" / "guide"
+GUIDE = find_repo_root(Path(__file__)) / "platform/scripts/guide"  # internal: not released
 
 
 def load(name: str) -> ModuleType:

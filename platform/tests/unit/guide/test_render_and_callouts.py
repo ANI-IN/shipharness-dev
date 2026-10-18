@@ -62,13 +62,13 @@ def test_prepare_lines_ranges_and_highlight() -> None:
 
 def test_render_refuses_keys(tmp_path: Path) -> None:
     with pytest.raises(gl.SecretFound):
-        tr.render(SAMPLE + "\nOPENAI_API_KEY=sk-proj-abcdefghijklmnop1234", tmp_path / "t.png")
+        tr.render(SAMPLE + "\nOPENAI_API_KEY=sk-" + "proj-abcdefghijklmnop1234", tmp_path / "t.png")
     assert not (tmp_path / "t.png").exists()
 
 
 def test_render_refuses_key_in_command(tmp_path: Path) -> None:
     with pytest.raises(gl.SecretFound):
-        tr.render("ok", tmp_path / "t.png", command="export K=lsv2_pt_0123456789abcdef_01")
+        tr.render("ok", tmp_path / "t.png", command="export K=lsv2_" + "pt_0123456789abcdef_01")
 
 
 def test_render_writes_2x_png(tmp_path: Path) -> None:

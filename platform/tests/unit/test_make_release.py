@@ -1168,3 +1168,19 @@ def test_a_thin_final_project_is_reported_missing_parts() -> None:
     assert "final-project/README.md" not in missing
     for item in ("final-project/run.sh", "final-project/harness/", "final-project/CHECKLIST.md"):
         assert item in missing
+
+
+def test_the_live_demo_guide_ships_and_its_capture_tooling_does_not() -> None:
+    assert mr.classify("docs/walkthrough/Harness-Engineering-Demo-Guide.pdf") is None
+    assert mr.classify("docs/walkthrough/chapters/1-section-1.md") is None
+    assert mr.classify("docs/walkthrough/images/s1/runlist.png") is None
+    assert mr.classify("platform/scripts/guide/capture.py") is not None
+
+
+def test_tests_of_the_capture_tooling_stay_private() -> None:
+    loader = (mr.REPO / "platform/tests/unit/guide/loader.py").read_text(encoding="utf-8")
+    sources = {"platform/tests/unit/guide/loader.py": loader}
+    found = mr.find_excluded_tests(
+        sources, ["platform/scripts/guide/guidelib.py"], ["platform/src/shipharness/x.py"]
+    )
+    assert "platform/tests/unit/guide/loader.py" in found

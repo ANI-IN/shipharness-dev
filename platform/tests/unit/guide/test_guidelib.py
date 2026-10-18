@@ -61,9 +61,9 @@ def test_host_path_hits_ignores_redacted_text() -> None:
 @pytest.mark.parametrize(
     "text",
     [
-        "OPENAI_API_KEY=sk-proj-abcdefghijklmnop1234",
-        "key sk-abcdefghijklmnopqrstu",
-        "LANGSMITH_API_KEY=lsv2_pt_0123456789abcdef_0123456789",
+        "OPENAI_API_KEY=sk-" + "proj-abcdefghijklmnop1234",
+        "key sk-" + "abcdefghijklmnopqrstu",
+        "LANGSMITH_API_KEY=lsv2_" + "pt_0123456789abcdef_0123456789",
         "Authorization: Bearer abcdefghijklmnopqrstuvwxyz012345",
     ],
 )
@@ -88,7 +88,7 @@ def test_find_secrets_passes_plain_text(text: str) -> None:
 
 
 def test_secret_message_never_contains_the_key() -> None:
-    key = "sk-proj-abcdefghijklmnop1234"
+    key = "sk-" + "proj-abcdefghijklmnop1234"
     with pytest.raises(gl.SecretFound) as err:
         gl.check_no_secrets(f"x={key}")
     assert key not in str(err.value)
