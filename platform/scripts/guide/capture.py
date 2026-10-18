@@ -1367,7 +1367,7 @@ def _setup_terms(status: Path, out: Out) -> None:
                 label=f"make {name}",
                 title=title,
                 prefix=f"term-{name}",
-                command=f"make {name}",
+                command=None,  # the capture starts with its own "$ make ..." line
             )
     if (status / "terminal.txt").is_file():
         capture_terms(status / "terminal.txt", out, label="the setup", title="Terminal 1")
