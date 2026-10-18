@@ -42,10 +42,10 @@ implementations, we let agents ship fast without undermining the foundation".
 1. Pick an id and a short title. Run:
 
    ```
-   python scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root <repo>
+   python scripts/new_rule.py --id Example --title "Soft-deleted rows never appear" --root <repo>
    ```
 
-   It writes `docs/rules/R8-<slug>.md` from `assets/rule-template.md`, a check stub in `checks/`,
+   It writes `docs/rules/<id>-<slug>.md` from `assets/rule-template.md`, a check stub in `checks/`,
    and a test stub in `platform/tests/`. Use `--docs-dir`, `--checks-dir`, `--tests-dir`, or `--slug` to
    change where files go, `--dry-run` to see the plan, `--force` to overwrite.
 2. Fill in the rule document. The Rule section is one sentence a reviewer can answer yes or no.

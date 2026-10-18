@@ -2,7 +2,7 @@
 """Scaffold a house rule: a rule doc, a check stub, and a test stub that fails until it is written.
 
 Usage:
-    python new_rule.py --id R8 --title "Soft-deleted rows never appear" [--root .]
+    python new_rule.py --id Example --title "Soft-deleted rows never appear" [--root .]
         [--slug soft-delete] [--docs-dir docs/rules] [--checks-dir checks] [--tests-dir tests]
         [--force] [--dry-run]
 
@@ -114,7 +114,7 @@ def slugify(text: str) -> str:
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--id", required=True, dest="rule_id", help="rule id, for example R8")
+    parser.add_argument("--id", required=True, dest="rule_id", help="rule id, for example Example")
     parser.add_argument("--title", required=True, help="the rule in a few words")
     parser.add_argument("--root", type=Path, default=Path("."), help="repository root")
     parser.add_argument("--slug", help="file name part (default: from the title)")
@@ -125,7 +125,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="print the plan, write nothing")
     args = parser.parse_args(argv)
     if not RULE_ID.match(args.rule_id):
-        parser.error("--id must be a letter followed by up to 15 letters or digits, e.g. R8")
+        parser.error("--id must be a letter followed by up to 15 letters or digits, e.g. Example")
     if not args.title.strip():
         parser.error("--title must not be empty")
     args.slug = slugify(args.slug or args.title)

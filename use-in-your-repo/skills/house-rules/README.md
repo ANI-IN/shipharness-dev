@@ -160,22 +160,22 @@ Example prompt, the same in all three tools (prefix `/house-rules` in Claude Cod
 `$house-rules` in Codex to call it by name):
 
 ```text
-Make a house rule R8: soft-deleted rows never appear in list endpoints. Scaffold it with the
+Make a house rule, "Example rule: soft-deleted rows never appear in list endpoints". Scaffold it with the
 skill's script, write the seeded-violation test first and show me it failing, then write the
 check until it passes. Run the check on the whole repository, put existing violations in the
 baseline, and add the rule to AGENTS.md and CI.
 ```
 
 The agent runs the script from the installed folder, for example
-`python .claude/skills/house-rules/scripts/new_rule.py --id R8 --title "..." --root .`. You can
-preview what it writes with `--dry-run`. Captured on 2026-10-17 against the course's TeamTrack app from
-`uv run python use-in-your-repo/skills/house-rules/scripts/new_rule.py --id R8 --title "Soft-deleted rows never appear" --root platform/teamtrack --dry-run`
+`python .claude/skills/house-rules/scripts/new_rule.py --id Example --title "..." --root .`. You can
+preview what it writes with `--dry-run`. Captured on 2026-10-18 against the course's TeamTrack app from
+`uv run python use-in-your-repo/skills/house-rules/scripts/new_rule.py --id Example --title "Soft-deleted rows never appear" --root platform/teamtrack --dry-run`
 (run from the checkout root):
 
 ```text
-would write docs/rules/R8-soft-deleted-rows-never-appear.md
-would write checks/check_r8_soft_deleted_rows_never_appear.py
-would write tests/test_check_r8_soft_deleted_rows_never_appear.py
+would write docs/rules/Example-soft-deleted-rows-never-appear.md
+would write checks/check_example_soft_deleted_rows_never_appear.py
+would write tests/test_check_example_soft_deleted_rows_never_appear.py
 ```
 
 ## What it costs
