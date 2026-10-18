@@ -19,6 +19,7 @@ dist/
 
 # shipharness runtime state (run logs, arm workspaces, cost ledger, session meter)
 .shipharness/
+exports/
 
 # TeamTrack local databases
 *.db
