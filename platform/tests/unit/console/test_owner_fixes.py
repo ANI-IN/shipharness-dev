@@ -653,3 +653,31 @@ def test_the_run_list_is_a_list_of_cards_with_breakable_ids(tmp_path: Path) -> N
     text = TestClient(create_console_app(runs, exports_dir=tmp_path / "x")).get("/").text
     assert '<ul class="runs">' in text and "<table" not in text
     assert "ab-<wbr>20261018-<wbr>045459-<wbr>aaaaaa" in text
+
+
+# -- a run in progress: the run list knows its section before ab.json exists ------------------------
+
+
+def test_a_running_run_shows_its_section_from_the_start_record(tmp_path: Path) -> None:
+    runs = tmp_path / "runs"
+    log = single_arm_run(runs, done=False)
+    (log.parent / "start.json").write_text(
+        json.dumps({"section": "demo-1", "mode": "harness in action", "feature_id": "F1"}),
+        encoding="utf-8",
+    )
+    row = run_summary(log.parent)
+    assert (row.section, row.feature, row.kind, row.status) == (
+        "Section 1: Instructions",
+        "Feature 1: Org-wide issue search",
+        "harness in action",
+        "running",
+    )
+    text = TestClient(create_console_app(runs, exports_dir=tmp_path / "x")).get("/").text
+    assert "Section 1: Instructions" in text and "unknown" not in text
+
+
+def test_ab_json_wins_over_the_start_record(tmp_path: Path) -> None:
+    log = ab_run(tmp_path / "runs")
+    (log.parent / "start.json").write_text(json.dumps({"section": "demo-2"}), encoding="utf-8")
+    write_ab_json(log.parent, section="demo-3", mode="A/B", task={"feature_id": "F4"})
+    assert run_summary(log.parent).section == "Section 3: Scope and sandbox"

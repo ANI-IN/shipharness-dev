@@ -417,6 +417,7 @@ def run_ab(
     task = section_task(task, section)
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
+    write_start_record(run_dir, ab_id, task, section, arms, constructed)
     run_ids = {arm: new_run_id() for arm in arms}
     # The checkpoint is pinned to the commit its tag names now: both arms, the referee, and later
     # swap tests and replays export that commit, even if the tag moves afterwards.
@@ -497,6 +498,35 @@ AB_RECORD = "ab.json"
 SINGLE_ARM_MODE = "harness in action"
 CONSTRUCTED_MODE = "constructed example"
 CONSTRUCTED_SCORE = "score.json"  # <run dir>/harness/score.json: a constructed run's ScoreRecord
+
+
+START_RECORD = "start.json"
+
+
+def write_start_record(
+    run_dir: Path,
+    ab_id: str,
+    task: ABTask,
+    section: str | None,
+    arms: tuple[Arm, ...],
+    constructed: bool,
+) -> Path:
+    """What the run is, written before any arm starts: the console's run list reads it while the
+    run goes on (ab.json, the full record, is written when both arms are judged)."""
+    single_arm = set(arms) == {"harness"}
+    mode = CONSTRUCTED_MODE if constructed else SINGLE_ARM_MODE if single_arm else "A/B"
+    data = {
+        "ab_id": ab_id,
+        "section": section,
+        "mode": mode,
+        "feature_id": task.feature_id,
+        "single_arm": single_arm,
+        "constructed": constructed,
+    }
+    run_dir.mkdir(parents=True, exist_ok=True)
+    path = run_dir / START_RECORD
+    path.write_text(json.dumps(data, indent=2, sort_keys=True), encoding="utf-8")
+    return path
 
 
 def write_ab_record(
