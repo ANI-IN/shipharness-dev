@@ -40,6 +40,8 @@ what the first one had done.
 > - **Fast tier**: OpenAI's faster, pricier service tier, used in class.
 > - **Hidden tests**: Tests the referee runs that the agent never sees.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## The idea in one sentence
 

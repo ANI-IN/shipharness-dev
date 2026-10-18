@@ -31,7 +31,7 @@ come from test runs 1 and 2. All were taken after the runs ended.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Screen 1 after both verdicts](screen-1-final.png)
+![Screen 1 after both verdicts: both arms FAIL the feature's measure, the harness arm ABORTED: timeout](screen-1-final.png)
 
 *Screen 1: both arms FAIL the version checks feature's own measure; the harness arm ended `ABORTED: timeout`; primary verdicts at 05:15 and 08:50.*
 
@@ -43,11 +43,11 @@ come from test runs 1 and 2. All were taken after the runs ended.
 
 *Screen 3: `app/services/errors.py` changed by the bare arm, blocked for the harness arm; `diff_scope` 1 new and 0 new.*
 
-![Screen 3 of test run 1](screen-3-run-1.png)
+![Screen 3 of test run 1: the bare arm changed app/services/errors.py, the harness arm was blocked on it](screen-3-run-1.png)
 
 *Test run 1: the same file changed by the bare arm and blocked for the harness arm.*
 
-![Screen 3 of test run 2](screen-3-run-2.png)
+![Screen 3 of test run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](screen-3-run-2.png)
 
 *Test run 2: the same pattern a third time.*
 

@@ -25,6 +25,8 @@ ticket on every agent change.
 > - **Feature list**: `feature_list.json`, the one feature of the run and its `passes` field.
 > - **Sandbox**: The container every tool command runs in, the same for both arms.
 > - **Lost update**: One edit silently overwriting another made a moment earlier.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## Why it happens
 

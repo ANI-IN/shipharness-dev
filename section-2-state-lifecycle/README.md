@@ -25,6 +25,8 @@ change, and a bill for the same work twice.
 > - **Migration head**: The newest migration in the chain; two heads means two migrations each claim to be the newest.
 > - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
 > - **Compaction**: Squeezing an old context into a short summary for the next session.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## Why it happens
 

@@ -39,7 +39,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 *Minute 4: "primary verdict ready: PASS", no new tenant isolation violations, other checks still running.*
 
-![Screen 1 after the full verdict](screen-1-final.png)
+![Screen 1 after the full verdict: primary verdict PASS, hidden tests 52/52, claim supported](screen-1-final.png)
 
 *The end: 35 turns, hidden tests 52/52, mutants killed 2/4, primary verdict at 04:11, full at 10:00.*
 

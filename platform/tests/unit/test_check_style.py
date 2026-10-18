@@ -182,12 +182,28 @@ CASES = [
     ),
     ("SC06", DEMO, f"{IMG}\n\n{CAPTION}\n", f"{IMG}\n\n{CAPTION}\n", {}, 1),  # missing file
     (
-        "SC06",
+        "SC26",
         DEMO,
         f"{IMG}\n\n{CAPTION}\n",
         f"Text.\n\n![](expected/screen-1-minute-4.png)\n\n{CAPTION}\n",
         IMG_FILE,
         3,
+    ),
+    (
+        "SC26",
+        DEMO,
+        f"{IMG}\n\n{CAPTION}\n",
+        f"![screen-1-minute-4.png](expected/screen-1-minute-4.png)\n\n{CAPTION}\n",
+        IMG_FILE,
+        1,
+    ),
+    (
+        "SC26",
+        DEMO,
+        f"{IMG}\n\n{CAPTION}\n",
+        f"![screen 1 minute 4](expected/screen-1-minute-4.png)\n\n{CAPTION}\n",
+        IMG_FILE,
+        1,
     ),
     (
         "SC06",
@@ -506,7 +522,7 @@ def test_check_pass_and_fail(
 ) -> None:
     good = tmp_path / "good"
     bad = tmp_path / "bad"
-    passing_extra = IMG_FILE if check in ("SC06", "SC07") else extra
+    passing_extra = IMG_FILE if check in ("SC06", "SC07", "SC26") else extra
     found = [p for p in problems(good, rel, passing, passing_extra) if p.check == check]
     assert found == [], found
     found = [p for p in problems(bad, rel, failing, extra) if p.check == check]
@@ -516,13 +532,13 @@ def test_check_pass_and_fail(
 
 def test_every_check_has_a_passing_and_a_failing_case() -> None:
     covered = {c[0] for c in CASES}
-    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), *range(21, 26), 30]}
+    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), *range(21, 27), 30]}
 
 
 def test_severities_follow_the_first_version() -> None:
     errors = {"SC00", "SC01", "SC02", "SC03", "SC04", "SC05", "SC06", "SC07", "SC08", "SC09"}
     errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20", "SC21", "SC22"}
-    errors |= {"SC23", "SC24", "SC25", "SC30"}
+    errors |= {"SC23", "SC24", "SC25", "SC26", "SC30"}
     warnings = {"SC11", "SC16", "SC17", "SC18"}
     for check, (_, severity) in cs.CHECKS.items():
         assert severity == ("error" if check in errors else "warning"), check
@@ -836,7 +852,7 @@ def test_cli(tmp_path: Path) -> None:
     listed = run_cli(tmp_path, "--list-checks")
     assert listed.returncode == 0
     rows = [ln for ln in listed.stdout.splitlines() if re.match(r"^SC\d\d ", ln)]
-    assert len(rows) == len(cs.CHECKS) == 27
+    assert len(rows) == len(cs.CHECKS) == 28
 
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
@@ -944,6 +960,49 @@ def test_the_teamtrack_owner_role_is_not_an_internal_phrase(tmp_path: Path) -> N
         "Each rule file has an owner. The handoff has two owners.\n"
     )
     assert [p for p in problems(tmp_path, "docs/guide.md", text) if p.check == "SC14"] == []
+
+
+@pytest.mark.parametrize(
+    ("alt", "problem"),
+    [
+        ("Console screen 1 at minute 4, with the primary verdict PASS", None),
+        ("Screen 3: diff maps and referee checks", None),
+        ("", "no alt text"),
+        ("   ", "no alt text"),
+        (None, "no alt text"),
+        ("screen-1-minute-4.png", "file name"),
+        ("screen-1-minute-4", "file name"),
+        ("Screen 1 minute 4", "file name"),
+        ("image", "says nothing"),
+        ("Screenshot", "says nothing"),
+    ],
+)
+def test_alt_text_problem(alt: str | None, problem: str | None) -> None:
+    found = cs.alt_text_problem("expected/screen-1-minute-4.png", alt)
+    if problem is None:
+        assert found is None
+    else:
+        assert found and problem in found
+
+
+def test_img_tag_without_alt_fails_sc26(tmp_path: Path) -> None:
+    body = '<img src="expected/screen-1-minute-4.png">\n\n' + CAPTION + "\n"
+    found = problems(tmp_path, DEMO, demo_page(body), IMG_FILE)
+    assert "SC26" in {p.check for p in found}
+    assert "SC06" not in {p.check for p in found}  # alt text is SC26's, not SC06's
+
+
+def test_ci_status_badge_needs_no_caption_and_may_be_remote(tmp_path: Path) -> None:
+    badge = (
+        "[![CI status: tests and checks on main]"
+        "(https://github.com/ANI-IN/harness-engineering-session/actions/workflows/ci.yml/badge.svg)]"
+        "(https://github.com/ANI-IN/harness-engineering-session/actions/workflows/ci.yml)\n"
+    )
+    found = problems(tmp_path, "docs/guide.md", f"Intro.\n\n{badge}\nText.\n")
+    assert [p for p in found if p.check in ("SC06", "SC07", "SC26")] == []
+    other = "![Remote picture](https://example.com/badge.svg)\n\n*A caption.*\n"
+    found = problems(tmp_path / "other", "docs/guide.md", other)
+    assert "SC06" in {p.check for p in found}  # only a GitHub Actions badge is exempt
 
 
 SVG = b'<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'

@@ -42,7 +42,7 @@ same checkout.
 
 *Minute 7: the harness arm said done after 20 turns; its gate items failed on time limits, and the run ended `ABORTED: timeout`.*
 
-![Screen 1 after both full verdicts](screen-1-final.png)
+![Screen 1 after both full verdicts: hidden tests 46 of 46 in both arms, the harness arm ABORTED: timeout](screen-1-final.png)
 
 *The end: hidden tests 46/46 in both arms, mutants killed 3/3 (bare) and 1/3 (harness), full verdicts at 11:39 and 11:41 after launch.*
 

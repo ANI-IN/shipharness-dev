@@ -1,5 +1,10 @@
 # Module 1: Harness Engineering for Coding Agents
 
+[![CI status: tests and checks on the main branch](https://github.com/ANI-IN/harness-engineering-session/actions/workflows/ci.yml/badge.svg)](https://github.com/ANI-IN/harness-engineering-session/actions/workflows/ci.yml)
+
+New here? [Start here](docs/start-here.md): the learning path in order, with the time each step
+takes.
+
 This module teaches you to build the harness around a coding agent, and to measure whether each part
 of it helps. 
 
@@ -24,6 +29,8 @@ review that rests on trust.
 > - **Hidden tests**: tests the agent never sees; the referee runs them after the agent stops.
 > - **Mutant**: a copy of the code with one small bug planted on purpose; good tests catch it.
 > - **Gate**: the check that must pass before a feature counts as done.
+>
+> Every other course term is in the [glossary](docs/glossary.md).
 
 ## Why it happens
 
@@ -143,6 +150,22 @@ holds here: one model, one ticket per section (two in Section 3), a few runs per
 you run the same measurement on your own model and code. Every run id and count:
 [evidence](docs/evidence.md).
 
+### Known limitations
+
+Read the results with these limits in mind:
+
+- **One model.** Every run used gpt-6-luna for the agent and gpt-5.6-luna for the reviewer. Another
+  model may behave differently.
+- **A small number of runs.** Three A/Bs per section per round, so a few runs per arm. A small
+  difference between arms could be chance.
+- **These tasks only.** The results are specific to TeamTrack and one ticket per section (two in
+  Section 3). They do not say what the harness does on your code.
+- **macOS setup not tested on a Mac.** The [macOS page](setup/macos.md) follows the official install
+  pages; Windows (through WSL2) and Ubuntu were tested.
+- **The harness text was renamed after the measurements.** The harness files were changed to the
+  plain course names, such as "House rule 1: Tenant isolation", after the runs were measured. The
+  [evidence page](docs/evidence/general.md#harness-rename) says so.
+
 ## Quick start
 
 If git, make, uv, and Docker are installed and you have an OpenAI key and a LangSmith key, five
@@ -159,13 +182,15 @@ make show-1
 Before `make doctor`, open `.env` and fill in `OPENAI_API_KEY`, `LANGSMITH_API_KEY`, and
 `SHIPHARNESS_CLASS_DATE` (today, as `YYYY-MM-DD`). `make doctor` must end with `result: + ready`.
 `make console` keeps running: open http://127.0.0.1:8765/ in a browser and run `make show-1` in a
-second terminal. One `make show-1` costs at most $0.24 at the caps in `.env.example`.
+second terminal. One `make show-1` costs at most $0.24 at the caps in `.env.example`; the
+[costs page](docs/costs.md) has every command and assignment.
 
 Nothing installed yet? Start at [setup](setup/README.md). It covers Windows, macOS, and Linux from
 an empty machine, including both accounts.
 
 ## Where next
 
+- [Start here](docs/start-here.md): the learning path in order, with times.
 - [Setup](setup/README.md): install everything and run your first live demo.
 - [Section 1: Instructions](section-1-instructions/README.md): the first layer, with its demo and
   assignment.
@@ -176,6 +201,17 @@ an empty machine, including both accounts.
 - [Reference](docs/reference.md): every make target, setting, cap, and folder.
 - [Troubleshooting](docs/troubleshooting.md): the exact messages and their fixes.
 - [After class](docs/after-class.md) and [optional extras](docs/extras.md).
+- [Glossary](docs/glossary.md), [FAQ](docs/faq.md), and [costs](docs/costs.md): every term, the
+  common questions, and what each command costs.
+
+### Getting help
+
+- **Program channels**: raise a support ticket on Uplevel at any time, bring questions to the
+  Wednesday technical coaching, learn with peers on Discord, and ask the TAs during the live class.
+  Bring the exact terminal message, never your `.env` or a key.
+- **Review session**: it goes through each assignment, with the reference solution and common
+  mistakes. Bring your self-check output and one question per assignment.
+- **Security problems**: report them privately, as [SECURITY.md](SECURITY.md) explains.
 
 License: MIT, see [LICENSE](LICENSE).
 

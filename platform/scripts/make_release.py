@@ -63,6 +63,7 @@ TARGET = "ANI-IN/harness-engineering-session"
 ROOT_FILES = (
     "README.md",
     "LICENSE",
+    "SECURITY.md",  # how to report a security problem privately
     "Makefile",
     "pyproject.toml",
     "uv.lock",
@@ -98,6 +99,10 @@ DOCS_FILES = tuple(
         "STYLE",  # the course style guide that make check-style implements
         "reference",
         "evidence",
+        "start-here",  # the learning path, in order, with times
+        "glossary",  # every course term in plain words
+        "faq",  # the questions learners ask
+        "costs",  # what each command and assignment costs
     )
 )
 SETUP_FILES = tuple(

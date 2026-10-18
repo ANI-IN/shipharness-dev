@@ -31,6 +31,8 @@ query.
 > - **House rules**: TeamTrack's seven rules for every endpoint, such as House rule 1: Tenant isolation.
 > - **Tenant isolation rule**: House rule 1. Another org's resource answers 404, never 403.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## The idea in one sentence
 

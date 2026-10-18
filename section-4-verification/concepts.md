@@ -31,6 +31,8 @@ Nobody lied. The agent checked what it could see, and what it could see was not 
 > - **House rules**: TeamTrack's seven rules for every endpoint: tenant isolation, roles, API conventions, safe retries, audit log, layering, migrations.
 > - **Reward hacking**: Passing the checks without doing the task they stand for.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## The idea in one sentence
 
