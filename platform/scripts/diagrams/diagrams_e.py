@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from exlib import Scene
 from layouts import CENTRE, cheat_sheet, socratic, story_strip, timeline, title
-from style import FONT_BODY, FONT_SMALL, FONT_TITLE, INK
+from style import FONT_BODY, FONT_TITLE, INK
 
 from shipharness.datasets.names import RULE_NAMES
 
