@@ -275,7 +275,7 @@ Every measurement on these pages, in this file and in the section files, was mad
 text. One live verification run per section follows, with the class profile, to confirm that the
 renamed text gives the same results.
 
-#### Verification runs after the rename
+### Verification runs after the rename
 
 The runs are listed below once they are complete.
 

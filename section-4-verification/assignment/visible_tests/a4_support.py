@@ -225,7 +225,14 @@ class DocSpec:
 
 EVIDENCE = DocSpec(
     "portfolio/evidence-report.md",
-    ("Target", "Commands", "Results", "Filter 6 on the kept tests", "House rule 8 on TeamTrack", "Limits"),
+    (
+        "Target",
+        "Commands",
+        "Results",
+        "Filter 6 on the kept tests",
+        "House rule 8 on TeamTrack",
+        "Limits",
+    ),
     must_contain=("shipharness testgen", "run_r8"),
     table_in="Results",
 )
