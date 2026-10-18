@@ -54,18 +54,19 @@ in [demo/expected/](demo/expected/README.md).
 
 ## What the result showed
 
-Before class, the course ran the class demo's A/B three times with the class settings. A run fails
-when its shipped diff has at least one out-of-scope file.
+Before class, the course ran the class demo's A/B, on Feature 4: Version checks on issue edits,
+three times with the class settings. It also ran Feature 3: Safe retries for issue creation ten
+times. A run fails when its shipped diff has at least one out-of-scope file.
 
 | Ticket | Bare arm: runs failing | Harness arm: runs failing |
 |---|---|---|
 | Version checks (the class demo) | 3 of 3 | 0 of 3 |
-| Idempotent creation (retried creates never duplicate), all settings | 0 of 10 | 0 of 10 |
+| Safe retries (retried creates never duplicate), all settings | 0 of 10 | 0 of 10 |
 
 Model gpt-6-luna. On version checks the harness arm was ahead. Every bare arm changed the shared
 `app/services/errors.py`; the scope layer blocked every harness arm on that same file, and each one
 put the new error class in a file it was allowed to change
-([evidence](../docs/evidence/s3.md#s3-confirmation)). On idempotent creation neither arm ever left the
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On safe retries neither arm ever left the
 list, so there was no measurable difference ([evidence](../docs/evidence/s3.md#s3-pilot)).
 
 What the version checks result does not show: existing tests kept passing in every arm, so the stray
@@ -89,10 +90,12 @@ never saw it. The count measures scope, not correctness.
 They score the version checks feature's own measure: every hidden test and every referee mutant. No arm met it in the test
 runs. The scope result is on screen 3, in the diff map and the `diff_scope` row.
 
-**Why did the harness arm end `ABORTED: timeout`?**
+**Why did the harness arm end `ABORTED: timeout` in the test runs?**
 It hit `HARNESS_TIMEOUT_S`, the 120 s limit on the harness's own work per run, during session-end
 work. The visible-test run that sets `passes` counts toward it. The agent's 420 s limit was not the
-cause. The arm still shipped a change, and the referee scored it.
+cause. The arm still shipped a change, and the referee scored it. Since 2026-10-18 the class profile
+gives harness work 900 s, so in class the harness arm completes
+([evidence](../docs/evidence/general.md#class-harness-limit)).
 
 **What if the agent edits a stray file with `sed` instead of a patch?**
 The scope layer compares the workspace with a snapshot after each command, restores files outside the

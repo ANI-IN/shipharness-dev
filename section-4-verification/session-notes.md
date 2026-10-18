@@ -21,9 +21,9 @@ For learners, after class. Reading time: about 8 minutes.
 
 | Block | What happened | Read it again |
 |---|---|---|
-| Poll | The class poll picks the final feature: bulk close, watchers, or labels | [final-project/](../final-project/README.md) |
-| Launch | `make show-4`: the harness arm alone on that ticket, with all four layers, live | [demo/README.md](demo/README.md) |
-| Final launch | Right after the poll, `make final` with the poll's winner, read in the final block | [final-project/](../final-project/README.md) |
+| Poll | 2:55 to 2:57, the only poll of the class: it picks the final feature | [final-project/](../final-project/README.md) |
+| Launch | 2:57, `make show-4`: harness arm alone on Feature 4: Version checks on issue edits | [demo/README.md](demo/README.md) |
+| Final launch | 2:57, right after the poll: `make final` with the poll's winner, read in the final block | [final-project/](../final-project/README.md) |
 | Concepts | The problem, the gate, the filters, held-out checks, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The gate in 38 lines: pending pills, items in the container, the verdict | [demo/walkthrough.md](demo/walkthrough.md) |
 | Demo | The finished run on screens 1, 3, 2, then the test-run results on screen 4 | [demo/README.md](demo/README.md) |

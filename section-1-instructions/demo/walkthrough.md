@@ -10,7 +10,6 @@
 > - **Note**: A harness decision that only reports; it never blocks the agent.
 > - **Tier**: One of the three loading stages of a skill: metadata, instructions, resources.
 > - **Frontmatter**: The block between `---` lines at the top of `SKILL.md`.
-> - **Idempotent create**: A create that, retried with the same key, returns the first result instead of a duplicate.
 
 ## What this code does
 

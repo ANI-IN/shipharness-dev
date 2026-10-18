@@ -18,7 +18,7 @@ From `trace_url` (agent root) and `referee_trace_url` in each score record, Lang
 
 ## Command
 
-```
+```bash
 uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview
 ```
 

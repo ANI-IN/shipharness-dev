@@ -35,7 +35,7 @@ result down.
 ## Steps
 
 1. Pick the target. For a course library target, fetch the pinned libraries once, from the
-   shipharness repository root: `uv run python ./scripts/fetch_testgen_libs.py`. For your own
+   shipharness repository root: `uv run python platform/scripts/fetch_testgen_libs.py`. For your own
    repository, note the module path and the existing test files for it.
 2. Run testgen (one model-backed command; it prints its cost at exit):
 

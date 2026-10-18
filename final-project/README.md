@@ -98,10 +98,10 @@ make console
 ### Step 4: Run the A/B
 
 In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console, then runs
-`make final FEATURES=bulk-close`; `FEATURES=watchers` or `FEATURES=labels` picks another feature:
+`make final` on the feature you name: `bulk-close` (the default), `watchers`, or `labels`.
 
 ```bash
-PURPOSE=pilot ./final-project/run.sh
+PURPOSE=pilot ./final-project/run.sh bulk-close
 ```
 
 In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
@@ -219,7 +219,7 @@ uv run shipharness report
 | Harness arm `ABORTED: timeout` with 0 turns | Gate baseline not cached: setup used the 120 s | `make warm`, then run again |
 | `x OPENAI_API_KEY is not set` | The key is missing from `.env` | Add it, then `make doctor` |
 | `x SHIPHARNESS_CLASS_DATE is not set` | Class runs need the class day | Set it in `.env`, or use `PURPOSE=pilot` |
-| `x FEATURES=F4: the final project runs F5, F6, or F7` | The four section features are not final features | Pick `bulk-close`, `watchers`, or `labels` |
+| `x feature 'version-checks': the final project runs bulk-close, watchers, or labels` | Features 1 to 4 belong to the sections | Pick `bulk-close`, `watchers`, or `labels` |
 | `x Docker is not running` | The Docker service is stopped | `sudo systemctl start docker`, then `make warm` |
 | `! console not reachable` | The console is not started | `make console` in another terminal |
 

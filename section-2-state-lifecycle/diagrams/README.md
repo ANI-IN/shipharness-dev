@@ -72,7 +72,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Slide**: "Problem statement: The second session redoes the first".
 - **Files**: `failure-story-s2`.
 - **Source**: the slide's notes; the migrations rule (House rule 7) in `platform/teamtrack/docs/HANDBOOK.md`.
-- **How to edit**: change `failure-story-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `failure-story-s2.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: why redo work already on disk?
 
@@ -84,7 +84,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Slide**: "Fresh session: Why redo work already on disk?", frame N on build N.
 - **Files**: `socratic-s2`, with step frames `socratic-s2-step-1` to `socratic-s2-step-3`.
 - **Source**: `section-2-state-lifecycle/concepts.md`.
-- **How to edit**: change `socratic-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `socratic-s2.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### The exec plan and the progress ledger
 
@@ -96,7 +96,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Slide**: "3) The exec plan and the progress ledger".
 - **Files**: `exec-plan-ledger`.
 - **Source**: `platform/src/shipharness/harness/state/layer.py` and `lifecycle.py`, `demo/walkthrough.md`, `demo/harness/progress.md`, and the slide's speaker notes (the four PLANS.md sections).
-- **How to edit**: change `exec-plan-ledger` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `exec-plan-ledger.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured show-2 run
 
@@ -108,7 +108,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Slide**: "What just happened: One run, two sessions".
 - **Files**: `timeline-s2`.
 - **Source**: the show-2 capture in [the Section 2 evidence](../../docs/evidence/s2.md) and `demo/expected/terminal.txt`.
-- **How to edit**: change `timeline-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `timeline-s2.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Cheat sheet: four state pieces
 
@@ -120,4 +120,4 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 - **Slide**: "Cheat Sheet: Four state pieces across a stop".
 - **Files**: `cheat-sheet-s2`.
 - **Source**: `section-2-state-lifecycle/concepts.md`.
-- **How to edit**: change `cheat-sheet-s2` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `cheat-sheet-s2.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

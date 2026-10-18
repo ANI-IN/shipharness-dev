@@ -45,8 +45,9 @@ inside WSL2. A native Linux install was not tested; the commands are the same.
 
 ### Step 1: Create the OpenAI account and an API key
 
-Use the OpenAI key from the program's email if you received one; otherwise create your own (Build tier). `make doctor` confirms the key can use the course models. With a key from the email, skip to step 3; otherwise steps 1 and 2 create your own,
-and `make doctor` in step 10 checks it.
+Use the OpenAI key from the program's email if you received one; otherwise create your own (Build
+tier). With a key from the email, skip to step 3. Otherwise steps 1 and 2 create your own key.
+Either way, `make doctor` in step 10 confirms the key can use the course models.
 
 **Why.** The coding agent (`gpt-6-luna`) and the reviewer (`gpt-5.6-luna`) are OpenAI models
 (`.env.example`). Every live run calls the OpenAI API with your key and is billed to your account.

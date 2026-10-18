@@ -2,9 +2,9 @@
 
 This folder holds every file the harness arm of `make final FEATURES=bulk-close` gets from its four layers,
 exactly as the agent gets them. Section by section you saw one layer at a time; here they are
-together. `platform/scripts/sync_demo_harness.py` writes the folder from the layers' own code, and
-`platform/tests/unit/test_demo_harness.py` fails if any file here differs from what the layers
-produce. This README is the only file not written by the script.
+together. Every file except this README was written from the layers' own code, so it is what the
+layers produce. Do not edit the files here: change the layer code in `platform/src/shipharness/`,
+and the next `make final` gives the agent the new files.
 
 | Layer | Files here | How the agent gets them |
 |---|---|---|
@@ -15,11 +15,6 @@ produce. This README is the only file not written by the script.
 
 The same files for one section at a time are in the section demo folders, for example
 [section-1-instructions/demo/harness/](../../section-1-instructions/demo/harness/) and
-[section-4-verification/demo/harness/](../../section-4-verification/demo/harness/). For watchers
-or labels, the state and scope files name that feature instead; the other files are the same.
-
-To refresh the folder after a layer changes:
-
-```bash
-uv run python platform/scripts/sync_demo_harness.py
-```
+[section-4-verification/demo/harness/](../../section-4-verification/demo/harness/). For Feature 6:
+Watchers or Feature 7: Labels, the state and scope files name that feature instead; the other files
+are the same.

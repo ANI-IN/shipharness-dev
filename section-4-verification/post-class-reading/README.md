@@ -1,6 +1,6 @@
 # Module 1: Harness Engineering for Coding Agents - Reading list for Section 4: Verification
 
-Four short readings that go past the 50 minutes of class. Each one sums up a primary source in plain
+Four short readings that go past the 45 minutes of class. Each one sums up a primary source in plain
 words and shows how to apply it to your own repository. Each page takes about five minutes; the
 reading time in the table is for the full source, at 200 words a minute.
 

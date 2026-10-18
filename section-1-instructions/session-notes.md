@@ -112,7 +112,7 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
    each?
 3. Validate the course skill:
    `uv run shipharness skills validate platform/teamtrack/harness/instructions/.agents/skills`.
-4. Read the [post-class readings](post-class-reading/README.md), about 20 minutes in total.
+4. Read the [post-class readings](post-class-reading/README.md), about 15 minutes in total.
 5. In your own repository, count the lines of your agent instruction file and list the three rules
    your agent breaks most often. Where does each live, and does anything point to it before the agent
    writes code?

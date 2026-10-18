@@ -7,8 +7,8 @@ adds a new error class to the shared errors module that every endpoint imports. 
 pass and the diff looks tidy. A week later an older endpoint changes behaviour, and nobody links it
 to a ticket that never mentioned that module.
 
-This demo puts the same pull in front of two live agents. TeamTrack's version checks ticket asks for
-ETags, `If-Match` checks that answer 412, and an issue history. The ticket's allowed paths list the issue
+This demo puts the same pull in front of two live agents. TeamTrack's ticket for Feature 4: Version checks on
+issue edits asks for ETags, `If-Match` checks that answer 412, and an issue history. The ticket's allowed paths list the issue
 and audit files, the board, and the tests. The shared `app/services/errors.py` is not on the list.
 
 > **Terms on this page**
@@ -29,9 +29,9 @@ and audit files, the board, and the tests. The shared `app/services/errors.py` i
 
 ## What you'll see
 
-`make demo-3 FEATURE=version-checks` runs both arms at once on the version checks ticket. The
-harness arm has the instructions, state, and scope layers; the bare arm has none. You watch the scope layer refuse the
-harness arm's patch to the shared errors module, while the bare arm changes it freely.
+`make demo-3 FEATURE=version-checks` runs both arms at once on the version checks ticket. The harness
+arm has the instructions, state, and scope layers; the bare arm has none. You watch the scope layer
+refuse the harness arm's patch to the shared errors module, while the bare arm changes it freely.
 
 ![Two tabs read ETag 1; the first save gets ETag 2, the second save with If-Match 1 gets 412](../../docs/diagrams/optimistic-concurrency.svg)
 
@@ -100,10 +100,10 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 ./section-3-scope-sandbox/demo/run.sh
 ```
 
-The script checks your keys, Docker, and the class date, then runs
-`make demo-3 FEATURE=version-checks`. Outside class, run
-`PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You can also call the make target directly.
-Without `FEATURE=version-checks`, `make demo-3` runs the idempotent-creation ticket instead.
+The script checks your keys, Docker, and the class date, then runs `make demo-3 FEATURE=version-checks`.
+Outside class, run `PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You can also call the make
+target directly. Without `FEATURE=version-checks`, `make demo-3` runs the ticket for Feature 3: Safe
+retries for issue creation instead.
 
 At the end, terminal 2 prints one record line per arm and the cost line. This capture is the command
 that `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs (cut where marked `...`; the full
@@ -117,13 +117,13 @@ A/B <run id> (F4, layers=['instructions', 'scope', 'state'], profile=class)
 Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; ...)
 ```
 
-The record line's `primary` is the feature's own measure: every hidden test and every referee mutant. No arm
-met it in the test runs. The scope result is not on this line; it is on screen 3.
+The record line's `primary` is the feature's own measure: every hidden test and every referee mutant.
+No arm met it in the test runs. The scope result is not on this line; it is on screen 3.
 
 The command exits with 0 when both arms completed, 2 when an arm ended `ABORTED`, and 1 on `ERROR`.
-Expect 2 here: in every test run the harness arm ended `ABORTED: timeout` (see "What the result
-means"). One A/B costs at most $0.48: two arms at the per-arm cap plus two reviews at the per-review
-cap.
+With the class profile, expect 0: all six arms of the 2026-10-18 runs completed. The capture above
+exits 2: under an older harness time limit its harness arm ended `ABORTED: timeout` (see "What the
+result means"). One A/B costs at most $0.48, two arms and two reviews at their caps.
 
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
 Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
@@ -135,7 +135,7 @@ Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
 - [harness/](harness/): the files the layer gives the agent
 - [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
 - [Evidence page](../../docs/evidence/s3.md): every run behind the results
-- Console: http://127.0.0.1:8765 (after `make console`)
+- Console: [http://127.0.0.1:8765](http://127.0.0.1:8765) (after `make console`)
 
 ## What to watch
 
@@ -210,10 +210,10 @@ shared file every time nothing stopped it.
 | Reading | What it looks like here | What the test runs found |
 |---|---|---|
 | Harness ahead | The bare arm leaves the list in more runs than the harness arm | Seen: bare 0 of 3 passed, harness 3 of 3 |
-| No measurable difference | Both arms stay inside, or leave, in about the same number of runs | Seen on idempotent creation, a different ticket |
+| No measurable difference | Both arms stay inside, or leave, in about the same number of runs | Seen on safe retries, a different ticket |
 | Bare ahead | The harness arm leaves the list more often | Not seen |
 
-![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on idempotent creation all runs passed](../diagrams/results-s3.svg)
+![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on safe retries for issue creation all runs passed](../diagrams/results-s3.svg)
 
 *The three test runs before class, one dot each: bare 0 of 3 passed, harness 3 of 3.*
 
@@ -242,9 +242,9 @@ One A/B in class is one more dot. Read it against the three test runs, not alone
 | `x SHIPHARNESS_CLASS_DATE is not set`, exit 2 | A class run needs the class day | Set it, or add `PURPOSE=pilot` |
 | An arm ends `ERROR` with `docker run failed` | Docker is not running, or an image is missing | `sudo systemctl start docker`, then `make warm` |
 | `make console` says `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766` |
-| The record line says `ABORTED: timeout` | An agent or harness time limit | Expected for the harness arm; read the verdicts as usual |
+| The record line says `ABORTED: timeout` | An agent or harness time limit | Rare with the class profile; read the verdicts as usual |
 | The bare arm stays inside the list | The agent chose other files this time | A real result: one more dot for the comparison |
-| The run builds idempotent creation, not version checks | `FEATURE=version-checks` was left out | Rerun with `make demo-3 FEATURE=version-checks` |
+| The run builds safe retries, not version checks | `FEATURE=version-checks` was left out | Rerun with `make demo-3 FEATURE=version-checks` |
 
 The demo never falls back to a recording or a stand-in model. Still stuck? See
 [docs/troubleshooting.md](../../docs/troubleshooting.md).

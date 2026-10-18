@@ -10,7 +10,7 @@ longer than 40 lines.
 Talking points cite RESEARCH.md source and finding ids. Line numbers in the headings include the two
 marker lines; when they drift, `uv run python platform/scripts/anchors.py list` has the current ones. In class
 the walkthrough runs while the section's live run goes on (`make show-N`, or the S3 A/B
-`make demo-3 FEATURE=F4`; run sheet, section pattern).
+`make demo-3 FEATURE=version-checks`; run sheet, section pattern).
 
 How to show code in class: open the file in the editor at the start marker (search for
 `[walkthrough:<id>] start`), font size large enough for the back row, and walk top to bottom. Slides

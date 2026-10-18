@@ -14,7 +14,7 @@
 # platform/src/shipharness/config/settings.py and .env.example. The measured run in the evidence page
 # cost $0.0265.
 # Time: the measured run reached its primary verdict 9 min 19 s after launch and finished in
-# 11 min 6 s (docs/evidence.md, "The captured show-4 run").
+# 11 min 6 s (docs/evidence/s4.md, "The captured show-4 run").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

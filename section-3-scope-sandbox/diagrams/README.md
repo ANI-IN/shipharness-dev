@@ -68,13 +68,13 @@ in that folder too, because Section 4: Verification uses it as well.
 
 ![Six numbered steps from a ticket's file list to a wrong status nobody links](./failure-story-s3.svg)
 
-*In the pilot, every bare arm changed app/services/errors.py.*
+*In the test runs before class, every bare arm changed app/services/errors.py.*
 
 - **What it teaches**: how a reasonable edit outside the ticket breaks something later.
 - **Slide**: "Problem statement: A tidy diff in a shared file".
 - **Files**: `failure-story-s3`.
 - **Source**: the slide's notes and [the Section 3 evidence](../../docs/evidence/s3.md).
-- **How to edit**: change `failure-story-s3` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `failure-story-s3.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: is the file list enough?
 
@@ -86,7 +86,7 @@ in that folder too, because Section 4: Verification uses it as well.
 - **Slide**: "Scope: Is the ticket's file list enough?", frame N on build N.
 - **Files**: `socratic-s3`, with step frames `socratic-s3-step-1` to `socratic-s3-step-2`.
 - **Source**: [the Section 3 evidence](../../docs/evidence/s3.md) (the bare arm left the allowed paths in 3 of 3 runs).
-- **How to edit**: change `socratic-s3` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `socratic-s3.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### One feature at a time: feature_list.json
 
@@ -98,7 +98,7 @@ in that folder too, because Section 4: Verification uses it as well.
 - **Slide**: "1) One feature at a time: `feature_list.json`".
 - **Files**: `feature-list-lifecycle`.
 - **Source**: `features.py`, `status.py`, `guard.py`, and `layer.py` in `platform/src/shipharness/harness/scope/`.
-- **How to edit**: change `feature-list-lifecycle` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `feature-list-lifecycle.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured demo-3 A/B
 
@@ -110,7 +110,7 @@ in that folder too, because Section 4: Verification uses it as well.
 - **Slide**: "What just happened: Same pull, two arms".
 - **Files**: `timeline-s3`.
 - **Source**: the captured demo-3 A/B in [the Section 3 evidence](../../docs/evidence/s3.md) and `demo/expected/terminal.txt`.
-- **How to edit**: change `timeline-s3` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `timeline-s3.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Cheat sheet: four boundaries
 
@@ -122,4 +122,4 @@ in that folder too, because Section 4: Verification uses it as well.
 - **Slide**: "Cheat Sheet: Four boundaries for one feature".
 - **Files**: `cheat-sheet-s3`.
 - **Source**: `section-3-scope-sandbox/concepts.md`.
-- **How to edit**: change `cheat-sheet-s3` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `cheat-sheet-s3.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

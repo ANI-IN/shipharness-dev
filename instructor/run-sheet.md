@@ -182,8 +182,8 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 | Terminal C | `make final` only: launched at the Section 4 launch (2:57), read in the final block (3:40) |
 | Browser tab 1 | Slides |
 | Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
-| Browser tab 3 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
-| Browser tab 4 | Console: the final A/B at `/run/<ab id>`, opened at the Section 4 launch and shown in the final block |
+| Browser tab 3 | Console: the final A/B at `/run/<ab id>`, opened at the Section 4 launch and shown in the final block |
+| Browser tab 4 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
 
 ### Console keys (DESIGN §13; `platform/src/shipharness/console/static/stream.js`)
 
@@ -223,34 +223,34 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 0:05-0:08 | Opening: the problem | What we are building, the problem in the real world, the challenge, why it matters, the four gaps, TeamTrack, house rules | Architecture diagram | The 4 gaps |
 | 0:08-0:10 | Opening: how we measure | How we measure it and what the runs before class found; the glossary; `make doctor`; the `harness-setup` assessment; console tour (keys 1-5) | Terminal B, console tab | How we measure |
 | 0:10-0:12 | Section 1 launch | Section 1 start slide: `make show-1` at 0:11; open the new run on screen 1 | Terminal B, console | Section 1 start |
-| 0:12-0:16 | Section 1 story (run going) | Failure story and the Socratic reveal | | Failure story |
-| 0:16-0:30 | Section 1 ideas (run going) | Four ideas, one slide each, then the cheat sheet; at 0:25 check terminal B for the `Cost:` line | Terminal B at 0:25 | Ideas, cheat sheet |
-| 0:30-0:50 | Section 1 demo: implementation notes and the run | `S1:agents_md`, `S1:progressive`, `S1:prefix`; then the finished show-1 run: screens 1, 3, 5, and 2 | Editor, console | DEMO - 1 |
-| 0:50-0:55 | Section 1 demo: what we measured | show-1's verdict on screen 1; the Section 1 row of the results; screen 4; when the layer earns its place; apply it Monday | Slides, console | What we measured |
-| 0:55-1:00 | Section 1 Q&A | Questions; transition | | Q&A |
+| 0:12-0:20 | Section 1 story (run going) | Failure story and the Socratic reveal | | Failure story |
+| 0:20-0:40 | Section 1 ideas (run going) | Four ideas, one slide each, then the cheat sheet; at 0:25 check terminal B for the `Cost:` line | Terminal B at 0:25 | Ideas, cheat sheet |
+| 0:40-0:50 | Section 1 demo: implementation notes and the run | `S1:agents_md`, `S1:progressive`, `S1:prefix`; then the finished show-1 run: screens 1, 3, 5, and 2 | Editor, console | DEMO - 1 |
+| 0:50-0:56 | Section 1 demo: what we measured | show-1's verdict on screen 1; the Section 1 row of the results; screen 4; when the layer earns its place; apply it Monday | Slides, console | What we measured |
+| 0:56-1:00 | Section 1 Q&A | Questions; transition | | Q&A |
 | 1:00-1:10 | Break | Return time on screen | | Break |
 | 1:10-1:12 | Section 2 launch | Section 2 start slide: `make show-2 SESSION_BUDGET=12,38` at 1:11; open the new run on screen 1 | Terminal B, console | Section 2 start |
-| 1:12-1:16 | Section 2 story (run going) | Failure story and the Socratic reveal | | Failure story |
-| 1:16-1:30 | Section 2 ideas (run going) | Four ideas, then the cheat sheet; at 1:25 check terminal B for the `Cost:` line | Terminal B at 1:25 | Ideas, cheat sheet |
-| 1:30-1:50 | Section 2 demo: implementation notes and the run | `S2:init`, `S2:stop_resume`, `S2:write`; then session stop and resume, the handoff: screens 1, 3, 2, and 5 | Editor, console | DEMO - 2 |
-| 1:50-1:55 | Section 2 demo: what we measured | show-2's verdict on screen 1; screen 3 "Sessions"; the Section 2 row; screen 4; apply it Monday | Slides, console | What we measured |
-| 1:55-2:00 | Section 2 Q&A | Questions; transition | | Q&A |
+| 1:12-1:20 | Section 2 story (run going) | Failure story and the Socratic reveal | | Failure story |
+| 1:20-1:40 | Section 2 ideas (run going) | Four ideas, then the cheat sheet; at 1:25 check terminal B for the `Cost:` line | Terminal B at 1:25 | Ideas, cheat sheet |
+| 1:40-1:50 | Section 2 demo: implementation notes and the run | `S2:init`, `S2:stop_resume`, `S2:write`; then session stop and resume, the handoff: screens 1, 3, 2, and 5 | Editor, console | DEMO - 2 |
+| 1:50-1:56 | Section 2 demo: what we measured | show-2's verdict on screen 1; screen 3 "Sessions"; the Section 2 row; screen 4; apply it Monday | Slides, console | What we measured |
+| 1:56-2:00 | Section 2 Q&A | Questions; transition | | Q&A |
 | 2:00-2:02 | Section 3 launch | Section 3 start slide: `make demo-3 FEATURE=version-checks` at 2:01, the live A/B (it takes the place of `make show-3`); open the new run on screen 1: two sandbox lines, one per arm | Terminal B, console | Section 3 start |
-| 2:02-2:06 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
-| 2:06-2:20 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
-| 2:20-2:40 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and `diff_scope`; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
-| 2:40-2:45 | Section 3 demo: what we measured | Out-of-scope files per arm against the version checks feature's own verdict pill; what "by construction" means; the Section 3 rows; screen 4 | Slides, console | What we measured |
-| 2:45-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
+| 2:02-2:09 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
+| 2:09-2:28 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
+| 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and `diff_scope`; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
+| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm against the version checks feature's own verdict pill; what "by construction" means; the Section 3 rows; screen 4 | Slides, console | What we measured |
+| 2:44-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
 | 2:50-2:55 | Break | Return time on screen | | Break |
 | 2:55-2:57 | Live Zoom Poll: the final feature | Section 4 start slide, then the one poll of the class: bulk close, watchers, or labels; note the winner and the runner-up; close it before the launch | | Section 4 start, Live Zoom Poll |
-| 2:57-2:59 | Section 4 launch | `make show-4` at 2:57 in terminal B, opened in browser tab 2; `make final FEATURES=<winner>,<runner-up>` at 2:57 in terminal C, opened in browser tab 4; back to show-4 on screen 1 | Terminals B and C, console | Section 4 start |
-| 2:59-3:00 | Section 4 story (two runs going) | Failure story and the Socratic reveal | | Failure story |
-| 3:00-3:13 | Section 4 ideas (two runs going) | Four ideas, then the cheat sheet; at 3:10 check terminal B (show-4) and terminal C (final) for their `Cost:` lines | Terminals B and C at 3:10 | Ideas, cheat sheet |
-| 3:13-3:31 | Section 4 demo: implementation notes and the run | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; then test phase, filter table, gate pills, boards: screens 1, 3, 2, and 5 | Editor, console, tab 2 | DEMO - 4 |
-| 3:31-3:36 | Section 4 demo: what we measured | show-4's "Agent said" against the referee on screen 1; hidden tests and mutants on screen 3; the Section 4 row; screen 4 | Slides, console | What we measured |
-| 3:36-3:40 | Section 4 Q&A | One question, shortened; transition to the final A/B | | Q&A |
+| 2:57-2:59 | Section 4 launch | `make show-4` at 2:57 in terminal B, opened in browser tab 2; `make final FEATURES=<winner>,<runner-up>` at 2:57 in terminal C, opened in browser tab 3; back to show-4 on screen 1 | Terminals B and C, console | Section 4 start |
+| 2:59-3:06 | Section 4 story (two runs going) | Failure story and the Socratic reveal | | Failure story |
+| 3:06-3:22 | Section 4 ideas (two runs going) | Four ideas, then the cheat sheet; at 3:10 check terminal B (show-4) and terminal C (final) for their `Cost:` lines | Terminals B and C at 3:10 | Ideas, cheat sheet |
+| 3:22-3:31 | Section 4 demo: implementation notes and the run | `S4:filters`, `S4:probe`, `S4:blind`, `S4:gate`; then test phase, filter table, gate pills, boards: screens 1, 3, 2, and 5 | Editor, console, tab 2 | DEMO - 4 |
+| 3:31-3:37 | Section 4 demo: what we measured | show-4's "Agent said" against the referee on screen 1; hidden tests and mutants on screen 3; the Section 4 row; screen 4 | Slides, console | What we measured |
+| 3:37-3:40 | Section 4 Q&A | One question, shortened; transition to the final A/B | | Q&A |
 | 3:40-3:44 | Final A/B: arm lines | Terminal C: arm lines and the session figure | Terminal C | Reading the final A/B |
-| 3:44-3:48 | Final A/B: screens | Screens 1, 3, 5, then both boards on screen 2, of the finished final A/B | Console, tab 4 | Reading the final A/B |
+| 3:44-3:48 | Final A/B: screens | Screens 1, 3, 5, then both boards on screen 2, of the finished final A/B | Console, tab 3 | Reading the final A/B |
 | 3:48-3:51 | Final A/B and all results | Screen 4: tonight's final next to the dots from before class; all results in one picture; `Final:dots`; which layer when | Console, slides | All results |
 | 3:51-3:56 | Close: take it home | Use it in your repo (the kit and four skills, `shipharness init`, `Final:skill_template`); assignments; final project | | Use it in your repo |
 | 3:56-4:00 | Close | The harness in one picture; Module 1 summary; Module 2; references; Q&A; thank you | | Thank you |
@@ -278,10 +278,10 @@ aborted at a time limit, not that the command broke; in the Section 3 confirmati
 on the harness's own 120 s limit after shipping its change.
 
 Launched at section minute 1, every run above is finished before its DEMO slide at section minute
-20, even with 2 more minutes for the longer agent limit: show-1 by about 0:23 (DEMO at 0:30), show-2
-by about 1:23 (1:30), the Section 3 A/B by about 2:15 (2:20). In Section 4, show-4 shares the machine with the
+30 (28 in Section 3), even with 2 more minutes for the longer agent limit: show-1 by about 0:23 (DEMO at 0:40), show-2
+by about 1:23 (1:40), the Section 3 A/B by about 2:15 (2:28). In Section 4, show-4 shares the machine with the
 final: launched at 2:57, it ends about 3:10, and about 3:15 if it slows as the Section 3 A/Bs did two at a
-time, about when the DEMO slide starts at 3:13; the DEMO opens with the implementation notes, so the
+time, before the DEMO slide starts at 3:22; the DEMO opens with the implementation notes, so the
 console part comes after it has finished.
 
 The final runs during Section 4, next to show-4. Launched at 2:57, it must be finished by 3:40, when the
@@ -368,23 +368,26 @@ start of the section.
    job. The A/B results come at the end of the section." For Section 3 say: "This is a live A/B: both
    arms, same ticket, same limits. Before class this ticket showed a gap. Let us see tonight's dot."
    Then switch to the slides.
-2. **Story (minutes 2-6).** The failure story and the Socratic reveal.
-3. **Ideas (minutes 6-20, run going).** Four ideas, one slide each, then the cheat sheet. Leave
+2. **Story (minutes 2-10).** The failure story and the Socratic reveal.
+3. **Ideas (minutes 10-30, run going).** Four ideas, one slide each, then the cheat sheet. Leave
    terminal B and the console alone. At minute 15, check terminal B for the `Cost:` line
    ([Check at section minute 15](#check-at-section-minute-15)).
-4. **DEMO (minutes 20-40).** One slide, "DEMO - N", with the full walkthrough in its notes.
-   - **Implementation notes (10 min):** the anchors in [code-walkthrough.md](code-walkthrough.md).
-   - **The run (10 min):** the finished run on the section's screens, in the order below; the verdict
+4. **DEMO (minutes 30-40).** One slide, "DEMO - N", with the full walkthrough in its notes.
+   - **Implementation notes (about 3 min):** the anchors in [code-walkthrough.md](code-walkthrough.md).
+   - **The run (about 7 min):** the finished run on the section's screens, in the order below; the verdict
      on screen 1 ("primary verdict ready", then the full verdict), and the session figure on the
      `Cost:` line.
-5. **What we measured (minutes 40-45).** This section's row and the post hoc table, then screen
+5. **What we measured (minutes 40-46).** This section's row and the post hoc table, then screen
    `4`; when the layer earns its place; apply it Monday.
-6. **Q&A and transition (minutes 45-50).**
+6. **Q&A and transition (minutes 46-50).**
+
+Section 3 runs two minutes ahead from the reveal on: ideas 9-28, DEMO 28-38, what we measured
+38-44, Q&A 44-50. The minutes match the slide timings in `slides/module1-slides.md`.
 
 Section 4 has 45 minutes. Its start slide is followed by the Live Zoom Poll for the final feature
-(minutes 0-2), then two launches at minute 2 (2:57), `make show-4` and `make final`. Its story runs
-from minute 4 to 5, the ideas from 5 to 18, the DEMO from 18 to 36, what we measured
-from 36 to 41, and the Q&A from 41 to 45 ([Section 4](#section-4-verification-255-340)).
+(minutes 0-2), then two launches at minute 2 (2:57), `make show-4` and `make final`. Its story and reveal run
+from minute 4 to 11, the ideas from 11 to 27, the DEMO from 27 to 36, what we measured
+from 36 to 42, and the Q&A from 42 to 45 ([Section 4](#section-4-verification-255-340)).
 
 What the terminal prints at the end (format from `platform/src/shipharness/ab/commands.py`): one line
 `A/B <id> (<feature>, layers=[...], profile=class)`, with `, harness in action` added for a show-N
@@ -418,8 +421,8 @@ have arrived, point at them: "Watch which files it opens before it writes code."
 
 **Check at 0:25** (during the ideas): the `Cost:` line in terminal B.
 
-**DEMO - 1 (0:30-0:50), then what we measured (0:50-0:55): screens and what to say.** The
-implementation notes come first (0:30-0:40); the rows below are the run (0:40-0:50) and the
+**DEMO - 1 (0:40-0:50), then what we measured (0:50-0:56): screens and what to say.** The
+implementation notes come first (0:40-0:43); the rows below are the run (0:43-0:50) and the
 "What we measured" slide.
 
 | Part | Screen | Watch | Say |
@@ -444,7 +447,7 @@ per arm): harness arms claimed done in 5 of 10 runs, bare arms in 9 of 10; media
 $0.0122 against $0.0103; median arm wall time 168 s against 177 s; no agent time limit hit in either
 arm.
 
-**Q&A (0:55-1:00).**
+**Q&A (0:56-1:00).**
 1. "The bare arm could read the same rules, and applied them. What would have to be true of a model
    or a ticket for the map to earn its place?" Tie back to cause 1 (A1, F-a-05).
 2. Transition: link `section-1-instructions/demo/README.md`; next problem: what happens when a session ends
@@ -479,8 +482,8 @@ plan); its first turns follow the Getting up to speed routine.
 
 **Check at 1:25** (during the ideas): the `Cost:` line in terminal B.
 
-**DEMO - 2 (1:30-1:50), then what we measured (1:50-1:55): screens and what to say.** The
-implementation notes come first (1:30-1:40); the rows below are the run (1:40-1:50) and the
+**DEMO - 2 (1:40-1:50), then what we measured (1:50-1:56): screens and what to say.** The
+implementation notes come first (1:40-1:43); the rows below are the run (1:43-1:50) and the
 "What we measured" slide.
 
 | Part | Screen | Watch | Say |
@@ -506,7 +509,7 @@ harness arms hit the agent time limit in 4 of 9, bare arms in 0 of 9; median arm
 against 232 s. The Feature 2 harness primary 6 of 9 there includes run 2's 0 of 3, measured before change 7
 fixed the continuity check.
 
-**Q&A (1:55-2:00).**
+**Q&A (1:56-2:00).**
 1. "Which state file would you keep for this model, and how would you measure it?"
 2. Transition: `section-2-state-lifecycle/demo/README.md`.
 
@@ -541,8 +544,8 @@ initializer step, and "feature_list.json written with Feature 4 (passes: false)"
 **Check at 2:15** (during the ideas): the `Cost:` line in terminal B. The
 diff maps on screen 3 fill in as soon as each arm has shipped.
 
-**DEMO - 3 (2:20-2:40), then what we measured (2:40-2:44): screens and what to say.** The
-implementation notes come first (2:20-2:30); the rows below are the A/B (2:30-2:40) and the
+**DEMO - 3 (2:28-2:38), then what we measured (2:38-2:44): screens and what to say.** The
+implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:38) and the
 "What we measured" slide.
 
 | Part | Screen | Watch | Say |
@@ -588,7 +591,7 @@ median of 0 tests against 6, killed a median of 0 of 4 referee mutants against 4
 4 of 9 runs against 9 of 9. On Feature 4, bare arms changed files outside the allowed paths in 6 of 6 runs,
 harness arms in 0 of 6; that post hoc count is why the Section 3 confirmation was registered.
 
-**Discussion (2:45-2:50).**
+**Discussion (2:44-2:50).**
 1. "The guard won by construction. What would you measure next to it, so that a guard that blocks
    everything cannot look good?" Expected direction: hidden tests passed and existing tests that keep
    passing, next to out-of-scope files.
@@ -624,8 +627,8 @@ launch. Run the winner and the runner-up, in that order (cost note below).
 2. **2:57, right after, terminal C:** `make final FEATURES=<winner>,<runner-up>` (for example
    `make final FEATURES=watchers,bulk-close`). Always pass `FEATURES`: the Makefile default is
    `F5,F6` (bulk close, then watchers). Reload the
-   runs list in browser tab 4 and open the newest `ab-...`: the final's first A/B. Leave terminal C
-   and tab 4 alone until the final block.
+   runs list in browser tab 3 and open the newest `ab-...`: the final's first A/B. Leave terminal C
+   and tab 3 alone until the final block.
 
 Two runs now go in parallel: show-4 (one arm) and the final's first feature (two arms). `make final`
 runs its features one after another (Makefile `final` target).
@@ -654,8 +657,8 @@ feature (Feature 5: Bulk close) $0.0456 ([How long the runs take](#how-long-the-
 - Terminal C: the first final feature's result lines and `Cost:` line, or nothing yet. Either is
   fine: the final has until 3:40.
 
-**DEMO - 4 (3:13-3:31), then what we measured (3:31-3:36), browser tab 2: screens and what to
-say.** The implementation notes come first (3:13-3:21); the rows below are the run (3:21-3:31)
+**DEMO - 4 (3:22-3:31), then what we measured (3:31-3:37), browser tab 2: screens and what to
+say.** The implementation notes come first (3:22-3:25); the rows below are the run (3:25-3:31)
 and the "What we measured" slide.
 
 | Part | Screen | Watch | Say |
@@ -685,10 +688,10 @@ harness arms shipped a median of 2.5 tests against 7.5. In runs 2 and 3 the Feat
 claimed done (0 of 6), so its verify gate never ran; in run 3 the agent time limit cut its test phase
 in two A/Bs.
 
-**Q&A (3:36-3:40), shortened to one question.**
+**Q&A (3:37-3:40), shortened to one question.**
 1. "What would a gate need to catch to earn its turns on this model?"
 2. Transition: `section-4-verification/demo/README.md`; next, the final A/B launched at 2:57 (terminal C,
-   browser tab 4).
+   browser tab 3).
 
 ---
 
@@ -702,7 +705,7 @@ and starts no run. It is the class's measurement lesson: one A/B is one dot.
    primary measure, so `passed=True` on an arm line does not mean the feature works: read `hidden
    <x>/<total>` and `mutants <y>/<total>` (DESIGN §8.2). If two features ran, walk through the winner
    on the screens and give the second its arm lines.
-2. **3:42 Console**, browser tab 4: screens `1`, `3`, `5`, both arms; `F` for one arm.
+2. **3:42 Console**, browser tab 3: screens `1`, `3`, `5`, both arms; `F` for one arm.
 3. **3:46 Boards**, screen `2`.
 4. **3:48 Screen 4 and all results.** Screen `4`: tonight's final next to the records from before
    class. Say: "One A/B is one dot. Read it against the three dots per arm per round from before
@@ -718,7 +721,7 @@ and starts no run. It is the class's measurement lesson: one A/B is one dot.
    the kit (`use-in-your-repo/apply-to-your-repo.md`); show `Final:skill_template`.
 7. **3:58 References**, then close.
 
-**If a final A/B is not finished at 3:40.** Open its live screens in browser tab 4 (`1`, then `2`;
+**If a final A/B is not finished at 3:40.** Open its live screens in browser tab 3 (`1`, then `2`;
 screen 1 shows "primary verdict ready" per arm as soon as it is known) and walk through them instead
 of steps 2 and 3, then the all-results slide. If it is still running at 3:53, go to the wrap-up
 slides and return to its screen `4` at the end. If an arm failed for a reason outside the experiment

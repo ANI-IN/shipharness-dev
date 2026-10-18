@@ -20,7 +20,7 @@ section is real output with no model call.
 
 ## Commands
 
-```
+```bash
 uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 \
     --out .shipharness/a4/testgen
 export PYTHONPATH=section-4-verification/assignment/solution

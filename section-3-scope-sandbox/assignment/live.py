@@ -1,6 +1,6 @@
 """Live step for assignment A3: one live A/B on F3, then your policy applied to what it recorded.
 
-Usage (from the repository root; README "Live step"):
+Usage (from the repository root; README "Step by step", step 8):
     uv run shipharness ab --section demo-3 --feature F3 --no-preview --purpose assignment \\
         2>&1 | tee ab-output.txt
     uv run python section-3-scope-sandbox/assignment/live.py collect --impl PATH \\

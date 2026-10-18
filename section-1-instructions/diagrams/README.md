@@ -72,7 +72,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **Slide**: "Failure story: The search that showed another org".
 - **Files**: `failure-story-s1`.
 - **Source**: the slide's notes; `list_all_legacy` in `platform/teamtrack/app/repositories/issues.py`.
-- **How to edit**: change `failure-story-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `failure-story-s1.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: why not paste every rule?
 
@@ -84,7 +84,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **Slide**: "Instructions: Why not paste every rule?", frame N on build N.
 - **Files**: `socratic-s1`, with step frames `socratic-s1-step-1` to `socratic-s1-step-3`.
 - **Source**: `section-1-instructions/assignment/starter/original/AGENTS.md` (899 lines, the tenant rule at line 204).
-- **How to edit**: change `socratic-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `socratic-s1.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Mechanical checks keep the map true
 
@@ -95,8 +95,8 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **What it teaches**: the three checks that keep the map, the docs, and the skills honest.
 - **Slide**: "4) Mechanical checks keep the map true".
 - **Files**: `checker-flow`.
-- **Source**: Assignment 1: Instructions (`check_docs.py`), `test_parity.py`, and the reference checker's OK line in [the Section 1 evidence](../../docs/evidence/s1.md).
-- **How to edit**: change `checker-flow` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **Source**: Assignment 1: Instructions (`check_docs.py`), `platform/tests/unit/harness_instructions/test_parity.py`, and the reference checker's OK line in [the Section 1 evidence](../../docs/evidence/s1.md).
+- **How to edit**: open `checker-flow.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured show-1 run
 
@@ -108,7 +108,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **Slide**: "What just happened: The run, minute by minute".
 - **Files**: `timeline-s1`.
 - **Source**: the show-1 capture in [the Section 1 evidence](../../docs/evidence/s1.md) and `demo/expected/terminal.txt`.
-- **How to edit**: change `timeline-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `timeline-s1.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Cheat sheet: the instructions layer
 
@@ -120,4 +120,4 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **Slide**: "Cheat Sheet: The instructions layer in four moves".
 - **Files**: `cheat-sheet-s1`.
 - **Source**: `section-1-instructions/concepts.md`.
-- **How to edit**: change `cheat-sheet-s1` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `cheat-sheet-s1.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

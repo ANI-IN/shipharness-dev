@@ -15,7 +15,7 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 > - **Compaction**: Squeezing an old context into a short summary for the next session.
 > - **Exec plan**: A plan file the agent keeps up to date as it works, with steps, decisions, and progress.
-> - **Fast tier**: OpenAI's faster service tier, at twice the standard price; class runs use it.
+> - **Fast tier**: OpenAI's quicker, higher-priced service tier, used in the class profile.
 > - **Hidden tests**: Tests the referee runs that the agent never sees.
 
 ## What we showed
@@ -64,7 +64,7 @@ primary measure: a run fails if it has a continuity failure. Runs failing, per a
 | Low effort | 0 of 3 | 0 of 3 |
 | Low effort, fast tier (class settings) | 0 of 1 | 0 of 1 |
 
-Model gpt-6-luna ([evidence](../docs/evidence.md#section-2)).
+Model gpt-6-luna ([evidence](../docs/evidence/s2.md#section-2)).
 
 No measurable difference on this task with this model. Two things stand next to that result. In six
 of the twelve arm runs at medium and low effort the agent built nothing, so there was nothing to

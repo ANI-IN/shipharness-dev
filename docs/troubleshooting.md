@@ -122,8 +122,8 @@ other features and exits with the last non-zero code.
 ## The class profile and the Fast tier
 
 `PROFILE=class`, the default of the live targets and `make warm`, runs both arms at reasoning effort
-`low`, with 2 CPUs per container, a 420 s agent time limit, and the OpenAI Fast tier for the agent's
-calls. Fast costs twice the Standard rate per token (`platform/config/prices.toml`). Each call is
+`low`, with 2 CPUs per container, a 420 s agent time limit, a 900 s harness work limit, and the
+OpenAI Fast tier for the agent's calls (`platform/src/shipharness/config/profiles.py`). Fast costs twice the Standard rate per token (`platform/config/prices.toml`). Each call is
 charged by the tier its response reports.
 
 | Symptom | Cause | Fix |

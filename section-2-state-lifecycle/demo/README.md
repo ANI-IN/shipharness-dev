@@ -125,7 +125,7 @@ it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 - [harness/](harness/): the files the layer gives the agent
 - [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
 - [Evidence page](../../docs/evidence/s2.md): every run behind the results
-- Console: http://127.0.0.1:8765 (after `make console`)
+- Console: [http://127.0.0.1:8765](http://127.0.0.1:8765) (after `make console`)
 
 ## What to watch
 
@@ -171,12 +171,12 @@ panel is on the issue page, which the preview does not open; the hidden board te
 
 *Screen 2. No other org's data on the board.*
 
-**Screen 4, A/B Report.** The test runs before class, one dot per run, per feature and arm. Say:
-"Tonight's run is not a dot in the comparison."
+**Screen 4, A/B Report.** The test runs before class, one dot per run, per feature and arm. Your
+own run is not a dot in this comparison.
 
 ![Screen 4: primary results, one dot per run, for each feature and arm](expected/show-2-screen-4-final.png)
 
-*Screen 4. The comparison comes from the test runs, not from tonight's run.*
+*Screen 4. The comparison comes from the test runs, not from your run.*
 
 ## What the result means
 
@@ -215,7 +215,7 @@ the next session reads first. The [walkthrough](walkthrough.md) shows the code b
 | `x OpenAI refused the key`, exit 2, no arm started | The key is missing or rejected | Fix `OPENAI_API_KEY`; rerun `make doctor` |
 | `x SHIPHARNESS_CLASS_DATE is not set`, exit 2 | A class run needs the class day | Set it, or add `PURPOSE=pilot` |
 | The first session runs 20 turns, not 12 | `SESSION_BUDGET=12,38` was left out | Let it run; the stop comes at turn 20 |
-| No "Session 1 stopped" marker | The agent called `finish(claim="done")` in session 1, or hit a cap | Say the arm never faced the stop |
+| No "Session 1 stopped" marker | The agent called `finish(claim="done")` in session 1, or hit a cap | Read the run as one that never faced the stop |
 | The arm ends `ERROR` with `docker run failed` | Docker is not running, or an image is missing | `sudo systemctl start docker`, then `make warm` |
 | `make console` says `address already in use` | Another program holds port 8765 | `make console CONSOLE_PORT=8766` |
 | The record line says `ABORTED: timeout` or `ABORTED: cap` | The agent time limit or a cost cap | Keep the run; read its primary verdict as usual |

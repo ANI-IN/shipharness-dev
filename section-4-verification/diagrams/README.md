@@ -64,7 +64,7 @@ that folder too, because Section 3: Scope and sandbox uses it as well.
 - **Slide**: "The problem: Done, but two edits still collide".
 - **Files**: `failure-story-s4`.
 - **Source**: the slide's notes and `platform/teamtrack/docs/features/f4.md`.
-- **How to edit**: change `failure-story-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `failure-story-s4.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Socratic build-up: the suite is green, is it done?
 
@@ -76,7 +76,7 @@ that folder too, because Section 3: Scope and sandbox uses it as well.
 - **Slide**: the Verification slide that asks whether a green suite means version checks are done, frame N on build N.
 - **Files**: `socratic-s4`, with step frames `socratic-s4-step-1` to `socratic-s4-step-2`.
 - **Source**: [the Section 4 evidence](../../docs/evidence/s4.md).
-- **How to edit**: change `socratic-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `socratic-s4.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured show-4 run
 
@@ -88,7 +88,7 @@ that folder too, because Section 3: Scope and sandbox uses it as well.
 - **Slide**: "What just happened: eleven minutes of show-4".
 - **Files**: `timeline-s4`.
 - **Source**: the captured show-4 run in [the Section 4 evidence](../../docs/evidence/s4.md) and `demo/expected/terminal.txt`.
-- **How to edit**: change `timeline-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `timeline-s4.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Cheat sheet: four checks the agent does not own
 
@@ -100,4 +100,4 @@ that folder too, because Section 3: Scope and sandbox uses it as well.
 - **Slide**: "Cheat Sheet: four checks the agent does not own".
 - **Files**: `cheat-sheet-s4`.
 - **Source**: `section-4-verification/concepts.md`.
-- **How to edit**: change `cheat-sheet-s4` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
+- **How to edit**: open `cheat-sheet-s4.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).

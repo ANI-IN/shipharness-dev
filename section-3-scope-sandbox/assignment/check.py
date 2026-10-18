@@ -260,7 +260,7 @@ def main(argv: list[str] | None = None) -> int:
     live = live_verify(impl)
     label = "live A/B evidence (live/)"
     if not live["present"]:
-        print(f"  {label:<50} {'':>13}  missing (required for the grade: README 'Live step')")
+        print(f"  {label:<50} {'':>13}  missing (required for the grade: README step 8)")
     else:
         live_ok = live["evidence_ok"] and live["verdicts_ok"]
         ok &= live_ok
@@ -280,7 +280,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    - {marker}")
     print()
     if ok and not live["present"]:
-        print("Self-check PASSED. Next: the live step (README 'Live step'), then submit your")
+        print("Self-check PASSED. Next: the live A/B (README step 8), then submit your")
         print("folder; the instructor grades it with make grade-assignment-3 SUBMISSION=<folder>")
         print("(adds the hidden cases and requires live/).")
         return 0
@@ -288,7 +288,7 @@ def main(argv: list[str] | None = None) -> int:
         print("Self-check PASSED. Next: submit your folder; the instructor grades it with")
         print("make grade-assignment-3 SUBMISSION=<folder> (adds the hidden cases).")
         return 0
-    print("Self-check FAILED: fix the FAIL rows above (README 'Step-by-step tasks').")
+    print("Self-check FAILED: fix the FAIL rows above (README 'Step by step').")
     return 1
 
 

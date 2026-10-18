@@ -1,6 +1,6 @@
 # Module 1: Harness Engineering for Coding Agents - Assignment 1: Instructions, from one long instruction file to a map
 
-Try it yourself first. The full solution is in [./solution/](./solution/) with a step-by-step walkthrough.
+Try it yourself first. The full solution is in [./solution/](solution/) with a step-by-step walkthrough.
 
 ## The problem
 
@@ -66,7 +66,7 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
 
 2. **Read the original.** List its sections and its 70 tags: 66 active, 4 retired. Decide a home for
    each: the tenant isolation and roles rules (`R1`, `R2`) in `docs/SECURITY.md`, the API conventions
-   rule (`R3`) in an API conventions design doc, the idempotent creates, audit log, and migrations
+   rule (`R3`) in an API conventions design doc, the safe retries, audit log, and migrations
    rules (`R4`, `R5`, `R7`) in `docs/RELIABILITY.md`, and the layering rule (`R6`) in
    `ARCHITECTURE.md`. History and review notes are background, not rules.
    Check: every active tag has exactly one planned home.

@@ -22,7 +22,7 @@ The commands that produced them (from the repository root; keys in `.env`; Docke
 A/B). The testgen command runs without `--image`, so its tests ran on the host and it printed an
 UNSANDBOXED warning (first lines of `testgen.txt`).
 
-```
+```bash
 L=section-4-verification/assignment/solution/live
 export PYTHONPATH=section-4-verification/assignment/solution
 mkdir -p $L/scores

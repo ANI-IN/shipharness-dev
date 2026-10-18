@@ -1,15 +1,22 @@
 # Module 1: Harness Engineering for Coding Agents - Slides
 
-The slides for the 240-minute class: 72 slides. The PDF and the PowerPoint file in this folder are
-ready to present. The rest of this page is for anyone who changes a slide and builds them again.
+The class deck has 80 slides for the 240-minute class: `module1-slides.md` holds every slide's
+text, layout, diagram, timing, and full speaker notes. It follows the class plan: each section
+launches its live run on its start slide, the one poll opens Section 4: Verification, and the
+breaks come after Section 1: Instructions (10 minutes) and Section 3: Scope and sandbox (5
+minutes).
+
+`deck.md`, `deck.pdf`, and `deck.pptx` are an earlier 72-slide version, built by `make slides`.
+Their order, polls, and screenshots do not follow the class plan; teach from the class deck. The
+rest of this page is for anyone who changes that earlier version and builds it again.
 
 | File | What it is |
 |---|---|
-| `deck.pdf`, `deck.pptx` | The slides, ready to present; the PowerPoint file has the speaker notes |
-| `deck.md` | The source of every slide, one block per slide. Edit this file |
-| `module1-slides.md` | The slide text for review, with full speaker notes; the run sheet uses it |
-| `outline.md` | The block table and the class plan per section |
-| `img/` | Console screenshots from timed runs of the class commands |
+| `module1-slides.md` | The class deck: 80 slides with full speaker notes |
+| `outline.md` | The block table and the class plan per section of the class deck |
+| `deck.md` | The source of the earlier 72-slide version, one block per slide |
+| `deck.pdf`, `deck.pptx` | The earlier 72-slide version, built from `deck.md` |
+| `img/` | Console screenshots from timed runs, used by the earlier version |
 | `dist/` | Build output (`deck.html`, `deck.pdf`, `deck.pptx`, cached diagram pictures); not tracked |
 
 ## Build

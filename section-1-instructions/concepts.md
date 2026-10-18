@@ -97,10 +97,10 @@ by what the agent is about to do, and each row names one file:
 | When you are about to | Read first |
 |---|---|
 | add or change an endpoint | `.agents/skills/add-endpoint/SKILL.md` (step by step) |
-| touch a router, service, repository, or model | `ARCHITECTURE.md` (layers, R6) |
-| decide who may see or change data | `docs/SECURITY.md` (R1 tenant isolation, R2 roles) |
+| touch a router, service, repository, or model | `ARCHITECTURE.md` (layers, House rule 6: Layering) |
+| decide who may see or change data | `docs/SECURITY.md` (House rule 1: Tenant isolation, House rule 2: Roles) |
 
-- R1 Tenant isolation: another org's resource is 404, never 403. See `docs/SECURITY.md`.
+- House rule 1: Tenant isolation. Another org's resource is 404, never 403. See `docs/SECURITY.md`.
 ```
 
 A section near the end, "Do not copy", names the legacy endpoint and its query. The full text of the tenant

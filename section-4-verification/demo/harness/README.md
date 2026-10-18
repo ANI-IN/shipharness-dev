@@ -16,9 +16,9 @@ in `platform/src/shipharness/`.
 > - **House rules**: TeamTrack's seven rules for every endpoint, House rule 1: Tenant isolation to House rule 7:
 >   Migrations.
 
-Do not edit the files here. A script writes them from the code
-(`platform/scripts/sync_demo_harness.py`), and a unit test fails if they differ from what the
-layer gives the agent. To change the text, change the code and run the script again.
+Do not edit the files here. They were written from the code, so they hold exactly what the layer
+gives the agent. To change the text, change the code in `platform/src/shipharness/`; the next
+`make show-4` gives the agent the new text.
 
 ## What is here
 

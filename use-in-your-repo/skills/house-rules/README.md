@@ -29,9 +29,9 @@ listed in full at the end of this page.
 
 ## What it does and when to use it
 
-"House rules" is the course's label, not a source term. It stands for what Source 1 calls "golden
-principles" encoded in the repository and "taste invariants" enforced with custom lints (Source 1). The idea in one line, also from Source 1: "When documentation falls short, we promote
-the rule into code".
+A house rule is what Source 1 calls "golden principles" encoded in the repository and "taste
+invariants" enforced with custom lints. The idea in one line, also from Source 1: "When
+documentation falls short, we promote the rule into code".
 
 A house rule is done when all three parts exist:
 

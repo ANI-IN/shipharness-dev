@@ -1313,7 +1313,7 @@ Launch: terminal B `make show-4`; terminal C `make final FEATURES=watchers,bulk-
 **Speaker notes:**
 - The poll has just closed: you have the winner and the runner-up. Section 4: Verification asks who decides the work is finished: the call `finish(claim="done")` and what we check before we believe it. The ticket: Feature 4: Version checks on issue edits again, optimistic concurrency (`ETag`, `If-Match`, 412), the hardest ticket in the course.
 - The primary measure: a run passes only with all 69 hidden tests passing and all 4 referee mutants caught by its own tests.
-- Launch 1, about 2:58, terminal B: `make show-4`. It runs `shipharness ab --section demo-4 --feature F4 --arms harness --profile class` (`F4` is the console's code for Feature 4). Open its run in browser tab 2.
+- Launch 1, 2:57, terminal B: `make show-4`. It runs `shipharness ab --section demo-4 --feature F4 --arms harness --profile class` (`F4` is the console's code for Feature 4). Open its run in browser tab 2.
 - Launch 2, right after, terminal C: `make final` with `FEATURES=` set to the poll winner, a comma, the runner-up, for example `make final FEATURES=watchers,bulk-close`. Always pass `FEATURES`; the default is bulk close, then watchers. Open its run in browser tab 3, then go back to tab 2.
 - show-4 timed before class (300 s agent limit; 420 s now, up to 2 min more): primary 9:19, full 10:55, cost $0.0265 against a $0.24 cap. With the final running beside it, expect the full verdict by about 3:14. The DEMO slide is at about 3:22.
 - The final, captured Feature 5: Bulk close run (420 s limit, busy machine): 12 min 9 s to the cost line. Features run one after another: the first done by about 3:11, the second by about 3:26-3:32, before the final block at 3:40. Feature 6: Watchers has two build sessions and was not timed as a final, so do not promise its finish time.
@@ -1474,7 +1474,7 @@ Section 4: Verification - Implementation Notes: The gate at work
 **Visual:** Template DEMO layout: "DEMO - 4" badge and the title only; no screenshot. Switch to the console.
 **Speaker notes:**
 - Files for this demo: `section-4-verification/demo/run.sh`, `section-4-verification/demo/walkthrough.md`, `section-4-verification/demo/harness/` (the gate and filter settings), `section-4-verification/demo/expected/` (the captured run, the fallback), `docs/evidence/s4.md`, console http://127.0.0.1:8765.
-- Switch to browser tab 2, the run of `make show-4` launched at about 2:58 (tab 3 holds the final). It should have finished by about 3:14. Walk screens 1, 3, 2, 5, 4.
+- Switch to browser tab 2, the run of `make show-4` launched at 2:57 (tab 3 holds the final). It should have finished by about 3:14. Walk screens 1, 3, 2, 5, 4.
 - Screen 1 (`1`), Live, top to bottom: harness notes from all four layers, then the blocked write (turn 1.15 in the capture). Say: "Section 3: Scope and sandbox's layer, still on duty."
 - Screen 1, the claim: "Agent said done". Say: "That is the claim." Then the 11 gate pills of the build phase (visible tests, existing tests, the seven house rules, board, clean state), all green. Say: "The gate passed every item it can see."
 - Screen 1, the referee line, capture: "primary verdict ready: FAIL, hidden tests passed 68, mutants killed 0". Pass today: "Every hidden test and every mutant. The work is done." Fail: "The agent said done. The hidden tests and mutants say no."
@@ -1542,7 +1542,7 @@ No Question Is Too Small Every Question Deserves an Answer!!
 - Likely: "How do I read the gate in the repo?" Answer: `uv run python platform/scripts/anchors.py extract S4:gate`, then `S4:filters` (`S4` is the code for Section 4: Verification).
 - Keep an eye on terminal C: if the final has finished its first feature, say so; we read it next.
 - Point learners to `section-4-verification/session-notes.md` and the post-class readings.
-- Time: 3 minutes; stop at 3:40 and collect the rest in chat. Next: the final A/B, running since about 2:58.
+- Time: 3 minutes; stop at 3:40 and collect the rest in chat. Next: the final A/B, running since 2:57.
 
 ## Slide 68: Final A/B: reading it live
 **Block:** Final  **Time:** 5 min (3:40-3:45)  **Diagram:** none  **Layout:** icon-rows

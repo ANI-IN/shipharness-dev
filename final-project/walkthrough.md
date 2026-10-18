@@ -89,8 +89,8 @@ the gate later counts only new ones:
 ```
 
 `make warm` fills this cache. Without it, the baseline runs every house-rule check in the arm's
-container before the agent's first turn, and that time counts against `HARNESS_TIMEOUT_S` (120 s in
-`.env.example`). Screen 1 shows which branch ran: "gate baseline reused", "recorded", or
+container before the agent's first turn, and that time counts against `HARNESS_TIMEOUT_S` (900 s in
+the class profile, `platform/src/shipharness/config/profiles.py`; 120 s in `.env.example`). Screen 1 shows which branch ran: "gate baseline reused", "recorded", or
 "unavailable".
 
 ### Step 3: sessions end with a handoff
@@ -162,7 +162,7 @@ assertions, and Filter 5: No source changes. Only kept tests ship.
 ### Step 6: the gate runs when the agent says done
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 169-178), anchor S4:gate
+# platform/src/shipharness/harness/verify/gate.py (lines 170-179), anchor S4:gate
     clean = clean_state_check(
         sandbox, base_sha, cfg.limit(120), migrations=cfg.migrations, ruff_select=cfg.ruff_select
     )
@@ -183,7 +183,7 @@ fails, the agent gets the feedback instead of a finished run. The item names per
 ### Step 7: the referee judges what shipped
 
 ```python
-# platform/src/shipharness/ab/referee.py (lines 584-592)
+# platform/src/shipharness/ab/referee.py (lines 586-594)
         product = strip(diff)  # harness artifacts are state, not product changes
         patch = rdir / "product.patch"
         patch.write_bytes(product)
@@ -202,7 +202,7 @@ tests, and the mutants. It is the same code for both arms, and an aborted arm is
 ### Step 8: the verdict and the exit code
 
 ```python
-# platform/src/shipharness/ab/commands.py (lines 139-142)
+# platform/src/shipharness/ab/commands.py (lines 172-175)
 def _exit_code(statuses: list[str]) -> int:
     if any(s == "ERROR" for s in statuses):
         return 1
