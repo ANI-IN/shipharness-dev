@@ -177,7 +177,8 @@ def wrap_line(line: str, width: int = 100) -> list[str]:
 
 # Callout geometry -----------------------------------------------------------------------------
 
-MIN_RADIUS = 28
+MIN_RADIUS = 34
+INNER_MAX_COST = 12.0  # a circle goes on its own target only where that part is empty
 
 
 @dataclass(frozen=True)
@@ -225,6 +226,45 @@ def box_in_crop(box: Box, crop: Box) -> Box | None:
     if x1 <= x0 or y1 <= y0:
         return None
     return Box(x0 - crop.x, y0 - crop.y, x1 - x0, y1 - y0)
+
+
+def target_matches(expected: str | None, found: str) -> bool:
+    """Whether the element a callout points at holds the text the callout is about (case and
+    spacing ignored); with nothing expected, the element must at least show some text."""
+    norm = " ".join(found.split()).casefold()
+    if expected is None:
+        return bool(norm)
+    return " ".join(expected.split()).casefold() in norm
+
+
+def reading_order(boxes: Sequence[Box], row: float) -> list[int]:
+    """Indexes of `boxes` top to bottom, then left to right (rows `row` pixels high)."""
+    rows: list[list[int]] = []
+    for i in sorted(range(len(boxes)), key=lambda i: boxes[i].y):
+        if rows and boxes[i].y - boxes[rows[-1][0]].y <= row:
+            rows[-1].append(i)
+        else:
+            rows.append([i])
+    return [i for r in rows for i in sorted(r, key=lambda i: boxes[i].x)]
+
+
+def stack_layout(pieces: Sequence[Box], gap: float) -> tuple[list[float], float, float]:
+    """Pieces of a page stacked top to bottom: each piece's y in the stacked image, the
+    stacked width (the widest piece), and the stacked height."""
+    ys, y = [], 0.0
+    for p in pieces:
+        ys.append(y)
+        y += p.h + gap
+    return ys, max((p.w for p in pieces), default=0.0), max(0.0, y - gap)
+
+
+def map_to_stack(box: Box, pieces: Sequence[Box], ys: Sequence[float]) -> Box | None:
+    """A page box in the stacked image: in the first piece that holds most of it."""
+    for p, y in zip(pieces, ys, strict=True):
+        part = box_in_crop(box, p)
+        if part is not None and part.w * part.h >= 0.5 * box.w * box.h:
+            return Box(part.x, part.y + y, part.w, part.h)
+    return None
 
 
 def callout_radius(image_width: int) -> int:
@@ -302,6 +342,8 @@ def place_callout(
     for i, (cx, cy) in enumerate(pool + interior):
         inner = i >= len(pool)
         if not ok(cx, cy, inner):
+            continue
+        if inner and cost is not None and cost(cx, cy) > INNER_MAX_COST:
             continue
         score = (15.0 if inner else i * 1.5) + (3 * cost(cx, cy) if cost else 0.0)
         score += 1000 * sum(1 for b in avoid if b.contains(cx, cy))

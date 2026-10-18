@@ -150,6 +150,34 @@ def test_wrap_line_expands_tabs_and_strips_ansi() -> None:
 # Callout geometry ----------------------------------------------------------------------------
 
 
+def test_target_matches() -> None:
+    assert gl.target_matches("← All runs", "← All  runs")
+    assert gl.target_matches("not run", "Not run (harness in action): this run shows ...")
+    assert not gl.target_matches("← All runs", "1 Live Console")
+    assert not gl.target_matches("BARE", "HARNESS instructions")
+    assert gl.target_matches(None, "anything")
+    assert not gl.target_matches(None, "   ")
+
+
+def test_reading_order_top_to_bottom_then_left_to_right() -> None:
+    boxes = [gl.Box(500, 300, 10, 10), gl.Box(900, 20, 10, 10), gl.Box(100, 25, 10, 10)]
+    assert gl.reading_order(boxes, row=48) == [2, 1, 0]
+
+
+def test_no_circle_on_a_busy_part_of_its_own_target() -> None:
+    target = gl.Box(100, 400, 1200, 50)
+    c = gl.place_callout(target, 1600, 900, radius=30, taken=[], cost=lambda x, y: 100.0)
+    assert not target.contains(c.cx, c.cy)
+
+
+def test_stack_layout_and_mapping() -> None:
+    pieces = [gl.Box(0, 100, 400, 50), gl.Box(0, 900, 300, 80)]
+    ys, w, h = gl.stack_layout(pieces, gap=10)
+    assert ys == [0.0, 60.0] and w == 400 and h == 140
+    assert gl.map_to_stack(gl.Box(10, 910, 50, 20), pieces, ys) == gl.Box(10, 70, 50, 20)
+    assert gl.map_to_stack(gl.Box(10, 500, 50, 20), pieces, ys) is None
+
+
 def test_scale_box() -> None:
     assert gl.scale_box((10, 20, 30, 40), 2) == gl.Box(20, 40, 60, 80)
 

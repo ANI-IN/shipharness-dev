@@ -44,14 +44,18 @@ from guidelib import (
     find_secrets,
     image_entry,
     load_entries,
+    map_to_stack,
     merge_entries,
     personal_hits,
+    reading_order,
     save_entries,
     scale_box,
+    stack_layout,
+    target_matches,
 )
 from PIL import Image
 
-WIDTH, HEIGHT, DPR = 1920, 1080, 2
+WIDTH, HEIGHT, DPR = 1024, 900, 2  # text prints at 8 pt or more on A4
 SCREENS = {1: "Live Console", 2: "Boards", 3: "Evidence", 4: "A/B Report", 5: "Traces"}
 DEMOS = {
     "s1": "Section 1 show-1",
@@ -88,6 +92,11 @@ class Spec:
     arm: str | None = None
     root: str = "screen"
     nth: int = 0
+    must: str | None = None  # text the target element must contain (else no callout)
+
+    @property
+    def expected(self) -> str | None:
+        return self.must or self.text
 
 
 RESOLVE_JS = r"""
@@ -126,7 +135,8 @@ RESOLVE_JS = r"""
       if (bottom <= top) { out.push(null); continue; }
       r = {left: r.left, top: top, width: r.width, height: bottom - top};
     }
-    out.push({x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height});
+    out.push({x: r.left + window.scrollX, y: r.top + window.scrollY, w: r.width, h: r.height,
+              text: (e.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 400)});
   }
   return out;
 }
@@ -199,110 +209,215 @@ FACTS_JS = r"""
 
 def arm_specs(single: bool) -> list[Spec]:
     if single:
-        return [Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare")]
-    return [Spec("Bare arm line: no layers", sel=".arm-head h2, h2", arm="bare")]
+        return [
+            Spec(
+                "Bare arm: Not run (harness in action)", sel=".not-run", arm="bare", must="Not run"
+            )
+        ]
+    return [Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare", must="BARE")]
+
+
+NAV = [
+    Spec("← All runs: back to the run list", sel=".all-runs", root="bar", must="All runs"),
+    Spec("Screen tabs 1 to 5", sel="nav.tabs", root="bar", must="Boards"),
+]
+HARNESS_LINE = Spec(
+    "Harness arm line: its layers", sel=".arm-head h2", arm="harness", must="HARNESS"
+)
+REFEREE_H = Spec(
+    "Referee pill (harness)", sel=".referee .ref-line", arm="harness", must="verdict ready"
+)
+REFEREE_B = Spec("Referee pill (bare)", sel=".referee .ref-line", arm="bare", must="verdict ready")
+NOT_RUN = Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare", must="Not run")
 
 
 def screen_specs(screen: int, single: bool) -> list[Spec]:
     """What matters on each screen, in callout order (missing targets are skipped)."""
-    nav = [
-        Spec("← All runs: back to the run list", sel=".all-runs", root="bar"),
-        Spec("Screen tabs 1 to 5", sel="nav.tabs", root="bar"),
-    ]
     if screen == 1:
         specs = (
-            nav
+            NAV
             + arm_specs(single)
             + [
-                Spec("Harness arm line: its layers", sel=".arm-head h2", arm="harness"),
+                HARNESS_LINE,
                 Spec("Gate list", sel=".pills", arm="harness"),
-                Spec("Gate refused 'done', then passed", sel=".gate-refusals", arm="harness"),
-                Spec("Referee pill (harness)", sel=".referee .ref-line", arm="harness"),
+                Spec(
+                    "Gate refused 'done', then passed",
+                    sel=".gate-refusals",
+                    arm="harness",
+                    must="refused",
+                ),
+                REFEREE_H,
             ]
         )
         if not single:
-            specs.append(Spec("Referee pill (bare)", sel=".referee .ref-line", arm="bare"))
+            specs.append(REFEREE_B)
         return specs
     if screen == 2:
-        return nav[:1] + [
-            Spec("Harness board, signed in as one user", sel="h2", arm="harness"),
-            Spec("Board marks", sel=".marks", arm="harness"),
+        return NAV[:1] + [
+            Spec("Bare board heading", sel="h2", arm="bare", must="BARE"),
             Spec("Bare board marks", sel=".marks", arm="bare"),
-            Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare"),
-            Spec("Two-tab edit conflict", sel=".conflict-panel h2"),
+            NOT_RUN,
+            Spec(
+                "Harness board heading: signed in as one user",
+                sel="h2",
+                arm="harness",
+                must="board",
+            ),
+            Spec("Harness board marks", sel=".marks", arm="harness"),
+            Spec("Two-tab edit conflict", sel=".conflict-panel h2", must="conflict"),
         ]
     if screen == 3:
         return [
-            Spec("Sessions, including the test phase", sel=".sessions", arm="harness"),
-            Spec("Diff map (harness)", sel=".diffmap", arm="harness"),
-            Spec("Diff map (bare)", sel=".diffmap", arm="bare"),
             Spec(
-                "Files outside the allowed paths (diff_scope)",
+                "Sessions, including the test phase", sel=".sessions", arm="harness", must="Session"
+            ),
+            Spec("Diff map (bare)", sel=".diffmap", arm="bare"),
+            Spec("Diff map (harness)", sel=".diffmap", arm="harness"),
+            Spec(
+                "Files outside the allowed paths (diff_scope), bare",
+                sel=".check-row",
+                text="Files outside the allowed paths",
+                arm="bare",
+            ),
+            Spec(
+                "Files outside the allowed paths (diff_scope), harness",
                 sel=".check-row",
                 text="Files outside the allowed paths",
                 arm="harness",
             ),
             Spec(
-                "Files outside the allowed paths (bare)",
-                sel=".check-row",
-                text="Files outside the allowed paths",
-                arm="bare",
+                "fails on the current code; this may be a real bug",
+                sel=".maybe-bug",
+                must="real bug",
             ),
-            Spec("Filter table: may be a real bug", sel=".maybe-bug"),
-            Spec("Blinded reviewer's reason", sel=".reviewer-line", arm="harness"),
-            Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare"),
+            Spec("Blinded reviewer's reason", sel=".reviewer-line", arm="harness", must="reviewer"),
+            NOT_RUN,
         ]
     if screen == 4:
         return [
-            Spec("This run", sel=".this-run"),
+            Spec("This run", sel=".this-run", must="This run"),
             Spec("Measured before class", sel="h2", text="Measured before class"),
             Spec("Dots per run", sel=".dot-row"),
             Spec("Cost per verified feature", sel=".costs"),
-            Spec("Reviewer agreement", sel=".agreement"),
+            Spec("Reviewer agreement", sel=".agreement", must="reviewer"),
         ]
     return [
-        Spec("Live tail", sel=".tail-panel h2"),
+        Spec("Live tail", sel=".tail-panel h2", must="Live tail"),
         Spec("First wrong turn", sel="h2", text="First wrong turn"),
         Spec("LangSmith links", sel="h2", text="LangSmith"),
     ]
 
 
 @dataclass(frozen=True)
-class Crop:
-    name: str
-    sel: str
-    specs: tuple[Spec, ...]
-    nth: int = 0
+class Part:
+    """Elements whose union makes one piece of a crop: inside the `nth` match of `root`
+    (within the screen), inside the block of `arm` when given; each (selector, text) pair adds
+    its first match, or every match when `every`."""
+
+    root: str
+    parts: tuple[tuple[str, str | None], ...]
     arm: str | None = None
+    nth: int = 0
+    every: bool = False
 
 
-def crops_for(screen: int, single: bool) -> list[Crop]:
+@dataclass(frozen=True)
+class Crop:
+    """A focused image: its pieces stacked top to bottom (each with its heading), callouts."""
+
+    name: str
+    pieces: tuple[Part, ...]
+    specs: tuple[Spec, ...]
+    words: str  # "the referee rows of both arms"
+
+
+PIECE_JS = r"""
+(a) => {
+  const vis = e => e && e.getBoundingClientRect().height > 0;
+  let roots = Array.from(document.querySelectorAll('#screen-' + a.screen + ' ' + a.root))
+    .filter(vis);
+  const sel = '[data-arm="' + a.arm + '"]';
+  if (a.arm) {
+    roots = roots.filter(r => r.getAttribute('data-arm') === a.arm || r.querySelector(sel));
+  }
+  let root = roots[a.nth];
+  if (!root) return null;
+  if (a.arm) {
+    root = root.getAttribute('data-arm') === a.arm ? root : root.querySelector(sel);
+    if (!vis(root)) return null;
+  }
+  const els = [];
+  for (const [sel, text] of a.parts) {
+    let found = Array.from(sel === ':root' ? [root] : root.querySelectorAll(sel)).filter(vis);
+    if (text) found = found.filter(e => (e.textContent || '').includes(text));
+    if (!found.length) continue;
+    if (a.every) els.push(...found); else els.push(found[0]);
+  }
+  if (!els.length) return null;
+  const rs = els.map(e => e.getBoundingClientRect());
+  const x0 = Math.min(...rs.map(r => r.left)), y0 = Math.min(...rs.map(r => r.top));
+  const x1 = Math.max(...rs.map(r => r.right)), y1 = Math.max(...rs.map(r => r.bottom));
+  return {x: x0 + scrollX, y: y0 + scrollY, w: x1 - x0, h: y1 - y0};
+}
+"""
+
+ARMS = ("bare", "harness")
+EVID = ".evidence > article"
+
+
+def crops_for(screen: int, single: bool, feature: str = "") -> list[Crop]:
+    arms = ("harness",) if single else ARMS
     if screen == 1:
         out = [
             Crop(
                 "screen-1-harness",
-                ".arm-panel",
+                (Part(".arm-panel", ((":root", None),), arm="harness"),),
                 (
-                    Spec("Harness arm line: its layers", sel=".arm-head h2", arm="harness"),
-                    Spec("Turns list", sel=".list-head", arm="harness"),
+                    HARNESS_LINE,
+                    Spec("Turns list", sel=".list-head", arm="harness", must="turns"),
                     Spec("Harness decisions", sel=".decisions", arm="harness"),
                     Spec("Gate list", sel=".pills", arm="harness"),
-                    Spec("Referee pill", sel=".referee .ref-line", arm="harness"),
+                    REFEREE_H,
                 ),
-                arm="harness",
-            )
+                "the harness arm's panel",
+            ),
+            Crop(
+                "screen-1-verdict",
+                tuple(
+                    p
+                    for a in arms
+                    for p in (
+                        Part(".arm-panel", ((".arm-head h2", None),), arm=a),
+                        Part(
+                            ".arm-panel",
+                            (("h3", "Gate"), (".pills", None), (".claims", None)),
+                            arm=a,
+                        ),
+                    )
+                ),
+                (
+                    Spec("Gate list (harness)", sel=".pills", arm="harness"),
+                    Spec("Agent said (harness)", sel=".claims p", arm="harness", must="Agent said"),
+                    REFEREE_H,
+                    Spec("Agent said (bare)", sel=".claims p", arm="bare", must="Agent said"),
+                    REFEREE_B,
+                ),
+                "the gate, the agent's claim, and the referee pill of each arm",
+            ),
         ]
         if not single:
             out.append(
                 Crop(
                     "screen-1-bare",
-                    ".arm-panel",
+                    (Part(".arm-panel", ((":root", None),), arm="bare"),),
                     (
-                        Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare"),
-                        Spec("Turns list", sel=".list-head", arm="bare"),
-                        Spec("Referee pill", sel=".referee .ref-line", arm="bare"),
+                        Spec(
+                            "Bare arm line: no layers", sel=".arm-head h2", arm="bare", must="BARE"
+                        ),
+                        Spec("Turns list", sel=".list-head", arm="bare", must="turns"),
+                        REFEREE_B,
                     ),
-                    arm="bare",
+                    "the bare arm's panel",
                 )
             )
         return out
@@ -310,73 +425,138 @@ def crops_for(screen: int, single: bool) -> list[Crop]:
         return [
             Crop(
                 "screen-3-sessions",
-                ".evidence > article",
+                (Part(EVID, ((":root", None),), nth=0),),
                 (
                     Spec("Files read", sel=".files", arm="harness"),
-                    Spec("Sessions", sel=".sessions", arm="harness"),
+                    Spec("Sessions", sel=".sessions", arm="harness", must="Session"),
                 ),
-                nth=0,
+                "files read and sessions of each arm",
             ),
             Crop(
                 "screen-3-diff-map",
-                ".evidence > article",
+                (Part(EVID, ((":root", None),), nth=1),),
                 (
                     Spec("Diff map (bare)", sel=".diffmap", arm="bare"),
                     Spec("Diff map (harness)", sel=".diffmap", arm="harness"),
-                    Spec("Sandbox denials", sel=".denials", arm="harness"),
+                    Spec("Sandbox denials (harness)", sel=".denials", arm="harness"),
                 ),
-                nth=1,
+                "the diff map and sandbox denials of each arm",
             ),
             Crop(
                 "screen-3-referee",
-                ".evidence > article",
+                (Part(EVID, (("h2", None),), nth=2),)
+                + tuple(
+                    Part(EVID, (("h3", None), ("h4", "Referee"), ("ul.checks", None)), arm=a, nth=2)
+                    for a in arms
+                ),
                 (
                     Spec(
-                        "Files outside the allowed paths (diff_scope)",
+                        "Files outside the allowed paths (diff_scope), bare",
                         sel=".check-row",
                         text="Files outside the allowed paths",
                         arm="bare",
                     ),
                     Spec(
-                        "Files outside the allowed paths (diff_scope)",
+                        "Files outside the allowed paths (diff_scope), harness",
                         sel=".check-row",
                         text="Files outside the allowed paths",
                         arm="harness",
                     ),
-                    Spec("hidden tests", sel=".check-row", text="hidden tests", arm="harness"),
-                    Spec("Blinded reviewer's reason", sel=".reviewer-line", arm="harness"),
-                    Spec("Filter table: may be a real bug", sel=".maybe-bug"),
+                    Spec(
+                        "hidden tests (harness)",
+                        sel=".check-row",
+                        text="hidden tests",
+                        arm="harness",
+                    ),
+                    Spec(
+                        "Blinded reviewer's reason (harness)",
+                        sel=".reviewer-line",
+                        arm="harness",
+                        must="reviewer",
+                    ),
                 ),
-                nth=2,
+                "the referee rows and the blinded reviewer's reason of each arm",
             ),
             Crop(
                 "screen-3-filters",
-                "table.filters",
+                tuple(
+                    p
+                    for a in arms
+                    for p in (
+                        Part(EVID, (("h3", None),), arm=a, nth=2),
+                        Part(
+                            EVID,
+                            (("h4", "Test filters"), ("table.filters", None), ("p.coverage", None)),
+                            arm=a,
+                            nth=2,
+                        ),
+                    )
+                ),
                 (
                     Spec("A test kept by the filters", sel="tr", text="kept"),
-                    Spec("fails on the current code; this may be a real bug", sel=".maybe-bug"),
+                    Spec(
+                        "fails on the current code; this may be a real bug",
+                        sel=".maybe-bug",
+                        must="real bug",
+                    ),
                 ),
+                "the test filter table of each arm",
             ),
             Crop(
                 "screen-3-mutants",
-                "table.mutants",
-                (Spec("Mutants: filter set and referee set", sel="thead"),),
-                arm="harness",
+                tuple(
+                    p
+                    for a in arms
+                    for p in (
+                        Part(EVID, (("h3", None),), arm=a, nth=2),
+                        Part(EVID, (("h4", "Mutants"), ("table.mutants", None)), arm=a, nth=2),
+                    )
+                ),
+                (
+                    Spec(
+                        "Mutants (bare): filter set and referee set",
+                        sel="table.mutants thead",
+                        arm="bare",
+                    ),
+                    Spec(
+                        "Bare: a mutant the referee set killed", sel="td", text="killed", arm="bare"
+                    ),
+                    Spec(
+                        "Mutants (harness): filter set and referee set",
+                        sel="table.mutants thead",
+                        arm="harness",
+                    ),
+                ),
+                "the mutants table of each arm",
             ),
         ]
     if screen == 4:
+        rows = ((".dot-row", feature),) if feature else ((".dot-row", None),)
         return [
             Crop(
                 "screen-4-report",
-                ".grid.three > article",
+                (
+                    Part(".grid.three > article", (("h2", None), ("p.muted", None))),
+                    Part(".grid.three > article", rows, every=True),
+                    Part(".grid.three > article", ((".legend", None),)),
+                ),
                 (
                     Spec("Measured before class", sel="h2", text="Measured before class"),
-                    Spec("Dots per run", sel=".dot-row"),
-                    Spec("Legend", sel=".legend"),
+                    Spec(
+                        f"Dots per run, {feature or 'this feature'}",
+                        sel=".dot-row",
+                        text=feature or None,
+                    ),
+                    Spec("Legend", sel=".legend", must="passed"),
                 ),
-                nth=0,
+                f"the runs measured before class for {feature or 'this feature'}",
             ),
-            Crop("screen-4-this-run", ".this-run", (Spec("This run", sel=".this-run-head"),)),
+            Crop(
+                "screen-4-this-run",
+                (Part(".this-run", ((":root", None),)),),
+                (Spec("This run", sel=".this-run-head", must="This run"),),
+                "this run's line",
+            ),
         ]
     return []
 
@@ -467,12 +647,23 @@ class Console:
             )
 
     def boxes(self, specs: Iterable[Spec], screen: int | None) -> list[Box | None]:
+        """Each target's box (image pixels), or None when it is not on the page or when the
+        element found does not hold the text the callout is about."""
+        specs = list(specs)
         raw = self.page.evaluate(
             RESOLVE_JS, {"specs": [s.__dict__ for s in specs], "screen": screen or 0}
         )
-        return [
-            None if r is None else scale_box((r["x"], r["y"], r["w"], r["h"]), DPR) for r in raw
-        ]
+        out: list[Box | None] = []
+        for spec, r in zip(specs, raw, strict=True):
+            if r is None:
+                out.append(None)
+                continue
+            if not target_matches(spec.expected, r["text"]):
+                log(f"! callout {spec.label!r}: the element found does not say {spec.expected!r}")
+                out.append(None)
+                continue
+            out.append(scale_box((r["x"], r["y"], r["w"], r["h"]), DPR))
+        return out
 
     def full_shot(self, name: str, screen: int | None) -> Shot:
         self.page.evaluate("() => window.scrollTo(0, 0)")
@@ -539,6 +730,12 @@ def _targets(specs: list[Spec], boxes: list[Box | None], crop: Box | None) -> li
     return out[:MAX_CALLOUTS]
 
 
+def in_reading_order(targets: list[Target]) -> list[Target]:
+    """Callout numbers follow the page: top to bottom, then left to right."""
+    order = reading_order([t.box for t in targets], row=24 * DPR)
+    return [targets[i] for i in order]
+
+
 def save_image(
     shot: Shot,
     out: Out,
@@ -562,7 +759,7 @@ def save_image(
     raw = shot.path.parent / f"{name}-raw.png"
     cut.save(raw)
     file = f"{name}.png"
-    callouts = annotate(raw, out.folder / file, _targets(specs, boxes, region))
+    callouts = annotate(raw, out.folder / file, in_reading_order(_targets(specs, boxes, region)))
     out.add(file, screen, moment, alt, callouts)
     log(f"  {out.folder.name}/{file} ({cut.size[0]}x{cut.size[1]}, {len(callouts)} callouts)")
 
@@ -657,30 +854,88 @@ def capture_screen(
         )
     if not crops:
         return
-    for c in crops_for(screen, single):
-        idx = con.page.evaluate(
-            "(a) => { const all = Array.from(document.querySelectorAll('#screen-' + a.screen +"
-            " ' ' + a.sel)).filter(e => e.getBoundingClientRect().height > 0 && (!a.arm ||"
-            " e.getAttribute('data-arm') === a.arm || (e.closest('[data-arm]') &&"
-            " e.closest('[data-arm]').getAttribute('data-arm') === a.arm)));"
-            " const e = all[a.nth]; if (!e) return null; const r = e.getBoundingClientRect();"
-            " return {x: r.left + scrollX, y: r.top + scrollY, w: r.width, h: r.height}; }",
-            {"screen": screen, "sel": c.sel, "nth": c.nth, "arm": c.arm},
-        )
-        if not idx:
+    feature = str(shot.facts.get("feature") or "")
+    for c in crops_for(screen, single, feature):
+        found: list[tuple[Part, Box | None]] = []
+        for part in c.pieces:
+            r = con.page.evaluate(
+                PIECE_JS,
+                {
+                    "screen": screen,
+                    "root": part.root,
+                    "parts": [list(p) for p in part.parts],
+                    "arm": part.arm,
+                    "nth": part.nth,
+                    "every": part.every,
+                },
+            )
+            pad = 6
+            box = None
+            if r:
+                box = scale_box(
+                    (r["x"] - pad, r["y"] - pad, r["w"] + 2 * pad, r["h"] + 2 * pad), DPR
+                )
+            found.append((part, box))
+        pieces = []
+        for i, (part, box) in enumerate(found):
+            if box is None:
+                continue
+            if is_heading(part):  # a heading only together with the content under it
+                nxt = found[i + 1][1] if i + 1 < len(found) else None
+                if nxt is None:
+                    continue
+            pieces.append(box)
+        if not any(b is not None and not is_heading(p) for p, b in found):
+            log(f"  {prefixed(name, c.name)}: not on this screen")
             continue
-        pad = 12
-        box = scale_box(
-            (idx["x"] - pad, idx["y"] - pad, idx["w"] + 2 * pad, idx["h"] + 2 * pad), DPR
-        )
         cspecs = list(c.specs)
         cboxes = con.boxes(cspecs, screen)
-        part = c.name.split("-", 2)[-1].replace("-", " ")
         calt = (
-            f"Close-up of screen {screen} ({SCREENS[screen]}), the {part} panel of the "
-            f"{DEMOS.get(out.demo, out.demo)} run, {moment}."
+            f"Close-up of screen {screen} ({SCREENS[screen]}) of the "
+            f"{DEMOS.get(out.demo, out.demo)} run, {moment}: {c.words}, with their headings."
         )
-        save_image(shot, out, prefixed(name, c.name), box, cspecs, cboxes, screen, moment, calt)
+        save_stacked(
+            shot, out, prefixed(name, c.name), pieces, cspecs, cboxes, screen, moment, calt
+        )
+
+
+def is_heading(part: Part) -> bool:
+    """A piece that is only an arm or panel heading (shown above the content it labels)."""
+    return all(sel in ("h2", "h3", ".arm-head h2") for sel, _ in part.parts)
+
+
+def save_stacked(
+    shot: Shot,
+    out: Out,
+    name: str,
+    pieces: list[Box],
+    specs: list[Spec],
+    boxes: list[Box | None],
+    screen: int,
+    moment: str,
+    alt: str,
+) -> None:
+    """Crop each piece from the full-page shot and stack them; map the callout boxes."""
+    img = Image.open(shot.path)
+    page = Box(0, 0, shot.width, shot.height)
+    pieces = [p for p in (box_in_crop(b, page) for b in pieces) if p is not None]
+    pieces = [Box(p.x, p.y, p.w, p.h) for p in pieces]
+    gap = 12 * DPR
+    ys, w, h = stack_layout(pieces, gap)
+    canvas = Image.new("RGB", (int(w), int(h)), "#0b0f14")
+    for p, y in zip(pieces, ys, strict=True):
+        canvas.paste(img.crop((int(p.x), int(p.y), int(p.right), int(p.bottom))), (0, int(y)))
+    raw = shot.path.parent / f"{name}-raw.png"
+    canvas.save(raw)
+    targets: list[Target] = []
+    for spec, box in zip(specs, boxes, strict=True):
+        mapped = None if box is None else map_to_stack(box, pieces, ys)
+        if mapped is not None:
+            targets.append(Target(mapped, spec.label))
+    file = f"{name}.png"
+    callouts = annotate(raw, out.folder / file, in_reading_order(targets[:MAX_CALLOUTS]))
+    out.add(file, screen, moment, alt, callouts)
+    log(f"  {out.folder.name}/{file} ({canvas.size[0]}x{canvas.size[1]}, {len(callouts)} callouts)")
 
 
 def prefixed(name: str, crop_name: str) -> str:
@@ -693,10 +948,10 @@ def prefixed(name: str, crop_name: str) -> str:
 
 
 RUNLIST_SPECS_TOP = [
-    Spec("Run id: open the run", sel=".run-link", root="page"),
+    Spec("Run id: open the run", sel=".run-link", root="page", must="ab-"),
     Spec("Type: harness in action or A/B", sel=".run-meta span:nth-child(3)", root="page"),
     Spec("Status", sel=".run-meta span:nth-child(4)", root="page"),
-    Spec("Start time", sel=".run-meta span:nth-child(5)", root="page"),
+    Spec("Start time", sel=".run-meta span:nth-child(5)", root="page", must="started"),
 ]
 
 
@@ -714,15 +969,20 @@ def capture_list(con: Console, out: Out, name: str, moment: str, run_id: str | N
     has_runs = con.page.locator(".run-link").count() > 0
     if has_runs:
         specs = [
-            Spec(s.label, sel=f".runs > li:nth-child({nth + 1}) {s.sel}", root="page")
+            Spec(s.label, sel=f".runs > li:nth-child({nth + 1}) {s.sel}", root="page", must=s.must)
             for s in RUNLIST_SPECS_TOP
         ]
         if nth:  # bring the card into view
             con.page.locator(".runs > li").nth(nth).scroll_into_view_if_needed()
     else:
         specs = [
-            Spec("No runs yet: start one in Terminal 2", sel=".panel p", root="page"),
-            Spec("Console keys", sel=".panel:last-child p", root="page"),
+            Spec(
+                "No runs yet: start one in Terminal 2",
+                sel=".panel p",
+                root="page",
+                text="No runs yet",
+            ),
+            Spec("Console keys", sel=".panel p", root="page", text="Live Console"),
         ]
     boxes = con.boxes(specs, None)
     scroll = con.page.evaluate("() => window.scrollY")
@@ -872,12 +1132,12 @@ def _primary(arm: str | None):
 H = "harness"
 EARLY_SPECS = (
     Spec("HARNESS IN ACTION badge, or the feature", sel=".badge.single-arm, .badge.feature"),
-    Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare"),
-    Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare"),
-    Spec("Harness arm line: its layers", sel=".arm-head h2", arm=H),
-    Spec("Container line", sel=".sandbox-line", arm=H),
-    Spec("Last turns", sel=".list-head", arm=H),
-    Spec("Harness decisions: the layer notes", sel=".decisions li", arm=H),
+    Spec("Bare arm: Not run (harness in action)", sel=".not-run", arm="bare", must="Not run"),
+    Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare", must="BARE"),
+    Spec("Harness arm line: its layers", sel=".arm-head h2", arm=H, must="HARNESS"),
+    Spec("Container line", sel=".sandbox-line", arm=H, must="container"),
+    Spec("Last turns", sel=".list-head", arm=H, must="turns"),
+    Spec("Harness decisions: the layer notes", sel=".decisions li", arm=H, must="instruction"),
 )
 MOMENTS = [
     Moment("screen-1-early", 1, "about one minute after launch", _early, EARLY_SPECS),
@@ -887,8 +1147,8 @@ MOMENTS = [
         "with both arms working side by side",
         _both_arms,
         (
-            Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare"),
-            Spec("Harness arm line: its layers", sel=".arm-head h2", arm=H),
+            Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare", must="BARE"),
+            Spec("Harness arm line: its layers", sel=".arm-head h2", arm=H, must="HARNESS"),
             Spec("Bare turns", sel=".turns", arm="bare"),
             Spec("Harness turns", sel=".turns", arm=H),
             Spec("Harness decisions", sel=".decisions", arm=H),
@@ -907,7 +1167,7 @@ MOMENTS = [
                 text="handoff written",
                 arm=H,
             ),
-            Spec("Turns list", sel=".list-head", arm=H),
+            Spec("Turns list", sel=".list-head", arm=H, must="turns"),
         ),
         ("decisions-harness",),
     ),
@@ -940,8 +1200,8 @@ MOMENTS = [
                 text="outside the allowed paths",
                 arm=H,
             ),
-            Spec("Turns list", sel=".list-head", arm=H),
-            Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare"),
+            Spec("Turns list", sel=".list-head", arm=H, must="turns"),
+            Spec("Bare arm line: no layers", sel=".arm-head h2", arm="bare", must="BARE"),
         ),
         ("decisions-harness",),
     ),
@@ -952,7 +1212,7 @@ MOMENTS = [
         lambda ev: _first(ev, lambda e: e.get("type") == "gate_result"),
         (
             Spec("Gate list: checks pending", sel=".pills", arm=H),
-            Spec("Agent said", sel=".claims p", arm=H),
+            Spec("Agent said", sel=".claims p", arm=H, must="Agent said"),
         ),
     ),
     Moment(
@@ -961,7 +1221,7 @@ MOMENTS = [
         "when the gate refused the agent's 'done'",
         lambda ev: _first(ev, lambda e: _gate_done(e, False), extra=1),
         (
-            Spec("Gate refused 'done'", sel=".gate-refusals", arm=H),
+            Spec("Gate refused 'done'", sel=".gate-refusals", arm=H, must="refused"),
             Spec("Gate list", sel=".pills", arm=H),
         ),
         ("decisions-harness",),
@@ -974,7 +1234,7 @@ MOMENTS = [
         (
             Spec("Gate list: every check passed", sel=".pills", arm=H),
             Spec("Gate passed", sel=".decisions li", text="passed", arm=H),
-            Spec("Gate refused 'done', then passed", sel=".gate-refusals", arm=H),
+            Spec("Gate refused 'done', then passed", sel=".gate-refusals", arm=H, must="refused"),
         ),
         ("decisions-harness",),
     ),
@@ -984,9 +1244,9 @@ MOMENTS = [
         "when the bare arm's verdict was ready",
         _primary("bare"),
         (
-            Spec("Bare referee pill", sel=".referee .ref-line", arm="bare"),
+            Spec("Bare referee pill", sel=".referee .ref-line", arm="bare", must="verdict ready"),
             Spec("Secondary checks running", sel=".referee", text="secondary checks", arm="bare"),
-            Spec("Harness still working", sel=".list-head", arm=H),
+            Spec("Harness still working", sel=".list-head", arm=H, must="turns"),
         ),
     ),
     Moment(
@@ -995,8 +1255,8 @@ MOMENTS = [
         "when the first primary verdict was ready",
         _primary(None),
         (
-            Spec("Referee pill (harness)", sel=".referee .ref-line", arm=H),
-            Spec("Referee pill (bare)", sel=".referee .ref-line", arm="bare"),
+            Spec("Referee pill (harness)", sel=".referee .ref-line", arm=H, must="verdict ready"),
+            Spec("Referee pill (bare)", sel=".referee .ref-line", arm="bare", must="verdict ready"),
             Spec("Secondary checks running", sel=".referee", text="secondary checks", arm=H),
         ),
     ),
