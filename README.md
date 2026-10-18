@@ -104,11 +104,11 @@ the finished run on every screen. The instructor's plan is in the [instructor gu
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 at minute 3 of an A/B, bare arm on the left and harness arm on the right](docs/images/screen-1-ab-minute-3.png)
+![Console screen 1 early in an A/B, bare arm on the left and harness arm on the right, each with its last turns and the harness decisions](docs/images/screen-1-ab-live.png)
 
 *Screen 1 during a run: each arm's turns, cost against its cap, and the harness decisions as they happen.*
 
-![Console screen 1 of a Section 1 run with the pill primary verdict ready: PASS](docs/images/screen-1-primary-verdict.png)
+![The harness arm on console screen 1 of a Section 1 run: run completed, harness decisions, the referee pill primary verdict ready: PASS](docs/images/screen-1-primary-verdict.png)
 
 *The primary verdict appears as soon as its checks finish, while the secondary checks still run.*
 
@@ -116,9 +116,9 @@ the finished run on every screen. The instructor's plan is in the [instructor gu
 
 *Screen 2 shows each arm's running app as one customer sees it, and flags cards from another org.*
 
-![Console screen 4, the A/B report with one dot per run for each feature and arm](docs/images/screen-4-report.png)
+![Console screen 4: this run at the top, then Measured before class, one dot per run for each feature and arm](docs/images/screen-4-report.png)
 
-*Screen 4 puts every recorded run on one page: one dot per run, filled when it passed.*
+*Screen 4 puts the runs measured before class on one page, one dot per run, filled when it passed; new runs join as new dots.*
 
 ## What we measured
 
@@ -138,7 +138,7 @@ their measures. The scope layer did: on a ticket where every bare arm changed a 
 allowed paths, the harness arm was blocked from doing so in 3 of 3 runs. That result is why Section
 3 runs a live A/B in class.
 
-![Console screen 3 of a Section 3 demo run: the bare arm changed app/services/errors.py, the harness arm shows it blocked](docs/images/screen-3-scope-blocked.png)
+![Console screen 3 of a Section 3 demo run recorded before class: the bare arm changed app/services/errors.py, the harness arm shows it blocked](docs/images/screen-3-scope-blocked.png)
 
 *In the bare arm the shared errors file is changed; in the harness arm the same file is blocked.*
 

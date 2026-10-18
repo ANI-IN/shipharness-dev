@@ -1,11 +1,17 @@
-# Module 1: Harness Engineering for Coding Agents - Demo 3: what real runs looked like
+# Module 1: Harness Engineering for Coding Agents - Demo 3: what a real run looked like
 
-This folder holds the output and the screenshots of the three real `make demo-3
-FEATURE=version-checks` A/Bs the course ran on 2026-10-18 with the class settings (run ids on the
-[evidence page](../../../docs/evidence/s3.md#s3-demo-capture)). Nothing here is staged
-or edited, except where a line says it was cut. Use it to check that your run looks roughly like
-these, or to follow the demo without running it. When and how each file was captured is in the
+This folder holds the output and the screenshots of one real `make demo-3 FEATURE=version-checks`
+A/B, the live run of 2026-10-18 for the demo guide, with the class settings (run id on the
+[evidence page](../../../docs/evidence/s3.md#s3-guide-run)). Nothing here is staged or edited. Use it
+to check that your run looks roughly like this one, or to follow the demo without running it. When
+and how each file was captured is on the
 [evidence page](../../../docs/evidence/s3.md#s3-demo-capture).
+
+In this run the bare arm stayed inside the allowed paths, so both arms passed the demo's measure.
+That is the less usual result: before class the bare arm left the allowed paths in 9 of 10 runs
+([evidence](../../../docs/evidence/s3.md#s3-screen-4-before-class)). The scope layer still blocked
+the harness arm's patch to `app/services/errors.py`. One screenshot from a recorded run shows the
+usual result.
 
 > **Terms on this page**
 >
@@ -19,50 +25,62 @@ these, or to follow the demo without running it. When and how each file was capt
 
 | File | What it holds |
 |---|---|
-| `terminal.txt` | Demo run 1: the command, both record lines, the cost line, start and end |
+| `terminal.txt` | The command, both record lines, the cost line, the start and end lines |
 
-The start and end lines (with the wall time) are the capture script's. The running cost
-totals are cut from `terminal.txt` where it shows `...`.
+The start and end lines (with the wall time) are the capture script's; nothing is cut. The
+`session` figure counts the two show-N runs before it in the same session.
 
 ## Screenshots
 
-Screens 1 to 5 come from demo run 1. The two extra screen 3 captures
-come from demo runs 2 and 3. All were taken after the runs ended, from `make console`, which serves
-recorded runs.
+All from `make console`; the three moment screens of screen 1 were taken while the run was live.
+The numbered circles are the demo guide's callouts. Times count from the make command's launch;
+the console's own "launch to" times start a few seconds later.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Screen 1 after both verdicts: both arms FAIL the feature's measure, both runs completed](screen-1-final.png)
+![The run list: the demo-3 card on top, type A/B](runlist.png)
 
-*Screen 1: both arms FAIL the version checks feature's own measure (bare 68 hidden tests and 4 mutants, harness 62 and 0); primary verdicts at 04:49 and 06:10.*
+*The run list. Circles: 1 the run id, 2 the type, "A/B", 3 the status, 4 the start time.*
 
-![Screen 2: boards and the two-tab edit conflict](screen-2-final.png)
+![Screen 1 about one minute in: both arms at work; the harness arm's layer notes](screen-1-minute-1.png)
 
-*Screen 2: only own-org cards on both boards; the bare arm detects the two-tab edit conflict, the harness arm's tab B gets an error.*
+*About one minute in: both arms at work; the harness arm's notes show the instruction files, the state files, and `feature_list.json`.*
 
-![Screen 3: diff maps and referee checks](screen-3-final.png)
+![Screen 1 at the block: the scope layer refuses the harness arm's patch to app/services/errors.py](screen-1-block.png)
 
-*Screen 3: `app/services/errors.py` changed by the bare arm, blocked for the harness arm; Files outside the allowed paths (`diff_scope`): 1 new and 0 new.*
+*1:03: the block. Circles: 1 the block row, 2 the turn list, 3 the bare arm.*
 
-![Screen 3 of demo run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](screen-3-run-1.png)
+![Screen 1 when the bare arm's primary verdict was ready: primary verdict ready: PASS, files changed outside the allowed paths 0](screen-1-primary.png)
 
-*Demo run 2: the same file changed by the bare arm and blocked for the harness arm.*
+*3:10: the bare arm's pill, "primary verdict ready: PASS", with 0 files outside the allowed paths. Circle 1: the pill.*
 
-![Screen 3 of demo run 3: the bare arm changed only a test file, nothing was blocked](screen-3-run-2.png)
+![Screen 1 after both verdicts: both arms completed, both primary verdict ready: PASS](screen-1-final.png)
 
-*Demo run 3: the bare arm stopped early and stayed in the allowed paths; the harness arm tried no out-of-scope edit. Files outside the allowed paths (`diff_scope`): 0 and 0.*
+*The end: bare 43 turns, harness 47; both pills PASS; hidden tests 68/69 each, mutants killed 1/4 and 4/4.*
 
-![Screen 4: primary results, one dot per run](screen-4-final.png)
+![Screen 2: both boards show only own-org cards; both arms detect the two-tab edit conflict, tab B got HTTP 409](screen-2-final.png)
 
-*Screen 4: one dot per run on each feature's own measure; the test runs before class.*
+*Screen 2: own-org cards only on both boards; "CONFLICT DETECTED: tab B got HTTP 409" for both arms.*
 
-![Screen 5: live tail, first wrong turn, LangSmith links](screen-5-final.png)
+![Screen 3: the harness diff map with app/services/errors.py blocked, the bare diff map with allowed files only, referee checks](screen-3-final.png)
 
-*Screen 5: the bare arm's first wrong turn is its edit of the shared file (turn 1.15); the harness arm's is the refused patch (turn 1.14).*
+*Screen 3: `app/services/errors.py` blocked for the harness arm; the bare arm changed only allowed files. Files outside the allowed paths (`diff_scope`): 0 new for both.*
+
+![Screen 3 of a recorded run before class: the bare arm changed app/services/errors.py, the harness arm was blocked on it](screen-3-recorded-gap.png)
+
+*The usual result, from demo run 1 recorded before class: the bare arm changed the shared file; the harness arm was blocked on it.*
+
+![Screen 4, whole page: version checks rows judged by files changed outside the allowed paths, bare 1/10 before class and 1/1 new, harness 10/10 before class and 1/1 new](screen-4-final.png)
+
+*Screen 4: "Measured before class: 36 runs per arm"; the version checks rows on the scope measure read "1/10 before class · 1/1 new" and "10/10 before class · 1/1 new".*
+
+![Screen 5: first wrong turn, bare none, harness turn 1.12 blocked apply_patch app/services/errors.py](screen-5-final.png)
+
+*Screen 5: no wrong turn for the bare arm; the harness arm's first wrong turn is the refused patch (turn 1.12).*
 
 ## Board frames
 
-The referee captures these itself while it scores each arm (demo run 1).
+The referee captures these itself while it scores each arm.
 
 ![The bare arm's board as admin@acme.test](board-bare.png)
 
@@ -72,12 +90,14 @@ The referee captures these itself while it scores each arm (demo run 1).
 
 *The harness arm's board: the same view.*
 
-![The bare arm's two-tab edit conflict](conflict-bare.png)
+![The bare arm's two-tab edit conflict: tab B got HTTP 409](conflict-bare.png)
 
 *Bare arm: tab B's stale save gets HTTP 409 and the conflict page.*
 
-![The harness arm's two-tab edit check: tab B's save got HTTP 500](conflict-harness.png)
+![The harness arm's two-tab edit conflict: tab B got HTTP 409](conflict-harness.png)
 
-*Harness arm: tab B's save gets HTTP 500, from a bug in the arm's own board code.*
+*Harness arm: the same, HTTP 409.*
 
-The 500 is a result, not a capture problem. The harness arm added the `version` form field to `create_issue` instead of `edit_issue`, so every board save fails inside `edit_issue`. Its API tests passed because only the board form uses that route.
+In a recorded run before class the harness arm's board saves returned HTTP 500: it added the
+`version` form field to `create_issue` instead of `edit_issue`
+([evidence](../../../docs/evidence/s3.md#s3-two-tab-check)). In scope is not the same as correct.

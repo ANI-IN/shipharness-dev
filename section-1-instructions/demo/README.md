@@ -27,20 +27,21 @@ handler that lists issues with no org filter. The ticket asks for a new org-wide
 ## What you'll see
 
 `make show-1` runs the harness arm alone, live, on that ticket, with the map, the docs, and one skill.
-You watch the agent open the skill and the architecture document, write the code, and finish. In the
-run captured on 2026-10-17, the referee's primary verdict on the tenant isolation rule arrived 4 minutes 11 seconds after launch, and the
-full verdict at 10 minutes.
+You watch the agent open the skill and the architecture document, write the code, and finish.
 
-Times and cost measured on 2026-10-18 with the class profile, three runs: primary verdict 2:57 to
-6:18 after launch, full verdict 7:23 to 10:58, $0.021 to $0.023 per run. All three completed with
-no new tenant isolation violation; the agent opened the skill in two of the three runs and
-`ARCHITECTURE.md` in two ([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+Measured 2026-10-18, class profile, one live run, which ran alone:
+primary verdict 2:35 after launch, full verdict 4:45, command finished at 4:45, $0.0203. It
+completed with no new tenant isolation violation, hidden tests 52 of 52
+([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs
+gave a range: primary verdict 2:57 to 6:18, full verdict 7:23 to 10:58, $0.021 to $0.023 per run;
+the agent opened the skill in two of those three runs and `ARCHITECTURE.md` in two
+([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 after the full verdict: primary verdict PASS, hidden tests 50/52, claim supported](expected/screen-1-final.png)
+![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm completed after 38 turns, primary verdict ready: PASS](expected/screen-1-final.png)
 
-*The end of a real run: no new tenant isolation violation, 50 of 52 hidden tests passed, the agent's claim supported.*
+*The end of the live run of 2026-10-18: no new tenant isolation violation, 52 of 52 hidden tests. The circles are the demo guide's callouts ([expected/](expected/README.md)).*
 
 This is not an A/B. The course already compared both arms on this ticket and found no measurable
 difference ([evidence](../../docs/evidence/s1.md#section-1)). So class shows the map doing its job,
@@ -73,7 +74,7 @@ It prints the address to open:
 ```text
 uv run shipharness console --port 8765
 Console: http://127.0.0.1:8765/
-INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
 Open `http://127.0.0.1:8765/` in your browser. On Windows, the Windows browser works.
@@ -97,22 +98,23 @@ PURPOSE=pilot ./section-1-instructions/demo/run.sh
 
 You can also call `make show-1` directly. At the end, terminal 2 prints the arm's record line and the
 cost line. The record line names the primary measure in words: new violations of House rule 1:
-Tenant isolation. The run id and the running totals are cut where marked; the full capture is in
-[expected/terminal.txt](expected/terminal.txt) (captured before 2026-10-18, in
-the earlier wording):
+Tenant isolation. The live run of 2026-10-18 printed this (the full capture, with the start and end
+lines, is [expected/terminal.txt](expected/terminal.txt)):
 
 ```text
-A/B ... (Feature 1: Org-wide issue search, layers=['instructions'], profile=class, harness in action)
-  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 2 of 4 · reviewer accept · cost $0.0179
-Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; ...)
+A/B <run id> (Feature 1: Org-wide issue search, layers=['instructions'], profile=class, harness in action)
+  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 3 of 4 · reviewer accept · cost $0.0178
+Cost: $0.020302 (this command: gpt-5.6-luna $0.002464, gpt-6-luna $0.017838; session $0.020302 of $2.50; build $0.020302 of $15.00 ($14.979698 left))
 ```
+
+The `session` and `build` figures count every command run under the same session; in a new session
+the first command's figures equal its own cost.
 
 The command exits with 0 when the arm completed. When the arm ends `ABORTED` or `ERROR`, it exits
 non-zero and make prints an error line. One run costs at most $0.24: the per-arm cap ($0.20) plus the
 per-review cap ($0.04), both set in `.env.example`.
 
-**In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
-Boards, `3` Evidence, `4` A/B Report, `5` Traces.
+**In the browser**, reload the run list. The new run is the top card: "Section 1: Instructions", the feature, "harness in action", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
 ### Files and links
 
@@ -127,17 +129,19 @@ Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 
 Screen 1, Live, shows the run as it goes: the instruction files placed, the files the agent
 reads, the code it writes, its own test, then the primary verdict and, last, the full verdict.
-Where and when the captures below were made is on the
+"All turns" and "Harness decisions" each have an Expand button for the whole list. Where and when the captures below were made is on the
 [evidence page](../../docs/evidence/s1.md#s1-show-1-capture).
 
 Then switch screens.
 
 **Screen 3, Evidence.** Files read, grouped as skill, harness doc, handbook, code, and test. In this
 run the agent opened `ARCHITECTURE.md` and the handbook, but not the skill or the security document.
-The referee list shows `House rule 1: 0 new` (no new tenant isolation violation). The old `/v1/issues`
+Sessions reads "Session 1 · 26 turns", then "Test phase · 12 turns". The referee list has one row
+per check, by plain name with its code in brackets where it has one; `House rule 1: 0 new` means no
+new tenant isolation violation. The old `/v1/issues`
 leak is part of the starting code and does not count.
 
-![Screen 3: files read by group, the five changed files, every referee check at 0 new](expected/screen-3-final.png)
+![Screen 3: files read by group, Session 1 of 26 turns and Test phase of 12 turns, the five changed files, every referee check at 0 new](expected/screen-3-final.png)
 
 *Screen 3. Only `read_file` calls appear; a `cat` through a shell command does not.*
 
@@ -148,12 +152,13 @@ This feature changes no board pixels, so there is one frame.
 
 *Screen 2. "Only own-org cards, no duplicates": no other org's data on the board.*
 
-**Screen 4, A/B Report.** The results of the test runs before class, one dot per run, per feature and
-arm. Your own run is not a dot in this comparison.
+**Screen 4, A/B Report.** "This run" at the top, then "Measured before class": the course's runs
+before class, one dot per run, per feature and arm. A harness-in-action run has no bare arm, so it
+is not a dot in this comparison.
 
-![Screen 4: primary results, one dot per run, for each feature and arm](expected/screen-4-final.png)
+![Screen 4: this run's result at the top, then Measured before class with one dot per run for each feature and arm](expected/screen-4-final.png)
 
-*Screen 4. The comparison comes from the test runs, not from your run.*
+*Screen 4. The comparison comes from the runs before class, not from your run.*
 
 **Screen 5, Traces.** The live tail of referee events and the LangSmith links.
 

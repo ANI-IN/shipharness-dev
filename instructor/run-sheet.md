@@ -120,7 +120,8 @@ hidden tests and all mutants) failed in all six arms (hidden 62 to 68 of 69).
 
 Say it honestly: the scope layer enforces the very thing this confirmation measures, so the harness
 arm's zero is expected by construction. What the confirmation adds is that, on this ticket, the bare
-agent goes out of scope every time.
+agent went out of scope in all three runs (9 of the 10 A/Bs counted before class; it stayed in scope
+in the live guide run of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-guide-run)).
 
 Run 3 A/Bs: Feature 1 `ab-20261016-211419-07937b`, `-212745-2c14fb`, `-214636-c8b3c4`; Feature 2
 `-211419-dfe06f`, `-213317-9a0ec1`, `-214959-de790f`; Feature 3 `-212115-a361f5`, `-213624-d7eb13`,
@@ -163,7 +164,7 @@ day before"). Step 1 is the class date: it happens here, at T-30, and not before
 | 2. Environment | `make doctor` | Every line `+ ok`, including `SHIPHARNESS_CLASS_DATE ... (class runs trace to shipharness-class-<date>)`; last line `result: + ready` |
 | 3. Warm-up | `make warm` | Last line `warm: done (<seconds> s)`; seconds when nothing changed since T-1 (1.2 s in the class-profile round). Without the date it prints `x SHIPHARNESS_CLASS_DATE is not set: class runs need the class day (YYYY-MM-DD)` and `warm: nothing done`, exit 2: go back to step 1 |
 | 4. Console | `make console` in terminal A (leave it running) | `Console: http://127.0.0.1:8765/` |
-| 5. Browser | Open `http://127.0.0.1:8765/` | The runs list and the key legend |
+| 5. Browser | Open `http://127.0.0.1:8765/` | The run list (one card per run, newest first) and the key legend |
 | 6. Fallbacks present | `ls .shipharness/runs/<id>/ab.json` for each fallback in [fallbacks.md](fallbacks.md) | One file per id |
 | 7. Policy printout ready (Section 3) | `uv run python -c 'from shipharness.config import Settings; from shipharness.sandbox import default_policy, render_policy; print(render_policy(default_policy(Settings())))'` | Starts with `Sandbox policy (identical for both arms)` |
 | 8. Assessment ready (opening) | `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out .shipharness/harness-assessment.html` | A summary per area, then one line per check, then `report: ...` |
@@ -177,11 +178,11 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 
 | Window | Content |
 |---|---|
-| Terminal A | `make console` (server log; leave it alone) |
+| Terminal A | `make console` (quiet: only warnings and errors print; leave it alone) |
 | Terminal B | The section command (`make show-1`, `make show-2 ...`, `make demo-3 FEATURE=version-checks`, `make show-4`), large font |
 | Terminal C | `make final` only: launched at the Section 4 launch (2:57), read in the final block (3:40) |
 | Browser tab 1 | Slides |
-| Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
+| Browser tab 2 | Console: the run list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
 | Browser tab 3 | Console: the final A/B at `/run/<ab id>`, opened at the Section 4 launch and shown in the final block |
 | Browser tab 4 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
 
@@ -189,15 +190,17 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 
 | Key | Screen | Shows |
 |---|---|---|
-| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns, harness decisions, gate pills, "Agent said" vs "Referee", and the "primary verdict ready" pill with the time from launch |
+| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns, harness decisions, gate pills, the gate refusals ("Gate refused 'done' (build phase, attempt 1): ... → passed on attempt 2"), "Agent said" vs "Referee", and the "primary verdict ready: PASS" or "FAIL" pill with the time from launch (the final, with no primary measure: "verdict ready: PASS · judged on all checks"); a show-N run's bare arm reads "Not run (harness in action)" |
 | `2` | Boards | Board screenshot per arm every 5 s, with marks (⚠ other org, ⧉ duplicate); Section 4 adds the two-tab conflict panel |
-| `3` | Evidence | Files read and sessions; diff map (✎ changed, ⊘ blocked) and sandbox denials; referee checks (including Files outside the allowed paths (`diff_scope`)), filter table, mutant table |
-| `4` | A/B Report | Dots per run from `exports/`, one row per feature, variant, and arm; records of an older referee version and harness-in-action runs are counted and left out |
+| `3` | Evidence | Files read and sessions ("Session 1 · N turns", then "Test phase · N turns"); diff map (✎ changed, ⊘ blocked) and sandbox denials; one row per referee check by plain name with its code in brackets (Files outside the allowed paths (`diff_scope`), Session continuity (`continuity`), Flaky tests (`flakiness`), Existing tests (`regression`), hidden tests, House rule N, board check); filter table, one row per test name; mutant table; the blinded reviewer's one-line reason |
+| `4` | A/B Report | "Measured before class: N runs per arm": one dot per run from the course's records (`docs/evidence/scores/`), one row per feature, variant, and arm, with the new runs from `exports/` next to them; the Section 3 demo's rows are judged by files outside the allowed paths; records of an older referee version and harness-in-action runs are counted and left out |
 | `5` | Traces | Live tail of events, first wrong turn per arm, trace links |
 | `F` | | Cycles full screen for one arm: both, bare, harness |
+| `H`, `Esc` | | Back to the run list; the "← All runs" link at the top left does the same |
 
 Finding the current run: the command prints the run id only when it finishes. While it runs,
-reload the runs list and open the newest `ab-...` entry (ids start with a time stamp). The runs list
+reload the run list and open the top card (newest first; each card shows the section, the
+feature, "harness in action" or "A/B", "running" or "finished", and the start time). The run list
 does not refresh by itself. In Section 4 two runs start together at 2:57: open each one right after its
 own launch ([Section 4](#section-4-verification-255-340)).
 
@@ -240,7 +243,7 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 2:02-2:09 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
 | 2:09-2:28 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
 | 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and the Files outside the allowed paths (`diff_scope`) row; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
-| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm against the version checks feature's own verdict pill; what "by construction" means; the Section 3 rows; screen 4 | Slides, console | What we measured |
+| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm, the measure on the screen 1 pill; Feature 4's hidden tests and mutants as secondary; what "by construction" means; the Section 3 rows; screen 4, before class bare 1/10, harness 10/10, plus tonight's dots | Slides, console | What we measured |
 | 2:44-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
 | 2:50-2:55 | Break | Return time on screen | | Break |
 | 2:55-2:57 | Live Zoom Poll: the final feature | Section 4 start slide, then the one poll of the class: bulk close, watchers, or labels; note the winner and the runner-up; close it before the launch | | Section 4 start, Live Zoom Poll |
@@ -258,7 +261,23 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 
 ### How long the runs take
 
-Measured 2026-10-18: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
+Measured 2026-10-18, class profile, one live run each for the demo guide, in a fresh clone of the
+release, each run alone, from the make command's launch (docs/evidence/general.md, "Live runs for
+the demo guide"):
+
+| Command | Launch to primary verdict | Launch to full verdict | Command ended | Exit | Cost |
+|---|---|---|---|---|---|
+| `make show-1` | 2:35 | 4:45 | 4:45 | 0 | $0.020302 |
+| `make show-2 SESSION_BUDGET=12,38` | 5:18 | 7:11 | 7:12 | 0 | $0.043716 |
+| `make demo-3 FEATURE=version-checks` | bare 3:10, harness 5:59 | bare 5:55, harness 8:24 | 8:26 | 0 | $0.056216 |
+| `make show-4` | 4:37 | 5:32 | 5:33 | 0 | $0.025731 |
+| `make final FEATURES=bulk-close` | bare 3:27, harness 7:23 | bare 6:02, harness 9:10 | 9:11 | 0 | $0.037714 |
+
+The five commands together cost $0.183679. These are single runs that ran alone; in class, show-4
+and the final share the machine, so the ranges below, measured two at a time, are the planning
+figures.
+
+Earlier the same day: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
 class profile (agent time limit 420 s, harness limit 900 s), two runs at a time on the class
 machine, as in Section 4. `make show-1` ran before the harness speed-up of that morning, the others
 after it (docs/evidence/general.md, "Verification runs after the rename" and "Demo runs after the
@@ -303,7 +322,7 @@ Near the end of the ideas (in Section 4 at minute 15, 3:10), glance at terminal 
 
 - **The `Cost:` line is there.** The run is finished. The DEMO slide runs on the finished run.
 - **The run is still going.** Finish the ideas and the implementation notes. Open the console part
-  of the DEMO on screens `1` and `3` of the running run: screen 1 shows "primary verdict ready" as soon as the primary check is done, and
+  of the DEMO on screens `1` and `3` of the running run: screen 1 shows "primary verdict ready: PASS" or "FAIL" as soon as the primary check is done, and
   the secondary checks fill in while you talk. In Section 3, the diff maps on screen 3 are there as soon as
   each arm has shipped.
 - **The run failed for a reason outside the experiment** (`ERROR` from Docker, the network, or
@@ -355,8 +374,8 @@ but Section 4 opens with a poll: the one poll of the class, which picks the fina
 start of the section.
 
 1. **Launch (minutes 0-2).** The section start slide carries the agenda marker and the launch
-   command. Terminal B: the section's command at minute 1. Reload the runs list, open the newest
-   `ab-...`, and stay on screen `1` while the containers start and the first turns arrive. For a
+   command. Terminal B: the section's command at minute 1. Reload the run list, open the top
+   card, and stay on screen `1` while the containers start and the first turns arrive. For a
    show-N run say: "This is the harness arm alone, live. It is not an A/B: we watch the layer do its
    job. The A/B results come at the end of the section." For Section 3 say: "This is a live A/B: both
    arms, same ticket, same limits. Before class this ticket showed a gap. Let us see tonight's dot."
@@ -424,7 +443,7 @@ implementation notes come first (0:40-0:43); the rows below are the run (0:43-0:
 | Harness in action | `3` Evidence | "Files read" by category (map, skill, harness doc, code, test); the referee's House rule 1 line | "The referee probes every endpoint as Acme with Globex ids and expects 404 (DESIGN §5). It does not care which arm wrote the code." |
 | Harness in action | `2` Boards, `5` Traces | The harness arm's board as an Acme user: "✓ only own-org cards"; the tail of events and the trace links | "Feature 1 changes no board pixels, so the board shows one frame. Screen 5 is where you look for the first wrong turn." |
 | Reading the result | `1` | "primary verdict ready" with the time from launch, then the referee's verdict: new House rule 1 violations, hidden tests, mutants | "This is one harness arm on one run. It tells us the layer ran; it cannot tell us the layer helped. That needs the A/B." |
-| What we measured | slide, screen `4` | Section 1 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. Here the assumption did not hold: the bare arm applied House rule 1 from the handbook." |
+| What we measured | slide, screen `4` | Section 1 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1. Screen 4 shows "4/4 before class" per arm (run 4 and the class round; run 3's records are of an older referee version) | "No measurable difference on this task with this model. Here the assumption did not hold: the bare arm applied House rule 1 from the handbook." |
 
 What the quiet run of `make show-1` showed (captured on 2026-10-17, run
 `ab-20261017-112101-c5d839`; your output will differ): screen 1 listed 31 instruction files placed
@@ -469,7 +488,7 @@ ends only that session.
 
 **Command (1:11).** `make show-2 SESSION_BUDGET=12,38`, on the Section 2 start slide.
 
-**At launch (1:11-1:12).** Open the newest `ab-...`, press `1`. The harness arm's first harness
+**At launch (1:11-1:12).** Open the top card of the run list, press `1`. The harness arm's first harness
 decision is the initializer step note (`init.sh`, `progress.md`, `session-handoff.md`, the exec
 plan); its first turns follow the Getting up to speed routine.
 
@@ -482,10 +501,10 @@ implementation notes come first (1:40-1:43); the rows below are the run (1:43-1:
 | Part | Screen | Watch | Say |
 |---|---|---|---|
 | Harness in action | `1` | "■ Session 1 stopped" and "▶ Session 2 resumed" in the finished timeline | "This stop is the session turn budget. A3 calls the pattern a context reset with a structured handoff (A3, F-a-65; RESEARCH G-5)." |
-| Harness in action | `3` Evidence | "Sessions" (turns, `ended_by`, ↺ redone files); "Files read": `progress.md`, `session-handoff.md` | "Session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62)." |
+| Harness in action | `3` Evidence | "Sessions": "Session 1 · 12 turns · turn_budget" (the end reason shows on that row only), "Session 2 · 38 turns", "Test phase · 12 turns", ↺ redone files if any. "Files read" lists only files opened with the file tools: the state files are not there, because the agent reads them with `cat` in a `run` call; show turn 2.1 under "All turns" on screen 1 instead | "Session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62)." |
 | Harness in action | `2`, `5` | The board after the run ("✓ only own-org cards, no duplicates"); the first wrong turn and the trace links | "Did the second session finish what the first started? Screen 5 names the first turn that edited a file a failing check names." |
 | Reading the result | `1`, `3` | "primary verdict ready", then the continuity verdict; screen 3 "Sessions" | "Before change 14, a `finish(not_done)` at the end of session 1 ended the build phase in 6 of the 12 Feature 2 arms of runs 3 and 4. Now it ends only that session, in both arms." |
-| What we measured | slide, screen `4` | Section 2 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. The measure cannot fail when session 1 leaves nothing to redo: 6 of the 12 Feature 2 arms of runs 3 and 4 built nothing (hidden 3 of 56)." |
+| What we measured | slide, screen `4` | Section 2 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1. Screen 4's "Comments on issues · canonical" rows show "4/4 before class" per arm: run 4 and the class round; run 3's records are of an older referee version and are left out | "No measurable difference on this task with this model. The measure cannot fail when session 1 leaves nothing to redo: 6 of the 12 Feature 2 arms of runs 3 and 4 built nothing (hidden 3 of 56)." |
 
 What the quiet run of `make show-2 SESSION_BUDGET=12,38` showed (captured on 2026-10-17, run
 `ab-20261017-113213-fe89a3`; your output will differ): about 2 minutes after launch, turn 1.12 called
@@ -529,7 +548,7 @@ secondary; every arm of the confirmation failed that bar. The diff map on screen
 **Command (2:01).** `make demo-3 FEATURE=version-checks`, on the Section 3 start slide. Always
 pass `FEATURE=version-checks`; without it the target runs Feature 3.
 
-**At launch (2:01-2:02).** Open the newest `ab-...`, press `1`: two sandbox lines (container id,
+**At launch (2:01-2:02).** Open the top card of the run list ("Section 3: Scope and sandbox", "A/B"), press `1`: two sandbox lines (container id,
 `network none`, CPU 2, memory, time left), one per arm. Say: "Same limits for both arms. The
 sandbox is never the variable." The harness arm's first decisions: 31 instruction files placed, the
 initializer step, and "feature_list.json written with Feature 4 (passes: false)".
@@ -543,11 +562,11 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 
 | Part | Screen | Watch | Say |
 |---|---|---|---|
-| Live A/B | `3` Evidence, Scope and sandbox column | Bare diff map: ✎ changed `app/services/errors.py`; harness diff map: ⊘ blocked `app/services/errors.py`; Sandbox denials for both | "Same ticket, same model, same limits. The bare agent edits the shared error module. The harness agent tried the same edit and was stopped." |
+| Live A/B | `3` Evidence, Scope and sandbox column | Harness diff map: ⊘ blocked `app/services/errors.py`; bare diff map: usually ✎ changed `app/services/errors.py` (9 of 10 runs before class); Sandbox denials for both | "Same ticket, same model, same limits. The harness agent tried to edit the shared error module and was stopped." If the bare arm changed it: "The bare agent edits it freely." If not: "This time the bare agent left it alone. Nothing stopped it; it was its choice." |
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
-| Live A/B | `3` Verification column | `Files outside the allowed paths (diff_scope): 1 new` (bare) against `Files outside the allowed paths (diff_scope): 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
-| Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
-| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3 | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
+| Live A/B | `3` Verification column | Usually `Files outside the allowed paths (diff_scope): 1 new` (bare) against `0 new` (harness); in the live guide run both 0 new; hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
+| Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent left the allowed paths in 9 of 10 runs before class. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
+| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3; screen 4 "Measured before class" on the scope measure, bare 1/10, harness 10/10 (the confirmation and the seven demo runs of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-screen-4-before-class)), tonight's dots next to them | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
 **Sandbox moment.** If screen `3` lists a denial tonight, show its reason code (`network`,
 `write_outside_workspace`, `memory`, `pids`, `timeout`, `path_outside_workspace`) and the command.
@@ -643,7 +662,8 @@ every cap: before every call the tracker reserves the call's worst case under on
 calls the other command appended to the shared cost ledger (VERIFICATION.md, change 12). Measured
 costs of the commands, 2026-10-18, three runs each: show-1 $0.021 to $0.023, show-2 $0.036 to $0.038,
 Section 3 A/B $0.037 to $0.053, show-4 $0.023 to $0.033, one final feature (Feature 5: Bulk close)
-$0.044 to $0.048 ([How long the runs take](#how-long-the-runs-take)).
+$0.044 to $0.048; the live guide runs of the same day cost $0.020, $0.044, $0.056, $0.026, and
+$0.038 ([How long the runs take](#how-long-the-runs-take)).
 
 **Check at 3:10** (during the ideas), two terminals:
 - Terminal B: the show-4 `Cost:` line. If show-4 is still running, open the demo block on its live
@@ -658,7 +678,7 @@ and the "What we measured" slide.
 | Part | Screen | Watch | Say |
 |---|---|---|---|
 | Harness in action | `1` | Gate pills of the last gate: ✓ or ✗ for visible tests, Existing tests (regression), House rule 1-R7, board, clean state, if the arm claimed done; otherwise the test phase and the "primary verdict ready" pill | "The harness runs checks the agent does not control; a failure goes back to the agent with the first three reasons." |
-| Harness in action | `3` | Filter table (tests × filters 1-5, kept or discarded with reason), mutant table, referee counters, reviewer verdict | "Filters 1 to 3 are TestGen-LLM's (B11); 4 and 5 are course filters (RESEARCH G-7). Filter 2 re-runs each test 5 times, TestGen-LLM's 'five executions' (B11, F-b-19)." |
+| Harness in action | `3` | Filter table (tests × filters 1-5, kept or discarded with reason) when the test phase proposed tests (the live guide run of 2026-10-18 proposed none: "kept 0, discarded 0"), mutant table, referee counters, reviewer verdict | "Filters 1 to 3 are TestGen-LLM's (B11); 4 and 5 are course filters (RESEARCH G-7). Filter 2 re-runs each test 5 times, TestGen-LLM's 'five executions' (B11, F-b-19)." |
 | Harness in action | `2` | The board and the two-tab conflict panel: "✓ conflict detected" | "Two tabs edit the same issue; the second save is refused with 'This issue was changed by someone else'. The board check runs on every arm." |
 | Reading the result | `1`, `3` | "Agent said" against the referee: hidden tests of 69, mutants killed of 4 | "A run passes only with all 69 hidden tests and all 4 mutants. The referee-set mutants were never visible to the filters." |
 | What we measured | slide, screen `4` | Section 4 row: run 3 0/3, 0/3; class round 0/1, 0/1 | "No measurable difference on this task with this model: both arms fail. In the class-profile round the bare arm claimed done with 68 of 69 hidden tests, the first such claim in the records." |

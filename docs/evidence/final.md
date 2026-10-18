@@ -143,7 +143,32 @@ harness arms with the scope layer in 0 of 6 (exploratory analysis of the pilot's
 
 ### Final project captures
 
-All screenshots and the terminal output in `final-project/expected/` come from A/B
+Since 2026-10-18, 17:05 UTC, the files in `final-project/expected/` come from the live run for the
+demo guide, A/B `ab-20261018-164951-bd677b`: `make final FEATURES=bulk-close PURPOSE=pilot` in a
+fresh clone of the release at class-v1, class profile, launched 16:49:49 UTC, ran alone, exit 0
+([general.md](general.md#guide-runs-2026-10-18)). Runs `r-20261018-164951-e6e8a2` (bare) and
+`r-20261018-164951-a98dff` (harness); both completed and said done.
+
+| Event | From launch |
+|---|---|
+| Harness said done (23 turns); gate started | 2:11 |
+| Bare said done; run ended (38 turns) | 2:13; 3:24 |
+| Bare primary verdict (PASS, no primary measure) | 3:27 |
+| Harness gate passed (first attempt), `F5 passes` set, test phase started | 3:44 |
+| Bare full verdict (hidden 46/46, mutants 1/3, reviewer accept) | 6:02 |
+| Harness test phase proposed 2 tests; filters kept 1, discarded 1 (Filter 3) | 6:25 |
+| Harness run ended (35 turns), primary verdict | 7:20, 7:23 |
+| Harness full verdict (hidden 46/46, mutants 0/3, reviewer accept) | 9:10 |
+| Command finished | 9:11 |
+
+Cost: $0.037714 (agents on gpt-6-luna $0.033927, reviews on gpt-5.6-luna $0.003787). Files:
+`terminal.txt` (the whole output, start and end lines added, nothing cut), `runlist.png`,
+`screen-1-minute-1.png`, `screen-1-bare-verdict.png`, `screen-1-gate-passed.png` (taken live),
+`screen-1-final.png` to `screen-5-final.png` (`screen-3-final.png` is the whole page), and
+`screen-3-filters.png`; 1920 by 1080 (scaled from 3840 by 2160) with the demo guide's numbered
+callouts. `screen-1-minute-5.png` and `screen-1-minute-7.png` were removed.
+
+Before that, all screenshots and the terminal output in `final-project/expected/` came from A/B
 `ab-20261018-042848-f7fa49`: `make final FEATURES=bulk-close PURPOSE=pilot`, class profile, 2026-10-18
 from 04:28:45 UTC, on main after the harness speed-up, at the same time as one `make demo-3` run
 ([general.md](general.md#demo-runs-after-the-speed-up)). Runs `r-20261018-042848-f67fc9` (bare) and

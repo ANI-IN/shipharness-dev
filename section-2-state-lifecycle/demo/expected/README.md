@@ -1,7 +1,7 @@
 # Module 1: Harness Engineering for Coding Agents - Demo 2: What one real run looked like
 
 This folder holds the output and the screenshots of one real `make show-2 SESSION_BUDGET=12,38`
-run, run on 2026-10-18 with the class settings (run id on the
+run, the live run of 2026-10-18 for the demo guide, with the class settings (run id on the
 [evidence page](../../../docs/evidence/s2.md#s2-show-2-capture)). Nothing here is
 staged or edited, except where a line says it was cut. Use it to check that your run looks roughly
 like this one, or to follow the demo without running it. When and how it was captured is in the
@@ -26,48 +26,57 @@ like this one, or to follow the demo without running it. When and how it was cap
 | `session-1-notes.txt` | The notes the agent left in the handoff before the stop |
 | `session-2-first-call.txt` | Session 2's first command and the start of what it read |
 
-The start and end lines (with the wall time) are the capture script's. The running cost
-totals are cut from `terminal.txt` where it shows `...`.
+The start and end lines (with the wall time) are the capture script's; nothing is cut. The
+`session` figure includes the `make show-1` run before it in the same session ($0.020302).
 
 ## Screenshots
 
-The screenshots were taken after the run, from `make console`, which serves recorded runs. The
-minute screens show the console fed with the run's log up to that point of the console clock.
+The screenshots were taken from `make console` after the run ended; the three moments of screen 1
+come from the console fed with the run's log up to that event. The numbered circles are the demo
+guide's callouts; each caption names them. Times count from the make command's launch.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Screen 1 at 50 seconds: session 1 reads, then patches the state files, commits, and calls finish not_done](show-2-screen-1-t01m.png)
+![The run list: the show-2 card on top, "harness in action", with its status and start time](show-2-runlist.png)
 
-*Second 50: notes for the map and the initializer step; turns 1.10 to 1.12 are the wrap-up.*
+*The run list. Circles: 1 the run id (click to open), 2 the type, 3 the status, 4 the start time.*
 
-![Screen 1 at 75 seconds: Session 1 stopped, Session 2 resumed, turn 2.1 reads the git log and progress.md](show-2-screen-1-t02m.png)
+![Screen 1 about one minute in: the bare arm reads Not run (harness in action); the harness arm shows session 1's turns and the layer notes](show-2-screen-1-t01m.png)
 
-*Second 75: the stop marker, the handoff note, and session 2 reading the state files first.*
+*About one minute in: notes for the map (31 instruction files) and the initializer step.*
 
-![Screen 1 at minute 2: session 2 patches the seed, the web route, and the issue page](show-2-screen-1-t04m.png)
+Circles: 1 the HARNESS IN ACTION badge, 2 the bare arm, 3 the harness arm's layers, 4 the container line, 5 the last turns, 6 the harness decisions.
 
-*Minute 2: session 2 builds the board side of the feature: the seed, the web route, the issue page.*
+![Screen 1 at the stop: session stop, session 1 handoff written to session-handoff.md](show-2-screen-1-session-stop.png)
 
-![Screen 1 at 4 min 30 s: run completed after 56 turns, primary verdict PASS, continuity failure no](show-2-screen-1-t07m.png)
+*1:16: session 1 used its 12 turns. Circles: 1 the harness decision "session 1 handoff written to session-handoff.md", 2 the turn list.*
 
-*Minute 4.5: the run has completed; the continuity check passes at 04:23; other checks still run.*
+![Screen 1 after the stop: Session 1 stopped, ended by turn_budget; Session 2 resumed; turn 2.1 reads progress.md, the git log, and session-handoff.md](show-2-screen-1-session-resumed.png)
 
-![Screen 1 after the full verdict: hidden tests 56/56, mutants killed 2/4](show-2-screen-1-final.png)
+*Session 2 starts with an empty context; its first call, turn 2.1, reads the state files with `cat`. Circles: 1 "Session 1 stopped · ended by turn_budget", 2 "Session 2 resumed", 3 the handoff note.*
 
-*The end: hidden tests 56/56, mutants killed 2/4, full verdict at 06:36.*
+![Screen 1 after the full verdict: run completed after 62 turns, primary verdict ready: PASS](show-2-screen-1-final.png)
+
+*The end: run completed after 62 turns; "primary verdict ready: PASS" at 5:18, the full verdict at 7:11 (hidden tests 56/56, mutants killed 1/4).*
+
+Circles: 1 "← All runs", 2 the screen tabs, 3 the bare arm, 4 the harness arm's layers.
 
 ![Screen 2: the board as admin@acme.test, only own-org cards](show-2-screen-2-final.png)
 
 *Screen 2: only own-org cards, no duplicates. The comments panel is on the issue page.*
 
-![Screen 3: files read, sessions of 12, 32, and 12 turns, diff map, referee checks](show-2-screen-3-final.png)
+![Screen 3: Session 1 of 12 turns ended by turn_budget, Session 2 of 38 turns, Test phase of 12 turns, the diff map, referee checks](show-2-screen-3-final.png)
 
-*Screen 3: three sessions, `Session continuity (continuity): 0 new`, `House rule 7: 0 new`, and `Files outside the allowed paths (diff_scope): 0 new`.*
+*Screen 3: "Session 1 · 12 turns · turn_budget" (end reason on that row only), "Session 2 · 38 turns", "Test phase · 12 turns"; every referee check 0 new; reviewer accept.*
 
-![Screen 4: primary results, one dot per run, per feature and arm](show-2-screen-4-final.png)
+Circles: 1 the sessions, 2 the diff map, 3 Files outside the allowed paths, 4 the reviewer's reason, 5 the bare arm.
 
-*Screen 4: the test runs before class. This run's verdict is at the top, not a dot.*
+![Screen 4: this run at the top, then Measured before class, one dot per run](show-2-screen-4-final.png)
+
+*Screen 4: "Comments on issues · canonical" shows "4/4 before class" for each arm. This run is at the top, not a dot.*
+
+Circles: 1 this run, 2 Measured before class, 3 the dots, 4 cost per verified feature, 5 reviewer agreement.
 
 ![Screen 5: live tail, no wrong turn found, LangSmith links](show-2-screen-5-final.png)
 
-*Screen 5: the live tail of referee events; the first-wrong-turn panel finds none in this run.*
+*Screen 5: the live tail of referee events; "no wrong turn found". Circles: 1 the live tail, 2 the first wrong turn, 3 the LangSmith links.*

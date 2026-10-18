@@ -37,7 +37,7 @@ redid session 1's work.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 at minute 2: Session 1 stopped, Session 2 resumed, turn 2.1 reads the git log and progress.md](expected/show-2-screen-1-t02m.png)
+![Console screen 1 after the stop: Session 1 stopped, ended by turn_budget; Session 2 resumed; turn 2.1 reads progress.md, the git log, and session-handoff.md](expected/show-2-screen-1-session-resumed.png)
 
 *The moment that matters: session 1 stops, and session 2's first call reads the state files.*
 
@@ -47,18 +47,17 @@ job, and screen 4 shows the comparison.
 
 ![Session 1 stops at its turn budget, the harness writes the handoff, session 2 reads it first](../diagrams/session-lifecycle.svg)
 
-*At minute 2 you see this stop: the handoff is written, and session 2 reads it first.*
+*About a minute in you see this stop: the handoff is written, and session 2 reads it first.*
 
-Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up
-([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs of
-`make show-2 SESSION_BUDGET=12,38`: session 1 stopped 0:44 to 1:01 after launch, primary verdict
-3:21 to 5:20, full verdict 5:10 to 6:59, $0.036 to $0.038 per run. All three completed with no
-continuity failure, and in each one session 2's first call read `progress.md`, the git log,
-`session-handoff.md`, and the exec plan
-([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)). No show-2 setting
-changed. Earlier the same day, before the speed-up, the primary verdict came at 6:27 to 7:20, and
-before the class profile gave the harness's own work 900 s, one run ended `ABORTED: timeout`
-([evidence](../../docs/evidence/general.md#class-harness-limit)).
+Measured 2026-10-18, class profile, one live run, which ran alone:
+session 1 stopped at its 12-turn budget 1:16 after launch, primary verdict 5:18, full verdict 7:11,
+command finished 7:12, $0.0437. It completed with no continuity failure and hidden tests 56 of 56;
+session 2's first call read `progress.md`, the git log, `session-handoff.md`, and the exec plan
+([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, after the
+harness speed-up ([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs
+gave a range: session 1 stopped 0:44 to 1:01, primary verdict 3:21 to 5:20, full verdict 5:10 to
+6:59, $0.036 to $0.038 per run ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
+No show-2 setting changed.
 
 ## Run it
 
@@ -78,7 +77,7 @@ It prints the address to open:
 ```text
 uv run shipharness console --port 8765
 Console: http://127.0.0.1:8765/
-INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
 Open `http://127.0.0.1:8765/` in your browser. On Windows, the Windows browser works.
@@ -101,23 +100,21 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 The script checks your keys, Docker, and the class date, then runs
 `make show-2 SESSION_BUDGET=12,38`. Outside class, run `PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh`.
 You can also call the make target directly; without `SESSION_BUDGET=12,38` the first session runs
-the ticket's 20 turns. At the end, terminal 2 prints the arm's record line and the cost line (cut
-where marked `...`; the full capture is in [expected/terminal.txt](expected/terminal.txt), captured before 2026-10-18 in
-the earlier wording):
+the ticket's 20 turns. At the end, terminal 2 prints the arm's record line and the cost line. The
+live run of 2026-10-18 printed this (the full capture is [expected/terminal.txt](expected/terminal.txt)):
 
 ```text
 A/B <run id> (Feature 2: Comments on issues, layers=['instructions', 'state'], profile=class, harness in action)
-  harness  ABORTED: timeout  agent said not done · continuity failure: no · primary measure passed · hidden tests 56 of 56 · mutants killed 0 of 4 · reviewer reject · cost $0.0268
-Cost: $0.029525 (this command: gpt-5.6-luna $0.002702, gpt-6-luna $0.026823; ...)
-make: *** [Makefile:172: show-2] Error 2
+  harness  completed         agent made no claim · continuity failure: no · primary measure passed · hidden tests 56 of 56 · mutants killed 1 of 4 · reviewer accept · cost $0.0402
+Cost: $0.043716 (this command: gpt-5.6-luna $0.003537, gpt-6-luna $0.040178; session $0.064018 of $2.50; build $0.064018 of $15.00 ($14.935982 left))
 ```
 
-The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`. The
-`Error 2` above is that exit code: the agent time limit ended the run, and the referee still judged
-it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
+The `session` figure includes the `make show-1` run before it. The command exits with 0 when the
+arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`; this run exited 0. "Agent made no
+claim" means the agent never called `finish` with done or not done; the referee judges the run the
+same way. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 
-**In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
-`2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
+**In the browser**, reload the run list. The new run is the top card: "Section 2: State and sessions", the feature, "harness in action", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
 ### Files and links
 
@@ -132,16 +129,20 @@ it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 
 Screen 1, Live, shows the run as it goes: session 1 builds, writes and commits the state files,
 and stops at its turn budget; session 2 reads them first and carries on; then the primary verdict
-and the full verdict. The captured run had a 300 s agent time limit; the class profile now has
-420 s ([evidence](../../docs/evidence/s2.md#s2-show-2-capture)).
+and the full verdict ([evidence](../../docs/evidence/s2.md#s2-show-2-capture)). The stop shows in
+the turn list as "Session 1 stopped · ended by turn_budget; handoff session-handoff.md", then
+"Session 2 resumed · prefix: core, instructions, state".
 
-Session 1 ended with `finish(claim="not_done")` on its twelfth turn, and session 2 still started.
-That is a runner fix at work: before it, that call ended the build phase, and the 38-turn session
-never ran ([evidence](../../docs/evidence/s2.md#s2-runner-fix)).
+In this run session 1 used all 12 turns. If session 1 ends with `finish(claim="not_done")`
+instead, session 2 still starts. That is a runner fix at work: before it, that call ended the build
+phase, and the 38-turn session never ran ([evidence](../../docs/evidence/s2.md#s2-runner-fix)).
 
-What session 2 read first is in [expected/](expected/README.md): its git log starts with
-`harness: session 1 handoff for F2` (`F2` is the comments feature), and the agent's own notes list
-the house rules and files that matter.
+What session 2 read first is in [expected/](expected/README.md): turn 2.1 runs
+`cat progress.md`, `git log`, `cat session-handoff.md`, and the exec plan in one command, and the
+agent's own notes list the house rules and files that matter. Because it reads them with `cat`
+inside a `run` call, they show under "All turns" on screen 1, not under "Files read" on screen 3.
+`feature_list.json` is not part of this handoff: the scope layer writes it, from Section 3: Scope and
+sandbox on.
 
 ![session-handoff.md with a machine summary from the harness and notes from the agent](../diagrams/handoff-contents.svg)
 
@@ -149,13 +150,14 @@ the house rules and files that matter.
 
 Then switch screens.
 
-**Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done", "Session 2 · 32 turns",
-and "Test phase · 12 turns" (the screenshot below, taken before 2026-10-18, still labels it
-"Session 3"). The referee list shows `Session continuity (continuity): 0 new` (the primary measure) and `House rule 7: 0 new` (one migration head). In this run `Files outside the allowed paths (diff_scope)` is also 0 new: the
+**Screen 3, Evidence.** Sessions "Session 1 · 12 turns · turn_budget", "Session 2 · 38 turns",
+and "Test phase · 12 turns"; the end reason shows on the first row only. "Files read" lists the
+files opened with the file tools: the handbook and the spec three times each, then code and tests.
+The referee list shows `Session continuity (continuity): 0 new` (the primary measure) and `House rule 7: 0 new` (House rule 7: Migrations, one migration head). In this run `Files outside the allowed paths (diff_scope)` is also 0 new: the
 agent stayed in the comments ticket's allowed paths. Nothing would have stopped it otherwise, because
-the scope layer starts in Section 3: Scope and sandbox.
+the scope layer starts in Section 3.
 
-![Screen 3: sessions of 12, 32, and 12 turns, the diff map, Session continuity (continuity) 0 new, Files outside the allowed paths (diff_scope) 0 new](expected/show-2-screen-3-final.png)
+![Screen 3: sessions of 12, 38, and 12 turns, the diff map, Session continuity (continuity) 0 new, Files outside the allowed paths (diff_scope) 0 new](expected/show-2-screen-3-final.png)
 
 *Screen 3. Two build sessions and the test phase, no continuity failure, and no file outside scope.*
 
@@ -173,12 +175,13 @@ panel is on the issue page, which the preview does not open; the hidden board te
 
 *Screen 2. No other org's data on the board.*
 
-**Screen 4, A/B Report.** The test runs before class, one dot per run, per feature and arm. Your
-own run is not a dot in this comparison.
+**Screen 4, A/B Report.** "This run" at the top, then "Measured before class", one dot per run, per
+feature and arm. "Comments on issues · canonical" reads "4/4 before class" for each arm. Your own run
+has no bare arm, so it is not a dot in this comparison.
 
-![Screen 4: primary results, one dot per run, for each feature and arm](expected/show-2-screen-4-final.png)
+![Screen 4: this run at the top, then Measured before class, one dot per run for each feature and arm](expected/show-2-screen-4-final.png)
 
-*Screen 4. The comparison comes from the test runs, not from your run.*
+*Screen 4. The comparison comes from the runs before class, not from your run.*
 
 ## What the result means
 

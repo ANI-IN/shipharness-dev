@@ -215,7 +215,7 @@ on safe retries it did not.
 1. The bare arm reads the same ticket and allowed paths as text. Why can it still change a file
    outside them?
 2. Why does the scope layer check a command's changes after it runs, instead of before?
-3. In the demo, both arms fail the feature's own measure. Where do you read the scope result?
+3. In the demo, where do you see which file left the list?
 4. The container refused nothing in any test run. Name one reason to keep it.
 
 <details>

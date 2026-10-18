@@ -13,7 +13,8 @@ Each step gives a time, so you can plan your week. Every time on this page is on
 - **Reading time**: the page's word count divided by 200, rounded up to 5 minutes, the course's rule
   for reading times. Where a page prints its own reading time at the top, this page uses that one.
 - **Run time**: how long the command took on the course machine, from the
-  [evidence page](evidence/general.md#timings).
+  [evidence page](evidence/general.md#timings) and the
+  [live runs of 2026-10-18](evidence/general.md#guide-runs-2026-10-18).
 
 The course has not timed the hands-on work: installing the tools, or writing the code of an
 assignment. Those rows give the reading time of the pages and say that the work is extra.
@@ -45,7 +46,7 @@ on Windows (through WSL2), Linux, or macOS.
 |---|---|---|
 | Accounts, tools, clone, `.env` | [setup](../setup/README.md) and your system's page | 20 to 25 minutes of reading, plus the installs |
 | Build both images | `make setup` | 145 s on the course machine (run time) |
-| First live run | `make show-1` | 7:23 to 10:58 (run time) |
+| First live run | `make show-1` | 4:45 (run time, live run of 2026-10-18; earlier: 7:23 to 10:58) |
 | Before a live class | [pre-class checklist](../setup/pre-class.md) | 5 minutes (reading) |
 
 `make doctor` must end with `result: + ready` before you go on.
