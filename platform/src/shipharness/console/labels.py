@@ -8,6 +8,7 @@ ids (`r1_tenant`, `R1`, `r1_new_violations`, filter numbers); only the words sho
 from __future__ import annotations
 
 import re
+from collections.abc import Mapping
 
 from shipharness.datasets.names import (
     FILTER_NAMES,
@@ -124,3 +125,26 @@ def measure_words(values: dict[str, object]) -> str:
         shown = ("yes" if value else "no") if isinstance(value, bool) else str(value)
         parts.append(f"{measure_label(name)}: {shown}")
     return "; ".join(parts)
+
+
+# The agent's claim, per phase (owner decision, 2026-10-19). One run has a build phase and then a
+# test phase; the test phase is named only when the agent called finish() in it, so a run whose
+# only claim was the build claim reads "agent said: done", and a Section 4 run whose test phase
+# ended "not done" reads "agent said: done (build) · not done (test phase)".
+CLAIM_WORDS = {"done": "done", "not_done": "not done", "none": "no claim"}
+_PHASE_WORDS = (("build", "build"), ("test", "test phase"))
+
+
+def claim_parts(claims: Mapping[str, str]) -> list[tuple[str, str]]:
+    """[(claim key, words)] per phase, from {phase: "done" | "not_done" | "none"}: the run's claim
+    events (console) or AgentRunResult.claims (terminal). The key picks the pill colour."""
+    said = {phase: claims.get(phase) or "none" for phase, _ in _PHASE_WORDS}
+    words = {key: CLAIM_WORDS.get(key, key.replace("_", " ")) for key in said.values()}
+    if said["test"] == "none":  # no claim in the test phase (or no test phase): build only
+        return [(said["build"], words[said["build"]])]
+    return [(said[phase], f"{words[said[phase]]} ({name})") for phase, name in _PHASE_WORDS]
+
+
+def claim_words(claims: Mapping[str, str]) -> str:
+    """'agent said: done (build) · not done (test phase)', or 'agent said: done' (one phase)."""
+    return "agent said: " + " · ".join(words for _, words in claim_parts(claims))

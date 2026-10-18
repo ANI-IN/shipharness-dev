@@ -175,19 +175,14 @@ def _exit_code(statuses: list[str]) -> int:
     return 2 if any(s.startswith("ABORTED") for s in statuses) else 0
 
 
-_CLAIM_WORDS = {
-    "done": "agent said done",
-    "not_done": "agent said not done",
-    "none": "agent made no claim",
-}
-
-
-def record_line(record: Any) -> str:
+def record_line(record: Any, claims: dict[str, str] | None = None) -> str:
     """The line `shipharness ab` prints per arm, in plain words ("House rule 1: Tenant isolation,
-    new violations: 0"). The ScoreRecord export keeps the machine field names."""
-    from shipharness.console.labels import measure_words
+    new violations: 0"). The ScoreRecord export keeps the machine field names. `claims` is the
+    arm's claim per phase (AgentRunResult.claims): "agent said: done (build) · not done (test
+    phase)"; without it, the record's one claim ("agent said: done")."""
+    from shipharness.console.labels import claim_words, measure_words
 
-    claim = _CLAIM_WORDS.get(record.claim, f"agent said {record.claim}")
+    claim = claim_words(claims if claims is not None else {"build": record.claim})
     outcome = "passed" if record.passed_primary else "failed"
     verdict = (
         f"primary measure {outcome} · " if record.primary else ""
@@ -201,8 +196,8 @@ def record_line(record: Any) -> str:
     )
 
 
-def _print_record(record: Any) -> None:
-    typer.echo(record_line(record))
+def _print_record(record: Any, claims: dict[str, str] | None = None) -> None:
+    typer.echo(record_line(record, claims))
 
 
 def register(app: typer.Typer) -> None:
@@ -364,7 +359,7 @@ def register(app: typer.Typer) -> None:
                 f"profile={profile}{mode})"
             )
             for arm_run in result.arms.values():
-                _print_record(arm_run.record)
+                _print_record(arm_run.record, dict(arm_run.result.claims))
                 statuses.append(arm_run.result.status)
         typer.echo(cost_line(rt.cost))
         raise typer.Exit(_exit_code(statuses))
@@ -392,7 +387,8 @@ def register(app: typer.Typer) -> None:
         wanted = (replay or swap) or ""
         try:
             run_dir = find_run_dir(Path(settings.runs_dir), wanted, section=section)
-            load_ab(run_dir).export_ref()  # refuses a record without a pinned checkpoint commit
+            source = load_ab(run_dir)
+            source.export_ref()  # refuses a record without a pinned checkpoint commit
         except FileNotFoundError as exc:
             if wanted != "latest":
                 hint = "check the A/B or run id"
@@ -433,8 +429,8 @@ def register(app: typer.Typer) -> None:
         typer.echo(
             f"RECORDING: replay {out.ab_id} of {out.source_ab_id} ({out.events_replayed} events)"
         )
-        for record in out.records.values():
-            _print_record(record)
+        for arm, record in out.records.items():
+            _print_record(record, dict(source.arms[arm].result.claims))  # type: ignore[index]
         typer.echo(cost_line(rt.cost))
 
     @app.command("replay")
@@ -499,7 +495,7 @@ def register(app: typer.Typer) -> None:
             f"profile={profile}, {CONSTRUCTED_MODE})"
         )
         for arm_run in result.arms.values():
-            _print_record(arm_run.record)
+            _print_record(arm_run.record, dict(arm_run.result.claims))
         typer.echo(f"What it demonstrates: {scenario.demonstrates}.")
         for line in summary_lines(result.run_dir):
             typer.echo(f"  {line}")

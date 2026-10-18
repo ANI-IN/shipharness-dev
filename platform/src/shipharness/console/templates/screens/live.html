@@ -87,7 +87,7 @@
   </div>
 
   <div class="claims">
-    <p><span class="k">Agent said</span> {% if a.claim %}{{ status(a.claim.claim) }}{% else %}{{ status("none") }}{% endif %}</p>
+    <p><span class="k">Agent said:</span> {% for key, words in a.claim_parts %}{% if not loop.first %} · {% endif %}{{ status(key, words) }}{% endfor %}</p>
     <p class="referee"><span class="k">Referee</span> {{ referee_line(a) }}</p>
     {% if a.claim_supported is not none %}<p>{{ status("supported" if a.claim_supported else "unsupported") }}</p>{% endif %}
   </div>

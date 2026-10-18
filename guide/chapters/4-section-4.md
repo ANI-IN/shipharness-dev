@@ -271,7 +271,7 @@ note       state exec plan moved to docs/exec-plans/completed/F4.md (F4 passes)
 **What it means:** Hover over "visible tests": `passed=190 failed=0 errors=0`. Only a passed gate sets `passes` to true in `feature_list.json`, with the gate id and the commit as evidence. The agent cannot set it itself. The test phase starts next.
 
 > [!CHECKPOINT]
-> "Agent said" now shows ✓ done. The Referee line still says "referee pending".
+> "Agent said:" now shows ✓ done. The Referee line still says "referee pending".
 
 > [!IFDIFFERENT]
 > - A pill shows ✗ → open its tooltip for the reason; the agent gets it too and tries again (Step 8).
@@ -369,9 +369,9 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 4. Gate list
 5. Referee pill (harness)
 
-**Look at:** "Agent said ✓ done" and, under the referee, "✗ claim not supported".
+**Look at:** "Agent said: ✓ done (build) · ✗ not done (test phase)" and, under the referee, "✗ claim not supported".
 
-**What it means:** "Agent said" shows the build claim: done, accepted by the gate. The referee disagrees, and "claim not supported" puts the two side by side. The other checks (house rules, existing tests, scope) passed.
+**What it means:** "Agent said:" shows the claim of each phase. The build said done, and the gate accepted it; the test phase said not done, because it wrote no tests. The referee disagrees with the build claim, and "claim not supported" puts the two side by side. The other checks (house rules, existing tests, scope) passed.
 
 > [!CHECKPOINT]
 > Both timings are shown, and "secondary checks running" is gone.
@@ -402,7 +402,7 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 **Look at:** The arm line: status, claim, the two primary values, "primary measure failed", "reviewer reject", and the cost.
 
-**What it means:** The terminal says what screen 1 says, with one difference. It reports the agent's last claim, from the test phase: "agent said not done". Screen 1's "Agent said" shows the build claim: done. Both are true. The `Cost:` line splits the command's cost between the agent model and the reviewer model.
+**What it means:** The terminal says what screen 1 says, with the claim of each phase: "agent said: done (build) · not done (test phase)". The `Cost:` line splits the command's cost between the agent model and the reviewer model.
 
 > [!CHECKPOINT]
 > The prompt is back. The command exits with 0 when the arm completed (as here), 2 when it ended `ABORTED`, 1 on `ERROR`.
@@ -411,7 +411,7 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 > - `make: *** [...] Error 2` → the arm ended `ABORTED: timeout`. It is still judged; read the line as usual.
 
 > [!INSTRUCTOR]
-> If someone spots "not done" here and "done" on screen 1: the build said done and passed the gate; the test phase said not done because it wrote no tests.
+> Read the two claims aloud: "The build said done and passed the gate. The test phase said not done, because it wrote no tests."
 
 ### Step 15: Open screen 3 and read the sessions and the diff map
 
@@ -734,7 +734,7 @@ app.services.context-m401      –            ✗ survived
 | Status | completed, 42 turns (30 build, 12 test phase) |
 | Blocked writes | 1 (`app/services/errors.py`, turn 1.11) |
 | Gate | passed on the first claim, 11 of 11 items, 190 visible tests |
-| Agent said | build: done; test phase: not done |
+| Agent said | done (build) · not done (test phase) |
 | Tests proposed / filtered / kept | 0 / 0 / 0 ("no new tests to filter") |
 | Hidden tests | 68 of 69 |
 | Referee mutants killed | 0 of 4 (4 survived) |

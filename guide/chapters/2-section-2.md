@@ -298,7 +298,7 @@ A red tool name marks a call that failed. Turns 2.21 and 2.24 are patches that d
 
 **Look at:** turn 2.18, the one migration, and the last turn, 2.38.
 
-**What it means:** session 2 writes the product code that session 1 only planned. Watch for one migration, not two: two migration heads is the failure this section is about. Session 2 used all 38 turns and never called `finish`, so the run records "agent made no claim". Its last turns are the wrap-up again.
+**What it means:** session 2 writes the product code that session 1 only planned. Watch for one migration, not two: two migration heads is the failure this section is about. Session 2 used all 38 turns and never called `finish`, so the run records "agent said: no claim". Its last turns are the wrap-up again.
 
 > [!CHECKPOINT]
 > Session 2 ends at turn 2.38 with a session stop, "session 2 handoff written to session-handoff.md".
@@ -337,7 +337,7 @@ A red tool name marks a call that failed. Turns 2.21 and 2.24 are patches that d
 
 **Type:** nothing. The pill appears a few seconds after the run ends.
 
-**You should see:** "Agent said – no claim", then the pill "✓ primary verdict ready: PASS", then "continuity failure no". "secondary checks running" shows until the full verdict arrives.
+**You should see:** "Agent said: – no claim", then the pill "✓ primary verdict ready: PASS", then "continuity failure no". "secondary checks running" shows until the full verdict arrives.
 
 **Look at:** the pill, and the time line under it, "launch to primary verdict".
 
@@ -624,9 +624,9 @@ A/B ab-20261018-162745-ccba38 (Feature 2: Comments on issues, layers=['instructi
 Cost: $0.043716 (this command: gpt-5.6-luna $0.003537, gpt-6-luna $0.040178; session $0.064018 of $2.50; build $0.064018 of $15.00 ($14.935982 left))
 ```
 
-**Look at:** the record line. It gives "completed", "agent made no claim", "continuity failure: no", "primary measure passed", the hidden tests, the mutants, the reviewer, and the arm's cost. Then read the `Cost:` line.
+**Look at:** the record line. It gives "completed", "agent said: no claim", "continuity failure: no", "primary measure passed", the hidden tests, the mutants, the reviewer, and the arm's cost. Then read the `Cost:` line.
 
-**What it means:** the record line repeats screen 1's verdict in one line. "agent made no claim" means session 2 used its 38 turns without calling `finish`. The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`; this one exited with 0. The `Cost:` line gives the command's cost, split into the reviewer model and the agent model. It also shows how much of the day's $2.50 session cap is spent.
+**What it means:** the record line repeats screen 1's verdict in one line. "agent said: no claim" means session 2 used its 38 turns without calling `finish`. The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`; this one exited with 0. The `Cost:` line gives the command's cost, split into the reviewer model and the agent model. It also shows how much of the day's $2.50 session cap is spent.
 
 > [!CHECKPOINT]
 > The record line starts with "harness  completed", and the prompt returns.

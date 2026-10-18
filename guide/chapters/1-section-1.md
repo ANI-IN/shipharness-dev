@@ -224,14 +224,14 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 **Type:** Look below "Gate".
 
-**You should see:** "Agent said ✓ done". The cost line above reads "cost $0.018 / $0.20 · ✓ run completed · 38 turns".
+**You should see:** "Agent said: ✓ done (build) · ✓ done (test phase)". The cost line above reads "cost $0.018 / $0.20 · ✓ run completed · 38 turns".
 
-**Look at:** the "Agent said" pill.
+**Look at:** the "Agent said:" pills, one per phase.
 
-**What it means:** this is the agent's own claim. After it said done, the agent had a short test phase in which it may only add tests; then the run ended. The claim is not the score; the referee decides.
+**What it means:** this is the agent's own claim, per phase. After it said done in the build phase, the agent had a short test phase in which it may only add tests, and it said done again; then the run ended. A run that claims in the build phase only reads just "Agent said: ✓ done". The claim is not the score; the referee decides.
 
 > [!CHECKPOINT]
-> "Agent said" shows "done", "not done" or "no claim".
+> "Agent said:" shows "done", "not done" or "no claim", with "(build)" and "(test phase)" when the agent also claimed in the test phase.
 
 > [!IFDIFFERENT]
 > - "– no claim" → the agent stopped without saying done (turn limit or time limit). The referee still scores what it shipped.
@@ -473,7 +473,7 @@ A/B ab-20261018-162244-860638 (Feature 1: Org-wide issue search, layers=['instru
 Cost: $0.020302 (this command: gpt-5.6-luna $0.002464, gpt-6-luna $0.017838; session $0.020302 of $2.50; build $0.020302 of $15.00 ($14.979698 left))
 ```
 
-**Look at:** the arm line: "completed", "agent said done", "House rule 1: Tenant isolation, new violations: 0", "primary measure passed". Then the first figure of the `Cost:` line and the session figure.
+**Look at:** the arm line: "completed", "agent said: done (build) · done (test phase)", "House rule 1: Tenant isolation, new violations: 0", "primary measure passed". Then the first figure of the `Cost:` line and the session figure.
 
 **What it means:** the arm line repeats screen 1 in plain words. The arm cost ($0.0178) is the agent alone. The `Cost:` line is the whole command, agent plus review: $0.020302. The session figure is the running total against the class cap of $2.50. The command exits with 0 when the arm completed.
 
@@ -491,7 +491,7 @@ Cost: $0.020302 (this command: gpt-5.6-luna $0.002464, gpt-6-luna $0.017838; ses
 
 | Item | This run |
 |---|---|
-| Agent said | done |
+| Agent said | done (build) · done (test phase) |
 | House rule 1, new violations | 0 (PASS) |
 | Hidden tests | 52 of 52 |
 | Mutants killed | 3 of 4 |
