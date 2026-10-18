@@ -62,7 +62,7 @@ minute screens show the console fed with the run's log up to that point of the c
 
 ![Screen 3: files read, sessions of 12, 32, and 12 turns, diff map, referee checks](show-2-screen-3-final.png)
 
-*Screen 3: three sessions, `continuity, 0 new`, `House rule 7, 0 new`, and `diff_scope, 0 new`.*
+*Screen 3: three sessions, `Session continuity (continuity): 0 new`, `House rule 7: 0 new`, and `Files outside the allowed paths (diff_scope): 0 new`.*
 
 ![Screen 4: primary results, one dot per run, per feature and arm](show-2-screen-4-final.png)
 

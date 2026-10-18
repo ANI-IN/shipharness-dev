@@ -121,7 +121,7 @@ The referee scores both arms the same way, on the shipped diff.
 - `product` is the arm's diff with harness files removed (`strip`, line 586), so the harness's own
   `feature_list.json` and `progress.md` do not count against it.
 - A file counts if it matches neither the build list nor the test list. This number is
-  `out_of_scope_files` in the score record, and the `diff_scope` row on screen 3.
+  `out_of_scope_files` in the score record, and the Files outside the allowed paths (`diff_scope`) row on screen 3.
 - The bare arm gets no scope layer, but the referee still counts its files. That is the comparison.
 
 ## If you copy this into your repo

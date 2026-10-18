@@ -4,7 +4,8 @@ Each feature in `teamtrack-features-v1` has one command alias (`version-checks` 
 and make targets accept the alias or the code, in any case, and normalise it to the code with
 `feature_code`; the dataset, scores, and exports keep the code. Terminal and console output name a
 feature, rule, section, or filter as "<Kind> N: <name>" (`feature_label`, `rule_label`, ...):
-"Feature 4: Version checks on issue edits", "House rule 1: Tenant isolation".
+"Feature 4: Version checks on issue edits", "House rule 1: Tenant isolation". Referee checks with
+a code name read "<name> (<code>)" (`referee_check_label`): "Flaky tests (flakiness)".
 """
 
 from __future__ import annotations
@@ -56,6 +57,21 @@ FILTER_NAMES: dict[int, str] = {
     4: "Real assertions",
     5: "No source changes",
     6: "No duplicate tests",
+}
+# Referee checks whose machine names are not words people read; shown as "<name> (<code>)".
+REFEREE_CHECK_NAMES: dict[str, str] = {
+    "regression": "Existing tests",
+    "diff_scope": "Files outside the allowed paths",
+    "flakiness": "Flaky tests",
+    "continuity": "Session continuity",
+}
+# Other names the same checks go by: gate items (`checkrun.CHECK_LABELS`), finding rules
+# (`Finding.rule`), and the runner's progress labels.
+REFEREE_CHECK_ALIASES: dict[str, str] = {
+    "existing tests": "regression",
+    "diff scope": "diff_scope",
+    "scope": "diff_scope",
+    "flaky": "flakiness",
 }
 _BY_ALIAS = {alias: code for code, alias in FEATURE_ALIASES.items()} | EXTRA_ALIASES
 _CODE = re.compile(r"[A-Za-z][0-9]+")
@@ -113,6 +129,19 @@ def rule_label(code: str) -> str:
     """'House rule 1: Tenant isolation' for R1; anything else unchanged."""
     name = RULE_NAMES.get(code)
     return f"{rule_short(code)}: {name}" if name else code
+
+
+def referee_check_code(name: str) -> str | None:
+    """'diff_scope' for diff_scope, 'diff scope', or 'scope'; None for any other name."""
+    code = REFEREE_CHECK_ALIASES.get(name, name)
+    return code if code in REFEREE_CHECK_NAMES else None
+
+
+def referee_check_label(name: str) -> str:
+    """'Files outside the allowed paths (diff_scope)' for diff_scope (or a name it goes by);
+    any other name unchanged."""
+    code = referee_check_code(name)
+    return f"{REFEREE_CHECK_NAMES[code]} ({code})" if code else name
 
 
 def section_label(section: int | str) -> str:

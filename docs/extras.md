@@ -69,7 +69,7 @@ What it demonstrates: the referee's R1 check reports the cross-org leak, and the
   agent: finish(done) in the build phase
   agent: finish(done) in the test phase
   referee: primary r1_new_violations>=1 FAIL {'r1_new_violations': 1}
-  referee: diff_scope 1 new: violation app/web/routes.py is outside the allowed paths
+  referee: Files outside the allowed paths (diff_scope), 1 new: violation app/web/routes.py is outside the allowed paths
 Cost: $0.000000 (constructed example: scripted steps, no model calls)
 ```
 

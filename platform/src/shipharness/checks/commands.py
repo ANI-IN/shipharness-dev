@@ -17,14 +17,17 @@ from shipharness.checks.runner import (
     run_checks,
     stdout_to_stderr,
 )
-from shipharness.datasets.names import rule_label
+from shipharness.datasets.names import referee_check_label, rule_label
 
 DEFAULT_RULES = "R1,R2,R3,R4,R5,R6,R7"
 _SHOWN_PER_CHECK = 10
 
 
 def _named(check: str) -> str:
-    """'r1_tenant (House rule 1: Tenant isolation)' for a house-rule check; other names as is."""
+    """'r1_tenant (House rule 1: Tenant isolation)' for a house-rule check, 'Flaky tests
+    (flakiness)' for a code-named referee check; other names as is."""
+    if (plain := referee_check_label(check)) != check:
+        return plain
     code = RULE_LABELS.get(check, check)
     label = rule_label(code)
     return f"{check} ({label})" if label != code else check

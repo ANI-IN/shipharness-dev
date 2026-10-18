@@ -134,7 +134,7 @@ Then switch screens.
 
 **Screen 3, Evidence.** Files read, grouped as skill, harness doc, handbook, code, and test. In this
 run the agent opened `ARCHITECTURE.md` and the handbook, but not the skill or the security document.
-The referee list shows `House rule 1, 0 new` (no new tenant isolation violation). The old `/v1/issues`
+The referee list shows `House rule 1: 0 new` (no new tenant isolation violation). The old `/v1/issues`
 leak is part of the starting code and does not count.
 
 ![Screen 3: files read by group, the five changed files, every referee check at 0 new](expected/screen-3-final.png)

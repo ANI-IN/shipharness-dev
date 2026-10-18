@@ -19,6 +19,7 @@ from shipharness.console.labels import (
     check_label,
     check_short,
     filter_name,
+    progress_label,
     spec_mismatch,
 )
 from shipharness.datasets.names import feature_label
@@ -653,7 +654,7 @@ def summarise(event: Event) -> str:
             outcome = "pass" if d["passed"] else "discard"
             return f"{filter_name(int(d['filter']))}, {outcome}: {d['test_id']}"
         case "check_progress":
-            return str(d["label"])
+            return progress_label(str(d.get("check", "")), str(d["label"]))
         case "check_result":
             outcome = "pass" if d["passed"] else "fail"
             return f"{check_label(d['check'])}, {outcome} ({d['new_violations']} new)"

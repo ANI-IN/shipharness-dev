@@ -599,12 +599,12 @@ def test_referee_pills_use_plain_check_names(tmp_path: Path) -> None:
     for name, plain in [
         ("hidden_tests", "hidden tests"),
         ("board", "board check"),
-        ("flakiness", "flakiness"),
-        ("continuity", "continuity"),
+        ("flakiness", "Flaky tests (flakiness)"),
+        ("continuity", "Session continuity (continuity)"),
+        ("diff_scope", "Files outside the allowed paths (diff_scope)"),
+        ("regression", "Existing tests (regression)"),
     ]:
         assert check_short(name) == plain
-    # The course pages quote `diff_scope: 1 new` from screen 3; that name stays as it is.
-    assert check_short("diff_scope") == "diff_scope"
 
 
 def test_an_empty_decisions_list_is_one_plain_line(tmp_path: Path) -> None:

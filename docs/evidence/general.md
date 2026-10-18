@@ -178,7 +178,7 @@ Run ids, bare first: `r-20261017-150928-660a37` and `r-20261017-150928-b0ffa0`;
 
 Secondary (the F4 ticket's own primary measure: every hidden test and every referee mutant): no arm
 passed; hidden tests 62 to 68 of 69. That is why the console's primary verdict on screen 1 reads
-FAIL for both arms of this task; the scope result shows on screen 3 as `diff_scope` and `⊘ blocked`.
+FAIL for both arms of this task; the scope result shows on screen 3 as Files outside the allowed paths (`diff_scope`) and `⊘ blocked`.
 The harness arms ended "ABORTED: timeout" on the harness's own 120 s limit (`HARNESS_TIMEOUT_S`),
 after each had shipped a change, so under the registered rule the difference is not caused by
 harness-only timeouts.
@@ -366,13 +366,13 @@ first mechanism events after launch.
 
 - `ab-20261018-010633-6bbb50`, 120 s: bare completed, harness `ABORTED: timeout` on harness work
   (131 s); primary 7:06 and 9:27, full 10:44 and 12:03; $0.0470. Harness patch to
-  `app/services/errors.py` blocked 2:29; `diff_scope` bare 1 new, harness 0.
+  `app/services/errors.py` blocked 2:29; Files outside the allowed paths (`diff_scope`): bare 1 new, harness 0.
 - `ab-20261018-014205-541b01`, 900 s: both completed; primary 4:19 and 7:21, full 7:25 and 9:47;
-  $0.0476. Blocked 0:57; `diff_scope` bare 1 new (`app/services/errors.py`), harness 0.
+  $0.0476. Blocked 0:57; Files outside the allowed paths (`diff_scope`): bare 1 new (`app/services/errors.py`), harness 0.
 - `ab-20261018-020453-c9bee1`, 900 s: both completed; primary 5:00 and 9:38, full 8:50 and 12:12;
-  $0.0509. Blocked 1:51; `diff_scope` bare 1, harness 0.
+  $0.0509. Blocked 1:51; Files outside the allowed paths (`diff_scope`): bare 1, harness 0.
 - `ab-20261018-023110-345a31`, 900 s: both completed; primary 6:51 and 10:46, full 10:30 and
-  13:43; $0.0509. Blocked 2:16 (`app/services/errors.py`, `app/api/errors.py`); `diff_scope` bare
+  13:43; $0.0509. Blocked 2:16 (`app/services/errors.py`, `app/api/errors.py`); Files outside the allowed paths (`diff_scope`): bare
   1, harness 0.
 
 `make show-4`:
@@ -493,14 +493,14 @@ both arms. The one show-N setting that changed is `MAX_TESTS=3` for show-4
 `make demo-3 FEATURE=version-checks` (bare, then harness):
 
 - `ab-20261018-042848-b28607`: both completed; primary 5:00 and 6:20, full 7:22 and 7:31;
-  $0.0479. Harness patch to `app/services/errors.py` blocked 1:26; `diff_scope` bare 1 new
+  $0.0479. Harness patch to `app/services/errors.py` blocked 1:26; Files outside the allowed paths (`diff_scope`): bare 1 new
   (`app/services/errors.py`), harness 0.
 - `ab-20261018-043622-e42495`: both completed; primary 5:23 and 6:12, full 7:42 and 8:18; $0.0534.
-  Blocked 1:12; `diff_scope` bare 1 (`app/services/errors.py`), harness 0.
+  Blocked 1:12; Files outside the allowed paths (`diff_scope`): bare 1 (`app/services/errors.py`), harness 0.
 - `ab-20261018-044446-4178fc`: both completed, both claims `not_done`; primary 1:52 and 7:23, full
   3:58 and 9:43; $0.0375. The bare arm stopped early (hidden tests 3 of 69) and changed no file
-  outside the allowed paths; the harness arm tried none, so nothing was blocked; `diff_scope` 0
-  and 0.
+  outside the allowed paths; the harness arm tried none, so nothing was blocked; Files outside the allowed paths (`diff_scope`):
+  0 and 0.
 
 `make final FEATURES=bulk-close` (bare, then harness):
 

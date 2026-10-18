@@ -191,7 +191,7 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 |---|---|---|
 | `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns, harness decisions, gate pills, "Agent said" vs "Referee", and the "primary verdict ready" pill with the time from launch |
 | `2` | Boards | Board screenshot per arm every 5 s, with marks (⚠ other org, ⧉ duplicate); Section 4 adds the two-tab conflict panel |
-| `3` | Evidence | Files read and sessions; diff map (✎ changed, ⊘ blocked) and sandbox denials; referee checks (including `diff_scope`), filter table, mutant table |
+| `3` | Evidence | Files read and sessions; diff map (✎ changed, ⊘ blocked) and sandbox denials; referee checks (including Files outside the allowed paths (`diff_scope`)), filter table, mutant table |
 | `4` | A/B Report | Dots per run from `exports/`, one row per feature, variant, and arm; records of an older referee version and harness-in-action runs are counted and left out |
 | `5` | Traces | Live tail of events, first wrong turn per arm, trace links |
 | `F` | | Cycles full screen for one arm: both, bare, harness |
@@ -239,7 +239,7 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 2:00-2:02 | Section 3 launch | Section 3 start slide: `make demo-3 FEATURE=version-checks` at 2:01, the live A/B (it takes the place of `make show-3`); open the new run on screen 1: two sandbox lines, one per arm | Terminal B, console | Section 3 start |
 | 2:02-2:09 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
 | 2:09-2:28 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
-| 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and `diff_scope`; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
+| 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and the Files outside the allowed paths (`diff_scope`) row; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
 | 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm against the version checks feature's own verdict pill; what "by construction" means; the Section 3 rows; screen 4 | Slides, console | What we measured |
 | 2:44-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
 | 2:50-2:55 | Break | Return time on screen | | Break |
@@ -494,7 +494,7 @@ session-handoff.md", then "▶ Session 2 resumed: prefix: core, instructions, st
 turn ran `pwd; git log --oneline -20; cat progress.md`. Sessions: 12 turns, then 31, when the agent
 time limit (300 s then) ended the run (`ABORTED: timeout`, exit 2). "primary verdict ready: PASS" (no
 continuity failure) 6:46 after launch, the full verdict 9:52 after launch: hidden tests 56/56,
-mutants 0/4, diff scope 1 new (secondary; screen 5's first wrong turn: turn 2.16 edited
+mutants 0/4, Files outside the allowed paths (diff_scope): 1 new (secondary; screen 5's first wrong turn: turn 2.16 edited
 `app/api/issues.py`), reviewer reject. Cost: $0.0268 for the arm, $0.0027 for the review.
 
 Post hoc for Section 2 (VERIFICATION.md, exploratory rows "Feature 2 bare" and "Feature 2 harness", 9 runs per arm):
@@ -545,7 +545,7 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 |---|---|---|---|
 | Live A/B | `3` Evidence, Scope and sandbox column | Bare diff map: ✎ changed `app/services/errors.py`; harness diff map: ⊘ blocked `app/services/errors.py`; Sandbox denials for both | "Same ticket, same model, same limits. The bare agent edits the shared error module. The harness agent tried the same edit and was stopped." |
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
-| Live A/B | `3` Verification column | `diff_scope: 1 new` (bare) against `diff_scope: 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
+| Live A/B | `3` Verification column | `Files outside the allowed paths (diff_scope): 1 new` (bare) against `Files outside the allowed paths (diff_scope): 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
 | Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
 | What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3 | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
@@ -563,8 +563,8 @@ arm completed in 43
 turns, the harness arm ran 39 turns and ended "ABORTED: timeout" on the harness's own limit
 ("harness time limit: HARNESS_TIMEOUT_S 120 s exceeded during session end (123.5 s of harness
 work)"). Screen 1: bare "primary verdict ready: FAIL" 5:15 after launch and full verdict 8:06; harness
-8:50 and 11:18. Screen 3: bare ✎ changed `app/services/errors.py`, `diff_scope: 1 new`; harness
-⊘ blocked `app/services/errors.py`, `diff_scope: 0 new`; no sandbox denial in either arm. Arm lines:
+8:50 and 11:18. Screen 3: bare ✎ changed `app/services/errors.py`, `Files outside the allowed paths (diff_scope): 1 new`; harness
+⊘ blocked `app/services/errors.py`, `Files outside the allowed paths (diff_scope): 0 new`; no sandbox denial in either arm. Arm lines:
 
 ```
 A/B ab-20261017-152601-3a7237 (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state'], profile=class)
@@ -657,7 +657,7 @@ and the "What we measured" slide.
 
 | Part | Screen | Watch | Say |
 |---|---|---|---|
-| Harness in action | `1` | Gate pills of the last gate: ✓ or ✗ for visible tests, existing tests, House rule 1-R7, board, clean state, if the arm claimed done; otherwise the test phase and the "primary verdict ready" pill | "The harness runs checks the agent does not control; a failure goes back to the agent with the first three reasons." |
+| Harness in action | `1` | Gate pills of the last gate: ✓ or ✗ for visible tests, Existing tests (regression), House rule 1-R7, board, clean state, if the arm claimed done; otherwise the test phase and the "primary verdict ready" pill | "The harness runs checks the agent does not control; a failure goes back to the agent with the first three reasons." |
 | Harness in action | `3` | Filter table (tests × filters 1-5, kept or discarded with reason), mutant table, referee counters, reviewer verdict | "Filters 1 to 3 are TestGen-LLM's (B11); 4 and 5 are course filters (RESEARCH G-7). Filter 2 re-runs each test 5 times, TestGen-LLM's 'five executions' (B11, F-b-19)." |
 | Harness in action | `2` | The board and the two-tab conflict panel: "✓ conflict detected" | "Two tabs edit the same issue; the second save is refused with 'This issue was changed by someone else'. The board check runs on every arm." |
 | Reading the result | `1`, `3` | "Agent said" against the referee: hidden tests of 69, mutants killed of 4 | "A run passes only with all 69 hidden tests and all 4 mutants. The referee-set mutants were never visible to the filters." |
@@ -666,7 +666,7 @@ and the "What we measured" slide.
 What the quiet run of `make show-4` showed (captured on 2026-10-17, run `ab-20261017-115138-c45d9d`,
 with the 300 s agent limit of that day; your output will differ): minute 1, turn 1.15 tried to patch
 `app/services/errors.py` and screen 1 showed ⊘ blocked ("outside the allowed paths"); minute 3, turn
-1.31 called `finish done` and the gate ran with every pill ✓ (visible tests, existing tests, House rule 1-R7,
+1.31 called `finish done` and the gate ran with every pill ✓ (visible tests, Existing tests (regression), House rule 1-R7,
 board, clean state); the harness set Feature 4 `passes` with its evidence and moved the exec plan to
 completed; minutes 4-8, the test phase wrote one test file and the filters ran (4 tests proposed, 1
 kept: two discarded by filter 3, one by filter 2, "failed on run 1 of 5: assert 422 == 412"); minute
