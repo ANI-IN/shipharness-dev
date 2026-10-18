@@ -46,7 +46,7 @@ def test_the_arm_line_has_no_machine_field_names() -> None:
     )
     assert line.startswith("  harness  completed ")
     assert "House rule 1: Tenant isolation, new violations: 0" in line
-    assert "agent said done" in line
+    assert "agent said: done ·" in line
     assert "primary measure passed" in line
     assert "hidden tests 50 of 52" in line and "mutants killed 2 of 4" in line
     assert "reviewer accept" in line and "cost $0.0500" in line
@@ -61,13 +61,13 @@ def test_the_arm_line_has_no_machine_field_names() -> None:
             "not_done",
             None,
             False,
-            ("agent said not done", "reviewer not run", "primary measure failed"),
+            ("agent said: not done", "reviewer not run", "primary measure failed"),
         ),
         (
             "none",
             "reject",
             True,
-            ("agent made no claim", "reviewer reject", "primary measure passed"),
+            ("agent said: no claim", "reviewer reject", "primary measure passed"),
         ),
     ],
 )
@@ -100,6 +100,10 @@ def test_assignment_4_check_reads_the_new_and_the_old_arm_line() -> None:
     new = record_line(record(arm="harness", status="ABORTED: timeout"))
     old = "  bare     completed         claim=done     primary={} passed=True hidden 1/1"
     assert pattern.match(new).groups() == ("harness", "ABORTED: timeout")  # type: ignore[union-attr]
+    phases = record_line(record(arm="harness"), {"build": "done", "test": "not_done"})
+    assert pattern.match(phases).groups() == ("harness", "completed")  # type: ignore[union-attr]
+    plain = "  bare     completed         agent said done · no primary measure"  # 2026-10-18
+    assert pattern.match(plain).groups() == ("bare", "completed")  # type: ignore[union-attr]
     assert pattern.match(old).groups() == ("bare", "completed")  # type: ignore[union-attr]
 
 
@@ -115,7 +119,7 @@ def test_the_cli_prints_the_plain_arm_line_and_the_final_announces_its_feature(e
     assert lines[0] == "Final A/B: Feature 1: Org-wide issue search"
     arm_lines = [line for line in lines if line.startswith(("  bare ", "  harness "))]
     assert len(arm_lines) == 2
-    assert all("agent " in line and "primary=" not in line for line in arm_lines)
+    assert all("agent said: " in line and "primary=" not in line for line in arm_lines)
 
 
 def test_a_feature_without_a_primary_measure_shows_no_verdict() -> None:

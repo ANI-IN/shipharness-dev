@@ -278,7 +278,7 @@ later, as secondary results.
 4. Gate list
 5. Referee pill (harness)
 
-**Look at:** On both arms: "Agent said done", "claim supported", and the secondary counts. Bare:
+**Look at:** On both arms: "Agent said: done", "claim supported", and the secondary counts. Bare:
 hidden tests 68/69, mutants killed 1/4. Harness: hidden tests 68/69, mutants killed 4/4.
 
 **What it means:** Both arms said done, and the referee supports both claims on its checks. Neither

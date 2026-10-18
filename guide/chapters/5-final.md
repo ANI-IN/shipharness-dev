@@ -170,7 +170,7 @@ verdict came 8:41 to 15:22 after launch; in this run, 9:10.
 |---|---|---|
 | 0:02 | 1 | Harness: the four layer notes |
 | 2:04 | 1 | Harness: said done; the gate pills appear, pending |
-| 2:06 | 1 | Bare: "Agent said done" |
+| 2:06 | 1 | Bare: "Agent said: done" |
 | 3:17 to 3:20 | 1 | Bare: run completed (38 turns), "verdict ready: PASS" |
 | 3:37 | 1 | Harness: gate passed; session 1 handoff; test phase starts |
 | 5:54 | 1 | Bare: full verdict |
@@ -212,7 +212,7 @@ event, a few seconds after the make command.
 3. Bare referee pill
 
 **Look at:** The Referee block: "verdict ready: PASS", "judged on all checks", "secondary checks
-running", "launch to primary verdict 03:18". Next to it: "Agent said done" and "claim supported".
+running", "launch to primary verdict 03:18". Next to it: "Agent said: done" and "claim supported".
 
 **What it means:** Feature 5 has no primary measure, so there is no single question to answer
 early. "verdict ready: PASS" says only that the run was judged and nothing failed so far. It says
@@ -256,7 +256,7 @@ passed gate flips `passes` to true. Then the state layer writes the handoff, and
 phase, starts.
 
 > [!CHECKPOINT]
-> Every gate pill is green, and the harness panel shows "Agent said done".
+> Every gate pill is green, and the harness panel shows "Agent said: done".
 
 > [!IFDIFFERENT]
 > - A line "Gate refused 'done' (attempt 1) …" → the gate failed an item and the agent keeps working; look for "passed on attempt 2".
@@ -353,7 +353,7 @@ on both arms means the agent said done and the referee agrees.
 > [!INSTRUCTOR]
 > Both pass, as here: "The difference is in how, not whether: mutants killed, scope, gate." One
 > fails: name the failed count, then ask whether the cause is the layers or the machine; a timeout is
-> about time. Agent said none: the arm ran out of turns before it claimed done, and the referee still
+> about time. "Agent said: no claim": the arm ran out of turns before it claimed done, and the referee still
 > judges what it shipped.
 
 ### Step 10: Read the boards
@@ -665,7 +665,7 @@ A/B ab-20261018-164951-bd677b (Feature 5: Bulk close, layers=['instructions', 's
 Cost: $0.037714 (this command: gpt-5.6-luna $0.003787, gpt-6-luna $0.033927; session $0.183679 of $2.50; build $0.183679 of $15.00 ($14.816321 left))
 ```
 
-**Look at:** Per arm: status, "agent said", "no primary measure", hidden tests, mutants killed,
+**Look at:** Per arm: status, "agent said: done", "no primary measure", hidden tests, mutants killed,
 reviewer, cost. Then the `Cost:` line.
 
 **What it means:** The arm lines repeat screen 1, one line each. The `Cost:` line gives this

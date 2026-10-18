@@ -113,8 +113,8 @@ A/B <run id> (Feature 4: Version checks on issue edits, layers=['instructions', 
 Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; session $0.145965 of $2.50; build $0.145965 of $15.00 ($14.854035 left))
 ```
 
-"Agent said not done" is the claim at the end of the test phase; the build phase's done claim
-passed the gate. The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1
+The arm line now names the claim of each phase, as screen 1 does: the run above, captured before
+that change, reads "agent said: done (build) · not done (test phase)" today. The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1
 on `ERROR`; this run exited 0. An aborted arm is still judged, so its record is complete. One run costs at most $0.24: the per-arm cap
 plus the per-review cap.
 

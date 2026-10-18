@@ -81,8 +81,9 @@ TESTGEN_NOTE = re.compile(r"^testgen, model (\S+)$")
 AB_LINE = re.compile(
     r"^A/B (\S+) \((F\d+|Feature \d+: [^,]+), layers=(\[[^\]]*\])(?:, [^)]*)?\)\s*$"
 )
-# The arm line: "claim=done ..." before 2026-10-18, "agent said done · ..." (plain words) since.
-AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+(?: \S+)*?)\s+(?:claim=|agent (?:said|made) )")
+# The arm line: "claim=done ..." before 2026-10-18, "agent said done · ..." (plain words) on
+# 2026-10-18, "agent said: done (build) · not done (test phase) · ..." (per phase) since.
+AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+(?: \S+)*?)\s+(?:claim=|agent (?:said|made)[: ])")
 # The note of `cost_line` in src/shipharness/ab/runtime.py; the build part came later, so both
 # forms are accepted.
 AB_NOTE = re.compile(

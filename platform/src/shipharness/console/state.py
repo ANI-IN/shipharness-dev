@@ -18,6 +18,7 @@ from shipharness.console.labels import (
     MEASURE_LABELS,
     check_label,
     check_short,
+    claim_parts,
     filter_name,
     progress_label,
     spec_mismatch,
@@ -248,6 +249,12 @@ class ArmState:
     def claim(self) -> dict[str, Any] | None:
         """The claim shown as "agent said": the build claim, else the latest one."""
         return self.claims.get("build") or (list(self.claims.values())[-1] if self.claims else None)
+
+    @property
+    def claim_parts(self) -> list[tuple[str, str]]:
+        """Screen 1's "Agent said:" per phase: [("done", "done (build)"), ("not_done", "not done
+        (test phase)")], or [("done", "done")] when the agent claimed in the build phase only."""
+        return claim_parts({phase: str(data["claim"]) for phase, data in self.claims.items()})
 
     @property
     def secondary_pending(self) -> bool:
