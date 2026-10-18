@@ -224,7 +224,7 @@ on safe retries it did not.
 1. Text is not a check. Nothing stops the patch, so the agent's own judgement decides.
 2. A shell command can write any file, and its text does not say which. The snapshot comparison sees
    what actually changed, and restores it.
-3. On screen 3: the diff map marks the file changed or blocked, and the referee's `diff_scope` row
+3. On screen 3: the diff map marks the file changed or blocked, and the referee's Files outside the allowed paths (`diff_scope`) row
    gives the count.
 4. With no network and a read-only root, a bad command cannot install,
    download, or write outside the workspace.

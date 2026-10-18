@@ -42,7 +42,7 @@ recorded runs.
 
 ![Screen 3: diff maps and referee checks](screen-3-final.png)
 
-*Screen 3: `app/services/errors.py` changed by the bare arm, blocked for the harness arm; `diff_scope` 1 new and 0 new.*
+*Screen 3: `app/services/errors.py` changed by the bare arm, blocked for the harness arm; Files outside the allowed paths (`diff_scope`): 1 new and 0 new.*
 
 ![Screen 3 of demo run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](screen-3-run-1.png)
 
@@ -50,7 +50,7 @@ recorded runs.
 
 ![Screen 3 of demo run 3: the bare arm changed only a test file, nothing was blocked](screen-3-run-2.png)
 
-*Demo run 3: the bare arm stopped early and stayed in the allowed paths; the harness arm tried no out-of-scope edit. `diff_scope` 0 and 0.*
+*Demo run 3: the bare arm stopped early and stayed in the allowed paths; the harness arm tried no out-of-scope edit. Files outside the allowed paths (`diff_scope`): 0 and 0.*
 
 ![Screen 4: primary results, one dot per run](screen-4-final.png)
 

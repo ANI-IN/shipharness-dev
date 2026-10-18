@@ -11,8 +11,11 @@ import re
 
 from shipharness.datasets.names import (
     FILTER_NAMES,
+    REFEREE_CHECK_ALIASES,
     RULE_NAMES,
     filter_label,
+    referee_check_code,
+    referee_check_label,
     rule_label,
     rule_short,
 )
@@ -40,21 +43,41 @@ def _rule(name: str) -> str | None:
 
 
 def check_label(name: str) -> str:
-    """'House rule 1: Tenant isolation' for r1_tenant or R1; any other check name unchanged."""
+    """'House rule 1: Tenant isolation' for r1_tenant or R1; 'Flaky tests (flakiness)' for
+    flakiness (and the other `REFEREE_CHECK_NAMES`); any other check name unchanged."""
     code = _rule(name)
-    return rule_label(code) if code else name
+    return rule_label(code) if code else referee_check_label(name)
 
 
-# Referee checks shown by a plainer name on the console (`diff_scope`, `continuity`, and
-# `flakiness` keep theirs: the course pages quote them from screen 3).
+# Referee checks shown by a plainer name on the console pills; the four code-named checks read
+# "<name> (<code>)" everywhere (`referee_check_label`).
 PLAIN_CHECKS = {"hidden_tests": "hidden tests", "board": "board check"}
 
 
 def check_short(name: str) -> str:
     """'House rule 1' for r1_tenant or R1 (where space is tight), 'hidden tests' for
-    hidden_tests, 'board check' for board; any other name unchanged."""
+    hidden_tests, 'board check' for board, 'Flaky tests (flakiness)' for flakiness; any other
+    name unchanged."""
     code = _rule(name)
-    return rule_short(code) if code else PLAIN_CHECKS.get(name, name)
+    if code:
+        return rule_short(code)
+    return PLAIN_CHECKS.get(name) or referee_check_label(name)
+
+
+def progress_label(check: str, label: str) -> str:
+    """A check's progress label with the plain check name: 'Flaky tests (flakiness), run 5/5'
+    for 'flakiness run 5/5'. The runner emits the short form; other labels unchanged."""
+    code = referee_check_code(check)
+    if not code:
+        return label
+    plain = referee_check_label(code)
+    names = [code, *(a for a, c in REFEREE_CHECK_ALIASES.items() if c == code)]
+    for name in sorted(names, key=len, reverse=True):
+        if label == name:
+            return plain
+        if label.startswith(name + " "):
+            return f"{plain}, {label[len(name) + 1 :]}"
+    return label
 
 
 def filter_name(number: int) -> str:

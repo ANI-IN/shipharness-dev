@@ -69,7 +69,7 @@ What to say at each verdict:
 | Final | No primary measure: read hidden tests and mutants per arm. | "One A/B is one dot." |
 
 In Section 3 the pill on screen 1 shows the version checks feature's own bar, which every arm failed before class. Read
-`diff_scope` on screen 3 instead. Before class: bare 0 of 3 in scope, harness 3 of 3.
+Files outside the allowed paths (`diff_scope`) on screen 3 instead. Before class: bare 0 of 3 in scope, harness 3 of 3.
 
 Console keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen.
 
@@ -327,7 +327,7 @@ scope layers. Each arm has its own sandbox with the same limits.
 
 DEMO, after the implementation notes: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
 under the bare arm and `blocked app/services/errors.py` under the harness arm. Then the Verification
-column: `diff_scope: 1 new` against `diff_scope: 0 new`. Then screen 1: the harness decision
+column: `Files outside the allowed paths (diff_scope): 1 new` against `Files outside the allowed paths (diff_scope): 0 new`. Then screen 1: the harness decision
 `block`, with the reason the agent read. Then Sandbox denials on screen 3.
 
 Say at the result: "The guard enforces exactly what we measure, so the harness arm's zero is built

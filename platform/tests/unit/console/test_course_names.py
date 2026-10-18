@@ -35,8 +35,10 @@ def test_check_labels_name_the_house_rule() -> None:
     assert check_label("r7_migrations") == "House rule 7: Migrations"
     assert check_short("r6_layering") == "House rule 6"
     assert check_short("R2") == "House rule 2"
-    for other in ("regression", "diff_scope", "visible tests"):
-        assert check_label(other) == other and check_short(other) == other
+    assert check_label("visible tests") == "visible tests" == check_short("visible tests")
+    # Referee checks by a plain label with the check name in brackets (owner, 2026-10-18).
+    assert check_label("diff_scope") == "Files outside the allowed paths (diff_scope)"
+    assert check_short("regression") == "Existing tests (regression)"
     # Plainer pill names (owner, 2026-10-18); the full label keeps the check name.
     assert check_short("hidden_tests") == "hidden tests" and check_short("board") == "board check"
 
@@ -85,16 +87,18 @@ def test_progress_pills_carry_the_full_rule_name(screens: dict[str, str]) -> Non
 def test_referee_check_pills_name_the_house_rule(screens: dict[str, str]) -> None:
     evidence = screens["3"]
     assert re.search(
-        r'title="House rule 1: Tenant isolation: 112 probes">.*?'
-        r'<span class="label">House rule 1, 3 new</span>',
+        r'title="House rule 1: Tenant isolation: 112 probes">'
+        r'<span class="check-name">House rule 1</span> .*?<span class="label">3 new</span>',
         evidence,
     )
     assert re.search(
-        r'title="House rule 4: Safe retries: 20 probes">.*?'
-        r'<span class="label">House rule 4, 1 new</span>',
+        r'title="House rule 4: Safe retries: 20 probes">'
+        r'<span class="check-name">House rule 4</span> .*?<span class="label">1 new</span>',
         evidence,
     )
-    assert '<span class="label">diff_scope, 1 new</span>' in evidence  # not a house rule
+    assert '<span class="check-name">Files outside the allowed paths (diff_scope)</span>' in (
+        evidence
+    )
     assert "r1_tenant" not in evidence and "r4_idempotency" not in evidence
 
 
@@ -130,7 +134,7 @@ def test_live_tail_and_first_wrong_turn_name_rules_and_filters(
 ) -> None:
     lines = [summarise(event) for event in read_events(build_fixture_run(tmp_path / "again"))]
     assert "House rule 1: Tenant isolation, fail (3 new)" in lines
-    assert "diff_scope, fail (1 new)" in lines
+    assert "Files outside the allowed paths (diff_scope), fail (1 new)" in lines
     assert any(line.startswith("Filter 4: Real assertions, discard: tests/") for line in lines)
     assert any(line.startswith("Filter 1: Builds and collects, pass: tests/") for line in lines)
     wrong = state.arm("bare").first_wrong_turn()

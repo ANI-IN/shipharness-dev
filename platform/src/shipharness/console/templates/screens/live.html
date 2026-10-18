@@ -83,7 +83,7 @@
   {% else %}
     <span class="muted">No gate{% if arm == "bare" %} (verify layer off){% endif %}.</span>
   {% endif %}
-  {% for p in a.progress.values() %}<span class="progress" title="{{ check_label(p.check) }}">{{ p.label }}</span>{% endfor %}
+  {% for p in a.progress.values() %}<span class="progress" title="{{ check_label(p.check) }}">{{ progress_label(p.check, p.label) }}</span>{% endfor %}
   </div>
 
   <div class="claims">

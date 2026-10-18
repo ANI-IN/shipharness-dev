@@ -78,10 +78,11 @@
     <h4>Referee</h4>
     <ul class="checks">
     {% for c in a.checks.values() %}
-      {# Short form on the pill ("House rule 1"), the full name in the tooltip. #}
-      <li>{{ status("pass" if c.passed else "fail", check_short(c.check) ~ ", " ~ c.new_violations ~ " new", check_label(c.check) ~ ": " ~ c.total_probes ~ " probes") }}</li>
+      {# One row per check: the short name ("House rule 1", "Flaky tests (flakiness)") as text, the
+         result on a short pill, the full name and the probes in the tooltip. #}
+      <li class="check-row" title="{{ check_label(c.check) }}: {{ c.total_probes }} probes"><span class="check-name">{{ check_short(c.check) }}</span> {{ status("pass" if c.passed else "fail", c.new_violations ~ " new") }}</li>
     {% else %}
-      {% for p in a.progress.values() %}<li>{{ status("pending", p.label, check_label(p.check)) }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
+      {% for p in a.progress.values() %}<li class="check-row" title="{{ check_label(p.check) }}"><span class="check-name">{{ progress_label(p.check, p.label) }}</span> {{ status("pending", "running") }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
     {% endfor %}
     {% if a.reviewer %}
     {# The blinded reviewer's own reason, as recorded in its reviewer_output event: one line, the

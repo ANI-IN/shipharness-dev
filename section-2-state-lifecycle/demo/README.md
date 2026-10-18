@@ -151,11 +151,11 @@ Then switch screens.
 
 **Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done", "Session 2 · 32 turns",
 and "Test phase · 12 turns" (the screenshot below, taken before 2026-10-18, still labels it
-"Session 3"). The referee list shows `continuity, 0 new` (the primary measure) and `House rule 7, 0 new` (one migration head). In this run `diff_scope` is also 0 new: the
+"Session 3"). The referee list shows `Session continuity (continuity): 0 new` (the primary measure) and `House rule 7: 0 new` (one migration head). In this run `Files outside the allowed paths (diff_scope)` is also 0 new: the
 agent stayed in the comments ticket's allowed paths. Nothing would have stopped it otherwise, because
 the scope layer starts in Section 3: Scope and sandbox.
 
-![Screen 3: sessions of 12, 32, and 12 turns, the diff map, continuity 0 new, diff_scope 0 new](expected/show-2-screen-3-final.png)
+![Screen 3: sessions of 12, 32, and 12 turns, the diff map, Session continuity (continuity) 0 new, Files outside the allowed paths (diff_scope) 0 new](expected/show-2-screen-3-final.png)
 
 *Screen 3. Two build sessions and the test phase, no continuity failure, and no file outside scope.*
 

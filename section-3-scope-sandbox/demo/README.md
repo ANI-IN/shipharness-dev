@@ -41,12 +41,12 @@ refuse the harness arm's patch to the shared errors module, while the bare arm c
 
 ![Console screen 3 after both verdicts: the bare arm's diff map shows app/services/errors.py changed, the harness arm's shows it blocked](expected/screen-3-final.png)
 
-*The bare arm changed the shared errors module; the harness arm was blocked on it (diff_scope 1 new, 0 new).*
+*The bare arm changed the shared errors module; the harness arm was blocked on it (Files outside the allowed paths (diff_scope): 1 new, 0 new).*
 
 Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up, three
 live runs of `make demo-3 FEATURE=version-checks`: bare primary verdict 1:52 to 5:23 after launch,
 full 3:58 to 7:42; harness primary 6:12 to 7:23, full 7:31 to 9:43; $0.037 to $0.053 per A/B. All
-six arms completed. In two, the bare arm changed `app/services/errors.py` (`diff_scope` 1 new) and
+six arms completed. In two, the bare arm changed `app/services/errors.py` (Files outside the allowed paths (`diff_scope`): 1 new) and
 the harness arm's patch to it was blocked (0 new); in the third, the bare arm stopped early and
 neither arm touched it ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
@@ -158,7 +158,7 @@ files it may change. Nothing was written to the workspace.
 *Screen 1 at the end. Both pills say FAIL: that is the feature's measure, not the scope question.*
 
 **Screen 3, Evidence.** Read the middle panel, "Scope and sandbox". The bare arm's diff map lists
-`app/services/errors.py` as changed, the harness arm's as blocked. `diff_scope` says 1 new for bare
+`app/services/errors.py` as changed, the harness arm's as blocked. Files outside the allowed paths (`diff_scope`) says 1 new for bare
 and 0 new for harness. "Sandbox denials: none" for both. The other two demo runs of the same day:
 
 ![Screen 3 of demo run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-run-1.png)

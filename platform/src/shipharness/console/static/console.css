@@ -151,6 +151,9 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 /* Screen 3 */
 .checks { display: flex; flex-wrap: wrap; gap: 2px 4px; }
 .checks .reviewer-line { flex-basis: 100%; }
+/* One referee check per row: its name as text (it wraps on a narrow window, e.g. "Files outside
+   the allowed paths (diff_scope)"), then a short one-line pill with the result ("1 new"). */
+.checks .check-row { flex-basis: 100%; }
 .reviewer-reason { color: var(--muted); }
 .cat { display: inline-block; min-width: 6em; color: var(--info); font-weight: 700; }
 .redone { color: var(--bad); }

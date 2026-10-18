@@ -19,7 +19,7 @@ from urllib.parse import quote
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
-from shipharness.console.labels import check_label, check_short, filter_name
+from shipharness.console.labels import check_label, check_short, filter_name, progress_label
 from shipharness.console.report import Report, safe_url
 from shipharness.console.state import ARMS, ConsoleState, measure_values
 from shipharness.datasets.names import feature_label, section_label
@@ -160,6 +160,7 @@ class ScreenRenderer:
             section_label=section_label,
             check_label=check_label,
             check_short=check_short,
+            progress_label=progress_label,
             filter_name=filter_name,
         )
 
