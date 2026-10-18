@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+from shipharness.datasets.names import FILTER_NAMES
 from shipharness.filters.ast_checks import check_test
 from shipharness.filters.coverage import measure_coverage
 from shipharness.filters.models import CandidateTest, FilterContext, FilterResult
@@ -68,7 +69,7 @@ def surviving_mutants(ctx: FilterContext) -> frozenset[str]:
 
 class ImportsAndRuns:
     number = 1
-    name = "imports and runs"
+    name = FILTER_NAMES[1]  # Builds and collects
 
     def evaluate(self, cand: CandidateTest, ctx: FilterContext) -> FilterResult:
         try:
@@ -92,7 +93,7 @@ class ImportsAndRuns:
 
 class PassesFiveRuns:
     number = 2
-    name = "passes 5 consecutive runs"
+    name = FILTER_NAMES[2]  # Passes five runs
 
     def evaluate(self, cand: CandidateTest, ctx: FilterContext) -> FilterResult:
         try:
@@ -122,7 +123,7 @@ class PassesFiveRuns:
 
 class AddsCoverageOrKillsMutant:
     number = 3
-    name = "adds coverage or kills a mutant"
+    name = FILTER_NAMES[3]  # Adds coverage or catches a mutant
 
     def evaluate(self, cand: CandidateTest, ctx: FilterContext) -> FilterResult:
         note = ""
@@ -172,7 +173,7 @@ def _module_source(ctx: FilterContext) -> str | None:
 
 class RealAssertionsNoMocking:
     number = 4
-    name = "real assertions, no mocking of the unit under test"
+    name = FILTER_NAMES[4]  # Real assertions
 
     def evaluate(self, cand: CandidateTest, ctx: FilterContext) -> FilterResult:
         passed, reason = check_test(
@@ -183,7 +184,7 @@ class RealAssertionsNoMocking:
 
 class NoSourceChange:
     number = 5
-    name = "no source change in the test phase"
+    name = FILTER_NAMES[5]  # No source changes
 
     def evaluate(self, cand: CandidateTest, ctx: FilterContext) -> FilterResult:
         changes = changed_sources(ctx.source_shas_at_phase_start, ctx.workspace)

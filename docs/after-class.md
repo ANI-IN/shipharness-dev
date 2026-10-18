@@ -21,14 +21,17 @@ own repository.
 - Your `.shipharness/runs/` and `exports/` folders are git-ignored and exist only on your machine.
   Every run counts as one result, aborted ones included, so do not delete runs you want to report.
 - LangSmith keeps an ordinary trace for 14 days: "Base traces have the base retention and are
-  short-lived (14 days)" ([LangSmith, Billing](https://docs.langchain.com/langsmith/billing), read
+  short-lived (14 days)" ([LangSmith billing](https://docs.langchain.com/langsmith/billing), read
   2026-10-17). Copy the trace links you need. The score records in `exports/scores/` stay on disk
   and hold the links (`trace_url`, `referee_trace_url`).
 
 ## Read the results again, slowly
 
-In class, Sections 1, 2, and 4 of Module 1 showed the harness arm alone, live (`make show-N`).
-Section 3 of Module 1 and the final each ran a live A/B. One run is one result: read it next to the
+In class, [Section 1: Instructions](../section-1-instructions/README.md),
+[Section 2: State and sessions](../section-2-state-lifecycle/README.md), and
+[Section 4: Verification](../section-4-verification/README.md) of Module 1 showed the harness arm
+alone, live (`make show-N`). [Section 3: Scope and sandbox](../section-3-scope-sandbox/README.md)
+and the final each ran a live A/B. One run is one result: read it next to the
 course's test runs, never alone, because model output varies between runs. The test runs found no
 measurable difference on this model in any section's primary measure, except the Section 3
 confirmation, where the harness arm kept inside its allowed paths in 3 of 3 runs and the bare arm in
@@ -41,8 +44,9 @@ uv run shipharness report
 ```
 
 It reads only `exports/` and writes `exports/report.json` and `exports/report.html`, with one dot per
-run for every feature that has a primary measure (the four section features: org-wide search,
-comments, idempotent creation, and version checks). It makes no model calls. Replays are
+run for every feature that has a primary measure (the four section features, Features 1 to 4:
+Feature 1: Org-wide issue search, Feature 2: Comments on issues, Feature 3: Safe retries for issue
+creation, and Feature 4: Version checks on issue edits). It makes no model calls. Replays are
 left out unless you add `--include-recorded`. How to read one result, field by field, is in the
 [final project](../final-project/README.md#what-the-result-means).
 
@@ -55,7 +59,7 @@ money, within the caps in `.env.example`:
 |---|---|---|
 | `make show-1 PURPOSE=assignment` | The harness arm alone, as in class | $0.24 |
 | `make demo-1 PURPOSE=assignment` | An A/B: both arms, both scored | $0.48 |
-| `make demo-3 FEATURE=version-checks PURPOSE=assignment` | The Section 3 A/B from class | $0.48 |
+| `make demo-3 FEATURE=version-checks PURPOSE=assignment` | The Section 3 A/B from class, on Feature 4 | $0.48 |
 
 `PURPOSE=assignment` traces to `shipharness-assignments` with its own cost session. Without it, the
 command runs as a class command and needs `SHIPHARNESS_CLASS_DATE` in `.env`. The make targets use the
@@ -67,7 +71,7 @@ class profile; add `PROFILE=standard` to use the settings in your `.env` instead
 To see what one layer adds, remove it. `make demo-2 LAYERS=-state` runs the Section 2 A/B with the
 harness arm keeping only the instructions layer. This is the method Anthropic describes: "removing
 one component at a time and reviewing what impact it had on the final result"
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 The course planned a larger batch of such runs but did not run it, because its gate did not pass
 ([evidence](evidence/general.md#gate)). A few runs of yours are a small version of it.
 
@@ -82,10 +86,10 @@ live step. Work in the order of the sections.
 
 | Assignment | Page | Self-check |
 |---|---|---|
-| 1 Instructions | [README](../section-1-instructions/assignment/README.md) | `make check-assignment-1` |
-| 2 State and session lifecycle | [README](../section-2-state-lifecycle/assignment/README.md) | `make check-assignment-2` |
-| 3 Scope and sandbox | [README](../section-3-scope-sandbox/assignment/README.md) | `make check-assignment-3` |
-| 4 Verification | [README](../section-4-verification/assignment/README.md) | `make check-assignment-4` |
+| Assignment 1: Instructions | [README](../section-1-instructions/assignment/README.md) | `make check-assignment-1` |
+| Assignment 2: State and sessions | [README](../section-2-state-lifecycle/assignment/README.md) | `make check-assignment-2` |
+| Assignment 3: Scope and sandbox | [README](../section-3-scope-sandbox/assignment/README.md) | `make check-assignment-3` |
+| Assignment 4: Verification | [README](../section-4-verification/assignment/README.md) | `make check-assignment-4` |
 
 The four together are planned at no more than $6 of OpenAI usage and 400 LangSmith traces, and no
 single command may spend more than $2.50 (`MAX_BATCH_COST_USD` in `.env.example`). Each assignment
@@ -101,15 +105,14 @@ Start with each section's session notes, then its reading list:
 
 | Section | Session notes | Reading list |
 |---|---|---|
-| 1 Instructions | [notes](../section-1-instructions/session-notes.md) | [reading](../section-1-instructions/post-class-reading/README.md) |
-| 2 State and session lifecycle | [notes](../section-2-state-lifecycle/session-notes.md) | [reading](../section-2-state-lifecycle/post-class-reading/README.md) |
-| 3 Scope and sandbox | [notes](../section-3-scope-sandbox/session-notes.md) | [reading](../section-3-scope-sandbox/post-class-reading/README.md) |
-| 4 Verification | [notes](../section-4-verification/session-notes.md) | [reading](../section-4-verification/post-class-reading/README.md) |
+| Section 1 | [notes](../section-1-instructions/session-notes.md) | [reading](../section-1-instructions/post-class-reading/README.md) |
+| Section 2 | [notes](../section-2-state-lifecycle/session-notes.md) | [reading](../section-2-state-lifecycle/post-class-reading/README.md) |
+| Section 3 | [notes](../section-3-scope-sandbox/session-notes.md) | [reading](../section-3-scope-sandbox/post-class-reading/README.md) |
+| Section 4 | [notes](../section-4-verification/session-notes.md) | [reading](../section-4-verification/post-class-reading/README.md) |
 
 Every source this page names is linked in the Sources list at the end. Anthropic's advice to anyone
-who builds a harness is to "read its traces on realistic problems"
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps));
-your LangSmith project from class is a good place to start.
+who builds a harness is to "read its traces on realistic problems" (Source 2); your LangSmith
+project from class is a good place to start.
 
 ## Apply it to your own repository
 
@@ -131,5 +134,8 @@ common mistakes, and discussion. Bring your self-check output and one question p
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
-- [LangSmith billing](https://docs.langchain.com/langsmith/billing) (LangChain, read 2026-10-17)
+- Source 1: LangSmith billing, <https://docs.langchain.com/langsmith/billing>,
+  LangChain (LangSmith docs), n.d.
+- Source 2: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24

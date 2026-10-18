@@ -20,7 +20,7 @@
   <section class="arm-block" data-arm="{{ arm }}">
     <h3>{{ arm_label(arm, a) }}</h3>
     {% if wt %}
-    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ wt.reason|truncate(70, true, "…") }}</p>
+    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ wt.reason|truncate(100, true, "…") }}</p>
     {% for row in a.turns() if row.seq == wt.seq %}
     <p class="msg">{{ row.message|truncate(90, true, "…") }}</p>
     {% for t in row.tools[:2] %}<p class="tool">{{ t.name }} {{ t.target|truncate(48, true, "…") }}</p>{% endfor %}

@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 4 starter
+# Module 1: Harness Engineering for Coding Agents - Starter for Assignment 4: Verification
 
 Your implementation folder for [Assignment 4](../README.md). Work here on your own branch, or copy
 the folder and pass the copy as `A4_IMPL=<folder>` to the make targets.
@@ -13,6 +13,9 @@ the folder and pass the copy as `A4_IMPL=<folder>` to the make targets.
 | `skill/` | empty: copy `use-in-your-repo/skills/skill-template` here | see `skill/README.md` |
 | `portfolio/` | templates | every template line |
 | `live/` | empty: the files of your two live runs go here | see `live/README.md` |
+
+Each mark such as `A4-1` is a `TODO(A4-1)` comment in the code: a place to fill, numbered in the
+order of the steps.
 
 The starter imports and runs: `make check-assignment-4` runs every visible test, prints FAIL with the
 step each failure comes from, and exits 1. Start with `issue_param` and its tests. The full

@@ -9,31 +9,31 @@ description: >
 license: MIT
 metadata:
   course: shipharness
-  sources: OpenAI, Harness engineering; Anthropic, C compiler; Agent Skills, Specification
+  sources: the numbered Sources list at the end of this file
 ---
 
 # House rules
 
-"House rules" is the course's label for what [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) calls "golden principles" encoded in the repository
-and "taste invariants" enforced "with custom lints" ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)). The idea in one line,
-also from [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): "When documentation falls short, we promote the rule into code".
+"House rules" is the course's label for what [Harness engineering](https://openai.com/index/harness-engineering/) calls "golden principles" encoded in the repository
+and "taste invariants" enforced "with custom lints" (Source 1). The idea in one line,
+also from Source 1: "When documentation falls short, we promote the rule into code".
 
 A house rule has three parts, and it is not done until all three exist:
 
 1. A rule document that says the rule in one checkable sentence, why it exists, and what correct
    and incorrect code look like.
-2. A check that finds violations and prints, on one line, what is wrong and how to fix it ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/):
+2. A check that finds violations and prints, on one line, what is wrong and how to fix it (Source 1:
    "we write the error messages to inject remediation instructions into agent context").
 3. A test with a seeded violation the check must catch, and a clean case it must pass.
 
 ## When to use
 
 - The same review comment appears on several changes.
-- An agent copied a legacy pattern ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): agents replicate "patterns that already exist in the
+- An agent copied a legacy pattern (Source 1: agents replicate "patterns that already exist in the
   repository—even uneven or suboptimal ones").
 - A rule is in the docs, and agents still break it.
 
-Do not use it for preferences a formatter already handles, or for one-off decisions. [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) enforces
+Do not use it for preferences a formatter already handles, or for one-off decisions. Source 1 enforces
 invariants and leaves the rest to the agent: "By enforcing invariants, not micromanaging
 implementations, we let agents ship fast without undermining the foundation".
 
@@ -55,15 +55,15 @@ implementations, we let agents ship fast without undermining the foundation".
    fail because the check finds nothing yet.
 4. Write `check()` until the test passes. Pick the simplest check that is exact enough:
    a text search for a banned call, an `ast` walk for imports or calls, an import-linter contract
-   for layering ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) enforces layers "via custom linters ... and structural tests"), or a
+   for layering (Source 1 enforces layers "via custom linters ... and structural tests"), or a
    probe against the running app for behaviour such as tenant isolation.
 5. Write the error message in `REMEDIATION`: what to do instead and which document to read. Keep the
    format `ERROR <id> <path>:<line>: <what is wrong>. Fix: <what to do>`, one line per violation,
-   so grep finds it ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): "write ERROR and put the reason on the same line so grep will find it").
+   so grep finds it ([Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler): "write ERROR and put the reason on the same line so grep will find it").
 6. Run the check on the whole repository. List existing violations in `BASELINE` so the rule
    applies to new code from today, and open a feature to remove each one.
 7. Wire it in: add the check to CI and to the gate an agent must pass before "done", and add one
-   line for the rule to the map an agent reads (AGENTS.md or the docs index it points to). [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)
+   line for the rule to the map an agent reads (AGENTS.md or the docs index it points to). Source 1
    checks its knowledge base with "linters and CI jobs".
 
 ## Writing the rule
@@ -84,6 +84,10 @@ implementations, we let agents ship fast without undermining the foundation".
 
 ## Sources
 
-- [OpenAI, Harness engineering](https://openai.com/index/harness-engineering/): Ryan Lopopolo, "Harness engineering: leveraging Codex in an agent-first world", OpenAI, 2026-02-11.
-- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
-- [Agent Skills, Specification](https://agentskills.io/specification): Agent Skills project, "Agent Skills Specification".
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Building a C compiler with a team of parallel Claudes,
+  <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic),
+  2026-02-05
+- Source 3: Agent Skills Specification, <https://agentskills.io/specification>,
+  Agent Skills project, n.d.

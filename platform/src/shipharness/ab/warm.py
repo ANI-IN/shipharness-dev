@@ -27,6 +27,7 @@ from typing import Any, Literal
 from shipharness.ab.demo import ABDeps, ABTask, _harness, arm_specs, make_referee, section_layers
 from shipharness.ab.referee import Referee
 from shipharness.ab.workspace import create_arm_workspace, new_ab_id, new_run_id, resolve_commit
+from shipharness.datasets.names import feature_label
 from shipharness.events import EventBus
 from shipharness.harness.base import Harness, LayerContext
 
@@ -320,7 +321,8 @@ def discard(plans: Sequence[BaselinePlan]) -> None:
 
 
 def _label(plan: BaselinePlan) -> str:
-    return f"{plan.kind} baseline {plan.section} {plan.feature}"
+    """'referee baseline demo-1 (Feature 1: Org-wide issue search)'."""
+    return f"{plan.kind} baseline {plan.section} ({feature_label(plan.feature)})"
 
 
 # -- the whole warm-up ------------------------------------------------------------------------

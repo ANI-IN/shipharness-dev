@@ -20,7 +20,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
                 (
                     None,
                     [
-                        "Ticket: org-wide\nissue search",
+                        "Feature 1: Org-wide\nissue search",
                         "Agent finds\nlist_all_legacy",
                         "Copies it: short,\npaginates",
                     ],
@@ -47,7 +47,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "No: not the main mechanism",
             [
                 "899 lines crowd\nout work",
-                "Tenant rule at\nline 204",
+                "House rule 1,\nline 204",
                 "Stale: four\nretired rules",
             ],
             "What can we use instead?",
@@ -94,7 +94,14 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             end="bottom",
             via=[(1710, 960), (240, 960)],
         )
-        s.text(240, 330, "Assignment 1: you\nwrite check_docs.py", FONT_SMALL, "#212121", "center")
+        s.text(
+            240,
+            330,
+            "Assignment 1: Instructions\nbuilds check_docs.py",
+            FONT_SMALL,
+            "#212121",
+            "center",
+        )
 
     # Sources: docs/evidence/s1.md (the show-1 capture, run ab-20261017-112101-c5d839);
     # section-1-instructions/demo/expected/terminal.txt (real 10m14s).

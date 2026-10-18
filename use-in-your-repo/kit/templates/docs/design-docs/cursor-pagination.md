@@ -1,7 +1,7 @@
 <!-- REPLACE: an example design decision with its reason. Write your own, or delete this file and its row in index.md. -->
 # Cursor pagination
 
-Status: in force. Verified by the R3 check.
+Status: in force. Verified by the check for House rule 3: API conventions.
 
 ## Decision
 

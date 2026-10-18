@@ -17,7 +17,8 @@ BUILTIN_MODULES = (
     "continuity",
     "board",
 )
-# Short rule labels used in progress lines and by `shipharness check --rules R1,R2`.
+# Rule ids (machine ids, `shipharness check --rules R1,R2`); people read them through
+# `shipharness.datasets.names.rule_label`: "House rule 1: Tenant isolation".
 RULE_LABELS = {
     "r1_tenant": "R1",
     "r2_roles": "R2",

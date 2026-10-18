@@ -13,8 +13,8 @@ LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 SESSION_BUDGET ?=
 SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
 # FEATURE and FEATURES take readable names or codes (any case); the CLI turns names into codes:
-# org-search (F1), comments (F2), idempotent-create (F3), version-checks (F4), bulk-close (F5),
-# watchers (F6), labels (F7).
+# org-search (F1), comments (F2), safe-retries (F3), version-checks (F4), bulk-close (F5),
+# watchers (F6), labels (F7). The earlier name idempotent-create still works for F3.
 # final: comma-separated features picked by the class poll, e.g. FEATURES=watchers,bulk-close.
 FEATURES ?= F5,F6
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
@@ -27,8 +27,9 @@ PURPOSE ?= class
 # arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 # arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
 PROFILE ?= class
-# demo-3's ticket: F3 by default; FEATURE=version-checks (or F4) runs the S3 confirmation task as a
-# live A/B.
+# demo-3's ticket: Feature 3: Safe retries for issue creation (F3) by default;
+# FEATURE=version-checks (Feature 4: Version checks on issue edits, F4) runs the confirmation task
+# of Section 3: Scope and sandbox as a live A/B.
 FEATURE ?= F3
 # images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
 AGENT_IMAGE ?= shipharness-agent:1
@@ -46,8 +47,8 @@ help:
 	@echo "setup doctor up console datasets lint format lint-prose check-style test test-all test-live test-docker"
 	@echo "demo-N [LAYERS=-<layer>]  demo-3 [FEATURE=version-checks]  show-N  swap-N [AB=<id>]"
 	@echo "final [FEATURES=watchers,bulk-close]  replay RUN=<id>"
-	@echo "features (name or code): org-search F1, comments F2, idempotent-create F3, version-checks F4,"
-	@echo "  bulk-close F5, watchers F6, labels F7"
+	@echo "features (name or code): org-search F1, comments F2, safe-retries F3, version-checks F4,"
+	@echo "  bulk-close F5, watchers F6, labels F7 (idempotent-create still works for F3)"
 	@echo "warm (before class: images, containers, referee and gate baselines; no model calls)"
 	@echo "experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help"
 
@@ -111,7 +112,7 @@ test-live:
 test-docker:
 	$(UV) run pytest -m docker platform/tests/unit/test_sandbox_docker.py
 
-# Section demos: section N's canonical task is feature FN, canonical variant.
+# Section demos: Section N's canonical task is Feature N, canonical variant.
 demo-1:
 	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)

@@ -1,6 +1,6 @@
-# {{feature_id}}: {{description}}
+# Exec plan for {{feature}}
 
-This execution plan is a living document checked into the repository (A7). Keep it self-contained:
+This execution plan is a living document checked into the repository. Keep it self-contained:
 a new session must be able to restart from this plan, progress.md, and the git log alone. The
 harness moves it to docs/exec-plans/completed/ when the feature passes.
 

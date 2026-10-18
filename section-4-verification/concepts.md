@@ -1,4 +1,4 @@
-# Section 4 concepts: what proves the work is done
+# Section 4: Verification. Concepts: what proves the work is done
 
 Reading time: about 15 minutes.
 
@@ -6,7 +6,7 @@ Reading time: about 15 minutes.
 
 **Illustrative scenario.** Sam's team runs TeamTrack, a multi-tenant issue tracker. Sam asks a coding
 agent for optimistic concurrency (refusing an edit made from a stale copy) on issue edits: `GET`
-returns an `ETag`, and a write with a stale `If-Match` header is refused and changes nothing. The header is optional, so old clients keep working.
+returns an `ETag`, and a write with a stale `If-Match` header is refused and changes nothing.
 
 The agent adds the header check, writes a test for the happy path, and runs the suite. Every test
 passes, because none of them sends a stale header. The agent reports: "Done, the full suite passes."
@@ -28,7 +28,7 @@ Nobody lied. The agent checked what it could see, and what it could see was not 
 > - **Hidden tests**: Held-out tests: the agent never sees them; the referee runs them after the agent stops.
 > - **Mutant**: A copy of the code with one small planted fault; a test that fails on it catches it.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
-> - **House rules**: TeamTrack's seven rules for every endpoint: tenant isolation, roles, API conventions, idempotent creates, audit log, layering, migrations.
+> - **House rules**: TeamTrack's seven rules for every endpoint: tenant isolation, roles, API conventions, safe retries, audit log, layering, migrations.
 > - **Reward hacking**: Passing the checks without doing the task they stand for.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 
@@ -42,15 +42,16 @@ only tests that prove something, and score the result with tests and faults it n
 Two causes sit behind the scenario. The first is self-grading. Anthropic's harness team found that
 "agents reliably skew positive when grading their own work." Their fix is structural: separate "the
 agent doing the work from the agent judging it"
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 
 The second is that green tests are not a finished feature. Anthropic's compiler team: "it is easy to
 see tests pass and assume the job is done, when this is rarely the case."
-([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler))
+([Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler))
 
-SpecBench measured the gap: "while every frontier agent saturates the visible suite, reward hacking
+[SpecBench](https://arxiv.org/abs/2605.21384) measured the gap: "while every frontier agent saturates the visible suite, reward hacking
 persists". Deliberate cheating was rare; "compositional failures account for a much larger fraction"
-([SpecBench](https://arxiv.org/abs/2605.21384)). The version checks feature has that shape. The
+([SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)).
+Feature 4: Version checks on issue edits has that shape. The
 `ETag`, the header check, and the edit form each work alone. The lost update appears only when two writers meet.
 
 The verification layer answers with four checks, each owned by someone other than the agent:
@@ -66,22 +67,22 @@ The verification layer answers with four checks, each owned by someone other tha
 
 *The agent's claim starts the checks; it never ends them.*
 
-The filters come from Meta's TestGen-LLM, which keeps a generated test only after "a series of
-progressively demanding semantic filters" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)).
+The filters come from Meta's [TestGen-LLM](https://arxiv.org/abs/2402.09171), which keeps a generated test only after "a series of
+progressively demanding semantic filters"
+([Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171)).
 The course runs five, cheapest first:
 
 | Filter | What it checks | Source |
 |---|---|---|
-| 1 | Pytest collects it, with no errors | TestGen-LLM |
-| 2 | It passes 5 runs in a row | TestGen-LLM: "every one of five executions" |
-| 3 | It adds line coverage, or catches a mutant no existing test catches | TestGen-LLM and ACH |
-| 4 | It has real assertions and does not mock the code under test | Course filter |
-| 5 | No source file changed during the test phase | Course filter |
+| Filter 1: Builds and collects | Pytest collects it, with no errors | [TestGen-LLM](https://arxiv.org/abs/2402.09171) |
+| Filter 2: Passes five runs | It passes 5 runs in a row | [TestGen-LLM](https://arxiv.org/abs/2402.09171): "every one of five executions" |
+| Filter 3: Adds coverage or catches a mutant | It adds line coverage, or catches a mutant no existing test catches | [TestGen-LLM](https://arxiv.org/abs/2402.09171) and [ACH](https://arxiv.org/abs/2501.12862) |
+| Filter 4: Real assertions | It has real assertions and does not mock the code under test | Course filter |
+| Filter 5: No source changes | No source file changed during the test phase | Course filter |
 
-Filter 3 has a mutant branch because Meta's ACH found that "49%" of tests that catch a new mutant
-"do not also add line coverage" ([Meta, ACH](https://arxiv.org/abs/2501.12862)). Filters 4 and 5 have no
-source; they stop a test that asserts nothing, and a test phase that edits the code until its test
-passes.
+Filter 3 has a mutant branch because Meta's [ACH](https://arxiv.org/abs/2501.12862) found that "49%" of tests that catch a new mutant
+"do not also add line coverage" ([Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862)).
+Filters 4 and 5 are the course's own.
 
 ![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](diagrams/mutation-testing.svg)
 
@@ -119,17 +120,16 @@ GATE_CHECKS: tuple[str, ...] = (
 
 The gate runs these, plus the visible tests and clean state, in the arm's own container. The hidden
 tests and the referee mutants are not in the list, nor in the arm's workspace, so they stay held out.
-The mutants come in two sets that share no mutation: a filter set for filter 3, and a referee set
+The mutants come in two sets that share no mutation: a filter set for Filter 3, and a referee set
 for scoring. The referee also runs the seven house rules; that overlap is disclosed, so Section 4 scores hidden
 tests and mutants instead. The [walkthrough](demo/walkthrough.md) reads the gate line by line.
 
 A separate model also reviews each final diff. Its verdict is secondary, because "the evaluator is
-still an LLM that is inclined to be generous towards LLM-generated outputs."
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
+still an LLM that is inclined to be generous towards LLM-generated outputs." (Source 1)
 
 ## What we measured
 
-Before class, the course ran both arms on the version checks ticket. The primary measure: a run passes only with all 69
+Before class, the course ran both arms on the ticket for Feature 4. The primary measure: a run passes only with all 69
 hidden tests passed and all 4 referee mutants caught.
 
 | Setting | Bare arm: runs failing | Harness arm: runs failing |
@@ -144,7 +144,7 @@ hidden tests passed and all 4 referee mutants caught.
 
 No measurable difference on this task with this model; both arms failed every run
 ([evidence](../docs/evidence.md#section-4)). The gate never ran in these runs: no harness arm claimed
-done on that ticket. Two bare arms claimed done, and the referee failed both. In the captured demo run, the
+done on that ticket. In the captured demo run, the
 gate passed every item on the first claim, and the referee still failed the run on one hidden test
 and 0 of 4 mutants.
 
@@ -153,7 +153,6 @@ and 0 of 4 mutants.
 It helps when:
 
 - The agent can claim done before the work is done.
-- Your checks are cheap and exact: tests, lint, migrations, a contract probe.
 - Some checks stay out of the agent's reach, so a green gate is not the last word.
 - The agent writes tests you will keep. Filters stop flaky or empty ones.
 
@@ -166,13 +165,12 @@ It does not help, or helps less, when:
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an assumption
 about what the model can't do on its own, and those assumptions are worth stress testing." The
-verification layer assumes the agent's "done" and its own tests cannot be trusted
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+verification layer assumes the agent's "done" and its own tests cannot be trusted (Source 1).
 
 ## Key takeaways
 
 - The agent's "done" is a claim, not a result. Check it with code that runs where the agent cannot
-  edit it, and send the failures back while the agent still has the context.
+  edit it.
 - Keep some checks held out. Hidden tests and planted faults tell you whether the work is right; a
   gate the agent can see tells you only whether it passed the gate.
 - Filters keep tests that prove something new, and treat the current code as correct. Read every
@@ -182,7 +180,7 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
 
 1. The bare arm's visible suite passed 191 tests. Why was its done claim still wrong?
 2. Why does the gate not run the hidden tests, when they would catch more bugs?
-3. In the demo run, filter 2 discarded a test that failed with "assert 422 == 412". Was the test
+3. In the demo run, Filter 2 discarded a test that failed with "assert 422 == 412". Was the test
    wrong?
 4. Filter 3 keeps a test that catches a mutant even if it adds no coverage. Why?
 
@@ -191,23 +189,28 @@ verification layer assumes the agent's "done" and its own tests cannot be truste
 
 1. The hidden test that failed combines an invalid body with a stale version. The visible suite did
    not check that case.
-2. A check the agent gets feedback from becomes a target. The hidden tests would no longer measure
-   held-out behaviour.
+2. A check the agent gets feedback from becomes a target.
 3. No. It expected 412, the spec's answer, and the code returned 422. Filter 2 assumes the code is
    correct, so it discards a failing test.
-4. Coverage says a line ran, not that a test would notice it going wrong. About half of ACH's
-   mutant-catching tests added no coverage.
+4. Coverage says a line ran, not that a test would notice it going wrong. About half of the
+   mutant-catching tests in Source 5 added no coverage.
 
 </details>
 
 ## Further reading
 
-- [TestGen-LLM's filters](post-class-reading/01-testgen-llm-filters.md)
-- [Mutation-guided tests (ACH)](post-class-reading/02-mutation-guided-tests-ach.md)
+- [Filters for generated tests](post-class-reading/01-testgen-llm-filters.md)
+- [Mutation-guided tests](post-class-reading/02-mutation-guided-tests-ach.md)
 - [Separate evaluators](post-class-reading/03-separate-evaluator.md)
-- [Held-out tests (SpecBench)](post-class-reading/04-held-out-tests-specbench.md)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
-- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
-- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)
+- [Held-out tests](post-class-reading/04-held-out-tests-specbench.md)
+
+## Sources
+
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 3: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents, <https://arxiv.org/abs/2605.21384>,
+  Zhao, Srikanth, Wu, and Jiang (Weco AI), 2026-05-20
+- Source 4: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>,
+  Alshahwan et al. (Meta), 2024-02-14
+- Source 5: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta),
+  2025-01-22

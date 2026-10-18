@@ -1,4 +1,4 @@
-# Section 3 concepts: what the agent may change and reach
+# Section 3: Scope and sandbox. Concepts: what the agent may change and reach
 
 Reading time: about 15 minutes.
 
@@ -39,22 +39,21 @@ command can reach.
 
 ## How it works
 
-No single source says "agents edit files outside the ticket". Several observations point there.
 Agents copy what they find: "Codex replicates patterns that already exist in the repository"
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)). An agent running
+([Harness engineering](https://openai.com/index/harness-engineering/)). An agent running
 unattended can do damage: one once ran "pkill -9 bash on accident, thus killing itself and ending
-the loop" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)). Anthropic's prompting guide
+the loop" ([Building a C compiler](https://www.anthropic.com/engineering/building-c-compiler)). Anthropic's prompting guide
 warns that a model "may take actions that are difficult to reverse or affect shared systems"
-([Anthropic, Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices)).
+([Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices)).
 
 Strong words do not check anything. Anthropic's long-running harness told its agent that editing
 tests is "unacceptable", and kept the feature list in JSON because "the model is less likely to
 inappropriately change or overwrite JSON files compared to Markdown files."
-([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) "Less likely" is
+([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) "Less likely" is
 the point: the wording makes a bad edit rarer, and no code catches the one that happens.
 
 OpenAI's harness team names the alternative: "enforce boundaries centrally, allow autonomy locally."
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)) The agent picks how to build
+(Source 1) The agent picks how to build
 the feature. The harness decides which files it may touch.
 
 The section has two parts, and they answer different questions:
@@ -86,14 +85,14 @@ class in `app/services/issues.py`, a file on the list.
 ### The four rules of the scope layer
 
 1. **The feature list is the scope.** The harness writes `feature_list.json` before the first
-   session: one feature, `passes: false`. `evidence` and `testedAt` are the course's additions.
+   session: one feature, `passes: false`.
 2. **One feature per session.** Anthropic's agent "was then asked to work on only one feature at a
    time." The scope block names that one feature.
 3. **Only the harness sets `passes`.** In Anthropic's harness the agent edits the list "only by
    changing the status of a passes field". Here the agent may not edit it at all. It calls `finish`,
    and the harness sets `passes: true` after its own test run: separating the worker from the judge
    "proves to be a strong lever"
-   ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+   ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 4. **Allowed paths per phase, enforced.** A patch with any path outside the phase's list is refused
    before it applies. After each command, a byte snapshot restores any file outside the list. The test
    phase allows tests only, so the agent cannot make a failing test pass by changing the code.
@@ -104,7 +103,7 @@ class in `app/services/issues.py`, a file on the list.
 
 ### The sandbox
 
-Every tool command runs in one container per arm ([Docker docs](https://docs.docker.com/reference/cli/docker/container/run/));
+Every tool command runs in one container per arm ([docker container run](https://docs.docker.com/reference/cli/docker/container/run/));
 the agent loop and the API keys stay on the host.
 
 | Limit | Docker flag | What it stops |
@@ -119,9 +118,7 @@ the agent loop and the API keys stay on the host.
 *The model calls leave from the host; the container has no network and never sees the keys.*
 
 With `--network none`, "only the loopback device is created"
-([Docker, none network driver](https://docs.docker.com/engine/network/drivers/none/)). Anthropic's compiler agents also
-worked with no internet access
-([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
+([None network driver](https://docs.docker.com/engine/network/drivers/none/))).
 
 Two different refusals come from the two parts:
 
@@ -157,23 +154,23 @@ globs. The returned sentence is what the agent reads after `BLOCKED:`. The
 
 ## What we measured
 
-Before class, the course ran both arms on two tickets: version checks and idempotent creation (a
-retried create never makes a duplicate). A run fails when
-it ships an out-of-scope file; on idempotent creation, a source edit in the test phase also fails it.
+Before class, the course ran both arms on two tickets: Feature 4: Version checks on issue edits, and
+Feature 3: Safe retries for issue creation (a retried create never makes a duplicate). A run fails
+when it ships an out-of-scope file; on safe retries, a source edit in the test phase also fails it.
 
 | Ticket and settings | Bare arm: runs failing | Harness arm: runs failing |
 |---|---|---|
 | Version checks, class settings | 3 of 3 | 0 of 3 |
-| Idempotent creation, plain ticket | 0 of 3 | 0 of 3 |
-| Idempotent creation, with a nearby middleware temptation | 0 of 7 | 0 of 7 |
+| Safe retries, plain ticket | 0 of 3 | 0 of 3 |
+| Safe retries, with a nearby middleware temptation | 0 of 7 | 0 of 7 |
 
-![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on idempotent creation all runs passed](diagrams/results-s3.svg)
+![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on safe retries for issue creation all runs passed](diagrams/results-s3.svg)
 
 *On version checks the bare arm left the allowed paths in 3 of 3 runs, the harness arm in 0 of 3.*
 
 On version checks the harness arm was ahead. Every bare arm changed the shared `app/services/errors.py`, and the
 scope layer blocked every harness arm on that same file
-([evidence](../docs/evidence/s3.md#s3-confirmation)). On idempotent creation there was no measurable
+([evidence](../docs/evidence/s3.md#s3-confirmation)). On safe retries there was no measurable
 difference: neither arm ever left the list ([evidence](../docs/evidence/s3.md#s3-pilot)).
 
 Read the version checks result with its limits. Existing tests kept passing in every arm, and no arm
@@ -188,20 +185,19 @@ It helps when:
 
 - A shared file looks like the natural place for the change, as `app/services/errors.py` did on version checks.
 - The ticket's files can be listed up front, as globs.
-- You need a guarantee, not a request. A blocked patch never lands.
 
 It does not help, or helps less, when:
 
-- The agent already stays inside the list. On idempotent creation it always did.
+- The agent already stays inside the list. On safe retries it always did.
 - The list is wrong. If the feature truly needs a file that is not listed, the agent must work around
   it, and the result can be worse.
 - The change is wrong but in scope. A wrong line in an allowed file passes this check.
 
 Anthropic's harness team gives the test to apply: "every component in a harness encodes an
 assumption about what the model can't do on its own, and those assumptions are worth stress testing."
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)) The scope layer assumes
+(Source 5) The scope layer assumes
 the agent will change files outside the ticket unless code stops it. On version checks that held;
-on idempotent creation it did not.
+on safe retries it did not.
 
 ## Key takeaways
 
@@ -223,13 +219,12 @@ on idempotent creation it did not.
 <details>
 <summary>Answers</summary>
 
-1. Text is not a check. Nothing stops the patch, so the agent's own judgement decides, and the
-   handbook even points to the shared errors module.
+1. Text is not a check. Nothing stops the patch, so the agent's own judgement decides.
 2. A shell command can write any file, and its text does not say which. The snapshot comparison sees
    what actually changed, and restores it.
 3. On screen 3: the diff map marks the file changed or blocked, and the referee's `diff_scope` row
-   gives the count. The score record's `out_of_scope_files` holds the same number.
-4. For the run that goes wrong: with no network and a read-only root, a bad command cannot install,
+   gives the count.
+4. With no network and a read-only root, a bad command cannot install,
    download, or write outside the workspace.
 
 </details>
@@ -240,12 +235,12 @@ on idempotent creation it did not.
 - [Containers for unattended agents](post-class-reading/02-c-compiler-containers.md).
 - [Sandboxes in another agent](post-class-reading/03-codex-sandbox-and-approvals.md).
 
-Sources this page quotes:
+## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
-- [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) (Anthropic, Claude docs)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
-- [docker container run](https://docs.docker.com/reference/cli/docker/container/run/) (Docker documentation)
-- [None network driver](https://docs.docker.com/engine/network/drivers/none/) (Docker documentation)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 3: Prompting best practices, <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices>, Anthropic (Claude docs), n.d.
+- Source 4: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 5: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 6: docker container run, <https://docs.docker.com/reference/cli/docker/container/run/>, Docker documentation, n.d.
+- Source 7: None network driver, <https://docs.docker.com/engine/network/drivers/none/>, Docker documentation, n.d.

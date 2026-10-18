@@ -5,7 +5,7 @@ session. Update Done, In progress, and Next, and add one Session log line per se
 
 ## Current feature
 
-F1: The docstrings of peek and pop name the error an empty queue raises
+Feature 1: The docstrings of peek and pop name the error an empty queue raises
 
 ## Done
 

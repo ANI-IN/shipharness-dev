@@ -67,7 +67,7 @@ diff --git a/app/services/issues.py b/app/services/issues.py
 +def search(
 +    session: Session, actor: Actor, after: int | None = None, limit: int = 20
 +) -> tuple[list[Issue], int | None]:
-+    \"\"\"Org-wide issue search (F1): one list instead of one per project.\"\"\"
++    \"\"\"Feature 1: Org-wide issue search. One list instead of one per project.\"\"\"
 +    return issues_repo.search(session, after, limit)
 diff --git a/app/web/routes.py b/app/web/routes.py
 --- a/app/web/routes.py
@@ -119,7 +119,7 @@ SCENARIO = Scenario(
     section="demo-1",
     feature="F1",
     title="reads the map and one document, then ships a search query without the org filter",
-    demonstrates="the referee's R1 check reports the cross-org leak, and the board shows the "
-    "other org's cards",
+    demonstrates="the referee's check of House rule 1: Tenant isolation reports the cross-org "
+    "leak, and the board shows the other org's cards",
     steps=steps,
 )

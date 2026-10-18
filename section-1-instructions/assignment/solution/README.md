@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 1 solution
+# Module 1: Harness Engineering for Coding Agents - Solution for Assignment 1: Instructions
 
 The reference solution for [Assignment 1](../README.md). Try the assignment yourself first, then
 compare. The step-by-step walkthrough is [SOLUTION.md](SOLUTION.md).

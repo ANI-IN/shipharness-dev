@@ -87,10 +87,11 @@ fall back to a recorded or scripted run (source: `platform/src/shipharness/ab/co
 | `x unknown --arms '<value>': both or harness` | `--arms` takes `both` (an A/B) or `harness` (what `make show-N` runs) | Use one of the two |
 | `x unknown --profile '<value>': standard, class` | `--profile` takes `standard` or `class` | Use one of the two |
 
-The feature names for `FEATURE=` and `FEATURES=` are `org-search`, `comments`,
-`idempotent-create`, `version-checks`, `bulk-close`, `watchers`, and `labels`; `make final` takes the
-last three. The raw `--feature` flag of `uv run shipharness ab` takes the ids `F1` to `F7`, in the
-same order.
+The feature names for `FEATURE=` and `FEATURES=` are `org-search`, `comments`, `safe-retries`,
+`version-checks`, `bulk-close`, `watchers`, and `labels`, for Features 1 to 7 in that order (the
+earlier name `idempotent-create` still works); `make final` takes the last three. The names and
+codes are in the [reference](reference.md#names-used-in-this-course). The raw `--feature` flag of
+`uv run shipharness ab` also takes the codes `F1` to `F7`, in the same order.
 
 `make experiments` and `make report` only show the options of `uv run shipharness experiments` and
 `uv run shipharness report`. Run those commands directly with the options you need.

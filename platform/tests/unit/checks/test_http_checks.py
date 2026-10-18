@@ -45,7 +45,7 @@ def test_r1_base_has_only_the_documented_legacy_leak(base_build: Path) -> None:
     assert counted(result) == [("GET /v1/issues", "leak", "no_path")]
     assert result.total_probes > 50
     assert calls[-1] == (result.total_probes, result.total_probes, calls[-1][2])
-    assert calls[-1][2].startswith("R1 probes ")
+    assert calls[-1][2].startswith("House rule 1 probes ")
 
 
 def test_r1_catches_an_unauthenticated_cross_tenant_endpoint(

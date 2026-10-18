@@ -10,10 +10,10 @@ Grades: **meets rules** (no gap recorded), **gap** (a known shortfall that is on
 
 | Domain | Grade | Notes |
 |---|---|---|
-| Projects | meets rules | `POST /projects` is the pattern for idempotent creates (R4). Projects are archived, not deleted. |
-| Users | meets rules | Creating and updating users is admin-only (R2). |
-| Project members | meets rules | Adding and removing members is admin-only (R2). |
-| Issues | check | Issue creation accepts keys once F3 is in place (R4, `docs/features/f3.md`); check `app/api/issues.py`. |
+| Projects | meets rules | `POST /projects` is the pattern for idempotent creates (House rule 4: Safe retries). Projects are archived, not deleted. |
+| Users | meets rules | Creating and updating users is admin-only (House rule 2: Roles). |
+| Project members | meets rules | Adding and removing members is admin-only (House rule 2). |
+| Issues | check | Issue creation accepts keys once Feature 3: Safe retries for issue creation is in place (House rule 4, `docs/features/f3.md`); check `app/api/issues.py`. |
 | Audit log | meets rules | Append-only; reading it is admin-only. |
 | Legacy /v1 API | do not copy | See "Legacy /v1 API" below. |
 
@@ -21,11 +21,11 @@ Grades: **meets rules** (no gap recorded), **gap** (a known shortfall that is on
 
 | Layer | Grade | Notes |
 |---|---|---|
-| `app/api/` | meets rules | Never imports `app.db` (R6). `app/api/middleware.py` is shared; feature work does not touch it. |
-| `app/web/` | meets rules | Never imports `app.db` (R6). |
+| `app/api/` | meets rules | Never imports `app.db` (House rule 6: Layering). `app/api/middleware.py` is shared; feature work does not touch it. |
+| `app/web/` | meets rules | Never imports `app.db` (House rule 6). |
 | `app/services/` | meets rules, except `services.legacy` | Every function takes an `Actor` and works inside `actor.org_id`. |
 | `app/repositories/` | meets rules, except `repositories.issues.list_all_legacy` | Every customer query takes `org_id`. |
-| `app/db/` | meets rules | Schema changes go through Alembic (R7). |
+| `app/db/` | meets rules | Schema changes go through Alembic (House rule 7: Migrations). |
 
 ## Legacy /v1 API
 
@@ -47,6 +47,6 @@ How we keep the grades honest.
 - Do not change existing tests to make a change pass.
 - Run them with `python -m pytest tests/visible -q` from the TeamTrack folder.
 
-Automated checks for R1-R7 discover endpoints from the OpenAPI schema, so a new endpoint is checked
+Automated checks for House rules 1 to 7 discover endpoints from the OpenAPI schema, so a new endpoint is checked
 the moment it exists. Each rule's check is described next to the rule (`docs/SECURITY.md`,
 `docs/RELIABILITY.md`, `docs/design-docs/api-conventions.md`, `ARCHITECTURE.md`).

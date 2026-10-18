@@ -79,7 +79,7 @@ def register(app: typer.Typer) -> None:
             False,
             "--doctest-modules/--no-doctest-modules",
             help="Run the existing suite with --doctest-modules, so the module's doctests "
-            "count in the baseline (filter 3 and mutant kills).",
+            "count in the baseline (Filter 3: Adds coverage or catches a mutant).",
         ),
     ) -> None:
         """Generate tests for one module and keep only those that pass all five filters."""

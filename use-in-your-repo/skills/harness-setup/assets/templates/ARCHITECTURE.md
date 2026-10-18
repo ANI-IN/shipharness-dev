@@ -1,6 +1,6 @@
 # Architecture
 
-<!-- A top-level map of domains and package layering (OpenAI, Harness engineering: "Architecture documentation provides a
+<!-- A top-level map of domains and package layering ([Harness engineering](https://openai.com/index/harness-engineering/): "Architecture documentation provides a
 top-level map of domains and package layering."). Keep this file at the repository root, next to
 AGENTS.md. Link to design docs for detail instead of copying it here. Replace every <placeholder>. -->
 
@@ -27,13 +27,13 @@ Dependencies point in one direction only:
 | `<db>` | Tables, sessions, migrations | nothing above it | everything above it |
 
 How this is enforced: `<import-linter contract or structural test>` runs in `<command>` and in CI. A
-violation fails the build and the message names the import to remove ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) enforces layering "via
+violation fails the build and the message names the import to remove ([Harness engineering](https://openai.com/index/harness-engineering/) enforces layering "via
 custom linters ... and structural tests").
 
 ## Cross-cutting concerns
 
 Auth, configuration, logging, and telemetry enter through one module: `<path>`. Do not read
-settings or create loggers anywhere else. ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/) routes cross-cutting concerns through "a single
+settings or create loggers anywhere else. (Source 1 routes cross-cutting concerns through "a single
 explicit interface".)
 
 ## Patterns to copy
@@ -58,4 +58,5 @@ explicit interface".)
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

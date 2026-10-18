@@ -1,6 +1,6 @@
 # Progress
 
-<!-- A log of what agents have done, read at the start of every session (Anthropic, Effective harnesses calls its file
+<!-- A log of what agents have done, read at the start of every session ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) calls its file
 claude-progress.txt). Agents edit the first four sections. Each session appends one row to the
 Session log, written by the harness when one runs the sessions. Keep entries short and factual. -->
 

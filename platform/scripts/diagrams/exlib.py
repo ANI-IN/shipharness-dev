@@ -32,6 +32,7 @@ from style import (
     MAX_WORDS_FOOTNOTE,
     MAX_WORDS_TITLE,
     MIN_FONT,
+    NAMED_KINDS,
     PANEL,
     PANEL_RADIUS,
     RED,
@@ -43,6 +44,14 @@ from style import (
     TEXT_COLOR,
     WHITE,
     tint,
+)
+
+from shipharness.datasets.names import (
+    ASSIGNMENT_NAMES,
+    FEATURE_NAMES,
+    FILTER_NAMES,
+    RULE_NAMES,
+    SECTION_NAMES,
 )
 
 __all__ = ["AMBER", "BLUE", "GREY", "INK", "RED", "WHITE", "Scene", "metrics", "tint"]
@@ -110,6 +119,33 @@ def metrics() -> Metrics:
     if _METRICS is None:
         _METRICS = Metrics()
     return _METRICS
+
+
+# -- names --------------------------------------------------------------------------------------
+
+_NAMES: dict[str, dict[int, str]] = {
+    "Feature": {int(code[1:]): name for code, name in FEATURE_NAMES.items()},
+    "House rule": {int(code[1:]): name for code, name in RULE_NAMES.items()},
+    "Section": dict(SECTION_NAMES),
+    "Assignment": dict(ASSIGNMENT_NAMES),
+    "Filter": dict(FILTER_NAMES),
+}
+_NAMED = re.compile(rf"\b({'|'.join(NAMED_KINDS)}) (\d+)(:?)")
+
+
+def name_problems(text: str) -> list[str]:
+    """A label that names a feature, house rule, section, assignment, or filter uses the full form
+    "<Kind> N: <exact name>" or the short form "<Kind> N" (no colon)."""
+    flat = " ".join(text.split())
+    out = []
+    for m in _NAMED.finditer(flat):
+        kind, number, colon = m.group(1), int(m.group(2)), m.group(3)
+        name = _NAMES[kind].get(number)
+        if name is None:
+            out.append(f"there is no {kind} {number}")
+        elif colon and not flat[m.end() :].lstrip().startswith(name):
+            out.append(f'write "{kind} {number}: {name}" or the short form "{kind} {number}"')
+    return out
 
 
 # -- scene --------------------------------------------------------------------------------------
@@ -524,6 +560,8 @@ class Scene:
                 self.problems.append(f"{role} {e['text']!r} has {words} words (> {limit})")
             if re.search(COURSE_CODE, e["text"]):
                 self.problems.append(f"{role} {e['text']!r} has a course code; use the plain name")
+            for problem in name_problems(e["text"]):
+                self.problems.append(f"{role} {e['text']!r}: {problem}")
             if role in counts:
                 counts[role] += 1
                 if "\n" in e["text"] or counts[role] > 1:

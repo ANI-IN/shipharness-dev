@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -10,6 +11,7 @@ from pydantic import ValidationError
 
 from shipharness.config import DEFAULT_PRICES_FILE, Prices
 from shipharness.cost import Caps, CostTracker
+from shipharness.datasets.names import rule_label
 from shipharness.reviewer import Review, ReviewInput, run_review
 from shipharness.reviewer.criteria import DEFAULT_CRITERIA, grading_criteria
 from shipharness.reviewer.review import REVIEWER_PROMPT, max_output_tokens_for
@@ -204,4 +206,5 @@ def test_grading_criteria_come_from_security_and_architecture(tmp_path: Path) ->
 def test_grading_criteria_fall_back_to_the_house_rules(tmp_path: Path) -> None:
     assert grading_criteria(tmp_path / "missing") == DEFAULT_CRITERIA
     for rule in ("R1", "R2", "R3", "R4", "R5", "R6", "R7"):
-        assert rule in DEFAULT_CRITERIA
+        assert f"- {rule_label(rule)}. " in DEFAULT_CRITERIA
+    assert not re.search(r"\bR[1-8]\b", DEFAULT_CRITERIA)  # never a bare code

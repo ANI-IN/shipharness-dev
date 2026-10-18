@@ -24,7 +24,7 @@ The cost: every task pays for the harness on one data point, or a good layer goe
 Why it happens:
 
 - Each harness piece encodes an assumption about what the model cannot do on its own, and "those
-  assumptions are worth stress testing" ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+  assumptions are worth stress testing" ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 - The way to find out is "removing one component at a time and reviewing what impact it had on the
   final result" (the same source). One run removes nothing and compares nothing.
 - Model output changes from run to run. The course ran `make final` on the same feature several
@@ -36,7 +36,7 @@ helps, and reports every result as measured.
 
 ## What you'll see
 
-You pick one feature, bulk close, watchers, or labels, and run both arms on it at the same time. The
+You pick one feature, Feature 5: Bulk close, Feature 6: Watchers, or Feature 7: Labels, and run both arms on it at the same time. The
 harness arm gets all four layers; everything else is the same: ticket, model, tools, sandbox, turn
 budgets (the most turns each session may take), and cost cap. One referee scores both arms, and you
 watch them side by side on console screen 1.
@@ -60,7 +60,7 @@ flowchart LR
 | Path | What it holds |
 |---|---|
 | [run.sh](run.sh) | The live run: checks, then `make final` |
-| [tasks/](tasks/f5-bulk-close.md) | Bulk close, watchers, labels: the ask, the rules at risk, the referee's checks |
+| [tasks/](tasks/f5-bulk-close.md) | Features 5 to 7: the ask, the rules at risk, the referee's checks |
 | [harness/](harness/README.md) | Every file the harness arm gets, all four layers |
 | [walkthrough.md](walkthrough.md) | One run through the code, step by step |
 | [expected/](expected/README.md) | Real terminal output and all five screens from one run |
@@ -83,9 +83,9 @@ which house rules it puts at risk, and what the referee checks.
 
 | Feature | Task page | Build sessions (turns each) | Hidden tests |
 |---|---|---|---|
-| Bulk close | [f5-bulk-close.md](tasks/f5-bulk-close.md) | 1 (30) | 46 |
-| Watchers | [f6-watchers.md](tasks/f6-watchers.md) | 2 (20, then 30) | 54 |
-| Labels | [f7-labels.md](tasks/f7-labels.md) | 2 (25, then 35) | 64 |
+| Feature 5: Bulk close | [f5-bulk-close.md](tasks/f5-bulk-close.md) | 1 (30) | 46 |
+| Feature 6: Watchers | [f6-watchers.md](tasks/f6-watchers.md) | 2 (20, then 30) | 54 |
+| Feature 7: Labels | [f7-labels.md](tasks/f7-labels.md) | 2 (25, then 35) | 64 |
 
 ### Step 3: Start the console
 
@@ -106,7 +106,7 @@ PURPOSE=pilot ./final-project/run.sh
 
 In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
 line per arm and a cost line. The course's own run, with the A/B id cut (the full output is in
-[expected/terminal.txt](expected/terminal.txt)); `F5` in the A/B line is bulk close:
+[expected/terminal.txt](expected/terminal.txt)); `F5` in the A/B line is the code of Feature 5:
 
 ```text
 A/B ... (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
@@ -131,7 +131,7 @@ per arm and $0.04 per review, so at most $0.58 per feature. The class profile gi
 agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 120 s for the
 harness's own work (`HARNESS_TIMEOUT_S`). Prices are in `platform/config/prices.toml`.
 
-The course's own bulk close run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and
+The course's own Feature 5 run on 2026-10-17 took 12 min 9 s from `run.sh` to the cost line and
 cost $0.038253, with one other live batch running on the same machine. After the A/B's launch, the
 primary verdicts came at 4 min 27 s (bare) and 5 min 46 s (harness), and the full verdicts at
 11 min 39 s and 11 min 41 s ([evidence](../docs/evidence/final.md#final-project)).
@@ -173,7 +173,7 @@ feature. Compare the counts instead:
 | Out-of-scope files | Screen 3 diff map | Did it change files it should not? |
 
 Each arm's full record is in `exports/scores/`, one JSON file per run. "It is easy to see tests pass
-and assume the job is done, when this is rarely the case" ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
+and assume the job is done, when this is rarely the case" ([Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler)).
 So compare the claim with the counts, not with the agent's summary.
 
 **One A/B is one dot.** Read the three outcomes like this:
@@ -191,18 +191,18 @@ mutants and the harness arm's 1 of 3, and the blinded reviewer (a separate model
 without knowing which arm wrote it) rejected the harness arm's change over its audit row. The
 harness arm never reached its test phase, because its gate ran out of time on a busy machine. As one
 dot it reads bare ahead on mutants, for a reason that is about time, not about the layers. An
-earlier bulk close run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
+earlier Feature 5 run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
-arm, plus a confirmation on a second Section 3 ticket ([evidence](../docs/evidence/final.md#final-project)):
+arm, plus a confirmation on a second ticket for Section 3: Scope and sandbox ([evidence](../docs/evidence/final.md#final-project)):
 
 | Section | Primary measure | Result |
 |---|---|---|
-| 1 Instructions | No new tenant leak | No measurable difference |
-| 2 State | Work survives a session stop | No measurable difference |
-| 3 Scope (idempotent creation, the section's ticket) | No file outside the allowed paths | No measurable difference |
-| 3 Scope (version checks, the confirmation) | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
-| 4 Verification | All hidden tests and mutants | No measurable difference (both fail) |
+| Section 1: Instructions | No new tenant leak | No measurable difference |
+| Section 2: State and sessions | Work survives a session stop | No measurable difference |
+| Section 3, Feature 3: Safe retries for issue creation | No file outside the allowed paths | No measurable difference |
+| Section 3, Feature 4: Version checks on issue edits (confirmation) | No file outside the allowed paths | Harness ahead: 3 of 3 against 0 of 3 |
+| Section 4: Verification | All hidden tests and mutants | No measurable difference (both fail) |
 
 To draw your own dots from every run in `exports/`, run the report. It makes no model calls and
 writes `exports/report.html`, one dot per run, filled for passed and hollow for failed:
@@ -238,7 +238,7 @@ printed on a worked example, a small library, in [your-repo/example/](your-repo/
 |---|---|---|
 | `shipharness init` | Copies the starter kit into your repository | None |
 | `shipharness check` | Runs your house rules against a baseline | None |
-| `shipharness testgen` | Writes tests and keeps only those that pass five filters | Yes, capped |
+| `shipharness testgen` | Writes tests and keeps only those that pass Filters 1 to 5 | Yes, capped |
 
 The four course skills package the same work for Claude Code, Codex, and Cursor; start at
 [use-in-your-repo/](../use-in-your-repo/README.md). When you are done, show the items in
@@ -246,5 +246,5 @@ The four course skills package the same work for Claude Code, Codex, and Cursor;
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05

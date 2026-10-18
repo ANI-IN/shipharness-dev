@@ -293,7 +293,7 @@ def build_fixture_run(runs_dir: Path, *, recorded: bool = False, ab_id: str = AB
         emit(
             "harness",
             "check_progress",
-            {"check": "R1", "done": 37, "total": 112, "label": "R1 probes 37/112"},
+            {"check": "R1", "done": 37, "total": 112, "label": "House rule 1 probes 37/112"},
         )
         emit(
             "harness",
@@ -376,7 +376,7 @@ def build_fixture_run(runs_dir: Path, *, recorded: bool = False, ab_id: str = AB
             emit(
                 arm,
                 "check_progress",
-                {"check": "R1", "done": 112, "total": 112, "label": "R1 probes 112/112"},
+                {"check": "R1", "done": 112, "total": 112, "label": "House rule 1 probes 112/112"},
             )
         emit(
             "bare",

@@ -42,11 +42,11 @@ def steps() -> list[Step]:
         patch(MIDDLEWARE_PATCH),  # BLOCKED by the scope layer
         run(NETWORK_COMMAND),  # DENIED by the sandbox (network none)
         patch(reference_patch("F3", BUILD_FILES)),  # the allowed files
-        commit("issues: Idempotency-Key on issue creation (R4)"),
+        commit("issues: Idempotency-Key on issue creation (House rule 4: Safe retries)"),
         finish(
             "done",
             "POST /projects/{project_id}/issues honours Idempotency-Key through "
-            "services.idempotency.run_once; house rule R4 updated.",
+            "services.idempotency.run_once; House rule 4: Safe retries updated.",
         ),
         # Test phase: tests only.
         patch(reference_patch("F3", TEST_FILES)),

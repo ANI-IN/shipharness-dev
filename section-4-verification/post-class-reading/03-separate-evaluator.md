@@ -1,7 +1,7 @@
-# Harness design for long-running application development
+# [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 
 Reading time: about 25 minutes.
-Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
+Source: [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps), Prithvi Rajasekaran (Anthropic), 2026-03-24 ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 > **Terms on this page**
 >
@@ -13,8 +13,8 @@ Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running applic
 
 Most teams let the agent that wrote the code also say whether it works. Anthropic's harness team
 measured what that costs, and built a separate evaluator to fix it. The post also says when an
-evaluator is not worth it. Section 4's gate and reviewer follow its main idea: the agent that does the
-work is not the one that judges it.
+evaluator is not worth it. The gate and the reviewer of Section 4: Verification follow its main idea:
+the agent that does the work is not the one that judges it.
 
 ## Three key ideas
 
@@ -22,7 +22,7 @@ work is not the one that judges it.
    respond by confidently praising the work—even when, to a human observer, the quality is obviously
    mediocre." Asking the same agent to self-verify, as an earlier Anthropic harness did ("Self-verify
    all features",
-   [Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)),
+   [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)),
    does not remove that bias.
 
 2. **A separate judge, with criteria, is the lever.** "Separating the agent doing the work from the
@@ -54,5 +54,5 @@ the harness arm gets no feedback the bare arm cannot get.
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

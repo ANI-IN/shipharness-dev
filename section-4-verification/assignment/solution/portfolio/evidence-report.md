@@ -1,21 +1,22 @@
-# Evidence report: generated tests for TeamTrack's issue repository, and R8
+# Evidence report: generated tests for TeamTrack's issue repository, and House rule 8: Deleted issues stay hidden
 
-Reference version. "Results" and "Filter 6 on the kept tests" come from the reference
-solution's live run, captured on 2026-10-17 (files in `../live/`, run id on the
-[evidence page](../../../../docs/evidence/s4.md#s4-a4-solution)); everything under "R8 on TeamTrack"
-is real output with no model call.
+Reference version, with Filter 6: No duplicate tests. "Results" and the Filter 6 section come from
+the reference solution's live run, captured on 2026-10-17 (files in `../live/`, run id on the
+[evidence page](../../../../docs/evidence/s4.md#s4-a4-solution)); everything in the House rule 8
+section is real output with no model call.
 
 ## Target
 
 - Dataset target `TG-teamtrack-app-repositories-issues` from `platform/datasets/testgen-targets-v1.jsonl`:
-  module `app/repositories/issues.py` in `platform/teamtrack/` (pin `m1-base`).
+  module `app/repositories/issues.py` in `platform/teamtrack/` (pin `m1-base`, the checkpoint tag of
+  TeamTrack as shipped).
 - Existing tests (from the target line): `tests/visible/test_tenant_isolation.py`,
   `tests/visible/test_issues.py`, `tests/visible/test_legacy_and_schema.py`.
 - Filter mutants: `platform/teamtrack/mutants/app.repositories.issues.jsonl#filter` (2 of the file's 4
   mutants). One of them, `app.repositories.issues-m3`, is "soft-deleted issues still listed": the
-  same fault R8 looks for, at the unit level.
-- Why this module: it holds the live-issue lookups (`get`, `list_for_project`) that every R8
-  finding in this assignment traces back to.
+  same fault the House rule 8 check looks for, at the unit level.
+- Why this module: it holds the live-issue lookups (`get`, `list_for_project`) that every House
+  rule 8 finding in this assignment traces back to.
 
 ## Commands
 
@@ -33,7 +34,7 @@ uv run python -m a4_verification.run_r8 --build platform/teamtrack --checkpoint 
 
 The testgen command runs without `--image`, so generated tests run on the host and the command
 prints an UNSANDBOXED warning. The other three commands make no model calls. `--update-report`
-writes the filter-6 rows into `testgen-report.json`, so the summary table counts filter 6 too;
+writes the filter-6 rows into `testgen-report.json`, so the summary table counts Filter 6 too;
 the command's transcript and the report are the live evidence in `../live/`.
 
 ## Results
@@ -49,11 +50,11 @@ the report after `apply_filter --update-report`, with the run id moved to the ev
 | Proposed tests (evaluated) | 5 |
 | Kept by testgen (filters 1-5) | 1 |
 | Not evaluated (over --max-tests) | 0 |
-| Kept after filter 6 | 1 |
-| Discarded by filter 3 | 4 |
+| Kept after Filter 6 | 1 |
+| Discarded by Filter 3: Adds coverage or catches a mutant | 4 |
 
-All five proposed tests passed filter 1 ("collected 1 test") and filter 2 ("passed 5 of 5 runs").
-Filter 3 discarded four of them, each with the same reason: "adds no line coverage over the
+All five proposed tests passed Filter 1: Builds and collects ("collected 1 test") and Filter 2:
+Passes five runs ("passed 5 of 5 runs"). Filter 3 discarded four of them, each with the same reason: "adds no line coverage over the
 existing suite and kills no filter-set mutant that the existing tests miss (0 checked)":
 
 - `test_add_flushes_issue_with_requested_fields_and_database_defaults`
@@ -62,8 +63,9 @@ existing suite and kills no filter-set mutant that the existing tests miss (0 ch
 - `test_list_all_legacy_orders_and_pages_across_tenants_including_deleted`
 
 The kept test, `tests/visible/test_issue_repository.py::test_list_for_project_uses_ascending_keyset_pages`,
-passed filter 3 with "adds 3 covered lines: app/repositories/common.py:11,17-18", filter 4 with
-"has real assertions and does not mock app.repositories.issues", and filter 5 with "no source file
+passed Filter 3 with "adds 3 covered lines: app/repositories/common.py:11,17-18", Filter 4: Real
+assertions with "has real assertions and does not mock app.repositories.issues", and Filter 5: No
+source changes with "no source file
 changed during the test phase". Two of the discarded tests name deleted rows
 (`..._soft_deleted_rows`, `..._including_deleted`). Filter 3 judges what a test adds over the
 existing suite, not its subject: those lines were covered already, and "0 checked" means the
@@ -90,7 +92,7 @@ no test as a duplicate. With one kept test there was no earlier kept candidate t
 so this run shows the filter against the existing suite only; the duplicate cases are in the
 reference solution's own tests (`../tests/test_dedup_filter.py`).
 
-## R8 on TeamTrack
+## House rule 8 on TeamTrack
 
 Real output of the last command above on `platform/teamtrack/`; the full JSON document is in
 `../captured/r8-teamtrack.json`.
@@ -116,16 +118,19 @@ tenant isolation leak in that rule's baseline. Every other endpoint in the OpenA
 
 - Filters 1-3 show that a kept test builds, passed five runs, and added line coverage or killed a
   filter-set mutant (a copy of the code with one planted fault)
-  ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171); [Meta, ACH](https://arxiv.org/abs/2501.12862)).
+  ([Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171);
+  [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862)).
   They do not show that the test checks the behaviour a reviewer cares about.
 - Filter 6 compares syntax trees. Two tests that check the same thing with different calls both
   stay; it removes copies, not overlap.
-- R8 probes one deleted issue per endpoint with the home org's admin token. A list endpoint whose
+- The House rule 8 check probes one deleted issue per endpoint with the home org's admin token. A list endpoint whose
   required query parameters filter the deleted row out by accident would hide a leak; so would a
   list longer than one page if the deleted rows were not the first ones.
 - The run used one target and one model run; one run is an example, not a rate.
 
 ## Sources
 
-- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
-- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.
+- Source 1: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>,
+  Alshahwan et al. (Meta), 2024-02-14
+- Source 2: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta),
+  2025-01-22

@@ -1,12 +1,12 @@
 # Progress
 
-A log of what agents have done on this ticket (A2 keeps it in claude-progress.txt; this course
-calls it progress.md). Read it with the git log at the start of every session. Edit every section
-except "Session log": the harness appends one entry there at the end of each session.
+A log of what agents have done on this ticket. Read it with the git log at the start of every
+session. Edit every section except "Session log": the harness appends one entry there at the end of
+each session.
 
 ## Current feature
 
-{{feature_id}}: {{description}}
+{{feature}}. {{description}}
 
 ## Done
 

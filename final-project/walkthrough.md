@@ -45,7 +45,7 @@ SECTION_STACKS: dict[str, tuple[LayerName, ...]] = {
 }
 ```
 
-The final uses every layer, like Section 4. `LAYERS=-scope` removes one, which is how you test
+The final uses every layer, like Section 4: Verification. `LAYERS=-scope` removes one, which is how you test
 whether a layer earns its place.
 
 ```python
@@ -95,7 +95,7 @@ container before the agent's first turn, and that time counts against `HARNESS_T
 
 ### Step 3: sessions end with a handoff
 
-Watchers and labels stop the build after the first session's turn budget (the most turns a session
+Feature 6: Watchers and Feature 7: Labels stop the build after the first session's turn budget (the most turns a session
 may take); every feature ends its build with a
 session stop before the test phase. The state layer writes the handoff and commits it:
 
@@ -155,8 +155,9 @@ and the first failure discards it:
                 break  # discarded: later (more expensive) filters never run
 ```
 
-The five filters: it imports and runs, it passes five runs, it adds coverage or kills a mutant (a
-copy of the code with one planted bug), it has real assertions, and it changed no source file. Only kept tests ship.
+The five filters are Filter 1: Builds and collects, Filter 2: Passes five runs, Filter 3: Adds
+coverage or catches a mutant (a mutant is a copy of the code with one planted bug), Filter 4: Real
+assertions, and Filter 5: No source changes. Only kept tests ship.
 
 ### Step 6: the gate runs when the agent says done
 

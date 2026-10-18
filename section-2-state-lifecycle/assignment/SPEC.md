@@ -1,4 +1,4 @@
-# Assignment 2 specification: Three forced stops, one consistent history
+# Assignment 2: State and sessions. Specification: three forced stops, one consistent history
 
 The full requirements for [Assignment 2](README.md). The README gives the story and the steps; this
 page is the reference you check your work against.

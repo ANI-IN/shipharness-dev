@@ -37,9 +37,9 @@ class LayeringCheck:
         with tempfile.TemporaryDirectory(prefix="shipharness-r6-") as tmp:
             config = Path(tmp) / "importlinter.ini"
             config.write_text(contract, encoding="utf-8")
-            ctx.progress(0, 1, "R6 import-linter")
+            ctx.progress(0, 1, "House rule 6 import-linter")
             proc = run_python(["-c", _LINT, "--config", str(config), "--no-cache"], build_dir)
-        ctx.progress(1, 1, "R6 import-linter")
+        ctx.progress(1, 1, "House rule 6 import-linter")
         findings: list[Finding] = []
         if proc.returncode != 0:
             output = proc.stdout + "\n" + proc.stderr

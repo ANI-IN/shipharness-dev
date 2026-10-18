@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 2: Three forced stops, one consistent history
+# Module 1: Harness Engineering for Coding Agents - Assignment 2: State and sessions, three forced stops, one consistent history
 
 Try it yourself first. The full solution is in [./solution/](solution/) with a step-by-step walkthrough.
 
@@ -15,7 +15,8 @@ a feature that never finishes while every session bills for work already done.
 
 A handoff helps only if it carries the right facts. Anthropic's harness team describes one that
 "carries the previous agent's state and the next steps"
-([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)). The class's state
+([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+The class's state
 layer carries notes and a machine summary, but it never says which steps are done. That is the gap
 you close.
 
@@ -28,7 +29,7 @@ you close.
 > - **Scenario**: One run of the real runner with your layer, the stand-in agent, and four sessions.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Exec plan**: A plan checked into the repository, with its progress and its decisions.
-> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
+> - **Migrations rule**: House rule 7: Migrations. Exactly one Alembic head, and a fresh upgrade works.
 > - **Alembic head**: The newest migration in the chain; Alembic is the migration tool TeamTrack uses.
 > - **Live evidence**: The files your real live run wrote, collected into `live/`.
 
@@ -143,4 +144,4 @@ Read it after your own attempt, and compare your choices with its alternatives.
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

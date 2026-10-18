@@ -254,6 +254,31 @@ Recorded runs for replay, one per section:
 | 3 | `ab-20261016-214151-ca9841` (run 3, F4) | The bare arm changed 2 files outside the allowed paths; the harness arm 0 |
 | 4 | `ab-20261017-090903-926c02` (class-profile round, F4) | The bare arm claimed done with 68 of 69 hidden tests passing |
 
+### Harness text renamed after the measurements (2026-10-18)
+
+<a id="harness-rename"></a>
+
+On 2026-10-18 the harness text the agent reads changed its wording: the bare codes for features,
+house rules, sections, and test filters were replaced by their plain names ("House rule 1: Tenant
+isolation", "Feature 4: Version checks on issue edits"). The rules, the checks, and the tasks did
+not change. The files that changed:
+
+- the instruction files the instructions layer places (`AGENTS.md`, `ARCHITECTURE.md`, `docs/`, and
+  the add-endpoint skill) and the handbook both arms read (`docs/HANDBOOK.md`), with the feature
+  specs in `docs/features/`;
+- the state files the state layer writes (`progress.md`, `session-handoff.md`, `init.sh`, the exec
+  plan), the scope block of the first message, and the verify block;
+- the gate's feedback when it refuses a done claim, and the test filters' names;
+- the ticket text of the Feature 3 tasks in the dataset.
+
+Every measurement on these pages, in this file and in the section files, was made with the earlier
+text. One live verification run per section follows, with the class profile, to confirm that the
+renamed text gives the same results.
+
+### Verification runs after the rename
+
+The runs are listed below once they are complete.
+
 ## Captures
 
 <a id="captures-root"></a>

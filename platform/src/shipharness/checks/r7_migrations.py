@@ -25,14 +25,14 @@ def migration_findings(build_dir: Path, ctx: CheckContext) -> list[Finding]:
     with tempfile.TemporaryDirectory(prefix="shipharness-r7-", ignore_cleanup_errors=True) as tmp:
         env = adapter_for(ctx).migration_env(Path(tmp) / "fresh.db")
         heads = run_python(["-m", "alembic", "heads"], build_dir, env)
-        ctx.progress(1, 2, "R7 alembic heads")
+        ctx.progress(1, 2, "House rule 7 alembic heads")
         if heads.returncode != 0:
             detail = f"alembic heads exited {heads.returncode}: {tail(heads.stderr)}"
             findings.append(_finding("heads", detail, "error"))
         elif (n := count_heads(heads.stdout)) != 1:
             findings.append(_finding("heads", f"{n} heads (expected 1): {tail(heads.stdout)}"))
         upgrade = run_python(["-m", "alembic", "upgrade", "head"], build_dir, env)
-        ctx.progress(2, 2, "R7 alembic upgrade head")
+        ctx.progress(2, 2, "House rule 7 alembic upgrade head")
         if upgrade.returncode != 0:
             detail = f"fresh upgrade head exited {upgrade.returncode}: {tail(upgrade.stderr)}"
             findings.append(_finding("upgrade", detail))

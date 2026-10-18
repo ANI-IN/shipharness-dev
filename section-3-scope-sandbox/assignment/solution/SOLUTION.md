@@ -1,4 +1,4 @@
-# Assignment 3 solution: Scope you can check
+# Assignment 3: Scope and sandbox. Solution: scope you can check
 
 This folder is a finished work folder for [Assignment 3](../README.md): the `a3scope` package, the
 denial test, the live evidence, and the captured checks. This page explains how it was built and
@@ -84,13 +84,13 @@ What is in this folder:
 - **The gate's items must agree with `passed`.** A gate result that says `passed: true` next to a
   failed item is refused. One field alone is weak evidence, which is the point of separating the
   agent that works from the one that judges
-  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
+  ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)).
 - **The reason code is `write_outside_workspace`**, the closest of the fixed codes in
   `platform/src/shipharness/sandbox/base.py`. The scope layer's snapshot skips `.git`, so a history
   rewrite is a change the harness cannot restore. A production version would add its own code.
 - **Revert commands stay allowed.** Anthropic's harness used git "to revert bad code changes and
   recover working states of the code base."
-  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) So
+  ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)) So
   `git revert`, `git restore`, and `git checkout -- <path>` keep running.
 
 ### Known limits
@@ -154,7 +154,8 @@ uv run python -m pytest -q -p no:cacheprovider -m docker section-3-scope-sandbox
 > Your output will differ: your own A/B runs other agent sessions, so its counts, cost, and verdicts
 > will not match the ones below.
 
-The self-check prints every row `ok` (the full output is in `captured/check-solution.txt`):
+The self-check prints every row `ok` (`A3` in the output is Assignment 3; the full output is in
+`captured/check-solution.txt`):
 
 ```text
 A3 self-check: section-3-scope-sandbox/assignment/solution
@@ -186,7 +187,8 @@ A3 live evidence: section-3-scope-sandbox/assignment/solution/live
 
 The live A/B ran once, with the class model and caps, as in
 [SPEC.md, "Evidence to hand in"](../SPEC.md#evidence-to-hand-in). Its output, with the run id cut
-(the full output is in `live/ab-output.txt`); `F3` is the idempotent-creation ticket:
+(the full output is in `live/ab-output.txt`); `F3` is the code of its ticket, Feature 3: Safe
+retries for issue creation:
 
 ```text
 A/B <run id> (F3, layers=['instructions', 'scope', 'state'], profile=standard)
@@ -225,5 +227,5 @@ are on the [evidence page](../../../docs/evidence/s3.md#s3-a3-solution).
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

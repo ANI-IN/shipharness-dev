@@ -56,7 +56,7 @@ The start of `prepare_workspace`, the initializer step.
 - `initial_files` renders the four templates in `assets/` with the ticket's id, title, and steps.
   The result is exactly what [harness/](harness/README.md) holds.
 - Anthropic's harness uses a model session for this, an "initializer agent"
-  ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)). Here it is
+  ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)). Here it is
   plain code, because one ticket fixes the files. It costs no model call.
 - `write_file` never writes through a link, so an agent cannot redirect a harness write.
 - The commit runs inside the arm's sandbox and names its paths, so nothing the agent staged slips in.
@@ -88,7 +88,7 @@ The body of `session_stop`. The runner calls it after every session that ends.
   agent's turns.
 - If the agent deleted `progress.md`, the template comes back and the log line still lands.
 - The commit message is the one session 2 sees first in its git log:
-  `harness: session 1 handoff for F2`, where `F2` is the comments feature
+  `harness: session 1 handoff for F2`, where `F2` is the course's code for Feature 2: Comments on issues
   ([expected/](expected/README.md)).
 
 ### handoff.py, lines 123-129
@@ -126,7 +126,8 @@ The end of `migration_heads`, one line of the summary.
 
 - The function reads `migrations/versions/*.py` as text and never runs them. A head is a revision
   that no other migration names as its `down_revision`.
-- Two heads is the failure this section is about. The line names the migrations rule (`R7`), so
+- Two heads is the failure this section is about. The line names the migrations rule, House rule 7: Migrations (`R7` in the
+  message), so
   the next session sees the problem before it writes another migration.
 
 ### lifecycle.py, lines 123-131
@@ -169,4 +170,4 @@ build session after a spent turn budget or a `finish(claim="not_done")`.
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

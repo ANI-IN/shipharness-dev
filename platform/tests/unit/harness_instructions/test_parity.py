@@ -1,9 +1,9 @@
 """Bare-arm content parity.
 
-Every house rule (R1-R7) and every convention must appear both in docs/HANDBOOK.md (which both
-arms read) and in the harness instruction docs. The harness changes how knowledge is organised,
-never what the agent can know: every code span the harness docs mention must also be readable by
-the bare arm, in the handbook or in the exported repository.
+Every house rule (House rules 1 to 7) and every convention must appear both in docs/HANDBOOK.md
+(which both arms read) and in the harness instruction docs. The harness changes how knowledge is
+organised, never what the agent can know: every code span the harness docs mention must also be
+readable by the bare arm, in the handbook or in the exported repository.
 """
 
 from __future__ import annotations
@@ -13,20 +13,14 @@ from pathlib import Path
 
 import pytest
 
+from shipharness.datasets.names import rule_label
 from shipharness.harness.instructions.layer import DEFAULT_SOURCE, source_files
 
 TEAMTRACK = DEFAULT_SOURCE.parents[1]
 HANDBOOK = TEAMTRACK / "docs" / "HANDBOOK.md"
 
-RULES = {
-    "R1": ["R1", "Tenant isolation"],
-    "R2": ["R2", "Roles"],
-    "R3": ["R3", "API conventions"],
-    "R4": ["R4", "Idempotent creates"],
-    "R5": ["R5", "Audit log"],
-    "R6": ["R6", "Layering"],
-    "R7": ["R7", "Migrations"],
-}
+# Each rule by its label as both forms write it ("House rule 1: Tenant isolation").
+RULES = {code: [rule_label(code)] for code in ("R1", "R2", "R3", "R4", "R5", "R6", "R7")}
 
 # Each convention is a set of phrases; every phrase must appear in both forms.
 CONVENTIONS: dict[str, list[str]] = {

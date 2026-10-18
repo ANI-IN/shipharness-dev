@@ -10,7 +10,8 @@ and how it was captured is on the [evidence page](../../../docs/evidence/s1.md#s
 > - **Primary verdict**: The referee's answer to the one question the section asks.
 > - **Full verdict**: The primary verdict plus every other check: hidden tests, mutants, review.
 > - **Harness note**: A line the instructions layer adds to screen 1, such as "agent read ARCHITECTURE.md".
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: Tenant isolation, another org's resource answers 404,
+>   never 403.
 > - **Mutant**: A copy of the code with one small bug planted on purpose; a good test catches (kills) it.
 > - **LangSmith**: The tracing service that records every model call of a run.
 

@@ -1,4 +1,4 @@
-# Bulk close
+# Feature 5: Bulk close
 
 The default final feature: one build session, then a test phase. Run it with
 `./final-project/run.sh` or `make final FEATURES=bulk-close`.
@@ -18,9 +18,9 @@ At the end of a sprint, a team closes all finished work in a project with one re
 
 | House rule | What can go wrong |
 |---|---|
-| Audit log rule | Exactly one audit row per request, also when every issue is skipped |
-| Tenant isolation rule | Another org's issue or project must give 404, never 403 |
-| Roles rule | A viewer's bulk close must give 403 |
+| House rule 5: Audit log | Exactly one audit row per request, also when every issue is skipped |
+| House rule 1: Tenant isolation | Another org's issue or project must give 404, never 403 |
+| House rule 2: Roles | A viewer's bulk close must give 403 |
 | "Issues" status rules | Only `in_progress` may move to `done`; open issues must not jump |
 
 The tempting shortcut is to call the single-issue transition in a loop. That writes one audit row

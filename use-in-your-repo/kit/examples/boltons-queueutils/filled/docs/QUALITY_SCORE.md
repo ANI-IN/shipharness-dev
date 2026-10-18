@@ -10,7 +10,7 @@ Grades: **meets rules** (no gap recorded), **gap** (a known shortfall that is on
 |---|---|---|
 | `typeutils` | meets rules | Imports the standard library only (bottom layer, BQ1). |
 | `listutils` | gap | `ruff check --select F` reports three unused variables (`start`, `stop`, `step`) at `listutils.py:267`, upstream code. |
-| `queueutils` | gap | The docstrings of `peek` and `pop` say an empty queue raises `KeyError`; the code raises `IndexError`. Feature F1. |
+| `queueutils` | gap | The docstrings of `peek` and `pop` say an empty queue raises `KeyError`; the code raises `IndexError`. Feature 1. |
 
 ## Testing
 

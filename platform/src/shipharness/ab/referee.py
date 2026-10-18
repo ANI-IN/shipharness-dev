@@ -47,6 +47,7 @@ from shipharness.ab.workspace import (
 )
 from shipharness.checks import params as P
 from shipharness.checks.base import CheckResult
+from shipharness.datasets.names import rule_label
 from shipharness.events import EVENT_DATA_MODELS, Arm, EventBus
 from shipharness.filters.pytest_cmd import (
     UnsafeTestId,
@@ -972,5 +973,6 @@ class Referee:
         return (
             f"{said}; referee: {outcome} the primary measure; hidden tests "
             f"{record.hidden_passed}/{record.hidden_total}, mutants killed "
-            f"{record.mutants_killed}/{record.mutants_total}, R1 new {record.r1_new_violations}"
+            f"{record.mutants_killed}/{record.mutants_total}, {rule_label('R1')}, new violations "
+            f"{record.r1_new_violations}"
         )

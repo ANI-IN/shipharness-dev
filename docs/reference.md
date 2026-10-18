@@ -12,39 +12,56 @@
 This page lists everything you look up but do not read in order: every make target, every setting
 and variable, the caps and limits, and the folders. Each table names the file its values come from.
 
-### Codes used in this course
+### Names used in this course
 
-Pages use the plain names below. The short codes appear only in code: commands, file names, logs,
-console screens, and captured output. Where a page quotes one, it says the plain name right there.
+Pages name each feature, house rule, section, assignment, and test filter as "Kind N: name" the
+first time, such as "Feature 4: Version checks on issue edits", and by the short form after that
+("Feature 4"). The code in the last column appears only in code: commands, file names, logs,
+console screens, and captured output.
 
-| Code | Plain name | Command alias |
-|---|---|---|
-| `F1` | Org-wide issue search | `org-search` |
-| `F2` | Comments on issues | `comments` |
-| `F3` | Idempotent issue creation (retried creates never duplicate) | `idempotent-create` |
-| `F4` | Version checks on issue edits, with issue history | `version-checks` |
-| `F5` | Bulk close | `bulk-close` |
-| `F6` | Watchers | `watchers` |
-| `F7` | Labels | `labels` |
-| `R1` | Tenant isolation rule: another org's resource answers 404 | |
-| `R2` | Roles rule: viewers cannot write; some writes are admin-only | |
-| `R3` | API conventions rule: list and error envelopes, status codes | |
-| `R4` | Idempotent creates rule: honour the `Idempotency-Key` header | |
-| `R5` | Audit log rule: one audit row per write | |
-| `R6` | Layering rule: the API layer never imports the database layer | |
-| `R7` | Migrations rule: one Alembic head, upgrades work on an empty database | |
-| `S1` | Section 1: Instructions | |
-| `S2` | Section 2: State and session lifecycle | |
-| `S3` | Section 3: Scope and sandbox | |
-| `S4` | Section 4: Verification | |
-| `A1` to `A4` | Assignment 1 to Assignment 4, the take-home work of Sections 1 to 4 | |
+| Name | What it means | Command alias | Code in code and logs |
+|---|---|---|---|
+| Feature 1: Org-wide issue search | `GET /issues` across every project of your org | `org-search` | `F1` |
+| Feature 2: Comments on issues | Add and list comments on an issue | `comments` | `F2` |
+| Feature 3: Safe retries for issue creation | A retried create never makes a duplicate issue | `safe-retries` | `F3` |
+| Feature 4: Version checks on issue edits | A stale edit is refused, never silently saved; issue history | `version-checks` | `F4` |
+| Feature 5: Bulk close | Close all finished issues of a project in one request | `bulk-close` | `F5` |
+| Feature 6: Watchers | Follow issues and see them in one list | `watchers` | `F6` |
+| Feature 7: Labels | Tag issues with labels and filter lists by label | `labels` | `F7` |
+| House rule 1: Tenant isolation | Another org's resource answers 404 | | `R1` |
+| House rule 2: Roles | Viewers cannot write; some writes are admin-only | | `R2` |
+| House rule 3: API conventions | List and error envelopes, status codes | | `R3` |
+| House rule 4: Safe retries | Creates honour the `Idempotency-Key` header | | `R4` |
+| House rule 5: Audit log | One audit row per write | | `R5` |
+| House rule 6: Layering | The API layer never imports the database layer | | `R6` |
+| House rule 7: Migrations | One Alembic head; upgrades work on an empty database | | `R7` |
+| House rule 8: Deleted issues stay hidden | Soft-deleted issues never appear; you add it in the last assignment | | `R8` |
+| Section 1: Instructions | What the agent knows | | `S1`, `m1-s1-start` |
+| Section 2: State and sessions | What the agent remembers across sessions | | `S2`, `m1-s2-start` |
+| Section 3: Scope and sandbox | What the agent may change and reach | | `S3`, `m1-s3-start` |
+| Section 4: Verification | What proves the work is done | | `S4`, `m1-s4-start` |
+| Assignment 1: Instructions | The take-home work of Section 1 | | `A1`, `check-assignment-1` |
+| Assignment 2: State and sessions | The take-home work of Section 2 | | `A2`, `check-assignment-2` |
+| Assignment 3: Scope and sandbox | The take-home work of Section 3 | | `A3`, `check-assignment-3` |
+| Assignment 4: Verification | The take-home work of Section 4 | | `A4`, `check-assignment-4` |
+| Filter 1: Builds and collects | pytest collects the test and runs it | | `imports and runs` |
+| Filter 2: Passes five runs | The test passes on each of five runs | | `passes 5 consecutive runs` |
+| Filter 3: Adds coverage or catches a mutant | New covered lines, or a mutant no other test kills | | `adds coverage or kills a mutant` |
+| Filter 4: Real assertions | An assertion that can fail; no mock of the unit under test | | `real assertions, ...` |
+| Filter 5: No source changes | No source file changes during the test phase | | `no source change in the test phase` |
+| Filter 6: No duplicate tests | Added in Assignment 4: a kept test repeats no kept test | | `dedup_filter.py` |
 
-The four section features (org-wide search, comments, idempotent creation, version checks) belong to
-the sections; the final project picks one of bulk close, watchers, or labels. Commands take the
-alias: `make demo-3 FEATURE=version-checks`, `make final FEATURES=watchers,bulk-close`. Slide code
-anchors such as `S4:gate` keep the short form. Sources are named by a short name with a link, such
-as ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)), and each page
-lists its sources in full at the end.
+The four section features (Features 1 to 4) belong to the sections; the final project picks from
+Features 5 to 7. Commands take the alias, in any case, or the code: `make demo-3
+FEATURE=version-checks`, `make final FEATURES=watchers,bulk-close`. The earlier alias
+`idempotent-create` still works for Feature 3. A checkpoint tag such as `m1-s1-start` is the git
+tag of the repository state at the start of a section. A walkthrough anchor such as `S4:gate` is a
+marker in the code that a walkthrough page points to; it keeps the short form.
+
+Sources are cited by their linked title, such as
+[Harness engineering](https://openai.com/index/harness-engineering/), then as "Source 1". Each
+page ends with a numbered Sources list: "Source N: title, link, author, date". Numbering is per
+page.
 
 ### Glossary
 
@@ -59,6 +76,7 @@ One line per term, in plain words. Pages spell out each term on first use too.
 - **Baseline**: The results on the unchanged app, recorded once so later checks count only new problems.
 - **Blinded reviewer**: A separate model that reads a diff without knowing which arm wrote it.
 - **bwrap and seccomp**: Linux tools that limit which files and system calls a process may use.
+- **Checkpoint tag**: A git tag such as `m1-s1-start` that marks the repository state at the start of a section.
 - **Class date**: The class day in `.env`, which names the LangSmith project and keys the session cap.
 - **Class profile**: The settings the live class runs use, the same for both arms.
 - **Compaction**: Squeezing an old context into a short summary so the session can go on.
@@ -152,7 +170,7 @@ These call OpenAI live and never fall back to a recording. Each prints a `Cost:`
 |---|---|---|---|
 | `make show-1` to `make show-4` | `uv run shipharness ab --section demo-N --feature FN --arms harness ...` | The harness arm alone, judged by the referee | $0.24 |
 | `make demo-1` to `make demo-4` | `uv run shipharness ab --section demo-N --feature FN ...` | A/B: both arms, both judged | $0.48 |
-| `make demo-3 FEATURE=version-checks` | `uv run shipharness ab --section demo-3 --feature F4 ...` | The Section 3 live A/B in class | $0.48 |
+| `make demo-3 FEATURE=version-checks` | `uv run shipharness ab --section demo-3 --feature F4 ...` | The Section 3 live A/B in class, on Feature 4 | $0.48 |
 | `make final` | one `uv run shipharness ab --section final --feature <f> ...` per feature | One A/B per feature in `FEATURES` | $0.58 per feature |
 
 The worst cases come from the caps in `.env.example`: one arm $0.20 plus one review $0.04; a final
@@ -194,7 +212,7 @@ aborted (cost cap or time limit; still judged and shown), 1 on an error.
 | `uv run shipharness report` | Writes `exports/report.html` from `exports/` | None |
 | `uv run shipharness verify --tag class-v1` | Checks that your copy matches the class release tag | None |
 | `uv run shipharness init --target <your-repo>` | Copies the starter kit into your repository | None |
-| `uv run shipharness testgen ...` | Proposes tests for one module and keeps those that pass five filters | Yes, at most $0.20 |
+| `uv run shipharness testgen ...` | Proposes tests for one module and keeps those that pass Filters 1 to 5 | Yes, at most $0.20 |
 | `uv run shipharness check ...` | House-rule checks for a FastAPI app; exit 3 on new violations | None |
 | `uv run shipharness skills validate <dir>` | Validates Agent Skills folders | None |
 
@@ -227,8 +245,8 @@ Defaults from the `Makefile`.
 |---|---|---|---|
 | `PURPOSE` | `class` | live runs, swap, replay, doctor, warm | LangSmith project and cost session (table below) |
 | `PROFILE` | `class` | live runs, examples, warm | `class` or `standard` (the settings in `.env`) |
-| `FEATURE` | `F3` (idempotent creation) | demo-3 | `version-checks` runs the Section 3 class A/B |
-| `FEATURES` | `F5,F6` (bulk close, watchers) | final | Comma-separated final features, for example `watchers` |
+| `FEATURE` | `F3` (Feature 3) | demo-3 | `version-checks` runs the Section 3 class A/B |
+| `FEATURES` | `F5,F6` (Features 5 and 6) | final | Comma-separated final features, for example `watchers` |
 | `LAYERS` | empty | demo-N, show-N, final | `-<layer>` removes one layer, for example `-state` |
 | `SESSION_BUDGET` | empty | demo-N, show-N | Session turn budgets, for example `12,38` |
 | `AB` | `latest` | swap-N | The A/B or run id to re-judge |
@@ -345,5 +363,5 @@ arm). All three are git-ignored. More detail: [architecture](architecture.md).
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/)
-  (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

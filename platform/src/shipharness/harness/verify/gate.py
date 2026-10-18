@@ -14,6 +14,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
+from shipharness.datasets.names import rule_label
 from shipharness.harness.verify.checkrun import (
     CHECK_LABELS,
     RunnerOutputError,
@@ -189,8 +190,9 @@ def _order(item: GateItem) -> int:
 
 
 def _feedback(gate_id: str, items: list[GateItem], lines: list[str]) -> str:
-    """Text the agent sees as the finish result: a summary and the first three failures."""
-    failed = [i.name for i in items if i.status == "fail"]
+    """Text the agent sees as the finish result: a summary and the first three failures. House
+    rule items are named by their label ("House rule 1: Tenant isolation")."""
+    failed = [rule_label(i.name) for i in items if i.status == "fail"]
     return "\n".join(
         [
             f"Gate {gate_id}: {len(failed)} of {len(items)} items failed ({', '.join(failed)}).",

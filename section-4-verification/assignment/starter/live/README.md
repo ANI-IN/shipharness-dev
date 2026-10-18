@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 4 live evidence
+# Module 1: Harness Engineering for Coding Agents - Live evidence for Assignment 4: Verification
 
 The files of your two live runs go here (instructions: steps 6 to 8 of the
 [assignment](../../README.md), and [SPEC.md](../../SPEC.md#evidence-to-hand-in)). The self-check and the grader validate them; nothing is re-run.
@@ -10,4 +10,4 @@ The files of your two live runs go here (instructions: steps 6 to 8 of the
 | `ab.txt` | First line `$ uv run shipharness ab --section demo-4 --feature F4 --purpose assignment --no-preview`, then everything it printed |
 | `scores/<run_id>.json` | The two score records of that A/B, copied from `exports/scores/` |
 
-`F4` in the A/B command is the version checks feature.
+`F4` in the A/B command is Feature 4: Version checks on issue edits.

@@ -16,7 +16,8 @@ already exist.
 > - **Map**: a short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **REPLACE marker**: a line in a kit template that says what to write in place of the example value.
 > - **House rule**: a team convention written as one checkable sentence, with a check that finds violations.
-> - **The seven house rules**: TeamTrack's rules, from tenant isolation to one migration head. The kit files name them by id, `R1` to `R7`.
+> - **House rules 1 to 7**: TeamTrack's rules, from House rule 1: Tenant isolation to
+>   House rule 7: Migrations. The kit files name them by code, `R1` to `R7`.
 > - **Exec plan**: a living plan for one feature, kept in the repository and updated as the work goes.
 > - **Adapter**: the one file that tells `shipharness check` the facts it needs about your app.
 
@@ -27,7 +28,7 @@ the checks, and the checks need facts about your app. Written from scratch, one 
 untested command breaks the chain, and the agent only finds out mid-session. The source behind the
 map puts it plainly: "From the agent’s point of view, anything it can’t access in-context while
 running effectively doesn’t exist."
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
+([Harness engineering](https://openai.com/index/harness-engineering/))
 
 ## What the kit does
 
@@ -67,10 +68,10 @@ none are left. A kit file you deleted on purpose is listed as not present and do
 | `AGENTS.md` | The map: where each rule lives, house rules, commands, session steps | `platform/teamtrack/harness/instructions/AGENTS.md`; session steps from `platform/src/shipharness/harness/state/lifecycle.py` |
 | `ARCHITECTURE.md` | Domains, layers, what each layer may import | `platform/teamtrack/harness/instructions/ARCHITECTURE.md` |
 | `docs/SECURITY.md`, `docs/RELIABILITY.md`, `docs/QUALITY_SCORE.md`, `docs/PLANS.md` | The house rules (`R1` to `R7`), quality grades, plans and known debt | `platform/teamtrack/harness/instructions/docs/` |
-| `docs/design-docs/`, `docs/product-specs/`, `docs/references/` | Design decisions, product specs (base product, org-wide search), tool notes | `platform/teamtrack/harness/instructions/docs/` |
+| `docs/design-docs/`, `docs/product-specs/`, `docs/references/` | Design decisions, product specs, tool notes | `platform/teamtrack/harness/instructions/docs/` |
 | `docs/clean-state-checklist.md` | What "ready to merge" means, as commands | `use-in-your-repo/skills/harness-setup/assets/templates/clean-state-checklist.md` and `platform/src/shipharness/harness/verify/clean_state.py` |
 | `docs/house-rules.md` | How to adapt the seven house rules, and the adapter methods each one needs | `platform/src/shipharness/checks/` |
-| `docs/exec-plans/active/F1.md` | An exec plan, as the harness writes it for org-wide issue search (`F1`) | `platform/src/shipharness/harness/state/assets/exec-plan.md` |
+| `docs/exec-plans/active/F1.md` | An exec plan the harness wrote for Feature 1: Org-wide issue search (`F1`) | `platform/src/shipharness/harness/state/assets/exec-plan.md` |
 | `feature_list.json`, `feature_list.schema.json` | The list of work (`passes`, `evidence`, `testedAt`) and its schema | `platform/src/shipharness/harness/scope/features.py` and `scope/assets/feature_list.schema.json` |
 | `progress.md`, `session-handoff.md`, `init.sh` | The session log, the structured handoff, the start script | `platform/src/shipharness/harness/state/assets/` |
 | `harness/shipharness_adapter.py`, `harness/check-params.json` | What `shipharness check` needs to know about your app | `TeamTrackAdapter` in `platform/src/shipharness/checks/adapter.py`; `platform/src/shipharness/checks/params.py` |
@@ -79,8 +80,8 @@ none are left. A kit file you deleted on purpose is listed as not present and do
 | `.claude/skills/<name>/`, `.agents/skills/<name>/` | harness-setup, assured-tests, house-rules, skill-template | `use-in-your-repo/skills/` |
 
 Files the harness renders at run time (progress.md, session-handoff.md, init.sh, the exec plan,
-feature_list.json) were rendered with the harness's own functions for TeamTrack's org-wide issue
-search feature (`F1`). One value is the kit's own: the six `steps` of that feature, shortened from
+feature_list.json) were rendered with the harness's own functions for TeamTrack's Feature 1
+(`F1`). One value is the kit's own: the six `steps` of that feature, shortened from
 the API section of `platform/teamtrack/docs/features/f1.md`. In the course's A/B runs (the same
 ticket run with and without the harness) the dataset line has no `steps`, so the
 state and scope layers take them from the ticket's bullet lines or, failing that, its title
@@ -108,7 +109,7 @@ below it, or delete the whole section or file when it does not apply to your rep
 copied document must equal its TeamTrack source once the marker lines are removed; a rendered file
 must equal a fresh rendering; the feature list and schema must match the scope layer's; the sandbox
 policy must equal `SandboxPolicy()`; the adapter template must answer like `TeamTrackAdapter` and
-pass the roles, audit log, and layering checks (`R2`, `R5`, `R6`) on TeamTrack (`platform/tests/unit/checks/test_kit_adapter.py`). When a source
+pass the checks for House rules 2, 5, and 6 (`R2`, `R5`, `R6`) on TeamTrack (`platform/tests/unit/checks/test_kit_adapter.py`). When a source
 changes, the test names the template to recopy. Print a fresh rendering with
 `uv run python -m shipharness.kit.sources progress.md` (or `init.sh`, `session-handoff.md`,
 `docs/exec-plans/active/F1.md`, `feature_list.json`, `feature_list.schema.json`).
@@ -137,4 +138,5 @@ More, with captured output: the "When something goes wrong" table in the
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

@@ -147,7 +147,7 @@ Spec: docs/features/f2.md.'''
 [[reworded]]
 feature = "F3"
 style = "terse"
-text = '''Make POST /projects/{project_id}/issues honour Idempotency-Key (house rule R4).
+text = '''Make POST /projects/{project_id}/issues honour Idempotency-Key (House rule 4: Safe retries).
 Same key + same body: return the first response (201, same body), create nothing. Same key +
 different body: 409 idempotency_conflict. Keys are scoped per org and per endpoint. A replay adds no
 audit row. Use services.idempotency.run_once, as POST /projects does.
@@ -180,7 +180,7 @@ audit row.
 Actual: two issues are created.
 
 Notes: the same key with a different body should give 409 idempotency_conflict. Keys are scoped per
-org and endpoint (house rule R4). services.idempotency.run_once implements this for POST /projects.
+org and endpoint (House rule 4: Safe retries). services.idempotency.run_once implements this for POST /projects.
 Spec: docs/features/f3.md.'''
 
 [[trap]]
@@ -191,7 +191,7 @@ text = '''Mobile clients retry every POST when the network drops, so duplicate p
 the same everywhere. Shared request handling lives in app/api/middleware.py. Right now issue creation
 is the create that is missing it.
 
-POST /projects/{project_id}/issues must accept Idempotency-Key with house rule R4 semantics: the same
+POST /projects/{project_id}/issues must accept Idempotency-Key with the semantics of House rule 4: Safe retries: the same
 key and body return the first response (201, same body) and create nothing; the same key with a
 different body gives 409 idempotency_conflict; keys are scoped per org and endpoint; a replay adds no
 audit row. Use services.idempotency.run_once.

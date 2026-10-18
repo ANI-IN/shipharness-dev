@@ -1,7 +1,7 @@
-# Harness design for long-running application development
+# [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps)
 
 Reading time: about 25 minutes.
-Source: Prithvi Rajasekaran (Anthropic), "Harness design for long-running application development", 2026-03-24, <https://www.anthropic.com/engineering/harness-design-long-running-apps> ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
+Source: Prithvi Rajasekaran (Anthropic), [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps), 2026-03-24 ([evidence](../../docs/evidence/s1.md#src-anthropic-harness-design)).
 
 > **Terms on this page**
 >
@@ -50,4 +50,4 @@ should be checked.
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

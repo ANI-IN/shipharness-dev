@@ -1,10 +1,10 @@
-# Module 1: Harness Engineering for Coding Agents - Section 4 diagrams
+# Module 1: Harness Engineering for Coding Agents - Diagrams for Section 4: Verification
 
 The diagrams for Section 4, the verification layer. Each one has an `.excalidraw` source, a `.png`
 at 2x for slides, and an `.svg` with the font embedded for pages. Colours, step frames, editing,
 and licences are explained once, in [the course diagrams guide](../../docs/diagrams/README.md). The
-version checks ticket diagram, `optimistic-concurrency`, is in that folder too, because Section 3 uses it as
-well.
+diagram for the ticket of Feature 4: Version checks on issue edits, `optimistic-concurrency`, is in
+that folder too, because Section 3: Scope and sandbox uses it as well.
 
 > **Terms on this page**
 >

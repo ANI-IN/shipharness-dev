@@ -1,4 +1,4 @@
-# Module 1: Harness Engineering for Coding Agents - Section 1 diagrams
+# Module 1: Harness Engineering for Coding Agents - Diagrams for Section 1: Instructions
 
 The diagrams for Section 1, the instructions layer. Each one has an `.excalidraw` source, a `.png`
 at 2x for slides, and an `.svg` with the font embedded for pages. Colours, step frames, editing,
@@ -10,7 +10,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 > - **Harness arm**: The same run with the harness turned on.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **Tenant isolation rule**: House rule 1: Tenant isolation. Another org's resource answers 404, never 403.
 
 ## The diagrams
 
@@ -95,7 +95,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 - **What it teaches**: the three checks that keep the map, the docs, and the skills honest.
 - **Slide**: "4) Mechanical checks keep the map true".
 - **Files**: `checker-flow`.
-- **Source**: Assignment 1 (`check_docs.py`), `test_parity.py`, and the reference checker's OK line in [the Section 1 evidence](../../docs/evidence/s1.md).
+- **Source**: Assignment 1: Instructions (`check_docs.py`), `test_parity.py`, and the reference checker's OK line in [the Section 1 evidence](../../docs/evidence/s1.md).
 - **How to edit**: change `checker-flow` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured show-1 run

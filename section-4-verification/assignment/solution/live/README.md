@@ -1,9 +1,9 @@
-# Module 1: Harness Engineering for Coding Agents - Assignment 4 reference live evidence
+# Module 1: Harness Engineering for Coding Agents - Reference live evidence for Assignment 4: Verification
 
 Live evidence of the reference solution, in the layout every submission uses (see
 [SPEC.md](../../SPEC.md#evidence-to-hand-in)). Two runs, both captured on 2026-10-17: one testgen
-run with filter 6 applied to its report, and one A/B on the version checks feature (`F4` in the
-command). Their run ids, A/B id, and results are on
+run with Filter 6: No duplicate tests applied to its report, and one A/B on Feature 4: Version checks
+on issue edits (`F4` in the command). Their run ids, A/B id, and results are on
 the [evidence page](../../../../docs/evidence/s4.md#s4-a4-solution). The grader validates these
 files the same way as a learner's (`assignment/visible_tests/a4_live.py`) and re-runs nothing;
 `../portfolio/` reports what they show.

@@ -27,7 +27,7 @@ new file mode 100644
 --- /dev/null
 +++ b/tests/visible/test_issue_etag.py
 @@ -0,0 +1,12 @@
-+\"\"\"F4: the ETag is the issue's version in double quotes.\"\"\"
++\"\"\"Feature 4: Version checks on issue edits. The ETag is the version in double quotes.\"\"\"
 +
 +from __future__ import annotations
 +

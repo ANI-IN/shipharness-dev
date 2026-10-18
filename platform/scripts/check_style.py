@@ -9,7 +9,7 @@ Usage:
 PATH may be a file or a folder (walked for *.md), relative to the repository root or absolute. A
 file that is not a public course page is skipped, so private files never fail the check. The
 default run also reads the scripts and other text files of the skills and kit templates (copied
-into learners' repositories) for the label checks SC08, SC09, and SC21.
+into learners' repositories) for the id checks SC08, SC09, and SC21.
 
 Output: one line per problem, `x <path>:<line>: SCnn <message>` for an error and `! ...` for a
 warning, then `<files> files checked, <errors> errors, <warnings> warnings, <n> allowed lines`.
@@ -58,16 +58,69 @@ CHECKS: dict[str, tuple[str, str]] = {
     "SC18": ("Glossary box: at most one, no repeated term", WARNING),
     "SC19": ("Section and final-project folders hold every required file", ERROR),
     "SC20": ("Every diagram (.png, .svg in a diagrams/ folder) has its .excalidraw source", ERROR),
-    "SC21": ("Source or assignment ids (A1, B11) outside the evidence pages", ERROR),
-    "SC22": ("Bare section codes S1 to S4 in prose (write 'Section 1')", ERROR),
-    "SC23": (
-        "Bare feature or rule codes F1 to F7, R1 to R7 in prose (write the plain name)",
+    "SC21": (
+        "Bare codes in prose: F1-F7, R1-R8, S1-S4, A1-A4, source ids A1-A7 and B1-B14",
         ERROR,
     ),
+    "SC22": (
+        "First mention of a Feature, House rule, Section, Assignment, or Filter "
+        "without its full '<Kind> N: <name>'",
+        ERROR,
+    ),  # fmt: skip
+    "SC23": (
+        "A source mentioned without a link to it, or a 'Source N' with no list entry",
+        ERROR,
+    ),  # fmt: skip
     "SC24": ("Empty links, '[link]' placeholders, and malformed link URLs", ERROR),
-    "SC25": ("A source named without a link to it, or without a 'Sources' list", ERROR),
+    "SC25": ("Sources list at the end: 'Source N: title, link, author, date', in order", ERROR),
     "SC30": ("Relative link to a missing file, folder, or heading (images: SC06)", ERROR),
 }
+
+# The owner's names (docs/STYLE.md rule 5; the same as shipharness.datasets.names, which a test
+# keeps equal). The first mention of each on a page is "<Kind> N: <name>", later ones "<Kind> N".
+NAMES: dict[str, dict[int, str]] = {
+    "Feature": {
+        1: "Org-wide issue search",
+        2: "Comments on issues",
+        3: "Safe retries for issue creation",
+        4: "Version checks on issue edits",
+        5: "Bulk close",
+        6: "Watchers",
+        7: "Labels",
+    },
+    "House rule": {
+        1: "Tenant isolation",
+        2: "Roles",
+        3: "API conventions",
+        4: "Safe retries",
+        5: "Audit log",
+        6: "Layering",
+        7: "Migrations",
+        8: "Deleted issues stay hidden",
+    },
+    "Section": {
+        1: "Instructions",
+        2: "State and sessions",
+        3: "Scope and sandbox",
+        4: "Verification",
+    },  # fmt: skip
+    "Assignment": {
+        1: "Instructions",
+        2: "State and sessions",
+        3: "Scope and sandbox",
+        4: "Verification",
+    },  # fmt: skip
+    "Filter": {
+        1: "Builds and collects",
+        2: "Passes five runs",
+        3: "Adds coverage or catches a mutant",
+        4: "Real assertions",
+        5: "No source changes",
+        6: "No duplicate tests",
+    },
+}
+# The code letter of each kind, for the bare-code message.
+CODE_KIND = {"F": "Feature", "R": "House rule", "S": "Section", "A": "Assignment"}
 
 MODULE_TITLE = "Module 1: Harness Engineering for Coding Agents"
 
@@ -177,8 +230,8 @@ TEMPLATES: dict[str, list[str]] = {
 
 # Checks that do not apply to a file. "SC14:pilot-run" exempts only the "pilot run N" phrase.
 EVIDENCE_EXEMPT = {"SC08", "SC09", "SC10", "SC21", "SC22", "SC23", "SC25", "SC14:pilot-run"}
-# The label checks: run ids, finding ids, commit hashes, source and assignment ids, section codes,
-# feature and rule codes, empty links, and unlinked sources.
+# The label checks: run ids, finding ids, commit hashes, bare codes, full names on first mention,
+# source links, empty links, and the Sources list.
 LABEL_CHECKS = {"SC08", "SC09", "SC10", "SC21", "SC22", "SC23", "SC24", "SC25"}
 FILE_EXEMPT: dict[str, set[str]] = {
     "docs/evidence.md": EVIDENCE_EXEMPT,  # the index of the evidence pages
@@ -190,6 +243,8 @@ FILE_EXEMPT: dict[str, set[str]] = {
         "SC10",
         "SC13",
         "SC14",
+        "SC21",
+        "SC22",
         "SC23",
         "SC24",
         "SC25",
@@ -299,13 +354,22 @@ def is_copy_out(rel: str) -> bool:
 # A skill a learner writes or reads as an assignment's solution: an agent file, but its prose
 # follows the label rules like the skills in use-in-your-repo/.
 _ASSIGNMENT_SKILL = re.compile(rf"^{_SECTION}/assignment/(?:starter|solution)/skill/.+\.md$")
+# The harness docs that ship with the course: the demo copies and the final project's harness,
+# generated from the TeamTrack harness, which carries the course's names (option B, 2026-10-18).
+_SHIPPED_HARNESS = re.compile(rf"^(?:{_SECTION}/demo/harness/.+|final-project/harness/.+)\.md$")
 
 
 def gets_label_rules(rel: str) -> bool:
     """Every label rule (SC21 to SC25) applies: learner pages, files copied into a learner's
-    repository, and the skills of an assignment. The other agent files keep their own wording."""
+    repository, the shipped harness docs, and the skills of an assignment. Assignment 1's
+    instruction trees (the AGENTS.md files a learner writes, which a grader reads) keep their
+    own wording."""
     rel = _norm(rel)
-    return is_copy_out(rel) or bool(_ASSIGNMENT_SKILL.match(rel)) or not is_agent_file(rel)
+    return (
+        is_copy_out(rel)
+        or bool(_ASSIGNMENT_SKILL.match(rel) or _SHIPPED_HARNESS.match(rel))
+        or not is_agent_file(rel)
+    )
 
 
 def is_checked(rel: str) -> bool:
@@ -597,16 +661,32 @@ _FINDING = re.compile(r"\bF-[ab]-\d+\b")
 # A source id (A1 to A7, B1 to B14) or an assignment id (A1 to A4). "Part A1" names a part of
 # Assignment 3; tokens in code spans and fenced code are identifiers and are not read.
 _LABEL = re.compile(r"(?<!Part )\b[AB]\d{1,2}\b")
-# S1 to S4 alone; "S4:gate" is a walkthrough anchor and "R-S1" a requirement id.
-_SECTION_CODE = re.compile(r"(?<!-)\bS[1-4]\b(?!:\w)")
-# F1 to F7 (features) and R1 to R7 (house rules) alone; "R-S1", "F-a-20", and "f1.md" are other
-# identifiers, and a task name such as "F1-trap" goes in a code span.
-_COURSE_CODE = re.compile(r"(?<![-\w.])[FR][1-7](?![\w]|-[a-z]|:\w)")
+# A bare code in prose: F1 to F7, R1 to R8, S1 to S4, A1 to A7, B1 to B14. "S4:gate" is a slide
+# anchor, "R-S1" a requirement id, "f1.md" a file, "F1-trap" a task name (in a code span), and
+# "Part A1" a part of Assignment 3.
+_BARE_CODE = re.compile(
+    r"(?<![-\w./])(?<!Part )(?:F[1-7]|R[1-8]|S[1-4]|A[1-7]|B(?:1[0-4]|[1-9]))(?![\w]|-[a-z]|:\w)"
+)
+# A singular mention of a kind with its number; plurals ("Sections 1 to 4") are not mentions.
+_KIND_MENTION = re.compile(
+    r"(?<![\w-])(?P<kind>[Ff]eature|[Hh]ouse rule|[Ss]ection|[Aa]ssignment|[Ff]ilter) "
+    r"(?P<n>[1-9])(?![\w.]\d|\d)"
+)
+_SOURCE_REF = re.compile(r"\bSource (\d+)\b")
+_QUOTE = re.compile(r"^\s*(?:>\s*)+")
+_MD_LINK = re.compile(r"(?<!!)\[(?P<text>[^\]]*)\]\((?P<url>[^)\s]*)[^)]*\)")
 _EMPTY_LINK = re.compile(r"(?<!!)\[[^\]]*\]\(\s*\)|(?<!!)\[\s*\]\([^)]*\)|\[link\]", re.I)
 _URL_TARGET = re.compile(r"\]\((https?:[^)\s]*)")
 _GOOD_URL = re.compile(r"^https?://[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+(?::\d+)?(?:[/?#][^\s<>\"]*)?$")
-# The list of sources at the end of a page; on a concepts page, "Further reading" is that list.
-_SOURCES_HEADING = re.compile(r"^(?:#{2,3} Sources|\*\*Sources\*\*|## Further reading)\s*$")
+# The list of sources at the end of a page, and one entry of it:
+# "- Source 1: <title>, <link>, <author>, <date>"; the link is a <URL>, a URL, or a Markdown link.
+_SOURCES_HEADING = re.compile(r"^#{2,3} Sources\s*$")
+_SOURCE_ITEM = re.compile(
+    r"^(?:[-*+]|\d+\.)\s+Source (?P<n>\d+): (?P<title>\S.*?), "
+    r"(?P<link><https?://[^>\s]+>|\[[^\]]+\]\(https?://[^)\s]+\)|https?://[^\s,]+), "
+    r"(?P<author>\S.*?), (?P<date>\d{4}(?:-\d{2}){0,2}|n\.d\.)\.?$"
+)
+_ITEM_URL = re.compile(r"https?://[^>\s),]+")
 # The sources a page may name: a short-name pattern, and the URL a link to it must use (from the
 # course's source register). The module title "Harness Engineering" is not a source name.
 _OWNER = r"(?:,|['’]s)?\s+[\"“]?"
@@ -954,35 +1034,261 @@ def _check_ids(page: Page, c: _Collector) -> None:
             c.add(ln.no, "SC10", f"commit hash {found}: hashes go in the evidence pages")
 
 
-def _label_problems(no: int, text: str, c: _Collector, prose: bool) -> None:
-    match = _LABEL.search(text)
-    if match:
+def _ids_in_script(no: int, text: str, c: _Collector) -> None:
+    """SC21 in a script or other text file copied out: source and assignment ids only (code ids
+    such as a check named "S1" are identifiers)."""
+    for match in _LABEL.finditer(text):
         c.add(no, "SC21", f"source or assignment id {match.group(0)}: name the source (with a "
-              "link to it) or write 'Assignment N'")  # fmt: skip
-    match = _SECTION_CODE.search(text) if prose else None
-    if match:
-        c.add(no, "SC22", f"section code {match.group(0)}: write 'Section N'")
+              "link to it) or write 'Assignment N: <name>'")  # fmt: skip
 
 
-def _link_problems(no: int, text: str, c: _Collector) -> None:
+def _bare_code_message(code: str) -> str:
+    letter, number = code[0], int(code[1:])
+    if letter == "B" or (letter == "A" and number > 4):
+        return f"source id {code}: cite the source by its linked title"
+    kind = CODE_KIND[letter]
+    full = f"{kind} {number}: {NAMES[kind][number]}"
+    if letter == "A":
+        return f"source or assignment id {code}: cite the source by its linked title, or '{full}'"
+    return f"bare code {code}: write '{full}' (the first time on the page), then '{kind} {number}'"
+
+
+def _check_bare_codes(page: Page, c: _Collector) -> None:
+    """SC21: no bare F1-F7, R1-R8, S1-S4, A1-A7, or B1-B14 in prose or HTML comments. Code
+    spans, fenced code, and link targets are not read."""
+    for ln in page.lines:
+        if ln.kind in ("fence", "code"):
+            continue
+        masked = _mask_links(_mask_code(ln.text)[0])
+        for match in _BARE_CODE.finditer(masked):
+            c.add(ln.no, "SC21", _bare_code_message(match.group(0)))
+
+
+def _paragraphs(lines: list[Line]) -> Iterable[list[Line]]:
+    """Runs of consecutive prose lines (a paragraph, list, or table)."""
+    run: list[Line] = []
+    for ln in lines:
+        if ln.kind == "prose" and ln.prose.strip():
+            run.append(ln)
+            continue
+        if run:
+            yield run
+        run = []
+    if run:
+        yield run
+
+
+def _joined(run: list[Line], attr: str) -> tuple[str, list[tuple[int, int]]]:
+    """The run's lines joined with newlines, and (offset, line number) for each line."""
+    text, starts = "", []
+    for ln in run:
+        starts.append((len(text), ln.no))
+        # A quote marker at the start of a line is not part of the sentence it continues.
+        text += _QUOTE.sub(lambda m: " " * len(m.group(0)), getattr(ln, attr)) + "\n"
+    return text, starts
+
+
+def _line_at(starts: list[tuple[int, int]], offset: int) -> int:
+    return [no for start, no in starts if start <= offset][-1]
+
+
+def _units(page: Page, rel: str) -> list[list[Line]]:
+    """The parts of a page that count as one page for 'first mention': the whole page, or, in a
+    slide file, each slide (an H2)."""
+    if not rel.startswith("slides/"):
+        return [page.lines]
+    units: list[list[Line]] = [[]]
+    for ln in page.lines:
+        if ln.kind == "prose" and ln.text.startswith("## "):
+            units.append([])
+        units[-1].append(ln)
+    return units
+
+
+def _check_full_names(page: Page, c: _Collector, rel: str) -> None:
+    """SC22: the first mention of Feature N, House rule N, Section N, Assignment N, or Filter N on
+    a page (a slide, in a slide file) is the full '<Kind> N: <exact name>'."""
+    for unit in _units(page, rel):
+        seen: set[tuple[str, int]] = set()
+        for run in _paragraphs(unit):
+            text, starts = _joined(run, "masked")
+            for match in _KIND_MENTION.finditer(text):
+                kind = match.group("kind")
+                kind = kind[0].upper() + kind[1:]
+                number = int(match.group("n"))
+                name = NAMES[kind].get(number)
+                if name is None or (kind, number) in seen:
+                    continue
+                seen.add((kind, number))
+                after = " ".join(text[match.end() : match.end() + len(name) + 40].split())
+                rest = after[len(name) + 2 :]
+                if not after.startswith(f": {name}") or rest[:1].isalnum():
+                    want = f"{kind} {number}: {name}"
+                    c.add(_line_at(starts, match.start()), "SC22", f"first mention of "
+                          f"'{kind} {number}' on the page: write '{want}'")  # fmt: skip
+
+
+def _sources_start(page: Page) -> int | None:
+    """The index in page.lines of the last 'Sources' heading, if no H2 follows it."""
+    heading = max(
+        (
+            i
+            for i, ln in enumerate(page.lines)
+            if ln.kind == "prose" and _SOURCES_HEADING.match(ln.text)
+        ),
+        default=None,
+    )
+    if heading is None:
+        return None
+    after = page.lines[heading + 1 :]
+    if any(ln.kind == "prose" and ln.text.startswith("## ") for ln in after):
+        return None
+    return heading
+
+
+def _source_items(page: Page, heading: int) -> list[tuple[int, str]]:
+    """(line number, text) for each list item under the Sources heading, continuation lines
+    joined."""
+    items: list[tuple[int, str]] = []
+    for ln in page.lines[heading + 1 :]:
+        if ln.kind != "prose" or not ln.text.strip():
+            continue
+        if re.match(r"^(?:[-*+]|\d+\.)\s", ln.text):
+            items.append((ln.no, ln.text.strip()))
+        elif items and ln.text.startswith(" "):
+            items[-1] = (items[-1][0], f"{items[-1][1]} {ln.text.strip()}")
+        else:
+            items.append((ln.no, ln.text.strip()))
+    return items
+
+
+def _norm_url(url: str) -> str:
+    return url.strip("<>").split("#", 1)[0].rstrip("/").lower()
+
+
+def _body(page: Page) -> list[Line]:
+    heading = _sources_start(page)
+    return page.lines if heading is None else page.lines[:heading]
+
+
+def _body_links(page: Page) -> list[tuple[int, str]]:
+    """(line, URL) for each Markdown link in the page body, in order (a link may wrap)."""
+    out: list[tuple[int, str]] = []
+    for run in _paragraphs(_body(page)):
+        nocode, starts = _joined(run, "nocode")
+        for m in _MD_LINK.finditer(nocode):
+            out.append((_line_at(starts, m.start()), m.group("url")))
+    return out
+
+
+def _cited(page: Page) -> list[tuple[int, str]]:
+    """(line, source name) for each registered source the page body cites, by a link to its URL
+    or by naming it, in page order."""
+    out: list[tuple[int, str]] = []
+    for no, target in _body_links(page):
+        out += [(no, name) for name, _, url in SOURCES if url.match(target)]
+    for ln in _body(page):
+        if ln.kind == "prose":
+            out += [(ln.no, name) for name, mention, _ in SOURCES if mention.search(ln.masked)]
+    return sorted(out)
+
+
+def _check_source_links(page: Page, c: _Collector) -> None:
+    """SC23: every mention of a registered source's title is the text of a link to its URL, and
+    every 'Source N' has an entry N in the page's Sources list."""
+    for run in _paragraphs(_body(page)):
+        nocode, starts = _joined(run, "nocode")
+        masked = _mask_links(nocode)
+        links = [
+            (m.start("text"), m.end("text"), m.group("url")) for m in _MD_LINK.finditer(nocode)
+        ]
+        for name, mention, url in SOURCES:
+            for match in mention.finditer(masked):
+                inside = any(
+                    start <= match.start() and match.end() <= end and url.match(target)
+                    for start, end, target in links
+                )
+                if not inside:
+                    c.add(_line_at(starts, match.start()), "SC23", f"'{name}' is named without "
+                          "a link: cite it as [its title](its URL)")  # fmt: skip
+    heading = _sources_start(page)
+    items = _source_items(page, heading) if heading is not None else []
+    listed = {int(m.group("n")) for _, text in items for m in [_SOURCE_ITEM.match(text)] if m}
+    for ln in _body(page):
+        if ln.kind != "prose":
+            continue
+        for match in _SOURCE_REF.finditer(ln.masked):
+            if int(match.group(1)) not in listed:
+                c.add(ln.no, "SC23", f"'Source {match.group(1)}' has no entry in the Sources list")
+
+
+def _check_link_format(page: Page, c: _Collector) -> None:
     """SC24: an empty link, a '[link]' placeholder, or a link URL that is not well formed."""
-    match = _EMPTY_LINK.search(text)
-    if match:
-        c.add(no, "SC24", f"empty or placeholder link '{match.group(0)}'")
-    for target in _LINK_TARGET.findall(text):
-        url = target.strip().split(" ", 1)[0].strip("<>")
-        looks_remote = "://" in url or url.startswith(("http", "htp", "www.")) or "//" in url
-        if looks_remote and not _GOOD_URL.match(url):
-            c.add(no, "SC24", f"malformed link URL '{url}'")
+    for ln in page.lines:
+        if ln.kind in ("fence", "code"):
+            continue
+        text = _mask_code(ln.text)[0]
+        match = _EMPTY_LINK.search(text)
+        if match:
+            c.add(ln.no, "SC24", f"empty or placeholder link '{match.group(0)}'")
+        for target in _LINK_TARGET.findall(text):
+            url = target.strip().split(" ", 1)[0].strip("<>")
+            looks_remote = "://" in url or url.startswith(("http", "htp", "www.")) or "//" in url
+            if looks_remote and not _GOOD_URL.match(url):
+                c.add(ln.no, "SC24", f"malformed link URL '{url}'")
+
+
+def _check_sources_list(page: Page, c: _Collector) -> None:
+    """SC25: a page that cites a source (a link to a registered source, its name, or 'Source N')
+    ends with a Sources list: one '- Source N: <title>, <link>, <author>, <date>' per source,
+    numbered from 1 in the order the page first links them, each cited source listed."""
+    cited = _cited(page)
+    refs = [ln.no for ln in _body(page) if ln.kind == "prose" and _SOURCE_REF.search(ln.masked)]
+    heading = _sources_start(page)
+    if heading is None:
+        has_heading = any(
+            ln.kind == "prose" and _SOURCES_HEADING.match(ln.text) for ln in page.lines
+        )
+        if cited or refs:
+            where = min([line for line, _ in cited] + refs)
+            c.add(where, "SC25", "a page that cites a source ends with a '## Sources' list"
+                  + (" (after the last H2)" if has_heading else ""))  # fmt: skip
+        elif has_heading:
+            c.add(1, "SC25", "the '## Sources' list is the last H2 of the page")
+        return
+    items = _source_items(page, heading)
+    urls: list[str] = []
+    for number, (no, text) in enumerate(items, start=1):
+        match = _SOURCE_ITEM.match(text)
+        if not match:
+            c.add(no, "SC25", "a Sources entry reads '- Source N: <title>, <link>, <author>, "
+                  "<date>'")  # fmt: skip
+            urls.append("")
+            continue
+        if int(match.group("n")) != number:
+            c.add(no, "SC25", f"Source {match.group('n')} is entry {number}: number them 1, 2, ...")
+        found = _ITEM_URL.search(match.group("link"))
+        urls.append(_norm_url(found.group(0)) if found else "")
+    listed = "\n".join(text for _, text in items)
+    for name in dict.fromkeys(name for _, name in cited):
+        url = next(u for n, _, u in SOURCES if n == name)
+        if not url.search(listed):
+            line = next(line for line, n in cited if n == name)
+            c.add(line, "SC25", f"'{name}' needs an entry, with its link, in the Sources list")
+    # Source 1 is the first source the body links to.
+    first: dict[str, int] = {}
+    for no, target in _body_links(page):
+        first.setdefault(_norm_url(target), no)
+    order = [first[u] for u in urls if u in first]
+    if order != sorted(order):
+        c.add(page.lines[heading].no, "SC25", "number the sources in the order the page first "
+              "links them")  # fmt: skip
 
 
 def _check_labels(page: Page, c: _Collector, rel: str) -> None:
-    """SC09 on every line; SC21 to SC24 on prose and HTML comments, without code spans (and, for
-    the ids, link targets); SC08 too in the files copied into a learner's repository; SC25 once
-    per page. The other agent files (the demo harness copies of the frozen TeamTrack harness, the
-    instruction trees) get only SC09."""
+    """SC09 on every line, and SC08 too in the files copied into a learner's repository; the label
+    rules SC21 to SC25 on the pages that follow them (`gets_label_rules`)."""
     copy_out = is_copy_out(rel)
-    names = gets_label_rules(rel)
     for ln in page.lines:
         if ln.kind == "fence":
             continue
@@ -992,46 +1298,12 @@ def _check_labels(page: Page, c: _Collector, rel: str) -> None:
         match = _RUN_ID.search(ln.text) if copy_out else None
         if match:
             c.add(ln.no, "SC08", f"run id {match.group(0)}: ids go in the evidence pages")
-        if names and ln.kind != "code":
-            nocode = _mask_code(ln.text)[0]
-            masked = _mask_links(nocode)
-            _label_problems(ln.no, masked, c, prose=True)
-            match = _COURSE_CODE.search(masked)
-            if match:
-                c.add(ln.no, "SC23", f"course code {match.group(0)}: write its plain name (see "
-                      "'Codes used in this course' in docs/reference.md)")  # fmt: skip
-            _link_problems(ln.no, nocode, c)
-    if names:
-        _check_sources(page, c)
-
-
-def _check_sources(page: Page, c: _Collector) -> None:
-    """SC25: every source the page names has a link to it on the page, and a page that names or
-    links a source lists each one under a 'Sources' heading at the end."""
-    raw = "\n".join(ln.text for ln in page.lines)
-    heading = max(
-        (
-            i
-            for i, ln in enumerate(page.lines)
-            if ln.kind == "prose" and _SOURCES_HEADING.match(ln.text)
-        ),
-        default=None,
-    )
-    listed = "\n".join(ln.text for ln in page.lines[heading:]) if heading is not None else ""
-    for name, mention, url in SOURCES:
-        first = next(
-            (ln.no for ln in page.lines if ln.kind == "prose" and mention.search(ln.masked)), None
-        )
-        linked = url.search(raw)
-        if first is not None and not linked:
-            c.add(first, "SC25", f"'{name}' is named with no link to it on the page")
-            continue
-        if not linked:
-            continue
-        where = first or next(ln.no for ln in page.lines if url.search(ln.text))
-        if not url.search(listed):
-            c.add(where, "SC25", f"'{name}' needs an entry, with its link, in a 'Sources' list "
-                  "at the end of the page")  # fmt: skip
+    if gets_label_rules(rel):
+        _check_bare_codes(page, c)
+        _check_full_names(page, c, rel)
+        _check_source_links(page, c)
+        _check_link_format(page, c)
+        _check_sources_list(page, c)
 
 
 # -- relative links resolve (SC30) ----------------------------------------------------------------
@@ -1142,7 +1414,7 @@ def link_problems(
     return out
 
 
-def _check_links(page: Page, c: _Collector, root: Path, rel: str) -> None:
+def _check_links_resolve(page: Page, c: _Collector, root: Path, rel: str) -> None:
     if not gets_link_check(rel):
         return
     for no, message in link_problems(page, root, rel, {}):
@@ -1157,7 +1429,7 @@ def check_script(rel: str, text: str) -> list[Problem]:
             match = regex.search(line)
             if match:
                 c.add(no, check, f"id {match.group(0)}: ids go in the evidence pages")
-        _label_problems(no, line, c, prose=False)
+        _ids_in_script(no, line, c)
     return sorted(set(c.items))
 
 
@@ -1399,7 +1671,7 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
     agent = is_agent_file(rel)
     _check_images(page, c, root, rel, agent)
     _check_labels(page, c, rel)
-    _check_links(page, c, root, rel)
+    _check_links_resolve(page, c, root, rel)
     if not agent:
         kind = doc_type(rel)
         exempt = exemptions(rel)

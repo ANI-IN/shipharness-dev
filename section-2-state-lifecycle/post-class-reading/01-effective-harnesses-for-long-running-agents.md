@@ -1,7 +1,7 @@
-# Effective harnesses for long-running agents
+# [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)
 
 Reading time: about 10 minutes.
-Source: Justin Young (Anthropic), "Effective harnesses for long-running agents", 2025-11-26, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents> ([evidence](../../docs/evidence/s1.md#src-anthropic-long-running)).
+Source: Justin Young (Anthropic), [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), 2025-11-26 ([evidence](../../docs/evidence/s1.md#src-anthropic-long-running)).
 
 > **Terms on this page**
 >
@@ -51,4 +51,4 @@ state layer follows it closely.
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

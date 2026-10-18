@@ -25,11 +25,11 @@ or may not pay for itself.
 
 - A rule the agent cannot see does not exist for it: "From the agent’s point of view, anything it
   can’t access in-context while running effectively doesn’t exist."
-  ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/))
+  ([Harness engineering](https://openai.com/index/harness-engineering/))
 - Sessions do not remember each other: "each new session begins with no memory of what came
-  before." ([Anthropic, Effective harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
+  before." ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents))
 - Agents grade themselves kindly: "agents reliably skew positive when grading their own work."
-  ([Anthropic, Harness design](https://www.anthropic.com/engineering/harness-design-long-running-apps))
+  ([Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps))
 
 ## How this section fixes it
 
@@ -50,7 +50,7 @@ the agent kept to the allowed files in 3 of 3 runs of one ticket; without the ha
 of 3 ([evidence](../docs/evidence/final.md#use-in-your-repository)). Your repository and your model
 may differ. The source behind the map says the same of its own results: they "should not be assumed
 to generalize without similar investment—at least, not yet"
-([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+(Source 1).
 
 ## How to work through this section
 
@@ -63,7 +63,7 @@ Work in this order. Steps 1 to 4 of the guide make no model calls.
 | [kit/examples/boltons-queueutils/](kit/examples/boltons-queueutils/README.md) | The worked example after filling | None |
 | [skills/harness-setup/](skills/harness-setup/README.md) | Assess a repository's harness; fill the gaps | Your agent's |
 | [skills/house-rules/](skills/house-rules/README.md) | Turn a convention into a rule, a check, and a test | Your agent's |
-| [skills/assured-tests/](skills/assured-tests/README.md) | Generate tests; keep only those that pass five filters | Your agent's, plus testgen |
+| [skills/assured-tests/](skills/assured-tests/README.md) | Generate tests; keep only those that pass Filters 1 to 5 | Your agent's, plus testgen |
 | [skills/skill-template/](skills/skill-template/README.md) | Start a skill of your own | Your agent's |
 
 The quickest start, from your shipharness checkout, copies the kit into your repository and lists
@@ -77,13 +77,18 @@ uv run shipharness init --check ~/my-repo
 ## Where next
 
 - New to the course? Run the TeamTrack demos first, starting with
-  [Section 1 of Module 1](../section-1-instructions/README.md).
+  [Section 1: Instructions](../section-1-instructions/README.md) of Module 1.
 - Ready for your own code? Follow [apply-to-your-repo.md](apply-to-your-repo.md) from step 1.
 - Building your portfolio? The [final project](../final-project/README.md) shows how the kit feeds
-  Assignment 4.
+  Assignment 4: Verification.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, 2026-03-24)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Effective harnesses for long-running agents,
+  <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>,
+  Justin Young (Anthropic), 2025-11-26
+- Source 3: Harness design for long-running application development,
+  <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
+  Prithvi Rajasekaran (Anthropic), 2026-03-24

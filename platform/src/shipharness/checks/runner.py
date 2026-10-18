@@ -5,8 +5,8 @@
         [--baseline <json-file>] [--adapter module:attr]
 
 stdout: one JSON document {"results": [CheckResult, ...]}. stderr: one JSON line per progress
-update {"check": "R1", "done": 37, "total": 112, "label": "R1 probes 37/112"}. Anything the build
-prints while it runs goes to stderr, so stdout stays parseable.
+update {"check": "R1", "done": 37, "total": 112, "label": "House rule 1 probes 37/112"}. Anything
+the build prints while it runs goes to stderr, so stdout stays parseable.
 
 Params (all optional): `exemptions` (per rule; default: the adapter's list for the checkpoint),
 `allowed_paths` ({"build": [...], "test": [...]}), `adapter`, and the per-check keys documented in

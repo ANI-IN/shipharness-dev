@@ -89,12 +89,12 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 ![TeamTrack tables inside a dashed tenant boundary, with orgs above it](./teamtrack-data-model.svg)
 
-*Every table inside the dashed box carries org_id; the tenant isolation rule says another org's row answers 404.*
+*Every table inside the dashed box carries org_id; House rule 1: Tenant isolation says another org's row answers 404.*
 
-- **What it teaches**: the app every ticket changes, and the tenant rule the agent must keep.
+- **What it teaches**: the app every ticket changes, and House rule 1, which the agent must keep.
 - **Slide topic**: meet TeamTrack, in the opening.
 - **Files**: `teamtrack-data-model`.
-- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for comments, watchers, and labels
+- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for Feature 2: Comments on issues, Feature 6: Watchers, and Feature 7: Labels
   under `platform/teamtrack/reference/`.
 
 ### One ticket, two arms, one referee
@@ -114,8 +114,9 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 *The second save names a version that is no longer current, so it gets 412 and changes nothing.*
 
-- **What it teaches**: the version checks ticket, which Section 3 and Section 4 both run.
-- **Slide topic**: the version checks ticket, in Sections 3 and 4.
+- **What it teaches**: the ticket for Feature 4: Version checks on issue edits, which
+  Section 3: Scope and sandbox and Section 4: Verification both run.
+- **Slide topic**: the Feature 4 ticket, in Sections 3 and 4.
 - **Files**: `optimistic-concurrency`.
 - **Source**: `platform/teamtrack/docs/features/f4.md`.
 
@@ -145,7 +146,7 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 ![Dot chart: one dot per run per arm for each section's measure, filled for passed, hollow for failed](./results-final.svg)
 
-*The harness arm was ahead only on out-of-scope files in version checks: 3 of 3 runs passed against 0 of 3.*
+*The harness arm was ahead only on out-of-scope files on the Feature 4 ticket: 3 of 3 runs passed against 0 of 3.*
 
 - **What it teaches**: what the course measured, as counts, with every run shown.
 - **Slide topic**: what we measured, at the close.
@@ -158,7 +159,7 @@ In the results charts, each dot is one run: a filled dot passed, a hollow dot fa
 
 *Each rule with one TeamTrack example.*
 
-- **What it teaches**: the seven house rules the referee checks, in plain words.
+- **What it teaches**: House rules 1 to 7, which the referee checks, in plain words.
 - **Slide**: the house rules slide, right after the data model.
 - **Files**: `house-rules`.
 - **Source**: `platform/teamtrack/docs/HANDBOOK.md`.
@@ -221,7 +222,7 @@ To change a diagram:
 
 4. Look at the PNG on the navy slide background before you commit it.
 
-You can also open an `.excalidraw` file at [excalidraw.com](https://excalidraw.com) for a quick
+You can also open an `.excalidraw` file at [Excalidraw](https://excalidraw.com) for a quick
 look. A change made there is lost at the next build, so make lasting changes in the code.
 
 For a diagram with step frames, each frame adds one element, and every frame keeps the full panel,
@@ -242,3 +243,7 @@ against that file first.
 
 The Open Font License allows a font to be embedded in documents. The embedded font keeps its own
 licence.
+
+## Sources
+
+- Source 1: Excalidraw, <https://excalidraw.com>, Excalidraw project, n.d.

@@ -100,6 +100,12 @@ def test_write_report_produces_static_html_and_json(tmp_path: Path) -> None:
     html_path = write_report(exports, tmp_path / "out")
     html = html_path.read_text(encoding="utf-8")
     assert "<table" in html and "<svg" in html
+    # Headings name the feature and the measure; report.json keeps the machine ids.
+    assert (
+        "<h2>Feature 1: Org-wide issue search · House rule 1: Tenant isolation, new violations"
+        in (html)
+    )
+    assert 'aria-label="Feature 1: Org-wide issue search · House rule 1' in html
     assert "prefers-color-scheme: dark" in html
     data = json.loads((tmp_path / "out" / "report.json").read_text(encoding="utf-8"))
     assert data["runs"] == 7

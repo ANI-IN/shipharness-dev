@@ -1,4 +1,4 @@
-# Assignment 1 solution: From one long instruction file to a map
+# Assignment 1: Instructions. Solution: from one long instruction file to a map
 
 This folder holds a finished work folder for [Assignment 1](../README.md): the instructions tree, the
 checker with its tests, the A/B report, the live evidence, and the captured checks. This page explains
@@ -35,7 +35,7 @@ What is in this folder:
    15). The checker was then written until they passed, and it ran after every document of the split.
    A split without a check is a guess. OpenAI's harness team runs "Dedicated linters and CI jobs" on
    its knowledge base for the same reason
-   ([OpenAI, Harness engineering](https://openai.com/index/harness-engineering/)).
+   ([Harness engineering](https://openai.com/index/harness-engineering/)).
 
 3. **Give each rule one home.** Each document answers one question an agent asks before it edits code:
 
@@ -185,4 +185,4 @@ grader is not in this repository. Dates, batch, and run ids are on the
 
 ## Sources
 
-- Source 1: Harness engineering: leveraging Codex in an agent-first world, [https://openai.com/index/harness-engineering/](https://openai.com/index/harness-engineering/), OpenAI (Ryan Lopopolo), 2026-02-11
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

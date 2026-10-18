@@ -1,4 +1,4 @@
-# Assignment 1 specification: From one long instruction file to a map
+# Assignment 1: Instructions. Specification: from one long instruction file to a map
 
 The full requirements for [Assignment 1](README.md). The README gives the story and the steps; this
 page is the reference you check your work against.
@@ -195,7 +195,7 @@ of its content words.
 
 - **Setup**: the exact command (with `--split section-1`, `--k 3`, `--layers instructions`, and a
   `--batch` label), `Instructions tree commit: <sha>`, and `Runs per arm: <n>`.
-- **Results**: an `R1` row (the tenant isolation rule) and an `R3` row (the API conventions rule),
+- **Results**: an `R1` row (House rule 1: Tenant isolation) and an `R3` row (House rule 3: API conventions),
   with `failing/runs` per arm (for example `3/24`). Runs equal "Runs per arm". No percentages.
 - **Links**: the two LangSmith experiment URLs.
 - **Cost and traces**: `Cost: $<x>` at most 2.50 and `Traces: <n>` at most 150.
@@ -348,4 +348,4 @@ $0.0151 each ([pilot results](../../docs/evidence/s1.md#s1-pilot)).
 
 ## Sources
 
-- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
+- Source 1: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.

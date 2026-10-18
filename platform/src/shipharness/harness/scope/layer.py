@@ -14,6 +14,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
+from shipharness.datasets.names import feature_label
 from shipharness.harness.base import BaseLayer, LayerContext, register_layer
 from shipharness.harness.decisions import HarnessDecision
 from shipharness.harness.scope import snapshot
@@ -130,7 +131,8 @@ class ScopeLayer(BaseLayer):
         feature = self.feature(ctx)
         lines = [
             "## Scope",
-            f"This task has one feature: {feature['id']} ({feature['description']}). "
+            f"This task has one feature: {feature_label(feature['id'])} "
+            f"({feature['description']}). "
             "Work on only this one feature in this session.",
             "The feature list is feature_list.json (read it with read_file). "
             f"{FEATURE_LIST_REASON}: it sets the passes field itself, with evidence, after you "

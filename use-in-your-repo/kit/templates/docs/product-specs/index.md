@@ -6,5 +6,5 @@ What TeamTrack does, from the user's side. Feature specs are added here as featu
 | Spec | Covers |
 |---|---|
 | [teamtrack-base.md](teamtrack-base.md) | the base product: orgs, users and roles, projects, members, issues, audit log |
-| [f1.md](f1.md) | F1 org-wide issue search: `GET /issues` with filters and cursor pagination |
+| [f1.md](f1.md) | Feature 1: Org-wide issue search (`GET /issues` with filters and cursor pagination) |
 

@@ -1,9 +1,9 @@
 # Exec plan: <feature id> <short title>
 
 <!-- A living plan for one feature, kept in docs/exec-plans/active/ and moved to
-docs/exec-plans/completed/ when the feature passes (OpenAI, Harness engineering: plans "with progress and decision logs that
-are checked into the repository"). Section names follow the ExecPlan in OpenAI, Exec plans (https://cookbook.openai.com/articles/codex_exec_plans); the wording is ours. Write it
-so a new session with no memory can restart from this file alone (OpenAI, Exec plans). Update it as you work, not at
+docs/exec-plans/completed/ when the feature passes ([Harness engineering](https://openai.com/index/harness-engineering/): plans "with progress and decision logs that
+are checked into the repository"). Section names follow the ExecPlan in [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (https://cookbook.openai.com/articles/codex_exec_plans); the wording is ours. Write it
+so a new session with no memory can restart from this file alone ([Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans)). Update it as you work, not at
 the end. -->
 
 ## Purpose
@@ -39,7 +39,9 @@ Commands that prove the feature works, with the result you expect from each:
 <manual check, for example a curl>   expected: <status and body>
 ```
 
-**Sources**
+### Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) (OpenAI cookbook)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world,
+  <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Using PLANS.md for multi-hour problem solving,
+  <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07

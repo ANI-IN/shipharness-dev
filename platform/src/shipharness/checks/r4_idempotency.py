@@ -93,7 +93,7 @@ class IdempotencyCheck:
                 tested += int(is_create)
                 if finding is not None:
                     findings.append(finding)
-                ctx.progress(n, len(posts), f"R4 probes {n}/{len(posts)}")
+                ctx.progress(n, len(posts), f"House rule 4 probes {n}/{len(posts)}")
         return make_result(
             self.name, apply_exemptions(findings, ctx), total_probes=tested, started=started
         )

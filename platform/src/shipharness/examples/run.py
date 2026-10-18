@@ -13,6 +13,8 @@ from typing import Any
 
 from shipharness.ab.demo import ABDeps, ABResult, ABTask, ClientFactory, run_ab, section_layers
 from shipharness.config import Prices, Settings
+from shipharness.console.labels import check_label
+from shipharness.console.state import measure_values
 from shipharness.cost import Caps, CostTracker
 from shipharness.events import Arm, Event, read_events
 from shipharness.examples.base import NO_USAGE, Scenario
@@ -130,10 +132,10 @@ def _shown(event: Event) -> str | None:
     if event.type == "check_result" and not d["passed"]:
         findings = [f for f in d["findings"] if not f.get("baseline")]
         first = f": {findings[0]['severity']} {findings[0]['detail']}" if findings else ""
-        return f"referee: {d['check']} {d['new_violations']} new{first}"[:200]
+        return f"referee: {check_label(d['check'])}, {d['new_violations']} new{first}"[:200]
     if event.type == "primary_verdict":
         outcome = "PASS" if d["passed"] else "FAIL"
-        return f"referee: primary {d['primary_measure']} {outcome} {d['values']}"
+        return f"referee: primary verdict {outcome} ({measure_values(d['values'])})"
     return None
 
 

@@ -8,7 +8,7 @@ start.
 
 | Item | Status | Where it shows up |
 |---|---|---|
-| Idempotency keys for issue creation | F3 | Specified in `docs/features/f3.md` (R4); check `app/api/issues.py` to see whether it is in place. |
+| Idempotency keys for issue creation | Feature 3: Safe retries for issue creation | Specified in `docs/features/f3.md` (House rule 4: Safe retries); check `app/api/issues.py` to see whether it is in place. |
 | Remove the legacy /v1 API | planned | `GET /v1/issues`, `repositories.issues.list_all_legacy`, and `services.legacy` are scheduled for removal (`docs/QUALITY_SCORE.md`). |
 
 Neither item is part of a feature ticket unless the ticket says so.
@@ -22,4 +22,4 @@ Neither item is part of a feature ticket unless the ticket says so.
 
 - Prefer small pull requests that touch only the files a feature needs.
 - Feature work should not touch `app/api/middleware.py`; changes to it need a separate review.
-- A schema change gets exactly one migration (R7, `docs/RELIABILITY.md`).
+- A schema change gets exactly one migration (House rule 7: Migrations, `docs/RELIABILITY.md`).

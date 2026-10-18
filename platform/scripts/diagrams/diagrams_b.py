@@ -35,10 +35,10 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             "Grades its\nown work",
         ]
         layers = [
-            "Instructions\nSection 1",
-            "State and lifecycle\nSection 2",
-            "Scope and sandbox\nSection 3",
-            "Verification\nSection 4",
+            "Section 1:\nInstructions",
+            "Section 2: State\nand sessions",
+            "Section 3: Scope\nand sandbox",
+            "Section 4:\nVerification",
         ]
         s.text(320, 60, "Story", T, INK, "center")
         s.text(980, 60, "Cause", T, INK, "center")
@@ -100,7 +100,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         rows = [
             (1, "1  read all of this", INK),
             (196, "196  house rules", AMBER),
-            (204, "204  tenant isolation rule", AMBER),
+            (204, "204  House rule 1", AMBER),
             (586, "586  legacy /v1 API", AMBER),
             (669, "669  team notes, history", INK),
             (787, "787  questions we get", INK),
@@ -200,15 +200,15 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         note(s, 960, 1000, "the harness rewrites only its part")
 
     # Sources: platform/teamtrack/migrations/versions/0001_initial.py; docs/evidence/s2.md
-    # (0002_comments.py); harness/state/handoff.py ("house rule R7 needs exactly one");
-    # concepts.md (R7).
+    # (0002_comments.py); harness/state/handoff.py ("needs exactly one" head);
+    # concepts.md (House rule 7: Migrations).
     @diagram(S2, "alembic-heads")
     def alembic_heads(s: Scene) -> None:
         s.text(310, 60, "One head", T, INK, "center")
         a0 = s.box(110, 150, 400, 120, "0001_initial", role="plain")
         a1 = s.box(110, 460, 400, 130, "0002_comments\n(session 1)", role="harness")
         s.arrow(a0, a1, "down_revision", start="bottom", end="top")
-        s.box(80, 760, 460, 160, "1 head:\nmigrations rule holds", role="neutral")
+        s.box(80, 760, 460, 160, "House rule 7: Migrations\nholds", role="neutral")
         s.line([(660, 40), (660, 960)], dashed=True, color=GREY)
         s.text(1310, 60, "Two heads", T, INK, "center")
         b0 = s.box(1110, 150, 400, 120, "0001_initial", role="plain")
@@ -222,7 +222,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             760,
             640,
             160,
-            "2 heads:\nmigrations rule fails",
+            "House rule 7: Migrations\nfails",
             role="fail",
             stroke_width=BOLD,
         )

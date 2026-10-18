@@ -39,7 +39,7 @@ class AuditCheck:
                             f"(expected {expected})",
                         )
                     )
-                ctx.progress(done, len(writes), f"R5 probes {done}/{len(writes)}")
+                ctx.progress(done, len(writes), f"House rule 5 probes {done}/{len(writes)}")
         return make_result(
             self.name, apply_exemptions(findings, ctx), total_probes=len(writes), started=started
         )

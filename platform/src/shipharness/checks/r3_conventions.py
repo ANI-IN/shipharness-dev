@@ -144,7 +144,7 @@ def fuzz(t: Target, ctx: CheckContext, found: _Collector) -> None:
 
     for done, op in enumerate(operations, start=1):
         make_test(op)()
-        ctx.progress(done, len(operations), f"R3 operations {done}/{len(operations)}")
+        ctx.progress(done, len(operations), f"House rule 3 operations {done}/{len(operations)}")
 
 
 def direct(t: Target, found: _Collector) -> None:

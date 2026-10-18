@@ -3,6 +3,9 @@
 <!-- Keep the six sections below; the grader checks that each exists and is not empty. Paste real
 output only. Replace every TODO. -->
 
+This report covers generated tests, Filter 6: No duplicate tests, and the check for House rule 8:
+Deleted issues stay hidden.
+
 ## Target
 
 TODO: the repository and module you ran testgen on (`--target <id>` or `--repo` + `--module`),
@@ -20,10 +23,10 @@ discard reasons, and the cost line the command printed.
 
 ## Filter 6 on the kept tests
 
-TODO: the `apply_filter` output: how many kept tests filter 6 kept, and which test each duplicate
+TODO: the `apply_filter` output: how many kept tests Filter 6 kept, and which test each duplicate
 copies.
 
-## R8 on TeamTrack
+## House rule 8 on TeamTrack
 
 TODO: the `run_r8` result on `platform/teamtrack/` (probes, findings), and what happens with `--baseline`.
 

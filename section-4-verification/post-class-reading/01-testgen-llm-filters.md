@@ -1,7 +1,7 @@
-# Automated Unit Test Improvement using Large Language Models at Meta
+# [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171)
 
 Reading time: about 60 minutes.
-Source: Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14, <https://arxiv.org/abs/2402.09171> ([evidence](../../docs/evidence/s4.md#src-testgen-llm)).
+Source: [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171), Alshahwan et al. (Meta), FSE '24, 2024-02-14 ([evidence](../../docs/evidence/s4.md#src-testgen-llm)).
 
 > **Terms on this page**
 >
@@ -13,13 +13,13 @@ Source: Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large La
 
 An agent that writes tests leaves them in your repository, where they guard every later change. A
 test that fails one run in five, or adds nothing the suite did not already check, costs review time
-and gives no signal. Meta's TestGen-LLM faced this at scale: a model proposes tests for Instagram and
+and gives no signal. Meta's [TestGen-LLM](https://arxiv.org/abs/2402.09171) faced this at scale: a model proposes tests for Instagram and
 Facebook code, and a pipeline decides which ones an engineer ever sees. The course's five test
 filters start from its design.
 
 ## Three key ideas
 
-1. **Filter in order of cost.** TestGen-LLM keeps a test only after "a series of progressively
+1. **Filter in order of cost.** [TestGen-LLM](https://arxiv.org/abs/2402.09171) keeps a test only after "a series of progressively
    demanding semantic filters": it must build, then pass, then add coverage. A test is dropped at the
    first filter it fails, so the slow checks run only on tests that already passed the fast ones.
 
@@ -34,12 +34,13 @@ filters start from its design.
    engineer in ultimate control of the code that lands into the code base."
 
 The course runs the three filters and adds two of its own. A coding agent in a test phase can edit
-the code under test, or mock the function it claims to test. So filter 4 checks for real assertions
-with no mocking of the code under test, and filter 5 checks that no source file changed. The paper
-does not state either one.
+the code under test, or mock the function it claims to test. So Filter 4: Real assertions checks for
+real assertions with no mocking of the code under test, and Filter 5: No source changes checks that
+no source file changed. The paper does not state either one.
 
 One limit carries over from the paper: a test that fails is discarded, because the current code is
-treated as correct. In the captured Section 4 demo run, that is how a correct test was lost.
+treated as correct. In the captured demo run of Section 4: Verification, that is how a correct test
+was lost.
 
 ## Apply it to your repo
 
@@ -56,4 +57,5 @@ treated as correct. In the captured Section 4 demo run, that is how a correct te
 
 ## Sources
 
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
+- Source 1: Automated Unit Test Improvement using Large Language Models at Meta (TestGen-LLM), <https://arxiv.org/abs/2402.09171>,
+  Alshahwan et al. (Meta), 2024-02-14

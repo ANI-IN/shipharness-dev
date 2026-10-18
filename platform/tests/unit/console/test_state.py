@@ -119,14 +119,16 @@ def test_filter_table_mutants_and_checks(state: ConsoleState) -> None:
         "tests/test_labels.py::test_label_with_mocks",
     ]
     mocked = tests["tests/test_labels.py::test_label_with_mocks"]
-    assert mocked.kept is False and mocked.discard_reason == "filter 4: mocks the unit under test"
+    assert mocked.kept is False and mocked.discard_reason == (
+        "Filter 4: Real assertions (mocks the unit under test)"
+    )
     assert tests["tests/test_labels.py::test_label_scoped_to_org"].kept is True
     assert [(m["mutant_id"], m["outcome"]) for m in harness.mutants if m["set"] == "filter"] == [
         ("m-issues-01", "killed"),
         ("m-issues-02", "survived"),
     ]
     assert bare.checks["r1_tenant"]["new_violations"] == 3
-    assert bare.progress["R1"]["label"] == "R1 probes 112/112"
+    assert bare.progress["R1"]["label"] == "House rule 1 probes 112/112"
 
 
 def test_screenshots_and_trace_links(state: ConsoleState) -> None:
@@ -141,7 +143,8 @@ def test_first_wrong_turn(state: ConsoleState) -> None:
     bare = state.arm("bare").first_wrong_turn()
     assert bare is not None
     assert (bare.session_index, bare.turn) == (1, 2)
-    assert "app/repositories/issues.py" in bare.reason and "R1" in bare.reason
+    assert "app/repositories/issues.py" in bare.reason
+    assert "House rule 1: Tenant isolation" in bare.reason
     harness = state.arm("harness").first_wrong_turn()
     assert harness is not None and (harness.session_index, harness.turn) == (1, 3)
     assert "blocked" in harness.reason

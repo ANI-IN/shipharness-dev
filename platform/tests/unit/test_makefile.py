@@ -389,6 +389,7 @@ def test_make_help_names_the_readable_feature_names() -> None:
     for code, alias in FEATURE_ALIASES.items():
         assert alias in text and code in text, alias
     assert "FEATURE=version-checks" in text and "FEATURES=watchers,bulk-close" in text
+    assert "idempotent-create" in text  # the earlier name of safe-retries still works
 
 
 # -- course style check ---------------------------------------------------------------------------

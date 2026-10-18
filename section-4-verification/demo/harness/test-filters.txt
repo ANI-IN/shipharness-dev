@@ -1,5 +1,5 @@
-1. imports and runs
-2. passes 5 consecutive runs
-3. adds coverage or kills a mutant
-4. real assertions, no mocking of the unit under test
-5. no source change in the test phase
+Filter 1: Builds and collects
+Filter 2: Passes five runs
+Filter 3: Adds coverage or catches a mutant
+Filter 4: Real assertions
+Filter 5: No source changes

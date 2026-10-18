@@ -28,6 +28,7 @@ def test_check_passes_with_exit_0_and_prints_cost(app: typer.Typer, base_build: 
     result = CliRunner().invoke(app, ["check", "--app", str(base_build), "--rules", "R6,R7"])
     assert result.exit_code == 0, result.output
     assert "r6_layering" in result.stdout and "PASS" in result.stdout
+    assert "House rule 6: Layering" in result.stdout and "House rule 7: Migrations" in result.stdout
     assert "Cost: $0.000000 (no model calls)" in result.stdout
     assert "UNSANDBOXED" in result.output
 

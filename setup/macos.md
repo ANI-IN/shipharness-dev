@@ -24,7 +24,7 @@ class.
 
 - A macOS release that Docker Desktop supports: "Docker Desktop is supported on the current and two
   previous major macOS releases", with "At least 4 GB of RAM"
-  ([Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)).
+  ([Install Docker Desktop on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)).
 - Administrator rights on the Mac.
 - About 4 GB of free disk for the two sandbox images.
 - A payment card for OpenAI (step 2). LangSmith needs no card.
@@ -58,9 +58,9 @@ If the key ever lands in a chat, an issue, or a screenshot, delete it and create
 ### Step 2: Add credit (Build tier)
 
 **Why.** The agent model has no free tier. Its model page lists the Free tier as "Not supported"
-([OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
+([gpt-6-luna model page](https://developers.openai.com/api/docs/models/gpt-6-luna), read 2026-10-17).
 The Build tier needs "$5 in total credit purchases"
-([OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
+([Rate limits](https://developers.openai.com/api/docs/guides/rate-limits), read 2026-10-17).
 
 **Do this.**
 
@@ -84,14 +84,14 @@ add credit and retry.` means the account is out of credit: add more. The message
 **Why.** Every run sends traces to LangSmith, where you can open the agent's steps one by one. The
 free Developer plan is enough: "Personal organizations are limited to 5,000 traces per month until
 a credit card is added."
-([LangSmith, Billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
+([LangSmith billing](https://docs.langchain.com/langsmith/billing), read 2026-10-17). Without a
 card there is nothing to bill. Do not add a card.
 
 **Do this.**
 
 1. Open https://smith.langchain.com and sign up. Stay on the free Developer plan.
 2. Go to Settings, then API Keys, then Create API Key
-   ([LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)).
+   ([Create an account and API key](https://docs.langchain.com/langsmith/create-account-api-key)).
 3. Choose a Personal Access Token with an expiry after the course, and create it.
 4. Copy the key right away: "LangSmith will display the API key only once."
 
@@ -110,7 +110,7 @@ network and only the workspace writable (`platform/sandbox/Dockerfile`). The cou
 `docker` command. Pick one of the two options.
 
 **Do this.** Option A, Docker Desktop
-([Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)):
+(Source 1):
 
 1. Download the installer for your chip (Apple silicon or Intel) from that page.
 2. Open `Docker.dmg` and drag Docker into Applications.
@@ -159,7 +159,7 @@ Docker's own check is `docker run hello-world`.
 the agent's workspace.
 
 **Do this.** Install Apple's Command Line Tools, which include git
-([Git, Install on macOS](https://git-scm.com/install/mac)):
+([Installing Git on macOS](https://git-scm.com/install/mac)):
 
 ```bash
 xcode-select --install
@@ -177,7 +177,7 @@ xcode-select --install
 through `uv run`. `.python-version` pins Python 3.12, and uv downloads it on first use.
 
 **Do this.** The course machine uses uv 0.13.1; this installs that version
-([uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)):
+([Installing uv](https://docs.astral.sh/uv/getting-started/installation/)):
 
 ```bash
 curl -LsSf https://astral.sh/uv/0.13.1/install.sh | sh
@@ -230,7 +230,9 @@ make setup
 **You should see.** uv's install lines, two `docker build` runs, and at the end
 `+ created .env: fill in the two API keys`.
 
-**Check it worked.** `git tag -l 'm1-*'` lists nine tags, and
+**Check it worked.** `git tag -l 'm1-*'` lists nine tags (checkpoints: each marks the TeamTrack
+code a part of the course starts from, such as `m1-s1-start` for the start of Section 1:
+Instructions), and
 `docker image ls | grep shipharness` lists `shipharness-agent` and `shipharness-referee`.
 
 **If it fails.** `! docker not found: images not built; sandboxed runs need a container runtime`
@@ -324,7 +326,8 @@ window, start the run:
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on the org-wide issue search feature, then the
+`make show-1` runs the harness arm alone with the instructions layer on Feature 1: Org-wide issue
+search, then the
 referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The newest run in the browser's run list; press `1` to watch it. The terminal
@@ -367,12 +370,18 @@ or the [module overview](../README.md).
 
 ## Sources
 
-- [Docker, Install on Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
-- [Colima](https://github.com/abiosoft/colima)
-- [Homebrew](https://brew.sh/)
-- [Git, Install on macOS](https://git-scm.com/install/mac)
-- [uv, Installation](https://docs.astral.sh/uv/getting-started/installation/)
-- [OpenAI, Rate limits](https://developers.openai.com/api/docs/guides/rate-limits)
-- [OpenAI, gpt-6-luna](https://developers.openai.com/api/docs/models/gpt-6-luna)
-- [LangSmith, Billing](https://docs.langchain.com/langsmith/billing)
-- [LangSmith, Create an API key](https://docs.langchain.com/langsmith/create-account-api-key)
+- Source 1: Install Docker Desktop on Mac,
+  <https://docs.docker.com/desktop/setup/install/mac-install/>, Docker, n.d.
+- Source 2: gpt-6-luna model page, <https://developers.openai.com/api/docs/models/gpt-6-luna>,
+  OpenAI (API docs), n.d.
+- Source 3: Rate limits, <https://developers.openai.com/api/docs/guides/rate-limits>,
+  OpenAI (API docs), n.d.
+- Source 4: LangSmith billing, <https://docs.langchain.com/langsmith/billing>,
+  LangChain (LangSmith docs), n.d.
+- Source 5: Create an account and API key,
+  <https://docs.langchain.com/langsmith/create-account-api-key>, LangChain (LangSmith docs), n.d.
+- Source 6: Colima, <https://github.com/abiosoft/colima>, Colima project, n.d.
+- Source 7: Homebrew, <https://brew.sh/>, Homebrew project, n.d.
+- Source 8: Installing Git on macOS, <https://git-scm.com/install/mac>, Git project, n.d.
+- Source 9: Installing uv, <https://docs.astral.sh/uv/getting-started/installation/>,
+  Astral (uv docs), n.d.

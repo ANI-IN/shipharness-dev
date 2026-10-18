@@ -1,4 +1,4 @@
-# Assignment 1 A/B report: the instructions layer on the Section 1 tasks (reference tree)
+# Assignment 1: Instructions. A/B report: the instructions layer on the tasks of Section 1: Instructions (reference tree)
 
 This is the reference solution's report for Assignment 1: Instructions. Its structure is what your
 report must have. Every number below comes from the live evidence in [live/](live/), as printed by
@@ -20,8 +20,8 @@ That commit holds this folder's `instructions/`, copied unchanged to
 
 | Measure | Bare arm (runs failing of N) | Harness arm (runs failing of N) |
 |---|---|---|
-| R1: runs with at least one new violation of House rule 1: Tenant isolation | 0/24 | 0/24 | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
-| R3: runs with at least one new failure of House rule 3: API conventions | 0/24 | 0/24 | <!-- check-style: allow SC23 the Section 1 checker reads this row -->
+| R1: runs with at least one new violation of House rule 1: Tenant isolation | 0/24 | 0/24 | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
+| R3: runs with at least one new failure of House rule 3: API conventions | 0/24 | 0/24 | <!-- check-style: allow SC21 the Assignment 1 self-check reads this row verbatim -->
 | Leaks found by the tenant isolation probes (sum over runs) | 0 | 0 |
 | Runs aborted or errored | 2 | 0 |
 

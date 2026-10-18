@@ -71,8 +71,10 @@ def test_live_console_header_turns_gate_and_claims(page: dict[str, str]) -> None
     assert "$0.081 / $0.20" in live
     assert "Session 1 stopped" in live and "Session 2 resumed" in live
     assert "skill loaded: add-endpoint (tier 2)" in live
-    assert "R1 probes 112/112" in live or "R1 probes 37/112" in live
-    assert re.search(r'<span class="sym"[^>]*>✓</span>\s*<span class="label">R1</span>', live)
+    assert "House rule 1 probes 112/112" in live or "House rule 1 probes 37/112" in live
+    assert re.search(
+        r'<span class="sym"[^>]*>✓</span>\s*<span class="label">House rule 1</span>', live
+    )
     assert "Agent said" in live and "Referee" in live
     assert "claim not supported" in live and "claim supported" in live
 
@@ -109,8 +111,8 @@ def test_evidence_screen(page: dict[str, str]) -> None:
         "mocks the unit under test",
         "m-repo-07",
         "m-issues-02",
-        "r1_tenant",
-        "3 new",
+        "House rule 1, 3 new",
+        "House rule 1: Tenant isolation",
         "reviewer",
     ):
         assert text in evidence, text
@@ -140,7 +142,7 @@ def test_traces_screen(page: dict[str, str]) -> None:
     traces = page["5"]
     assert "run end completed" in traces
     assert "First wrong turn" in traces
-    assert "1.2" in traces and "named by the referee (R1)" in traces
+    assert "1.2" in traces and "named by the referee (House rule 1: Tenant isolation)" in traces
     assert "https://smith.langchain.com/o/x/r/bare-agent" in traces
 
 

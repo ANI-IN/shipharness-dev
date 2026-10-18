@@ -9,18 +9,19 @@ description: >
 license: MIT
 metadata:
   course: shipharness
-  assignment: Assignment 4
-  sources: Meta, TestGen-LLM; Meta, ACH; Anthropic, C compiler
+  assignment: "Assignment 4: Verification"
+  sources: see the Sources list at the end
 ---
 
 # Testgen evidence
 
 Generated tests are worth keeping only if they survive filters, and a reader should be able to
-check that claim. TestGen-LLM applies "a series of progressively demanding semantic filters" to
-candidate tests, and the survivors "are thus guaranteed to improve the existing test class, and to
-provide reliable regression test signal" ([Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171)).
-This skill runs those filters through `shipharness testgen`, adds a duplicate-test filter
-(TestGen-LLM later added "an extra filter to remove previously seen test cases"), and writes the
+check that claim. Meta's test generator applies "a series of progressively demanding semantic
+filters" to candidate tests, and the survivors "are thus guaranteed to improve the existing test
+class, and to provide reliable regression test signal"
+([Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171)).
+This skill runs those filters through `shipharness testgen`, adds a duplicate-test filter (the
+same authors later added "an extra filter to remove previously seen test cases"), and writes the
 result down.
 
 ## When to use
@@ -28,7 +29,8 @@ result down.
 - "Generate tests for this module", "are these generated tests any good", "show me evidence".
 - Before merging tests an agent wrote: keep only the ones that pass the filters, with reasons.
 - Not for writing the code under test, and not for a repository without a passing pytest suite:
-  filter 3 compares against the existing suite, so fix the suite first.
+  Filter 3: Adds coverage or catches a mutant compares against the existing suite, so fix the suite
+  first.
 
 ## Steps
 
@@ -58,7 +60,8 @@ result down.
 5. Turn the report into the results table:
    `python scripts/summarize_report.py runs/evidence/testgen-report.json`.
 6. Write the evidence report with these sections: Target, Commands (copied exactly), Results (the
-   table from step 5), Filter 6 on the kept tests (the step 4 output), Limits. Quote numbers only
+   table from step 5), a section on Filter 6: No duplicate tests titled "Filter 6 on the kept
+   tests" (the step 4 output), Limits. Quote numbers only
    from the run's own output.
 
 ## Checks before you finish
@@ -66,14 +69,17 @@ result down.
 - [ ] Every command in the report was run as written; the report holds its real output.
 - [ ] Each discarded test is listed with its filter number and reason.
 - [ ] The Limits section says what the filters cannot prove: a kept test passed five runs and
-      added line coverage (TestGen-LLM) or killed a mutant, a copy of the code with one planted
-      fault, that no existing test kills ([Meta, ACH](https://arxiv.org/abs/2501.12862)). That does
-      not make it a good specification. Anthropic's compiler team warns that "it is easy to see
+      added line coverage (Source 1) or killed a mutant, a copy of the code with one planted
+      fault, that no existing test kills
+      ([Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862)). That
+      does not make it a good specification. Anthropic's compiler team warns that "it is easy to see
       tests pass and assume the job is done, when this is rarely the case"
-      ([Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
+      ([Building a C compiler](https://www.anthropic.com/engineering/building-c-compiler)).
 
 ## Sources
 
-- [Anthropic, C compiler](https://www.anthropic.com/engineering/building-c-compiler): Nicholas Carlini, "Building a C compiler with a team of parallel Claudes", Anthropic, 2026-02-05.
-- [Meta, TestGen-LLM](https://arxiv.org/abs/2402.09171): Alshahwan et al. (Meta), "Automated Unit Test Improvement using Large Language Models at Meta", FSE '24, 2024-02-14.
-- [Meta, ACH](https://arxiv.org/abs/2501.12862): Foster et al. (Meta), "Mutation-Guided LLM-based Test Generation at Meta", 2025-01-22.
+- Source 1: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>,
+  Alshahwan et al. (Meta), 2024-02-14
+- Source 2: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta),
+  2025-01-22
+- Source 3: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05

@@ -97,7 +97,7 @@ def probe_all(t: Target, ctx: CheckContext) -> tuple[list[Finding], int]:
         finding = judge(probe, response, t, home, other)
         if finding is not None:
             findings.append(finding)
-        ctx.progress(done, len(probes), f"R1 probes {done}/{len(probes)}")
+        ctx.progress(done, len(probes), f"House rule 1 probes {done}/{len(probes)}")
     return findings, len(probes)
 
 

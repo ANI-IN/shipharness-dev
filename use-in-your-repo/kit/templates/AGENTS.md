@@ -14,11 +14,11 @@ HTMX). Each customer is an org, and every customer row carries an `org_id`.
 | When you are about to | Read first |
 |---|---|
 | add or change an endpoint | `.agents/skills/add-endpoint/SKILL.md` (step by step) |
-| touch a router, service, repository, or model | `ARCHITECTURE.md` (layers, R6) |
-| decide who may see or change data | `docs/SECURITY.md` (R1 tenant isolation, R2 roles) |
-| shape a list, an error, or a status code | `docs/design-docs/api-conventions.md` (R3) |
-| write a create endpoint or any write | `docs/RELIABILITY.md` (R4 idempotency, R5 audit) |
-| change the database schema | `docs/RELIABILITY.md` (R7 migrations) |
+| touch a router, service, repository, or model | `ARCHITECTURE.md` (layers, House rule 6: Layering) |
+| decide who may see or change data | `docs/SECURITY.md` (House rule 1: Tenant isolation, House rule 2: Roles) |
+| shape a list, an error, or a status code | `docs/design-docs/api-conventions.md` (House rule 3: API conventions) |
+| write a create endpoint or any write | `docs/RELIABILITY.md` (House rule 4: Safe retries, House rule 5: Audit log) |
+| change the database schema | `docs/RELIABILITY.md` (House rule 7: Migrations) |
 | change issue or project behaviour | `docs/product-specs/teamtrack-base.md` |
 | write or run tests | `docs/QUALITY_SCORE.md` (testing, known gaps) |
 | plan a change or check the roadmap | `docs/PLANS.md` |
@@ -27,17 +27,17 @@ HTMX). Each customer is an org, and every customer row carries an `org_id`.
 
 ## House rules at a glance
 
-<!-- REPLACE: your house rules, one line each, with the document that explains it. docs/house-rules.md says how to adapt the seven house rules (`R1` to `R7`) or drop one. -->
+<!-- REPLACE: your house rules, one line each, with the document that explains it. docs/house-rules.md says how to adapt the seven house rules (House rules 1 to 7) or drop one. -->
 Every endpoint follows all seven rules, new endpoints included. Automated checks find endpoints in
 the OpenAPI schema, so a new endpoint is checked the moment it exists.
 
-- R1 Tenant isolation: another org's resource is 404, never 403. See `docs/SECURITY.md`.
-- R2 Roles: viewers get 403 on every write; some writes are admin-only. See `docs/SECURITY.md`.
-- R3 API conventions: list envelope, error envelope, status codes. See `docs/design-docs/api-conventions.md`.
-- R4 Idempotent creates: honour `Idempotency-Key`. See `docs/RELIABILITY.md`.
-- R5 Audit log: one audit row per write. See `docs/RELIABILITY.md`.
-- R6 Layering: `app/api` never imports `app/db`. See `ARCHITECTURE.md`.
-- R7 Migrations: one Alembic head, upgrade works on an empty database. See `docs/RELIABILITY.md`.
+- House rule 1: Tenant isolation. Another org's resource is 404, never 403. See `docs/SECURITY.md`.
+- House rule 2: Roles. Viewers get 403 on every write; some writes are admin-only. See `docs/SECURITY.md`.
+- House rule 3: API conventions. List envelope, error envelope, status codes. See `docs/design-docs/api-conventions.md`.
+- House rule 4: Safe retries. Creates honour `Idempotency-Key`. See `docs/RELIABILITY.md`.
+- House rule 5: Audit log. One audit row per write. See `docs/RELIABILITY.md`.
+- House rule 6: Layering. `app/api` never imports `app/db`. See `ARCHITECTURE.md`.
+- House rule 7: Migrations. One Alembic head; upgrade works on an empty database. See `docs/RELIABILITY.md`.
 
 ## Do not copy
 
@@ -61,8 +61,8 @@ Run these from the TeamTrack folder unless noted.
 | create the database | `alembic upgrade head` |
 | start the API | `uvicorn app.main:create_app --factory --reload` |
 | run the tests | `python -m pytest tests/visible -q` |
-| check the layering (R6) | `lint-imports --config .importlinter` |
-| check the migration head (R7) | `alembic heads` |
+| check the layering (House rule 6) | `lint-imports --config .importlinter` |
+| check the migration head (House rule 7) | `alembic heads` |
 
 <!-- REPLACE: how to authenticate locally, or delete this paragraph. Never write a real key here. -->
 Demo login: `POST /auth/login` with `{"email": "admin@acme.test"}` returns a token; send it as
@@ -107,7 +107,7 @@ focused document above is quicker to read.
 
 1. Run `pwd` to see the directory you are working in. You can only edit files in this directory.
 2. Read progress.md and the git log (`git log --oneline -20`) to see what was recently worked on.
-3. Read session-handoff.md (the structured handoff from the last session) and the exec plan docs/exec-plans/active/F1.md. <!-- check-style: allow SC23 test_templates matches this harness session step verbatim -->
+3. Read session-handoff.md (the structured handoff from the last session) and the exec plan docs/exec-plans/active/F1.md.
 4. Read the "Notes from the agent" in session-handoff.md before any other document: earlier sessions wrote down the house rules and files that matter for this ticket. Open a document from the AGENTS.md map only for a detail the notes do not cover (in the first session, only the documents for the parts you will change).
 5. Read feature_list.json and work on the feature listed there, and only it.
 6. Run `bash init.sh` to set up the database and run a basic end-to-end test.
@@ -118,6 +118,6 @@ focused document above is quicker to read.
 <!-- REPLACE: the wrap-up steps the harness gives the agent at the end of a session. Keep them when no harness does it for you. -->
 
 1. Update progress.md: Done, In progress, and Next.
-2. Update the exec plan docs/exec-plans/active/F1.md: Progress (with timestamps) and Decision Log. <!-- check-style: allow SC23 test_templates matches this harness session step verbatim -->
+2. Update the exec plan docs/exec-plans/active/F1.md: Progress (with timestamps) and Decision Log.
 3. Write your notes under "## Notes from the agent" in session-handoff.md: what you were doing, what is left, what to watch out for, and the house rules and file locations from the documents you read that matter for this ticket, so the next session does not need to read them again. The harness writes the machine summary itself.
 4. Commit your work to git with a descriptive message (git add, then git commit).

@@ -14,6 +14,7 @@ from pathlib import Path
 
 import pytest
 
+from shipharness.datasets.names import FILTER_NAMES, filter_label, rule_label
 from shipharness.harness.instructions.layer import InstructionsLayer
 from shipharness.layout import find_repo_root
 
@@ -148,10 +149,13 @@ def test_the_section_4_copy_has_the_test_filters_and_the_house_rules() -> None:
 
     copy = REPO / "section-4-verification" / "demo" / "harness"
     filters = (copy / "test-filters.txt").read_text(encoding="utf-8").splitlines()
-    assert filters == [f"{f.number}. {f.name}" for f in DEFAULT_FILTERS]
+    assert filters == [filter_label(f.number) for f in DEFAULT_FILTERS]
+    assert all(f.name == FILTER_NAMES[f.number] for f in DEFAULT_FILTERS)
     assert len(filters) == 5
     rules = (copy / "house-rules.txt").read_text(encoding="utf-8").splitlines()
-    assert [line.split(" ", 2)[1] for line in rules] == [f"R{i}" for i in range(1, 8)]
+    assert [line.split(".", 1)[0] for line in rules] == [
+        f"- {rule_label(f'R{i}')}" for i in range(1, 8)
+    ]
     agents = sync.instructions_files()["AGENTS.md"].decode("utf-8").splitlines()
     assert all(line in agents for line in rules)
 
@@ -165,7 +169,9 @@ def test_the_final_copy_holds_the_layer_text_without_the_section_reference_lists
 def test_the_section_4_gate_items_follow_the_gate() -> None:
     build = sync.gate_items("build")
     assert build[0] == "visible tests" and build[-1] == "clean state"
-    assert [n for n in build if n.startswith("R")] == [f"R{i}" for i in range(1, 8)]
+    assert [n for n in build if n.startswith("House rule")] == [
+        rule_label(f"R{i}") for i in range(1, 8)
+    ]
     assert sync.gate_items("test") == ["visible tests", "clean state"]
 
 
