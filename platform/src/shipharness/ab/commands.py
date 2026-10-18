@@ -283,6 +283,12 @@ def register(app: typer.Typer) -> None:
         ),
         profile: str = typer.Option("standard", help=PROFILE_HELP),
         arms: str = typer.Option("both", help=ARMS_HELP),
+        max_tests: int | None = typer.Option(
+            None,
+            min=1,
+            help="Demo setting for --arms harness only (make show-4): filter only the first N "
+            "tests the test phase proposes. Never for an A/B.",
+        ),
     ) -> None:
         """Same task, harness off vs on, both judged by the referee."""
         from shipharness.ab.demo import SINGLE_ARM_MODE, run_ab, section_layers
@@ -299,6 +305,9 @@ def register(app: typer.Typer) -> None:
             typer.echo(f"x unknown --arms {arms!r}: both or harness")
             raise typer.Exit(2)
         run_arms = ARMS_CHOICES[arms]
+        if max_tests is not None and run_arms != ("harness",):
+            typer.echo("x --max-tests is a demo setting for --arms harness, never for an A/B")
+            raise typer.Exit(2)
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
         if session_budget:
@@ -319,6 +328,8 @@ def register(app: typer.Typer) -> None:
             names = parse_layers(layers or "all")
         rt = _purpose_runtime(settings, purpose, final=section == "final", profile=profile)
         extra: dict[str, Any] = {} if preview else {"preview_factory": None}
+        if max_tests is not None:
+            extra["harness_kwargs"] = {"max_filtered_tests": max_tests}
         ref = None if from_working_tree else task.checkpoint
         deps = rt.ab_deps(ref, reviewer=reviewer, **extra)
         _live_guard(settings, deps, run_arms[0])

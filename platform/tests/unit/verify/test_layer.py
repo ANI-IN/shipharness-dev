@@ -471,3 +471,46 @@ def test_gate_baseline_is_not_cached_without_a_checkpoint_commit(tmp_path: Path)
         ws.mkdir()
         _, script, _ = _prepare(ws, cache)
         assert len(script.runner_calls) == 1
+
+
+# --- demo setting: a cap on the tests that go through the filters (make show-4 only) ----------
+
+
+def _all_pass(seen: list[list[dict]]) -> Callable[..., list[dict]]:
+    def pipeline(cands: list[dict], ctx: LayerContext, shas: dict[str, str]) -> list[dict]:
+        seen.append(cands)
+        return [
+            {"test_id": c["test_id"], "filter": 5, "passed": True, "reason": "ok"} for c in cands
+        ]
+
+    return pipeline
+
+
+def test_the_cap_filters_the_first_n_proposed_tests_and_removes_the_rest(tmp_path: Path) -> None:
+    seen: list[list[dict]] = []
+    ctx, layer = phase_ctx(tmp_path, _all_pass(seen))
+    layer.max_filtered_tests = 2
+    new = ctx.workspace / "tests" / "visible" / "test_new.py"
+    new.write_text(NEW_FILE, encoding="utf-8")
+    [decision] = layer.on_phase_end(ctx)
+    assert [c["test_id"] for c in seen[0]] == [
+        "tests/visible/test_new.py::test_keeps",
+        "tests/visible/test_new.py::test_drops",
+    ]
+    assert decision.data["kept"] == [c["test_id"] for c in seen[0]]
+    assert decision.data["discarded"] == {
+        "tests/visible/test_new.py::TestGroup::test_method": (
+            "not filtered: this demo filters only the first 2 proposed tests"
+        )
+    }
+    text = new.read_text(encoding="utf-8")
+    assert "test_method" not in text and "def test_keeps" in text
+
+
+def test_without_the_cap_every_proposed_test_is_filtered(tmp_path: Path) -> None:
+    seen: list[list[dict]] = []
+    ctx, layer = phase_ctx(tmp_path, _all_pass(seen))
+    assert VerifyLayer().max_filtered_tests is None
+    (ctx.workspace / "tests" / "visible" / "test_new.py").write_text(NEW_FILE, encoding="utf-8")
+    [decision] = layer.on_phase_end(ctx)
+    assert len(seen[0]) == 3 and decision.data["discarded"] == {}

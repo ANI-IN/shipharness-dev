@@ -156,3 +156,93 @@ def test_build_context_fails_when_the_existing_suite_cannot_run(tmp_path: Path) 
     sandbox = FakeSandbox(default=ExecResult(exit_code=4, output="no such file", duration_ms=1))
     with pytest.raises(FilterSetupError, match="baseline coverage"):
         build_context(tmp_path, sandbox, existing_tests=["tests"])
+
+
+# --- proposed tests filtered at the same time (one per sandbox CPU), 2026-10-18 ----------------
+
+MORE_TESTS = """\
+from calc import add, clamp, sign
+
+
+def test_clamp_low():
+    assert clamp(-5, 0, 3) == 0
+
+
+def test_sign_zero():
+    assert sign(0) == 0
+
+
+def test_add_again():
+    assert add(2, 2) == 4
+"""
+
+
+def _filtered(tmp_path: Path, name: str, workers: int) -> tuple[list[dict], list[tuple]]:
+    repo = make_repo(tmp_path / name)
+    sandbox = local_sandbox(repo)
+    ctx = build_context(
+        repo, sandbox, existing_tests=["tests/test_calc.py"], target_module="calc", python=PY
+    )
+    (repo / "tests" / "test_new.py").write_text(NEW_TESTS, encoding="utf-8")
+    (repo / "tests" / "test_more.py").write_text(MORE_TESTS, encoding="utf-8")
+    cands = collect_candidates(repo, ["tests/test_new.py", "tests/test_more.py"])
+    log = tmp_path / f"{name}.jsonl"
+    with EventBus(log, ab_id=None) as bus:
+        results = run_pipeline(cands, ctx, bus, run_id="r-1", arm="harness", workers=workers)
+    events = sorted(
+        (e.type, e.data.get("test_id"), e.data.get("filter"), e.data.get("passed"))
+        for e in read_events(log)
+        if e.type in ("test_proposed", "test_filter_result")
+    )
+    return [r.model_dump() for r in results], events
+
+
+def test_two_workers_give_the_same_filter_decisions_and_events_as_one(tmp_path: Path) -> None:
+    one_results, one_events = _filtered(tmp_path, "one", workers=1)
+    two_results, two_events = _filtered(tmp_path, "two", workers=2)
+    assert two_results == one_results  # same decisions and reasons, in proposal order
+    assert two_events == one_events
+    kept = kept_tests([FilterResult(**r) for r in two_results])
+    assert "tests/test_new.py::test_clamp_high" in kept
+
+
+def test_filter_set_mutants_keep_the_tests_one_at_a_time(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import shipharness.filters.pipeline as pipeline_module
+
+    def no_threads(*_a: object, **_k: object) -> None:
+        raise AssertionError("mutants are applied in place: no parallel filtering")
+
+    monkeypatch.setattr(pipeline_module, "ThreadPoolExecutor", no_threads)
+    ctx = FilterContext(
+        workspace=tmp_path,
+        sandbox=FakeSandbox(),
+        baseline_coverage=CoverageMap(),
+        source_shas_at_phase_start={},
+        filter_mutants=[
+            Mutant(
+                id="calc-m1",
+                target="calc",
+                set="filter",
+                file="calc.py",
+                line=1,
+                original="a",
+                replacement="b",
+                rationale="r",
+            )
+        ],
+    )
+    cands = [CandidateTest(test_id=f"t::{n}", file="t", source="") for n in "ab"]
+    results = run_pipeline(cands, ctx, None, filters=[Boom()], workers=2)
+    assert [r.test_id for r in results] == ["t::a", "t::b"]
+
+
+def test_one_worker_per_sandbox_cpu() -> None:
+    from types import SimpleNamespace
+
+    from shipharness.harness.verify.testphase import filter_workers
+
+    assert filter_workers(SimpleNamespace(policy=SimpleNamespace(cpus=2.0))) == 2
+    assert filter_workers(SimpleNamespace(policy=SimpleNamespace(cpus=0.5))) == 1
+    assert filter_workers(FakeSandbox()) == 1

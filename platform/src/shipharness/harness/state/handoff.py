@@ -9,8 +9,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
-from shipharness.harness.scope.status import VISIBLE_TESTS_COMMAND
+from shipharness.harness import suite_cache
+from shipharness.harness.scope.status import VISIBLE_TESTS_ARGS, VISIBLE_TESTS_COMMAND
 from shipharness.log_setup import mask_keys
 from shipharness.runner.models import SessionResult
 from shipharness.runner.tools import _is_link, iter_workspace_files, summarise_pytest
@@ -66,8 +68,21 @@ class MachineSummary:
         return "\n".join(lines)
 
 
-def visible_tests(sandbox: Sandbox, timeout_s: int) -> tuple[str, list[str]]:
-    run = sandbox.exec(VISIBLE_TESTS_COMMAND, timeout_s)
+def visible_tests(
+    sandbox: Sandbox,
+    timeout_s: int,
+    *,
+    state: dict[str, Any] | None = None,
+    workspace: Path | None = None,
+) -> tuple[str, list[str]]:
+    """The visible-test status line and its first failures. With the run's `state` and
+    `workspace`, an identical harness run on the same content is reused (suite_cache)."""
+    if state is not None and workspace is not None:
+        run = suite_cache.run(
+            state, sandbox, workspace, VISIBLE_TESTS_ARGS, timeout_s, command=VISIBLE_TESTS_COMMAND
+        )
+    else:
+        run = sandbox.exec(VISIBLE_TESTS_COMMAND, timeout_s)
     lines = summarise_pytest(run.output).splitlines()
     head = clean(lines[0]) if lines else "no output"
     failures = [clean(line) for line in lines[1:] if line.startswith(("FAILED", "ERROR"))]

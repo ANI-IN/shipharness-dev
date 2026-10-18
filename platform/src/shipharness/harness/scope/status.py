@@ -13,6 +13,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
+from shipharness.harness import suite_cache
 from shipharness.harness.base import LayerContext
 from shipharness.harness.decisions import HarnessDecision
 from shipharness.harness.scope.features import FEATURE_LIST, FEATURE_SCHEMA, write_feature_list
@@ -21,7 +22,8 @@ from shipharness.runner import git
 from shipharness.runner.models import SessionResult
 from shipharness.runner.tools import summarise_pytest
 
-VISIBLE_TESTS_COMMAND = "python -m pytest tests/visible -q -rfE --no-header -p no:cacheprovider"
+VISIBLE_TESTS_ARGS = "tests/visible -q -rfE --no-header -p no:cacheprovider"
+VISIBLE_TESTS_COMMAND = f"python -m pytest {VISIBLE_TESTS_ARGS}"
 _COUNTS = re.compile(r"passed=(\d+) failed=(\d+) errors=(\d+)")
 _RATIO = re.compile(r"(\d+)\s*/\s*(\d+)")
 
@@ -65,7 +67,14 @@ def _gate_evidence(ctx: LayerContext) -> tuple[dict[str, Any] | None, str]:
 
 
 def _visible_tests_evidence(ctx: LayerContext, timeout_s: int) -> tuple[dict[str, Any] | None, str]:
-    run = ctx.sandbox.exec(VISIBLE_TESTS_COMMAND, timeout_s)
+    run = suite_cache.run(
+        ctx.state,
+        ctx.sandbox,
+        ctx.workspace,
+        VISIBLE_TESTS_ARGS,
+        timeout_s,
+        command=VISIBLE_TESTS_COMMAND,
+    )
     summary = summarise_pytest(run.output).splitlines()[0]
     match = _COUNTS.match(summary)
     passed, failed, errors = (int(n) for n in match.groups()) if match else (0, 0, 0)

@@ -29,6 +29,7 @@ SAMPLES = {
     "$(FEATURE)": "F3",
     "$(LAYERS_OPT)": "--layers=-scope",
     "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
+    "$(MAX_TESTS_OPT)": "--max-tests=3",
     "$(PURPOSE)": "pilot",
     "$(PROFILE)": "standard",
     "$(RUNTIME)": "docker",
@@ -457,3 +458,12 @@ def test_check_style_target_runs_the_style_checker() -> None:
     )  # fmt: skip
     assert " check-style " in f" {phony} "
     assert "check-style" in " ".join(_rules()["help"])
+
+
+def test_only_show_4_caps_the_filtered_tests() -> None:
+    # Demo setting (2026-10-18), disclosed in docs/evidence/s4.md: never on an A/B target.
+    assert _variables()["MAX_TESTS"] == "3"
+    rules = _rules()
+    assert "$(MAX_TESTS_OPT)" in " ".join(rules["show-4"])
+    for target in ("demo-3", "demo-4", "final", "show-1", "show-2", "show-3"):
+        assert "MAX_TESTS" not in " ".join(rules[target]), target

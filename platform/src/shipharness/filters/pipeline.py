@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import ast
 from collections.abc import Sequence
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Literal
 
@@ -41,16 +42,22 @@ def run_pipeline(
     run_id: str | None = None,
     arm: Arm | None = None,
     phase: Literal["build", "test"] = "test",
+    workers: int = 1,
 ) -> list[FilterResult]:
     """Run each proposed test through the filters; stop at its first failure. 1 imports and runs,
     2 passes 5 runs, 3 adds coverage or kills a mutant, 4 real assertions and no mocking of the
-    unit under test, 5 no source change in the test phase."""
-    results: list[FilterResult] = []
-    for cand in cands:
+    unit under test, 5 no source change in the test phase.
+
+    With `workers` > 1, that many proposed tests go through the filters at the same time (each
+    test's filters still in order). Filter-set mutants are applied to the workspace in place, so
+    with any of them the tests go one at a time. Results come back in proposal order."""
+
+    def one(cand: CandidateTest) -> list[FilterResult]:
         if bus is not None:
             bus.publish(
                 "test_proposed", {"test_id": cand.test_id, "phase": phase}, run_id=run_id, arm=arm
             )
+        out: list[FilterResult] = []
         for flt in filters:
             try:
                 result = flt.evaluate(cand, ctx)
@@ -63,12 +70,18 @@ def run_pipeline(
                 )
             if not result.reason:
                 result = result.model_copy(update={"reason": f"filter {flt.number}: no reason"})
-            results.append(result)
+            out.append(result)
             if bus is not None:
                 bus.publish("test_filter_result", result, run_id=run_id, arm=arm)
             if not result.passed:
                 break  # discarded: later (more expensive) filters never run
-    return results
+        return out
+
+    if workers <= 1 or len(cands) <= 1 or ctx.filter_mutants:
+        return [r for cand in cands for r in one(cand)]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        per_test = list(pool.map(one, cands))
+    return [r for results in per_test for r in results]
 
 
 # [walkthrough:S4:filters] end

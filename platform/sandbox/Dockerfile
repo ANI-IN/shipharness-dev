@@ -17,7 +17,10 @@ ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
 WORKDIR /opt/build
 COPY pyproject.toml uv.lock ./
 # [walkthrough:S3:dockerfile] start
-RUN uv sync --frozen --no-install-project --group dev
+# Bytecode is compiled at build time: PYTHONDONTWRITEBYTECODE keeps containers from writing it, so
+# without this every Python process in a container compiled every imported module from source
+# again (about 3 s per pytest start). Bytecode comes from the same source: results do not change.
+RUN UV_COMPILE_BYTECODE=1 uv sync --frozen --no-install-project --group dev
 # Non-root user; the workspace is bind-mounted at /work and is the only writable path besides /tmp.
 RUN useradd --uid 1000 --create-home agent \
     && git config --system user.name "agent" \
@@ -25,6 +28,8 @@ RUN useradd --uid 1000 --create-home agent \
     && git config --system --add safe.directory /work
 # The check runner (python -m shipharness.checks.runner) comes from the image, never the workspace.
 COPY platform/src/ /opt/shipharness/src/
+# The slim base image ships its standard library without bytecode: compile it, and the checks.
+RUN python -m compileall -q /usr/local/lib/python3.12 /opt/shipharness/src
 ENV PYTHONPATH=/opt/shipharness/src
 
 FROM base AS agent

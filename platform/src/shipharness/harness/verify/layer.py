@@ -83,6 +83,7 @@ class VerifyLayer(BaseLayer):
         pipeline: testphase.Pipeline | None = None,
         gate_timeout_s: int = 600,
         gate_baseline_cache_dir: Path | str | None = None,
+        max_filtered_tests: int | None = None,
         **_ignored: Any,
     ) -> None:
         self.checks = tuple(checks)
@@ -104,6 +105,9 @@ class VerifyLayer(BaseLayer):
         self.migrations: bool | None = None
         self.ruff_config: bool | None = None  # decided the same way, from the checkpoint
         self.gate_count = 0
+        # Demo setting (`make show-4`, never an A/B): only the first N proposed tests go through
+        # the filters; the rest are removed with a reason. None: every proposed test is filtered.
+        self.max_filtered_tests = max_filtered_tests
         self._phase_start: dict[str, tuple[dict[str, str], dict[str, str]]] = {}
 
     # -- helpers -------------------------------------------------------------------------------
@@ -274,6 +278,8 @@ class VerifyLayer(BaseLayer):
             phase=ctx.phase,
             on_update=update,
             on_progress=progress,
+            suite_state=ctx.state,
+            workspace=ctx.workspace,
         )
         ctx.state["verify.gate"] = result.model_dump(mode="json")
         data = {"gate_id": gate_id, "seed": self._seed(ctx)}
@@ -291,6 +297,19 @@ class VerifyLayer(BaseLayer):
         candidates, broken = testphase.find_candidates(ctx.workspace, texts, where)
         testphase.delete_files(ctx.workspace, list(broken), where)
         discarded = {f"{rel}::<file>": reason for rel, reason in broken.items()}
+        over: dict[str, str] = {}
+        cap = self.max_filtered_tests
+        if cap is not None and len(candidates) > cap:
+            note = f"not filtered: this demo filters only the first {cap} proposed tests"
+            over = {c["test_id"]: note for c in candidates[cap:]}
+            candidates = candidates[:cap]
+        if over:
+            by_file_over: dict[str, list[str]] = {}
+            for test_id in over:
+                rel, name = test_id.split("::", 1)
+                by_file_over.setdefault(rel, []).append(name)
+            testphase.remove_tests(ctx.workspace, by_file_over, where)
+            discarded.update(over)
         if not candidates:
             return [self._filter_note(ctx, [], discarded, "no new tests to filter")]
         try:

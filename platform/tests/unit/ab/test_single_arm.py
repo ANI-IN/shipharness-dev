@@ -142,6 +142,12 @@ def test_ab_command_refuses_an_unknown_arms_value(env) -> None:  # type: ignore[
     assert "--arms" in line and "both" in line and "harness" in line
 
 
+def test_the_test_cap_is_refused_for_an_ab(env) -> None:  # type: ignore[no-untyped-def]  # noqa: F811
+    args = ["ab", "--feature", "F4", "--max-tests", "3", "--dataset", str(env.dataset)]
+    line = _one_line_error(CliRunner().invoke(make_app(), args))
+    assert "--max-tests" in line and "never for an A/B" in line
+
+
 def test_swap_of_a_single_arm_run_by_id_is_one_line(env) -> None:  # type: ignore[no-untyped-def]  # noqa: F811
     app = make_app()
     args = ["ab", "--feature", "F1", "--section", "demo-1", "--arms", "harness",

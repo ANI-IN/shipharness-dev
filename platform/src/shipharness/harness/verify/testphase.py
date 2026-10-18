@@ -198,8 +198,19 @@ def filters_pipeline(
             run_id=getattr(spec, "run_id", None),
             arm=getattr(spec, "arm", None),
             phase="test",
+            workers=filter_workers(ctx.sandbox),
         )
     )
+
+
+def filter_workers(sandbox: Any) -> int:
+    """Proposed tests filtered at the same time: one per CPU of the sandbox (its policy's
+    `cpus`, rounded down), at least one. A sandbox without a policy filters one at a time."""
+    cpus = getattr(getattr(sandbox, "policy", None), "cpus", 1)
+    try:
+        return max(1, int(cpus))
+    except (TypeError, ValueError):
+        return 1
 
 
 def pathlib_name(rel: str) -> str:

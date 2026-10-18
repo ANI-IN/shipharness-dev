@@ -12,6 +12,10 @@ LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
 # demo-N: SESSION_BUDGET=12,38 overrides the task's session turn budget (pre-registered levers).
 SESSION_BUDGET ?=
 SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
+# show-4 only (a demo setting, not a comparison): the test filters run on the first MAX_TESTS
+# proposed tests; MAX_TESTS= filters them all.
+MAX_TESTS ?= 3
+MAX_TESTS_OPT = $(if $(MAX_TESTS),--max-tests=$(MAX_TESTS))
 # FEATURE and FEATURES take readable names or codes (any case); the CLI turns names into codes:
 # org-search (F1), comments (F2), safe-retries (F3), version-checks (F4), bulk-close (F5),
 # watchers (F6), labels (F7). The earlier name idempotent-create still works for F3.
@@ -176,7 +180,7 @@ show-3:
 
 show-4:
 	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
-	  --profile $(PROFILE)
+	  --profile $(PROFILE) $(MAX_TESTS_OPT)
 
 # Constructed example: section N's layer stack on its canonical task in the real sandbox, driven by
 # scripted steps (no model, no API key, $0); labelled CONSTRUCTED EXAMPLE and never counted.

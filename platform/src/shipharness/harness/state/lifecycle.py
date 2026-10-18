@@ -72,7 +72,9 @@ def machine_summary(
     ctx: LayerContext, result: SessionResult, files_changed: list[str], timeout_s: int
 ) -> tuple[str, str]:
     """The rendered machine summary and the visible-test status line."""
-    tests, failures = handoff.visible_tests(ctx.sandbox, timeout_s)
+    tests, failures = handoff.visible_tests(
+        ctx.sandbox, timeout_s, state=ctx.state, workspace=ctx.workspace
+    )
     summary = handoff.MachineSummary(
         result=result,
         files_changed=files_changed,
