@@ -327,6 +327,9 @@ def select(paths: Iterable[str], extra_excluded: Mapping[str, str] | None = None
 # -- tests that exercise excluded files (decision b) --------------------------------------------
 
 _TOKEN = re.compile(r"[\w.\-/]+")
+# Folders for course authors only, outside the allow-list and outside every test path: the module
+# template and generator for later modules.
+AUTHOR_ONLY_DIRS = ("course-template/",)
 
 
 def _docstring_ids(tree: ast.AST) -> set[int]:
@@ -378,8 +381,11 @@ def find_excluded_tests(
     """Test files (and test helpers) whose code names an excluded file: a string constant that is
     or ends with an excluded path, has the basename of an excluded file that no included file
     shares, or is the module name of an excluded script; or an import of such a script. Docstrings
-    and comments do not count. Tests that import a flagged helper are flagged too."""
-    excluded = sorted(set(excluded))
+    and comments do not count. Tests that import a flagged helper are flagged too. Files in the
+    author-only folders (AUTHOR_ONLY_DIRS) are never exercised by the platform tests, so their
+    names do not count: "app/new_module.py" in a test is not course-template/scripts/new_module.py.
+    """
+    excluded = sorted(p for p in set(excluded) if not p.startswith(AUTHOR_ONLY_DIRS))
     included_basenames = {posixpath.basename(p) for p in included}
     basenames = {
         posixpath.basename(p): p

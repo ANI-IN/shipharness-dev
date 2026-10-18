@@ -1011,6 +1011,15 @@ def test_a_word_that_equals_a_script_stem_is_not_a_reference_to_the_script() -> 
     assert "platform/tests/unit/test_module.py" in found
 
 
+def test_the_course_template_does_not_ship_and_does_not_drop_tests() -> None:
+    # course-template/ is for course authors: not in the allow-list, and a test that names a file
+    # with the same basename as one of its files ("app/new_module.py") still ships.
+    path = "course-template/scripts/new_module.py"
+    assert path not in mr.select([path, "README.md"]).included
+    sources = {"platform/tests/unit/test_scope.py": 'PATH = "app/new_module.py"\n'}
+    assert mr.find_excluded_tests(sources, [path], []) == {}
+
+
 def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
     sources = {
         "platform/tests/unit/ab/test_shared.py": (
