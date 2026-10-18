@@ -172,6 +172,7 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
 - **pass^k**: Passing on all k tries of the same task, not just on one.
 - **Phase**: One stage of a run: build (write the feature), then test (add tests only).
 - **Pill**: A status badge on console screen 1, such as the primary verdict or one gate check.
+- **Post hoc**: Chosen after the results were known. A post hoc number is a real count, but it can only describe what happened, not confirm a prediction.
 - **Primary measure**: The one question a section's A/B answers, fixed in writing before any run.
 - **Preview container**: The container that runs an arm's app so console screen 2 can show its
   board, with a new screenshot every 5 s.
