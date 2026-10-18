@@ -59,7 +59,8 @@ REVIEW_CAP = _default("max_review_cost_usd")  # MAX_REVIEW_COST_USD, per review
 COMMAND_CAP = _default("max_batch_cost_usd")  # MAX_BATCH_COST_USD, per command
 HARNESS_LAYERS = sorted(SECTION_STACKS[SECTION])
 EPS = 1e-6
-_AB_LINE = re.compile(r"^A/B (\S+) \((\w+), layers=", re.MULTILINE)
+# The feature is "F3" before 2026-10-18 and "Feature 3: <name>" since.
+_AB_LINE = re.compile(r"^A/B (\S+) \((F\d+|Feature \d+: [^,]+), layers=", re.MULTILINE)
 _COST_LINE = re.compile(r"^Cost: \$(\d+(?:\.\d+)?) \(this command: ([^;]*);", re.MULTILINE)
 _SHA = re.compile(r"^[0-9a-f]{40}$")
 _EVIDENCE_FILES = ("command.txt", "ab-output.txt", "ab-summary.json")

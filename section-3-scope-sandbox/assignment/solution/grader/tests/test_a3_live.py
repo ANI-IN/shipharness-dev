@@ -171,6 +171,23 @@ def test_verify_accepts_the_collected_evidence(impl: Path, tmp_path: Path) -> No
     assert result["evidence_ok"] is True and result["verdicts_ok"] is True
 
 
+def test_collect_and_verify_read_the_feature_in_words(tmp_path: Path) -> None:
+    """`shipharness ab` prints "Feature 3: <name>" instead of "F3" since 2026-10-18."""
+    raw = synth.build(tmp_path / "raw")
+    output = raw / "ab-output.txt"
+    text = output.read_text(encoding="utf-8")
+    assert "(F3, layers=" in text
+    output.write_text(
+        text.replace("(F3, layers=", "(Feature 3: Safe retries for issue creation, layers="),
+        encoding="utf-8",
+    )
+    impl = copy_impl(SOLUTION, tmp_path / "impl")
+    done = collect(impl, raw)
+    assert done.returncode == 0, done.stdout + done.stderr
+    done, result = verify(impl, tmp_path)
+    assert result["evidence_problems"] == [], result["evidence_problems"]
+
+
 def test_verify_accepts_the_assignment_purpose(impl: Path, tmp_path: Path) -> None:
     """The README's live command traces to shipharness-assignments with --purpose assignment."""
     command = synth.COMMAND + " --purpose assignment"

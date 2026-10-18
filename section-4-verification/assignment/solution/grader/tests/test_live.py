@@ -420,6 +420,24 @@ def test_the_ab_line_may_name_the_profile(root: Path) -> None:
     assert not _has(a4_live.ab_run_problems(root), "one A/B")
 
 
+def test_the_ab_line_may_name_the_feature_in_words(root: Path) -> None:
+    # `shipharness ab` prints "Feature 4: <name>" instead of "F4" since 2026-10-18.
+    path = root / "live" / "ab.txt"
+    line = f"A/B {fx.AB_ID} (F4, layers={fx.HARNESS_LAYERS})"
+    words = line.replace("(F4,", "(Feature 4: Version checks on issue edits,")
+    _edit_text(path, line, words[:-1] + ", profile=class)")
+    problems = a4_live.ab_run_problems(root)
+    assert not _has(problems, "one A/B")
+    assert not _has(problems, "expected F4")
+
+
+def test_the_ab_line_must_name_feature_4(root: Path) -> None:
+    path = root / "live" / "ab.txt"
+    line = f"A/B {fx.AB_ID} (F4, layers={fx.HARNESS_LAYERS})"
+    _edit_text(path, line, line.replace("(F4,", "(Feature 3: Safe retries for issue creation,"))
+    assert _has(a4_live.ab_run_problems(root), "expected F4")
+
+
 def test_a_rebuilt_checkpoint_tag_with_the_same_teamtrack_tree_still_matches() -> None:
     # The 2026-10-17 rebuild (after the restructure) kept the TeamTrack tree: a9d6be2, which the
     # reference run's records name, and d0b98d0 are the same checkpoint.
