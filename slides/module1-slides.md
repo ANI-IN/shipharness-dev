@@ -1,7 +1,8 @@
 # Module 1: Harness Engineering for Coding Agents: slide content for review
 
-80 slides, 240 minutes in a 240-minute class: Opening 0:00-0:10, Section 1 0:10-1:00, a 10-minute break,
-Section 2 1:10-2:00, Section 3 2:00-2:50, a 5-minute break, Section 4 2:55-3:40 (opening with the one Zoom poll),
+80 slides, 240 minutes in a 240-minute class: Opening 0:00-0:10, Section 1: Instructions 0:10-1:00, a 10-minute break,
+Section 2: State and sessions 1:10-2:00, Section 3: Scope and sandbox 2:00-2:50, a 5-minute break,
+Section 4: Verification 2:55-3:40 (opening with the one Zoom poll),
 final block and close 3:40-4:00. Each section's live run launches on its first slide and finishes before
 its DEMO slide. Every slide carries a `**Layout:**` field for the PPTX builder: `template-<name>`,
 `key-idea`, `diagram`, `quote-cards`, `steps`, `two-column`, `icon-rows`, `code`, or `table`. Speaker
@@ -41,7 +42,7 @@ notes are written so the class can be taught from the notes alone. Numbers come 
 | 26 | 3) The context prefix: small, fixed, out of reach | Section 1 | diagram | section-1-instructions/diagrams/context-prefix.png |
 | 27 | 4) Mechanical checks keep the map true | Section 1 | diagram | section-1-instructions/diagrams/checker-flow.png |
 | 28 | Cheat Sheet: The instructions layer in four moves | Section 1 | table | section-1-instructions/diagrams/cheat-sheet-s1.png |
-| 29 | Section 1 - Implementation Notes: The map at work | Section 1 | template-demo | none |
+| 29 | Section 1: Instructions - Implementation Notes: The map at work | Section 1 | template-demo | none |
 | 30 | What we measured: No measurable difference on org-wide search | Section 1 | two-column | section-1-instructions/diagrams/results-s1.png |
 | 31 | Q&A: Section 1: Instructions | Section 1 | template-qa | none |
 | 32 | Time for a Break | Break | template-break | none |
@@ -53,7 +54,7 @@ notes are written so the class can be taught from the notes alone. Numbers come 
 | 38 | 3) The exec plan and the progress ledger | Section 2 | diagram | section-2-state-lifecycle/diagrams/exec-plan-ledger.png |
 | 39 | 4) Getting up to speed: init.sh before code | Section 2 | diagram | section-2-state-lifecycle/diagrams/alembic-heads.png |
 | 40 | Cheat Sheet: Four state pieces across a stop | Section 2 | table | section-2-state-lifecycle/diagrams/cheat-sheet-s2.png |
-| 41 | Section 2 - Implementation Notes: Stop and resume | Section 2 | template-demo | none |
+| 41 | Section 2: State and sessions - Implementation Notes: Stop and resume | Section 2 | template-demo | none |
 | 42 | What we measured: No measurable difference on comments | Section 2 | two-column | section-2-state-lifecycle/diagrams/results-s2.png |
 | 43 | Q&A: State and sessions | Section 2 | template-qa | none |
 | 44 | Section 3: Scope and sandbox, what it may change | Section 3 | template-agenda | none |
@@ -64,11 +65,11 @@ notes are written so the class can be taught from the notes alone. Numbers come 
 | 49 | 3) The sandbox boundary: where the keys live | Section 3 | diagram | section-3-scope-sandbox/diagrams/sandbox-boundary.png |
 | 50 | 4) Least privilege: two refusals, two questions | Section 3 | diagram | section-3-scope-sandbox/diagrams/least-privilege.png |
 | 51 | Cheat Sheet: Four boundaries for one feature | Section 3 | table | section-3-scope-sandbox/diagrams/cheat-sheet-s3.png |
-| 52 | Section 3 - Implementation Notes: Scope at work | Section 3 | template-demo | none |
+| 52 | Section 3: Scope and sandbox - Implementation Notes: Scope at work | Section 3 | template-demo | none |
 | 53 | What we measured: Scope held on version checks | Section 3 | two-column | section-3-scope-sandbox/diagrams/results-s3.png |
 | 54 | Q&A: Scope and sandbox | Section 3 | template-qa | none |
 | 55 | Time for a Break | Break | template-break | none |
-| 56 | Live Zoom Poll: Pick the final A/B feature | Section 4 | template-poll | none |
+| 56 | Live Zoom Poll: Pick the final A/B feature | Section 4: Verification | template-poll | none |
 | 57 | Section 4: Verification, what proves the work is done | Section 4 | template-agenda | none |
 | 58 | Failure story: Done, but two edits still collide | Section 4 | steps | section-4-verification/diagrams/failure-story-s4.png |
 | 59 | Verification: Suite green. Are version checks done? | Section 4 | key-idea | section-4-verification/diagrams/socratic-s4-step-2.png |
@@ -77,7 +78,7 @@ notes are written so the class can be taught from the notes alone. Numbers come 
 | 62 | 3) Mutation testing and hidden tests | Section 4 | diagram | section-4-verification/diagrams/mutation-testing.png |
 | 63 | 4) The gate on "done" and the separate referee | Section 4 | diagram | section-4-verification/diagrams/verification-pipeline-step-3.png |
 | 64 | Cheat Sheet: four checks the agent does not own | Section 4 | table | section-4-verification/diagrams/cheat-sheet-s4.png |
-| 65 | Section 4 - Implementation Notes: The gate at work | Section 4 | template-demo | none |
+| 65 | Section 4: Verification - Implementation Notes: The gate at work | Section 4 | template-demo | none |
 | 66 | What we measured: No measurable difference on version checks | Section 4 | two-column | section-4-verification/diagrams/results-s4.png |
 | 67 | Q&A: Section 4: Verification | Section 4 | template-qa | none |
 | 68 | Final A/B: reading it live | Final | icon-rows | none |
@@ -524,7 +525,7 @@ Lead: One line per term; come back here when a word is new.
 - Time: 45 seconds, opening ends at 0:10. Next: Section 1, and its launch.
 
 ## Slide 21: Section 1: Instructions, what the agent knows
-**Block:** Section 1  **Time:** 2 min (0:10-0:12)  **Diagram:** none  **Layout:** template-agenda
+**Block:** Section 1: Instructions  **Time:** 2 min (0:10-0:12)  **Diagram:** none  **Layout:** template-agenda
 **On the slide:**
 Today's Agenda
 1 Instructions: what the agent knows (now)
@@ -548,7 +549,7 @@ Launch, terminal B: `make show-1`
 - Time: 2 minutes including the launch. Next: the story behind the ticket.
 
 ## Slide 22: Failure story: The search that showed another org
-**Block:** Section 1  **Time:** 4 min (0:12-0:16)  **Diagram:** section-1-instructions/diagrams/failure-story-s1.png  **Layout:** steps
+**Block:** Section 1: Instructions  **Time:** 4 min (0:12-0:16)  **Diagram:** section-1-instructions/diagrams/failure-story-s1.png  **Layout:** steps
 **On the slide:**
 Lead: An illustrative ticket: Feature 1: Org-wide issue search, GET /issues
 1. Agent finds list_all_legacy next door
@@ -572,7 +573,7 @@ Lead: An illustrative ticket: Feature 1: Org-wide issue search, GET /issues
 - Time: 4 minutes. Next: the obvious fix, and why it is not one.
 
 ## Slide 23: Instructions: Why not paste every rule?
-**Block:** Section 1  **Time:** 4 min (0:16-0:20)  **Diagram:** section-1-instructions/diagrams/socratic-s1-step-3.png  **Layout:** key-idea
+**Block:** Section 1: Instructions  **Time:** 4 min (0:16-0:20)  **Diagram:** section-1-instructions/diagrams/socratic-s1-step-3.png  **Layout:** key-idea
 **On the slide:**
 Lead: The tenant rule is in docs/HANDBOOK.md and both arms can open it. Can we paste every rule into the prompt?
 Key idea: Not as the main mechanism: give the agent a map, not a manual.
@@ -594,7 +595,7 @@ Key idea: Not as the main mechanism: give the agent a map, not a manual.
 - Time: 4 minutes. Next: idea 1, the map.
 
 ## Slide 24: 1) A map, not a manual
-**Block:** Section 1  **Time:** 4.5 min (0:20-0:24:30)  **Diagram:** section-1-instructions/diagrams/manual-vs-map.png  **Layout:** diagram
+**Block:** Section 1: Instructions  **Time:** 4.5 min (0:20-0:24:30)  **Diagram:** section-1-instructions/diagrams/manual-vs-map.png  **Layout:** diagram
 **On the slide:**
 Lead: AGENTS.md is a table of contents: about 100 lines, always in context.
 Key idea: The map says where each rule lives; it does not hold the rules.
@@ -614,7 +615,7 @@ Key idea: The map says where each rule lives; it does not hold the rules.
 - Time: 4.5 minutes. Next: how the details load only when needed.
 
 ## Slide 25: 2) Progressive disclosure: skills load in three tiers
-**Block:** Section 1  **Time:** 4.5 min (0:24:30-0:29)  **Diagram:** section-1-instructions/diagrams/skills-three-tiers.png  **Layout:** diagram
+**Block:** Section 1: Instructions  **Time:** 4.5 min (0:24:30-0:29)  **Diagram:** section-1-instructions/diagrams/skills-three-tiers.png  **Layout:** diagram
 **On the slide:**
 Lead: A small entry point first; the details only when the task needs them.
 Key idea: Names and descriptions always; the body when picked; references when a step needs them.
@@ -633,7 +634,7 @@ Key idea: Names and descriptions always; the body when picked; references when a
 - Time: 4.5 minutes. Next: how the map reaches the model.
 
 ## Slide 26: 3) The context prefix: small, fixed, out of reach
-**Block:** Section 1  **Time:** 4.5 min (0:29-0:33:30)  **Diagram:** section-1-instructions/diagrams/context-prefix.png  **Layout:** diagram
+**Block:** Section 1: Instructions  **Time:** 4.5 min (0:29-0:33:30)  **Diagram:** section-1-instructions/diagrams/context-prefix.png  **Layout:** diagram
 **On the slide:**
 Lead: Sent first in every session: a usage note, the whole map, the skills catalogue.
 Key idea: Built once from the course's copy, so agent edits to AGENTS.md change nothing.
@@ -653,7 +654,7 @@ Key idea: Built once from the course's copy, so agent edits to AGENTS.md change 
 - Time: 4.5 minutes. Next: keeping the map true.
 
 ## Slide 27: 4) Mechanical checks keep the map true
-**Block:** Section 1  **Time:** 4.5 min (0:33:30-0:38)  **Diagram:** section-1-instructions/diagrams/checker-flow.png  **Layout:** diagram
+**Block:** Section 1: Instructions  **Time:** 4.5 min (0:33:30-0:38)  **Diagram:** section-1-instructions/diagrams/checker-flow.png  **Layout:** diagram
 **On the slide:**
 Lead: One big file can't be checked by a script. A map and focused docs can.
 Key idea: Links resolve, each rule lives in one doc, retired rules stay out.
@@ -673,7 +674,7 @@ Key idea: Links resolve, each rule lives in one doc, retired rules stay out.
 - Time: 4.5 minutes. Next: the four ideas on one page.
 
 ## Slide 28: Cheat Sheet: The instructions layer in four moves
-**Block:** Section 1  **Time:** 2 min (0:38-0:40)  **Diagram:** section-1-instructions/diagrams/cheat-sheet-s1.png  **Layout:** table
+**Block:** Section 1: Instructions  **Time:** 2 min (0:38-0:40)  **Diagram:** section-1-instructions/diagrams/cheat-sheet-s1.png  **Layout:** table
 **On the slide:**
 Lead: It informs. It never blocks.
 | Move | What it does |
@@ -695,11 +696,11 @@ Lead: It informs. It never blocks.
 - Misconception: "if the agent reads the map, it will follow the rules". Correction: reading is not applying; the referee checks shipped code, not the reading list.
 - Time: 2 minutes. Next: the live run.
 
-## Slide 29: Section 1 - Implementation Notes: The map at work
-**Block:** Section 1  **Time:** 10 min (0:40-0:50)  **Diagram:** none  **Layout:** template-demo
+## Slide 29: Section 1: Instructions - Implementation Notes: The map at work
+**Block:** Section 1: Instructions  **Time:** 10 min (0:40-0:50)  **Diagram:** none  **Layout:** template-demo
 **On the slide:**
 DEMO - 1
-Section 1 - Implementation Notes: The map at work
+Section 1: Instructions - Implementation Notes: The map at work
 **Visual:** Template DEMO layout: "DEMO - 1" badge and the title only; no screenshot. Switch to the console.
 **Speaker notes:**
 - Files for this demo: `section-1-instructions/demo/run.sh` (the command), `section-1-instructions/demo/walkthrough.md` (the code, explained), `section-1-instructions/demo/harness/` (the map, docs, and skills the arm gets), `section-1-instructions/demo/expected/` (the captured run, the fallback), `docs/evidence/s1.md` (every number), console http://127.0.0.1:8765.
@@ -720,7 +721,7 @@ Section 1 - Implementation Notes: The map at work
 - Time: 10 minutes. Next: what the measurements say.
 
 ## Slide 30: What we measured: No measurable difference on org-wide search
-**Block:** Section 1  **Time:** 6 min (0:50-0:56)  **Diagram:** section-1-instructions/diagrams/results-s1.png  **Layout:** two-column
+**Block:** Section 1: Instructions  **Time:** 6 min (0:50-0:56)  **Diagram:** section-1-instructions/diagrams/results-s1.png  **Layout:** two-column
 **On the slide:**
 Lead: Earns its place when rules are many, far from code, and the code cannot show them.
 Left: What we measured
@@ -748,7 +749,7 @@ Right: Apply it Monday
 - Time: 6 minutes. Next: questions.
 
 ## Slide 31: Q&A: Section 1: Instructions
-**Block:** Section 1  **Time:** 4 min (0:56-1:00)  **Diagram:** none  **Layout:** template-qa
+**Block:** Section 1: Instructions  **Time:** 4 min (0:56-1:00)  **Diagram:** none  **Layout:** template-qa
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -786,7 +787,7 @@ A 10-minute break is starting now. Please return when the timer ends to continue
 - Transition: "Welcome back. The agent now knows the rules. Next: what happens when its session ends halfway through the work."
 
 ## Slide 33: Section 2: State and sessions, what it remembers
-**Block:** Section 2  **Time:** 2 min (1:10-1:12)  **Diagram:** none  **Layout:** template-agenda
+**Block:** Section 2: State and sessions  **Time:** 2 min (1:10-1:12)  **Diagram:** none  **Layout:** template-agenda
 **On the slide:**
 1 Instructions
 2 State and sessions (now)
@@ -809,7 +810,7 @@ Launch, terminal B: `make show-2 SESSION_BUDGET=12,38`
 - Time: 2 minutes including the launch. Next: the failure we guard against.
 
 ## Slide 34: Failure story: The second session redoes the first
-**Block:** Section 2  **Time:** 4 min (1:12-1:16)  **Diagram:** section-2-state-lifecycle/diagrams/failure-story-s2.png  **Layout:** steps
+**Block:** Section 2: State and sessions  **Time:** 4 min (1:12-1:16)  **Diagram:** section-2-state-lifecycle/diagrams/failure-story-s2.png  **Layout:** steps
 **On the slide:**
 Lead: An illustrative ticket: Feature 2: Comments on issues, over two sessions
 1. Session 1 writes the comments migration, stops at its limit
@@ -831,7 +832,7 @@ Lead: An illustrative ticket: Feature 2: Comments on issues, over two sessions
 - Time: 4 minutes. Next: why a capable model redoes work.
 
 ## Slide 35: Fresh session: Why redo work already on disk?
-**Block:** Section 2  **Time:** 4 min (1:16-1:20)  **Diagram:** section-2-state-lifecycle/diagrams/socratic-s2-step-3.png  **Layout:** key-idea
+**Block:** Section 2: State and sessions  **Time:** 4 min (1:16-1:20)  **Diagram:** section-2-state-lifecycle/diagrams/socratic-s2-step-3.png  **Layout:** key-idea
 **On the slide:**
 Lead: Session 2 has the whole repository but an empty context. Can we carry the old context over?
 Key idea: Not on its own: "compaction isn't sufficient." Reset, then hand over written state.
@@ -852,7 +853,7 @@ Key idea: Not on its own: "compaction isn't sufficient." Reset, then hand over w
 - Time: 4 minutes. Next: idea 1, the planned stop.
 
 ## Slide 36: 1) Session lifecycle: a planned stop and reset
-**Block:** Section 2  **Time:** 4.5 min (1:20-1:24:30)  **Diagram:** section-2-state-lifecycle/diagrams/session-lifecycle.png  **Layout:** diagram
+**Block:** Section 2: State and sessions  **Time:** 4.5 min (1:20-1:24:30)  **Diagram:** section-2-state-lifecycle/diagrams/session-lifecycle.png  **Layout:** diagram
 **On the slide:**
 Lead: Every session: get up to speed, work and commit, wrap up, stop.
 Key idea: At the stop, the harness writes the facts, whatever the agent did.
@@ -872,7 +873,7 @@ Key idea: At the stop, the harness writes the facts, whatever the agent did.
 - Time: 4.5 minutes. Next: the file that crosses the stop.
 
 ## Slide 37: 2) The handoff: two owners, one file
-**Block:** Section 2  **Time:** 4.5 min (1:24:30-1:29)  **Diagram:** section-2-state-lifecycle/diagrams/handoff-contents.png  **Layout:** diagram
+**Block:** Section 2: State and sessions  **Time:** 4.5 min (1:24:30-1:29)  **Diagram:** section-2-state-lifecycle/diagrams/handoff-contents.png  **Layout:** diagram
 **On the slide:**
 Lead: session-handoff.md carries the last session's state and the next steps.
 Key idea: The harness writes the facts from git; the agent writes its notes; neither overwrites the other.
@@ -891,7 +892,7 @@ Key idea: The harness writes the facts from git; the agent writes its notes; nei
 - Time: 4.5 minutes. Next: the plan and the ledger for the whole task.
 
 ## Slide 38: 3) The exec plan and the progress ledger
-**Block:** Section 2  **Time:** 4.5 min (1:29-1:33:30)  **Diagram:** section-2-state-lifecycle/diagrams/exec-plan-ledger.png  **Layout:** diagram
+**Block:** Section 2: State and sessions  **Time:** 4.5 min (1:29-1:33:30)  **Diagram:** section-2-state-lifecycle/diagrams/exec-plan-ledger.png  **Layout:** diagram
 **On the slide:**
 Lead: Two checked-in files: progress.md (done, in progress, next) and the exec plan.
 Key idea: "it should always be possible to restart from _only_ the ExecPlan and no other work."
@@ -909,7 +910,7 @@ Key idea: "it should always be possible to restart from _only_ the ExecPlan and 
 - Time: 4.5 minutes. Next: the routine that reads these files first.
 
 ## Slide 39: 4) Getting up to speed: init.sh before code
-**Block:** Section 2  **Time:** 4.5 min (1:33:30-1:38)  **Diagram:** section-2-state-lifecycle/diagrams/alembic-heads.png  **Layout:** diagram
+**Block:** Section 2: State and sessions  **Time:** 4.5 min (1:33:30-1:38)  **Diagram:** section-2-state-lifecycle/diagrams/alembic-heads.png  **Layout:** diagram
 **On the slide:**
 Lead: "Read the git logs and progress files to get up to speed on what was recently worked on."
 Key idea: Read state, then run init.sh: one migration head and a basic test, before any code.
@@ -927,7 +928,7 @@ Key idea: Read state, then run init.sh: one migration head and a basic test, bef
 - Time: 4.5 minutes. Next: four files on one card.
 
 ## Slide 40: Cheat Sheet: Four state pieces across a stop
-**Block:** Section 2  **Time:** 2 min (1:38-1:40)  **Diagram:** section-2-state-lifecycle/diagrams/cheat-sheet-s2.png  **Layout:** table
+**Block:** Section 2: State and sessions  **Time:** 2 min (1:38-1:40)  **Diagram:** section-2-state-lifecycle/diagrams/cheat-sheet-s2.png  **Layout:** table
 **On the slide:**
 Lead: Four files, one job each; refer back when you add state to your repo.
 | File | Job | Who writes it |
@@ -948,11 +949,11 @@ Lead: Four files, one job each; refer back when you add state to your repo.
 - Instructor cue: `make show-2` should have printed its `Cost:` line; read the session figure aloud.
 - Time: 2 minutes. Next: the live run.
 
-## Slide 41: Section 2 - Implementation Notes: Stop and resume
-**Block:** Section 2  **Time:** 10 min (1:40-1:50)  **Diagram:** none  **Layout:** template-demo
+## Slide 41: Section 2: State and sessions - Implementation Notes: Stop and resume
+**Block:** Section 2: State and sessions  **Time:** 10 min (1:40-1:50)  **Diagram:** none  **Layout:** template-demo
 **On the slide:**
 DEMO - 2
-Section 2 - Implementation Notes: Stop and resume
+Section 2: State and sessions - Implementation Notes: Stop and resume
 **Visual:** Template DEMO layout: "DEMO - 2" badge and the title only; no screenshot. Switch to the console.
 **Speaker notes:**
 - Files for this demo: `section-2-state-lifecycle/demo/run.sh`, `section-2-state-lifecycle/demo/walkthrough.md`, `section-2-state-lifecycle/demo/harness/` (the state files the arm starts with), `section-2-state-lifecycle/demo/expected/` (the captured run, the fallback), `docs/evidence/s2.md`, console http://127.0.0.1:8765.
@@ -972,7 +973,7 @@ Section 2 - Implementation Notes: Stop and resume
 - Time: 10 minutes. Next: what we measured.
 
 ## Slide 42: What we measured: No measurable difference on comments
-**Block:** Section 2  **Time:** 6 min (1:50-1:56)  **Diagram:** section-2-state-lifecycle/diagrams/results-s2.png  **Layout:** two-column
+**Block:** Section 2: State and sessions  **Time:** 6 min (1:50-1:56)  **Diagram:** section-2-state-lifecycle/diagrams/results-s2.png  **Layout:** two-column
 **On the slide:**
 Lead: Earns its place when tasks outlast one session and half-done work is hard to see.
 Left: What we measured
@@ -1001,7 +1002,7 @@ Right: Apply it Monday
 - Time: 6 minutes. Next: questions.
 
 ## Slide 43: Q&A: State and sessions
-**Block:** Section 2  **Time:** 4 min (1:56-2:00)  **Diagram:** none  **Layout:** template-qa
+**Block:** Section 2: State and sessions  **Time:** 4 min (1:56-2:00)  **Diagram:** none  **Layout:** template-qa
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -1026,7 +1027,7 @@ No Question Is Too Small Every Question Deserves an Answer!!
 - Time: 4 minutes, section ends at 2:00. Next: Section 3, a live A/B.
 
 ## Slide 44: Section 3: Scope and sandbox, what it may change
-**Block:** Section 3  **Time:** 2 min (2:00-2:02)  **Diagram:** none  **Layout:** template-agenda
+**Block:** Section 3: Scope and sandbox  **Time:** 2 min (2:00-2:02)  **Diagram:** none  **Layout:** template-agenda
 **On the slide:**
 1 Instructions
 2 State and sessions
@@ -1050,7 +1051,7 @@ Launch, terminal B: `make demo-3 FEATURE=version-checks`
 - Time: 2 minutes including the launch. Next: the failure this section is about.
 
 ## Slide 45: Failure story: A tidy diff in a shared file
-**Block:** Section 3  **Time:** 4 min (2:02-2:06)  **Diagram:** section-3-scope-sandbox/diagrams/failure-story-s3.png  **Layout:** steps
+**Block:** Section 3: Scope and sandbox  **Time:** 4 min (2:02-2:06)  **Diagram:** section-3-scope-sandbox/diagrams/failure-story-s3.png  **Layout:** steps
 **On the slide:**
 Lead: An illustrative ticket: Feature 4: Version checks on issue edits, with a list of files to change
 1. Needs a new error class
@@ -1072,7 +1073,7 @@ Lead: An illustrative ticket: Feature 4: Version checks on issue edits, with a l
 - Time: 4 minutes. Next: both arms read the same list; why is that not enough?
 
 ## Slide 46: Scope: Is the ticket's file list enough?
-**Block:** Section 3  **Time:** 3 min (2:06-2:09)  **Diagram:** section-3-scope-sandbox/diagrams/socratic-s3-step-2.png  **Layout:** key-idea
+**Block:** Section 3: Scope and sandbox  **Time:** 3 min (2:06-2:09)  **Diagram:** section-3-scope-sandbox/diagrams/socratic-s3-step-2.png  **Layout:** key-idea
 **On the slide:**
 Lead: The ticket lists the files to change, and both arms read the same list. Is that enough?
 Key idea: No: text is a request. Check every tool call in code.
@@ -1093,7 +1094,7 @@ Key idea: No: text is a request. Check every tool call in code.
 - Time: 3 minutes. Next: four boundaries, one per slide.
 
 ## Slide 47: 1) One feature at a time: feature_list.json
-**Block:** Section 3  **Time:** 4.25 min (2:09-2:13:15)  **Diagram:** section-3-scope-sandbox/diagrams/feature-list-lifecycle.png  **Layout:** diagram
+**Block:** Section 3: Scope and sandbox  **Time:** 4.25 min (2:09-2:13:15)  **Diagram:** section-3-scope-sandbox/diagrams/feature-list-lifecycle.png  **Layout:** diagram
 **On the slide:**
 Lead: The harness writes one feature with passes: false.
 Key idea: Only the harness sets passes to true, from its own test run.
@@ -1112,7 +1113,7 @@ Key idea: Only the harness sets passes to true, from its own test run.
 - Time: 4.25 minutes. Next: one list of files per phase.
 
 ## Slide 48: 2) Allowed paths per phase, checked by code
-**Block:** Section 3  **Time:** 4.25 min (2:13:15-2:17:30)  **Diagram:** section-3-scope-sandbox/diagrams/scope-check-flow.png  **Layout:** diagram
+**Block:** Section 3: Scope and sandbox  **Time:** 4.25 min (2:13:15-2:17:30)  **Diagram:** section-3-scope-sandbox/diagrams/scope-check-flow.png  **Layout:** diagram
 **On the slide:**
 Lead: Every tool call is checked against the phase's allowed paths.
 Key idea: A patch outside the list is BLOCKED; a command's stray writes are REVERTED.
@@ -1132,7 +1133,7 @@ Key idea: A patch outside the list is BLOCKED; a command's stray writes are REVE
 - Time: 4.25 minutes. Next: the machine boundary.
 
 ## Slide 49: 3) The sandbox boundary: where the keys live
-**Block:** Section 3  **Time:** 4.25 min (2:17:30-2:21:45)  **Diagram:** section-3-scope-sandbox/diagrams/sandbox-boundary.png  **Layout:** diagram
+**Block:** Section 3: Scope and sandbox  **Time:** 4.25 min (2:17:30-2:21:45)  **Diagram:** section-3-scope-sandbox/diagrams/sandbox-boundary.png  **Layout:** diagram
 **On the slide:**
 Lead: Every tool command runs in one container per arm; the loop and the keys stay on the host.
 Key idea: No network, read-only root, the same container for both arms: never the A/B variable.
@@ -1150,7 +1151,7 @@ Key idea: No network, read-only root, the same container for both arms: never th
 - Time: 4.25 minutes. Next: the principle behind those flags.
 
 ## Slide 50: 4) Least privilege: two refusals, two questions
-**Block:** Section 3  **Time:** 4.25 min (2:21:45-2:26)  **Diagram:** section-3-scope-sandbox/diagrams/least-privilege.png  **Layout:** diagram
+**Block:** Section 3: Scope and sandbox  **Time:** 4.25 min (2:21:45-2:26)  **Diagram:** section-3-scope-sandbox/diagrams/least-privilege.png  **Layout:** diagram
 **On the slide:**
 Lead: "enforce boundaries centrally, allow autonomy locally."
 Key idea: Scope asks "in scope now?"; the sandbox asks "possible at all?"
@@ -1167,7 +1168,7 @@ Key idea: Scope asks "in scope now?"; the sandbox asks "possible at all?"
 - Time: 4.25 minutes. Next: four boundaries on one card.
 
 ## Slide 51: Cheat Sheet: Four boundaries for one feature
-**Block:** Section 3  **Time:** 2 min (2:26-2:28)  **Diagram:** section-3-scope-sandbox/diagrams/cheat-sheet-s3.png  **Layout:** table
+**Block:** Section 3: Scope and sandbox  **Time:** 2 min (2:26-2:28)  **Diagram:** section-3-scope-sandbox/diagrams/cheat-sheet-s3.png  **Layout:** table
 **On the slide:**
 Lead: Refer back to this when you scope your next agent task.
 | Boundary | What it does | Arm |
@@ -1188,11 +1189,11 @@ Lead: Refer back to this when you scope your next agent task.
 - Likely question: "Which row is cheapest to start with?" Answer: counting, not blocking: write the globs and count files outside them after each run.
 - Time: 2 minutes. Next: the live A/B.
 
-## Slide 52: Section 3 - Implementation Notes: Scope at work
-**Block:** Section 3  **Time:** 10 min (2:28-2:38)  **Diagram:** none  **Layout:** template-demo
+## Slide 52: Section 3: Scope and sandbox - Implementation Notes: Scope at work
+**Block:** Section 3: Scope and sandbox  **Time:** 10 min (2:28-2:38)  **Diagram:** none  **Layout:** template-demo
 **On the slide:**
 DEMO - 3
-Section 3 - Implementation Notes: Scope at work
+Section 3: Scope and sandbox - Implementation Notes: Scope at work
 **Visual:** Template DEMO layout: "DEMO - 3" badge and the title only; no screenshot. Switch to the console.
 **Speaker notes:**
 - Files for this demo: `section-3-scope-sandbox/demo/run.sh`, `section-3-scope-sandbox/demo/walkthrough.md`, `section-3-scope-sandbox/demo/harness/` (the feature list and scope files), `section-3-scope-sandbox/demo/expected/` (the captured A/B, the fallback), `docs/evidence/s3.md`, console http://127.0.0.1:8765.
@@ -1212,7 +1213,7 @@ Section 3 - Implementation Notes: Scope at work
 - Time: 10 minutes. Next: the honest numbers.
 
 ## Slide 53: What we measured: Scope held on version checks
-**Block:** Section 3  **Time:** 6 min (2:38-2:44)  **Diagram:** section-3-scope-sandbox/diagrams/results-s3.png  **Layout:** two-column
+**Block:** Section 3: Scope and sandbox  **Time:** 6 min (2:38-2:44)  **Diagram:** section-3-scope-sandbox/diagrams/results-s3.png  **Layout:** two-column
 **On the slide:**
 Lead: Earns its place when a shared file looks like the natural home and you need a guarantee.
 Left: What we measured
@@ -1241,7 +1242,7 @@ Right: Apply it Monday
 - Time: 6 minutes. Next: questions.
 
 ## Slide 54: Q&A: Scope and sandbox
-**Block:** Section 3  **Time:** 6 min (2:44-2:50)  **Diagram:** none  **Layout:** template-qa
+**Block:** Section 3: Scope and sandbox  **Time:** 6 min (2:44-2:50)  **Diagram:** none  **Layout:** template-qa
 **On the slide:**
 Ask about anything:
 - Concepts from today's sections
@@ -1278,7 +1279,7 @@ A 5-minute break is starting now. Please return when the timer ends to continue 
 - Transition: "Welcome back. We know what the agent knows, remembers, and may change. Now: what proves it is done."
 
 ## Slide 56: Live Zoom Poll: Pick the final A/B feature
-**Block:** Section 4  **Time:** 2 min (2:55-2:57)  **Diagram:** none  **Layout:** template-poll
+**Block:** Section 4: Verification  **Time:** 2 min (2:55-2:57)  **Diagram:** none  **Layout:** template-poll
 **On the slide:**
 Live Zoom Poll
 We are launching a poll on Zoom. Please take 2 minutes to fill out the form.
@@ -1300,7 +1301,7 @@ Which feature runs as the final live A/B:
 - Time: 2 minutes, close the poll at 2:57. Next: the section start and both launches.
 
 ## Slide 57: Section 4: Verification, what proves the work is done
-**Block:** Section 4  **Time:** 2 min (2:57-2:59)  **Diagram:** none  **Layout:** template-agenda
+**Block:** Section 4: Verification  **Time:** 2 min (2:57-2:59)  **Diagram:** none  **Layout:** template-agenda
 **On the slide:**
 1 Instructions
 2 State and sessions
@@ -1324,7 +1325,7 @@ Launch: terminal B `make show-4`; terminal C `make final FEATURES=watchers,bulk-
 - Time: 2 minutes including both launches. Next: the story of version checks.
 
 ## Slide 58: Failure story: Done, but two edits still collide
-**Block:** Section 4  **Time:** 4 min (2:59-3:03)  **Diagram:** section-4-verification/diagrams/failure-story-s4.png  **Layout:** steps
+**Block:** Section 4: Verification  **Time:** 4 min (2:59-3:03)  **Diagram:** section-4-verification/diagrams/failure-story-s4.png  **Layout:** steps
 **On the slide:**
 Lead: An illustrative ticket: Feature 4: Version checks on issue edits, stop lost updates
 1. Adds the header check to three endpoints
@@ -1347,7 +1348,7 @@ Lead: An illustrative ticket: Feature 4: Version checks on issue edits, stop los
 - Time: 4 minutes. Next: what really happened before class.
 
 ## Slide 59: Verification: Suite green. Are version checks done?
-**Block:** Section 4  **Time:** 3 min (3:03-3:06)  **Diagram:** section-4-verification/diagrams/socratic-s4-step-2.png  **Layout:** key-idea
+**Block:** Section 4: Verification  **Time:** 3 min (3:03-3:06)  **Diagram:** section-4-verification/diagrams/socratic-s4-step-2.png  **Layout:** key-idea
 **On the slide:**
 Lead: A bare arm before class: 191 visible tests passing, "Verified the complete visible suite", finish(claim="done"). Done?
 Key idea: No: the referee failed it, 68 of 69 hidden tests. Who should decide "done"?
@@ -1369,7 +1370,7 @@ Key idea: No: the referee failed it, 68 of 69 hidden tests. Who should decide "d
 - Time: 3 minutes. Next: idea 1, why self-grading fails.
 
 ## Slide 60: 1) Self-grading and visible tests
-**Block:** Section 4  **Time:** 3.5 min (3:06-3:09:30)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-1.png  **Layout:** diagram
+**Block:** Section 4: Verification  **Time:** 3.5 min (3:06-3:09:30)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-1.png  **Layout:** diagram
 **On the slide:**
 Lead: The agent writes the tests, runs them, and grades the result.
 Key idea: Every agent saturates the visible suite; held-out tests still find failures.
@@ -1387,16 +1388,16 @@ Key idea: Every agent saturates the visible suite; held-out tests still find fai
 - Time: 3.5 minutes. Next: which generated tests do we keep?
 
 ## Slide 61: 2) Test-phase filters: keep tests that prove something
-**Block:** Section 4  **Time:** 3.5 min (3:09:30-3:13)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-2.png  **Layout:** diagram
+**Block:** Section 4: Verification  **Time:** 3.5 min (3:09:30-3:13)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-2.png  **Layout:** diagram
 **On the slide:**
 Lead: After the build, a short test phase; each proposed test passes five filters, cheapest first.
 Key idea: Keep a test only if it runs, is stable, and adds something.
-**Visual:** Pipeline build frame 2: "Agent, test phase" after the build, then a funnel "Five test filters" with "kept tests" going to "Shipped diff"; a side note "Filters 1-3 from TestGen-LLM, 4-5 course".
+**Visual:** Pipeline build frame 2: "Agent, test phase" after the build, then a funnel "Five test filters" with "kept tests" going to "Shipped diff"; a side note "Filters 1-3 from [TestGen-LLM](https://arxiv.org/abs/2402.09171), 4-5 course".
 **Speaker notes:**
 - A generated test can fail on correct code, pass by luck, or pass without checking anything; each filter removes one of those.
 - The five: Filter 1: Builds and collects; Filter 2: Passes five runs; Filter 3: Adds coverage or catches a mutant; Filter 4: Real assertions (no mock of the code under test); Filter 5: No source changes.
-- Source 13: [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (TestGen-LLM) keeps a test only after "a series of progressively demanding semantic filters". Filter 2 quotes it: "a test that does not pass on every one of five executions is deemed flaky."
-- Filters 1 to 3 come from TestGen-LLM, Filter 3's mutant branch from Source 14: [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (ACH). Filters 4 and 5 are the course's own, with no source sentence: they stop a test that asserts nothing or mocks the code it claims to test, and a test phase that edits code until its test passes.
+- Source 13: [Automated Unit Test Improvement using Large Language Models at Meta (TestGen-LLM)](https://arxiv.org/abs/2402.09171) keeps a test only after "a series of progressively demanding semantic filters". Filter 2 quotes it: "a test that does not pass on every one of five executions is deemed flaky."
+- Filters 1 to 3 come from [TestGen-LLM](https://arxiv.org/abs/2402.09171), Filter 3's mutant branch from Source 14: [Mutation-Guided LLM-based Test Generation at Meta (ACH)](https://arxiv.org/abs/2501.12862). Filters 4 and 5 are the course's own, with no source sentence: they stop a test that asserts nothing or mocks the code it claims to test, and a test phase that edits code until its test passes.
 - Captured demo run: 4 proposed tests, 1 kept. One was discarded at Filter 2 with "failed on run 1 of 5: assert 422 == 412".
 - Analogy: CI gates on a pull request: lint, flaky-test quarantine, coverage diff, applied to tests the agent wrote.
 - Ask: "Why run the cheapest filter first?" Expected: most tests fail early, so you skip five runs and coverage on tests that do not even collect.
@@ -1405,7 +1406,7 @@ Key idea: Keep a test only if it runs, is stable, and adds something.
 - Time: 3.5 minutes. Next: would the kept tests catch anything?
 
 ## Slide 62: 3) Mutation testing and hidden tests
-**Block:** Section 4  **Time:** 3.5 min (3:13-3:16:30)  **Diagram:** section-4-verification/diagrams/mutation-testing.png  **Layout:** diagram
+**Block:** Section 4: Verification  **Time:** 3.5 min (3:13-3:16:30)  **Diagram:** section-4-verification/diagrams/mutation-testing.png  **Layout:** diagram
 **On the slide:**
 Lead: A mutant is a copy of the code with one small planted fault; a test that fails on it catches it.
 Key idea: Two held-out checks, owned by the referee: hidden tests and referee mutants.
@@ -1423,7 +1424,7 @@ Key idea: Two held-out checks, owned by the referee: hidden tests and referee mu
 - Time: 3.5 minutes. Next: who decides the claim.
 
 ## Slide 63: 4) The gate on "done" and the separate referee
-**Block:** Section 4  **Time:** 3.5 min (3:16:30-3:20)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-3.png  **Layout:** diagram
+**Block:** Section 4: Verification  **Time:** 3.5 min (3:16:30-3:20)  **Diagram:** section-4-verification/diagrams/verification-pipeline-step-3.png  **Layout:** diagram
 **On the slide:**
 Lead: finish(claim="done") starts a check, not the end of the phase.
 Key idea: Any gate failure returns "Not accepted"; the referee scores later, in its own container.
@@ -1443,7 +1444,7 @@ Key idea: Any gate failure returns "Not accepted"; the referee scores later, in 
 - Time: 3.5 minutes. Next: all four on one sheet.
 
 ## Slide 64: Cheat Sheet: four checks the agent does not own
-**Block:** Section 4  **Time:** 2 min (3:20-3:22)  **Diagram:** section-4-verification/diagrams/cheat-sheet-s4.png  **Layout:** table
+**Block:** Section 4: Verification  **Time:** 2 min (3:20-3:22)  **Diagram:** section-4-verification/diagrams/cheat-sheet-s4.png  **Layout:** table
 **On the slide:**
 Lead: Two give feedback, two stay held out.
 | Check | When | Asks |
@@ -1465,11 +1466,11 @@ Lead: Two give feedback, two stay held out.
 - Instructor cue: check terminal B for the show-4 `Cost:` line and terminal C for the final's first feature.
 - Time: 2 minutes. Next: the finished run.
 
-## Slide 65: Section 4 - Implementation Notes: The gate at work
-**Block:** Section 4  **Time:** 9 min (3:22-3:31)  **Diagram:** none  **Layout:** template-demo
+## Slide 65: Section 4: Verification - Implementation Notes: The gate at work
+**Block:** Section 4: Verification  **Time:** 9 min (3:22-3:31)  **Diagram:** none  **Layout:** template-demo
 **On the slide:**
 DEMO - 4
-Section 4 - Implementation Notes: The gate at work
+Section 4: Verification - Implementation Notes: The gate at work
 **Visual:** Template DEMO layout: "DEMO - 4" badge and the title only; no screenshot. Switch to the console.
 **Speaker notes:**
 - Files for this demo: `section-4-verification/demo/run.sh`, `section-4-verification/demo/walkthrough.md`, `section-4-verification/demo/harness/` (the gate and filter settings), `section-4-verification/demo/expected/` (the captured run, the fallback), `docs/evidence/s4.md`, console http://127.0.0.1:8765.
@@ -1489,7 +1490,7 @@ Section 4 - Implementation Notes: The gate at work
 - Time: 9 minutes. Next: what we measured.
 
 ## Slide 66: What we measured: No measurable difference on version checks
-**Block:** Section 4  **Time:** 6 min (3:31-3:37)  **Diagram:** section-4-verification/diagrams/results-s4.png  **Layout:** two-column
+**Block:** Section 4: Verification  **Time:** 6 min (3:31-3:37)  **Diagram:** section-4-verification/diagrams/results-s4.png  **Layout:** two-column
 **On the slide:**
 Lead: Earns its place when the agent can claim done early and checks are cheap, exact, partly held out.
 Left: What we measured
@@ -1518,7 +1519,7 @@ Right: Apply it Monday
 - Time: 6 minutes. Next: questions.
 
 ## Slide 67: Q&A: Section 4: Verification
-**Block:** Section 4  **Time:** 3 min (3:37-3:40)  **Diagram:** none  **Layout:** template-qa
+**Block:** Section 4: Verification  **Time:** 3 min (3:37-3:40)  **Diagram:** none  **Layout:** template-qa
 **On the slide:**
 Ask about anything:
 - Concepts from today's modules
@@ -1764,7 +1765,7 @@ Lead: The rest of today's sources, with links.
 |---|---|
 | Source 10 | [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans), Aaron Friel, OpenAI Cookbook, 2025-10-07 |
 | Source 11 | [None network driver (Docker docs)](https://docs.docker.com/engine/network/drivers/none/), Docker, living page |
-| Source 12 | [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384), Zhao, Srikanth, Wu, Jiang, Weco AI; repository https://github.com/WecoAI/SpecBench, 2026-05-20 |
+| Source 12 | [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384), Zhao, Srikanth, Wu, Jiang, Weco AI ([repository](https://github.com/WecoAI/SpecBench)), 2026-05-20 |
 | Source 13 | [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171), Alshahwan et al., Meta, FSE 2024 |
 | Source 14 | [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862), Foster et al., Meta, 2025 |
 | Source 15 | [Autonomous Coding Agent Demo (README)](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding), Anthropic, 2025-11-26 |
@@ -1772,14 +1773,14 @@ Lead: The rest of today's sources, with links.
 | Source 17 | [How to add skills support to your agent](https://agentskills.io/client-implementation/adding-skills-support.md), Agent Skills project, undated |
 **Visual:** The same table style as part 1.
 **Speaker notes:**
-- The Meta papers: [Source 13](https://arxiv.org/abs/2402.09171) (TestGen-LLM) gives Filters 1 to 3 and the five-run flakiness check; [Source 14](https://arxiv.org/abs/2501.12862) (ACH) gives targeted mutants, the mutant branch of Filter 3: Adds coverage or catches a mutant, and the limit that it cannot find existing faults.
+- The Meta papers: Source 13 ([TestGen-LLM](https://arxiv.org/abs/2402.09171)) gives Filters 1 to 3 and the five-run flakiness check; Source 14 ([ACH](https://arxiv.org/abs/2501.12862)) gives targeted mutants, the mutant branch of Filter 3: Adds coverage or catches a mutant, and the limit that it cannot find existing faults.
 - [Source 12](https://arxiv.org/abs/2605.21384) and its repository: visible against held-out suites, and compositional failures. Not the unrelated Spec-Bench paper.
 - [Source 11](https://docs.docker.com/engine/network/drivers/none/): what `--network none` leaves inside the container. Source 5: [LangSmith billing](https://docs.langchain.com/langsmith/billing): ordinary traces are kept 14 days. [Source 10](https://cookbook.openai.com/articles/codex_exec_plans): the exec plan of Section 2: State and sessions; [Source 15](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding): the feature list and `init.sh` pattern.
 - Post-class readings in `section-4-verification/post-class-reading/` summarise the three papers in about 20 minutes.
 - Likely question: "Are the quotes checked?" Answer: yes; each was checked against the source text, and the evidence pages list them.
 - The same numbered list sits in the Sources section at the end of the slide file, so every "Source N" in the notes resolves to one entry.
 - Time check: the close should be at about 3:58:30 here; keep the last Q&A short.
-- Misconception: "Filter 4: Real assertions and Filter 5: No source changes are from TestGen-LLM". Correction: they are the course's own; the evidence page says so.
+- Misconception: "Filter 4: Real assertions and Filter 5: No source changes are from [TestGen-LLM](https://arxiv.org/abs/2402.09171)". Correction: they are the course's own; the evidence page says so.
 - Time: 15 seconds. Next: last questions.
 
 ## Slide 79: Q&A: anything from today
@@ -1822,22 +1823,20 @@ Thank you
 
 ## Sources
 
-Numbered in the order each source is first cited in this file.
-
-- Source 1: [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/), Ryan Lopopolo, OpenAI, 2026-02-11
-- Source 2: [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents), Justin Young, Anthropic, 2025-11-26
-- Source 3: [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps), Prithvi Rajasekaran, Anthropic, 2026-03-24
-- Source 4: [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler), Nicholas Carlini, Anthropic, 2026-02-05
-- Source 5: [Billing (LangSmith docs)](https://docs.langchain.com/langsmith/billing), LangChain, living page
-- Source 6: [Agent Skills Specification](https://agentskills.io/specification), Agent Skills project, undated
-- Source 7: [Extend Claude with skills](https://code.claude.com/docs/en/skills), Anthropic, Claude Code docs, living page
-- Source 8: [Build skills](https://learn.chatgpt.com/docs/build-skills), OpenAI, Codex docs, living page
-- Source 9: [Agent Skills (Cursor docs)](https://cursor.com/docs/skills), Anysphere, Cursor docs, living page
-- Source 10: [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans), Aaron Friel, OpenAI Cookbook, 2025-10-07
-- Source 11: [None network driver (Docker docs)](https://docs.docker.com/engine/network/drivers/none/), Docker, living page
-- Source 12: [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384), Zhao, Srikanth, Wu, Jiang, Weco AI; repository https://github.com/WecoAI/SpecBench, 2026-05-20
-- Source 13: [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171), Alshahwan et al., Meta, FSE 2024
-- Source 14: [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862), Foster et al., Meta, 2025
-- Source 15: [Autonomous Coding Agent Demo (README)](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding), Anthropic, 2025-11-26
-- Source 16: [What are skills?](https://agentskills.io/what-are-skills), Agent Skills project, undated
-- Source 17: [How to add skills support to your agent](https://agentskills.io/client-implementation/adding-skills-support.md), Agent Skills project, undated
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 3: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 4: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 5: Billing (LangSmith docs), <https://docs.langchain.com/langsmith/billing>, LangChain (LangSmith docs), n.d.
+- Source 6: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.
+- Source 7: Extend Claude with skills, <https://code.claude.com/docs/en/skills>, Claude Code docs (Anthropic), n.d.
+- Source 8: Build skills, <https://learn.chatgpt.com/docs/build-skills>, Codex docs (OpenAI), n.d.
+- Source 9: Agent Skills (Cursor docs), <https://cursor.com/docs/skills>, Cursor docs, n.d.
+- Source 10: Using PLANS.md for multi-hour problem solving, <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07
+- Source 11: None network driver (Docker docs), <https://docs.docker.com/engine/network/drivers/none/>, Docker documentation, n.d.
+- Source 12: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents, <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, and Jiang (Weco AI), 2026-05-20
+- Source 13: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
+- Source 14: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22
+- Source 15: Autonomous Coding Agent Demo (README), <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic, 2025-11-26
+- Source 16: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 17: How to add skills support to your agent, <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project, n.d.

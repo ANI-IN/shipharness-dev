@@ -1,4 +1,4 @@
-# Section 2 session notes: what the agent remembers
+# Section 2: State and sessions. Session notes: what the agent remembers
 
 For learners, after class. Reading time: about 8 minutes.
 
@@ -104,7 +104,7 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 
 ## What to try next
 
-1. Start [Assignment 2](assignment/README.md). Run `make check-assignment-2` first; on the unchanged
+1. Start [Assignment 2: State and sessions](assignment/README.md). Run `make check-assignment-2` first; on the unchanged
    starter it fails by design, and session 2 of scenario V1 redoes step 1.
 2. Open the four files in [demo/harness/](demo/harness/README.md). Which line would have stopped
    the second migration in the opening story?
@@ -116,5 +116,5 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

@@ -1,4 +1,4 @@
-# Section 4 session notes: what proves the work is done
+# Section 4: Verification. Session notes: what proves the work is done
 
 For learners, after class. Reading time: about 8 minutes.
 
@@ -78,7 +78,7 @@ bare arms claimed done, and the referee failed both ([done claims](../docs/evide
 The captured demo run filled that gap once. The harness arm claimed done, and the gate passed all 11
 items on the first try. The referee then failed the run: 68 of 69 hidden tests, 0 of 4 mutants. The
 failing hidden test checks a stale `If-Match` with an invalid body. The agent had written a test for
-that very case; it failed with "assert 422 == 412", and filter 2 discarded it.
+that very case; it failed with "assert 422 == 412", and Filter 2: Passes five runs discarded it.
 
 Measures chosen after the results, so they describe and do not test: over 34 runs per arm across all
 sections, harness arms claimed done in 10 and bare arms in 19. Harness arms shipped fewer tests
@@ -115,7 +115,7 @@ claims to test, and a test phase that edits the code until its test passes.
 
 ## What to try next
 
-1. Start [Assignment 4](assignment/README.md). Run `make check-assignment-4` first; on the unchanged
+1. Start [Assignment 4: Verification](assignment/README.md). Run `make check-assignment-4` first; on the unchanged
    starter it fails by design, and each FAIL line names what to build.
 2. Read the gate with `uv run python platform/scripts/anchors.py extract S4:gate`, then the filters
    with `S4:filters`.
@@ -126,8 +126,8 @@ claims to test, and a test phase that edits the code until its test passes.
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
-- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)
-- [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171) (Meta, TestGen-LLM)
-- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 3: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents, <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, and Jiang (Weco AI), 2026-05-20
+- Source 4: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
+- Source 5: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22

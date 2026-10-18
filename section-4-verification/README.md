@@ -71,7 +71,7 @@ taught. The final A/B is read in the final block.
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-18 |
 | [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Poll for the final feature at minute 0; launch at minute 2; review at 18-36 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The gate's code, 38 lines explained | Minutes 18-28, on the DEMO slide |
-| [assignment/](assignment/README.md) | Assignment 4: a soft-delete check, a sixth filter, a live run, a portfolio | After class |
+| [assignment/](assignment/README.md) | Assignment 4: Verification. Soft-delete check, sixth filter, live run, portfolio | After class |
 | [post-class-reading/](post-class-reading/README.md) | Four short readings on filters, mutants, evaluators, held-out tests | After class |
 | [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |
 
@@ -85,7 +85,7 @@ taught. The final A/B is read in the final block.
 
 ## Sources
 
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic)
-- [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384)
+- Source 1: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 2: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 3: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 4: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents, <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, and Jiang (Weco AI), 2026-05-20

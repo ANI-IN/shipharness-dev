@@ -68,7 +68,7 @@ the concepts are taught.
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 2-20 |
 | [demo/](demo/README.md) | The live A/B on the version-checks ticket, and how to read it | Launch at minute 1; review at 20-45 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The 34 lines of code behind the layer | Minutes 20-30, on the DEMO slide |
-| [assignment/](assignment/README.md) | Assignment 3: a diff-scope policy, a `passes` gate, a sandbox rule | After class |
+| [assignment/](assignment/README.md) | Assignment 3: Scope and sandbox. A diff-scope policy, a `passes` gate, a sandbox rule | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on feature lists and sandboxes | After class |
 | [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |
 
@@ -81,6 +81,6 @@ the concepts are taught.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
-- [Autonomous Coding Agent Demo (README)](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding) (Anthropic, claude-quickstarts repository)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 3: Autonomous Coding Agent Demo (README), <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic, 2025-11-26

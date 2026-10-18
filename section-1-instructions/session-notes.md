@@ -1,4 +1,4 @@
-# Section 1 session notes: what the agent knows
+# Section 1: Instructions. Session notes: what the agent knows
 
 For learners, after class. Reading time: about 8 minutes.
 
@@ -11,7 +11,7 @@ For learners, after class. Reading time: about 8 minutes.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Progressive disclosure**: A small entry point first; the details only when the task needs them.
 > - **Context prefix**: The fixed text block sent at the start of every agent session.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **House rule 1: Tenant isolation**: another org's resource answers 404, never 403.
 > - **Primary measure**: The one result, chosen before any run, that decides the comparison.
 
 ## What we showed
@@ -105,7 +105,7 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 
 ## What to try next
 
-1. Start [Assignment 1](assignment/README.md). Run `make check-assignment-1` first; on the unchanged
+1. Start [Assignment 1: Instructions](assignment/README.md). Run `make check-assignment-1` first; on the unchanged
    starter it fails by design, and each FAIL line says what to fix.
 2. Open `platform/teamtrack/docs/HANDBOOK.md` and `platform/teamtrack/harness/instructions/AGENTS.md`
    side by side. How many lines does an agent read before it reaches the tenant isolation rule in
@@ -119,6 +119,6 @@ Every run is a dot. With 1 or 3 runs per arm, a percentage hides how few runs th
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.
+- Source 3: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

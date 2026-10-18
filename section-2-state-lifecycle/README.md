@@ -65,7 +65,7 @@ the concepts are taught.
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 2-20 |
 | [demo/](demo/README.md) | The live run across a 12-turn stop, and how to read it | Launch at minute 1; review at 20-45 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The 40 lines of code behind the layer | Minutes 20-30, on the DEMO slide |
-| [assignment/](assignment/README.md) | Assignment 2: a state layer that survives three stops | After class |
+| [assignment/](assignment/README.md) | Assignment 2: State and sessions. A state layer that survives three stops | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on sessions, resets, and plans | After class |
 | [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |
 
@@ -78,5 +78,5 @@ the concepts are taught.
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

@@ -24,7 +24,7 @@ session cut off after 12 turns.
 > - **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
 > - **Structured handoff**: A file that carries the last session's state and the next steps to the next session.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
-> - **Migrations rule**: House rule 7: exactly one Alembic head, and a fresh upgrade works.
+> - **House rule 7: Migrations**: exactly one Alembic head, and a fresh upgrade works.
 > - **Alembic head**: The newest migration in the chain; Alembic is the migration tool TeamTrack uses.
 > - **Mutant**: A copy of the code with one small bug planted on purpose; good tests catch (kill) it.
 
@@ -141,7 +141,7 @@ Then switch screens.
 **Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done" and "Session 2 · 31 turns".
 The referee list shows `continuity: 0 new` (the primary measure) and `r7_migrations: 0 new`. It also
 shows `diff_scope: 1 new`: the agent edited `app/api/issues.py`, outside the comments ticket's allowed paths. Nothing
-stopped it, because the scope layer starts in Section 3.
+stopped it, because the scope layer starts in Section 3: Scope and sandbox.
 
 ![Screen 3: sessions 12 and 31 turns, the diff map, continuity 0 new, diff_scope 1 new](expected/show-2-screen-3-final.png)
 
@@ -215,4 +215,4 @@ The demo never falls back to a recording or a stand-in model. Still stuck? See
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26

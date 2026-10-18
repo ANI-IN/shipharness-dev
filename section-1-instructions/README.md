@@ -22,7 +22,7 @@ of the pattern.
 > - **Referee**: The program that scores each run after the agent stops.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **House rule 1: Tenant isolation**: another org's resource answers 404, never 403.
 
 ## Why it happens
 
@@ -78,5 +78,5 @@ the concepts are taught.
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Agent Skills Specification](https://agentskills.io/specification) (Agent Skills project)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.

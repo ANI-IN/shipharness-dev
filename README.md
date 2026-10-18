@@ -57,14 +57,14 @@ layers, one per section.
 
 *Each layer acts at one point of the loop; the sandbox is the same for both arms.*
 
-- **Instructions** ([Section 1 of Module 1](section-1-instructions/README.md)). A short AGENTS.md acts as a map that
+- **Instructions** ([Section 1: Instructions](section-1-instructions/README.md)). A short AGENTS.md acts as a map that
   points to one document per topic. The agent reads only what the ticket needs.
-- **State and sessions** ([Section 2 of Module 1](section-2-state-lifecycle/README.md)). A progress file, an
+- **State and sessions** ([Section 2: State and sessions](section-2-state-lifecycle/README.md)). A progress file, an
   execution plan, and a handoff carry the work across a session stop. The next session reads them
   before it touches code.
-- **Scope and sandbox** ([Section 3 of Module 1](section-3-scope-sandbox/README.md)). The harness lists the files each
+- **Scope and sandbox** ([Section 3: Scope and sandbox](section-3-scope-sandbox/README.md)). The harness lists the files each
   phase may change and blocks the rest. Every run sits in a container with no network.
-- **Verification** ([Section 4 of Module 1](section-4-verification/README.md)). The agent's own tests must pass five
+- **Verification** ([Section 4: Verification](section-4-verification/README.md)). The agent's own tests must pass five
   filters, and a gate checks the work before "done" counts. The harness, not the agent, marks a
   feature as passing.
 
@@ -181,7 +181,7 @@ License: MIT, see [LICENSE](LICENSE).
 
 ## Sources
 
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
+- Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 2: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 3: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
+- Source 4: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24

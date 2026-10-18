@@ -20,7 +20,7 @@ handler that lists issues with no org filter. The ticket asks for a new org-wide
 > - **Console**: The browser page that shows a run live, on five screens.
 > - **Ticket**: The task the agent gets, written like a work ticket.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
-> - **Tenant isolation rule**: House rule 1: another org's resource answers 404, never 403.
+> - **House rule 1: Tenant isolation**: another org's resource answers 404, never 403.
 > - **Mutant**: A copy of the code with one small bug planted on purpose; a good test catches (kills) it.
 > - **LangSmith**: The tracing service that records every model call of a run.
 

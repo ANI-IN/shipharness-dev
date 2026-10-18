@@ -32,10 +32,10 @@ Terminal B runs the section demos. Terminal C runs the final.
 | T-30 min | B | `make warm` | `warm: done` |
 | T-30 min | A | `make console` | `Console: http://127.0.0.1:8765/`; open it |
 | 0:08 | B | `make doctor` | Read the key lines aloud |
-| 0:11 | B | `make show-1` | Section 1, harness in action |
-| 1:11 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
-| 2:01 | B | `make demo-3 FEATURE=version-checks` | Section 3, live A/B |
-| 2:57 | B | `make show-4` | Right after the one poll (2:55): Section 4, harness in action |
+| 0:11 | B | `make show-1` | Section 1: Instructions, harness in action |
+| 1:11 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2: State and sessions, two sessions |
+| 2:01 | B | `make demo-3 FEATURE=version-checks` | Section 3: Scope and sandbox, live A/B |
+| 2:57 | B | `make show-4` | Right after the one poll (2:55): Section 4: Verification, harness in action |
 | 2:57 | C | `make final FEATURES=watchers,bulk-close` | The final A/B; the poll's winner first |
 | 3:40 | C | No command | Read the final's arm lines |
 
@@ -431,10 +431,10 @@ questions.
 
 | Time | Item |
 |---|---|
-| 0:00-0:25 | Assignment 1, Instructions |
-| 0:25-0:50 | Assignment 2, State and sessions |
-| 0:50-1:15 | Assignment 3, Scope and sandbox, with the hidden-diff reveal |
-| 1:15-1:40 | Assignment 4, Verification |
+| 0:00-0:25 | Assignment 1: Instructions |
+| 0:25-0:50 | Assignment 2: State and sessions |
+| 0:50-1:15 | Assignment 3: Scope and sandbox, with the hidden-diff reveal |
+| 1:15-1:40 | Assignment 4: Verification |
 | 1:40-2:00 | Open questions |
 
 Each assignment's reference solution is in its `assignment/solution/` folder, with a step-by-step

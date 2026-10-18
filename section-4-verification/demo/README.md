@@ -107,7 +107,7 @@ plus the per-review cap.
 
 **In class**, the instructor launches the final A/B at the same time, in a third terminal, with
 `make final FEATURES=<poll winner>`, for example `make final FEATURES=watchers`, right after the
-class poll that opens Section 4. It runs beside
+class poll that opens Section 4: Verification. It runs beside
 this demo and is read in the
 [final block](../../final-project/README.md).
 
@@ -134,8 +134,8 @@ set the version checks feature as passing.
 Then switch screens.
 
 **Screen 3, Evidence.** The Verification panel has the test filter table: one row per proposed test,
-a mark per filter, and the reason for each discard. Two tests added no line coverage (filter 3). One
-failed on its first run (filter 2). One was kept.
+a mark per filter, and the reason for each discard. Two tests added no line coverage (Filter 3: Adds coverage or catches a mutant). One
+failed on its first run (Filter 2: Passes five runs). One was kept.
 
 ![Screen 3: the diff map with one blocked file, the test filter table with one kept and three discarded tests](expected/show-4-screen-3-final.png)
 
@@ -222,4 +222,4 @@ The demo never falls back to a recording or a stand-in model. Still stuck? See
 
 ## Sources
 
-- [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862) (Meta, ACH)
+- Source 1: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22

@@ -1,4 +1,4 @@
-# Section 3 session notes: what the agent may change and reach
+# Section 3: Scope and sandbox. Session notes: what the agent may change and reach
 
 For learners, after class. Reading time: about 8 minutes.
 
@@ -108,7 +108,7 @@ Every run is a dot. With 3 runs per arm, a percentage hides how few runs there a
 
 ## What to try next
 
-1. Start [Assignment 3](assignment/README.md). Run `make check-assignment-3` first; on the unchanged
+1. Start [Assignment 3: Scope and sandbox](assignment/README.md). Run `make check-assignment-3` first; on the unchanged
    starter it fails by design, and each FAIL row says what to fix.
 2. Open [demo/harness/scope-rules.txt](demo/harness/scope-rules.txt): the exact scope text the
    harness arm got. Which line would have stopped the bare arm's change, if code enforced it?
@@ -120,7 +120,7 @@ Every run is a dot. With 3 runs per arm, a percentage hides how few runs there a
 
 ## Sources
 
-- [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) (Anthropic, Justin Young, 2025-11-26)
-- [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) (Anthropic, Prithvi Rajasekaran, 2026-03-24)
-- [Harness engineering: leveraging Codex in an agent-first world](https://openai.com/index/harness-engineering/) (OpenAI, Ryan Lopopolo, 2026-02-11)
-- [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler) (Anthropic, Nicholas Carlini, 2026-02-05)
+- Source 1: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
+- Source 2: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
+- Source 3: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
+- Source 4: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05

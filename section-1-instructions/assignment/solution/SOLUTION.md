@@ -158,7 +158,7 @@ and the checker output in [captured/checker-solution.txt](captured/checker-solut
 
 The live A/B ran once, on 2026-10-17, with keys and Docker, as in
 [SPEC.md, "Run the A/B"](../SPEC.md#run-the-ab), with `--batch a1-reference` and this folder's
-`work/instructions/`. It made 48 runs with gpt-6-luna: 24 per arm, 3 for each of the eight Section 1
+`work/instructions/`. It made 48 runs with gpt-6-luna: 24 per arm, 3 for each of the eight Section 1: Instructions
 tasks. It cost $0.545310 of the $2.50 budget.
 
 The result is no measurable difference between the arms:

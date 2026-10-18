@@ -6,7 +6,7 @@ grader read these files. They never re-run anything.
 
 ## What the run was
 
-One A/B on the eight Section 1 tasks, three runs per task and arm: 24 bare runs and 24 harness runs
+One A/B on the eight tasks of Section 1: Instructions, three runs per task and arm: 24 bare runs and 24 harness runs
 with gpt-6-luna. The harness arm used the instructions layer with this solution's `instructions/`
 tree. The bare arm had the ticket and the repository only. The run took place on 2026-10-17 and cost
 $0.545310, within the Assignment 1 budget of $2.50.
