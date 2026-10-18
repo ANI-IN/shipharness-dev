@@ -42,16 +42,16 @@ Terminal B runs the section demos. Terminal C runs the final.
 After each launch, reload the run list ("← All runs") and open the top card. At section minute 15,
 look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
-Measured 2026-10-18, class profile, one live run each, alone, from launch ([runs](evidence/general.md#guide-runs-2026-10-18));
-in brackets, three earlier runs that day, two at a time ([runs](evidence/general.md#demo-runs-after-the-speed-up)):
+Measured 2026-10-18, class profile, from launch: two runs each, alone, the demo guide's ([runs](evidence/general.md#guide-runs-2026-10-18)) and a reviewer's on a fresh clone;
+two at once make both slower. In brackets, three earlier runs, two at a time ([runs](evidence/general.md#demo-runs-after-the-speed-up)):
 
 | Run | Primary verdict | Full verdict | Cost (cap) |
 |---|---|---|---|
-| `make show-1` | 2:35 (2:57 to 6:18) | 4:45 (7:23 to 10:58) | $0.020 ($0.24) |
-| `make show-2` | 5:18 (3:21 to 5:20) | 7:11 (5:10 to 6:59) | $0.044 ($0.24) |
-| `make demo-3` | bare 3:10, harness 5:59 (1:52 to 7:23) | 5:55, 8:24 (3:58 to 9:43) | $0.056 ($0.48) |
-| `make show-4` | 4:37 (5:51 to 6:50) | 5:32 (6:51 to 8:26) | $0.026 ($0.24) |
-| `make final`, one feature | bare 3:27, harness 7:23 (1:49 to 12:04) | 6:02, 9:10 (4:16 to 15:22) | $0.038 ($0.58) |
+| `make show-1` | 1:45 to 2:35 (2:57 to 6:18) | 3:37 to 4:45 (7:23 to 10:58) | $0.020 to $0.021 ($0.24) |
+| `make show-2` | 4:11 to 5:18 (3:21 to 5:20) | 5:52 to 7:11 (5:10 to 6:59) | $0.036 to $0.044 ($0.24) |
+| `make demo-3` | bare 1:59 to 3:10, harness 2:57 to 5:59 (1:52 to 7:23) | bare 4:25 to 5:55, harness 5:14 to 8:24 (3:58 to 9:43) | $0.050 to $0.056 ($0.48) |
+| `make show-4` | 4:37 to 6:54 (5:51 to 6:50) | 5:32 to 8:02 (6:51 to 8:26) | $0.026 to $0.028 ($0.24) |
+| `make final`, one feature | bare 2:48 to 3:27, harness 5:31 to 7:23 (1:49 to 12:04) | bare 5:07 to 6:02, harness 7:25 to 9:10 (4:16 to 15:22) | $0.038 to $0.042 ($0.58) |
 
 Every arm completed. `make show-4` filters only the first three proposed tests (a demo setting,
 [disclosed](evidence/s4.md#s4-show-4-settings)); the final's harness arm filters all of its tests,
@@ -256,7 +256,8 @@ the DEMO at 27-36, what we measured at 36-42, and the Q&A at 42-45.
 Every section run ends before its DEMO slide, even with 2 more minutes for the class agent time
 limit: show-1 by about 0:23, show-2 by about 1:23, demo-3 by about 2:15, show-4 by about 3:09 (DEMO
 slides at 0:40, 1:40, 2:28, 3:22). Two final features launched at 2:57 end about 3:27, later if the
-first one slows next to show-4. If terminal C has no `Cost:` line for the first feature at 3:10,
+first one slows next to show-4: the latest timings were measured with each demo running alone, and
+two runs at once make both slower. If terminal C has no `Cost:` line for the first feature at 3:10,
 expect the second to end close to 3:40.
 
 If the run is still going at minute 15, carry on with the ideas and the implementation notes. Then open the demo block on the

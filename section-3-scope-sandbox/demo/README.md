@@ -44,11 +44,11 @@ it left the allowed paths in 9 of 10 runs; in the live run of 2026-10-18 it did 
 
 *The live run: the harness arm's patch to the shared errors module was blocked; this time the bare arm stayed inside the list.*
 
-Measured 2026-10-18, class profile, one live run, which ran alone: the harness arm's patch to
-`app/services/errors.py` blocked 1:03 after launch; bare primary verdict 3:10, full 5:55; harness
-primary 5:59, full 8:24; command finished 8:26; $0.0562. Both arms completed, both with 0 files
-outside the allowed paths, so both pills read PASS
-([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs
+Measured 2026-10-18, class profile, two runs that each ran alone: bare primary verdict 1:59 to
+3:10 after launch, full 4:25 to 5:55; harness primary 2:57 to 5:59, full 5:14 to 8:24; $0.050 to
+$0.056. In the demo guide's run the harness arm's patch to `app/services/errors.py` was blocked 1:03
+after launch, the command finished 8:26 ($0.0562), and both arms completed with 0 files outside the
+allowed paths, so both pills read PASS ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs
 gave a range: bare primary verdict 1:52 to 5:23, full 3:58 to 7:42; harness primary 6:12 to 7:23,
 full 7:31 to 9:43; $0.037 to $0.053 per A/B. In two of those three the bare arm changed
 `app/services/errors.py` ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).

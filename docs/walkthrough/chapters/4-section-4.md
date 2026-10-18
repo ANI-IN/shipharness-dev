@@ -52,18 +52,21 @@ make console
 make show-4 PURPOSE=pilot
 ```
 
-**You should see:** make prints the command it runs:
+**You should see:** make prints the command it runs, then nothing more until the end:
 
-![Terminal 2 right after launch: make show-4 PURPOSE=pilot and the shipharness ab command with --arms harness and --max-tests=3](../images/s4/term-start.png)
+```text
+uv run shipharness ab --section demo-4 --feature version-checks --arms harness   --purpose pilot \
+  --profile class --max-tests=3
+```
 
-*The first lines in Terminal 2.*
+The `A/B ab-…` line and the result line come only at the end (Step 14).
 
 **Look at:** `--arms harness` (one arm only) and `--max-tests=3`.
 
 **What it means:** `make show-4` runs the harness arm alone, with the class profile. `--max-tests=3` is a demo setting: the filters check only the first three tests the test phase proposes. Any further test is removed with the reason "not filtered: this demo filters only the first 3 proposed tests" and counts as discarded. `make show-4 MAX_TESTS=` filters every test.
 
 > [!CHECKPOINT]
-> Terminal 2 shows the command and no `x` error line. In the live run the command took 5 min 33 s.
+> Terminal 2 shows the command and no `x` error line. In the live run the command took 5 min 33 s; a second run that also ran alone took 8 min 3 s.
 
 > [!IFDIFFERENT]
 > - `x SHIPHARNESS_CLASS_DATE is not set` → a class run needs the class day: set it in `.env`, or keep `PURPOSE=pilot`.
@@ -71,7 +74,7 @@ make show-4 PURPOSE=pilot
 > - The arm ends `ERROR` with `docker run failed` → Docker is not running: `sudo systemctl start docker`, then `make warm`.
 
 > [!INSTRUCTOR]
-> Say what `MAX_TESTS=3` is before anyone asks: a demo setting that saves minutes, disclosed, not a comparison. In class, launch the final A/B in Terminal C right after this command.
+> Say what `MAX_TESTS=3` is before anyone asks: a demo setting that saves minutes, disclosed, not a comparison. In class, the plan in `docs/instructor-guide.md` launches the final A/B right after this command, in a third Ubuntu window opened like Terminal 2 (Part 0, Step 2). Every time in this guide was measured with each demo running alone; two runs at once make both slower.
 
 ### Step 3: Open the new run
 
@@ -85,10 +88,10 @@ make show-4 PURPOSE=pilot
 
 *The new run is the top card.*
 
-1. Run id: click it to open the run.
-2. Type: "harness in action" or "A/B".
-3. Status.
-4. Start time.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** The type on the top card. It says "harness in action", not "A/B".
 
@@ -116,14 +119,14 @@ make show-4 PURPOSE=pilot
 
 *Screen 1, about one minute in.*
 
-1. The badge "HARNESS IN ACTION — one arm, not an A/B", and the feature.
-2. Bare arm: "Not run (harness in action)".
-3. Harness arm line: "instructions + scope + state + verify".
-4. Container line: container id and "network none".
-5. "Last turns".
-6. "Harness decisions": the layer notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Harness arm line: its layers
+3. Bare arm: Not run (harness in action)
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
-**Look at:** The four layer names next to HARNESS (callout 3).
+**Look at:** The four layer names next to HARNESS (callout 2).
 
 **What it means:** Every layer from the course is on. The verify layer is the new one in this section.
 
@@ -177,8 +180,7 @@ note instructions agent read ARCHITECTURE.md
 
 *Screen 1: the scope layer refuses a patch outside the allowed files.*
 
-1. Blocked edit: outside the allowed paths.
-2. Turns list.
+1. Turns list
 
 **Look at:** The block decision: `app/services/errors.py: outside the allowed paths for the build phase (...); patch not applied`.
 
@@ -257,8 +259,6 @@ refused Gate refused 'done' (build phase, attempt 1): clean state: ruff: app/web
 ![Screen 1 when the gate passed: every pill is green](../images/s4/screen-1-gate-passed.png)
 
 *Screen 1, the gate passed.*
-
-1. Gate passed.
 
 **Look at:** Eleven ✓ pills, and three decisions right after them:
 
@@ -363,11 +363,11 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 *Screen 1, the end of the run: the gate passed, and the referee failed the run.*
 
-1. Harness arm line: its layers.
-2. Turns list.
-3. Harness decisions.
-4. Gate list: eleven ✓ pills.
-5. Referee pill: "✗ primary verdict ready: FAIL", then "hidden tests 68/69", "mutants killed 0/4", "House rule 1: Tenant isolation, new violations 0", and "launch to primary verdict 04:29 · launch to full verdict 05:24".
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** "Agent said ✓ done" and, under the referee, "✗ claim not supported".
 
@@ -425,11 +425,9 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Screen 3: what the agent read and changed, and how the referee judged it.*
 
-1. Sessions: "Session 1 · 30 turns" and "Test phase · 12 turns".
-2. Diff map (harness): nine changed files and "⊘ blocked app/services/errors.py".
-3. Files outside the allowed paths (diff_scope): "✓ 0 new".
-4. Blinded reviewer's reason.
-5. Bare arm: "Not run (harness in action)".
+1. Bare arm: Not run (harness in action)
+2. Diff map (harness)
+3. Sessions, including the test phase
 
 **Look at:** The two session rows and the diff map.
 
@@ -456,9 +454,9 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Screen 3: the referee's checks, then the blinded reviewer.*
 
-1. Files outside the allowed paths (diff_scope).
-2. hidden tests.
-3. Blinded reviewer's reason.
+1. hidden tests (harness)
+2. Files outside the allowed paths (diff_scope), harness
+3. Blinded reviewer's reason (harness)
 
 **Look at:** Each row's pill: "hidden tests", "House rule 1" to "House rule 7", "Existing tests (regression)", "Files outside the allowed paths (diff_scope)", "Flaky tests (flakiness)", "Session continuity (continuity)", "board check", each "✓ 0 new". Hover over a row for the full name and the number of probes.
 
@@ -510,8 +508,8 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 *Recorded run, screen 3: one row per filtered test, five filter marks, and the result.*
 
-1. A test kept by the filters.
-2. "fails on the current code; this may be a real bug".
+1. A test kept by the filters
+2. fails on the current code; this may be a real bug
 
 **Look at:** Callout 1: `test_stale_or_malformed_if_match_refuses_write_without_audit`, ✓ ✓ ✓ ✓ ✓, kept.
 
@@ -589,7 +587,7 @@ Filter 2: Passes five runs (failed on run 1 of 5: assert 422 == 412) · fails on
 
 *Screen 3: the four referee mutants and what the shipped tests did to them.*
 
-1. Mutants: filter set and referee set.
+1. Mutants (harness): filter set and referee set
 
 ```text
 mutant                         filter set   referee set
@@ -609,9 +607,12 @@ app.services.context-m401      –            ✗ survived
 > [!IFDIFFERENT]
 > - A row says "killed" → a shipped test caught that fault. Count the killed rows against the number on screen 1.
 > - A row says "error" → that mutant did not run cleanly and counts as not caught. A recorded run had one.
+> - The filter table shows a kept test, and every referee mutant still says "survived" → the kept test caught none of the held-out faults. See the instructor note.
 
 > [!INSTRUCTOR]
 > Say: "No test written, no fault caught. The gate cannot see this; the referee can."
+>
+> If a test was kept and the referee set still shows 0 killed: the test passed Filter 3 because it covered lines the suite did not, or caught a mutant of the filter set. Neither means it checks the behaviour the referee's planted faults break. The referee set is held out, so the filters never saw it. Say: "The filters kept this test because it reaches new code. Reaching code is not checking it: none of the referee's planted faults made it fail. A kept test is a better test, not proof the feature is guarded."
 
 ### Step 22: Open screen 2 and read the two-tab conflict
 
@@ -625,13 +626,14 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 2: the board stops the lost update from a stale tab.*
 
-1. ← All runs: back to the run list.
-2. Harness board, signed in as one user (admin@acme.test).
-3. Board marks: "✓ only own-org cards, no duplicates".
-4. Bare arm: "Not run (harness in action)".
-5. Two-tab edit conflict: "✓ CONFLICT DETECTED: tab B got HTTP 409".
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare arm: Not run (harness in action)
+5. Harness board marks
+6. Two-tab edit conflict
 
-**Look at:** Callout 5, and tab B's page: "This issue was changed by someone else."
+**Look at:** Callout 6, and tab B's page: "This issue was changed by someone else."
 
 **What it means:** Tab A saves, then tab B saves from its stale form. Tab B gets HTTP 409 and a "changed by someone else" page. The board part of the feature works. The referee still found one hidden test failing at the API.
 
@@ -656,9 +658,8 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 5: where the run first went wrong, and where to read every model call.*
 
-1. Live tail: the last events, ending with the verdict ("agent said not_done; referee: fails the primary measure; ...") and the conflict screenshot.
-2. First wrong turn: "✗ turn 1.11 blocked", `apply_patch app/services/errors.py`.
-3. LangSmith links: one for the agent, one for the referee.
+1. Live tail
+2. First wrong turn
 
 **Look at:** The first wrong turn.
 
@@ -685,24 +686,24 @@ app.services.context-m401      –            ✗ survived
 
 *Screen 4: this run on top, the runs measured before class below.*
 
-1. This run: "✗ primary verdict ready: FAIL", hidden tests 68/69, mutants killed 0/4.
-2. Measured before class: 36 runs per arm.
-3. Dots per run.
-4. Cost per verified feature.
-5. Reviewer agreement.
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
-**Look at:** The Feature 4 rows in the left panel: 12 dots per arm, all ○ (failed), for bare and for harness.
+**Look at:** The two rows "Feature 4: Version checks on issue edits · canonical · bare" and "Feature 4: Version checks on issue edits · canonical · harness": two hollow dots each (○, failed) and "0/2 before class". These rows score this section's measure, all hidden tests and all referee mutants. Below them are two more Feature 4 rows that end "judged by files changed outside the allowed paths", with filled dots: bare 1/10, harness 10/10. Those are Section 3's measure, the scope count from Chapter 3, not this one.
 
-**What it means:** Before class, neither arm passed this ticket once. Tonight's run sits in "This run", not among the dots: it is one arm, shown to see the mechanism.
+**What it means:** Before class, neither arm passed this section's measure on this ticket once. Tonight's run sits in "This run", not among the dots: it is one arm, shown to see the mechanism.
 
 > [!CHECKPOINT]
-> The Feature 4 rows have no filled dot in either arm.
+> Both canonical Feature 4 rows without "judged by" read "0/2 before class", with no filled dot.
 
 > [!IFDIFFERENT]
 > - The page says "no runs" → the console started outside the repository: stop it and run `make console` from the repository root.
+> - You see filled dots on Feature 4 → you are reading a scope row ("judged by files changed outside the allowed paths"). That is Section 3's measure; read the two rows above it.
 
 > [!INSTRUCTOR]
-> Say: "No measurable difference on this task with this model: both arms fail. Tonight's run is not a dot in the comparison."
+> Say: "No measurable difference on this task with this model: both arms fail. Tonight's run is not a dot in the comparison." If someone points at the filled Feature 4 dots: "Those rows count files outside the allowed paths, the Section 3 question. On this section's question, all hidden tests and all mutants, both arms are 0 of 2."
 
 ### Step 25: Go back to the runs list
 
@@ -723,7 +724,7 @@ app.services.context-m401      –            ✗ survived
 > - Still "running" → reload the page.
 
 > [!INSTRUCTOR]
-> Move on to the final A/B in browser tab 3, or to the "What we measured" slide.
+> Move on to the final A/B (Chapter 5), or to the "What we measured" slide. In class the final A/B is already running: open its card in the run list.
 
 ## Result summary
 
@@ -742,20 +743,22 @@ app.services.context-m401      –            ✗ survived
 
 ## Time and cost
 
-| Measure | This run (ran alone) |
-|---|---|
-| Launch to blocked write | 0:36 |
-| Launch to done claim | 2:05 |
-| Launch to gate passed | 3:07 |
-| Launch to primary verdict | 4:37 (console clock 04:29) |
-| Launch to full verdict | 5:32 (console clock 05:24) |
-| Command, launch to prompt | 5 min 33 s |
-| Cost of the command | $0.025731 ($0.022527 agent, $0.003204 review) |
-| Cost cap | at most $0.24 (`MAX_RUN_COST_USD` plus `MAX_REVIEW_COST_USD`) |
+| Measure | This run (ran alone) | Range, two runs, 2026-10-18 |
+|---|---|---|
+| Launch to blocked write | 0:36 | |
+| Launch to done claim | 2:05 | |
+| Launch to gate passed | 3:07 | |
+| Launch to primary verdict | 4:37 (console clock 04:29) | 4:37 to 6:54 |
+| Launch to full verdict | 5:32 (console clock 05:24) | 5:32 to 8:02 |
+| Command, launch to prompt | 5 min 33 s | 5:33 to 8:03 |
+| Cost of the command | $0.025731 ($0.022527 agent, $0.003204 review) | $0.026 to $0.028 |
+| Cost cap | at most $0.24 (`MAX_RUN_COST_USD` plus `MAX_REVIEW_COST_USD`) | |
 
 Times run from the make command's launch. The console's own clock starts about 8 s after launch, so it reads a little lower.
 
-In class this run shares the machine with the final A/B, so expect it to take longer.
+The range covers this run and a second run of the same command by a reviewer on a fresh clone (`ab-20261018-181301-c08d1b`), each alone on the machine. That run has no recorded launch time, so its times count from its first event plus this run's 7 s.
+
+Every time in this guide was measured with each demo running alone. In class, the plan starts the final A/B next to this run, and two runs at once make both slower. No run measured by how much.
 
 ## What to say in class
 

@@ -40,11 +40,11 @@ phase proposes (`MAX_TESTS=3`); further tests are removed with the reason "not f
 as discarded. `make show-4 MAX_TESTS=` filters them all
 ([disclosure](../../docs/evidence/s4.md#s4-show-4-settings)).
 
-Measured 2026-10-18, class profile, one live run, which ran alone: patch to
-`app/services/errors.py` blocked 0:36 after launch, done claim 2:05, gate passed 3:07 on its first
-attempt, primary verdict 4:37, full verdict 5:32, command finished 5:33, $0.0257. In its test phase
-the agent proposed no test and said not done, so the filters had nothing to check ("kept 0,
-discarded 0") ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same
+Measured 2026-10-18, class profile, two runs that each ran alone: primary verdict 4:37 to 6:54
+after launch, full verdict 5:32 to 8:02, command finished 5:33 to 8:03, $0.026 to $0.028. In the
+demo guide's run the patch to `app/services/errors.py` was blocked 0:36 after launch, done claim
+2:05, gate passed 3:07 on its first attempt, $0.0257. In its test phase the agent proposed no test
+and said not done, so the filters had nothing to check ("kept 0, discarded 0") ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same
 day, after the harness speed-up ([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)),
 three runs gave a range: primary verdict 5:51 to 6:50, full verdict 6:51 to 8:26, $0.023 to $0.033
 per run; their filter tables kept one test and discarded four, kept two, and discarded all four

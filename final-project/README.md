@@ -128,10 +128,10 @@ per arm and $0.04 per review, so at most $0.58 per feature. The class profile gi
 agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 900 s for the
 harness's own work (`HARNESS_TIMEOUT_S`; 120 s before 2026-10-18). Prices are in `platform/config/prices.toml`.
 
-Measured 2026-10-18, class profile, one live run of `make final FEATURES=bulk-close`, which ran
-alone: bare primary verdict 3:27 after launch, full 6:02; harness gate passed 3:44, primary 7:23,
-full 9:10; command finished 9:11; $0.0377
-([run](../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs after
+Measured 2026-10-18, class profile, two runs of `make final FEATURES=bulk-close` that each ran
+alone: bare primary verdict 2:48 to 3:27 after launch, full 5:07 to 6:02; harness primary 5:31 to
+7:23, full 7:25 to 9:10; $0.038 to $0.042. In the demo guide's run the harness gate passed 3:44 and
+the command finished 9:11 ($0.0377) ([run](../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs after
 the harness speed-up, two at a time, gave a range: bare primary 1:49 to 5:00, full 4:16 to 7:58;
 harness primary 6:41 to 12:04, full 8:41 to 15:22; $0.044 to $0.048 each
 ([runs](../docs/evidence/general.md#demo-runs-after-the-speed-up), [earlier](../docs/evidence/final.md#final-project)).

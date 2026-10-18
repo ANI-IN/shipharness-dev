@@ -29,8 +29,9 @@ handler that lists issues with no org filter. The ticket asks for a new org-wide
 `make show-1` runs the harness arm alone, live, on that ticket, with the map, the docs, and one skill.
 You watch the agent open the skill and the architecture document, write the code, and finish.
 
-Measured 2026-10-18, class profile, one live run, which ran alone:
-primary verdict 2:35 after launch, full verdict 4:45, command finished at 4:45, $0.0203. It
+Measured 2026-10-18, class profile, two runs that each ran alone: primary verdict 1:45 to 2:35
+after launch, full verdict 3:37 to 4:45, $0.020 to $0.021. In the demo guide's run (full verdict
+and command end 4:45, $0.0203) it
 completed with no new tenant isolation violation, hidden tests 52 of 52
 ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs
 gave a range: primary verdict 2:57 to 6:18, full verdict 7:23 to 10:58, $0.021 to $0.023 per run;

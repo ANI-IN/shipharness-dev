@@ -13,6 +13,8 @@ counts: hidden tests, mutants killed, files outside the allowed paths, the gate,
 reviewer. Every number, time and image below comes from one live run on 2026-10-18 (A/B
 `ab-20261018-164951-bd677b`), which ran alone on the class machine.
 
+> Your output will differ: run times, ids, and the agent's wording change on every run.
+
 ### Step 1: Check that the console is running
 
 **Where:** Terminal 1 and the browser
@@ -53,9 +55,11 @@ make final FEATURES=bulk-close PURPOSE=pilot
 
 **You should see:** The command and one line, right away. No shell loop is printed.
 
-![Terminal 2 right after launch: the make final command and the line Final A/B: Feature 5: Bulk close](../images/final/term-start.png)
+```text
+Final A/B: Feature 5: Bulk close
+```
 
-*Terminal 2 right after launch.*
+The `A/B ab-…` line and the arm lines come only at the end (Step 18).
 
 **Look at:** The line "Final A/B: Feature 5: Bulk close". The next lines come only when both arms
 are judged, about 9 minutes later in this run.
@@ -74,7 +78,9 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 > [!INSTRUCTOR]
 > In class this starts at the Section 4: Verification launch, next to `make show-4`, with the poll's
-> winner first: `make final FEATURES=<winner>,<runner-up>`. Each feature is its own A/B.
+> winner first: `make final FEATURES=<winner>,<runner-up>`. Each feature is its own A/B. Every time
+> in this guide was measured with each demo running alone. Running the final A/B and `make show-4`
+> at once makes both slower; no run measured by how much.
 
 ### Step 3: Refresh the run list and open the new run
 
@@ -88,10 +94,10 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *The run list, newest first. The image was taken after the run finished.*
 
-1. Run id: click it to open the run.
-2. Type: "A/B", not "harness in action".
-3. Status: running while the run goes, then "finished".
-4. Start time.
+1. Run id: open the run
+2. Type: harness in action or A/B
+3. Status
+4. Start time
 
 **Look at:** The top entry: "Final project · Feature 5: Bulk close · A/B".
 
@@ -119,12 +125,12 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *About one minute in. Both arms are reading code; only the harness arm has harness decisions.*
 
-1. The feature badge: "Feature 5: Bulk close".
-2. Bare arm line: "no layers".
-3. Harness arm line: "instructions + scope + state + verify".
-4. Container line: container id and "network none".
-5. "Last turns".
-6. Harness decisions: the layer notes.
+1. HARNESS IN ACTION badge, or the feature
+2. Bare arm line: no layers
+3. Harness arm line: its layers
+4. Container line
+5. Last turns
+6. Harness decisions: the layer notes
 
 **Look at:** The harness arm's "Harness decisions":
 
@@ -201,9 +207,9 @@ event, a few seconds after the make command.
 
 *The bare arm is judged first. Its secondary checks still run, and the harness arm still builds.*
 
-1. Bare referee pill: "verdict ready: PASS".
-2. "judged on all checks", then "secondary checks running".
-3. The harness arm is still working ("Last turns").
+1. Harness still working
+2. Secondary checks running
+3. Bare referee pill
 
 **Look at:** The Referee block: "verdict ready: PASS", "judged on all checks", "secondary checks
 running", "launch to primary verdict 03:18". Next to it: "Agent said done" and "claim supported".
@@ -234,8 +240,8 @@ nothing yet about the feature. The counts come with the full verdict.
 
 *The gate passed every item at the first attempt. Only then did the agent's "done" count.*
 
-1. Gate list: every check passed.
-2. "gate pass".
+1. Gate passed
+2. Gate list: every check passed
 
 **Look at:** The decisions in order: "gate pass", "session stop: session 1 handoff written to
 session-handoff.md", `status set: F5 passes: … at 49704cd`,
@@ -272,11 +278,11 @@ phase, starts.
 
 *The harness arm after the run: its decisions end with the test filter result.*
 
-1. Harness arm line: its layers.
-2. Turns list.
-3. Harness decisions.
-4. Gate list.
-5. Referee pill.
+1. Harness arm line: its layers
+2. Turns list
+3. Harness decisions
+4. Gate list
+5. Referee pill (harness)
 
 **Look at:** The last decisions: "session 2 handoff written to session-handoff.md", then "test
 filters: kept 1, discarded 1".
@@ -309,13 +315,13 @@ five and was kept.
 
 *Both arms judged. The pills are the same; the counts are where the arms differ.*
 
-1. "← All runs": back to the run list.
-2. Screen tabs 1 to 5.
-3. Bare arm line: "no layers".
-4. Harness arm line: its layers.
-5. Gate list (harness).
-6. Referee pill (harness).
-7. Referee pill (bare).
+1. ← All runs: back to the run list
+2. Screen tabs 1 to 5
+3. Bare arm line: no layers
+4. Harness arm line: its layers
+5. Referee pill (bare)
+6. Gate list
+7. Referee pill (harness)
 
 **Look at:** Each Referee block, then read this table aloud:
 
@@ -362,10 +368,11 @@ on both arms means the agent said done and the referee agrees.
 
 *Feature 5 adds an endpoint, not a board view, so both boards look the same as before.*
 
-1. "← All runs": back to the run list.
-2. Harness board, signed in as one user (admin@acme.test).
-3. Board marks (harness): "only own-org cards, no duplicates".
-4. Bare board marks: the same pill.
+1. ← All runs: back to the run list
+2. Bare board heading
+3. Harness board heading: signed in as one user
+4. Bare board marks
+5. Harness board marks
 
 **Look at:** The pill above each board and the org badge on each card.
 
@@ -393,17 +400,15 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 *Evidence for all four layers: one column per section.*
 
-1. Sessions, including the test phase.
-2. Diff map (harness).
-3. Diff map (bare).
-4. Files outside the allowed paths (`diff_scope`), bare arm.
+1. Diff map (bare)
+2. Diff map (harness)
 
 ![Close-up of screen 3: files read and sessions per arm](../images/final/screen-3-sessions.png)
 
 *Files read and sessions.*
 
-1. Files read.
-2. Sessions.
+1. Files read
+2. Sessions
 
 **Look at:** "Section 1: Instructions · Section 2: State and sessions". The harness arm read
 `ARCHITECTURE.md` (harness doc), `docs/exec-plans/completed/F5.md` and `feature_list.json` (state),
@@ -436,9 +441,9 @@ from the build session into the test phase.
 
 *Both arms changed the same six files, all inside the allowed paths.*
 
-1. Diff map (bare).
-2. Diff map (harness).
-3. Sandbox denials.
+1. Diff map (bare)
+2. Diff map (harness)
+3. Sandbox denials (harness)
 
 **Look at:** "Section 3: Scope and sandbox". Both arms show "✎ changed" for `app/api/issues.py`,
 `app/api/schemas.py`, `app/repositories/issues.py`, `app/services/issues.py`,
@@ -469,20 +474,24 @@ to block. A "⊘ blocked" row would show an edit the scope layer refused.
 
 *The referee rows: every check "0 new" in both arms.*
 
-1. Files outside the allowed paths (`diff_scope`), bare.
-2. Files outside the allowed paths (`diff_scope`), harness.
-3. "hidden tests".
-4. The blinded reviewer's reason.
+1. Files outside the allowed paths (diff_scope), bare
+2. hidden tests (harness)
+3. Files outside the allowed paths (diff_scope), harness
+4. Blinded reviewer's reason (harness)
 
 ![Close-up of screen 3: the mutant table for both arms](../images/final/screen-3-mutants.png)
 
 *The mutant table: which planted bugs each arm's tests caught.*
 
+1. Mutants (bare): filter set and referee set
+2. Bare: a mutant the referee set killed
+3. Mutants (harness): filter set and referee set
+
 ![Close-up of screen 3: the test filter table with one discarded and one kept test](../images/final/screen-3-filters.png)
 
 *The harness arm's filter table: one row per test, one column per filter.*
 
-1. A test kept by the filters.
+1. A test kept by the filters
 
 **Look at:** The referee rows per arm: House rule 1 to House rule 7, "Existing tests (regression)",
 "hidden tests", "Files outside the allowed paths (diff_scope)", "Flaky tests (flakiness)", "Session
@@ -517,7 +526,7 @@ mutants are the one count that separates the arms in this run, by one planted bu
 
 *This run, both arms, at the top of the A/B Report.*
 
-1. This run.
+1. This run
 
 **Look at:** "This run": BARE "verdict ready: PASS · judged on all checks", hidden tests 46/46,
 mutants killed 1/3; HARNESS the same pill, hidden tests 46/46, mutants killed 0/3. Both: House rule
@@ -547,9 +556,9 @@ runs below.
 
 *One dot per run: filled passed, hollow failed; diamonds are new runs.*
 
-1. "Measured before class: 36 runs per arm".
-2. Dots per run.
-3. Legend.
+1. Measured before class
+2. Dots per run, Feature 5: Bulk close
+3. Legend
 
 **Look at:** The two Feature 5 rows. "Feature 5: Bulk close · canonical · bare": "8/8 before class ·
 1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Tonight's run is
@@ -581,11 +590,10 @@ the counts in steps 9 and 13 do, run by run.
 
 *The whole A/B Report.*
 
-1. This run.
-2. Measured before class.
-3. Dots per run.
-4. Cost per verified feature.
-5. Reviewer agreement.
+1. This run
+2. Measured before class
+3. Dots per run
+4. Cost per verified feature
 
 **Look at:** "Cost per verified feature": BARE "$0.03 per verified feature (27 verified, $0.68
 spent)", HARNESS "$0.02 per verified feature (36 verified, $0.76 spent)". "Reviewer agreement": BARE
@@ -617,9 +625,8 @@ referee agreed. Both pool every run in `exports/`, not only tonight's.
 
 *Traces: the event tail, the first wrong turn per arm, and the links to each model call.*
 
-1. Live tail.
-2. First wrong turn.
-3. LangSmith links: agent and referee, per arm.
+1. Live tail
+2. First wrong turn
 
 **Look at:** "First wrong turn": "no wrong turn found" for both arms. The tail ends with the harness
 arm's mutants "survived", "reviewer accept" and its verdict line.
@@ -648,8 +655,6 @@ finds none. Surviving mutants do not count as a wrong turn: they show weak tests
 ![Terminal 2 at the end: the bare and harness arm lines and the Cost line](../images/final/term-end.png)
 
 *Terminal 2 when the command ends.*
-
-> Your output will differ: run times, ids, and the agent's wording change on every run.
 
 <!-- check-style: allow SC08 quoted terminal output -->
 ```text
@@ -731,8 +736,19 @@ The run ran alone on the class machine. From the make command to the `Cost:` lin
 code 0. The console's own "launch to" times are about 9 seconds shorter, because its clock starts at
 the run's first event. The command cost $0.037714: $0.033927 for the two agents on gpt-6-luna and
 $0.003787 for the two blinded reviews on gpt-5.6-luna. The cap is $0.58 per feature: two arms at
-$0.25 and two reviews at $0.04. Before class, three runs of the same command took up to 15 min 22 s
-and cost $0.044 to $0.048 each.
+$0.25 and two reviews at $0.04. Before class, three runs of the same command, two at a time, took
+up to 15 min 22 s and cost $0.044 to $0.048 each.
+
+| Moment | Range, two runs, 2026-10-18 |
+|---|---|
+| Launch to primary verdict | bare 2:48 to 3:27, harness 5:31 to 7:23 |
+| Launch to full verdict | bare 5:07 to 6:02, harness 7:25 to 9:10 |
+| Cost of the command | $0.038 to $0.042 |
+
+The ranges cover this run and a second run of the same command by a reviewer on a fresh clone
+(`ab-20261018-182151-a4bd6f`), each alone on the machine. That run has no recorded launch time, so
+its times count from its first event plus this run's 7 s. Running two demos at once makes both
+slower.
 
 ## What to say in class
 
