@@ -25,7 +25,7 @@ If a line must break a rule, for example to quote real output, end it with
 line, right before a fenced block, covers the whole block.
 
 Public course files are: `README.md`, `setup/`, the section folders `section-1-*` to `section-4-*`,
-`final-project/`, the Markdown pages in `slides/` (`README.md`, `deck.md`, `outline.md`),
+`final-project/`, the Markdown pages in `slides/` (`README.md`, `outline.md`),
 `use-in-your-repo/`, and `docs/`. Every Markdown page in them is checked, including the pages under
 an assignment's `starter/` and `solution/` folders. The assignment graders and hidden test cases are
 not part of the course text. Files outside that list are not part of the course text either. The

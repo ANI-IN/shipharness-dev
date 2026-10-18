@@ -84,7 +84,7 @@ ALLOW_DIRS = (
     "platform/sandbox/",
     "platform/config/",
     "platform/tests/",
-    "slides/img/",  # screenshots the deck embeds (make slides)
+    "slides/img/",  # console screenshots of the timed runs (the run sheet lists them)
     "docs/images/",  # screenshots the README and shared pages embed
     "docs/evidence/",  # run ids, finding ids, and provenance per section
 )
@@ -165,6 +165,14 @@ FINAL_EXPECTED = (
     "final-project/your-repo/example/",
     "final-project/CHECKLIST.md",
 )
+# The class deck: its source and the PowerPoint and PDF built from it with the owner's template
+# (slides/README.md). The earlier 72-slide deck (slides/deck.*) was removed on 2026-10-18.
+SLIDES_EXPECTED = (
+    "slides/README.md",
+    "slides/module1-slides.md",
+    "slides/module1-deck.pptx",
+    "slides/module1-deck.pdf",
+)
 SCRIPTS_DIR = "platform/scripts/"
 # Learner scripts: the ones a public Makefile target, CI job, or public document runs.
 LEARNER_SCRIPTS = (
@@ -173,7 +181,6 @@ LEARNER_SCRIPTS = (
     "platform/scripts/check_style.py",  # make check-style, CI, docs/STYLE.md
     "platform/scripts/fetch_testgen_libs.py",  # assignment 4 README
     "platform/scripts/grade_assignment.py",  # make grade-assignment-N: says graders are private
-    "platform/scripts/build_slides.py",  # make slides
 )
 # Private only (owner), plus exports and local run state.
 PRIVATE_FILES = (
@@ -300,6 +307,7 @@ def missing_expected(included: Iterable[str]) -> list[str]:
     missing = [p for p in (*ROOT_FILES, *DOCS_FILES, *SETUP_FILES) if not has(p)]
     missing += [d for d in EXPECTED_DIRS if not has(d)]
     missing += [p for p in FINAL_EXPECTED if not has(p)]
+    missing += [p for p in SLIDES_EXPECTED if not has(p)]
     for number in SECTIONS:
         folders = sorted({p.split("/")[0] for p in present if p.startswith(f"{number}-")})
         for item in SECTION_EXPECTED:

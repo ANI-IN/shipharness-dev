@@ -574,7 +574,7 @@ def test_is_public() -> None:
         "docs/instructor-guide.md",
         "docs/STYLE.md",
         "slides/README.md",
-        "slides/deck.md",
+        "slides/module1-slides.md",
         "section-4-verification/assignment/solution/portfolio/case-study.md",
     ]
     private = [
@@ -672,7 +672,7 @@ def test_agent_files() -> None:
         "section-4-verification/assignment/starter/portfolio/langsmith.md",
         "use-in-your-repo/kit/README.md",
         "use-in-your-repo/README.md",
-        "slides/deck.md",
+        "slides/module1-slides.md",
     ]
     for rel in agent:
         assert cs.is_agent_file(rel), rel
@@ -745,7 +745,6 @@ def test_default_targets(tmp_path: Path) -> None:
             "section-1-instructions/concepts.md",
             "docs/a.md",
             "slides/README.md",
-            "slides/deck.md",
             "slides/module1-slides.md",
             "final-project/README.md",
             "use-in-your-repo/README.md",
@@ -934,7 +933,9 @@ def test_solution_pages_get_every_check(tmp_path: Path) -> None:
 
 
 def test_the_slide_deck_is_checked(tmp_path: Path) -> None:
-    found = problems(tmp_path, "slides/deck.md", "## 1. Opening\n\nFinding F-a-20 says so.\n")
+    found = problems(
+        tmp_path, "slides/module1-slides.md", "## 1. Opening\n\nFinding F-a-20 says so.\n"
+    )
     assert "SC09" in {p.check for p in found}
 
 
@@ -1345,7 +1346,7 @@ def test_each_slide_is_a_page_for_the_first_mention(tmp_path: Path) -> None:
         "## Slide 1: Open\n\nSection 2: State and sessions starts.\n\n"
         "## Slide 2: Next\n\nSection 2 goes on.\n"
     )
-    found = [p for p in problems(tmp_path, "slides/deck.md", text) if p.check == "SC22"]
+    found = [p for p in problems(tmp_path, "slides/module1-slides.md", text) if p.check == "SC22"]
     assert [p.line for p in found] == [7], found
 
 
@@ -1366,7 +1367,6 @@ def test_evidence_pages_keep_their_codes(tmp_path: Path, rel: str) -> None:
         "section-4-verification/assignment/solution/skill/testgen-evidence/SKILL.md",
         "section-1-instructions/demo/harness/AGENTS.md",
         "slides/module1-slides.md",
-        "slides/deck.md",
     ],
 )
 def test_skills_kit_templates_harness_and_slides_get_the_label_rules(

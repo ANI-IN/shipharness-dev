@@ -250,8 +250,6 @@ FILE_EXEMPT: dict[str, set[str]] = {
         "SC24",
         "SC25",
     },
-    # Each slide that shows a run carries its own "your output will differ" line.
-    "slides/deck.md": {"SC13"},
     # The working slide file: only the label checks apply.
     "slides/module1-slides.md": set(CHECKS) - LABEL_CHECKS,
 }
@@ -407,7 +405,7 @@ def default_files(root: Path) -> list[Path]:
     for top in sorted(root.iterdir()):
         if top.is_dir() and (top.name in _DEFAULT_DIRS or re.fullmatch(_SECTION, top.name)):
             found += _walk(top)
-    for name in ("README.md", "deck.md", "module1-slides.md"):
+    for name in ("README.md", "module1-slides.md"):
         if (root / "slides" / name).is_file():
             found.append(root / "slides" / name)
     kit = root / "use-in-your-repo"

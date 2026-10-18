@@ -63,7 +63,7 @@ help:
 	@echo "  report               Show the options of uv run shipharness report"
 	@echo "  check-assignment-N   Offline self-check of Assignment N"
 	@echo "  grade-assignment-N   Instructor only: grade a submission, SUBMISSION=<folder or git URL>"
-	@echo "  slides               Build slides/dist/deck.html, deck.pdf, and deck.pptx"
+	@echo "  slides               Say where the class deck is: slides/module1-deck.pptx, and how it is built"
 	@echo "  test                 Run the fast test suite"
 	@echo "  test-all             Run every test that needs no key and no container"
 	@echo "  test-live            Run the tests that call OpenAI and LangSmith"
@@ -248,11 +248,11 @@ grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
 	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
 	$(UV) run python platform/scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
 
-# slides: slides/deck.md -> slides/dist/deck.{html,pdf,pptx} (platform/scripts/build_slides.py); lists open PENDING items and empty
-# result slots. SLIDES_OPTS=--strict fails while any remain (release check); --check validates only.
-SLIDES_OPTS ?=
+# slides: the class deck is built outside this repository (slides/README.md); this target says where.
 slides:
-	$(UV) run python platform/scripts/build_slides.py $(SLIDES_OPTS)
+	@echo "The class deck: slides/module1-deck.pptx (PDF: slides/module1-deck.pdf), 80 slides with speaker notes."
+	@echo "Source: slides/module1-slides.md (content, layouts, notes); the PowerPoint is built from it with the course PowerPoint template."
+	@echo "How it is built and how to view it: slides/README.md"
 
 # show-4 only (a demo setting, not a comparison): the test filters run on the first MAX_TESTS
 # proposed tests; MAX_TESTS= filters them all.

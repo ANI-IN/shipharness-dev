@@ -4,6 +4,14 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### Class deck replaces the earlier deck (2026-10-18)
+- `slides/deck.md`, `deck.pdf`, `deck.pptx` (the earlier 72-slide deck) and its builder
+  `platform/scripts/build_slides.py` are removed. The class deck is `slides/module1-slides.md`
+  (source) with `slides/module1-deck.pptx` and `slides/module1-deck.pdf`, built from it with the
+  course PowerPoint template ([slides/README.md](../slides/README.md)).
+- `make slides` prints where the deck is and how it is built; `SLIDES_OPTS` is gone.
+- The release ships `slides/module1-deck.*` and `module1-slides.md` and reports them when missing.
+
 ### Class time limit, class date check, CLI title (2026-10-17)
 - Class profile: the agent time limit (`RUN_TIMEOUT_S`) is 420 s for both arms (standard keeps
   300 s), so a run fits the class window; each arm's spec in `ab.json` records `run_timeout_s`.

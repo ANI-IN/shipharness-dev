@@ -45,8 +45,8 @@ TRACKED = [
     "docs/extras.md",
     "docs/CHANGELOG.md",
     "setup/README.md",
-    "platform/scripts/build_slides.py",
-    "slides/deck.md",
+    "slides/module1-slides.md",
+    "slides/README.md",
     "slides/img/show-1-screen-1.png",
     ".github/dependabot.yml",
     ".vale/styles/Shipharness/Banned.yml",
@@ -81,8 +81,8 @@ TRACKED = [
     "platform/scripts/publish_solutions.py",
     "setup/pre-class.md",
     "slides/outline.md",
-    "slides/deck.pdf",
-    "slides/deck.pptx",
+    "slides/module1-deck.pdf",
+    "slides/module1-deck.pptx",
     "slides/build.sh",
     "platform/src/shipharness/cli.py",
     f"{A1}/README.md",
@@ -128,8 +128,8 @@ def test_selection_follows_the_owner_structure() -> None:
         "platform/scripts/grade_assignment.py",
         "platform/scripts/lint_prose.py",
         "slides/outline.md",
-        "slides/deck.pdf",
-        "slides/deck.pptx",
+        "slides/module1-deck.pdf",
+        "slides/module1-deck.pptx",
         "platform/src/shipharness/cli.py",
         f"{A1}/README.md",
         f"{A1}/concepts.md",
@@ -955,9 +955,9 @@ def test_dry_run_cli_reports_broken_references_without_failing(
     assert "docs/REFERENCES.md" in listing.read_text(encoding="utf-8").split()
 
 
-def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
-    # Learners apply the kit to their own repositories (docs/apply-to-your-repo.md), and the public
-    # Makefile's `make slides` runs scripts/build_slides.py on slides/deck.md.
+def test_the_starter_kit_its_guide_and_the_class_deck_ship() -> None:
+    # Learners apply the kit to their own repositories (docs/apply-to-your-repo.md); the class
+    # deck ships as its source and its built PowerPoint and PDF.
     sel = mr.select(TRACKED)
     for path in [
         "use-in-your-repo/kit/README.md",
@@ -965,10 +965,28 @@ def test_the_starter_kit_its_guide_and_the_slide_builder_ship() -> None:
         "use-in-your-repo/kit/examples/boltons-queueutils/README.md",
         "use-in-your-repo/apply-to-your-repo.md",
         "docs/extras.md",
-        "platform/scripts/build_slides.py",
-        "slides/deck.md",
+        "slides/README.md",
+        "slides/module1-slides.md",
+        "slides/module1-deck.pptx",
+        "slides/module1-deck.pdf",
     ]:
         assert path in sel.included, path
+
+
+def test_the_release_expects_the_class_deck_not_the_earlier_one() -> None:
+    # The earlier 72-slide deck (slides/deck.*) and its builder were removed on 2026-10-18.
+    assert "platform/scripts/build_slides.py" not in mr.LEARNER_SCRIPTS
+    deck = [p for p in mr.SLIDES_EXPECTED if "/deck." in p]
+    assert deck == []
+    assert set(mr.SLIDES_EXPECTED) == {
+        "slides/README.md",
+        "slides/module1-slides.md",
+        "slides/module1-deck.pptx",
+        "slides/module1-deck.pdf",
+    }
+    missing = mr.missing_expected(["slides/README.md", "slides/module1-slides.md"])
+    assert "slides/module1-deck.pptx" in missing and "slides/module1-deck.pdf" in missing
+    assert not [p for p in missing if "slides/deck." in p]
 
 
 def test_a_word_that_equals_a_script_stem_is_not_a_reference_to_the_script() -> None:
@@ -996,8 +1014,8 @@ def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
     assert "platform/tests/unit/ab/test_user.py" in found
 
 
-def test_the_slide_screenshots_ship_with_the_deck() -> None:
-    # slides/deck.md embeds slides/img/*.png; without them `make slides` fails in the public repo.
+def test_the_slide_screenshots_ship() -> None:
+    # slides/img/*.png: the console screenshots of the timed runs that the run sheet lists.
     assert "slides/img/show-1-screen-1.png" in mr.select(TRACKED).included
 
 

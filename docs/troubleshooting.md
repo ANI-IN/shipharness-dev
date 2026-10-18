@@ -161,15 +161,10 @@ Source: `platform/src/shipharness/ab/commands.py` and `platform/src/shipharness/
 
 ## Slides
 
-`make slides` validates `slides/deck.md` and writes `slides/dist/deck.html`, `deck.pdf`, and
-`deck.pptx`. `make slides SLIDES_OPTS=--check` validates without starting a browser. Exit codes come
-from `platform/scripts/build_slides.py`:
-
-| Exit code and message | Cause | Fix |
-|---|---|---|
-| 2, `x <message>` lines and `<n> validation errors; nothing built` | The deck does not parse or validate | Fix the slide each message names |
-| 3, `x browser step failed: ...` | The browser that renders diagrams and the PDF did not start | `uv run playwright install chromium`, then build again |
-| 1, `x --strict: open items remain` | `SLIDES_OPTS=--strict` with an open item left | Fill the listed items; the default build allows them |
+`make slides` builds nothing: it prints where the class deck is (`slides/module1-deck.pptx` and
+`slides/module1-deck.pdf`) and that it is built from `slides/module1-slides.md`. If the PowerPoint
+file does not open, read the PDF or the source; [slides/README.md](../slides/README.md) says how to
+view each.
 
 ## Assignments
 

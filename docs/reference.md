@@ -97,7 +97,7 @@ Targets (on Windows, run make inside Ubuntu on WSL2):
   report               Show the options of uv run shipharness report
   check-assignment-N   Offline self-check of Assignment N
   grade-assignment-N   Instructor only: grade a submission, SUBMISSION=<folder or git URL>
-  slides               Build slides/dist/deck.html, deck.pdf, and deck.pptx
+  slides               Say where the class deck is: slides/module1-deck.pptx, and how it is built
   test                 Run the fast test suite
   test-all             Run every test that needs no key and no container
   test-live            Run the tests that call OpenAI and LangSmith
@@ -164,7 +164,7 @@ aborted (cost cap or time limit; still judged and shown), 1 on an error.
 |---|---|---|
 | `make check-assignment-1` to `-4` | `uv run python section-N-*/assignment/check.py` | Offline self-check of your work |
 | `make grade-assignment-1` to `-4` | `uv run python platform/scripts/grade_assignment.py N "<SUBMISSION>"` | The instructor's grader; the graders are not in this repository |
-| `make slides` | `uv run python platform/scripts/build_slides.py` | Builds `slides/dist/deck.html`, `.pdf`, and `.pptx` (needs Playwright's Chromium) |
+| `make slides` | `echo` lines only | Prints where the class deck is and how it is built; builds nothing |
 | `make test` | `uv run pytest` | The fast suite |
 | `make test-all` | `uv run pytest -n auto -m "not live and not docker"` | Every test that needs no key and no container |
 | `make test-live` | `uv run pytest -m live platform/tests/live` | Tests that call OpenAI and LangSmith |
@@ -225,7 +225,6 @@ Defaults from the `Makefile`.
 | `RUN` | empty | replay | The A/B or run id to replay (required) |
 | `SUBMISSION` | empty | grade-assignment-N | Folder or git URL (instructor only) |
 | `A1_WORK`, `A2_IMPL`, `A3_IMPL`, `A4_IMPL` | the starter | check-assignment-N | Your work folder |
-| `SLIDES_OPTS` | empty | slides | `--check` validates only; `--strict` fails on open items |
 | `PORT`, `CONSOLE_PORT` | `8000`, `8765` | up, console | Server ports |
 | `RUNTIME` | `docker` | setup, images, warm | `podman` also works (set `SANDBOX_RUNTIME=podman` too) |
 | `UV` | `uv` | every target | The uv command |
