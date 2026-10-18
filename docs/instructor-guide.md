@@ -94,7 +94,7 @@ make warm PURPOSE=pilot
 ```
 
 `make doctor` ends with `result: + ready`. Both key lines say `accepted by OpenAI` and `accepted by
-LangSmith`. `make warm` builds the images if their source changed, starts each image once, and
+LangSmith`, and the `agent model` and `reviewer model` lines say `accepted`. `make warm` builds the images if their source changed, starts each image once, and
 caches the referee and gate baselines. It makes no model calls. After an image rebuild it took 2 min
 21 s and 3 min 40 s before class. With nothing changed it took 1.2 s. It ends like this:
 

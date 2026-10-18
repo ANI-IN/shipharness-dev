@@ -48,7 +48,7 @@ help:
 	@echo "  help                 Print this list of targets and feature names"
 	@echo "  setup                Install the pinned packages, build both images, create .env if missing"
 	@echo "  images               Build the agent and referee sandbox images"
-	@echo "  doctor               Check tools, Docker, both keys, prices, and the class date"
+	@echo "  doctor               Check tools, Docker, both keys, the course models, prices, the class date"
 	@echo "  warm                 Before class: images, containers, referee and gate baselines; no model calls"
 	@echo "  up                   Start TeamTrack and its board on http://127.0.0.1:8000/board"
 	@echo "  console              Start the live console on http://127.0.0.1:8765/"

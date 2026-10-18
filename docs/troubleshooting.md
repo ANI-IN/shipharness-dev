@@ -46,6 +46,7 @@ Source: `platform/src/shipharness/doctor.py`. The last line is `result: + ready`
 |---|---|---|
 | `x missing     OPENAI_API_KEY         not set` (same for `LANGSMITH_API_KEY`) | The key is not in `.env`, or `.env` is in another folder | Fill in `.env` next to the `Makefile` |
 | `x invalid     OPENAI_API_KEY ...` | OpenAI rejected the key | Copy the key again, with no spaces or quotes; check that the account has credit |
+| `x missing     agent model ...` (or `reviewer model`) | The key cannot use that model (source: `doctor.py`) | Use the key from the program's email, or your own on the Build tier |
 | `x invalid     LANGSMITH_API_KEY ...` | LangSmith rejected the key | Create a new key; EU accounts set `LANGSMITH_ENDPOINT=https://eu.api.smith.langchain.com` |
 | `! unreachable ...` | A network or proxy problem | Try again, or from another network |
 | `! warn        container runtime      docker not found: ...` | No Docker on the `PATH` | Start or install Docker (Linux and WSL: `sudo systemctl start docker`) |
