@@ -343,7 +343,7 @@ Talking points:
 
 ### S2:stop_resume (4 minutes)
 
-File: `platform/src/shipharness/harness/state/lifecycle.py:95-134` (pulled with `uv run python platform/scripts/anchors.py extract S2:stop_resume`)
+File: `platform/src/shipharness/harness/state/lifecycle.py:97-136` (pulled with `uv run python platform/scripts/anchors.py extract S2:stop_resume`)
 
 ```python
 def session_stop(
@@ -511,7 +511,7 @@ Talking points:
 
 ### S3:passes (2.5 minutes)
 
-File: `platform/src/shipharness/harness/scope/status.py:84-120` (pulled with `uv run python platform/scripts/anchors.py extract S3:passes`)
+File: `platform/src/shipharness/harness/scope/status.py:93-129` (pulled with `uv run python platform/scripts/anchors.py extract S3:passes`)
 
 ```python
 def update_status(
@@ -686,7 +686,7 @@ tests miss what held-out tests catch (B13, F-b-45, F-b-50).
 
 ### S4:filters (2.5 minutes)
 
-File: `platform/src/shipharness/filters/pipeline.py:34-74` (pulled with `uv run python platform/scripts/anchors.py extract S4:filters`)
+File: `platform/src/shipharness/filters/pipeline.py:35-75` (pulled with `uv run python platform/scripts/anchors.py extract S4:filters`)
 
 ```python
 def run_pipeline(
@@ -833,7 +833,7 @@ Talking points:
 
 ### S4:gate (3 minutes)
 
-File: `platform/src/shipharness/harness/verify/gate.py:143-184` (pulled with `uv run python platform/scripts/anchors.py extract S4:gate`)
+File: `platform/src/shipharness/harness/verify/gate.py:152-193` (pulled with `uv run python platform/scripts/anchors.py extract S4:gate`)
 
 ```python
 def run_gate(
