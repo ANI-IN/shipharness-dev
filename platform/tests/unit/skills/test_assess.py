@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -187,3 +188,19 @@ def test_assess_teamtrack(assess: ModuleType, tmp_path: Path) -> None:
     assert found["C1"] == "fail"
     html = assess.render_html(REPO / "platform" / "teamtrack", checks)
     assert all(area in html for area in AREAS)
+
+
+def test_text_and_html_name_checks_in_plain_words(tmp_path: Path) -> None:
+    """Check ids (I1, S1, ...) stay in the JSON; the printed summary and the HTML use words."""
+    out = tmp_path / "r.html"
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), str(tmp_path), "--out", str(out)],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    fails = [line for line in result.stdout.splitlines() if line.startswith("FAIL")]
+    assert fails and all(not re.search(r"\b[ISCVL][1-9]\b", line) for line in fails), fails
+    assert "FAIL     Instructions: AGENTS.md map at the repository root" in result.stdout
+    assert not re.search(r"<td>[ISCVL][1-9]</td>", out.read_text(encoding="utf-8"))

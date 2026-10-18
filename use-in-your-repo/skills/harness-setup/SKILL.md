@@ -38,7 +38,8 @@ python scripts/assess.py <repo> --out harness-assessment.html
 The script reads files only. It makes no network or model calls, never runs code from the
 repository, never follows links that leave it, and gives the same report for the same files. It
 prints a summary per area and writes an HTML table with, for every check, its status (pass,
-partial, fail), the evidence, the fix, and the source. Add `--json` to print the checks as JSON.
+partial, fail), the evidence, the fix, and the source. Add `--json` to print the checks as JSON; only the JSON carries the check ids (`I1`, `S1`, and
+so on) used in the table below and in the checklists.
 Keyword checks (for example "does AGENTS.md mention init.sh") are heuristics and say so.
 
 ## Step 2: fill the gaps, area by area

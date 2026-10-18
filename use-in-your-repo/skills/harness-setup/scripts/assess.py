@@ -751,12 +751,12 @@ def render_html(root: Path, checks: list[Check]) -> str:
     for area in AREAS:
         out.append(f"<h2>{esc(area)}</h2>")
         out.append(
-            '<div class="wrap"><table><tr><th>ID</th><th>Check</th><th>Status</th>'
+            '<div class="wrap"><table><tr><th>Check</th><th>Status</th>'
             "<th>Evidence</th><th>Fix</th><th>Source</th></tr>"
         )
         for check in (c for c in checks if c.area == area):
             out.append(
-                f"<tr><td>{esc(check.id)}</td><td>{esc(check.title)}</td>"
+                f"<tr><td>{esc(check.title)}</td>"
                 f'<td class="status {esc(check.status)}">{esc(SYMBOL[check.status])}</td>'
                 f"<td>{esc(check.evidence)}</td><td>{esc(check.fix)}</td>"
                 f"<td>{esc(check.source)}</td></tr>"
@@ -784,7 +784,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{area:<18} pass {c['pass']}  partial {c['partial']}  fail {c['fail']}")
     for check in checks:
         if check.status != "pass":
-            print(f"{check.status.upper():<8} {check.id} {check.title}: {check.evidence}")
+            print(f"{check.status.upper():<8} {check.area}: {check.title}: {check.evidence}")
     print(f"report: {args.out}")
     return 0
 

@@ -173,7 +173,7 @@ The agent runs the script from the installed folder, for example
 `python .claude/skills/harness-setup/scripts/assess.py . --out harness-assessment.html` in Claude
 Code or `python .agents/skills/harness-setup/scripts/assess.py . --out harness-assessment.html` in
 Codex. You can run it yourself first. This is the summary it printed for the course's TeamTrack
-app, cut to the first lines; captured on 2026-10-17 from
+app, cut to the first lines; captured on 2026-10-18 from
 `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out harness-assessment.html` (run
 from the checkout root):
 
@@ -183,7 +183,7 @@ State              pass 0  partial 0  fail 4
 Scope              pass 1  partial 1  fail 3
 Verification       pass 1  partial 1  fail 3
 Session lifecycle  pass 0  partial 0  fail 5
-FAIL     I1 AGENTS.md map at the repository root: no AGENTS.md at the repository root
+FAIL     Instructions: AGENTS.md map at the repository root: no AGENTS.md at the repository root
 ```
 
 TeamTrack has no harness files at its root on purpose: in the course's A/B runs (the same ticket run
