@@ -33,12 +33,29 @@ class RunSummary:
     started: str
 
 
-def _ab_record(run_dir: Path) -> dict[str, Any] | None:
+START_RECORD = "start.json"  # written by `shipharness ab` before any arm starts (ab/demo.py)
+
+
+def _read(path: Path) -> dict[str, Any] | None:
     try:
-        data = json.loads((run_dir / AB_RECORD).read_text(encoding="utf-8"))
+        data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError):
         return None
     return data if isinstance(data, dict) else None
+
+
+def _ab_record(run_dir: Path) -> dict[str, Any] | None:
+    """What the run is: ab.json once the A/B is judged; while it runs, start.json (section, mode,
+    feature), with the full record's fields winning where both have one."""
+    start = _read(run_dir / START_RECORD) or {}
+    full = _read(run_dir / AB_RECORD) or {}
+    if not start and not full:
+        return None
+    merged: dict[str, Any] = dict(start)
+    if start.get("feature_id"):
+        merged["task"] = {"feature_id": start["feature_id"]}
+    merged.update({k: v for k, v in full.items() if v is not None})
+    return merged
 
 
 def _section(value: object) -> str:

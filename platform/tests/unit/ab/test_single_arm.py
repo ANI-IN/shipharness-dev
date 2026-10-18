@@ -55,6 +55,20 @@ def test_the_record_and_the_score_are_marked_single_arm(course_repo: Path, tmp_p
     assert result.arms["harness"].record.single_arm is True
 
 
+def test_the_run_folder_names_its_section_from_the_start(course_repo: Path, tmp_path: Path) -> None:
+    # The console's run list reads start.json while the run goes on (ab.json comes at the end).
+    result, _clients, _deps = harness_only(course_repo, tmp_path)
+    start = json.loads((result.run_dir / "start.json").read_text(encoding="utf-8"))
+    assert start == {
+        "ab_id": result.ab_id,
+        "section": "demo-1",
+        "mode": "harness in action",
+        "feature_id": "F1",
+        "single_arm": True,
+        "constructed": False,
+    }
+
+
 def test_a_two_arm_ab_is_not_single_arm_and_records_its_profile(
     course_repo: Path, tmp_path: Path
 ) -> None:
