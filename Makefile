@@ -16,7 +16,7 @@ SESSION_BUDGET_OPT = $(if $(SESSION_BUDGET),--session-budget=$(SESSION_BUDGET))
 # org-search (F1), comments (F2), safe-retries (F3), version-checks (F4), bulk-close (F5),
 # watchers (F6), labels (F7). The earlier name idempotent-create still works for F3.
 # final: comma-separated features picked by the class poll, e.g. FEATURES=watchers,bulk-close.
-FEATURES ?= F5,F6
+FEATURES ?= bulk-close,watchers
 # swap-N: the A/B (or one of its run ids) to swap-test; default: the section's latest. replay: the A/B or run id to replay.
 AB ?= latest
 # demo-N, swap-N, final: PURPOSE picks the LangSmith project. class needs
@@ -27,10 +27,10 @@ PURPOSE ?= class
 # arms: reasoning effort low, 2 CPUs per arm and referee container, OpenAI Fast tier for the agent
 # arms (the reviewer keeps its own settings). PROFILE=standard runs the settings as loaded.
 PROFILE ?= class
-# demo-3's ticket: Feature 3: Safe retries for issue creation (F3) by default;
+# demo-3's ticket: Feature 3: Safe retries for issue creation (safe-retries) by default;
 # FEATURE=version-checks (Feature 4: Version checks on issue edits, F4) runs the confirmation task
 # of Section 3: Scope and sandbox as a live A/B.
-FEATURE ?= F3
+FEATURE ?= safe-retries
 # images, warm: the image names (the SANDBOX_IMAGE_AGENT and SANDBOX_IMAGE_REFEREE defaults).
 AGENT_IMAGE ?= shipharness-agent:1
 REFEREE_IMAGE ?= shipharness-referee:1
@@ -144,11 +144,11 @@ test-docker:
 
 # Section demos: Section N's canonical task is Feature N, canonical variant.
 demo-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-1 --feature org-search $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 demo-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-2 --feature comments $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 demo-3:
@@ -156,25 +156,25 @@ demo-3:
 	  --profile $(PROFILE)
 
 demo-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-4 --feature version-checks $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 # Harness in action: the harness arm alone on section N's canonical task, judged by the referee
 # (not an A/B; its records stay out of the bare-vs-harness comparison and of swap-N).
 show-1:
-	$(UV) run shipharness ab --section demo-1 --feature F1 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-1 --feature org-search --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-2:
-	$(UV) run shipharness ab --section demo-2 --feature F2 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-2 --feature comments --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-3:
-	$(UV) run shipharness ab --section demo-3 --feature F3 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-3 --feature safe-retries --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE)
 
 show-4:
-	$(UV) run shipharness ab --section demo-4 --feature F4 --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
+	$(UV) run shipharness ab --section demo-4 --feature version-checks --arms harness $(LAYERS_OPT) $(SESSION_BUDGET_OPT) --purpose $(PURPOSE) \
 	  --profile $(PROFILE) $(MAX_TESTS_OPT)
 
 # Constructed example: section N's layer stack on its canonical task in the real sandbox, driven by
@@ -206,9 +206,9 @@ swap-3:
 swap-4:
 	$(UV) run shipharness ab --swap $(AB) --section demo-4 --purpose $(PURPOSE)
 
-# One A/B per feature; every feature runs, and the exit code is the last non-zero one.
+# One A/B per feature, all run, exit code the last non-zero one; @: the CLI prints "Final A/B: <feature>".
 final:
-	rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
+	@rc=0; for f in $$(echo "$(FEATURES)" | tr ',' ' '); do \
 	  $(UV) run shipharness ab --section final --feature $$f $(LAYERS_OPT) --purpose $(PURPOSE) \
 	    --profile $(PROFILE) || rc=$$?; \
 	done; exit $$rc

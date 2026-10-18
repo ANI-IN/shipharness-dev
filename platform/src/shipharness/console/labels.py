@@ -21,7 +21,7 @@ from shipharness.datasets.names import (
 MEASURE_LABELS = {
     "r1_new_violations": f"{rule_label('R1')}, new violations",
     "continuity_failure": "continuity failure",
-    "out_of_scope_files": "out-of-scope files",
+    "out_of_scope_files": "files changed outside the allowed paths",
     "test_phase_source_edits": "test-phase source edits",
     "hidden_passed": "hidden tests passed",
     "mutants_killed": "mutants killed",
@@ -59,3 +59,15 @@ def filter_name(number: int) -> str:
 def measure_label(name: str) -> str:
     """'House rule 1: Tenant isolation, new violations' for r1_new_violations; others as is."""
     return MEASURE_LABELS.get(name, name)
+
+
+def measure_words(values: dict[str, object]) -> str:
+    """The primary values for the terminal, in plain words: 'House rule 1: Tenant isolation, new
+    violations: 0'; booleans as yes / no; several values joined with '; '."""
+    if not values:
+        return "no primary measure"
+    parts = []
+    for name, value in values.items():
+        shown = ("yes" if value else "no") if isinstance(value, bool) else str(value)
+        parts.append(f"{measure_label(name)}: {shown}")
+    return "; ".join(parts)

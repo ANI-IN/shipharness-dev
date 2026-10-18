@@ -175,14 +175,31 @@ def _exit_code(statuses: list[str]) -> int:
     return 2 if any(s.startswith("ABORTED") for s in statuses) else 0
 
 
-def _print_record(record: Any) -> None:
-    typer.echo(
-        f"  {record.arm:<8} {record.status:<17} claim={record.claim:<8} "
-        f"primary={json.dumps(record.primary)} passed={record.passed_primary} "
-        f"hidden {record.hidden_passed}/{record.hidden_total} "
-        f"mutants {record.mutants_killed}/{record.mutants_total} "
-        f"reviewer={record.reviewer_verdict} cost=${record.cost_usd:.4f}"
+_CLAIM_WORDS = {
+    "done": "agent said done",
+    "not_done": "agent said not done",
+    "none": "agent made no claim",
+}
+
+
+def record_line(record: Any) -> str:
+    """The line `shipharness ab` prints per arm, in plain words ("House rule 1: Tenant isolation,
+    new violations: 0"). The ScoreRecord export keeps the machine field names."""
+    from shipharness.console.labels import measure_words
+
+    claim = _CLAIM_WORDS.get(record.claim, f"agent said {record.claim}")
+    outcome = "passed" if record.passed_primary else "failed"
+    return (
+        f"  {record.arm:<8} {record.status:<17} {claim} · {measure_words(record.primary)} · "
+        f"primary measure {outcome} · "
+        f"hidden tests {record.hidden_passed} of {record.hidden_total} · "
+        f"mutants killed {record.mutants_killed} of {record.mutants_total} · "
+        f"reviewer {record.reviewer_verdict or 'not run'} · cost ${record.cost_usd:.4f}"
     )
+
+
+def _print_record(record: Any) -> None:
+    typer.echo(record_line(record))
 
 
 def register(app: typer.Typer) -> None:
@@ -310,6 +327,8 @@ def register(app: typer.Typer) -> None:
             raise typer.Exit(2)
         settings = _settings()
         task = _load_task(dataset, feature, example, variant)
+        if section == "final":  # make final hides its shell loop; this line names each A/B
+            typer.echo(f"Final A/B: {feature_label(task.feature_id)}")
         if session_budget:
             try:
                 turns = [int(part) for part in session_budget.split(",")]

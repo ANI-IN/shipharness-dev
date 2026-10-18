@@ -78,7 +78,8 @@ TESTGEN_SUMMARY = re.compile(r"^testgen (\S+): (\S+); kept (\d+) of (\d+) propos
 TESTGEN_NOTE = re.compile(r"^testgen, model (\S+)$")
 # Optional suffix after the layers, e.g. ", profile=standard" (shipharness since 2026-10-17).
 AB_LINE = re.compile(r"^A/B (\S+) \((\S+), layers=(\[[^\]]*\])(?:, [^)]*)?\)\s*$")
-AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+)\s+claim=")
+# The arm line: "claim=done ..." before 2026-10-18, "agent said done · ..." (plain words) since.
+AB_RECORD = re.compile(r"^\s+(bare|harness)\s+(\S+(?: \S+)*?)\s+(?:claim=|agent (?:said|made) )")
 # The note of `cost_line` in src/shipharness/ab/runtime.py; the build part came later, so both
 # forms are accepted.
 AB_NOTE = re.compile(
