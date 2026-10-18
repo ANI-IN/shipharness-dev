@@ -15,8 +15,16 @@ from typing import Any
 
 from shipharness.ab.score import REFEREE_VERSION, evaluate_primary, primary_fields
 from shipharness.console.labels import measure_label
+from shipharness.layout import RepoRootNotFound, find_repo_root
 
 ARM_ORDER = {"bare": 0, "harness": 1}
+# The course's own score records, measured before class (trace links removed), shipped with the
+# course; screen 4 always shows them, with new runs from exports/ next to them.
+try:
+    BEFORE_CLASS_DIR = find_repo_root(Path(__file__)) / "docs" / "evidence" / "scores"
+except RepoRootNotFound:  # installed outside the repository: no bundled records
+    BEFORE_CLASS_DIR = Path("docs") / "evidence" / "scores"
+SECTIONS_FILE = "score-sections.json"  # ab id -> section (demo-N, final) of the bundled records
 _REQUIRED = ("run_id", "arm", "variant", "passed_primary")
 
 
@@ -33,6 +41,7 @@ class Dot:
     passed: bool
     recorded: bool
     sandboxed: bool
+    before_class: bool = False  # from the course's own records, measured before class
 
 
 @dataclass
@@ -51,6 +60,23 @@ class DotGroup:
     @property
     def count_label(self) -> str:
         return f"{self.passed}/{len(self.dots)}"
+
+    @property
+    def before(self) -> list[Dot]:
+        return [d for d in self.dots if d.before_class]
+
+    @property
+    def new(self) -> list[Dot]:
+        return [d for d in self.dots if not d.before_class]
+
+    @property
+    def split_label(self) -> str:
+        """'8/8 before class' and, when there are new runs, '· 1/1 new'."""
+        before, new = self.before, self.new
+        text = f"{sum(d.passed for d in before)}/{len(before)} before class" if before else ""
+        if new:
+            text += (" · " if text else "") + f"{sum(d.passed for d in new)}/{len(new)} new"
+        return text
 
 
 @dataclass
@@ -107,8 +133,8 @@ class Report:
     recorded: int = 0
     single_arm: int = 0  # harness-in-action runs, left out of the bare-vs-harness comparison
     constructed: int = 0  # constructed examples (scripted steps), never counted
-    later: int = 0  # records from the day of this run or later: not before class
-    before: str | None = None  # the day this run started; dots are from earlier days
+    before_class_runs: int = 0  # dots from the course's own records (BEFORE_CLASS_DIR)
+    new_runs: int = 0  # dots from exports/ that are not among them
 
     @property
     def empty(self) -> bool:
@@ -116,24 +142,27 @@ class Report:
 
     @property
     def runs_per_arm(self) -> dict[str, int]:
+        """Runs measured before class, per arm."""
         counts: dict[str, int] = defaultdict(int)
         for group in self.groups:
-            counts[group.arm] += len(group.dots)
+            counts[group.arm] += len(group.before)
         return dict(sorted(counts.items(), key=lambda kv: (ARM_ORDER.get(kv[0], 9), kv[0])))
 
     @property
     def before_label(self) -> str:
-        """'Before class: 47 runs per arm'; per arm when the counts differ."""
+        """'Measured before class: 47 runs per arm'; per arm when the counts differ."""
 
         def runs(n: int) -> str:
             return f"{n} run{'s' if n != 1 else ''}"
 
-        counts = self.runs_per_arm
+        counts = {arm: n for arm, n in self.runs_per_arm.items() if n}
         if not counts:
-            return "Before class: no runs"
+            return "Measured before class: no runs"
         if len(set(counts.values())) == 1:
-            return f"Before class: {runs(next(iter(counts.values())))} per arm"
-        return "Before class: " + ", ".join(f"{arm} {runs(n)}" for arm, n in counts.items())
+            return f"Measured before class: {runs(next(iter(counts.values())))} per arm"
+        return "Measured before class: " + ", ".join(
+            f"{arm} {runs(n)}" for arm, n in counts.items()
+        )
 
 
 def _read_json_dir(folder: Path) -> tuple[list[dict[str, Any]], int]:
@@ -197,20 +226,44 @@ def _section_verdict(record: dict[str, Any], measure: str) -> bool | None:
         return None
 
 
+def _bundle_sections(bundle: Path | None) -> dict[str, str | None]:
+    """ab id -> section for the bundled records (score-sections.json beside the folder)."""
+    if bundle is None:
+        return {}
+    try:
+        data = json.loads((Path(bundle).parent / SECTIONS_FILE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    return {str(k): (str(v) if v else None) for k, v in data.items()}
+
+
 def load_report(
-    exports_dir: Path, *, before: str | None = None, runs_dir: Path | None = None
+    exports_dir: Path,
+    *,
+    runs_dir: Path | None = None,
+    before_class_dir: Path | None = None,
 ) -> Report:
-    """Screen 4's data. `before` (YYYY-MM-DD, the day this run started) keeps the dots to records
-    captured on earlier days, the runs before class; the rest are counted in `later`. With
-    `runs_dir`, a record of a section demo that has its own measure (Section 3's demo on Feature 4:
-    files outside the allowed paths) is judged by that measure, read from the record's fields."""
+    """Screen 4's data: the course's own records measured before class (`before_class_dir`; the
+    console passes BEFORE_CLASS_DIR, `docs/evidence/scores/`), always shown, and the runs in
+    `exports_dir/scores` that are not among them, added next to them as new dots. A record of a
+    section demo that has its own measure (Section 3's demo on Feature 4: files outside the allowed
+    paths) is judged by that measure, read from the record's fields; its section comes from the
+    A/B's ab.json under `runs_dir`, or for bundled records from score-sections.json."""
     from shipharness.ab.demo import section_measure
 
-    sections: dict[str, str | None] = {}
+    bundle = before_class_dir
+    sections: dict[str, str | None] = _bundle_sections(bundle)
     exports_dir = Path(exports_dir)
-    scores, skipped = _read_json_dir(exports_dir / "scores")
+    bundled, skipped_bundle = _read_json_dir(Path(bundle)) if bundle else ([], 0)
+    for row in bundled:
+        row["__before_class"] = True
+    known = {str(r.get("run_id")) for r in bundled}
+    exported, skipped = _read_json_dir(exports_dir / "scores")
+    scores = bundled + [r for r in exported if str(r.get("run_id")) not in known]
     experiments, skipped_exp = _read_json_dir(exports_dir / "experiments")
-    report = Report(skipped=skipped + skipped_exp, before=before)
+    report = Report(skipped=skipped + skipped_exp + skipped_bundle)
 
     groups: dict[tuple[str, str, str, str], DotGroup] = {}
     by_run: dict[str, bool] = {}  # run_id -> passed, current-version records only
@@ -230,9 +283,7 @@ def load_report(
         if record.get("single_arm"):
             report.single_arm += 1  # no bare run to compare with (make show-N)
             continue
-        if before and str(record.get("captured_at") or "")[:10] >= before:
-            report.later += 1  # this run's day: not a run before class
-            continue
+        before_class = bool(record.get("__before_class"))
         arm, variant = str(record["arm"]), str(record["variant"])
         feature = str(record.get("feature_id") or "?")
         passed = bool(record["passed_primary"])
@@ -253,8 +304,11 @@ def load_report(
                 passed,
                 bool(record.get("recorded", False)),
                 bool(record.get("sandboxed", True)),
+                before_class,
             )
         )
+        report.before_class_runs += before_class
+        report.new_runs += not before_class
         with contextlib.suppress(TypeError, ValueError):
             spent[arm] += float(record.get("cost_usd") or 0) + float(
                 record.get("review_cost_usd") or 0

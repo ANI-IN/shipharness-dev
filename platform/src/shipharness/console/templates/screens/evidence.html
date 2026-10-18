@@ -14,7 +14,7 @@
     <ul class="files">
     {% for category, files in a.files_by_category() %}
       {% for f in files[:4] %}
-      <li><span class="cat">{{ category }}</span> {{ f.path|truncate(36, true, "…") }}{% if f.count > 1 %} ×{{ f.count }}{% endif %}</li>
+      <li><span class="cat">{{ category }}</span> {{ f.path }}{% if f.count > 1 %} ×{{ f.count }}{% endif %}</li>
       {% endfor %}
       {% if files|length > 4 %}<li class="muted">+{{ files|length - 4 }} more {{ category }}</li>{% endif %}
     {% else %}
@@ -25,7 +25,7 @@
     <ol class="sessions">
     {% for s in a.sessions() %}
       <li>{% if s.phase == "test" %}Test phase{% else %}Session {{ s.index }}{% endif %} · {{ s.turns }} turn{{ "s" if s.turns != 1 }}{% if s.ended_by %} · {{ s.ended_by }}{% endif %}
-        {% for p in s.redone[:2] %}<div class="redone">{{ status("redone") }} {{ p|truncate(32, true, "…") }}</div>{% endfor %}
+        {% for p in s.redone[:2] %}<div class="redone">{{ status("redone") }} {{ p }}</div>{% endfor %}
       </li>
     {% else %}
       <li class="muted">No sessions yet.</li>
@@ -48,7 +48,7 @@
     <h4>Diff map</h4>
     <ul class="diffmap">
     {% for path, label in a.diff_map().items() %}
-      {% if loop.index <= 6 %}<li>{{ status(label) }} {{ path|truncate(38, true, "…") }}</li>{% endif %}
+      <li>{{ status(label) }} {{ path }}</li>
     {% else %}
       <li class="muted">No changes yet.</li>
     {% endfor %}
@@ -56,7 +56,7 @@
     <h4>Sandbox denials</h4>
     <ul class="denials">
     {% for d in a.denials[-3:] %}
-      <li>{{ status("denied", d.reason_code) }} {{ d.command|truncate(36, true, "…") }}</li>
+      <li>{{ status("denied", d.reason_code) }} {{ d.command }}</li>
     {% else %}
       <li>{{ status("pass", "none") }}</li>
     {% endfor %}
@@ -97,14 +97,17 @@
       <tbody>
       {% for t in a.tests.values() %}
         <tr>
-          <td>{{ short_test(t.test_id)|truncate(22, true, "…") }}</td>
+          <td class="test-name" title="{{ t.test_id }}">{{ short_test(t.test_id) }}</td>
           {% for n in range(1, 6) %}
           {% set r = t.filters.get(n) %}
           <td class="cell {% if r is none %}tone-muted{% elif r[0] %}tone-good{% else %}tone-bad{% endif %}">{% if r is none %}·{% elif r[0] %}✓{% else %}✗{% endif %}</td>
           {% endfor %}
           <td>{% if t.kept %}{{ status("kept") }}{% elif t.kept is none %}{{ status("pending") }}{% else %}{{ status("discarded") }}{% endif %}</td>
         </tr>
-        {% if t.kept == false %}<tr><td colspan="7" class="reason">{{ t.discard_reason|truncate(96, true, "…") }}</td></tr>{% endif %}
+        {% if t.kept == false %}
+        {% set mismatch = a.spec_mismatch(t) %}
+        <tr><td colspan="7" class="reason">{{ t.discard_reason }}{% if mismatch %}<span class="maybe-bug"> · fails on the current code; this may be a real bug: the test expected {{ mismatch[1] }}, which the ticket states, and the code returned {{ mismatch[0] }}</span>{% endif %}</td></tr>
+        {% endif %}
       {% endfor %}
       </tbody>
     </table>
@@ -118,7 +121,7 @@
       <tbody>
       {% for mid in a.mutants|map(attribute="mutant_id")|unique %}
         <tr>
-          <td>{{ mid }}</td>
+          <td title="{{ mid }}">{{ mid }}</td>
           {% for s in ("filter", "referee") %}
           {% set m = a.mutants|selectattr("mutant_id", "equalto", mid)|selectattr("set", "equalto", s)|first %}
           <td>{% if m %}{{ status(m.outcome) }}{% else %}–{% endif %}</td>

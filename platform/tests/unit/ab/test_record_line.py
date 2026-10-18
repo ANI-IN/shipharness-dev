@@ -116,3 +116,8 @@ def test_the_cli_prints_the_plain_arm_line_and_the_final_announces_its_feature(e
     arm_lines = [line for line in lines if line.startswith(("  bare ", "  harness "))]
     assert len(arm_lines) == 2
     assert all("agent " in line and "primary=" not in line for line in arm_lines)
+
+
+def test_a_feature_without_a_primary_measure_shows_no_verdict() -> None:
+    line = record_line(record(primary={}, passed_primary=True))
+    assert "no primary measure · hidden tests" in line and "primary measure passed" not in line

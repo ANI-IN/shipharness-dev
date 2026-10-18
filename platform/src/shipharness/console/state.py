@@ -14,7 +14,13 @@ from datetime import datetime
 from typing import Any
 
 from shipharness.ab.artifacts import is_harness_artifact
-from shipharness.console.labels import MEASURE_LABELS, check_label, filter_name
+from shipharness.console.labels import (
+    MEASURE_LABELS,
+    check_label,
+    check_short,
+    filter_name,
+    spec_mismatch,
+)
 from shipharness.datasets.names import feature_label
 from shipharness.events import Event
 
@@ -155,6 +161,23 @@ class TestRow:
 
 
 @dataclass
+class GateRefusal:
+    """One refused 'done': the gate attempt that failed, what failed, and what came next."""
+
+    phase: str
+    attempt: int
+    failed: str
+    outcome: str
+
+    @property
+    def text(self) -> str:
+        return (
+            f"Gate refused 'done' ({self.phase} phase, attempt {self.attempt}): {self.failed}"
+            f" → {self.outcome}"
+        )
+
+
+@dataclass
 class SessionSummary:
     index: int
     turns: int = 0
@@ -211,6 +234,7 @@ class ArmState:
     _session_ends: dict[int, str] = field(default_factory=dict)
     _resumed: set[int] = field(default_factory=set)  # sessions started by a session_resume
     _claimed_test: set[int] = field(default_factory=set)  # sessions with a claim of phase "test"
+    _gate_phase: dict[str, str] = field(default_factory=dict)  # gate id -> phase it gated
     # Event seq and time stamp of the launch (run_start), the primary verdict, and the verdict.
     _seen: dict[str, tuple[int, str]] = field(default_factory=dict)
 
@@ -266,6 +290,60 @@ class ArmState:
             return None
         said_done = claim["claim"] == "done"
         return said_done == view["passed"]
+
+    @property
+    def spec_text(self) -> str:
+        """The ticket the arm was given (run_start spec), for reading test discards against it."""
+        spec = (self.run_start or {}).get("spec") or {}
+        return str(spec.get("ticket_text") or "") if isinstance(spec, dict) else ""
+
+    def spec_mismatch(self, test: TestRow) -> tuple[str, str] | None:
+        """(returned, expected) for a Filter 2 discard whose failed assertion expects a value the
+        ticket states (`labels.spec_mismatch`); None otherwise."""
+        if test.failed_filter != 2:
+            return None
+        return spec_mismatch(test.filters[2][1], self.spec_text)
+
+    def gate_refusals(self) -> list[GateRefusal]:
+        """Every refused 'done', in order, per phase: the failed items of the attempt and what
+        followed ("passed on attempt 2", "still refused on attempt 2", "no further attempt")."""
+        final: dict[str, dict[str, Any]] = {}
+        for result in self.gates:  # the last result of each gate id is its outcome
+            final[str(result["gate_id"])] = result
+        done = {
+            gid: r
+            for gid, r in final.items()
+            if not any(i.get("status") == "pending" for i in r.get("items", []))
+        }
+        by_phase: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+        for gid, result in done.items():
+            by_phase.setdefault(self._gate_phase.get(gid, "build"), []).append((gid, result))
+        refusals: list[GateRefusal] = []
+        for phase, attempts in by_phase.items():
+            for n, (_gid, result) in enumerate(attempts, start=1):
+                if result.get("passed"):
+                    continue
+                failed = [i for i in result.get("items", []) if i.get("status") == "fail"]
+                words = (
+                    "; ".join(
+                        f"{check_short(str(i.get('name')))}: {i.get('detail')}"
+                        if i.get("detail")
+                        else check_short(str(i.get("name")))
+                        for i in failed
+                    )
+                    or "a gate item failed"
+                )
+                if n < len(attempts):
+                    nxt = attempts[n][1]
+                    outcome = (
+                        f"passed on attempt {n + 1}"
+                        if nxt.get("passed")
+                        else f"still refused on attempt {n + 1}"
+                    )
+                else:
+                    outcome = "no further attempt"
+                refusals.append(GateRefusal(phase, n, words, outcome))
+        return sorted(refusals, key=lambda r: list(by_phase).index(r.phase))
 
     def files_by_category(self) -> list[tuple[str, list[FileRead]]]:
         """Files-read map: categories in a fixed order (map first), files in read order."""
@@ -506,10 +584,13 @@ class ArmState:
             self.reviewer = data
         elif kind == "gate_result":
             self.gates.append(data)
+            self._gate_phase.setdefault(str(data["gate_id"]), self.phase_of(self.session_index))
         elif kind == "claim":
             self.claims[data["phase"]] = data
             if data["phase"] == "test":
                 self._claimed_test.add(self.session_index)
+            if data.get("gate_id"):
+                self._gate_phase[str(data["gate_id"])] = data["phase"]
         elif kind == "primary_verdict":
             self.primary = data
             self._seen["primary"] = (event.seq, event.ts)

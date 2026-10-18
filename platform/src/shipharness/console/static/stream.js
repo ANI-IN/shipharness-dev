@@ -40,9 +40,29 @@
     }
   });
 
+  // Expand toggles of the long lists; the state and the scroll positions survive screen updates.
+  var expanded = {};
+  function applyExpanded() {
+    Object.keys(expanded).forEach(function (id) {
+      var list = document.getElementById(id);
+      if (list) list.classList.toggle("expanded", expanded[id]);
+    });
+    document.querySelectorAll(".expand-toggle").forEach(function (button) {
+      var open = expanded[button.getAttribute("data-expand")] === true;
+      button.textContent = open ? "Collapse" : "Expand";
+      button.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+  }
+
   document.addEventListener("click", function (e) {
     var tab = e.target && e.target.closest ? e.target.closest(".tab") : null;
     if (tab) show(tab.getAttribute("data-key"));
+    var toggle = e.target && e.target.closest ? e.target.closest(".expand-toggle") : null;
+    if (toggle) {
+      var id = toggle.getAttribute("data-expand");
+      expanded[id] = !expanded[id];
+      applyExpanded();
+    }
   });
 
   show((window.location.hash || "#1").slice(1));
@@ -56,11 +76,23 @@
   source.onerror = function () { status(finished ? "finished" : "reconnecting"); };
   source.addEventListener("screens", function (message) {
     var update = JSON.parse(message.data);
+    var scrolled = {};
+    document.querySelectorAll("[data-scroll][id]").forEach(function (list) {
+      scrolled[list.id] = list.scrollTop;
+    });
+    var focused = document.activeElement && document.activeElement.hasAttribute &&
+      document.activeElement.hasAttribute("data-scroll") ? document.activeElement.id : "";
     Object.keys(update.screens).forEach(function (key) {
       var section = document.getElementById("screen-" + key);
       // Server-rendered with autoescape: agent text is already escaped.
       if (section) section.innerHTML = update.screens[key];
     });
+    Object.keys(scrolled).forEach(function (id) {
+      var list = document.getElementById(id);
+      if (list) list.scrollTop = scrolled[id];
+    });
+    if (focused && document.getElementById(focused)) document.getElementById(focused).focus();
+    applyExpanded();
     body.setAttribute("data-recorded", update.recorded ? "true" : "false");
     body.setAttribute("data-seq", String(update.seq));
     // A complete run says "finished", not a live event counter.

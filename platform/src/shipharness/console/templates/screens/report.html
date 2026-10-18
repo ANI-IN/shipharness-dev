@@ -14,8 +14,7 @@
 <div class="grid one">
 <article class="panel">
   <h2>No results to compare yet</h2>
-  <p>This screen compares the runs before class, one dot per run for each arm. There are none yet in {{ exports_dir }}. A result is added when the referee finishes judging a run: start one with <code>make show-1</code> (the harness arm alone) or <code>make demo-1</code> (an A/B).</p>
-  {% if report.later %}<p class="muted">{{ report.later }} result{{ "s" if report.later != 1 }} from the day of this run not shown: they are not runs before class.</p>{% endif %}
+  <p>This screen compares the two arms, one dot per run. There are no results yet. One is added when the referee finishes judging a run: start one with <code>make show-1</code> (the harness arm alone) or <code>make demo-1</code> (an A/B), with <code>PURPOSE=pilot</code> outside class.</p>
   {% if comparison %}<p>LangSmith comparison for this run: <a href="{{ comparison }}">{{ comparison }}</a></p>{% endif %}
   {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
 </article>
@@ -23,21 +22,29 @@
 {% else %}
 <div class="grid three">
 <article class="panel">
+  {% if report.before_class_runs %}
   <h2>{{ report.before_label }}</h2>
-  <p class="muted">Primary measures, one dot per run{% if report.before %}, scored before {{ report.before }}{% endif %}.</p>
+  <p class="muted">Primary measures, one dot per run: the runs measured before class{% if report.new_runs %}, then the new runs{% endif %}.</p>
+  {% else %}
+  <h2>Primary measures, one dot per run</h2>
+  {% endif %}
   {% for g in report.groups %}
   <div class="dot-row">
     <span class="dot-label"><span class="arm-name arm-{{ g.arm }}">{{ feature_label(g.feature) }} · {{ g.variant }} · {{ g.arm }}</span> <span class="muted">{{ g.layers }}{% if g.measure %} · judged by {{ g.measure }}{% endif %}</span></span>
+    {% if not report.before_class_runs %}
     <span class="dots">{% for d in g.dots %}<span class="dot {{ 'pass' if d.passed else 'fail' }}" title="{{ d.run_id }}: {{ 'passed' if d.passed else 'failed' }}">{{ "●" if d.passed else "○" }}</span>{% endfor %}</span>
     <span class="count">{{ g.count_label }}</span>
+    {% else %}
+    <span class="dots">{% for d in g.before %}<span class="dot {{ 'pass' if d.passed else 'fail' }}" title="{{ d.run_id }}: measured before class, {{ 'passed' if d.passed else 'failed' }}">{{ "●" if d.passed else "○" }}</span>{% endfor %}{% if g.new %}<span class="new-runs">{% for d in g.new %}<span class="dot new {{ 'pass' if d.passed else 'fail' }}" title="{{ d.run_id }}: new run, {{ 'passed' if d.passed else 'failed' }}">{{ "◆" if d.passed else "◇" }}</span>{% endfor %}</span>{% endif %}</span>
+    <span class="count">{{ g.split_label }}</span>
+    {% endif %}
   </div>
   {% endfor %}
-  <p class="legend"><span class="dot pass-legend">●</span> passed the primary measures · <span class="dot fail-legend">○</span> failed</p>
+  <p class="legend"><span class="dot pass-legend">●</span> passed · <span class="dot fail-legend">○</span> failed{% if report.before_class_runs %}, measured before class{% endif %}{% if report.new_runs and report.before_class_runs %} · <span class="dot pass-legend">◆</span> passed · <span class="dot fail-legend">◇</span> failed, new runs{% endif %}</p>
   {% if report.unsandboxed %}<p>{{ status("unknown", report.unsandboxed ~ " runs unsandboxed: not official") }}</p>{% endif %}
   {% if report.recorded %}<p class="muted">{{ report.recorded }} runs are replays (recorded).</p>{% endif %}
   {% if report.single_arm %}<p class="muted">{{ report.single_arm }} single-arm run{{ "s" if report.single_arm != 1 }} (harness in action) not compared: no bare run.</p>{% endif %}
   {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
-  {% if report.later %}<p class="muted">{{ report.later }} result{{ "s" if report.later != 1 }} from the day of this run not shown: they are not runs before class.</p>{% endif %}
 </article>
 
 <article class="panel">

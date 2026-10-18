@@ -189,9 +189,12 @@ def record_line(record: Any) -> str:
 
     claim = _CLAIM_WORDS.get(record.claim, f"agent said {record.claim}")
     outcome = "passed" if record.passed_primary else "failed"
+    verdict = (
+        f"primary measure {outcome} · " if record.primary else ""
+    )  # none registered: no verdict
     return (
         f"  {record.arm:<8} {record.status:<17} {claim} · {measure_words(record.primary)} · "
-        f"primary measure {outcome} · "
+        f"{verdict}"
         f"hidden tests {record.hidden_passed} of {record.hidden_total} · "
         f"mutants killed {record.mutants_killed} of {record.mutants_total} · "
         f"reviewer {record.reviewer_verdict or 'not run'} · cost ${record.cost_usd:.4f}"

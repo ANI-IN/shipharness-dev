@@ -5,7 +5,7 @@
   <h2>Live tail</h2>
   <ol class="tail">
   {% for line in state.tail(26) %}
-    <li class="tail-line" data-arm="{{ line.arm or 'ab' }}"><span class="seq">#{{ line.seq }}</span> <span class="arm-name arm-{{ line.arm or 'ab' }}">{{ (line.arm or "a/b")|upper }}</span> {{ line.summary|truncate(84, true, "…") }}</li>
+    <li class="tail-line" data-arm="{{ line.arm or 'ab' }}"><span class="seq">#{{ line.seq }}</span> <span class="arm-name arm-{{ line.arm or 'ab' }}">{{ (line.arm or "a/b")|upper }}</span> <span title="{{ line.summary }}">{{ line.summary|truncate(160, true, "…") }}</span></li>
   {% else %}
     <li class="muted">No events yet.</li>
   {% endfor %}
@@ -22,10 +22,10 @@
     {% if state.not_run(arm) %}
     {{ not_run(state.not_run(arm)) }}
     {% elif wt %}
-    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ wt.reason|truncate(100, true, "…") }}</p>
+    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ wt.reason }}</p>
     {% for row in a.turns() if row.seq == wt.seq %}
-    <p class="msg">{{ row.message|truncate(90, true, "…") }}</p>
-    {% for t in row.tools[:2] %}<p class="tool">{{ t.name }} {{ t.target|truncate(48, true, "…") }}</p>{% endfor %}
+    <p class="msg" title="{{ row.message }}">{{ row.message|truncate(200, true, "…") }}</p>
+    {% for t in row.tools[:2] %}<p class="tool">{{ t.name }} {{ t.target }}</p>{% endfor %}
     {% endfor %}
     {% else %}
     <p>{{ status("pass", "no wrong turn found") }}</p>
@@ -47,7 +47,7 @@
     <ul class="links">
     {% for kind, url in a.traces.items() %}
       {% set safe = safe_url(url) %}
-      {% if safe %}<li>{{ kind }}: <a href="{{ safe }}">{{ safe|truncate(60, true, "…") }}</a></li>{% endif %}
+      {% if safe %}<li>{{ kind }}: <a href="{{ safe }}" title="{{ safe }}">{{ safe|truncate(60, true, "…") }}</a></li>{% endif %}
     {% else %}
       <li class="muted">No trace link yet.</li>
     {% endfor %}
@@ -56,6 +56,6 @@
   </section>
   {% endfor %}
   {% set comparison = safe_url(state.ab.traces.get("comparison")) %}
-  {% if comparison %}<p>comparison: <a href="{{ comparison }}">{{ comparison|truncate(60, true, "…") }}</a></p>{% endif %}
+  {% if comparison %}<p>comparison: <a href="{{ comparison }}" title="{{ comparison }}">{{ comparison|truncate(60, true, "…") }}</a></p>{% endif %}
 </article>
 </div>

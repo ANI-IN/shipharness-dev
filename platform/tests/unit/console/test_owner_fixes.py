@@ -172,47 +172,59 @@ def _exports(tmp_path: Path, captured: list[tuple[str, str, bool]]) -> Path:
     return exports
 
 
-def test_screen_4_labels_the_runs_before_class_next_to_this_run(tmp_path: Path) -> None:
-    exports = _exports(tmp_path, [("bare", "2000-01-01", False), ("harness", "2000-01-01", False)])
+def _bundle(tmp_path: Path, arms: list[str], prefix: str = "b") -> Path:
+    folder = tmp_path / "evidence" / "scores"
+    for i, arm in enumerate(arms):
+        rec = record(run_id=f"r-{prefix}{i}", arm=arm, referee_version=REFEREE_VERSION)
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / f"{rec.run_id}.json").write_text(rec.model_dump_json(), encoding="utf-8")
+    return folder
+
+
+def test_screen_4_shows_the_runs_measured_before_class_next_to_this_run(tmp_path: Path) -> None:
+    bundle = _bundle(tmp_path, ["bare", "harness"])
     log = single_arm_run(tmp_path / "runs")
     state = ConsoleState.from_events(read_events(log))
-    assert re.fullmatch(r"\d{4}-\d{2}-\d{2}", state.started_on or "")
-    report = load_report(exports, before=state.started_on)
-    html = ScreenRenderer().render_all(ScreenContext("x", state, report, str(exports)))["4"]
+    report = load_report(tmp_path / "no-exports", before_class_dir=bundle)
+    html = ScreenRenderer().render_all(ScreenContext("x", state, report, "x"))["4"]
     assert "This run" in html
-    assert "Before class: 1 run per arm" in html
-    assert html.index("This run") < html.index("Before class")
+    assert "Measured before class: 1 run per arm" in html
+    assert html.index("This run") < html.index("Measured before class")
 
 
-def test_before_class_counts_only_records_from_earlier_days() -> None:
-    import tempfile
-
-    with tempfile.TemporaryDirectory() as tmp:
-        exports = _exports(
-            Path(tmp),
-            [
-                ("bare", "2026-10-16", False),
-                ("harness", "2026-10-16", False),
-                ("bare", "2026-10-17", False),
-                ("harness", "2026-10-17", False),
-                ("bare", "2026-10-18", False),  # the class day: not before class
-                ("harness", "2026-10-18", False),
-            ],
+def test_new_runs_are_added_next_to_the_records_from_before_class(tmp_path: Path) -> None:
+    bundle = _bundle(tmp_path, ["bare", "harness", "bare", "harness"])
+    exports = _exports(tmp_path, [("bare", "2026-10-19", False), ("harness", "2026-10-19", False)])
+    # A record in both places counts once, as measured before class.
+    dup = record(run_id="r-b0", arm="bare", referee_version=REFEREE_VERSION)
+    write_export("scores", dup.run_id, dup, exports)
+    report = load_report(exports, before_class_dir=bundle)
+    assert (report.before_class_runs, report.new_runs) == (4, 2)
+    assert report.runs_per_arm == {"bare": 2, "harness": 2}
+    assert report.before_label == "Measured before class: 2 runs per arm"
+    [bare] = [g for g in report.groups if g.arm == "bare"]
+    assert bare.split_label == "2/2 before class · 1/1 new"
+    html = ScreenRenderer().render_all(
+        ScreenContext(
+            "x", ConsoleState.from_events(read_events(ab_run(tmp_path / "runs"))), report, "x"
         )
-        report = load_report(exports, before="2026-10-18")
-        assert sum(len(g.dots) for g in report.groups) == 4
-        assert report.later == 2
-        assert report.runs_per_arm == {"bare": 2, "harness": 2}
-        assert report.before_label == "Before class: 2 runs per arm"
-        everything = load_report(exports)
-        assert sum(len(g.dots) for g in everything.groups) == 6
+    )["4"]
+    assert "new runs" in html and "◆" in html
+
+
+def test_the_console_ships_the_course_records_from_before_class() -> None:
+    from shipharness.console.report import BEFORE_CLASS_DIR
+
+    report = load_report(Path("/nonexistent-exports"), before_class_dir=BEFORE_CLASS_DIR)
+    assert report.before_class_runs >= 50 and report.new_runs == 0
+    assert report.skipped == 0
 
 
 def test_screen_4_says_plainly_when_a_panel_has_no_data(tmp_path: Path) -> None:
     exports = _exports(tmp_path, [("bare", "2026-10-17", False), ("harness", "2026-10-17", False)])
     log = ab_run(tmp_path / "runs")
     state = ConsoleState.from_events(read_events(log))
-    report = load_report(exports, before="2026-10-18")
+    report = load_report(exports)
     html = ScreenRenderer().render_all(ScreenContext("x", state, report, str(exports)))["4"]
     assert "No ablation runs yet." in html
     assert "No reviewer verdicts yet." in html
@@ -221,14 +233,15 @@ def test_screen_4_says_plainly_when_a_panel_has_no_data(tmp_path: Path) -> None:
 
 def test_screen_4_without_any_results_says_how_to_get_some(tmp_path: Path) -> None:
     html = render(single_arm_run(tmp_path / "runs"))["4"]
-    assert "make show-1" in html and "make demo-1" in html
-    assert "ScoreRecords" not in html  # plain words, not the export format
+    assert "make show-1" in html and "make demo-1" in html and "PURPOSE=pilot" in html
+    assert "ScoreRecords" not in html and "exports" not in html  # plain words, no paths
 
 
 def test_the_run_list_without_runs_says_to_start_one_with_make_show_1(tmp_path: Path) -> None:
     client = TestClient(create_console_app(tmp_path / "runs", exports_dir=tmp_path / "exports"))
     text = client.get("/").text
-    assert "No runs yet" in text and "make show-1" in text
+    assert "No runs yet" in text
+    assert "make show-1</code> (<code>PURPOSE=pilot</code> outside class)" in text
 
 
 # -- fix 6: the run list says what each run is -----------------------------------------------------
@@ -377,3 +390,154 @@ def test_the_test_phase_of_each_ab_arm_is_labelled(tmp_path: Path) -> None:
     evidence = render(log)["3"]
     assert len(re.findall(r"Test phase · 1 turn\b(?!s)", evidence)) == 2
     assert "Session 2" not in evidence
+
+
+# -- fixes 15 to 17: filter table, gate refusals, Filter 2 discards that may be real bugs --------
+
+F4_TICKET = (
+    "GET /issues/{issue_id} must return ETag. A stale or malformed If-Match is 412 "
+    "precondition_failed. Checks run in the order 401, 403, 404, 412, 422."
+)
+LONG_TEST = "tests/visible/test_issue_version_history.py::test_precondition_check_order_and_openapi"
+
+
+def _show_4_log(tmp_path: Path, reasons: dict[str, str]) -> Path:
+    from shipharness.events import EventBus
+    from tests.unit.console.run_logs import LogWriter
+
+    log = tmp_path / "runs" / "ab-20261018-040352-gggggg" / "events.jsonl"
+    with EventBus(log, ab_id=log.parent.name) as bus:
+        w = LogWriter(bus)
+        spec = {
+            "feature_id": "F4",
+            "layers": ["verify"],
+            "single_arm": True,
+            "ticket_text": F4_TICKET,
+        }
+        w.emit("harness", "run_start", {"spec": spec, "policy_summary": ""})
+        w.turn("harness", 1, 1)
+        for test_id, reason in reasons.items():
+            w.emit("harness", "test_proposed", {"test_id": test_id, "phase": "test"})
+            w.emit(
+                "harness",
+                "test_filter_result",
+                {"test_id": test_id, "filter": 1, "passed": True, "reason": ""},
+            )
+            w.emit(
+                "harness",
+                "test_filter_result",
+                {"test_id": test_id, "filter": 2, "passed": False, "reason": reason},
+            )
+    return log
+
+
+def test_filter_2_discard_matching_the_spec_may_be_a_real_bug(tmp_path: Path) -> None:
+    from shipharness.console.labels import spec_mismatch
+
+    assert spec_mismatch("failed on run 1 of 5: assert 422 == 412", F4_TICKET) == ("422", "412")
+    assert spec_mismatch(
+        "failed on run 1 of 5: AssertionError: assert 'error' == 'precondition_failed'", F4_TICKET
+    ) == ("'error'", "'precondition_failed'")
+    # Not documented in the spec, or not an equality assertion: no claim.
+    assert spec_mismatch("failed on run 1 of 5: assert 200 == 418", F4_TICKET) is None
+    assert (
+        spec_mismatch(
+            "failed on run 1 of 5: AssertionError: assert {'items', 'next_cursor'} == {'cursor'}",
+            F4_TICKET,
+        )
+        is None
+    )
+    assert spec_mismatch("failed on run 1 of 5: TimeoutError", F4_TICKET) is None
+    assert spec_mismatch("failed on run 1 of 5: assert 412 == 412", F4_TICKET) is None
+    assert spec_mismatch("failed on run 1 of 5: assert 422 == 412", "") is None
+
+    log = _show_4_log(
+        tmp_path,
+        {
+            LONG_TEST: "failed on run 1 of 5: assert 422 == 412",
+            "tests/visible/t.py::test_b": "boom",
+        },
+    )
+    evidence = render(log)["3"]
+    assert "fails on the current code; this may be a real bug" in evidence
+    assert "expected 412" in evidence and "returned 422" in evidence
+    assert evidence.count("this may be a real bug") == 1  # the plain reason stays plain
+    assert "is a bug" not in evidence and "is a real bug" not in evidence
+
+
+def test_the_filter_table_shows_full_test_names_on_hover(tmp_path: Path) -> None:
+    log = _show_4_log(tmp_path, {LONG_TEST: "failed on run 1 of 5: assert 422 == 412"})
+    evidence = render(log)["3"]
+    assert f'title="{LONG_TEST}"' in evidence
+    assert "test_precondition_check_order_and_openapi<" in evidence  # not cut in the text itself
+
+
+def _gate(w, gate_id: str, items: list[tuple[str, str, str]], passed: bool) -> None:  # type: ignore[no-untyped-def]
+    pending = [{"name": n, "status": "pending", "detail": ""} for n, _, _ in items]
+    w.emit(
+        "harness",
+        "gate_result",
+        {"gate_id": gate_id, "items": pending, "passed": False, "feedback": ""},
+    )
+    done = [{"name": n, "status": s, "detail": d} for n, s, d in items]
+    w.emit(
+        "harness",
+        "gate_result",
+        {"gate_id": gate_id, "items": done, "passed": passed, "feedback": ""},
+    )
+
+
+def test_gate_refusals_are_listed_in_order_with_what_followed(tmp_path: Path) -> None:
+    from shipharness.events import EventBus
+    from tests.unit.console.run_logs import LogWriter
+
+    log = tmp_path / "runs" / "ab-20261018-041221-hhhhhh" / "events.jsonl"
+    with EventBus(log, ab_id=log.parent.name) as bus:
+        w = LogWriter(bus)
+        w.start("harness", single_arm=True, feature="F4")
+        w.turn("harness", 1, 1)
+        _gate(w, "g1", [("visible tests", "pass", "ok"), ("R1", "fail", "1 new violation")], False)
+        w.emit(
+            "harness", "claim", {"phase": "build", "claim": "done", "summary": "", "gate_id": "g1"}
+        )
+        _gate(w, "g2", [("visible tests", "pass", "ok"), ("R1", "pass", "61 probes")], True)
+        w.emit(
+            "harness", "claim", {"phase": "build", "claim": "done", "summary": "", "gate_id": "g2"}
+        )
+        w.turn("harness", 2, 1)
+        _gate(w, "g3", [("clean state", "fail", "uncommitted changes: tests/visible/t.py")], False)
+        w.emit(
+            "harness", "claim", {"phase": "test", "claim": "done", "summary": "", "gate_id": "g3"}
+        )
+    refusals = ConsoleState.from_events(read_events(log)).arm("harness").gate_refusals()
+    assert [r.text for r in refusals] == [
+        "Gate refused 'done' (build phase, attempt 1): House rule 1: 1 new violation"
+        " → passed on attempt 2",
+        "Gate refused 'done' (test phase, attempt 1): clean state: uncommitted changes:"
+        " tests/visible/t.py → no further attempt",
+    ]
+    live = render(log)["1"]
+    assert "Gate refused" in live and "passed on attempt 2" in live and "no further attempt" in live
+    assert live.index("Gate refused") < live.index("Harness decisions")  # above the scrolling list
+
+
+def test_a_refusal_followed_by_another_refusal_says_still_refused(tmp_path: Path) -> None:
+    from shipharness.events import EventBus
+    from tests.unit.console.run_logs import LogWriter
+
+    log = tmp_path / "runs" / "ab-x" / "events.jsonl"
+    with EventBus(log, ab_id="ab-x") as bus:
+        w = LogWriter(bus)
+        w.start("harness", single_arm=True, feature="F4")
+        for gid in ("g1", "g2"):
+            _gate(w, gid, [("R5", "fail", "audit row missing")], False)
+            w.emit(
+                "harness",
+                "claim",
+                {"phase": "build", "claim": "done", "summary": "", "gate_id": gid},
+            )
+    texts = [
+        r.text for r in ConsoleState.from_events(read_events(log)).arm("harness").gate_refusals()
+    ]
+    assert texts[0].endswith("→ still refused on attempt 2")
+    assert texts[1].endswith("→ no further attempt")

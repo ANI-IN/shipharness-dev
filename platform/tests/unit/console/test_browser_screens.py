@@ -94,16 +94,18 @@ def test_all_visible_text_is_at_least_20px(page: Any, console: tuple[str, Path])
         assert small == [], (key, small[:5])
 
 
-def test_layout_is_fixed_1920_by_1080(page: Any, console: tuple[str, Path]) -> None:
+def test_layout_fills_1920_wide_and_never_scrolls_sideways(
+    page: Any, console: tuple[str, Path]
+) -> None:
+    # Owner, 2026-10-18: the page grows with its content and scrolls down; never sideways.
     page.goto(console[0])
     for key in SCREEN_NAMES:
         page.keyboard.press(key)
         box = page.evaluate(
             "(() => { const r = document.querySelector('.frame').getBoundingClientRect();"
-            " return [r.width, r.height, document.documentElement.scrollWidth,"
-            " document.documentElement.scrollHeight]; })()"
+            " return [r.width, r.height, document.documentElement.scrollWidth]; })()"
         )
-        assert box == [1920, 1080, 1920, 1080], key
+        assert box[0] == 1920 and box[2] == 1920 and box[1] >= 1080, key
 
 
 def test_no_panel_clips_its_content_on_the_fixture(page: Any, console: tuple[str, Path]) -> None:

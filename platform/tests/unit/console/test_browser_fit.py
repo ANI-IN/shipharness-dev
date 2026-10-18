@@ -1,8 +1,10 @@
-"""The console fits the screen at 100% zoom at 1366x768, 1440x900, and 1920x1080: no horizontal
-scrolling, every panel inside the window, and panels stack on a narrow window. Every run page has an
-"All runs" link, and H or Esc goes back to the run list (not while typing in a field).
+"""The console at 100% zoom at 1366x768, 1440x900, and 1920x1080: the page scrolls naturally, no
+element clips its content, nothing scrolls sideways, and panels stack on a narrow window. The two
+long lists scroll inside at least 15 lines, with an Expand toggle and keyboard scrolling. Every run
+page has an "All runs" link, and H or Esc goes back to the run list (not while typing in a field).
 
-Marked `browser`; skips cleanly when Chromium is not installed.
+Marked `browser`; skips cleanly when Chromium is not installed. The same checks run on recorded
+runs with `platform/scripts/check_console_layout.py`.
 """
 
 from __future__ import annotations
@@ -14,24 +16,14 @@ from typing import Any
 import pytest
 
 from shipharness.console.app import create_console_app
+from shipharness.console.layout_check import SIZES, screen_problems
 from tests.unit.console.fixture_log import AB_ID, build_fixture_exports, build_fixture_run
-from tests.unit.console.run_logs import single_arm_run
+from tests.unit.console.run_logs import multi_session_run, single_arm_run
 
 pytestmark = pytest.mark.browser
 
-SIZES = [(1366, 768), (1440, 900), (1920, 1080)]
 SINGLE = "ab-20261018-045459-aaaaaa"
-
-FIT = """(key) => {
-  const w = window.innerWidth, h = window.innerHeight;
-  const panels = [...document.querySelectorAll('#screen-' + key + ' .panel')]
-    .filter(p => p.offsetParent !== null);
-  const out = panels.filter(p => {
-    const r = p.getBoundingClientRect();
-    return r.left < -1 || r.right > w + 1 || r.bottom > h + 1;
-  }).map(p => (p.querySelector('h2') || p).textContent.trim().slice(0, 30));
-  return {scroll: document.documentElement.scrollWidth, w, panels: panels.length, out};
-}"""
+LONG = "ab-20261018-040749-bbbbbb"
 
 
 @pytest.fixture
@@ -39,6 +31,7 @@ def base(tmp_path: Path, live_server: Callable[[Any], Any]) -> str:
     runs = tmp_path / "runs"
     build_fixture_run(runs)
     single_arm_run(runs, SINGLE)
+    multi_session_run(runs, LONG, extra_turns=40)
     exports = build_fixture_exports(tmp_path / "exports")
     return str(live_server(create_console_app(runs, exports_dir=exports)).url)
 
@@ -51,19 +44,67 @@ def _page(chromium: Any, width: int, height: int) -> Any:
 
 
 @pytest.mark.parametrize(("width", "height"), SIZES)
-@pytest.mark.parametrize("run", [AB_ID, SINGLE])
-def test_every_screen_fits_the_window(
+@pytest.mark.parametrize("run", [AB_ID, SINGLE, LONG])
+def test_every_screen_fits_and_clips_nothing(
     chromium: Any, base: str, run: str, width: int, height: int
 ) -> None:
     context, page = _page(chromium, width, height)
     try:
         page.goto(f"{base}/run/{run}")
         for key in "12345":
-            page.keyboard.press(key)
-            fit = page.evaluate(FIT, key)
-            assert fit["panels"] >= 1, key
-            assert fit["scroll"] <= fit["w"], (key, fit)  # no horizontal scrolling
-            assert fit["out"] == [], (key, fit)  # no panel cut off at the window edge
+            assert screen_problems(page, key) == [], (key, width)
+    finally:
+        context.close()
+
+
+def test_the_page_grows_with_its_content_and_scrolls(chromium: Any, base: str) -> None:
+    context, page = _page(chromium, 1366, 768)
+    try:
+        page.goto(f"{base}/run/{AB_ID}")
+        page.keyboard.press("3")
+        height = page.evaluate("document.documentElement.scrollHeight")
+        assert height > 768  # the evidence screen is taller than the window: the page scrolls
+    finally:
+        context.close()
+
+
+def test_the_long_lists_scroll_inside_15_lines_and_expand(chromium: Any, base: str) -> None:
+    context, page = _page(chromium, 1440, 900)
+    try:
+        page.goto(f"{base}/run/{LONG}")
+        page.wait_for_function(
+            "/^(live|finished)/.test(document.getElementById('conn').textContent)"
+        )
+        page.keyboard.press("1")
+        lst = page.locator("#turns-harness")
+        line = page.evaluate("parseFloat(getComputedStyle(document.body).lineHeight)")
+        box = lst.bounding_box()
+        assert box["height"] >= 15 * line - 2  # at least 15 lines tall
+        scroll = page.evaluate(
+            "(() => { const l = document.getElementById('turns-harness');"
+            " return [l.scrollHeight, l.clientHeight, getComputedStyle(l).overflowY]; })()"
+        )
+        assert scroll[0] > scroll[1] and scroll[2] == "scroll"  # a visible scrollbar
+        lst.focus()
+        page.keyboard.press("PageDown")  # keyboard scrolling (smooth: wait for it)
+        page.wait_for_function(
+            "document.getElementById('turns-harness').scrollTop > 0", timeout=3000
+        )
+        page.evaluate("document.getElementById('turns-harness').scrollTop = 0")
+        page.mouse.move(box["x"] + 20, box["y"] + 20)
+        page.mouse.wheel(0, 300)  # mouse-wheel scrolling
+        page.wait_for_function(
+            "document.getElementById('turns-harness').scrollTop > 0", timeout=3000
+        )
+        toggle = page.locator('.expand-toggle[data-expand="turns-harness"]')
+        assert toggle.text_content() == "Expand"
+        toggle.click()
+        assert toggle.text_content() == "Collapse"
+        expanded = page.evaluate(
+            "(() => { const l = document.getElementById('turns-harness');"
+            " return l.scrollHeight <= l.clientHeight + 2; })()"
+        )
+        assert expanded  # the whole list shows in the page
     finally:
         context.close()
 
@@ -93,8 +134,8 @@ def test_body_text_stays_projector_readable_at_1366(chromium: Any, base: str) ->
         context.close()
 
 
-@pytest.mark.parametrize("key", ["h", "H", "Escape"])
-def test_h_or_escape_goes_back_to_the_run_list(chromium: Any, base: str, key: str) -> None:
+@pytest.mark.parametrize("key", ["h", "H", "Escape", "click"])
+def test_back_to_the_run_list(chromium: Any, base: str, key: str) -> None:
     context, page = _page(chromium, 1440, 900)
     try:
         page.goto(f"{base}/run/{SINGLE}")
@@ -102,7 +143,10 @@ def test_h_or_escape_goes_back_to_the_run_list(chromium: Any, base: str, key: st
         assert link.is_visible() and link.text_content().strip() == "← All runs"
         box = link.bounding_box()
         assert box["x"] < 100 and box["y"] < 80  # top left
-        page.keyboard.press(key)
+        if key == "click":
+            link.click()
+        else:
+            page.keyboard.press(key)
         page.wait_for_url(f"{base}/")
         assert "Runs" in page.content()
     finally:
