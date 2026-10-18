@@ -573,6 +573,11 @@ line. $0.
   and 8:24, command 8:26 (exit 0); files outside the allowed paths 0 and 0, both pass; hidden tests
   68 of 69 each; mutants killed 1 of 4 and 4 of 4; both reviewers reject; two-tab check HTTP 409 in
   both; $0.056216 ([s3.md](s3.md#s3-guide-run)).
+- `make show-4`: `ab-20261018-164402-1a796a` (harness `r-20261018-164402-3a1d84`), ran alone;
+  completed, 42 turns (session 1 30, test phase 12); blocked 0:36; done claim 2:05; gate passed on
+  its first attempt 3:07; the test phase proposed no test and ended `not_done`; primary verdict
+  4:37, full verdict 5:32, command 5:33 (exit 0); hidden tests 68 of 69; mutants killed 0 of 4
+  (primary measure failed); reviewer reject; $0.025731 ([s4.md](s4.md#s4-show-4-capture)).
 
 ### Score records shipped with the course (2026-10-18)
 

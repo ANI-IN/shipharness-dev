@@ -1,7 +1,7 @@
 # Module 1: Harness Engineering for Coding Agents - Demo 4 expected output
 
-This folder holds the output and the screenshots of one real `make show-4` run, run on 2026-10-18
-with the class settings (run id on the
+This folder holds the output and the screenshots of one real `make show-4` run, the live run of
+2026-10-18 for the demo guide, with the class settings (run id on the
 [evidence page](../../../docs/evidence/s4.md#s4-show-4-capture)). Nothing here is
 staged or edited, except where a line says it was cut. Use it to check that your run looks roughly
 like this one, or to follow the demo without running it. When and how it was captured is in the
@@ -22,48 +22,56 @@ like this one, or to follow the demo without running it. When and how it was cap
 |---|---|
 | `terminal.txt` | The command, the record line, the cost line, the start and end lines |
 
-The start and end lines (with the wall time) are the capture script's. The running cost
-totals are cut from `terminal.txt` where it shows `...`.
+The start and end lines (with the wall time) are the capture script's; nothing is cut. The
+`session` figure counts the three runs before it in the same session.
 
 ## Screenshots
 
-The screenshots were taken after the run, from `make console`, which serves recorded runs. The
-minute screens show the console fed with the run's log up to that point of the console clock.
+All from `make console`; the four moment screens of screen 1 were taken while the run was live.
+The numbered circles are the demo guide's callouts. Times count from the make command's launch.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Screen 1 at minute 1: the scope layer blocks a write to app/services/errors.py](show-4-screen-1-t01m.png)
+![The run list: the show-4 card on top, harness in action](show-4-runlist.png)
 
-*Minute 1: turn 1.19 tries to patch `app/services/errors.py`, outside the allowed files, and is blocked.*
+*The run list. Circles: 1 the run id, 2 the type, 3 the status, 4 the start time.*
 
-![Screen 1 at 2 min 30 s: the agent claims done and eleven gate pills wait](show-4-screen-1-t03m.png)
+![Screen 1 at the block: the scope layer refuses a patch to app/services/errors.py](show-4-screen-1-t01m.png)
 
-*Minute 2.5: `finish done` at turn 1.33. Every gate pill is pending; the referee has not started.*
+*0:36: turn 1.11 tries to patch `app/services/errors.py`, outside the allowed files, and is blocked. Circle 1: the block row.*
 
-![Screen 1 at 3 min 10 s: every gate pill passed, the feature marked as passing, the test phase starts](show-4-screen-1-t04m.png)
+![Screen 1 at the done claim: the gate starts, its items pending](show-4-screen-1-t03m.png)
 
-*Minute 3: all eleven items pass, the scope layer sets `passes`, and session 2, the test phase, begins.*
+*2:05: `finish done`. The gate starts; its items are pending and the referee has not started.*
 
-![Screen 1 at minute 7: primary verdict FAIL, hidden tests 68, mutants 0, claim not supported](show-4-screen-1-t09m.png)
+![Screen 1 when the gate passed: gate pass row](show-4-screen-1-t04m.png)
 
-*Minute 7: the referee's primary verdict is FAIL while the secondary checks still run.*
+*3:07: the gate passes on its first attempt; the scope layer sets `passes`, and the test phase begins. Circle 1: gate pass.*
 
-![Screen 1 after the full verdict: every gate pill passed, primary verdict FAIL, hidden tests 68 of 69](show-4-screen-1-final.png)
+![Screen 1 when the primary verdict was ready: primary verdict ready: FAIL, hidden tests 68, mutants 0](show-4-screen-1-t09m.png)
 
-*The end: 45 turns, hidden tests 68/69, mutants killed 0/4, primary verdict at 06:44, full at 08:20.*
+*4:37: "primary verdict ready: FAIL" (hidden tests 68, mutants killed 0) while the secondary checks still run.*
 
-![Screen 2: the board and the two-tab edit conflict](show-4-screen-2-final.png)
+![Screen 1 after the full verdict: the gate passed, primary verdict FAIL, hidden tests 68 of 69](show-4-screen-1-final.png)
+
+*The end: 42 turns, hidden tests 68/69, mutants killed 0/4, full verdict at 5:32. Circles: 1 "← All runs", 2 the tabs, 3 the bare arm, not run, 4 the harness arm.*
+
+![Screen 2: the board and the two-tab edit conflict, tab B got HTTP 409](show-4-screen-2-final.png)
 
 *Screen 2: tab B's stale save gets HTTP 409, so the board stops the lost update.*
 
-![Screen 3: files read, the diff map, referee checks, and the test filter table](show-4-screen-3-final.png)
+![Screen 3, whole page: sessions of 30 and 12 turns, the diff map with one blocked file, referee checks, four referee mutants survived](show-4-screen-3-final.png)
 
-*Screen 3: of three filtered tests, one kept after five filters; one stopped at Filter 3: Adds coverage or catches a mutant, one at Filter 2: Passes five runs.*
+*Screen 3: "Session 1 · 30 turns", "Test phase · 12 turns"; no test proposed, so no filter table; all four referee mutants survived.*
 
-![Screen 4: primary results, one dot per run](show-4-screen-4-final.png)
+![The test filter table of a recorded run before class: one test kept and two discarded](show-4-screen-3-recorded-filters.png)
 
-*Screen 4: the test runs before class, one dot per run. This run's verdict is at the top, not a dot.*
+*From a recorded run before class: one test kept after five filters; one stopped at Filter 3: Adds coverage or catches a mutant, one at Filter 2: Passes five runs.*
 
-![Screen 5: first wrong turn, referee events, and LangSmith links](show-4-screen-5-final.png)
+![Screen 4: this run at the top, then Measured before class, one dot per run](show-4-screen-4-final.png)
 
-*Screen 5: the first wrong turn is the blocked write at turn 1.19; LangSmith links for agent and referee.*
+*Screen 4: the runs before class, one dot per run. This run's verdict is at the top, not a dot.*
+
+![Screen 5: first wrong turn 1.11 blocked, live tail, LangSmith links](show-4-screen-5-final.png)
+
+*Screen 5: the first wrong turn is the blocked patch at turn 1.11; LangSmith links for agent and referee.*

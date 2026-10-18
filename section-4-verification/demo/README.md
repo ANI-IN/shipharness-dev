@@ -30,8 +30,8 @@ This demo gives a live agent that ticket. TeamTrack's ticket for Feature 4: Vers
 ## What you'll see
 
 `make show-4` runs the harness arm alone, live, with all four layers. You watch the agent build the feature,
-claim done, and pass the verify gate. Then it writes tests in the test phase, and the test filters
-keep some and discard others. Last, the referee runs 69 hidden tests and 4 referee mutants.
+claim done, and pass the verify gate. Then it may write tests in the test phase, and the test
+filters keep some and discard others. Last, the referee runs 69 hidden tests and 4 referee mutants.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
@@ -40,22 +40,21 @@ phase proposes (`MAX_TESTS=3`); further tests are removed with the reason "not f
 as discarded. `make show-4 MAX_TESTS=` filters them all
 ([disclosure](../../docs/evidence/s4.md#s4-show-4-settings)).
 
-Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up
-([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs: primary verdict
-5:51 to 6:50 after launch, full verdict 6:51 to 8:26, $0.023 to $0.033 per run. All three
-completed with a done claim, the gate pills (gate pass 2:32 to 3:03 after launch), a blocked patch
-to `app/services/errors.py`, and the referee mutant table. The filter table varied by run: one
-kept one test and discarded four (one failed its first run, one added no coverage, two not
-filtered), one kept two and discarded none,
-one discarded all four (three failed on their first run)
+Measured 2026-10-18, class profile, one live run, which ran alone: patch to
+`app/services/errors.py` blocked 0:36 after launch, done claim 2:05, gate passed 3:07 on its first
+attempt, primary verdict 4:37, full verdict 5:32, command finished 5:33, $0.0257. In its test phase
+the agent proposed no test and said not done, so the filters had nothing to check ("kept 0,
+discarded 0") ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same
+day, after the harness speed-up ([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)),
+three runs gave a range: primary verdict 5:51 to 6:50, full verdict 6:51 to 8:26, $0.023 to $0.033
+per run; their filter tables kept one test and discarded four, kept two, and discarded all four
 ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
-![Console screen 1 after the full verdict: every gate pill passed, primary verdict FAIL, hidden tests 68 of 69, mutants 0 of 4](expected/show-4-screen-1-final.png)
+![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm's gate passed, primary verdict ready: FAIL, hidden tests 68 of 69, mutants 0 of 4](expected/show-4-screen-1-final.png)
 
 *The end of a real run: the gate passed every item, and the referee still failed the run.*
 
-That is the lesson of the section in one screen. The gate checks what the agent can see. The referee
-checks what it cannot.
+The lesson of the section in one screen: the gate checks what the agent can see, the referee what it cannot.
 
 This is not an A/B. The course already compared both arms on this ticket: both failed the primary
 measure in every test run ([evidence](../../docs/evidence/s4.md#section-4)). So class shows the verification layer
@@ -105,19 +104,18 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 
 The script checks your keys, Docker, and the class date, then runs `make show-4`. Outside class, run
 `PURPOSE=pilot ./section-4-verification/demo/run.sh`. You can also call `make show-4` directly. At the end,
-terminal 2 prints the arm's record line and the cost line (cut where marked `...`; the full capture
-is in [expected/terminal.txt](expected/terminal.txt), captured before 2026-10-18 in
-the earlier wording):
+terminal 2 prints the arm's record line and the cost line. The live run of 2026-10-18 printed this
+(the full capture is [expected/terminal.txt](expected/terminal.txt)):
 
 ```text
 A/B <run id> (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
-  harness  ABORTED: timeout  agent said done · hidden tests passed: 68; mutants killed: 0 · primary measure failed · hidden tests 68 of 69 · mutants killed 0 of 4 · reviewer reject · cost $0.0233
-Cost: $0.026511 (this command: gpt-5.6-luna $0.003201, gpt-6-luna $0.023310; ...)
-make: *** [Makefile:180: show-4] Error 2
+  harness  completed         agent said not done · hidden tests passed: 68; mutants killed: 0 · primary measure failed · hidden tests 68 of 69 · mutants killed 0 of 4 · reviewer reject · cost $0.0225
+Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; session $0.145965 of $2.50; build $0.145965 of $15.00 ($14.854035 left))
 ```
 
-The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`. An
-aborted arm is still judged, so its record is complete. One run costs at most $0.24: the per-arm cap
+"Agent said not done" is the claim at the end of the test phase; the build phase's done claim
+passed the gate. The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1
+on `ERROR`; this run exited 0. An aborted arm is still judged, so its record is complete. One run costs at most $0.24: the per-arm cap
 plus the per-review cap.
 
 **In class**, Section 4: Verification opens with the class poll, the only one of the day, from 2:55
@@ -143,18 +141,30 @@ Screen 1, Live, shows the run as it goes: notes from all four layers, a blocked 
 `app/services/errors.py`, the done claim and the gate pills, the test phase and its filters, then
 the primary verdict and the full verdict
 ([evidence](../../docs/evidence/s4.md#s4-show-4-capture)). `F4 passes` on screen 1 means the harness
-set the version checks feature as passing.
+set the version checks feature as passing. A refused claim shows as "Gate refused 'done' (build
+phase, attempt 1): ... → passed on attempt 2"; in the live run the gate passed at once.
+
+![Screen 1 when the gate passed: the harness decision gate pass after the blocked patch](expected/show-4-screen-1-t04m.png)
+
+*3:07: "gate pass", after the block at 0:36. Circle 1: the gate pass row.*
 
 Then switch screens.
 
-**Screen 3, Evidence.** The Verification panel has the test filter table: one row per proposed test,
-a mark per filter, and the reason for each discard. In this run the filters checked three of the five
-proposed tests (`MAX_TESTS=3`). One added no line coverage (Filter 3: Adds coverage or catches a
-mutant). One failed on its first run (Filter 2: Passes five runs). One was kept.
+**Screen 3, Evidence.** Sessions read "Session 1 · 30 turns", then "Test phase · 12 turns". The
+diff map shows `app/services/errors.py` ⊘ blocked. The Verification panel has one row per referee
+check and, when the test phase proposes tests, the test filter table: one row per test, a mark per
+filter, and the reason for each discard. In the live run the test phase proposed none, so there is
+no filter table; all four referee mutants survived.
 
-![Screen 3: the diff map with one blocked file, the test filter table with one kept and two discarded tests](expected/show-4-screen-3-final.png)
+![Screen 3, whole page: sessions, the diff map with one blocked file, one row per referee check, all four referee mutants survived, no filter table](expected/show-4-screen-3-final.png)
 
-*Screen 3. Read the filter 2 reason: "assert 422 == 412". The next section explains why it matters.*
+*Screen 3 of the live run. No test was proposed, so the filters had nothing to check.*
+
+A recorded run before class (2026-10-18) proposed five tests and filtered three (`MAX_TESTS=3`):
+
+![The test filter table of a recorded run: one test kept and two discarded, one with the hint that this may be a real bug](expected/show-4-screen-3-recorded-filters.png)
+
+*Recorded run: the discard by Filter 2: Passes five runs says "fails on the current code; this may be a real bug": the test expected 412, which the ticket states.*
 
 **Screen 2, Boards.** After the run, the two-tab conflict panel: tab A saves, then tab B saves from
 its stale form. Tab B gets HTTP 409 and a "changed by someone else" page.
@@ -163,16 +173,16 @@ its stale form. Tab B gets HTTP 409 and a "changed by someone else" page.
 
 *Screen 2. The board stops the lost update. The referee still finds one hidden test failing.*
 
-**Screen 4, A/B Report.** The results of the test runs before class, one dot per run, per feature and
-arm. Say: "Tonight's run is not a dot in the comparison."
+**Screen 4, A/B Report.** "This run" at the top, then "Measured before class", one dot per run, per
+feature and arm. Say: "Tonight's run is not a dot in the comparison."
 
-![Screen 4: primary results, one dot per run, for each feature and arm](expected/show-4-screen-4-final.png)
+![Screen 4: this run at the top, then Measured before class, one dot per run for each feature and arm](expected/show-4-screen-4-final.png)
 
-*Screen 4. The version checks ticket has no filled dot in either arm: no run passed both counts.*
+*Screen 4. The version checks rows on Feature 4's own measure read "0/2 before class" in each arm.*
 
-**Screen 5, Traces.** The first wrong turn, the live tail of referee events, and the LangSmith links.
+**Screen 5, Traces.** The first wrong turn (turn 1.11, the blocked patch), the live tail, the links.
 
-![Screen 5: first wrong turn 1.19 blocked, live tail, LangSmith links](expected/show-4-screen-5-final.png)
+![Screen 5: first wrong turn 1.11 blocked apply_patch app/services/errors.py, live tail, LangSmith links](expected/show-4-screen-5-final.png)
 
 *Screen 5. Open a LangSmith link to see every model call of the run.*
 
@@ -186,7 +196,7 @@ A passed gate and a failed verdict can sit side by side. The gate runs the visib
 existing tests, the seven house rules, the board, and clean state. It never runs the hidden tests or the referee
 mutants, so they stay held out.
 
-The captured run shows why both are needed:
+A recorded run before class (2026-10-18) shows why both are needed:
 
 - The failing hidden test checks that a stale `If-Match` with an invalid body gives 412. The code
   gave 422.

@@ -1,7 +1,7 @@
-START 2026-10-18T04:03:49Z show-4
-uv run shipharness ab --section demo-4 --feature F4 --arms harness   --purpose pilot \
+START 2026-10-18T16:43:59Z show-4
+uv run shipharness ab --section demo-4 --feature version-checks --arms harness   --purpose pilot \
   --profile class --max-tests=3
-A/B ab-20261018-040352-f8c404 (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
-  harness  completed         claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0291
-Cost: $0.033069 (this command: gpt-5.6-luna $0.003977, gpt-6-luna $0.029092; ...)
-END rc=0 wall=510s launch_epoch=1792296229
+A/B ab-20261018-164402-1a796a (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
+  harness  completed         agent said not done · hidden tests passed: 68; mutants killed: 0 · primary measure failed · hidden tests 68 of 69 · mutants killed 0 of 4 · reviewer reject · cost $0.0225
+Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; session $0.145965 of $2.50; build $0.145965 of $15.00 ($14.854035 left))
+END rc=0 wall=333s launch_epoch=1792341839
