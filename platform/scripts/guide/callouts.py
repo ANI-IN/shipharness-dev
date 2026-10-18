@@ -72,12 +72,24 @@ def annotate(
         area = gray.crop((int(cx - r), int(cy - r), int(cx + r), int(cy + r)))
         return float(ImageStat.Stat(area).stddev[0])
 
+    def busy_line(cx: float, cy: float, tx: float, ty: float) -> float:
+        """How much text an arrow from the circle to the target would cross."""
+        total = 0.0
+        for k in range(1, 9):
+            f = k / 9
+            x, y = cx + (tx - cx) * f, cy + (ty - cy) * f
+            area = gray.crop((int(x - 6), int(y - 6), int(x + 6), int(y + 6)))
+            total += float(ImageStat.Stat(area).stddev[0])
+        return total / 4
+
     boxes = [t.box for t in targets]
     placed = []
     taken: list[tuple[float, float]] = []
     segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
     for t in targets:
-        p = place_callout(t.box, w, h, r, taken, avoid=boxes, cost=busy, segments=segments)
+        p = place_callout(
+            t.box, w, h, r, taken, avoid=boxes, cost=busy, segments=segments, line_cost=busy_line
+        )
         taken.append((p.cx, p.cy))
         segments.append(((p.cx, p.cy), (p.tx, p.ty)))
         placed.append((t, p))

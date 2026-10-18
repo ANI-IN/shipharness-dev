@@ -237,6 +237,7 @@ def place_callout(
     avoid: Iterable[Box] = (),
     cost: Callable[[float, float], float] | None = None,
     segments: Iterable[tuple[tuple[float, float], tuple[float, float]]] = (),
+    line_cost: Callable[[float, float, float, float], float] | None = None,
 ) -> Placement:
     """A circle next to `target`: inside the image, outside the target, clear of `taken`.
 
@@ -290,10 +291,12 @@ def place_callout(
         inner = i >= len(pool)
         if not ok(cx, cy, inner):
             continue
-        score = i * 1.5 + (3 * cost(cx, cy) if cost else 0.0)
+        score = (15.0 if inner else i * 1.5) + (3 * cost(cx, cy) if cost else 0.0)
         score += 1000 * sum(1 for b in avoid if b.contains(cx, cy))
         tx, ty = target.clamp(cx, cy)
         score += 4 * math.hypot(cx - tx, cy - ty) / r  # short arrows
+        if line_cost is not None and not inner:
+            score += line_cost(cx, cy, tx, ty)  # arrows over empty background
         score += 300 * sum(1 for ox, oy in taken if _seg_dist((cx, cy), (tx, ty), (ox, oy)) < r + 4)
         score += 300 * sum(1 for a, b in segments if _crosses((cx, cy), (tx, ty), a, b))
         if best is None or score < best[0]:

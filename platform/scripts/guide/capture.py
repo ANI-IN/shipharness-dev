@@ -686,7 +686,7 @@ def capture_list(con: Console, out: Out, name: str, moment: str, run_id: str | N
     else:
         specs = [
             Spec("No runs yet: start one in Terminal 2", sel=".panel p", root="page"),
-            Spec("Console keys", sel=".panel kbd", root="page"),
+            Spec("Console keys", sel=".panel:last-child p", root="page"),
         ]
     boxes = con.boxes(specs, None)
     scroll = con.page.evaluate("() => window.scrollY")
