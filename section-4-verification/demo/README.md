@@ -106,12 +106,12 @@ Outside class, skip the date and add `PURPOSE=pilot` to the command in the next 
 The script checks your keys, Docker, and the class date, then runs `make show-4`. Outside class, run
 `PURPOSE=pilot ./section-4-verification/demo/run.sh`. You can also call `make show-4` directly. At the end,
 terminal 2 prints the arm's record line and the cost line (cut where marked `...`; the full capture
-is in [expected/terminal.txt](expected/terminal.txt)). `F4` in the record line is the version
-checks feature:
+is in [expected/terminal.txt](expected/terminal.txt), captured before 2026-10-18 in
+the earlier wording):
 
 ```text
-A/B <run id> (F4, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
-  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0233
+A/B <run id> (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
+  harness  ABORTED: timeout  agent said done · hidden tests passed: 68; mutants killed: 0 · primary measure failed · hidden tests 68 of 69 · mutants killed 0 of 4 · reviewer reject · cost $0.0233
 Cost: $0.026511 (this command: gpt-5.6-luna $0.003201, gpt-6-luna $0.023310; ...)
 make: *** [Makefile:177: show-4] Error 2
 ```

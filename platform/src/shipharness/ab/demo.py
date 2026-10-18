@@ -8,6 +8,7 @@ id, layers, and workspace path. The arms run concurrently. Every run, aborted or
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import threading
 import time
@@ -57,6 +58,25 @@ SECTION_STACKS: dict[str, tuple[LayerName, ...]] = {
     "demo-4": LAYER_ORDER,
     "final": LAYER_ORDER,
 }
+
+
+# Section demos judged by a measure other than the dataset line's own (owner, 2026-10-18): Section
+# 3's class demo on Feature 4 uses the measure pre-registered for the Section 3 confirmation
+# (docs/evidence/s3.md), files changed outside the allowed paths; Feature 4's own measure (every
+# hidden test and every referee mutant) stays the dataset's for Section 4, show-4, and the final.
+SECTION_MEASURES: dict[tuple[str, str], str] = {("demo-3", "F4"): "out_of_scope_files>=1"}
+
+
+def section_measure(section: str | None, feature_id: str) -> str | None:
+    """The section demo's own primary measure for this feature, or None (the dataset's applies)."""
+    return SECTION_MEASURES.get((section or "", feature_id))
+
+
+def section_task(task: ABTask, section: str | None) -> ABTask:
+    """The task as the section demo judges it: its primary measure replaced where the section
+    pre-registered its own (SECTION_MEASURES); otherwise unchanged."""
+    measure = section_measure(section, task.feature_id)
+    return dataclasses.replace(task, primary_measure=measure) if measure else task
 
 
 def section_layers(section: str, modifier: str | None = None) -> frozenset[LayerName]:
@@ -394,6 +414,7 @@ def run_ab(
     if constructed and tuple(arms) != ("harness",):
         raise ValueError("a constructed example runs the harness arm alone, never an A/B")
     arms = tuple(arms)
+    task = section_task(task, section)
     ab_id = ab_id or new_ab_id()
     run_dir = Path(deps.settings.runs_dir) / ab_id
     run_ids = {arm: new_run_id() for arm in arms}

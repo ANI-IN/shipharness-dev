@@ -104,20 +104,20 @@ Outside class, run `PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You ca
 target directly. Without `FEATURE=version-checks`, `make demo-3` runs the ticket for Feature 3: Safe
 retries for issue creation instead.
 
-At the end, terminal 2 prints one record line per arm and the cost line. This capture is the command
-that `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs (cut where marked `...`; the full
-capture is in [expected/terminal.txt](expected/terminal.txt)). `F4` in the record is the version
-checks feature:
+At the end, terminal 2 prints one record line per arm and the cost line. The run below, cut where
+marked `...`, is shown in the current wording and measure; [expected/terminal.txt](expected/terminal.txt)
+is the original capture, from before 2026-10-18:
 
 ```text
-A/B <run id> (F4, layers=['instructions', 'scope', 'state'], profile=class)
-  bare     completed         claim=done     primary={"hidden_passed": 68, "mutants_killed": 4} passed=False hidden 68/69 mutants 4/4 reviewer=reject cost=$0.0216
-  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 65, "mutants_killed": 4} passed=False hidden 65/69 mutants 4/4 reviewer=reject cost=$0.0206
+A/B <run id> (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state'], profile=class)
+  bare     completed         agent said done · files changed outside the allowed paths: 1 · primary measure failed · hidden tests 68 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0216
+  harness  ABORTED: timeout  agent said done · files changed outside the allowed paths: 0 · primary measure passed · hidden tests 65 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0206
 Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; ...)
 ```
 
-The record line's `primary` is the feature's own measure: every hidden test and every referee mutant.
-No arm met it in the test runs. The scope result is not on this line; it is on screen 3.
+The line leads with the demo's primary measure, pre-registered for the confirmation: files changed
+outside the allowed paths, 1 or more fails ([evidence](../../docs/evidence/s3.md#s3-demo-measure)).
+Feature 4's hidden tests and mutants follow as secondary results; screen 3 shows the file.
 
 The command exits with 0 when both arms completed, 2 when an arm ended `ABORTED`, and 1 on `ERROR`.
 With the class profile, expect 0: all six arms of the 2026-10-18 runs completed. The capture above

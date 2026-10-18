@@ -21,7 +21,7 @@ from shipharness.datasets.names import (
 MEASURE_LABELS = {
     "r1_new_violations": f"{rule_label('R1')}, new violations",
     "continuity_failure": "continuity failure",
-    "out_of_scope_files": "out-of-scope files",
+    "out_of_scope_files": "files changed outside the allowed paths",
     "test_phase_source_edits": "test-phase source edits",
     "hidden_passed": "hidden tests passed",
     "mutants_killed": "mutants killed",
@@ -59,3 +59,39 @@ def filter_name(number: int) -> str:
 def measure_label(name: str) -> str:
     """'House rule 1: Tenant isolation, new violations' for r1_new_violations; others as is."""
     return MEASURE_LABELS.get(name, name)
+
+
+# A pytest equality assertion in a discard reason: "assert 422 == 412" (left: what the code gave,
+# right: what the test expected). Simple literals only: a number or a quoted string.
+_ASSERT_EQ = re.compile(r"assert (-?\d+|'[^']*'|\"[^\"]*\") == (-?\d+|'[^']*'|\"[^\"]*\")\s*$")
+
+
+def spec_mismatch(reason: str, spec: str) -> tuple[str, str] | None:
+    """(returned, expected) when a test filter's discard reason is a failed equality assertion
+    whose expected value the feature's spec states explicitly (a status code such as 412, or a
+    value such as 'precondition_failed'), and the code returned something else. None otherwise:
+    the console then shows the plain reason and claims nothing."""
+    match = _ASSERT_EQ.search(reason.strip())
+    if not match or not spec:
+        return None
+    returned, expected = match.groups()
+    if returned == expected:
+        return None
+    word = expected.strip("'\"")
+    if expected[0] not in "'\"" and not re.fullmatch(r"[1-5]\d\d", word):
+        return None  # a number counts only as an HTTP status code (100 to 599)
+    if len(word) < 3 or not re.search(rf"(?<![\w-]){re.escape(word)}(?![\w-])", spec):
+        return None
+    return returned, expected
+
+
+def measure_words(values: dict[str, object]) -> str:
+    """The primary values for the terminal, in plain words: 'House rule 1: Tenant isolation, new
+    violations: 0'; booleans as yes / no; several values joined with '; '."""
+    if not values:
+        return "no primary measure"
+    parts = []
+    for name, value in values.items():
+        shown = ("yes" if value else "no") if isinstance(value, bool) else str(value)
+        parts.append(f"{measure_label(name)}: {shown}")
+    return "; ".join(parts)

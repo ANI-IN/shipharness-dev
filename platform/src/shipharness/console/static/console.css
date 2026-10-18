@@ -1,4 +1,8 @@
-/* shipharness console. Fixed 1920x1080 frame, text >= 20px, high contrast, <= 3 panels per screen.
+/* shipharness console. The page scrolls naturally: every panel grows with its content, nothing is
+   clipped, and nothing scrolls sideways at 100% zoom from 1366x768 up; long text wraps (the full text
+   on hover where it is shortened). The two long lists ("All turns", "Harness decisions") scroll
+   inside at least 15 lines, with an Expand toggle. Panels stack below 1100 px. Text >= 20px, high
+   contrast, <= 3 panels per screen.
    Tones colour a status; the symbol and the label carry the meaning. */
 :root {
   --bg: #0b0f14;
@@ -27,9 +31,12 @@ kbd { font: 700 20px/1 ui-monospace, Consolas, monospace; border: 2px solid var(
 code { font-family: ui-monospace, Consolas, monospace; font-size: 20px; }
 
 /* Frame */
-.frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; }
-.bar { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 24px; white-space: nowrap;
-  border-bottom: 2px solid var(--border); flex: none; }
+.frame { width: 100%; min-height: 100vh; display: flex; flex-direction: column; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; min-height: 64px; padding: 6px 24px;
+  white-space: nowrap; border-bottom: 2px solid var(--border); flex: none; }
+.all-runs { font-size: 22px; font-weight: 700; color: var(--text); text-decoration: none; background: var(--panel);
+  border: 2px solid var(--muted); border-radius: 8px; padding: 6px 14px; }
+.all-runs:hover, .all-runs:focus { border-color: var(--text); background: var(--panel-2); }
 .bar h1 { margin: 0; font-size: 26px; }
 .tabs { display: flex; gap: 8px; }
 .tab { font: inherit; font-size: 22px; color: var(--text); background: var(--panel); cursor: pointer;
@@ -39,15 +46,18 @@ body[data-screen="3"] .tab[data-key="3"], body[data-screen="4"] .tab[data-key="4
 body[data-screen="5"] .tab[data-key="5"] { border-color: var(--text); background: var(--panel-2);
   font-weight: 700; }
 .hint, .run-id, .conn { font-size: 20px; color: var(--muted); }
-.run-id { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: var(--text); }
+.run-id { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: var(--text);
+  min-width: 0; overflow-wrap: anywhere; white-space: normal; }
 
 /* Screens: one visible at a time */
-.screen { display: none; flex: 1; min-height: 0; padding: 8px 24px 12px; flex-direction: column; }
+.screen { display: none; flex: 1; padding: 8px 24px 12px; flex-direction: column; }
 body[data-screen="1"] #screen-1, body[data-screen="2"] #screen-2, body[data-screen="3"] #screen-3,
 body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex; }
-.screen-head { display: flex; align-items: center; gap: 20px; height: 48px; flex: none; }
+.screen-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; min-height: 48px; flex: none;
+  margin-bottom: 4px; }
 .screen-head h1 { margin: 0; font-size: 28px; }
-.badges { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+.badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 16px; align-items: center;
+  margin-left: auto; }
 .badge { font-size: 22px; font-weight: 800; padding: 4px 14px; border-radius: 8px; letter-spacing: 1px; }
 .badge.recording { background: var(--recording); color: var(--recording-text); }
 .badge.unsandboxed { background: var(--warn); color: #111111; }
@@ -58,13 +68,14 @@ body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex
 .seq { color: var(--muted); font-size: 20px; }
 
 /* Grid: at most three panels */
-.grid { display: grid; gap: 16px; flex: 1; min-height: 0; }
+.grid { display: grid; gap: 16px; align-items: start; }
+.grid > * { min-width: 0; }  /* long unbroken lines never widen a column past the window */
 .grid.one { grid-template-columns: 1fr; }
-.grid.two { grid-template-columns: 1fr 1fr; }
-.grid.three { grid-template-columns: 1fr 1fr 1fr; }
-.grid.traces { grid-template-columns: 2fr 1fr 1fr; }
+.grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid.traces { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
 .panel { background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
-  padding: 12px 16px; overflow: hidden; min-height: 0; }
+  padding: 12px 16px; overflow-wrap: anywhere; }
 .panel h2 { margin: 0 0 6px; font-size: 24px; }
 .panel h3 { margin: 6px 0 2px; font-size: 22px; }
 .panel h4 { margin: 4px 0 1px; font-size: 20px; color: var(--muted); font-weight: 600; }
@@ -88,7 +99,8 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 
 /* Status pills: symbol + label */
 .status { display: inline-flex; align-items: baseline; gap: 6px; padding: 0 8px; margin: 1px 4px 1px 0;
-  border: 2px solid currentColor; border-radius: 999px; font-weight: 700; white-space: nowrap; }
+  border: 2px solid currentColor; border-radius: 999px; font-weight: 700; max-width: 100%; }
+.status .label { overflow-wrap: anywhere; }  /* a long label wraps inside its pill */
 .status .sym { font-weight: 900; }
 .tone-good { color: var(--good); }
 .tone-bad { color: var(--bad); }
@@ -99,18 +111,17 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 
 /* Screen 1 */
 .arm-head h2 { font-size: 26px; }
-.sandbox-line { color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.turns li { padding: 1px 0; border-bottom: 1px solid var(--border); overflow: hidden; }
+.sandbox-line { color: var(--text); }
+.turns li { padding: 1px 0; border-bottom: 1px solid var(--border); }
 .turns .turn-no { display: inline-block; min-width: 52px; font-weight: 800; color: var(--muted); }
 .turns .msg { font-weight: 600; }
-.turns .tools { display: block; padding-left: 52px; white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; }
+.turns .tools { display: block; padding-left: 52px; }
 .tool { font-family: ui-monospace, Consolas, monospace; font-size: 20px; margin-right: 14px; }
 .tool.harness-doc { color: var(--harness); font-weight: 700; }
 .note { color: var(--info); margin-left: 6px; }
 .turns .marker { color: var(--info); }
 .turns .flagged .turn-no { color: var(--bad); }
-.decisions li { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.decisions li { padding: 1px 0; }
 .layer { color: var(--muted); }
 .pills { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .progress { color: var(--wait); margin-left: 8px; }
@@ -119,44 +130,50 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 .claims .k { font-weight: 800; margin-right: 6px; }
 .referee .values { font-weight: 800; margin-right: 8px; }
 .referee .secondary, .referee .timing { color: var(--muted); margin: 0 8px 0 4px; }
-.this-run { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; flex: none; margin-bottom: 8px; }
+.this-run { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; flex: none; margin-bottom: 8px; }
 .this-run p { margin: 0; }
+.this-run .this-run-head { grid-column: 1 / -1; margin: 0; font-size: 24px; }
 .this-run .arm-name { margin-right: 8px; }
 
 /* Screen 2 */
-.boards .arm-panel { display: flex; flex-direction: column; }
-.shot { display: block; width: 100%; flex: 1; min-height: 0; object-fit: contain; object-position: top left;
-  background: var(--panel-2); border: 2px solid var(--border); border-radius: 6px; }
-.boards.with-conflict { grid-template-rows: 3fr 2fr; }
-.boards.with-conflict .conflict-panel { grid-column: 1 / -1; display: flex; flex-direction: column; }
-.conflict-row { flex: 1; min-height: 0; }
-.conflict-row figure { display: flex; flex-direction: column; min-height: 0; }
-.shot.small { flex: 1; }
+.shot { display: block; width: 100%; height: auto; background: var(--panel-2);
+  border: 2px solid var(--border); border-radius: 6px; }
+.boards.with-conflict .conflict-panel { grid-column: 1 / -1; }
 .marks { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 2px 0 8px; }
 .conflict-row { display: flex; gap: 16px; }
 .conflict-row figure { margin: 0; flex: 1; }
 
 /* Screen 3 */
 .checks { display: flex; flex-wrap: wrap; gap: 2px 4px; }
-.files li, .diffmap li, .denials li, .sessions li { white-space: nowrap; overflow: hidden;
-  text-overflow: ellipsis; }
+.checks .reviewer-line { flex-basis: 100%; }
+.reviewer-reason { color: var(--muted); }
 .cat { display: inline-block; min-width: 120px; color: var(--info); font-weight: 700; }
 .redone { color: var(--bad); }
 table { border-collapse: collapse; width: 100%; }
 th, td { font-size: 20px; text-align: left; padding: 1px 6px; border-bottom: 1px solid var(--border);
-  white-space: nowrap; }
+  vertical-align: top; overflow-wrap: anywhere; }
 td.cell { text-align: center; font-weight: 900; }
-td.reason { color: var(--bad); padding-left: 24px; }
+td.reason { color: var(--bad); padding-left: 24px; white-space: normal; overflow-wrap: anywhere; }
+td.reason .maybe-bug { color: var(--warn); font-weight: 700; }
+/* Test filter and mutant tables: fixed columns inside the panel; test names and reasons wrap (the
+   full test id is the cell's title). */
+table.filters, table.mutants { table-layout: fixed; }
+table.filters th:not(:first-child):not(:last-child) { width: 1.6em; padding: 1px 2px; text-align: center; }
+table.filters th:last-child { width: 8.6em; }
+table.mutants th:not(:first-child) { width: 7.4em; }
+.gate-refusals { margin: 4px 0; }
+.gate-refusals li { color: var(--bad); font-weight: 700; white-space: normal; }
 
 /* Screen 4 */
-.dot-row { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 6px 0 10px; }
+.dot-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; margin: 6px 0 10px; }
 .dot-label { grid-column: 1 / -1; }
-.dots { font-size: 30px; letter-spacing: 4px; line-height: 1; }
+.dots { font-size: 30px; letter-spacing: 4px; line-height: 1.1; overflow-wrap: anywhere; word-break: break-all; }
 .dot.pass, .pass-legend { color: var(--good); }
 .dot.fail, .fail-legend { color: var(--bad); }
-.count { font-weight: 800; font-size: 24px; }
+.count { font-weight: 800; font-size: 22px; }
+.new-runs { margin-left: 12px; padding-left: 10px; border-left: 2px solid var(--muted); }
 .legend { color: var(--muted); }
-.abl { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; margin: 6px 0 10px; }
+.abl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; margin: 6px 0 10px; }
 .abl-label { grid-column: 1 / -1; }
 .track { display: block; height: 24px; background: var(--panel-2); border: 2px solid var(--border);
   border-radius: 6px; overflow: hidden; }
@@ -170,23 +187,29 @@ td.reason { color: var(--bad); padding-left: 24px; }
 .costs li, .agreement li, .links li { margin: 4px 0; overflow-wrap: anywhere; }
 
 /* Screen 5 */
-.tail li { font-family: ui-monospace, Consolas, monospace; font-size: 20px; white-space: nowrap;
-  overflow: hidden; text-overflow: ellipsis; padding: 1px 0; }
+.tail li { font-family: ui-monospace, Consolas, monospace; font-size: 20px; padding: 1px 0; }
 .tail .seq { display: inline-block; min-width: 64px; }
 
 /* Index page */
 body.index .bar { height: auto; padding: 16px 24px; }
 .index-main { display: grid; gap: 16px; padding: 16px 24px; max-width: 1200px; }
 .runs li { margin: 6px 0; font-size: 22px; }
+table.runs td, table.runs th { font-size: 20px; white-space: normal; padding: 4px 10px; }
+.index-main { max-width: none; }
 
-/* Screen 1 after the run: the whole timeline, scrollable inside the panel. */
-.turns.full,
-.decisions.full {
-  overflow-y: auto;
-}
-.turns.full {
-  max-height: 12em;
-}
-.decisions.full {
-  max-height: 5em;
+/* Screen 1: "All turns" and "Harness decisions" scroll inside at least 15 lines (visible scrollbar,
+   mouse wheel, and keyboard once focused); Expand shows the whole list in the page. */
+.scroll-list { max-height: calc(15 * 1.35em + 8px); min-height: calc(15 * 1.35em + 8px);
+  overflow-y: scroll; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; }
+.scroll-list.short { min-height: 0; overflow-y: auto; }
+.scroll-list.expanded { max-height: none; overflow-y: visible; }
+.scroll-list:focus { outline: 2px solid var(--wait); }
+.list-head { display: flex; align-items: baseline; gap: 12px; }
+.expand-toggle { font: inherit; font-size: 20px; color: var(--text); background: var(--panel-2); cursor: pointer;
+  border: 2px solid var(--border); border-radius: 6px; padding: 0 10px; }
+
+/* Narrow windows: panels stack in one column and the page scrolls down, never sideways. */
+@media (max-width: 1100px) {
+  .grid.two, .grid.three, .grid.traces { grid-template-columns: 1fr; }
+  .this-run { grid-template-columns: 1fr; }
 }

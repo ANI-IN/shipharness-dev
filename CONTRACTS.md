@@ -815,7 +815,7 @@ Tags: `section-N` or `batch-N`, arm, `class` or `experiment` or `assignment`.
 
 ### 18.2 Make targets
 `setup`, `doctor`, `up` (TeamTrack + board on the host), `console`, `datasets`, `demo-1`..`demo-4`
-(`LAYERS=-<layer>` optional), `swap-1`..`swap-4`, `final FEATURES=F5,F6`, `replay RUN=<id>`,
+(`LAYERS=-<layer>` optional), `swap-1`..`swap-4`, `final FEATURES=bulk-close,watchers`, `replay RUN=<id>`,
 `experiments` (`BATCH=1..4` optional), `report`, `pilot`, `check-assignment-1`..`4`,
 `grade-assignment-1`..`4`, `lint`, `format`, `lint-prose`, `test` (unit), `test-live`, `slides`.
 

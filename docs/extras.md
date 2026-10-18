@@ -62,7 +62,7 @@ machine it printed these lines, among others, after the run id line:
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ```text
-  harness  completed         claim=done     primary={"r1_new_violations": 1} passed=False hidden 9/52 mutants 0/4 reviewer=None cost=$0.0000
+  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 1 · primary measure failed · hidden tests 9 of 52 · mutants killed 0 of 4 · reviewer not run · cost $0.0000
 What it demonstrates: the referee's R1 check reports the cross-org leak, and the board shows the other org's cards.
   instructions: agent read AGENTS.md
   instructions: agent read docs/design-docs/api-conventions.md

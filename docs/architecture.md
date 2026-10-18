@@ -263,11 +263,12 @@ make -n demo-1
 It prints:
 
 ```text
-uv run shipharness ab --section demo-1 --feature F1   --purpose class \
+uv run shipharness ab --section demo-1 --feature org-search   --purpose class \
   --profile class
 ```
 
-`F1` there is the code of Feature 1: Org-wide issue search, which `demo-1` runs.
+`org-search` there is Feature 1: Org-wide issue search, which `demo-1` runs; the CLI turns the
+name into the code the dataset uses.
 
 `make -n show-1` prints the same command with `--arms harness`. When a run fails, the messages and
 fixes are in [troubleshooting](troubleshooting.md#running-an-ab).

@@ -26,7 +26,7 @@ CONFTEST = REPO / "platform" / "tests" / "conftest.py"
 
 # Sample values substituted for make variables before the CLI parses a recipe line.
 SAMPLES = {
-    "$(FEATURE)": "F3",
+    "$(FEATURE)": "safe-retries",
     "$(LAYERS_OPT)": "--layers=-scope",
     "$(SESSION_BUDGET_OPT)": "--session-budget=12,38",
     "$(MAX_TESTS_OPT)": "--max-tests=3",
@@ -35,7 +35,7 @@ SAMPLES = {
     "$(RUNTIME)": "docker",
     "$(AB)": "ab-20261016-000000-abcdef",
     "$(RUN)": "r-20261016-000000-abcdef",
-    "$$f": "F5",
+    "$$f": "bulk-close",
 }
 
 
@@ -119,7 +119,7 @@ def test_swap_target_runs_the_swap_test_on_ab(n: int) -> None:
 
 def test_final_runs_every_feature_in_features() -> None:
     # Two poll-chosen features by default (brief; owner 2026-10-17); the poll offers F5-F7.
-    assert _variables()["FEATURES"] == "F5,F6"
+    assert _variables()["FEATURES"] == "bulk-close,watchers"  # readable names (owner 2026-10-18)
     recipe = " ".join(_rules()["final"])
     assert "$(FEATURES)" in recipe
     assert "rc=$$?" in recipe and recipe.endswith("exit $$rc")  # one failure does not stop the rest
@@ -132,6 +132,16 @@ def test_final_runs_every_feature_in_features() -> None:
     assert params["section"] == "final"
     assert params["feature"] == "F5"
     assert params["layers"] == "-scope"
+
+
+def test_final_hides_the_shell_loop_and_the_cli_names_each_feature() -> None:
+    # Owner, 2026-10-18: make prints no shell loop; `shipharness ab --section final` prints
+    # "Final A/B: Feature 5: Bulk close" before each A/B (tested in ab/test_record_line.py).
+    lines = _rules()["final"]
+    assert lines and all(line.startswith("@") for line in lines[:1])
+    recipe = " ".join(lines)
+    assert "rc=$$?" in recipe and recipe.endswith("exit $$rc")  # non-zero if any A/B fails
+    assert "echo" not in recipe.replace('echo "$(FEATURES)"', "")
 
 
 def test_replay_target_replays_run() -> None:
@@ -341,7 +351,7 @@ def test_demo_3_runs_the_s3_confirmation_task_by_feature() -> None:
     # demo is a live A/B on F4: `make demo-3 FEATURE=F4`. Without FEATURE it stays F3.
     command, params = _parse(_shipharness_calls("demo-3")[0])
     assert command == "ab" and params["section"] == "demo-3"
-    assert _variables()["FEATURE"] == "F3"
+    assert _variables()["FEATURE"] == "safe-retries"
     assert "--feature $(FEATURE)" in " ".join(_rules()["demo-3"])
 
 
@@ -391,6 +401,23 @@ def test_make_help_names_the_readable_feature_names() -> None:
         assert alias in text and code in text, alias
     assert "FEATURE=version-checks" in text and "FEATURES=watchers,bulk-close" in text
     assert "idempotent-create" in text  # the earlier name of safe-retries still works
+
+
+def test_no_target_passes_a_bare_feature_code_to_the_cli() -> None:
+    # make echoes each recipe line, so `--feature org-search` reads plainly; the CLI turns the
+    # name into the code (owner, 2026-10-18).
+    from shipharness.datasets.names import FEATURE_ALIASES
+
+    for target, lines in _rules().items():
+        recipe = " ".join(lines)
+        assert not re.search(r"--feature F\d", recipe), target
+    for n in range(1, 5):
+        for target in (f"demo-{n}", f"show-{n}"):
+            recipe = " ".join(_rules()[target])
+            if target != "demo-3":
+                assert f"--feature {FEATURE_ALIASES[f'F{n}']} " in recipe, target
+    for name in ("FEATURE", "FEATURES"):
+        assert not re.search(r"\bF\d", _variables()[name]), name
 
 
 # -- make help covers every target ----------------------------------------------------------------

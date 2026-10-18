@@ -25,7 +25,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sse_starlette.sse import EventSourceResponse
 
-from shipharness.console.report import Report, exports_signature, load_report
+from shipharness.console.report import (
+    BEFORE_CLASS_DIR,
+    Report,
+    exports_signature,
+    load_report,
+)
+from shipharness.console.runs import run_finished, run_summary
 from shipharness.console.screens import ScreenContext, ScreenRenderer
 from shipharness.console.state import ConsoleState
 from shipharness.events import LogTail, read_events
@@ -72,6 +78,7 @@ async def screen_updates(
     follow: bool = True,
     poll_s: float = 0.5,
     should_stop: Callable[[], bool] | None = None,
+    before_class_dir: Path | None = None,
 ) -> AsyncIterator[dict[str, str]]:
     """First message: every screen. Then, after new events or changed exports, only the screens
     whose HTML changed. Message id = last folded seq."""
@@ -86,14 +93,26 @@ async def screen_updates(
         current = exports_signature(exports_dir)
         exports_changed = current != signature
         if exports_changed:
-            signature, report = current, load_report(exports_dir)
+            signature, report = (
+                current,
+                load_report(
+                    exports_dir,
+                    runs_dir=log_path.parent.parent,
+                    before_class_dir=before_class_dir,
+                ),
+            )
         if first or new or exports_changed:
             ctx = ScreenContext(run_id, state, report, str(exports_dir))
             screens = renderer.render_all(ctx)
             delta = {k: html for k, html in screens.items() if sent.get(k) != html}
             if first or delta:
                 sent.update(delta)
-                payload = {"seq": state.seq, "recorded": state.recorded, "screens": delta}
+                payload = {
+                    "seq": state.seq,
+                    "recorded": state.recorded,
+                    "finished": run_finished(log_path.parent, state),
+                    "screens": delta,
+                }
                 yield {"id": str(state.seq), "event": "screens", "data": json.dumps(payload)}
             first = False
         if not follow or (should_stop is not None and should_stop()):
@@ -114,8 +133,13 @@ def _log_for(runs_dir: Path, run_id: str) -> Path:
     return _run_dir(runs_dir, run_id) / "events.jsonl"
 
 
-def create_console_app(runs_dir: Path, exports_dir: Path | None = None) -> FastAPI:
-    """The console app. `exports_dir` (screen 4) defaults to the EXPORTS_DIR setting."""
+def create_console_app(
+    runs_dir: Path,
+    exports_dir: Path | None = None,
+    before_class_dir: Path | None = BEFORE_CLASS_DIR,
+) -> FastAPI:
+    """The console app. `exports_dir` (screen 4) defaults to the EXPORTS_DIR setting;
+    `before_class_dir` holds the course's records measured before class (None: none)."""
     runs_dir = Path(runs_dir)
     if exports_dir is None:
         from shipharness.config import get_settings
@@ -137,25 +161,34 @@ def create_console_app(runs_dir: Path, exports_dir: Path | None = None) -> FastA
 
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:
-        runs = sorted(
+        # Newest first: run ids start with the launch time (ab-YYYYMMDD-HHMMSS-...).
+        ids = sorted(
             (
                 p.parent.name
                 for p in runs_dir.glob("*/events.jsonl")
                 if _RUN_ID.match(p.parent.name)
             ),
+            key=lambda name: (name.split("-", 1)[-1], name),
             reverse=True,
         )
+        runs = [run_summary(runs_dir / name) for name in ids]
         return templates.TemplateResponse(request, "index.html", {"runs": runs})
 
     @app.get("/run/{run_id}", response_class=HTMLResponse)
     def run_page(request: Request, run_id: str) -> HTMLResponse:
         log = _log_for(runs_dir, run_id)
         state = ConsoleState.from_events(read_events(log))
-        ctx = ScreenContext(run_id, state, load_report(exports_dir), str(exports_dir))
+        report = load_report(exports_dir, runs_dir=runs_dir, before_class_dir=before_class_dir)
+        ctx = ScreenContext(run_id, state, report, str(exports_dir))
         return templates.TemplateResponse(
             request,
             "run.html",
-            {"run_id": run_id, "state": state, "rendered": renderer.render_all(ctx)},
+            {
+                "run_id": run_id,
+                "state": state,
+                "finished": run_finished(log.parent, state),
+                "rendered": renderer.render_all(ctx),
+            },
         )
 
     @app.get("/events/{run_id}")
@@ -172,7 +205,15 @@ def create_console_app(runs_dir: Path, exports_dir: Path | None = None) -> FastA
         # The screens are a fold over the whole log, so a reconnect rebuilds from seq 0 and
         # sends a full snapshot; Last-Event-ID is not needed here.
         return EventSourceResponse(
-            screen_updates(log, exports_dir, renderer, run_id, follow=follow), ping=15
+            screen_updates(
+                log,
+                exports_dir,
+                renderer,
+                run_id,
+                follow=follow,
+                before_class_dir=before_class_dir,
+            ),
+            ping=15,
         )
 
     @app.get("/runs/{run_id}/files/{path:path}")

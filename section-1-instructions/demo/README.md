@@ -96,13 +96,14 @@ PURPOSE=pilot ./section-1-instructions/demo/run.sh
 ```
 
 You can also call `make show-1` directly. At the end, terminal 2 prints the arm's record line and the
-cost line. In it, `F1` is the org-wide issue search, and `r1_new_violations` counts new violations
-of the tenant isolation rule. The run id and the running totals are cut where marked; the full
-capture is in [expected/terminal.txt](expected/terminal.txt):
+cost line. The record line names the primary measure in words: new violations of House rule 1:
+Tenant isolation. The run id and the running totals are cut where marked; the full capture is in
+[expected/terminal.txt](expected/terminal.txt) (captured before 2026-10-18, in
+the earlier wording):
 
 ```text
-A/B ... (F1, layers=['instructions'], profile=class, harness in action)
-  harness  completed         claim=done     primary={"r1_new_violations": 0} passed=True hidden 52/52 mutants 2/4 reviewer=accept cost=$0.0179
+A/B ... (Feature 1: Org-wide issue search, layers=['instructions'], profile=class, harness in action)
+  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 2 of 4 · reviewer accept · cost $0.0179
 Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; ...)
 ```
 

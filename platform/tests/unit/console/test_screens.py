@@ -26,7 +26,7 @@ def dirs(tmp_path: Path) -> tuple[Path, Path]:
 
 @pytest.fixture
 def client(dirs: tuple[Path, Path]) -> TestClient:
-    return TestClient(create_console_app(dirs[0], exports_dir=dirs[1]))
+    return TestClient(create_console_app(dirs[0], exports_dir=dirs[1], before_class_dir=None))
 
 
 def screens_of(html: str) -> dict[str, str]:
@@ -133,9 +133,11 @@ def test_report_screen_reads_exports(page: dict[str, str]) -> None:
 
 def test_report_screen_without_exports(tmp_path: Path) -> None:
     build_fixture_run(tmp_path / "runs")
-    client = TestClient(create_console_app(tmp_path / "runs", exports_dir=tmp_path / "none"))
+    client = TestClient(
+        create_console_app(tmp_path / "runs", exports_dir=tmp_path / "none", before_class_dir=None)
+    )
     report = screens_of(client.get(f"/run/{AB_ID}").text)["4"]
-    assert "No exports yet" in report
+    assert "No results to compare yet" in report
 
 
 def test_traces_screen(page: dict[str, str]) -> None:
@@ -321,11 +323,13 @@ def test_finished_run_shows_every_turn_and_decision_in_a_scrollable_list(tmp_pat
     live = _live_screen(tmp_path, finished=True)
     assert all(f"step-{n:02d}" in live for n in range(1, 13))
     assert all(f"decision-{n}x" in live for n in range(1, 6))
-    assert 'class="turns full"' in live and 'class="decisions full"' in live
+    assert 'class="turns scroll-list full"' in live and 'class="decisions scroll-list full"' in live
+    assert "All turns" in live and live.count('class="expand-toggle"') >= 2
 
 
-def test_live_run_keeps_the_short_view(tmp_path: Path) -> None:
+def test_live_run_shows_the_last_15_turns_and_every_decision(tmp_path: Path) -> None:
+    # Owner, 2026-10-18: the lists are at least 15 lines tall, so the live view keeps 15 turns.
     live = _live_screen(tmp_path, finished=False)
-    assert "step-04" not in live and all(f"step-{n:02d}" in live for n in range(5, 13))
-    assert "decision-2x" not in live and "decision-3x" in live and "decision-5x" in live
-    assert 'class="turns full"' not in live
+    assert all(f"step-{n:02d}" in live for n in range(1, 13))  # 12 turns: all of them
+    assert all(f"decision-{n}x" in live for n in range(1, 6))
+    assert 'class="turns scroll-list"' in live and "Last turns" in live

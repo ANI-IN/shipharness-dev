@@ -477,7 +477,7 @@ Reload the run list in the browser, open the newest run, and press `1`. The run 
 minutes. The second terminal ends with the arm's result line and a cost line. On the course machine:
 
 ```text
-  harness  completed         claim=done     primary={"r1_new_violations": 0} passed=True hidden 52/52 mutants 2/4 reviewer=accept cost=$0.0179
+  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 2 of 4 · reviewer accept · cost $0.0179
 Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; session $1.342904 of $2.50; build $2.268653 of $15.00 ($12.731347 left))
 ```
 

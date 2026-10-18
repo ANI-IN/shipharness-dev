@@ -79,9 +79,25 @@ def test_text_and_status_colours_have_high_contrast() -> None:
     assert contrast(colours["recording-text"], colours["recording"]) >= 3.5
 
 
-def test_fixed_1920_by_1080_frame() -> None:
+def test_the_frame_fills_the_window() -> None:
+    # Owner, 2026-10-18: fit the screen at 100% zoom from 1366x768 up (was a fixed 1920x1080 frame).
     frame = re.search(r"\.frame\s*\{([^}]*)\}", CSS)
-    assert frame and "width: 1920px" in frame.group(1) and "height: 1080px" in frame.group(1)
+    assert frame and "width: 100%" in frame.group(1) and "min-height: 100vh" in frame.group(1)
+
+
+def test_no_panel_has_a_fixed_height_or_clips() -> None:
+    # Owner, 2026-10-18: the page scrolls naturally; panels grow with their content. Only the two
+    # long lists (.scroll-list) scroll inside, and the ablation bar track clips its own fill.
+    plain = re.sub(r"/\*.*?\*/", "", CSS, flags=re.S)  # comments out
+    for rule in re.finditer(r"([^{}]+)\{([^}]*)\}", plain):
+        selector, body = rule.group(1).strip(), rule.group(2)
+        if "overflow: hidden" in body or "overflow-y: hidden" in body:
+            assert selector == ".track", selector
+        if re.search(r"(?<![-\w])height:\s*\d+vh", body):
+            raise AssertionError(f"fixed viewport height: {selector}")
+        if selector in (".panel", ".grid", ".screen"):
+            assert "max-height" not in body and "overflow-y" not in body, selector
+    assert ".scroll-list {" in CSS and "overflow-y: scroll" in CSS
 
 
 def test_at_most_three_panels_per_screen(screens: dict[str, str]) -> None:

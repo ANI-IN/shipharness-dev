@@ -13,7 +13,14 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
-from shipharness.console.labels import MEASURE_LABELS, check_label, filter_name
+from shipharness.ab.artifacts import is_harness_artifact
+from shipharness.console.labels import (
+    MEASURE_LABELS,
+    check_label,
+    check_short,
+    filter_name,
+    spec_mismatch,
+)
 from shipharness.datasets.names import feature_label
 from shipharness.events import Event
 
@@ -154,9 +161,27 @@ class TestRow:
 
 
 @dataclass
+class GateRefusal:
+    """One refused 'done': the gate attempt that failed, what failed, and what came next."""
+
+    phase: str
+    attempt: int
+    failed: str
+    outcome: str
+
+    @property
+    def text(self) -> str:
+        return (
+            f"Gate refused 'done' ({self.phase} phase, attempt {self.attempt}): {self.failed}"
+            f" → {self.outcome}"
+        )
+
+
+@dataclass
 class SessionSummary:
     index: int
     turns: int = 0
+    phase: str = "build"  # "test": the test phase after the build, not a resumed build session
     ended_by: str = ""
     files: list[str] = field(default_factory=list)
     redone: list[str] = field(default_factory=list)
@@ -207,6 +232,9 @@ class ArmState:
     session_index: int = 1
     _calls: dict[str, ToolLine] = field(default_factory=dict)
     _session_ends: dict[int, str] = field(default_factory=dict)
+    _resumed: set[int] = field(default_factory=set)  # sessions started by a session_resume
+    _claimed_test: set[int] = field(default_factory=set)  # sessions with a claim of phase "test"
+    _gate_phase: dict[str, str] = field(default_factory=dict)  # gate id -> phase it gated
     # Event seq and time stamp of the launch (run_start), the primary verdict, and the verdict.
     _seen: dict[str, tuple[int, str]] = field(default_factory=dict)
 
@@ -263,6 +291,60 @@ class ArmState:
         said_done = claim["claim"] == "done"
         return said_done == view["passed"]
 
+    @property
+    def spec_text(self) -> str:
+        """The ticket the arm was given (run_start spec), for reading test discards against it."""
+        spec = (self.run_start or {}).get("spec") or {}
+        return str(spec.get("ticket_text") or "") if isinstance(spec, dict) else ""
+
+    def spec_mismatch(self, test: TestRow) -> tuple[str, str] | None:
+        """(returned, expected) for a Filter 2 discard whose failed assertion expects a value the
+        ticket states (`labels.spec_mismatch`); None otherwise."""
+        if test.failed_filter != 2:
+            return None
+        return spec_mismatch(test.filters[2][1], self.spec_text)
+
+    def gate_refusals(self) -> list[GateRefusal]:
+        """Every refused 'done', in order, per phase: the failed items of the attempt and what
+        followed ("passed on attempt 2", "still refused on attempt 2", "no further attempt")."""
+        final: dict[str, dict[str, Any]] = {}
+        for result in self.gates:  # the last result of each gate id is its outcome
+            final[str(result["gate_id"])] = result
+        done = {
+            gid: r
+            for gid, r in final.items()
+            if not any(i.get("status") == "pending" for i in r.get("items", []))
+        }
+        by_phase: dict[str, list[tuple[str, dict[str, Any]]]] = {}
+        for gid, result in done.items():
+            by_phase.setdefault(self._gate_phase.get(gid, "build"), []).append((gid, result))
+        refusals: list[GateRefusal] = []
+        for phase, attempts in by_phase.items():
+            for n, (_gid, result) in enumerate(attempts, start=1):
+                if result.get("passed"):
+                    continue
+                failed = [i for i in result.get("items", []) if i.get("status") == "fail"]
+                words = (
+                    "; ".join(
+                        f"{check_short(str(i.get('name')))}: {i.get('detail')}"
+                        if i.get("detail")
+                        else check_short(str(i.get("name")))
+                        for i in failed
+                    )
+                    or "a gate item failed"
+                )
+                if n < len(attempts):
+                    nxt = attempts[n][1]
+                    outcome = (
+                        f"passed on attempt {n + 1}"
+                        if nxt.get("passed")
+                        else f"still refused on attempt {n + 1}"
+                    )
+                else:
+                    outcome = "no further attempt"
+                refusals.append(GateRefusal(phase, n, words, outcome))
+        return sorted(refusals, key=lambda r: list(by_phase).index(r.phase))
+
     def files_by_category(self) -> list[tuple[str, list[FileRead]]]:
         """Files-read map: categories in a fixed order (map first), files in read order."""
         groups: dict[str, list[FileRead]] = {}
@@ -280,8 +362,25 @@ class ArmState:
         return [row for row in self.timeline if row.kind == "turn"]
 
     def recent(self, n: int = RECENT_TURNS) -> list[TimelineRow]:
-        """The last `n` rows of the turn list (turns and session markers)."""
-        return self.timeline[-n:]
+        """The last `n` turns, with every session marker (stop, resume) kept in log order, so a
+        session stop stays visible while the run goes on."""
+        turns = [row for row in self.timeline if row.kind == "turn"][-n:]
+        first = turns[0].seq if turns else None
+        return [
+            row
+            for row in self.timeline
+            if row.kind != "turn" or (first is not None and row.seq >= first)
+        ]
+
+    def phase_of(self, session_index: int) -> str:
+        """The phase a session belongs to. Turn events carry no phase, so it comes from the claim
+        events' `phase` field and the session markers: "test" for a session with a test-phase
+        claim, or a later session that started without a session_resume (the test phase begins
+        after the build claim, in a new session); "build" for session 1 and every resumed session
+        (Section 2's session stops)."""
+        if session_index in self._claimed_test:
+            return "test"
+        return "build" if session_index == 1 or session_index in self._resumed else "test"
 
     def diff_map(self) -> dict[str, str]:
         """path -> "changed" | "blocked" | "reverted" | "out of scope" (referee wins)."""
@@ -314,7 +413,10 @@ class ArmState:
         summaries: dict[int, SessionSummary] = {}
         seen: set[str] = set()
         for row in self.timeline:
-            summary = summaries.setdefault(row.session_index, SessionSummary(row.session_index))
+            summary = summaries.setdefault(
+                row.session_index,
+                SessionSummary(row.session_index, phase=self.phase_of(row.session_index)),
+            )
             if row.kind != "turn":
                 continue
             summary.turns += 1
@@ -325,7 +427,10 @@ class ArmState:
         for index in sorted(summaries):
             summary = summaries[index]
             summary.ended_by = self._session_ends.get(index, "")
-            summary.redone = [p for p in summary.files if p in seen]
+            # The harness's own files (progress.md, the handoff, exec plans, feature_list.json) are
+            # meant to change every session: never redone work. The referee strips the same list
+            # (`ab.artifacts`) before its continuity measure.
+            summary.redone = [p for p in summary.files if p in seen and not is_harness_artifact(p)]
             seen.update(summary.files)
         return [summaries[i] for i in sorted(summaries)]
 
@@ -450,6 +555,7 @@ class ArmState:
             )
         elif kind == "session_resume":
             self.session_index = data["session_index"]
+            self._resumed.add(data["session_index"])
             self.timeline.append(
                 TimelineRow(
                     kind="session_resume",
@@ -478,8 +584,13 @@ class ArmState:
             self.reviewer = data
         elif kind == "gate_result":
             self.gates.append(data)
+            self._gate_phase.setdefault(str(data["gate_id"]), self.phase_of(self.session_index))
         elif kind == "claim":
             self.claims[data["phase"]] = data
+            if data["phase"] == "test":
+                self._claimed_test.add(self.session_index)
+            if data.get("gate_id"):
+                self._gate_phase[str(data["gate_id"])] = data["phase"]
         elif kind == "primary_verdict":
             self.primary = data
             self._seen["primary"] = (event.seq, event.ts)
@@ -619,6 +730,35 @@ class ConsoleState:
     def single_arm(self) -> bool:
         """The harness arm runs alone (`make show-N`, harness in action): no bare arm starts."""
         return any(bool(spec.get("single_arm")) for spec in self._specs())
+
+    def not_run(self, arm: str) -> str | None:
+        """'Not run (harness in action)' for the bare arm of a single-arm run (and 'Not run
+        (constructed example)' for a constructed one): the screens show it instead of an empty
+        or default result. None for an arm that runs."""
+        if arm != "bare":
+            return None
+        if self.constructed:
+            return "Not run (constructed example)"
+        return "Not run (harness in action)" if self.single_arm else None
+
+    @property
+    def started(self) -> list[ArmState]:
+        return [a for a in self.arms.values() if a.run_start is not None]
+
+    @property
+    def started_on(self) -> str | None:
+        """The day (YYYY-MM-DD, UTC) the run started: the earliest run_start time stamp."""
+        stamps = [a._seen["launch"][1] for a in self.started if "launch" in a._seen]
+        return min(stamps)[:10] if stamps else None
+
+    @property
+    def finished(self) -> bool:
+        """Every arm that started has ended and has its full verdict (the referee is done)."""
+        arms = self.started
+        return bool(arms) and all(
+            a.run_end is not None and a.verdict is not None and not a.secondary_pending
+            for a in arms
+        )
 
     @property
     def constructed(self) -> bool:
