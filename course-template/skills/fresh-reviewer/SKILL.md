@@ -27,7 +27,7 @@ exactly as written, on a copy with nothing left over from the build. Lesson 10 i
    from elsewhere; if a step needs knowledge the page does not give, that is a finding.
 2. **As a learner**: do every step exactly as written, type every command, compare every output with
    what the page says you should see. Time each part against the page's stated time.
-3. **As an instructor**: read it again as the person teaching it tomorrow: can you deliver each demo
+3. **As an instructor**: read it again as the person teaching it next: can you deliver each demo
    from the notes alone, explain a failed result, recover with the fallback, and stay on time?
 4. **Check consistency**: commands, timings, numbers and names agree across the pages, the guide and
    the slides; every link opens and points at the right place.
