@@ -463,6 +463,15 @@ CASES = [
         {},
         3,
     ),
+    (
+        "SC30",
+        "docs/guide.md",
+        "## Text\n\nRead [the guide](guide.md), [its part](guide.md#text), [the folder](./), and"
+        " [this part](#text).\n",
+        "Text.\n\nRead [the plan](plan.md).\n",
+        {},
+        3,
+    ),
 ]
 
 
@@ -486,13 +495,13 @@ def test_check_pass_and_fail(
 
 def test_every_check_has_a_passing_and_a_failing_case() -> None:
     covered = {c[0] for c in CASES}
-    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), *range(21, 26)]}
+    assert covered == {f"SC{n:02d}" for n in [*range(1, 19), *range(21, 26), 30]}
 
 
 def test_severities_follow_the_first_version() -> None:
     errors = {"SC00", "SC01", "SC02", "SC03", "SC04", "SC05", "SC06", "SC07", "SC08", "SC09"}
     errors |= {"SC10", "SC12", "SC13", "SC14", "SC15", "SC19", "SC20", "SC21", "SC22"}
-    errors |= {"SC23", "SC24", "SC25"}
+    errors |= {"SC23", "SC24", "SC25", "SC30"}
     warnings = {"SC11", "SC16", "SC17", "SC18"}
     for check, (_, severity) in cs.CHECKS.items():
         assert severity == ("error" if check in errors else "warning"), check
@@ -804,7 +813,7 @@ def test_cli(tmp_path: Path) -> None:
     listed = run_cli(tmp_path, "--list-checks")
     assert listed.returncode == 0
     rows = [ln for ln in listed.stdout.splitlines() if re.match(r"^SC\d\d ", ln)]
-    assert len(rows) == len(cs.CHECKS) == 26
+    assert len(rows) == len(cs.CHECKS) == 27
 
     assert run_cli(tmp_path, "docs/missing.md").returncode == 2
 
@@ -1265,3 +1274,100 @@ def test_further_reading_is_the_sources_list_of_a_concepts_page(tmp_path: Path) 
     url = "https://arxiv.org/abs/2605.21384"
     text = f"Held-out tests ([SpecBench]({url})).\n\n## Further reading\n\n- [SpecBench]({url})\n"
     assert plain_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+# -- relative links resolve (SC30) ----------------------------------------------------------------
+
+
+def link_checks(found) -> list[tuple[int, str]]:
+    return [(p.line, p.message) for p in found if p.check == "SC30"]
+
+
+def test_a_link_to_a_missing_file_or_folder_fails(tmp_path: Path) -> None:
+    text = "See [the plan](plan.md) and [the kit](../kit/).\n"
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == [
+        (1, "link target ../kit/ does not exist"),
+        (1, "link target plan.md does not exist"),
+    ]
+
+
+def test_links_to_existing_files_and_folders_pass(tmp_path: Path) -> None:
+    write(tmp_path, "docs/plan.md", "# Plan\n")
+    write(tmp_path, "kit/README.md", "# Kit\n")
+    text = "See [plan](plan.md), [kit](../kit/), [kit](../kit), [root](/kit/README.md).\n"
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_an_anchor_into_markdown_must_match_a_heading_or_an_id(tmp_path: Path) -> None:
+    write(
+        tmp_path,
+        "docs/plan.md",
+        "# Plan\n\n## S4 Verification (2:55-3:40)\n\n## The `make final` step\n\n## Twice\n\n"
+        '## Twice\n\n<a id="stage-2"></a>\n\n```text\n## Not a heading\n```\n',
+    )
+    good = (
+        "[a](plan.md#s4-verification-255-340) [b](plan.md#the-make-final-step) "
+        "[c](plan.md#twice-1) [d](plan.md#stage-2) [e](plan.md#plan) [f](plan.md#twice)\n"
+    )
+    assert link_checks(problems(tmp_path, "docs/guide.md", good)) == []
+    bad = "Text.\n\n[a](plan.md#s4-verification) [b](#nowhere) [c](plan.md#not-a-heading)\n"
+    assert link_checks(problems(tmp_path, "docs/guide.md", bad)) == [
+        (3, "link target #nowhere: no heading or id 'nowhere' in guide.md"),
+        (3, "link target plan.md#not-a-heading: no heading or id 'not-a-heading' in plan.md"),
+        (3, "link target plan.md#s4-verification: no heading or id 's4-verification' in plan.md"),
+    ]
+
+
+def test_an_anchor_into_a_file_that_is_not_markdown_is_not_read(tmp_path: Path) -> None:
+    write(tmp_path, "docs/run.sh", "echo hi\n")
+    text = "See [line 1](run.sh#L1).\n"
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_remote_links_code_and_fences_are_not_resolved(tmp_path: Path) -> None:
+    text = (
+        "See [OpenAI](https://openai.com/), [mail](mailto:a@b.test), and `[x](missing.md)`.\n\n"
+        "```markdown\n[x](missing.md)\n```\n"
+    )
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == []
+
+
+def test_reference_links_and_html_links_are_resolved(tmp_path: Path) -> None:
+    text = 'See [the plan][p] and <a href="gone.md">gone</a>.\n\n[p]: plan.md\n'
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == [
+        (1, "link target gone.md does not exist"),
+        (3, "link target plan.md does not exist"),
+    ]
+
+
+def test_a_missing_image_fails_too(tmp_path: Path) -> None:
+    body = "![The flow of one run](../diagrams/gone.svg)\n\n*The flow of one run.*\n"
+    found = problems(tmp_path, DEMO, demo_page(body))
+    assert [p.check for p in found if "does not exist" in p.message] == ["SC06"]
+
+
+def test_the_generated_references_page_and_kit_templates_are_exceptions(tmp_path: Path) -> None:
+    text = "Every source is in [the references](REFERENCES.md#sources).\n"
+    assert link_checks(problems(tmp_path, "docs/guide.md", text)) == []
+    kit = "Read [the map](../AGENTS.md) and [the plan](docs/exec-plans/active/plan.md).\n"
+    for rel in (
+        "use-in-your-repo/kit/templates/progress.md",
+        "use-in-your-repo/templates/x.md",
+        "use-in-your-repo/skills/harness-setup/assets/templates/AGENTS.md",
+    ):
+        assert link_checks(problems(tmp_path, rel, kit)) == []
+
+
+def test_a_skill_copied_into_a_learner_repository_keeps_its_own_links_working(
+    tmp_path: Path,
+) -> None:
+    rel = "use-in-your-repo/skills/harness-setup/SKILL.md"
+    text = "Read [the modes](references/failure-modes.md).\n"
+    assert link_checks(problems(tmp_path, rel, text)) == [
+        (1, "link target references/failure-modes.md does not exist")
+    ]
+
+
+def test_every_relative_link_in_the_public_pages_resolves() -> None:
+    found = [p for p in cs.check_paths(REPO, []) if p.check == "SC30"]
+    assert found == [], "\n".join(f"{p.path}:{p.line}: {p.message}" for p in found)

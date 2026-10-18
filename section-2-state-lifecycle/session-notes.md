@@ -22,11 +22,10 @@ For learners, after class. Reading time: about 8 minutes.
 
 | Block | What happened | Read it again |
 |---|---|---|
-| Poll | Which arm has more continuity failures across a 12-turn stop? | [demo/README.md](demo/README.md) |
-| Launch | `make show-2 SESSION_BUDGET=12,38`: the harness arm alone on comments, live | [demo/README.md](demo/README.md) |
+| Launch | `make show-2 SESSION_BUDGET=12,38`, on the start slide: the harness arm alone on comments, live | [demo/README.md](demo/README.md) |
 | Concepts | The problem, the files, the two routines, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The layer in 40 lines: write the files, stop, merge the handoff, resume | [demo/walkthrough.md](demo/walkthrough.md) |
-| Demo block | The finished run on screens 1, 3, 5, 2, then the test-run results on screen 4 | [demo/README.md](demo/README.md) |
+| Demo | The finished run on screens 1, 3, 5, 2, then the test-run results on screen 4 | [demo/README.md](demo/README.md) |
 
 The class run's record stays on the instructor's machine. A captured run, with its screenshots, is in
 [demo/expected/](demo/expected/README.md).

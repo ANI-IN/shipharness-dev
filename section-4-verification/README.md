@@ -62,14 +62,15 @@ catches.
 
 ## How to work through this section
 
-In class the section takes 45 minutes. The live demo starts early and runs while the concepts are
-taught. The final A/B is also launched here and read in the final block.
+In class the section takes 45 minutes. It opens with the one poll of the class, which picks the final
+feature. Then the live demo and the final A/B start, at minute 2, and run while the concepts are
+taught. The final A/B is read in the final block.
 
 | Part | What it gives you | In class |
 |---|---|---|
-| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 6-18 |
-| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 4; review at 28-43 |
-| [demo/walkthrough.md](demo/walkthrough.md) | The gate's code, 38 lines explained | Minutes 18-28 |
+| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-18 |
+| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Poll for the final feature at minute 0; launch at minute 2; review at 18-36 |
+| [demo/walkthrough.md](demo/walkthrough.md) | The gate's code, 38 lines explained | Minutes 18-28, on the DEMO slide |
 | [assignment/](assignment/README.md) | Assignment 4: a soft-delete check, a sixth filter, a live run, a portfolio | After class |
 | [post-class-reading/](post-class-reading/README.md) | Four short readings on filters, mutants, evaluators, held-out tests | After class |
 | [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |

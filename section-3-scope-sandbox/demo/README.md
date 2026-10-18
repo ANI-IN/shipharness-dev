@@ -120,24 +120,24 @@ cap.
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
 Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
 
+### Files and links
+
+- [run.sh](run.sh): the script that checks your setup and starts the run
+- [walkthrough.md](walkthrough.md): the code behind the layer, explained
+- [harness/](harness/): the files the layer gives the agent
+- [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
+- [Evidence page](../../docs/evidence/s3.md): every run behind the results
+- Console: http://127.0.0.1:8765 (after `make console`)
+
 ## What to watch
 
-Minutes count from the start of the run on the console, in one real A/B that ran alone on the
-machine ([evidence](../../docs/evidence/s3.md#s3-demo-capture)).
+Screen 1, Live, shows both arms as they go: the harness arm's notes (instruction files, state
+files, `feature_list.json`), the bare arm's patch to `app/services/errors.py` going through, and a
+`block` row for the same file in the harness arm; then each arm's primary verdict and full verdict
+([evidence](../../docs/evidence/s3.md#s3-demo-capture)). `F4` in the console notes is the version
+checks feature.
 
-| Minute | Screen | What appears |
-|---|---|---|
-| 0 | 1 | Harness notes: 31 instruction files placed, the state files, `feature_list.json written with F4 (passes: false)` |
-| 0 | 1 | Bare arm: a patch to `app/services/errors.py` goes through |
-| 1 | 1 | Harness arm: a `block` row for `app/services/errors.py`; the turn gets a blocked mark |
-| 4 | 1 | Bare arm ends; harness arm: `F4 passes: visible-tests at ...` (the harness sets `passes`) |
-| 5 | 1 | Bare primary verdict: FAIL on the feature's own measure |
-| 7 | 1 | Harness arm ends `ABORTED: timeout` |
-| 8-11 | 1, 3 | Harness primary verdict, both full verdicts, the scope counts |
-
-`F4` in the console notes is the version checks feature.
-
-The refusal at minute 1, as the harness arm's run log records it (one event, cut to its data):
+The refusal, as the harness arm's run log records it (one event, cut to its data):
 
 ```json
 {"type":"blocked","data":{"phase":"build","paths":["app/services/errors.py"],"action":"reject_patch","reason":"app/services/errors.py: outside the allowed paths for the build phase (app/api/issues.py, app/api/schemas.py, app/services/issues.py, app/repositories/issues.py, app/services/audit.py, app/repositories/audit.py, app/web/**, tests/visible/**); patch not applied"}}

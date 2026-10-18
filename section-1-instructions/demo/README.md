@@ -108,32 +108,21 @@ per-review cap ($0.04), both set in `.env.example`.
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
 Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 
+### Files and links
+
+- [run.sh](run.sh): the script that checks your setup and starts the run
+- [walkthrough.md](walkthrough.md): the code behind the layer, explained
+- [harness/](harness/): the files the layer gives the agent
+- [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
+- [Evidence page](../../docs/evidence/s1.md): every run behind the results
+- Console: http://127.0.0.1:8765 (after `make console`)
+
 ## What to watch
 
-Minutes count from the launch, in one real run on a quiet machine
-([evidence](../../docs/evidence/s1.md#s1-show-1-capture)).
-
-| Minute | Screen | What appears |
-|---|---|---|
-| 0-1 | 1 | Badge "HARNESS IN ACTION"; note "placed 31 instruction files" |
-| 0-1 | 1 | Notes "agent read ARCHITECTURE.md" and "agent read skill add-endpoint (tier 2)" |
-| 1 | 1 | Patches to the issues service, route, and tests; "No gate."; referee pending |
-| 2-3 | 1 | Test phase: the agent writes and runs a new test file |
-| 4 | 1 | "run completed · 35 turns", then "primary verdict ready: PASS" |
-| 4-10 | 1 | Secondary checks, referee mutants, the review |
-| 10 | 1 | Full verdict: hidden tests 52/52, mutants killed 2/4, "claim supported" |
-
-![Screen 1 at minute 1: build turns, three harness notes, no gate, referee pending](expected/screen-1-minute-1.png)
-
-*Minute 1. The three notes are the layer at work: files placed, then two files read.*
-
-![Screen 1 at minute 3: the test phase writes and runs test_org_issue_search.py](expected/screen-1-minute-3.png)
-
-*Minute 3. The agent has said done; in the test phase it writes and runs its own test.*
-
-![Screen 1 at minute 4: primary verdict PASS, no new tenant isolation violations](expected/screen-1-minute-4.png)
-
-*Minute 4. The primary verdict arrives before the slower checks finish. Read it aloud.*
+Screen 1, Live, shows the run as it goes: the instruction files placed, the files the agent
+reads, the code it writes, its own test, then the primary verdict and, last, the full verdict.
+Where and when the captures below were made is on the
+[evidence page](../../docs/evidence/s1.md#s1-show-1-capture).
 
 Then switch screens.
 

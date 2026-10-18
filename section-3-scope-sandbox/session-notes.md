@@ -21,11 +21,10 @@ For learners, after class. Reading time: about 8 minutes.
 
 | Block | What happened | Read it again |
 |---|---|---|
-| Poll | Will the agent leave the ticket's list, with and without the scope layer? | [demo/README.md](demo/README.md) |
-| Launch | `make demo-3 FEATURE=version-checks`: both arms on the version checks ticket, live | [demo/README.md](demo/README.md) |
+| Launch | `make demo-3 FEATURE=version-checks`, on the start slide: both arms on the version checks ticket, live | [demo/README.md](demo/README.md) |
 | Concepts | The problem, the four scope rules, the sandbox, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The layer in 34 lines: decide a path, block, revert, count | [demo/walkthrough.md](demo/walkthrough.md) |
-| Demo block | The finished A/B on screens 1, 3, 5, 2, then the dots on screen 4 | [demo/README.md](demo/README.md) |
+| Demo | The finished A/B on screens 1, 3, 5, 2, then the dots on screen 4 | [demo/README.md](demo/README.md) |
 
 The class run's record stays on the instructor's machine. A captured A/B, with its screenshots, is
 in [demo/expected/](demo/expected/README.md).

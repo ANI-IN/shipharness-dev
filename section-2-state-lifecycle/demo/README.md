@@ -108,33 +108,21 @@ it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
 `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 
+### Files and links
+
+- [run.sh](run.sh): the script that checks your setup and starts the run
+- [walkthrough.md](walkthrough.md): the code behind the layer, explained
+- [harness/](harness/): the files the layer gives the agent
+- [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
+- [Evidence page](../../docs/evidence/s2.md): every run behind the results
+- Console: http://127.0.0.1:8765 (after `make console`)
+
 ## What to watch
 
-Minutes count from the launch, in one real run on a quiet machine
-([evidence](../../docs/evidence/s2.md#s2-show-2-capture)). That run had a 300 s agent time limit; the
-class profile now has 420 s.
-
-| Minute | Screen | What appears |
-|---|---|---|
-| 0 | 1 | Notes "placed 31 instruction files" and "initializer step: init.sh, ..." |
-| 0-1 | 1 | Turn 1.1 runs Getting up to speed; then the ticket, handbook, skill, code |
-| 1 | 1 | Wrap-up: turns 1.10 and 1.11 update and commit the state files; 1.12 is `finish not_done` |
-| 1-2 | 1 | "Session 1 stopped", "session 1 handoff written", "Session 2 resumed" |
-| 2-4 | 1 | Session 2 builds: model, service, route, seed, migration `0002_comments.py`, tests |
-| 6-7 | 1 | "run ABORTED: timeout · 43 turns", then "primary verdict ready: PASS" at 06:46 |
-| 10 | 1 | Full verdict at 09:52: hidden tests 56/56, mutants killed 0/4 |
-
-![Screen 1 at minute 1: turns 1.10 to 1.12 update and commit the state files, then finish not_done](expected/show-2-screen-1-t01m.png)
-
-*Minute 1. The wrap-up turns write the notes the next session will read.*
-
-![Screen 1 at minute 4: session 2 writes the migration 0002_comments.py, the web route, and the tests](expected/show-2-screen-1-t04m.png)
-
-*Minute 4. One new migration, written once, from the current head.*
-
-![Screen 1 at minute 7: run ABORTED timeout after 43 turns, primary verdict PASS, continuity failure no](expected/show-2-screen-1-t07m.png)
-
-*Minute 7. The primary verdict arrives before the slower checks finish. Read it aloud.*
+Screen 1, Live, shows the run as it goes: session 1 builds, writes and commits the state files,
+and stops at its turn budget; session 2 reads them first and carries on; then the primary verdict
+and the full verdict. The captured run had a 300 s agent time limit; the class profile now has
+420 s ([evidence](../../docs/evidence/s2.md#s2-show-2-capture)).
 
 Session 1 ended with `finish(claim="not_done")` on its twelfth turn, and session 2 still started.
 That is a runner fix at work: before it, that call ended the build phase, and the 38-turn session

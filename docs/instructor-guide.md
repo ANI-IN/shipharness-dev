@@ -32,14 +32,14 @@ Terminal B runs the section demos. Terminal C runs the final.
 | T-30 min | B | `make warm` | `warm: done` |
 | T-30 min | A | `make console` | `Console: http://127.0.0.1:8765/`; open it |
 | 0:08 | B | `make doctor` | Read the key lines aloud |
-| 0:13 | B | `make show-1` | Section 1, harness in action |
-| 1:14 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
-| 2:04 | B | `make demo-3 FEATURE=version-checks` | Section 3, live A/B |
-| 2:59 | B | `make show-4` | Section 4, harness in action |
-| 3:00 | C | `make final FEATURES=watchers,bulk-close` | The final A/B; put the poll's winner first |
+| 0:11 | B | `make show-1` | Section 1, harness in action |
+| 1:11 | B | `make show-2 SESSION_BUDGET=12,38` | Section 2, two sessions |
+| 2:01 | B | `make demo-3 FEATURE=version-checks` | Section 3, live A/B |
+| 2:57 | B | `make show-4` | Right after the one poll (2:55): Section 4, harness in action |
+| 2:57 | C | `make final FEATURES=watchers,bulk-close` | The final A/B; the poll's winner first |
 | 3:40 | C | No command | Read the final's arm lines |
 
-After each launch, reload the console's run list and open the newest run. At section minute 25,
+After each launch, reload the console's run list and open the newest run. At section minute 15,
 look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
 Times and costs, measured on 2026-10-17, before class ([evidence](evidence.md#captures)):
@@ -112,7 +112,8 @@ If `make warm` ends with `warm: incomplete`, run `make images`, then `make warm 
 
 ### Record the fallbacks
 
-Run each class command once, in class order. The poll can pick any final feature, so record all three:
+Run each class command once, in class order. The poll in Section 4 can pick any final feature,
+so record all three:
 
 ```bash
 make show-1 PURPOSE=pilot
@@ -233,22 +234,25 @@ Each section runs the same way. Minutes count from the start of the section.
 
 | Minutes | What happens |
 |---|---|
-| 0-4 | Poll: the room predicts the result from before class; close it before the launch |
-| 4-6 | Launch in terminal B (Section 1: at minute 3). Open the newest run on screen 1 |
-| 6-30 | Concepts, then the walkthrough, while the run goes on; check terminal B at 25 |
-| 30-45 | Demo block: the finished run, then all results on one slide and screen 4 |
-| 45-50 | Discussion, and the link to the section's demo page |
+| 0-2 | Start slide: launch in terminal B at minute 1; open the newest run on screen 1 |
+| 2-6 | The failure story and the reveal, while the run goes on |
+| 6-20 | Four ideas and the cheat sheet; check terminal B at 15 |
+| 20-40 | DEMO slide: the implementation notes, then the finished run on the console |
+| 40-45 | What we measured: this section's results and screen 4 |
+| 45-50 | Q&A, and the link to the section's demo page |
 
-Section 4 has 45 minutes: concepts and walkthrough at 6-28, the demo block at 28-43, and a two-minute
-discussion at 43-45.
+Only Section 4 opens with a poll, the one poll of the class, at 2:55-2:57: the room picks the final
+feature (bulk close, watchers, or labels), then both Section 4 runs launch at 2:57. Section 4 has 45
+minutes: the ideas at 5-18, the DEMO at 18-36, what we measured at 36-41, and the
+Q&A at 41-45.
 
-Every section run ends before its demo block, even with 2 more minutes for the class agent time
-limit: show-1 by about 0:25, show-2 by about 1:26, demo-3 by about 2:16, show-4 by about 3:12 (demo
-blocks at 0:40, 1:40, 2:30, 3:23). The final is tight: two features launched at 3:00 end about 3:30,
-later if the first one slows next to show-4. If terminal C has no `Cost:` line for the first feature
-at 3:20, expect the second to run past 3:40.
+Every section run ends before its DEMO slide, even with 2 more minutes for the class agent time
+limit: show-1 by about 0:23, show-2 by about 1:23, demo-3 by about 2:15, show-4 by about 3:09 (DEMO
+slides at 0:30, 1:30, 2:20, 3:13). Two final features launched at 2:57 end about 3:27, later if the
+first one slows next to show-4. If terminal C has no `Cost:` line for the first feature at 3:10,
+expect the second to end close to 3:40.
 
-If the run is still going at minute 25, finish the walkthrough. Then open the demo block on the
+If the run is still going at minute 15, carry on with the ideas and the implementation notes. Then open the demo block on the
 running screens: screen 1 shows `primary verdict ready` as soon as the first check is done. A run
 with an unwelcome result is a result: show it.
 
@@ -273,7 +277,7 @@ No run before class leaked another org's cards, so there is no leak screenshot t
 The ticket is org-wide issue search, next to a legacy handler with no tenant filter. The primary
 verdict asks one question: did the change add a new tenant leak?
 
-Demo block, in this order: screen 1 (the files placed, the map and a skill read, then the code),
+DEMO, after the implementation notes: screen 1 (the files placed, the map and a skill read, then the code),
 screen 3 (files read, and the `r1_tenant` line, the tenant isolation check), screen 2 (the board, own-org cards only), screen 5
 (trace links).
 
@@ -281,20 +285,20 @@ Say at the result: "This is one harness arm on one run. It shows the layer ran. 
 layer helped." Before class, no arm leaked in any run: no measurable difference
 ([evidence](evidence.md#section-1)).
 
-Discussion: "The bare arm read the same rules and applied them. What would have to be true for the
+Q&A: "The bare arm read the same rules and applied them. What would have to be true for the
 map to earn its place?"
 
 ### Break (1:00-1:10)
 
 Put the return time on the break slide. Nothing runs during the break.
 
-### Section 2: State and session lifecycle (1:10-2:00)
+### Section 2: State and sessions (1:10-2:00)
 
 `make show-2 SESSION_BUDGET=12,38` stops session 1 after 12 turns. The harness writes the handoff,
 and session 2 starts with an empty context and 38 turns. The primary verdict asks: did session 2
 break or redo session 1's work?
 
-Demo block: screen 1 (`Session 1 stopped`, then `Session 2 resumed`), screen 3 (Sessions, and the
+DEMO, after the implementation notes: screen 1 (`Session 1 stopped`, then `Session 2 resumed`), screen 3 (Sessions, and the
 state files under Files read), screen 2 (the board with the comments panel), screen 5 (the first
 wrong turn).
 
@@ -302,7 +306,7 @@ Say at the result: "Before class, neither arm failed continuity. The measure can
 session 1 leaves nothing to redo. In the medium- and low-effort rounds, 6 of 12 arms built nothing"
 ([evidence](evidence.md#section-2)).
 
-Discussion: "Which state file would you keep for this model, and how would you measure it?"
+Q&A: "Which state file would you keep for this model, and how would you measure it?"
 
 ### Section 3: Scope and sandbox (2:00-2:50)
 
@@ -314,7 +318,7 @@ blocked the same edit in every harness arm. Bare 0 of 3 in scope, harness 3 of 3
 `make demo-3 FEATURE=version-checks` runs both arms at once. The harness arm has the instructions, state, and
 scope layers. Each arm has its own sandbox with the same limits.
 
-Demo block: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
+DEMO, after the implementation notes: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
 under the bare arm and `blocked app/services/errors.py` under the harness arm. Then the Verification
 column: `diff_scope: 1 new` against `diff_scope: 0 new`. Then screen 1: the harness decision
 `block`, with the reason the agent read. Then Sandbox denials on screen 3.
@@ -328,7 +332,7 @@ If screen 3 lists a sandbox denial, show its reason code and command. If not, sh
 printout and say: "The sandbox is the same for both arms. It is taught here, but it is never the
 variable."
 
-Discussion: "The guard won by construction. What would you measure next to it, so that a guard that
+Q&A: "The guard won by construction. What would you measure next to it, so that a guard that
 blocks everything cannot look good?"
 
 ### Break (2:50-2:55)
@@ -337,10 +341,13 @@ Five minutes. Put the return time on the break slide. Nothing runs during the br
 
 ### Section 4: Verification (2:55-3:40)
 
-Two polls open this section: the Section 4 poll, then the final feature poll (bulk close, watchers, or labels).
+Section 4 opens with the one poll of the class, a Live Zoom Poll at 2:55-2:57: which feature both
+arms build in the final A/B, bulk close, watchers, or labels. Note the winner and the runner-up, and
+close the poll before the launch. Read the session figure on the Section 3 `Cost:` line: run two
+features only if it is $1.10 or less.
 
-1. 2:59, terminal B: `make show-4`. Open its run in browser tab 2 right away.
-2. 3:00, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up,
+1. 2:57, terminal B: `make show-4`. Open its run in browser tab 2 right away.
+2. 2:57, right after, terminal C: `make final` with `FEATURES=` set to the winner, a comma, and the runner-up,
    for example `make final FEATURES=watchers,bulk-close`. Always pass `FEATURES`: without it, make
    runs bulk close, then watchers. Open the
    newest run in browser tab 3, then go back to tab 2.
@@ -348,18 +355,18 @@ Two polls open this section: the Section 4 poll, then the final feature poll (bu
 `make show-4` runs the version checks feature with all four layers. A run passes only with all 69 hidden tests and all 4
 referee mutants killed by its own tests.
 
-Demo block: screen 1 (the gate pills, then the test phase), screen 3 (the filter table and the
+DEMO, after the implementation notes: screen 1 (the gate pills, then the test phase), screen 3 (the filter table and the
 mutant table), screen 2 (the two-tab conflict panel).
 
 Say at the result: "The gate checks what the agent can see. The hidden tests and the referee's
 mutants stay out of its reach." Before class, neither arm passed the version checks ticket once: no measurable difference
 ([evidence](evidence.md#section-4)).
 
-Discussion, two minutes: "What would a gate need to catch to earn its turns on this model?"
+Q&A, four minutes: "What would a gate need to catch to earn its turns on this model?"
 
 ### Final results and wrap-up (3:40-4:00)
 
-The final A/B started at 3:00. This block starts no run.
+The final A/B started at 2:57. This block starts no run.
 
 1. Terminal C: read each arm line and the session figure. The final has no primary measure, so
    `passed=True` does not mean the feature works. Read `hidden` and `mutants` instead.
@@ -425,7 +432,7 @@ questions.
 | Time | Item |
 |---|---|
 | 0:00-0:25 | Assignment 1, Instructions |
-| 0:25-0:50 | Assignment 2, State and session lifecycle |
+| 0:25-0:50 | Assignment 2, State and sessions |
 | 0:50-1:15 | Assignment 3, Scope and sandbox, with the hidden-diff reveal |
 | 1:15-1:40 | Assignment 4, Verification |
 | 1:40-2:00 | Open questions |

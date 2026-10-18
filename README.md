@@ -59,7 +59,7 @@ layers, one per section.
 
 - **Instructions** ([Section 1 of Module 1](section-1-instructions/README.md)). A short AGENTS.md acts as a map that
   points to one document per topic. The agent reads only what the ticket needs.
-- **State and session lifecycle** ([Section 2 of Module 1](section-2-state-lifecycle/README.md)). A progress file, an
+- **State and sessions** ([Section 2 of Module 1](section-2-state-lifecycle/README.md)). A progress file, an
   execution plan, and a handoff carry the work across a session stop. The next session reads them
   before it touches code.
 - **Scope and sandbox** ([Section 3 of Module 1](section-3-scope-sandbox/README.md)). The harness lists the files each
@@ -79,20 +79,21 @@ and without the harness, scored by the same referee.
 The class runs 240 minutes on TeamTrack, a small multi-tenant issue tracker. Every demo is a live
 model run, watched on the console.
 
-| Block | What you see | Command | Minutes |
+| Time | Block | What you see | Command, launched at |
 |---|---|---|---|
-| Opening | The four failures, the harness, a console tour | none | 10 |
-| Section 1 | The agent reads the map, then only the documents it needs | `make show-1` | 50 |
-| Break | | | 10 |
-| Section 2 | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` | 50 |
-| Section 3 | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=version-checks` | 50 |
-| Break | | | 5 |
-| Section 4 | Test filters and the gate on "done"; the final A/B starts | `make show-4`, `make final FEATURES=watchers,bulk-close` (the poll's winner first) | 45 |
-| Final | The final A/B on every screen, then all results | none | 20 |
+| 0:00-0:10 | Opening | The four failures, the harness, a console tour | none |
+| 0:10-1:00 | Section 1: Instructions | The agent reads the map, then only the documents it needs | `make show-1` at 0:11 |
+| 1:00-1:10 | Break | | |
+| 1:10-2:00 | Section 2: State and sessions | A session stops, writes a handoff, and the next one resumes | `make show-2 SESSION_BUDGET=12,38` at 1:11 |
+| 2:00-2:50 | Section 3: Scope and sandbox | A live A/B: the scope layer blocks a file the bare arm changes | `make demo-3 FEATURE=version-checks` at 2:01 |
+| 2:50-2:55 | Break | | |
+| 2:55-3:40 | Section 4: Verification | The poll picks the final feature; test filters and the gate on "done" | `make show-4` and `make final FEATURES=watchers,bulk-close` at 2:57 |
+| 3:40-4:00 | Final | The final A/B on every screen, then all results | none |
 
-Each section opens with a poll and launches its run at once. The concepts and the code walkthrough
-fill the time while the run proceeds. The demo block then walks through the finished run on every
-screen. The instructor's plan is in the [instructor guide](docs/instructor-guide.md).
+Each section launches its run on its start slide, so the run has the whole section to finish. The
+class has one poll, at the start of Section 4, which picks the feature of the final A/B. The story
+and the four ideas fill the time while the run proceeds. The demo then walks through the code and
+the finished run on every screen. The instructor's plan is in the [instructor guide](docs/instructor-guide.md).
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
