@@ -42,7 +42,7 @@ def test_the_two_profiles_and_their_values() -> None:
         "openai_service_tier": "fast",
         "sandbox_cpus": 2.0,
         "run_timeout_s": 420,
-        "harness_timeout_s": 420,
+        "harness_timeout_s": 900,
     }
 
 
@@ -60,9 +60,10 @@ def test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else(tmp_pat
     assert applied.openai_service_tier == "fast"
     assert applied.sandbox_cpus == 2.0
     assert applied.run_timeout_s == 420  # fits the 25-minute class window
-    # Harness work (handoff test runs, gates, test filters) gets its own 420 s: at 120 s it cut
-    # harness arms in session-end work (show-2 and demo-3 on 2026-10-18, the final on 2026-10-17).
-    assert applied.harness_timeout_s == 420
+    # Harness work (handoff test runs, gates, test filters) gets its own 900 s: at 120 s it cut
+    # harness arms in session-end work (show-2 and demo-3 on 2026-10-18, the final on 2026-10-17),
+    # and show-4's test filters alone took 572 s of harness work on 2026-10-18.
+    assert applied.harness_timeout_s == 900
     # The reviewer's own settings and everything else stay as loaded.
     assert applied.openai_eval_reasoning_effort == loaded.openai_eval_reasoning_effort
     assert applied.openai_eval_model == loaded.openai_eval_model
@@ -139,7 +140,7 @@ def test_class_agent_arms_are_identical_and_the_reviewer_keeps_its_settings(
     assert "service_tier" not in calls[0]
 
 
-@pytest.mark.parametrize(("profile", "limit"), [("standard", 120), ("class", 420)])
+@pytest.mark.parametrize(("profile", "limit"), [("standard", 120), ("class", 900)])
 def test_the_runner_gets_the_profile_harness_time_limit(
     tmp_path: Path, profile: str, limit: int
 ) -> None:
