@@ -53,9 +53,9 @@ flowchart LR
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 at the end of the live run of 2026-10-18: both runs completed; the bare arm's referee shows verdict ready: PASS, judged on all checks](expected/screen-1-final.png)
+![Console screen 1 at the end of the live run of 2026-10-18: both runs completed, after 38 turns (bare) and 35 turns (harness)](expected/screen-1-final.png)
 
-*The live run of 2026-10-18: both runs completed; the bare arm's referee shows hidden tests 46/46. Screen 4 has both arms' counts.*
+*The live run of 2026-10-18: both runs completed. The referee results are further down each arm; screen 4 has both arms' counts.*
 
 | Path | What it holds |
 |---|---|
@@ -152,13 +152,13 @@ Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) sh
 
 *About one minute in. The harness arm's notes show the files its layers wrote.*
 
-![Screen 1 at 3:27: bare arm completed, verdict ready: PASS, judged on all checks; harness arm still working](expected/screen-1-bare-verdict.png)
+![Screen 1 at 3:27: bare arm completed, agent said done, verdict ready: PASS; harness arm still working at turn 1.15](expected/screen-1-bare-verdict.png)
 
-*3:27. The bare arm is judged; its secondary checks still run.*
+*3:27. The bare arm is judged first, while the harness arm still works.*
 
-![Screen 1 at 3:44: harness arm said done, every gate check passed, session 1 stopped with a handoff](expected/screen-1-gate-passed.png)
+![Screen 1 at 3:44: the bare arm judged, verdict ready: PASS; the harness arm's last turns end with run_visible_tests](expected/screen-1-gate-passed.png)
 
-*3:44. The harness arm's gate passed every check, and session 1 stopped with a handoff.*
+*3:44, when the harness arm's gate passed. The gate pass and its pills are further down the harness arm.*
 
 ## What the result means
 

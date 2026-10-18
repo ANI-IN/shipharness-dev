@@ -42,17 +42,17 @@ The numbered circles are the demo guide's callouts. Times count from the make co
 
 *About one minute in: both arms are at work; the harness arm's notes show the files its layers wrote.*
 
-![Screen 1 when the bare arm's verdict was ready: verdict ready: PASS, judged on all checks, secondary checks running, harness still working](screen-1-bare-verdict.png)
+![Screen 1 when the bare arm's verdict was ready: bare arm completed, agent said done, verdict ready: PASS; harness still working](screen-1-bare-verdict.png)
 
-*3:27: the bare arm completed after 38 turns: "verdict ready: PASS · judged on all checks". Feature 5 has no primary measure, so PASS says nothing about the feature.*
+*3:27: the bare arm completed after 38 turns: "verdict ready: PASS". Feature 5 has no primary measure, so this PASS is judged on all checks.*
 
-![Screen 1 when the harness gate passed: every gate check passed](screen-1-gate-passed.png)
+![Screen 1 when the harness gate passed: the bare arm judged, verdict ready: PASS; the harness arm's last turns end with run_visible_tests](screen-1-gate-passed.png)
 
-*3:44: the harness arm said done at 2:11; every gate check passed on the first attempt, and session 1 stopped with a handoff.*
+*3:44: the harness arm's gate passed on the first attempt. The gate pass and its pills are further down the harness arm.*
 
-![Screen 1 at the end: both runs completed; the bare arm's referee shows verdict ready: PASS and hidden tests 46 of 46](screen-1-final.png)
+![Screen 1 at the end: both runs completed, after 38 turns (bare) and 35 turns (harness)](screen-1-final.png)
 
-*The end: both runs completed, after 38 turns (bare) and 35 turns (harness); the bare arm's referee shows hidden tests 46/46. Screen 4 has both arms' counts.*
+*The end: both runs completed, after 38 turns (bare) and 35 turns (harness). The referee results are further down each arm; screen 4 has both arms' counts.*
 
 ![Screen 2: both boards as an Acme user](screen-2-final.png)
 

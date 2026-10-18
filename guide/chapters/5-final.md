@@ -236,9 +236,9 @@ nothing yet about the feature. The counts come with the full verdict.
 
 **You should see:**
 
-![Screen 1, whole page, when the harness gate passed: gate pass is the last harness decision shown, every gate pill is green; the bare arm shows verdict ready PASS and secondary checks running](../images/final/screen-1-gate-passed-full.png)
+![Screen 1, whole page, when the harness gate passed: gate pass is the last harness decision shown, every gate pill is green, Agent said no claim, referee pending; the bare arm shows verdict ready PASS and secondary checks running](../images/final/screen-1-gate-passed-full.png)
 
-*The gate passed every item at the first attempt. Only then did the agent's "done" count.*
+*The gate passed every item at the first attempt, so the agent's "done" can count. The claim line still reads "no claim" until the run ends.*
 
 1. Gate passed
 2. Gate list: every check passed
@@ -256,7 +256,7 @@ passed gate flips `passes` to true. Then the state layer writes the handoff, and
 phase, starts.
 
 > [!CHECKPOINT]
-> Every gate pill is green, and the harness panel shows "Agent said: done".
+> Every gate pill is green. The harness panel still shows "Agent said: no claim"; after the run it shows "done".
 
 > [!IFDIFFERENT]
 > - A line "Gate refused 'done' (attempt 1) …" → the gate failed an item and the agent keeps working; look for "passed on attempt 2".
