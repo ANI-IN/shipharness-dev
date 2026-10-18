@@ -78,4 +78,6 @@ The referee captures these itself while it scores each arm (demo run 1).
 
 ![The harness arm's two-tab edit check: tab B's save got HTTP 500](conflict-harness.png)
 
-*Harness arm: tab B's save gets HTTP 500, an internal server error, so this check does not pass.*
+*Harness arm: tab B's save gets HTTP 500, from a bug in the arm's own board code.*
+
+The 500 is a result, not a capture problem. The harness arm added the `version` form field to `create_issue` instead of `edit_issue`, so every board save fails inside `edit_issue`. Its API tests passed because only the board form uses that route.

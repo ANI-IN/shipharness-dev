@@ -184,7 +184,7 @@ arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
 
 ![The referee's two-tab capture for the bare arm: tab B got HTTP 409 and the page says the issue was changed by someone else](expected/conflict-bare.png)
 
-*The referee's own frame: tab A saved first, so tab B's stale save is refused. The harness arm's frame shows HTTP 500 instead ([expected/](expected/README.md)).*
+*Tab B's stale save is refused. The harness arm's frame shows HTTP 500, from its own board code ([expected/](expected/README.md)).*
 
 **Screen 4, A/B Report.** One dot per run, per feature and arm, on each feature's own primary
 measure. The version checks rows are all hollow: no arm has met that feature's measure. Say: "The scope count is on
