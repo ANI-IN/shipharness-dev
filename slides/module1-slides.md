@@ -1207,7 +1207,7 @@ Section 3: Scope and sandbox - Implementation Notes: Scope at work
 - Screen 2 (`2`), Boards: both boards own-org only; the referee's two-tab capture where tab B's stale save gets a 409 page.
 - Screen 5 (`5`), Traces: "First wrong turn": in the capture, bare turn 1.14 edited `app/services/errors.py`; harness turn 1.12 was the blocked patch. Screen 4 (`4`), A/B Report: hollow dots for both arms on Feature 4's own measure. Say: "The scope count is on screen 3, not here."
 - Code to mention: the refusal text comes from `reason()` in `guard.py` (idea 2); `walkthrough.md` has it.
-- If today's bare arm stays in scope: say so; it is one more dot. If the harness arm is still running, show the bare arm's screen 3 now and return.
+- If today's bare arm stays in scope, say: "This is one dot; before class the bare arm left the allowed paths in most runs." The counts (`docs/evidence/s3.md`): in the three confirmation runs of 2026-10-17 the bare arm left them 3 times out of 3; in the three demo runs of 2026-10-18, 2 times out of 3 (the third bare arm stopped early). If the harness arm is still running, show the bare arm's screen 3 now and return.
 - If the A/B broke for a reason outside the experiment: `make replay RUN=<id>` with the fallback id recorded the day before, or walk `section-3-scope-sandbox/demo/expected/` (screens 1, 3, 2, 5, 4, then `screen-3-run-1.png` and `screen-3-run-2.png` for the other two runs), saying "recorded before class". Docker down: `sudo systemctl start docker`, `make warm`.
 - Time: 10 minutes. Next: the honest numbers.
 
@@ -1593,7 +1593,7 @@ Key idea: One gap, on scope, partly by construction; elsewhere no measurable dif
 **On the slide:**
 Lead: Each layer is a bet on one thing the model cannot do on its own.
 Key idea: Add the layer that matches a failure you have seen, then measure it.
-**Visual:** The `which-layer-when` diagram: four rows (instructions, state, scope, verification), each with the failure it prevents, the signal that says "add it", and its cost; scope carries the only "measured gap" tag.
+**Visual:** The `which-layer-when` diagram: four rows, each a failure in words (broke a written rule, new session redid work, edits outside the ticket, said done but not done) with an arrow to its layer box (instructions, state, scope, verification); scope carries the only "measured gap" tag.
 **Speaker notes:**
 - Source 3: [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps): "every component in a harness encodes an assumption about what the model can't do on its own, and those assumptions are worth stress testing."
 - Instructions: add a map when the agent breaks rules that live in a wiki or copies legacy patterns. Cost: keeping the docs true.
@@ -1675,7 +1675,7 @@ Lead: Repeat today's final on your machine.
 **On the slide:**
 Lead: Four layers around an unchanged model, one sandbox, one referee outside.
 Key idea: Each layer changes what the agent sees, keeps, may touch, or must prove.
-**Visual:** The `harness-one-picture` diagram, full frame: the agent loop in the centre, the four layers around it, the sandbox around both arms, the referee outside.
+**Visual:** The `harness-one-picture` diagram, full frame: the model in the centre, its tools in one dashed box (the sandbox, the same for both arms), the four layers around them, the referee outside scoring the diff.
 **Speaker notes:**
 - Instructions: a map of about 100 lines in context, details on disk, skills that load in tiers. It informs; it never blocks.
 - State: a progress file, an exec plan, and a two-owner handoff; the harness writes the facts from git at every stop.
