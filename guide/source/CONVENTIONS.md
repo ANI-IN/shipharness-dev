@@ -57,14 +57,14 @@ width. The list numbers print in blue circles, like the circles the tooling draw
 The check needs the blank line between the image and the caption (`check_style.py` SC07), and it
 reads image paths from the page's own folder (SC06). So a chapter in `chapters/` writes
 `../images/s1/screen-1.png`, and `part0.md` and `appendix.md` write `images/setup/x.png`. The
-build copies `~/guide-work/images/` into `docs/walkthrough/images/` first, so the repository holds
+build copies `~/guide-work/images/` into `guide/images/` first, so the repository holds
 the images and SC06 checks that each one exists. An image that is not there yet prints as an
 orange placeholder box, and the build lists it.
 
 ## Run ids
 
 This guide follows one recorded run per demo, so a reader types and reads run ids. In files under
-`docs/walkthrough/` only, a run id such as `ab-20261018-045459-2efbfc` may stand in a code span or
+`guide/` only, a run id such as `ab-20261018-045459-2efbfc` may stand in a code span or
 a fenced block: `make replay RUN=ab-20261018-045459-2efbfc`, or a terminal excerpt. In plain prose
 it still fails SC08. Everywhere else in the repository, run ids stay in the evidence pages.
 
@@ -73,7 +73,7 @@ it still fails SC08. Everywhere else in the repository, run ids stay in the evid
 From the repository root, in WSL:
 
 ```bash
-uv run python docs/walkthrough/source/build_pdf.py --images
+uv run python guide/source/build_pdf.py --images
 ```
 
 It prints the page count, then one line per missing source file, missing image, or unknown box.

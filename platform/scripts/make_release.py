@@ -86,7 +86,7 @@ ALLOW_DIRS = (
     "platform/tests/",
     "docs/images/",  # screenshots the README and shared pages embed
     "docs/evidence/",  # run ids, finding ids, and provenance per section
-    "docs/walkthrough/",  # the Live Demo Guide: PDF, its Markdown, images, and build sources
+    "guide/",  # the Live Demo Guide: the PDF, its README, Markdown, images, and build sources
 )
 DOCS_FILES = tuple(
     f"docs/{name}.md"

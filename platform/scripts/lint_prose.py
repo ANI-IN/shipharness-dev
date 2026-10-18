@@ -22,6 +22,7 @@ DEFAULT_TARGETS = [
     "CHANGELOG.md",
     "setup",
     "docs",
+    "guide",
     "section-1-instructions",
     "section-2-state-lifecycle",
     "section-3-scope-sandbox",

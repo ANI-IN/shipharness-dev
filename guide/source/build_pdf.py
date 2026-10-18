@@ -1,8 +1,8 @@
-"""Build the Live Demo Guide PDF from the Markdown in docs/walkthrough/.
+"""Build the Live Demo Guide PDF from the Markdown in guide/.
 
 Usage (from the repository root, in WSL or Linux):
 
-    uv run python docs/walkthrough/source/build_pdf.py [--images [DIR]] [--desktop-copy DIR]
+    uv run python guide/source/build_pdf.py [--images [DIR]] [--desktop-copy DIR]
                                                      [--html FILE] [--no-pdf]
 
 Order: cover, contents, source/intro.md, part0.md, chapters/1-*.md to chapters/5-*.md, appendix.md.
@@ -10,7 +10,7 @@ The conventions it implements are in source/CONVENTIONS.md. It makes no model ca
 container: it renders HTML and prints it with Playwright's Chromium (A4).
 
 --images [DIR]     first copy the images the guide uses from DIR (default ~/guide-work/images)
-                   into docs/walkthrough/images/, scaled to 2000 px wide; drop unused ones
+                   into guide/images/, scaled to 2000 px wide; drop unused ones
 --desktop-copy DIR also copy the finished PDF into DIR (created if missing)
 --html FILE        also write the final HTML to FILE (for looking at the layout in a browser)
 --no-pdf           write the HTML only (needs --html)
@@ -32,8 +32,8 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 
 BUILD = Path(__file__).resolve().parent
-ROOT = BUILD.parent  # docs/walkthrough
-OUTPUT = ROOT / "Harness-Engineering-Demo-Guide.pdf"
+ROOT = BUILD.parent  # guide
+OUTPUT = ROOT / "Harness Engineering Demo Guide.pdf"
 DEFAULT_IMAGES = Path("~/guide-work/images").expanduser()
 
 COURSE = "Module 1: Harness Engineering for Coding Agents"
@@ -676,7 +676,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"x images folder not found: {args.images}")
             return 1
         copied, missing, removed = copy_images(src)
-        print(f"images: copied {copied} PNG files into docs/walkthrough/images/, removed {removed}")
+        print(f"images: copied {copied} PNG files into guide/images/, removed {removed}")
         for rel in missing:
             print(f"! image not in {src.name}/: {rel}")
 
@@ -702,7 +702,7 @@ def main(argv: list[str] | None = None) -> int:
     count = print_pdf(final_html, OUTPUT)
     wanted = [h.ident for p in parts for h in p.headings]
     unknown = [ident for ident in wanted if not pages.get(ident)]
-    print(f"pdf: docs/walkthrough/{OUTPUT.name} ({count} pages, A4)")
+    print(f"pdf: guide/{OUTPUT.name} ({count} pages, A4)")
     if unknown:
         print(f"! contents: no page found for {len(unknown)} headings: {', '.join(unknown[:5])}")
     for name in report.missing_parts:

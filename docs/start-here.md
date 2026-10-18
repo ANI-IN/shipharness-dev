@@ -21,6 +21,9 @@ assignment. Those rows give the reading time of the pages and say that the work 
 
 A live run's time is mostly waiting. Read the next page while it runs.
 
+To follow the five live demos step by step, use the [Live Demo Guide](../guide/README.md)
+([PDF](../guide/Harness%20Engineering%20Demo%20Guide.pdf)).
+
 ## The path at a glance
 
 | Step | What you do | Reading and run time |

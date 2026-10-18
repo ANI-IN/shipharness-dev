@@ -1171,9 +1171,10 @@ def test_a_thin_final_project_is_reported_missing_parts() -> None:
 
 
 def test_the_live_demo_guide_ships_and_its_capture_tooling_does_not() -> None:
-    assert mr.classify("docs/walkthrough/Harness-Engineering-Demo-Guide.pdf") is None
-    assert mr.classify("docs/walkthrough/chapters/1-section-1.md") is None
-    assert mr.classify("docs/walkthrough/images/s1/runlist.png") is None
+    assert mr.classify("guide/Harness Engineering Demo Guide.pdf") is None
+    assert mr.classify("guide/chapters/1-section-1.md") is None
+    assert mr.classify("guide/images/s1/runlist.png") is None
+    assert mr.classify("guide/README.md") is None
     assert mr.classify("platform/scripts/guide/capture.py") is not None
 
 

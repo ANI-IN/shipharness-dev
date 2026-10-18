@@ -152,6 +152,9 @@ control tasks) were not run, because the pre-registered gate did not pass.
 
 ---
 
+Step-by-step demo walkthrough with screenshots: [Live Demo Guide](../guide/README.md)
+([PDF](../guide/Harness%20Engineering%20Demo%20Guide.pdf)).
+
 ## Before class (start 60 minutes early)
 
 Everything runs inside WSL2 Ubuntu on the instructor's machine, in the repository folder (DESIGN

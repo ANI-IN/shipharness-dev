@@ -1153,7 +1153,7 @@ def test_starter_fill_in_templates_keep_their_markers(tmp_path: Path) -> None:
 
 
 def test_walkthrough_run_ids_pass_only_in_code(tmp_path: Path) -> None:
-    rel = "docs/walkthrough/appendix.md"
+    rel = "guide/appendix.md"
     code = (
         "# Appendix\n\nRun `make replay RUN=ab-20261017-112101-c5d839`.\n\n"
         "```text\nA/B ab-20261017-112101-c5d839\n```\n"

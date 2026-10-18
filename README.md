@@ -193,6 +193,8 @@ an empty machine, including both accounts.
 
 - [Start here](docs/start-here.md): the learning path in order, with times.
 - [Setup](setup/README.md): install everything and run your first live demo.
+- [Live Demo Guide](guide/README.md) ([PDF](guide/Harness%20Engineering%20Demo%20Guide.pdf)): the five live demos, one command and one
+  screen at a time, with what to say in class.
 - [Section 1: Instructions](section-1-instructions/README.md): the first layer, with its demo and
   assignment.
 - [Use it in your repo](use-in-your-repo/README.md): the starter kit, four skills, and a guide for
