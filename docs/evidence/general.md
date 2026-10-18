@@ -557,7 +557,6 @@ both images (236.8 s; a fresh clone has no record of their source), computed 10 
 ended `warm: done (429.0 s)`, 431 s wall. `make console` printed its address and the quiet-mode
 line. $0.
 
-<!-- guide-runs -->
 - `make show-1`: `ab-20261018-162244-860638` (harness `r-20261018-162244-5e25ee`), ran alone;
   completed, agent said done, 38 turns; primary verdict 2:35, full verdict 4:45, command 4:45 (exit
   0); House rule 1: Tenant isolation, new violations 0; hidden tests 52 of 52; mutants killed 3 of 4;
@@ -578,6 +577,23 @@ line. $0.
   its first attempt 3:07; the test phase proposed no test and ended `not_done`; primary verdict
   4:37, full verdict 5:32, command 5:33 (exit 0); hidden tests 68 of 69; mutants killed 0 of 4
   (primary measure failed); reviewer reject; $0.025731 ([s4.md](s4.md#s4-show-4-capture)).
+- `make final FEATURES=bulk-close`: `ab-20261018-164951-bd677b` (bare `r-20261018-164951-e6e8a2`,
+  harness `r-20261018-164951-a98dff`), ran alone; both completed and said done (38 and 35 turns);
+  harness gate passed on its first attempt 3:44, filters kept 1 of 2 tests; primary verdict 3:27
+  and 7:23, full 6:02 and 9:10, command 9:11 (exit 0); hidden tests 46 of 46 each; mutants killed
+  1 of 3 and 0 of 3; both reviewers accept; $0.037714 ([final.md](final.md#final-project-captures)).
+- `make replay RUN=ab-20261018-162244-860638 PURPOSE=pilot` (the fallback procedure on the show-1
+  run): replay `ab-20261018-165923-1d87bd`, 195 recorded events, the RECORDING badge, the referee
+  re-run live (primary verdict 0:02, full verdict 2:06, the same counts: House rule 1 0 new, hidden
+  tests 52 of 52, mutants killed 3 of 4), reviewer not run, $0. After it the documented `cp -a` of
+  the screenshots made screen 2 show the board frames.
+
+Total model spend of the five class commands: $0.183679 (the `session` figure of the last `Cost:`
+line). Fallbacks in the demo guide's clone, the first complete run of each command there: show-1
+`ab-20261018-162244-860638`, show-2 `ab-20261018-162745-ccba38`, demo-3 `ab-20261018-163515-dc7b16`,
+show-4 `ab-20261018-164402-1a796a`, final (bulk-close) `ab-20261018-164951-bd677b`; the replay check
+is the entry above. They live in that clone's `.shipharness/runs/`, not on the class machine; the
+class machine's fallbacks are [listed above](#fallbacks-2026-10-18-speed-up).
 
 ### Score records shipped with the course (2026-10-18)
 

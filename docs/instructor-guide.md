@@ -42,16 +42,16 @@ Terminal B runs the section demos. Terminal C runs the final.
 After each launch, reload the run list ("← All runs") and open the top card. At section minute 15,
 look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
-Times and costs, 2026-10-18, class profile, three live runs each, launch to verdict; show-1 from
-before the harness speed-up, the rest after it ([evidence](evidence/general.md#demo-runs-after-the-speed-up)):
+Measured 2026-10-18, class profile, one live run each, alone, from launch ([runs](evidence/general.md#guide-runs-2026-10-18));
+in brackets, three earlier runs that day, two at a time ([runs](evidence/general.md#demo-runs-after-the-speed-up)):
 
 | Run | Primary verdict | Full verdict | Cost (cap) |
 |---|---|---|---|
-| `make show-1` | 2:57 to 6:18 | 7:23 to 10:58 | $0.021 to $0.023 ($0.24) |
-| `make show-2` | 3:21 to 5:20 | 5:10 to 6:59 | $0.036 to $0.038 ($0.24) |
-| `make demo-3` | bare 1:52 to 5:23; harness 6:12 to 7:23 | bare 3:58 to 7:42; harness 7:31 to 9:43 | $0.037 to $0.053 ($0.48) |
-| `make show-4` | 5:51 to 6:50 | 6:51 to 8:26 | $0.023 to $0.033 ($0.24) |
-| `make final`, one feature | bare 1:49 to 5:00; harness 6:41 to 12:04 | bare 4:16 to 7:58; harness 8:41 to 15:22 | $0.044 to $0.048 ($0.58) |
+| `make show-1` | 2:35 (2:57 to 6:18) | 4:45 (7:23 to 10:58) | $0.020 ($0.24) |
+| `make show-2` | 5:18 (3:21 to 5:20) | 7:11 (5:10 to 6:59) | $0.044 ($0.24) |
+| `make demo-3` | bare 3:10, harness 5:59 (1:52 to 7:23) | 5:55, 8:24 (3:58 to 9:43) | $0.056 ($0.48) |
+| `make show-4` | 4:37 (5:51 to 6:50) | 5:32 (6:51 to 8:26) | $0.026 ($0.24) |
+| `make final`, one feature | bare 3:27, harness 7:23 (1:49 to 12:04) | 6:02, 9:10 (4:16 to 15:22) | $0.038 ($0.58) |
 
 Every arm completed. `make show-4` filters only the first three proposed tests (a demo setting,
 [disclosed](evidence/s4.md#s4-show-4-settings)); the final's harness arm filters all of its tests,

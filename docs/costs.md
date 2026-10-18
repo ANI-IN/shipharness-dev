@@ -27,26 +27,27 @@ you an OpenAI key, use it instead of creating your own; the [FAQ](faq.md) explai
 At the caps, one arm costs at most $0.20, one blinded review at most $0.04, and one final arm at
 most $0.25. So one arm with its review is at most $0.24, and an A/B is at most $0.48.
 
-The measured costs of the class commands are the range over three runs of each, measured
-2026-10-18 with the class profile ([runs](evidence/general.md#demo-runs-after-the-speed-up)).
+Two measurements of the class commands, both on 2026-10-18 with the class profile: one live run
+each for the demo guide ([runs](evidence/general.md#guide-runs-2026-10-18)), and the range over
+three earlier runs of each ([runs](evidence/general.md#demo-runs-after-the-speed-up)).
 
-| Command | At most, at the caps | Measured on the course machine |
-|---|---|---|
-| `make setup`, `doctor`, `warm`, `console`, `up` | $0 (no model calls) | $0 |
-| `make show-1` | $0.24 | $0.021 to $0.023 |
-| `make show-2 SESSION_BUDGET=12,38` | $0.24 | $0.036 to $0.038 |
-| `make show-3` | $0.24 | $0.0172 (one run, 2026-10-17) |
-| `make show-4` | $0.24 | $0.023 to $0.033 |
-| `make demo-N` (an A/B) | $0.48 | $0.037 to $0.053 for `make demo-3 FEATURE=version-checks` |
-| `make final`, per feature | $0.58 | $0.044 to $0.048 for Feature 5: Bulk close |
-| `uv run shipharness testgen ...` | $0.20 | $0.0033 in Assignment 4: Verification |
-| `make replay`, `make swap-N`, `make example-N` | $0 (no model calls) | $0 |
-| `make check-assignment-N`, `uv run shipharness report` | $0 (no model calls) | $0 |
-| `uv run shipharness init`, `uv run shipharness check` | $0 (no model calls) | $0 |
+| Command | At most, at the caps | Live run | Three earlier runs |
+|---|---|---|---|
+| `make setup`, `doctor`, `warm`, `console`, `up` | $0 (no model calls) | $0 | $0 |
+| `make show-1` | $0.24 | $0.0203 | $0.021 to $0.023 |
+| `make show-2 SESSION_BUDGET=12,38` | $0.24 | $0.0437 | $0.036 to $0.038 |
+| `make show-3` | $0.24 | not run | $0.0172 (one run, 2026-10-17) |
+| `make show-4` | $0.24 | $0.0257 | $0.023 to $0.033 |
+| `make demo-3 FEATURE=version-checks` (an A/B) | $0.48 | $0.0562 | $0.037 to $0.053 |
+| `make final`, per feature | $0.58 | $0.0377 (Feature 5: Bulk close) | $0.044 to $0.048 |
+| `uv run shipharness testgen ...` | $0.20 | not run | $0.0033 in Assignment 4: Verification |
+| `make replay`, `make swap-N`, `make example-N` | $0 (no model calls) | $0 (`make replay`) | $0 |
+| `make check-assignment-N`, `uv run shipharness report` | $0 (no model calls) | not run | $0 |
+| `uv run shipharness init`, `uv run shipharness check` | $0 (no model calls) | not run | $0 |
 
 The whole live class plan (three `make show-N` runs, one `make demo-3`, two final features) needs at
 most $2.36 at the caps, under the $2.50 session cap. At the high end of each measured range it cost
-about $0.25.
+about $0.25; the five live runs of 2026-10-18 (one final feature) cost $0.183679 together.
 
 ## Assignments
 

@@ -261,7 +261,23 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 
 ### How long the runs take
 
-Measured 2026-10-18: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
+Measured 2026-10-18, class profile, one live run each for the demo guide, in a fresh clone of the
+release, each run alone, from the make command's launch (docs/evidence/general.md, "Live runs for
+the demo guide"):
+
+| Command | Launch to primary verdict | Launch to full verdict | Command ended | Exit | Cost |
+|---|---|---|---|---|---|
+| `make show-1` | 2:35 | 4:45 | 4:45 | 0 | $0.020302 |
+| `make show-2 SESSION_BUDGET=12,38` | 5:18 | 7:11 | 7:12 | 0 | $0.043716 |
+| `make demo-3 FEATURE=version-checks` | bare 3:10, harness 5:59 | bare 5:55, harness 8:24 | 8:26 | 0 | $0.056216 |
+| `make show-4` | 4:37 | 5:32 | 5:33 | 0 | $0.025731 |
+| `make final FEATURES=bulk-close` | bare 3:27, harness 7:23 | bare 6:02, harness 9:10 | 9:11 | 0 | $0.037714 |
+
+The five commands together cost $0.183679. These are single runs that ran alone; in class, show-4
+and the final share the machine, so the ranges below, measured two at a time, are the planning
+figures.
+
+Earlier the same day: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
 class profile (agent time limit 420 s, harness limit 900 s), two runs at a time on the class
 machine, as in Section 4. `make show-1` ran before the harness speed-up of that morning, the others
 after it (docs/evidence/general.md, "Verification runs after the rename" and "Demo runs after the
@@ -646,7 +662,8 @@ every cap: before every call the tracker reserves the call's worst case under on
 calls the other command appended to the shared cost ledger (VERIFICATION.md, change 12). Measured
 costs of the commands, 2026-10-18, three runs each: show-1 $0.021 to $0.023, show-2 $0.036 to $0.038,
 Section 3 A/B $0.037 to $0.053, show-4 $0.023 to $0.033, one final feature (Feature 5: Bulk close)
-$0.044 to $0.048 ([How long the runs take](#how-long-the-runs-take)).
+$0.044 to $0.048; the live guide runs of the same day cost $0.020, $0.044, $0.056, $0.026, and
+$0.038 ([How long the runs take](#how-long-the-runs-take)).
 
 **Check at 3:10** (during the ideas), two terminals:
 - Terminal B: the show-4 `Cost:` line. If show-4 is still running, open the demo block on its live

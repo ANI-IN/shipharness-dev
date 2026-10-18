@@ -53,9 +53,9 @@ flowchart LR
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 after the full verdict of the course's own run](expected/screen-1-final.png)
+![Console screen 1 after the full verdict of the live run of 2026-10-18: both arms completed, verdict ready: PASS, judged on all checks](expected/screen-1-final.png)
 
-*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 2/3 (bare) and 3/3 (harness); both runs completed.*
+*The live run of 2026-10-18: both arms at hidden tests 46/46; mutants killed 1/3 (bare) and 0/3 (harness); both runs completed.*
 
 | Path | What it holds |
 |---|---|
@@ -104,22 +104,19 @@ In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console
 PURPOSE=pilot ./final-project/run.sh bulk-close
 ```
 
-Reload the run list in the browser, click the top card ("Final project", the feature, "A/B"), and press `1`. Terminal 2 then prints, per arm, one line, and a cost line (the
-2026-10-17 run in the current wording; [expected/terminal.txt](expected/terminal.txt) is the original):
+Reload the run list in the browser, click the top card ("Final project", the feature, "A/B"), and press `1`. Terminal 2 then prints, per arm, one line, and a cost line. The live run of 2026-10-18 printed this
+(the full capture is [expected/terminal.txt](expected/terminal.txt)):
 
 ```text
 Final A/B: Feature 5: Bulk close
-A/B ... (Feature 5: Bulk close, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
-  bare     completed         agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 3 of 3 · reviewer accept · cost $0.0196
-  harness  ABORTED: timeout  agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 1 of 3 · reviewer reject · cost $0.0139
-Cost: $0.038253 (this command: gpt-5.6-luna $0.004675, gpt-6-luna $0.033578; session $0.060114 of $2.50; build $0.060114 of $15.00 ($14.939886 left))
-make: *** [Makefile:214: final] Error 2
+A/B <run id> (Feature 5: Bulk close, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
+  bare     completed         agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 1 of 3 · reviewer accept · cost $0.0173
+  harness  completed         agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 0 of 3 · reviewer accept · cost $0.0166
+Cost: $0.037714 (this command: gpt-5.6-luna $0.003787, gpt-6-luna $0.033927; session $0.183679 of $2.50; build $0.183679 of $15.00 ($14.816321 left))
 ```
 
-The harness arm said done after 20 turns. Its gate then ran the house-rule checks in the arm's
-container, and on a busy machine two gate commands hit their time limits. The gate failed on those
-timeouts, the harness's own time ran out, and the arm ended `ABORTED: timeout` before a test phase.
-An aborted arm is still judged and shown, so the command exits 2: a result, not a failure.
+Both arms completed (exit 0). The harness arm said done after 23 turns; its gate passed at once,
+and the filters kept one of its two tests. An arm aborted on time gives exit 2 and is still judged.
 
 `make final FEATURES=bulk-close LAYERS=-scope` removes one layer from the harness arm. That is the
 leave-one-out idea from the problem above, one layer and one feature at a time.
@@ -131,33 +128,37 @@ per arm and $0.04 per review, so at most $0.58 per feature. The class profile gi
 agent time limit of 420 s (`platform/src/shipharness/config/profiles.py`), plus 900 s for the
 harness's own work (`HARNESS_TIMEOUT_S`; 120 s before 2026-10-18). Prices are in `platform/config/prices.toml`.
 
-Three runs of `make final FEATURES=bulk-close` on 2026-10-18 (class profile, after the harness
-speed-up): bare primary verdict 1:49 to 5:00 after launch, full 4:16 to 7:58; harness primary 6:41
-to 12:04, full 8:41 to 15:22 (its test filters run to the end); $0.044 to $0.048 each
+Measured 2026-10-18, class profile, one live run of `make final FEATURES=bulk-close`, which ran
+alone: bare primary verdict 3:27 after launch, full 6:02; harness gate passed 3:44, primary 7:23,
+full 9:10; command finished 9:11; $0.0377
+([run](../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs after
+the harness speed-up, two at a time, gave a range: bare primary 1:49 to 5:00, full 4:16 to 7:58;
+harness primary 6:41 to 12:04, full 8:41 to 15:22; $0.044 to $0.048 each
 ([runs](../docs/evidence/general.md#demo-runs-after-the-speed-up), [earlier](../docs/evidence/final.md#final-project)).
 
 ## What to watch
 
-| Minute of the console clock, screenshot run of 2026-10-18 | Screen | What appears |
+| From launch, live run of 2026-10-18 | Screen | What appears |
 |---|---|---|
 | 1 | 1 | Both arms at work; the harness arm shows its layer notes |
-| 2 to 3 | 1 | Bare: run completed, then "verdict ready: PASS · judged on all checks" |
-| 6 | 1 | Harness: said done; every gate item passes; the test phase starts |
-| 12 to 15 | 1 to 5 | Harness primary verdict, then both full verdicts; terminal 2 prints both lines |
+| 2:11 | 1 | Harness: said done; the gate starts |
+| 3:27 | 1 | Bare: run completed, then "verdict ready: PASS · judged on all checks" |
+| 3:44 | 1 | Harness: every gate check passes; the test phase starts |
+| 7:23 to 9:10 | 1 to 5 | Harness verdict, then its full verdict; terminal 2 prints both lines |
 
 Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) shows each screen and what to notice on it.
 
-![Screen 1 at minute 1: both arms at work, harness notes for the feature list, the gate baseline, and the skill read](expected/screen-1-minute-1.png)
+![Screen 1 about one minute in: both arms at work, the harness arm's layer notes](expected/screen-1-minute-1.png)
 
-*Minute 1. The harness arm's notes show the feature list in place and the skill it read.*
+*About one minute in. The harness arm's notes show the files its layers wrote.*
 
-![Screen 1 at minute 3: bare arm completed with primary verdict PASS, harness arm still building](expected/screen-1-minute-5.png)
+![Screen 1 at 3:27: bare arm completed, verdict ready: PASS, judged on all checks; harness arm still working](expected/screen-1-bare-verdict.png)
 
-*Minute 3. The bare arm is judged; its secondary checks still run.*
+*3:27. The bare arm is judged; its secondary checks still run.*
 
-![Screen 1 at minute 6: harness arm said done, every gate item passed, the test phase started](expected/screen-1-minute-7.png)
+![Screen 1 at 3:44: harness arm said done, every gate check passed, the test phase started](expected/screen-1-gate-passed.png)
 
-*Minute 6. The harness arm's gate passed every item, and its test phase began.*
+*3:44. The harness arm's gate passed every check, and its test phase began.*
 
 ## What the result means
 
@@ -186,12 +187,11 @@ So compare the claim with the counts, not with the agent's summary.
 
 *Tonight's A/B adds one dot per arm to rows like these.*
 
-The course's own run: both arms passed 46 of 46 hidden tests. The bare arm's tests killed 3 of 3
-mutants and the harness arm's 1 of 3, and the blinded reviewer (a separate model that reads the diff
-without knowing which arm wrote it) rejected the harness arm's change over its audit row. The
-harness arm never reached its test phase, because its gate ran out of time on a busy machine. As one
-dot it reads bare ahead on mutants, for a reason that is about time, not about the layers. An
-earlier Feature 5 run split the other way: 1 of 3 (bare) against 3 of 3 (harness).
+The live run of 2026-10-18: both arms passed 46 of 46 hidden tests and every referee check, and
+the blinded reviewer (a separate model that reads the diff without knowing which arm wrote it)
+accepted both. The bare arm's tests killed 1 of 3 mutants, the harness arm's 0 of 3: its filters
+kept one of its two tests, and that test caught none of them. As one dot it reads no measurable
+difference on the hidden tests and a small edge to bare on mutants; earlier runs split both ways.
 
 **What many runs showed.** Before class, the course ran each section's ticket several times per
 arm, plus a confirmation on a second ticket for Section 3: Scope and sandbox ([evidence](../docs/evidence/final.md#final-project)):
