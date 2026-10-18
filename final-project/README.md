@@ -55,7 +55,7 @@ flowchart LR
 
 ![Console screen 1 after the full verdict of the course's own run](expected/screen-1-final.png)
 
-*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 3/3 (bare) and 1/3 (harness), whose run ended on its time limit inside the gate.*
+*The end of the course's own run: both arms at hidden tests 46/46; mutants killed 2/3 (bare) and 3/3 (harness); both runs completed.*
 
 | Path | What it holds |
 |---|---|
@@ -138,26 +138,26 @@ to 12:04, full 8:41 to 15:22 (its test filters run to the end); $0.044 to $0.048
 
 ## What to watch
 
-| Minute after launch, screenshot run of 2026-10-17 (2026-10-18 times above) | Screen | What appears |
+| Minute of the console clock, screenshot run of 2026-10-18 | Screen | What appears |
 |---|---|---|
 | 1 | 1 | Both arms at work; the harness arm shows its layer notes |
-| 5 | 1 | Bare: run completed after 42 turns, then "primary verdict ready: PASS" |
-| 7 | 1 | Harness: said done after 20 turns; gate items fail; "run ABORTED: timeout" |
-| 12 | 1 to 5 | Both full verdicts; terminal 2 prints both lines |
+| 2 to 3 | 1 | Bare: run completed after 36 turns, then "primary verdict ready: PASS" |
+| 6 | 1 | Harness: said done; every gate item passes; the test phase starts |
+| 12 to 15 | 1 to 5 | Harness primary verdict, then both full verdicts; terminal 2 prints both lines |
 
 Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) shows each screen and what to notice on it.
 
-![Screen 1 at minute 1: both arms at work, harness notes for the placed files](expected/screen-1-minute-1.png)
+![Screen 1 at minute 1: both arms at work, harness notes for the feature list, the gate baseline, and the skill read](expected/screen-1-minute-1.png)
 
-*Minute 1. The harness arm's notes show the map, the state files, and the feature list in place.*
+*Minute 1. The harness arm's notes show the feature list in place and the skill it read.*
 
-![Screen 1 at minute 5: bare arm completed with primary verdict PASS, harness arm still building](expected/screen-1-minute-5.png)
+![Screen 1 at minute 3: bare arm completed with primary verdict PASS, harness arm still building](expected/screen-1-minute-5.png)
 
-*Minute 5. The bare arm is judged; its secondary checks still run.*
+*Minute 3. The bare arm is judged; its secondary checks still run.*
 
-![Screen 1 at minute 7: harness arm said done, gate items failed, run aborted on time](expected/screen-1-minute-7.png)
+![Screen 1 at minute 6: harness arm said done, every gate item passed, the test phase started](expected/screen-1-minute-7.png)
 
-*Minute 7. The harness arm's gate failed on time limits, and the arm ended on its own time limit.*
+*Minute 6. The harness arm's gate passed every item, and its test phase began.*
 
 ## What the result means
 

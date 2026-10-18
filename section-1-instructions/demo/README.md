@@ -38,9 +38,9 @@ no new tenant isolation violation; the agent opened the skill in two of the thre
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 after the full verdict: primary verdict PASS, hidden tests 52/52, claim supported](expected/screen-1-final.png)
+![Console screen 1 after the full verdict: primary verdict PASS, hidden tests 50/52, claim supported](expected/screen-1-final.png)
 
-*The end of a real run: no new tenant isolation violation, every hidden test passed, the agent's claim supported.*
+*The end of a real run: no new tenant isolation violation, 50 of 52 hidden tests passed, the agent's claim supported.*
 
 This is not an A/B. The course already compared both arms on this ticket and found no measurable
 difference ([evidence](../../docs/evidence/s1.md#section-1)). So class shows the map doing its job,
@@ -132,8 +132,8 @@ Where and when the captures below were made is on the
 Then switch screens.
 
 **Screen 3, Evidence.** Files read, grouped as skill, harness doc, handbook, code, and test. In this
-run the agent opened the skill, `ARCHITECTURE.md`, and the handbook, but not the security document.
-The referee list shows `r1_tenant: 0 new` (no new tenant isolation violation). The old `/v1/issues`
+run the agent opened `ARCHITECTURE.md` and the handbook, but not the skill or the security document.
+The referee list shows `House rule 1, 0 new` (no new tenant isolation violation). The old `/v1/issues`
 leak is part of the starting code and does not count.
 
 ![Screen 3: files read by group, the five changed files, every referee check at 0 new](expected/screen-3-final.png)

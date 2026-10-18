@@ -153,39 +153,39 @@ The refusal, as the harness arm's run log records it (one event, cut to its data
 The agent's tool result starts with `BLOCKED:` and carries the same reason, so the agent learns which
 files it may change. Nothing was written to the workspace.
 
-![Console screen 1 after both verdicts: both arms FAIL the feature's measure, the harness arm ABORTED: timeout, both claims not supported](expected/screen-1-final.png)
+![Console screen 1 after both verdicts: both arms FAIL the feature's measure, both runs completed, both claims not supported](expected/screen-1-final.png)
 
 *Screen 1 at the end. Both pills say FAIL: that is the feature's measure, not the scope question.*
 
 **Screen 3, Evidence.** Read the middle panel, "Scope and sandbox". The bare arm's diff map lists
 `app/services/errors.py` as changed. The harness arm's lists it as blocked. In the right panel, the
 referee row `diff_scope` says 1 new for bare and 0 new for harness. "Sandbox denials: none" for both:
-the container refused nothing. The same pattern held in the other two test runs:
+the container refused nothing. The other two demo runs of the same day:
 
-![Screen 3 of test run 1: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-run-1.png)
+![Screen 3 of demo run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-run-1.png)
 
-*Test run 1: the same file, changed by the bare arm and blocked for the harness arm.*
+*Demo run 2: the same file, changed by the bare arm and blocked for the harness arm.*
 
-![Screen 3 of test run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-run-2.png)
+![Screen 3 of demo run 3: the bare arm changed only a test file, nothing was blocked](expected/screen-3-run-2.png)
 
-*Test run 2: the same again. Three runs, three times the same shared file.*
+*Demo run 3: the bare arm stopped early and stayed in the allowed paths. Two of three runs showed the out-of-scope edit.*
 
 **Screen 5, Traces.** "First wrong turn" names the turn where each arm first went wrong: the bare
 arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
 
-![Screen 5: first wrong turn, bare turn 1.14 edited app/services/errors.py, harness turn 1.12 blocked](expected/screen-5-final.png)
+![Screen 5: first wrong turn, bare turn 1.15 edited app/services/errors.py, harness turn 1.14 blocked](expected/screen-5-final.png)
 
 *Screen 5. The bare arm's first wrong turn is an edit; the harness arm's is a refusal.*
 
 **Screen 2, Boards.** The board as an Acme user, and the two-tab edit test the referee runs for version checks.
 
-![Screen 2: both boards show only own-org cards, and both arms detect the two-tab edit conflict](expected/screen-2-final.png)
+![Screen 2: both boards show only own-org cards; the bare arm detects the two-tab edit conflict, the harness arm's tab B gets an error](expected/screen-2-final.png)
 
-*Screen 2. Both arms built the board conflict page: a stale save gets a 409 page.*
+*Screen 2. The bare arm built the board conflict page: a stale save gets a 409 page. In this run the harness arm's did not.*
 
-![The referee's two-tab capture for the harness arm: tab B got HTTP 409 and the page says the issue was changed by someone else](expected/conflict-harness.png)
+![The referee's two-tab capture for the bare arm: tab B got HTTP 409 and the page says the issue was changed by someone else](expected/conflict-bare.png)
 
-*The referee's own frame: tab A saved first, so tab B's stale save is refused.*
+*The referee's own frame: tab A saved first, so tab B's stale save is refused. The harness arm's frame shows HTTP 500 instead ([expected/](expected/README.md)).*
 
 **Screen 4, A/B Report.** One dot per run, per feature and arm, on each feature's own primary
 measure. The version checks rows are all hollow: no arm has met that feature's measure. Say: "The scope count is on

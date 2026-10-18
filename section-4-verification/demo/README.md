@@ -149,10 +149,11 @@ set the version checks feature as passing.
 Then switch screens.
 
 **Screen 3, Evidence.** The Verification panel has the test filter table: one row per proposed test,
-a mark per filter, and the reason for each discard. Two tests added no line coverage (Filter 3: Adds coverage or catches a mutant). One
-failed on its first run (Filter 2: Passes five runs). One was kept.
+a mark per filter, and the reason for each discard. In this run the filters checked three of the five
+proposed tests (`MAX_TESTS=3`). One added no line coverage (Filter 3: Adds coverage or catches a
+mutant). One failed on its first run (Filter 2: Passes five runs). One was kept.
 
-![Screen 3: the diff map with one blocked file, the test filter table with one kept and three discarded tests](expected/show-4-screen-3-final.png)
+![Screen 3: the diff map with one blocked file, the test filter table with one kept and two discarded tests](expected/show-4-screen-3-final.png)
 
 *Screen 3. Read the filter 2 reason: "assert 422 == 412". The next section explains why it matters.*
 
@@ -172,7 +173,7 @@ arm. Say: "Tonight's run is not a dot in the comparison."
 
 **Screen 5, Traces.** The first wrong turn, the live tail of referee events, and the LangSmith links.
 
-![Screen 5: first wrong turn 1.15 blocked, live tail, LangSmith links](expected/show-4-screen-5-final.png)
+![Screen 5: first wrong turn 1.19 blocked, live tail, LangSmith links](expected/show-4-screen-5-final.png)
 
 *Screen 5. Open a LangSmith link to see every model call of the run.*
 

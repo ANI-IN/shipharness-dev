@@ -143,25 +143,44 @@ harness arms with the scope layer in 0 of 6 (exploratory analysis of the pilot's
 
 ### Final project captures
 
-All screenshots in `final-project/expected/` come from A/B `ab-20261017-201723-8f54f7` (above),
-taken from the live console at 1920x1080 every minute and of all five screens at the end, on
-2026-10-17, then cropped to the panels (the empty bottom rows cut).
+All screenshots and the terminal output in `final-project/expected/` come from A/B
+`ab-20261018-042848-f7fa49`: `make final FEATURES=bulk-close PURPOSE=pilot`, class profile, 2026-10-18
+from 04:28:45 UTC, on main after the harness speed-up, at the same time as one `make demo-3` run
+([general.md](general.md#demo-runs-after-the-speed-up)). Runs `r-20261018-042848-f67fc9` (bare) and
+`r-20261018-042848-ba1f6f` (harness); both completed.
 
-| File | Taken |
+| Event | Console clock |
 |---|---|
-| `screen-1-minute-1.png` | 20:18 UTC, minute 1 |
-| `screen-1-minute-5.png` | 20:22 UTC, minute 5 |
-| `screen-1-minute-7.png` | 20:24 UTC, minute 7 |
-| `screen-1-final.png` | 20:29 UTC, after both full verdicts |
-| `screen-2-final.png` to `screen-5-final.png` | 20:29 UTC |
+| Bare said done; run ended (36 turns) | 1 min 32 s; 2 min 5 s |
+| Bare primary verdict (PASS, no primary measure) | 2 min 7 s |
+| Harness gate pills pending | 3 min 32 s |
+| Bare full verdict (hidden 46/46, mutants 2/3) | 5 min 32 s |
+| Harness gate passed, done claim | 5 min 33 s |
+| Harness test filters (5 tests, 1 kept) | 8 min 27 s to 11 min 52 s |
+| Harness run ended (39 turns), primary verdict | 11 min 52 s, 11 min 54 s |
+| Harness full verdict (hidden 46/46, mutants 3/3) | 15 min 12 s |
+| Command finished (from launch) | 15 min 23 s |
 
-`final-project/expected/terminal.txt` is the same run's terminal output, with the A/B id cut to
-`...`; the README quotes its last lines. Screen 4 pools every score record in the worktree's
-`exports/`: this run and the run without the warm cache. The run ids in
-`final-project/your-repo/example/testgen-report.json` are the worked example's testgen run above.
+Cost: $0.044011 (agents on gpt-6-luna $0.038466, reviews on gpt-5.6-luna $0.005546).
 
-The screenshots of the earlier captured run (A/B `ab-20261017-120323-c97138`, 12:07 to 12:17 UTC)
-were replaced by these.
+| File | Console clock |
+|---|---|
+| `screen-1-minute-1.png` | 1 min |
+| `screen-1-minute-5.png` | 3 min |
+| `screen-1-minute-7.png` | 6 min |
+| `screen-1-final.png` to `screen-5-final.png` | after both full verdicts |
+
+The screenshots were taken on 2026-10-18 after the run, from `make console` (port 8765), which
+serves recorded runs, with a headless browser at 1920 by 1080. For the minute screens, a second
+console served a copy of the run whose log was cut at that point of the console clock, so the screen
+shows what the console showed then. No replay and no model call was needed. The console clock starts
+at the run's first event, a few seconds after launch. `final-project/expected/terminal.txt` is the capture script's log of the command, with
+the running session and build totals cut to `...`. Screen 4 pools every score record in the course
+machine's `exports/`. The run ids in `final-project/your-repo/example/testgen-report.json` are the
+worked example's testgen run above.
+
+These captures replace those of A/B `ab-20261017-201723-8f54f7` (above), which replaced the earlier
+captured run `ab-20261017-120323-c97138`.
 
 ### Use in your repository captures
 

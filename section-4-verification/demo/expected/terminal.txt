@@ -1,9 +1,7 @@
-$ time make show-4 PURPOSE=pilot
+START 2026-10-18T04:03:49Z show-4
 uv run shipharness ab --section demo-4 --feature F4 --arms harness   --purpose pilot \
-  --profile class
-A/B <run id> (F4, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
-  harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0233
-Cost: $0.026511 (this command: gpt-5.6-luna $0.003201, gpt-6-luna $0.023310; ...)
-make: *** [Makefile:129: show-4] Error 2
-
-real	11m5.912s
+  --profile class --max-tests=3
+A/B ab-20261018-040352-f8c404 (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
+  harness  completed         claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0291
+Cost: $0.033069 (this command: gpt-5.6-luna $0.003977, gpt-6-luna $0.029092; ...)
+END rc=0 wall=510s launch_epoch=1792296229

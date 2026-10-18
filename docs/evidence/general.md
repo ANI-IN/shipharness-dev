@@ -546,16 +546,17 @@ guide): show-1 `ab-20261018-045459-2efbfc`, show-2 `ab-20261018-040749-dad2e1`, 
 
 ### Root README screenshots
 
-All from `make console` on the course machine, 2026-10-17, taken with a headless browser at
-1920 by 1080.
+All from `make console` on the course machine, 2026-10-18, taken after the runs with a headless
+browser at 1920 by 1080. The two minute screens were taken from a console fed with the run's log cut
+at that minute of the console clock (see [s1.md](s1.md#s1-show-1-capture)).
 
 | File | Run | Taken |
 |---|---|---|
-| `docs/images/screen-1-ab-minute-3.png` | `ab-20261017-120323-c97138` (`make final FEATURES=F5`) | Minute 3 of the run |
-| `docs/images/screen-1-primary-verdict.png` | `ab-20261017-112101-c5d839` (`make show-1`) | Minute 5 of the run |
-| `docs/images/screen-2-boards.png` | `ab-20261017-120323-c97138` | After the run |
-| `docs/images/screen-4-report.png` | `ab-20261017-120323-c97138` | After the run |
-| `docs/images/screen-3-scope-blocked.png` | `ab-20261017-150928-96cf3a` (S3 confirmation) | After the run, 17:30 UTC |
+| `docs/images/screen-1-ab-minute-3.png` | `ab-20261018-042848-f7fa49` (`make final FEATURES=bulk-close`) | Minute 3 of the run |
+| `docs/images/screen-1-primary-verdict.png` | `ab-20261018-045459-2efbfc` (`make show-1`) | Minute 3 of the run |
+| `docs/images/screen-2-boards.png` | `ab-20261018-042848-f7fa49` | After the run |
+| `docs/images/screen-4-report.png` | `ab-20261018-042848-f7fa49` | After the run |
+| `docs/images/screen-3-scope-blocked.png` | `ab-20261018-042848-b28607` (`make demo-3 FEATURE=version-checks`) | After the run |
 
 <a id="captures-setup"></a>
 

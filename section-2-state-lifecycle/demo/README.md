@@ -149,21 +149,22 @@ the house rules and files that matter.
 
 Then switch screens.
 
-**Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done" and "Session 2 · 31 turns".
-The referee list shows `continuity: 0 new` (the primary measure) and `r7_migrations: 0 new`. It also
-shows `diff_scope: 1 new`: the agent edited `app/api/issues.py`, outside the comments ticket's allowed paths. Nothing
-stopped it, because the scope layer starts in Section 3: Scope and sandbox.
+**Screen 3, Evidence.** Sessions "Session 1 · 12 turns · claim_not_done", "Session 2 · 32 turns",
+and "Session 3 · 12 turns" (the test phase). The referee list shows `continuity, 0 new` (the primary
+measure) and `House rule 7, 0 new` (one migration head). In this run `diff_scope` is also 0 new: the
+agent stayed in the comments ticket's allowed paths. Nothing would have stopped it otherwise, because
+the scope layer starts in Section 3: Scope and sandbox.
 
-![Screen 3: sessions 12 and 31 turns, the diff map, continuity 0 new, diff_scope 1 new](expected/show-2-screen-3-final.png)
+![Screen 3: sessions of 12, 32, and 12 turns, the diff map, continuity 0 new, diff_scope 0 new](expected/show-2-screen-3-final.png)
 
-*Screen 3. Two sessions, no continuity failure, and one file outside scope.*
+*Screen 3. Three sessions, no continuity failure, and no file outside scope.*
 
-**Screen 5, Traces.** The live tail, the LangSmith links, and the first wrong turn: turn 2.16,
-named by the scope check. Open the agent's trace and look at session 2's first calls.
+**Screen 5, Traces.** The live tail, the LangSmith links, and the first wrong turn, which this run
+does not have. Open the agent's trace and look at session 2's first calls.
 
-![Screen 5: live tail, first wrong turn 2.16 named by the scope check, LangSmith links](expected/show-2-screen-5-final.png)
+![Screen 5: live tail, no wrong turn found, LangSmith links](expected/show-2-screen-5-final.png)
 
-*Screen 5. The first wrong turn is a scope problem, not a continuity problem.*
+*Screen 5. No first wrong turn in this run; the live tail ends with the full verdict.*
 
 **Screen 2, Boards.** One frame of `/board` with "only own-org cards, no duplicates". The comments
 panel is on the issue page, which the preview does not open; the hidden board tests judge it.

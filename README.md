@@ -138,7 +138,7 @@ their measures. The scope layer did: on a ticket where every bare arm changed a 
 allowed paths, the harness arm was blocked from doing so in 3 of 3 runs. That result is why Section
 3 runs a live A/B in class.
 
-![Console screen 3 of a Section 3 confirmation run: the bare arm changed app/services/errors.py, the harness arm shows it blocked](docs/images/screen-3-scope-blocked.png)
+![Console screen 3 of a Section 3 demo run: the bare arm changed app/services/errors.py, the harness arm shows it blocked](docs/images/screen-3-scope-blocked.png)
 
 *In the bare arm the shared errors file is changed; in the harness arm the same file is blocked.*
 
