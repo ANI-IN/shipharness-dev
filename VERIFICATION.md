@@ -844,6 +844,45 @@ at a time. Run ids, times, and the mechanism events per run:
   one LangSmith agent trace per arm run in `shipharness-pilot` (not counted from the API).
 - Screenshots and captured outputs in `section-N-*/demo/expected/` were not recaptured.
 
+### Demo speed-up and re-runs (2026-10-18)
+
+The harness's own work made faster without changing what it decides, then every slow demo run three
+times live, class profile, `PURPOSE=pilot`, 03:55 to 05:09 UTC, two runs at a time. Run ids, times,
+and mechanism events: [evidence/general.md, demo runs after the speed-up](docs/evidence/general.md#demo-runs-after-the-speed-up).
+
+| Demo | Runs | Status | Primary | Full | Cost per run |
+|---|---|---|---|---|---|
+| `make show-2 SESSION_BUDGET=12,38` | 3 | 3 completed | 3:21 to 5:20 | 5:10 to 6:59 | $0.036 to $0.038 |
+| `make demo-3 FEATURE=version-checks` | 3 | 6 arms completed | bare 1:52 to 5:23, harness 6:12 to 7:23 | bare 3:58 to 7:42, harness 7:31 to 9:43 | $0.037 to $0.053 |
+| `make show-4` (`MAX_TESTS=3`) | 3 | 3 completed | 5:51 to 6:50 | 6:51 to 8:26 | $0.023 to $0.033 |
+| `make final FEATURES=bulk-close` | 3 | 6 arms completed | bare 1:49 to 5:00, harness 6:41 to 12:04 | bare 4:16 to 7:58, harness 8:41 to 15:22 | $0.044 to $0.048 |
+| `make show-1` (regression) | 1 | completed | 2:43 | 5:41 | $0.022 |
+
+- Changes (main 734f91b; [general.md](docs/evidence/general.md#demo-speed-2026-10-18)): one
+  visible-suite run per workspace content (`harness/suite_cache.py`), proposed tests filtered one
+  per sandbox CPU (`run_pipeline_parallel`), bytecode compiled into the images. Tests first:
+  `platform/tests/unit/verify/test_suite_cache.py` (8), three pipeline tests in
+  `platform/tests/unit/filters/test_pipeline.py` (the real filters give the same decisions,
+  reasons, and events with one worker and two), the example fake in `test_examples.py` now changes
+  a file per applied patch, as `git apply` does.
+- Show setting (not a comparison): `make show-4` filters the first three proposed tests
+  (`MAX_TESTS=3`); refused for an A/B. Disclosed in [s4.md](docs/evidence/s4.md#s4-show-4-settings)
+  and the Section 4 demo README. A/B settings unchanged.
+- Bar met: show-2 in all three; show-1. Not met: show-4 primary 6:14 and 6:50 in two runs, and
+  kept plus discarded tests together in one of three; demo-3's harness primary 6:12 to 7:23, and the
+  scope result in two of three (in the third the bare arm stopped early and touched nothing); the
+  final's harness primary 6:41 to 12:04 and full 15:22 in one run.
+- No `ERROR` in any output; every screen read back from `/screens/<id>?follow=false`.
+- Fallbacks updated ([general.md](docs/evidence/general.md#fallbacks-2026-10-18-speed-up));
+  `make replay RUN=ab-20261018-035501-6a332e PURPOSE=pilot`: replay `ab-20261018-050847-b98b29`,
+  212 events, $0.
+- Checks before the merge: `make test` 2669 passed, 3 skipped; `ruff check` and `ruff format
+  --check` clean; `check_style.py --strict` 0 errors, 0 warnings; `lint_prose.py` 0 problems.
+- `MAX_SESSION_COST_USD=3.80` was set in the environment for the runs (pilot session at $2.36);
+  `.env` was not changed.
+- Spend: $0.4893 in 809 model calls (session `pilot`), 13 live runs plus two replays. Build total
+  after: $3.8736 of $15.00 ($11.1264 left).
+
 ### LangSmith
 
 Runs 1 and 2 and the smoke run (2026-10-16) were traced into `shipharness-class-2026-10-16`, before

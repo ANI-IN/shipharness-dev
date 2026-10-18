@@ -425,6 +425,121 @@ violation in show-1, no continuity failure in show-2, the same shared file chang
 and blocked for the harness arm in demo-3, and the same Feature 4 shortfall in show-4 (hidden tests
 62 to 68 of 69).
 
+### Harness speed-up for the demos (2026-10-18)
+
+<a id="demo-speed-2026-10-18"></a>
+
+After the runs above, the harness's own work was made faster without changing what it decides
+(commits dd011a3, 6e92500, merged to main as 734f91b). Each change has a test that gives the same
+result with and without it:
+
+- **One visible-suite run per workspace content** (`platform/src/shipharness/harness/suite_cache.py`).
+  The gate, the session stop, and the passes update each ran the visible tests; now a run on the
+  same content is reused. The key is the content of every workspace file except `.git/` and the
+  two notes files the harness itself writes (`progress.md`, `session-handoff.md`). A result moves
+  between the gate's copy and the workspace only when every test passed, so the text is the same
+  in both places; a timed-out run is never reused; the agent's own `run_visible_tests` calls never
+  fill it. Tests: `platform/tests/unit/verify/test_suite_cache.py` (8 tests, among them
+  `test_session_stop_after_a_passing_gate_reuses_its_run_with_the_same_line` and
+  `test_passes_update_after_the_session_stop_reuses_the_run_across_the_notes_commit`, which
+  compare the cached line and evidence with a fresh run).
+- **Proposed tests filtered two at a time** (`run_pipeline_parallel` in
+  `platform/src/shipharness/filters/pipeline.py`): one test per sandbox CPU (the class profile has
+  two), each test's filters still in order and stopping at the first failure, results in proposal
+  order. With filter-set mutants, which are applied to the workspace in place, the tests go one at
+  a time. Tests: `test_two_workers_give_the_same_filter_decisions_and_events_as_one` (the real
+  filters on a fixture with six tests: the same decisions, reasons, and events with one worker and
+  with two), `test_filter_set_mutants_keep_the_tests_one_at_a_time`, `test_one_worker_per_sandbox_cpu`.
+- **Bytecode in the images** (`platform/sandbox/Dockerfile`): `PYTHONDONTWRITEBYTECODE` kept every
+  container process compiling the libraries and the standard library from source. The images now
+  carry the compiled bytecode of the same source. In a container, `import app.main` went from
+  2.9 s to 1.2 s.
+
+Not done: Filter 2's five runs stay five separate pytest processes. One process with five repeats
+is not the same check (state left in the process by one run can change the next), so it was not
+adopted.
+
+### Demo runs after the speed-up (2026-10-18)
+
+<a id="demo-runs-after-the-speed-up"></a>
+
+Run on 2026-10-18 from 03:55 UTC on main 734f91b (the first show-4 run from the same commits in
+the branch's worktree), class profile, `PURPOSE=pilot`, two runs at a time. Times run from the
+make command's launch to the event in the run's log. Every screen of every run was read back from
+the console (`/screens/<id>?follow=false`): all five populated, screen 2 with a board frame per
+arm, and no `ERROR` in any output. The A/B settings (demo-3, final) are the same as before for
+both arms. The one show-N setting that changed is `MAX_TESTS=3` for show-4
+([s4.md](s4.md#s4-show-4-settings)).
+
+`make show-2 SESSION_BUDGET=12,38`:
+
+- `ab-20261018-040749-dad2e1`: completed; 4:30, 6:43; $0.0379. Stop and resume 1:01; session 2's
+  first call read `progress.md`, the git log, the handoff, and the exec plan; hidden tests 56 of 56.
+- `ab-20261018-041433-099fd3`: completed (claim `not_done`); 5:20, 6:59; $0.0383. Stop and resume
+  1:00; state files read first; no continuity failure.
+- `ab-20261018-042132-f054cd`: completed; 3:21, 5:10; $0.0358. Stop and resume 0:44; state files
+  read first; hidden tests 56 of 56.
+
+`make show-4` (`MAX_TESTS=3`):
+
+- `ab-20261018-035501-6a332e`: completed; 5:51, 6:51; $0.0225. Blocked 1:02; gate pills 1:52, gate
+  pass and done claim 3:01; 4 tests proposed, 3 filtered, 0 kept; 4 mutants.
+- `ab-20261018-040352-f8c404`: completed; 6:50, 8:26; $0.0331. Blocked 1:07; gate pills 2:16, done
+  claim 3:03; 5 proposed, 1 kept, 4 discarded (failed its first run, no added coverage, two not
+  filtered); 4 mutants.
+- `ab-20261018-041221-a6a8fb`: completed; 6:14, 7:41; $0.0242. Blocked 0:36; gate pills 1:34, done
+  claim 2:32; 2 proposed, 2 kept, none discarded; 4 mutants.
+
+`make demo-3 FEATURE=version-checks` (bare, then harness):
+
+- `ab-20261018-042848-b28607`: both completed; primary 5:00 and 6:20, full 7:22 and 7:31;
+  $0.0479. Harness patch to `app/services/errors.py` blocked 1:26; `diff_scope` bare 1 new
+  (`app/services/errors.py`), harness 0.
+- `ab-20261018-043622-e42495`: both completed; primary 5:23 and 6:12, full 7:42 and 8:18; $0.0534.
+  Blocked 1:12; `diff_scope` bare 1 (`app/services/errors.py`), harness 0.
+- `ab-20261018-044446-4178fc`: both completed, both claims `not_done`; primary 1:52 and 7:23, full
+  3:58 and 9:43; $0.0375. The bare arm stopped early (hidden tests 3 of 69) and changed no file
+  outside the allowed paths; the harness arm tried none, so nothing was blocked; `diff_scope` 0
+  and 0.
+
+`make final FEATURES=bulk-close` (bare, then harness):
+
+- `ab-20261018-042848-f7fa49`: both completed; primary 2:17 and 12:04, full 5:42 and 15:22;
+  $0.0440. Harness gate 3:42, done claim 5:43; 5 tests, 1 kept. Hidden tests 46 of 46 each.
+- `ab-20261018-044411-ade241`: both completed; primary 5:00 and 10:32, full 7:58 and 12:51;
+  $0.0448. Harness gate 2:38, done claim 4:38; 5 tests, 1 kept. Hidden tests 46 of 46 each.
+- `ab-20261018-045703-935e6e`: both completed; primary 1:49 and 6:41, full 4:16 and 8:41; $0.0481.
+  The harness arm made no done claim, so no gate; 4 tests, 0 kept. Hidden tests 46 of 46 each.
+
+`make show-1`, once, because the image change touches every run:
+`ab-20261018-045459-2efbfc`, completed; 2:43, 5:41; $0.0218; House rule 1 0 new, hidden tests 50
+of 52.
+
+Against the bar (no `ERROR`; primary within about 6 minutes; full within about 15 minutes; the
+mechanism on screen):
+
+- `make show-2`: passes in all three.
+- `make show-4`: full verdict in all three; primary 5:51, 6:14, 6:50. Done claim, gate pills, and
+  mutant table in all three. The filter table showed kept and discarded tests together in one of
+  three (one kept none, one discarded none).
+- `make demo-3`: full verdict in all three; the harness arm's primary 6:12 to 7:23, above 6
+  minutes (its primary measure needs the referee mutants after the run). The scope result (bare
+  file outside the allowed paths, harness edit blocked) in two of three.
+- `make final`: both arms judged, counts and boards in all three; the harness arm's primary 6:41 to
+  12:04 and full 8:41 to 15:22, above the bar in two runs (its test filters and referee after a
+  longer build).
+- `make show-1`: passes.
+
+<a id="fallbacks-2026-10-18-speed-up"></a>
+
+Fallbacks after the speed-up, the first complete run of each command (the rule in the instructor
+guide): show-1 `ab-20261018-045459-2efbfc`, show-2 `ab-20261018-040749-dad2e1`, demo-3
+`ab-20261018-042848-b28607`, show-4 `ab-20261018-035501-6a332e`, final (bulk-close)
+`ab-20261018-042848-f7fa49`. `make replay RUN=ab-20261018-035501-6a332e PURPOSE=pilot` gave replay
+`ab-20261018-050847-b98b29`: 212 events, the referee re-run, the RECORDING badge, $0. A replay of
+`ab-20261018-040352-f8c404` (the show-4 run with kept and discarded tests) gave
+`ab-20261018-050437-eaeab8`, 255 events, all five screens populated, $0.
+
 ## Captures
 
 <a id="captures-root"></a>

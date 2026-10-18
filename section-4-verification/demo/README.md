@@ -35,14 +35,20 @@ keep some and discard others. Last, the referee runs 69 hidden tests and 4 refer
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-Times and cost measured on 2026-10-18 with the class profile (900 s of harness work), three runs:
-primary verdict 11:47 to 19:43 after launch, full verdict 14:33 to 22:26, $0.025 to $0.036 per run.
-All three completed. Most of the time is the test filters: about one minute per proposed test,
-five to seven tests per run. What showed varied by run: the done claim and the gate pills in two
-of the three (in the other, the agent ended the build with `not_done` and no gate ran); kept tests
-in one (two kept, three discarded; the other two discarded every test); a blocked patch to
-`app/services/errors.py` in two; the referee mutant table in all three
-([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+**Demo setting, not a comparison:** `make show-4` filters only the first three tests the test
+phase proposes (`MAX_TESTS=3`); further tests are removed with the reason "not filtered" and count
+as discarded. `make show-4 MAX_TESTS=` filters them all
+([disclosure](../../docs/evidence/s4.md#s4-show-4-settings)).
+
+Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up
+([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs: primary verdict
+5:51 to 6:50 after launch, full verdict 6:51 to 8:26, $0.023 to $0.033 per run. All three
+completed with a done claim, the gate pills (gate pass 2:32 to 3:03 after launch), a blocked patch
+to `app/services/errors.py`, and the referee mutant table. The filter table varied by run: one
+kept one test and discarded four (one failed its first run, one added no coverage, two not
+filtered), one kept two and discarded none,
+one discarded all four (three failed on their first run)
+([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
 ![Console screen 1 after the full verdict: every gate pill passed, primary verdict FAIL, hidden tests 68 of 69, mutants 0 of 4](expected/show-4-screen-1-final.png)
 

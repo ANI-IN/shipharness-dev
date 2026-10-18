@@ -43,13 +43,12 @@ refuse the harness arm's patch to the shared errors module, while the bare arm c
 
 *The bare arm changed the shared errors module; the harness arm was blocked on it (diff_scope 1 new, 0 new).*
 
-Times and cost measured on 2026-10-18 with the class profile, three live runs of
-`make demo-3 FEATURE=version-checks`: bare primary verdict 4:19 to 6:51 after launch and full
-verdict 7:25 to 10:30; harness primary verdict 7:21 to 10:46 and full verdict 9:47 to 13:43;
-$0.048 to $0.051 per A/B. All six arms completed. In all three, the bare arm changed
-`app/services/errors.py` (`diff_scope` 1 new) and the scope layer blocked the harness arm's patch
-to it (`diff_scope` 0 new)
-([evidence](../../docs/evidence/general.md#verification-runs-after-the-rename)).
+Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up, three
+live runs of `make demo-3 FEATURE=version-checks`: bare primary verdict 1:52 to 5:23 after launch,
+full 3:58 to 7:42; harness primary 6:12 to 7:23, full 7:31 to 9:43; $0.037 to $0.053 per A/B. All
+six arms completed. In two, the bare arm changed `app/services/errors.py` (`diff_scope` 1 new) and
+the harness arm's patch to it was blocked (0 new); in the third, the bare arm stopped early and
+neither arm touched it ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
 This is a real A/B, because the course measured a gap on this ticket before class: in three test
 runs, every bare arm changed `app/services/errors.py` and every harness arm stayed inside the list

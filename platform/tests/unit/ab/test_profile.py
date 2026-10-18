@@ -108,6 +108,9 @@ def test_the_runtime_applies_the_profile_to_every_container(
 def test_class_agent_arms_are_identical_and_the_reviewer_keeps_its_settings(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    # The runtime's ledger is .shipharness/ledger.jsonl in the working directory: use a fresh one,
+    # so the machine's real pilot spend can neither cap this review nor receive its entry.
+    monkeypatch.chdir(tmp_path)
     calls: list[dict[str, Any]] = []
     review = Review(findings=[], tenant_isolation_risk="none", verdict="accept", summary="ok")
 

@@ -49,14 +49,15 @@ job, and screen 4 shows the comparison.
 
 *At minute 2 you see this stop: the handoff is written, and session 2 reads it first.*
 
-Times and cost measured on 2026-10-18 with the class profile, three runs of
-`make show-2 SESSION_BUDGET=12,38`: session 1 stopped 1:13 to 2:56 after launch, primary verdict
-6:27 to 7:20, full verdict 9:50 to 10:13, $0.039 to $0.042 per run. All three completed with no
-continuity failure, and in each one session 2's first call read `progress.md`, the git log, and
-`session-handoff.md`. Those three ran after the class profile gave the harness's own work 900 s.
-Before that, the same day, one run ended `ABORTED: timeout` on the 420 s agent limit (primary 9:34,
-full 14:43), and a trial with `SESSION_BUDGET=12,20` ended `ABORTED: timeout` on the 120 s harness
-limit, during the session-end test runs
+Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up
+([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs of
+`make show-2 SESSION_BUDGET=12,38`: session 1 stopped 0:44 to 1:01 after launch, primary verdict
+3:21 to 5:20, full verdict 5:10 to 6:59, $0.036 to $0.038 per run. All three completed with no
+continuity failure, and in each one session 2's first call read `progress.md`, the git log,
+`session-handoff.md`, and the exec plan
+([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)). No show-2 setting
+changed. Earlier the same day, before the speed-up, the primary verdict came at 6:27 to 7:20, and
+before the class profile gave the harness's own work 900 s, one run ended `ABORTED: timeout`
 ([evidence](../../docs/evidence/general.md#class-harness-limit)).
 
 ## Run it
