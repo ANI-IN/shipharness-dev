@@ -20,10 +20,10 @@ fits on one printed page. The sections after it give the detail behind each line
 >   each run is compared against it.
 > - **Pill**: A small status badge on screen 1; one shows the primary verdict, others the gate.
 
-## Class-day cheat sheet
-
 The [Live Demo Guide](../guide/README.md) ([PDF](../guide/Harness%20Engineering%20Demo%20Guide.pdf)) walks
 through every demo step by step, with an instructor note at each step.
+
+## Class-day cheat sheet
 
 Run every command in the repository folder, in an Ubuntu terminal. Terminal A runs the console.
 Terminal B runs the section demos. Terminal C runs the final.
