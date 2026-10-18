@@ -104,13 +104,13 @@ the finished run on every screen. The instructor's plan is in the [instructor gu
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 early in an A/B, bare arm on the left and harness arm on the right, each with its last turns and the harness decisions](docs/images/screen-1-ab-live.png)
+![Console screen 1 during an A/B: the bare arm on the left, completed, agent said done, verdict ready: PASS; the harness arm on the right, still working, with its last turns and the harness decisions](docs/images/screen-1-ab-live.png)
 
 *Screen 1 during a run: each arm's turns, cost against its cap, and the harness decisions as they happen.*
 
-![The harness arm on console screen 1 of a Section 1 run: run completed, harness decisions, the referee pill primary verdict ready: PASS](docs/images/screen-1-primary-verdict.png)
+![Console screen 1 of a Section 3 A/B on Feature 4: Version checks on issue edits: the bare arm completed after 43 turns, agent said done, primary verdict ready: PASS; the harness arm still working at turn 1.22](docs/images/screen-1-primary-verdict.png)
 
-*The primary verdict appears as soon as its checks finish (2:27 here); the full verdict follows when the secondary checks end (4:37 here).*
+*The primary verdict appears as soon as its checks finish, even while the other arm still works. The full verdict follows when the secondary checks end.*
 
 ![Console screen 2 with the TeamTrack board of each arm, both marked only own-org cards, no duplicates](docs/images/screen-2-boards.png)
 

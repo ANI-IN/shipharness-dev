@@ -204,9 +204,12 @@ note instructions agent read ARCHITECTURE.md
 
 **You should see:**
 
-![Screen 1 near the done claim: the harness arm's last turns 1.16 to 1.22, mostly apply_patch, and the first harness decisions; the Gate list is below the bottom edge of the picture](../images/s4/screen-1-gate-pending.png)
+![Close-up of the harness arm on screen 1 right after the done claim: eleven pending Gate pills, Agent said no claim yet, and the Referee line referee pending](../images/s4/screen-1-gate-pending.png)
 
-*Screen 1 near the done claim. The Gate list with its pending pills is further down the harness arm.*
+*Right after the done claim: every gate item is pending. "Agent said" shows the claim once the run ends.*
+
+1. Gate list: checks pending
+2. Agent said
 
 **Look at:** The row of pending pills: visible tests, Existing tests (regression), House rule 1: Tenant isolation to House rule 7: Migrations (one pill each), board check, clean state.
 
@@ -256,9 +259,12 @@ refused Gate refused 'done' (build phase, attempt 1): clean state: ruff: app/web
 
 **You should see:**
 
-![Screen 1 when the gate passed: the harness arm's last turns 1.16 to 1.22 and its harness decisions, ending with the block row for app/services/errors.py; the Gate list is below the bottom edge of the picture](../images/s4/screen-1-gate-passed.png)
+![Close-up of the harness arm on screen 1 when the gate passed: the harness decisions end with the block rows and gate pass; all eleven Gate pills are green; Agent said no claim yet; the Referee line says referee pending](../images/s4/screen-1-gate-passed.png)
 
-*Screen 1 when the gate passed. The green Gate pills are further down the harness arm.*
+*The gate passed every item at the first claim. The referee has not started yet.*
+
+1. Gate passed
+2. Gate list: every check passed
 
 **Look at:** Eleven ✓ pills, and three decisions right after them:
 
@@ -271,7 +277,7 @@ note       state exec plan moved to docs/exec-plans/completed/F4.md (F4 passes)
 **What it means:** Hover over "visible tests": `passed=190 failed=0 errors=0`. Only a passed gate sets `passes` to true in `feature_list.json`, with the gate id and the commit as evidence. The agent cannot set it itself. The test phase starts next.
 
 > [!CHECKPOINT]
-> "Agent said:" now shows ✓ done. The Referee line still says "referee pending".
+> Eleven ✓ pills. "Agent said:" still shows "– no claim" (the claims appear when the run ends), and the Referee line says "referee pending".
 
 > [!IFDIFFERENT]
 > - A pill shows ✗ → open its tooltip for the reason; the agent gets it too and tries again (Step 8).
@@ -334,9 +340,12 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 **You should see:**
 
-![Screen 1 when the primary verdict was ready: the harness arm shows run completed, 42 turns, with all turns and harness decisions; the Referee line is below the bottom edge of the picture](../images/s4/screen-1-primary.png)
+![Close-up of the harness arm on screen 1 when the primary verdict was ready: eleven green Gate pills; Agent said done (build) and not done (test phase); the Referee pill primary verdict ready: FAIL with hidden tests passed 68 and mutants killed 0; secondary checks running; launch to primary verdict 04:29; claim not supported](../images/s4/screen-1-primary.png)
 
-*Screen 1 when the primary verdict was ready. The referee pill is further down the harness arm.*
+*The gate passed, and the referee's primary verdict is FAIL. The secondary checks still run.*
+
+1. Referee: secondary checks running
+2. Referee pill (harness): primary verdict ready: FAIL
 
 **Look at:** The pill "✗ primary verdict ready: FAIL" and the values after it: "hidden tests passed 68 · mutants killed 0".
 
@@ -359,7 +368,7 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 **You should see:**
 
-![The harness panel of screen 1 after the run: eleven green gate pills, agent said done, primary verdict FAIL, hidden tests 68 of 69, mutants killed 0 of 4, claim not supported](../images/s4/screen-1-harness.png)
+![The harness panel of screen 1 after the run: eleven green gate pills, agent said done (build) and not done (test phase), primary verdict FAIL, hidden tests 68 of 69, mutants killed 0 of 4, claim not supported](../images/s4/screen-1-harness.png)
 
 *Screen 1, the end of the run: the gate passed, and the referee failed the run.*
 
@@ -392,7 +401,7 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 ![Terminal 2 at the end: the harness arm line with completed, agent said not done, primary measure failed, and the Cost line of $0.025731](../images/s4/term-end.png)
 
-*The last lines in Terminal 2.*
+*The last lines in Terminal 2, captured on 2026-10-18. The arm line now reads "agent said: done (build) · not done (test phase)".*
 
 ```text
 A/B ab-20261018-164402-1a796a (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
