@@ -6,8 +6,8 @@ final A/B. No other section has a poll, and no other poll slide is in the deck. 
 launch their live run on their start slide (`make show-1` at 0:11,
 `make show-2 SESSION_BUDGET=12,38` at 1:11, `make demo-3 FEATURE=version-checks` at 2:01);
 Section 4 launches `make show-4` and `make final` at 2:57, right after the poll. Timing is in
-[run-sheet.md](run-sheet.md); the slide is "Live Zoom Poll" in
-[../slides/module1-slides.md](../slides/module1-slides.md).
+[run-sheet.md](run-sheet.md); the slide is "Live Zoom Poll" in the class deck,
+[Harness Engineering for Coding Agents.pptx](../slides/Harness%20Engineering%20for%20Coding%20Agents.pptx).
 
 In class, note the vote counts and add them to the after-class record in VERIFICATION.md.
 

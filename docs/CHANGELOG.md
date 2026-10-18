@@ -4,6 +4,14 @@ All notable changes to this project are recorded here.
 
 ## Unreleased
 
+### The owner's deck is the only deck (2026-10-18)
+- `slides/Harness Engineering for Coding Agents.pptx`, the owner's final deck, is added unchanged
+  and is the only deck ([slides/README.md](../slides/README.md)).
+- Removed: `slides/module1-slides.md`, `module1-deck.pptx`, `module1-deck.pdf`, `outline.md`, and
+  `slides/img/`; the `make slides` target; the style checker's slide-file rules; the diagram
+  builder's check against the slide Markdown.
+- The release ships `slides/README.md` and the deck, and nothing else from `slides/`.
+
 ### Class deck replaces the earlier deck (2026-10-18)
 - `slides/deck.md`, `deck.pdf`, `deck.pptx` (the earlier 72-slide deck) and its builder
   `platform/scripts/build_slides.py` are removed. The class deck is `slides/module1-slides.md`

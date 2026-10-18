@@ -244,8 +244,9 @@ Each section runs the same way. Minutes count from the start of the section.
 | 46-50 | Q&A, and the link to the section's demo page |
 
 Section 3 runs two minutes ahead from the question on: the ideas at 9-28, the DEMO at 28-38, what
-we measured at 38-44, and the Q&A at 44-50. The minutes match the slide timings in
-[module1-slides.md](../slides/module1-slides.md).
+we measured at 38-44, and the Q&A at 44-50. The class deck is
+[Harness Engineering for Coding Agents.pptx](../slides/Harness%20Engineering%20for%20Coding%20Agents.pptx);
+its speaker notes are in the deck.
 
 Only Section 4 opens with a poll, the one poll of the class, at 2:55-2:57: the room picks the final
 feature (bulk close, watchers, or labels), then both Section 4 runs launch at 2:57. Section 4 has 45
@@ -380,8 +381,7 @@ The final A/B started at 2:57. This block starts no run.
 3. Screen 4, then the all-results slide. Say: "One A/B is one dot. Read it next to the runs from
    before class, never alone."
 4. Assignments, the skills, and the starter kit (`uv run shipharness init --target ../your-repo`).
-5. References: the last two slides. Their speaker notes, and the slides' Sources list, link every
-   source.
+5. References: the two References slides list every source cited in class, with its link.
 
 If the final is not finished at 3:40, walk through its live screens 1 and 2 instead of step 2. Come
 back to its screen 4 at the end.

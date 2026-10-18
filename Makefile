@@ -41,7 +41,7 @@ RUN ?=
 	test-docker demo-1 demo-2 demo-3 demo-4 show-1 show-2 show-3 show-4 swap-1 swap-2 swap-3 swap-4 \
 	final replay warm experiments \
 	report check-assignment-1 check-assignment-2 check-assignment-3 check-assignment-4 \
-	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4 slides
+	grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4
 
 help:
 	@echo "Targets (on Windows, run make inside Ubuntu on WSL2):"
@@ -63,7 +63,6 @@ help:
 	@echo "  report               Show the options of uv run shipharness report"
 	@echo "  check-assignment-N   Offline self-check of Assignment N"
 	@echo "  grade-assignment-N   Instructor only: grade a submission, SUBMISSION=<folder or git URL>"
-	@echo "  slides               Say where the class deck is: slides/module1-deck.pptx, and how it is built"
 	@echo "  test                 Run the fast test suite"
 	@echo "  test-all             Run every test that needs no key and no container"
 	@echo "  test-live            Run the tests that call OpenAI and LangSmith"
@@ -247,12 +246,6 @@ check-assignment-4:
 grade-assignment-1 grade-assignment-2 grade-assignment-3 grade-assignment-4:
 	@if [ -z "$(SUBMISSION)" ]; then echo "! $@ needs SUBMISSION=<folder or git URL>"; exit 2; fi
 	$(UV) run python platform/scripts/grade_assignment.py $(subst grade-assignment-,,$@) "$(SUBMISSION)"
-
-# slides: the class deck is built outside this repository (slides/README.md); this target says where.
-slides:
-	@echo "The class deck: slides/module1-deck.pptx (PDF: slides/module1-deck.pdf), 80 slides with speaker notes."
-	@echo "Source: slides/module1-slides.md (content, layouts, notes); the PowerPoint is built from it with the course PowerPoint template."
-	@echo "How it is built and how to view it: slides/README.md"
 
 # show-4 only (a demo setting, not a comparison): the test filters run on the first MAX_TESTS
 # proposed tests; MAX_TESTS= filters them all.

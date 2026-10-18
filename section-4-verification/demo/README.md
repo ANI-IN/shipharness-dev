@@ -113,7 +113,7 @@ checks feature:
 A/B <run id> (F4, layers=['instructions', 'scope', 'state', 'verify'], profile=class, harness in action)
   harness  ABORTED: timeout  claim=done     primary={"hidden_passed": 68, "mutants_killed": 0} passed=False hidden 68/69 mutants 0/4 reviewer=reject cost=$0.0233
 Cost: $0.026511 (this command: gpt-5.6-luna $0.003201, gpt-6-luna $0.023310; ...)
-make: *** [Makefile:178: show-4] Error 2
+make: *** [Makefile:177: show-4] Error 2
 ```
 
 The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`. An

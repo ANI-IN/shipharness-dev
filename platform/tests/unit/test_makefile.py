@@ -472,12 +472,11 @@ def test_only_show_4_caps_the_filtered_tests() -> None:
 # -- slides ---------------------------------------------------------------------------------------
 
 
-def test_make_slides_points_to_the_class_deck_and_builds_nothing() -> None:
-    # The class deck is slides/module1-deck.pptx, built from slides/module1-slides.md outside this
-    # repository with the course PowerPoint template; `make slides` says where it is and how.
-    recipe = " ".join(_rules()["slides"])
-    for part in ("slides/module1-deck.pptx", "slides/module1-slides.md", "slides/README.md"):
-        assert part in recipe, part
-    assert "build_slides" not in recipe and "deck.md" not in recipe.replace("module1-", "")
+def test_there_is_no_slides_target() -> None:
+    # The class deck is the owner's PowerPoint file, slides/Harness Engineering for Coding
+    # Agents.pptx, kept as it is: the repository builds no slides (2026-10-18).
+    text = MAKEFILE.read_text(encoding="utf-8")
+    assert "slides" not in _rules()
+    assert "slides" not in _help_entries()
     assert "SLIDES_OPTS" not in _variables()
-    assert "module1-deck.pptx" in _help_entries()["slides"]
+    assert "module1-" not in text and "build_slides" not in text

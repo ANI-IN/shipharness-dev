@@ -84,7 +84,6 @@ ALLOW_DIRS = (
     "platform/sandbox/",
     "platform/config/",
     "platform/tests/",
-    "slides/img/",  # console screenshots of the timed runs (the run sheet lists them)
     "docs/images/",  # screenshots the README and shared pages embed
     "docs/evidence/",  # run ids, finding ids, and provenance per section
 )
@@ -109,7 +108,6 @@ SETUP_FILES = tuple(
     f"setup/{name}.md" for name in ("README", "pre-class", "windows", "macos", "linux")
 )
 REFERENCES_FILE = "docs/REFERENCES.md"  # generated from RESEARCH.md and research/notes/
-SLIDE_SUFFIXES = (".md", ".pdf", ".pptx")
 SECTIONS = ("section-1", "section-2", "section-3", "section-4")
 # The course diagrams: each diagrams/ folder ships its README.md and, per diagram, the Excalidraw
 # source and its two renders. Nothing else in a diagrams/ folder ships.
@@ -165,13 +163,11 @@ FINAL_EXPECTED = (
     "final-project/your-repo/example/",
     "final-project/CHECKLIST.md",
 )
-# The class deck: its source and the PowerPoint and PDF built from it with the owner's template
-# (slides/README.md). The earlier 72-slide deck (slides/deck.*) was removed on 2026-10-18.
+# The class deck: the owner's PowerPoint file, as it is, and the folder's README. Nothing else in
+# slides/ ships; every earlier deck version was removed on 2026-10-18.
 SLIDES_EXPECTED = (
     "slides/README.md",
-    "slides/module1-slides.md",
-    "slides/module1-deck.pptx",
-    "slides/module1-deck.pdf",
+    "slides/Harness Engineering for Coding Agents.pptx",
 )
 SCRIPTS_DIR = "platform/scripts/"
 # Learner scripts: the ones a public Makefile target, CI job, or public document runs.
@@ -280,7 +276,7 @@ def _allowed(path: str) -> bool:
     if path.startswith(ALLOW_DIRS) or _DOCS_DIAGRAM.match(path):
         return True
     if path.startswith("slides/"):
-        return path.endswith(SLIDE_SUFFIXES)
+        return path in SLIDES_EXPECTED
     return bool(_SECTION_ITEM.match(path))
 
 

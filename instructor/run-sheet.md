@@ -15,9 +15,9 @@ step.
 Companion files: [code-walkthrough.md](code-walkthrough.md) (anchors and talking points),
 [poll-questions.md](poll-questions.md) (the one poll, at the start of Section 4), [fallbacks.md](fallbacks.md)
 (fallback recordings, replay, and the optional extras),
-[review-session-guide.md](review-session-guide.md) (Thursday review), and the slide deck
-[../slides/module1-slides.md](../slides/module1-slides.md) (slides are named below by their title,
-such as "Section 1 start" or "DEMO - 1", because the deck's numbering changes as it is edited). The
+[review-session-guide.md](review-session-guide.md) (Thursday review), and the class deck
+[Harness Engineering for Coding Agents.pptx](../slides/Harness%20Engineering%20for%20Coding%20Agents.pptx),
+with its speaker notes in the deck (slides are named below by their title, such as "DEMO - 1"). The
 public one-page version with the class-day cheat sheet is
 [../docs/instructor-guide.md](../docs/instructor-guide.md).
 
@@ -205,8 +205,9 @@ own launch ([Section 4](#section-4-verification-255-340)).
 
 ## Minute-by-minute
 
-Times are elapsed from the start of class. Slides are named by their title in
-[../slides/module1-slides.md](../slides/module1-slides.md). Each section launches its live run on
+Times are elapsed from the start of class. Slides are named by their title in the class deck,
+[Harness Engineering for Coding Agents.pptx](../slides/Harness%20Engineering%20for%20Coding%20Agents.pptx).
+Each section launches its live run on
 its start slide, one minute in, so the run has the whole section to finish; the section teaches the
 failure story and the four ideas while the run proceeds, then the DEMO slide walks through the
 implementation notes and the finished run, then "What we measured" and the Q&A
@@ -296,14 +297,6 @@ the second to end close to 3:40 ([If a final A/B is not finished at 3:40](#final
 At most two runs at a time: in Section 4, show-4 and the final run together. The class profile limits each
 container to 2 CPUs (VERIFICATION.md, change 18) because a class runs at most two A/Bs at once.
 
-The slide pictures (`slides/img/`) and the runs they show, for `docs/evidence.md` (Captures):
-`s1-watch.png`, `s1-result.png` from `ab-20261017-112101-c5d839`; `s2-watch.png`, `s2-result.png`
-from `ab-20261017-113213-fe89a3`; `s3-watch.png` (screen 3, Scope and sandbox column) and
-`s3-result.png` (screen 1, both arms' verdict lines) from `ab-20261017-152601-3a7237`, captured
-2026-10-17 after the run with the console's post-run view; `s4-watch.png`, `s4-result.png` from
-`ab-20261017-115138-c45d9d`; `final-console.png`, `final-boards.png` from
-`ab-20261017-120323-c97138`.
-
 ### Check at section minute 15
 
 Near the end of the ideas (in Section 4 at minute 15, 3:10), glance at terminal B.
@@ -382,7 +375,7 @@ start of the section.
 6. **Q&A and transition (minutes 46-50).**
 
 Section 3 runs two minutes ahead from the reveal on: ideas 9-28, DEMO 28-38, what we measured
-38-44, Q&A 44-50. The minutes match the slide timings in `slides/module1-slides.md`.
+38-44, Q&A 44-50.
 
 Section 4 has 45 minutes. Its start slide is followed by the Live Zoom Poll for the final feature
 (minutes 0-2), then two launches at minute 2 (2:57), `make show-4` and `make final`. Its story and reveal run

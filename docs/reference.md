@@ -97,7 +97,6 @@ Targets (on Windows, run make inside Ubuntu on WSL2):
   report               Show the options of uv run shipharness report
   check-assignment-N   Offline self-check of Assignment N
   grade-assignment-N   Instructor only: grade a submission, SUBMISSION=<folder or git URL>
-  slides               Say where the class deck is: slides/module1-deck.pptx, and how it is built
   test                 Run the fast test suite
   test-all             Run every test that needs no key and no container
   test-live            Run the tests that call OpenAI and LangSmith
@@ -158,13 +157,12 @@ aborted (cost cap or time limit; still judged and shown), 1 on an error.
 | `make replay RUN=<id>` | `uv run shipharness replay <id> --purpose class` | Replays a recorded run with RECORDING on every screen and judges it again |
 | `make example-1` to `make example-4` | `uv run shipharness example --section demo-N --profile class` | Optional extra: scripted steps, no model ([extras](extras.md)) |
 
-### Assignments, slides, and tests
+### Assignments and tests
 
 | Target | Runs | What it does |
 |---|---|---|
 | `make check-assignment-1` to `-4` | `uv run python section-N-*/assignment/check.py` | Offline self-check of your work |
 | `make grade-assignment-1` to `-4` | `uv run python platform/scripts/grade_assignment.py N "<SUBMISSION>"` | The instructor's grader; the graders are not in this repository |
-| `make slides` | `echo` lines only | Prints where the class deck is and how it is built; builds nothing |
 | `make test` | `uv run pytest` | The fast suite |
 | `make test-all` | `uv run pytest -n auto -m "not live and not docker"` | Every test that needs no key and no container |
 | `make test-live` | `uv run pytest -m live platform/tests/live` | Tests that call OpenAI and LangSmith |
@@ -319,7 +317,7 @@ is $6 of OpenAI usage and 400 LangSmith traces (course policy).
 | `setup/` | First-time setup for Windows, macOS, and Linux |
 | `section-1-instructions/` to `section-4-verification/` | One folder per section: concepts, demo, assignment, reading, session notes |
 | `final-project/` | The whole harness on a new feature, then your own repository |
-| `slides/` | The deck source and its builder |
+| `slides/` | The class deck, one PowerPoint file |
 | `use-in-your-repo/` | The starter kit (`kit/`), four skills (`skills/`), and the guide |
 | `docs/` | This page, the instructor guide, troubleshooting, architecture, evidence |
 | `platform/src/shipharness/` | The command-line tool: runner, harness layers, referee, console |

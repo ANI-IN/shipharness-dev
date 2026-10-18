@@ -161,10 +161,9 @@ Source: `platform/src/shipharness/ab/commands.py` and `platform/src/shipharness/
 
 ## Slides
 
-`make slides` builds nothing: it prints where the class deck is (`slides/module1-deck.pptx` and
-`slides/module1-deck.pdf`) and that it is built from `slides/module1-slides.md`. If the PowerPoint
-file does not open, read the PDF or the source; [slides/README.md](../slides/README.md) says how to
-view each.
+The class deck is one PowerPoint file,
+[Harness Engineering for Coding Agents.pptx](../slides/Harness%20Engineering%20for%20Coding%20Agents.pptx).
+Open it in PowerPoint; the speaker notes are in the deck. There is no PDF and no slide build.
 
 ## Assignments
 

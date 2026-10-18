@@ -9,7 +9,7 @@ from style import FONT_BODY, INK
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
-    # Source: slides/module1-slides.md, "Failure story: The search that showed another org"
+    # Source: the class deck, "Failure story: The search that showed another org"
     # (illustrative; list_all_legacy is real code in platform/teamtrack/app/repositories/issues.py).
     @diagram(S1, "failure-story-s1")
     def failure_story_s1(s: Scene) -> None:

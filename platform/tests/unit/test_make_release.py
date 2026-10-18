@@ -26,6 +26,7 @@ _spec.loader.exec_module(mr)
 # -- selection ----------------------------------------------------------------------------------
 
 A1 = "section-1-instructions"
+DECK = "slides/Harness Engineering for Coding Agents.pptx"
 TRACKED = [
     "docs/images/screen-2-boards.png",
     "docs/evidence/s1.md",
@@ -45,6 +46,7 @@ TRACKED = [
     "docs/extras.md",
     "docs/CHANGELOG.md",
     "setup/README.md",
+    DECK,
     "slides/module1-slides.md",
     "slides/README.md",
     "slides/img/show-1-screen-1.png",
@@ -127,9 +129,8 @@ def test_selection_follows_the_owner_structure() -> None:
         "platform/scripts/fetch_testgen_libs.py",
         "platform/scripts/grade_assignment.py",
         "platform/scripts/lint_prose.py",
-        "slides/outline.md",
-        "slides/module1-deck.pdf",
-        "slides/module1-deck.pptx",
+        "slides/README.md",
+        DECK,
         "platform/src/shipharness/cli.py",
         f"{A1}/README.md",
         f"{A1}/concepts.md",
@@ -182,6 +183,11 @@ def test_selection_leaves_out_private_internal_and_unlisted_files() -> None:
         "platform/scripts/pilot.py",
         "platform/scripts/publish_solutions.py",
         "slides/build.sh",
+        "slides/module1-slides.md",
+        "slides/outline.md",
+        "slides/module1-deck.pdf",
+        "slides/module1-deck.pptx",
+        "slides/img/show-1-screen-1.png",
         f"{A1}/scratch/idea.md",
         f"{A1}/assignment/solution/grader/hidden/checker_cases.py",
         f"{A1}/assignment/solution/grader/tests/test_grade.py",
@@ -957,7 +963,7 @@ def test_dry_run_cli_reports_broken_references_without_failing(
 
 def test_the_starter_kit_its_guide_and_the_class_deck_ship() -> None:
     # Learners apply the kit to their own repositories (docs/apply-to-your-repo.md); the class
-    # deck ships as its source and its built PowerPoint and PDF.
+    # deck ships as the owner's PowerPoint file, with the folder's README.
     sel = mr.select(TRACKED)
     for path in [
         "use-in-your-repo/kit/README.md",
@@ -966,27 +972,29 @@ def test_the_starter_kit_its_guide_and_the_class_deck_ship() -> None:
         "use-in-your-repo/apply-to-your-repo.md",
         "docs/extras.md",
         "slides/README.md",
-        "slides/module1-slides.md",
-        "slides/module1-deck.pptx",
-        "slides/module1-deck.pdf",
+        DECK,
     ]:
         assert path in sel.included, path
 
 
-def test_the_release_expects_the_class_deck_not_the_earlier_one() -> None:
-    # The earlier 72-slide deck (slides/deck.*) and its builder were removed on 2026-10-18.
+def test_the_release_expects_only_the_owner_deck() -> None:
+    # Every earlier deck version (slides/deck.*, module1-slides.md, module1-deck.*, outline.md)
+    # was removed on 2026-10-18; the owner's deck is the only one.
     assert "platform/scripts/build_slides.py" not in mr.LEARNER_SCRIPTS
-    deck = [p for p in mr.SLIDES_EXPECTED if "/deck." in p]
-    assert deck == []
-    assert set(mr.SLIDES_EXPECTED) == {
-        "slides/README.md",
+    assert set(mr.SLIDES_EXPECTED) == {"slides/README.md", DECK}
+    missing = mr.missing_expected(["slides/README.md"])
+    assert DECK in missing
+    assert not [p for p in missing if "module1-" in p or "slides/deck." in p]
+    for old in (
+        "slides/deck.md",
         "slides/module1-slides.md",
         "slides/module1-deck.pptx",
         "slides/module1-deck.pdf",
-    }
-    missing = mr.missing_expected(["slides/README.md", "slides/module1-slides.md"])
-    assert "slides/module1-deck.pptx" in missing and "slides/module1-deck.pdf" in missing
-    assert not [p for p in missing if "slides/deck." in p]
+        "slides/outline.md",
+        "slides/other.pptx",
+    ):
+        assert mr.classify(old) == mr.REASON_NOT_ALLOWED, old
+    assert mr.classify(DECK) is None
 
 
 def test_a_word_that_equals_a_script_stem_is_not_a_reference_to_the_script() -> None:
@@ -1014,9 +1022,10 @@ def test_a_test_importing_an_excluded_test_module_is_excluded_with_it() -> None:
     assert "platform/tests/unit/ab/test_user.py" in found
 
 
-def test_the_slide_screenshots_ship() -> None:
-    # slides/img/*.png: the console screenshots of the timed runs that the run sheet lists.
-    assert "slides/img/show-1-screen-1.png" in mr.select(TRACKED).included
+def test_the_old_slide_screenshots_do_not_ship() -> None:
+    # slides/img/ held the screenshots of the earlier deck only; it was removed with it.
+    assert "slides/img/" not in mr.ALLOW_DIRS
+    assert "slides/img/show-1-screen-1.png" not in mr.select(TRACKED).included
 
 
 # -- contributors ------------------------------------------------------------

@@ -145,7 +145,7 @@ shows. You do not need to tell the colours apart to read a diagram.
 - **Files**: `which-layer-when`.
 - **Kept to five boxes**: the failures are plain text with an arrow, not boxes; the cost and
   the signal for each layer are in the slide notes and the four `concepts.md` pages.
-- **Source**: the four `concepts.md` pages, and the scope result on Feature 4 (slide 70 notes).
+- **Source**: the four `concepts.md` pages, and the scope result on Feature 4 (the class deck's "All results" slide).
 
 ### The results
 
