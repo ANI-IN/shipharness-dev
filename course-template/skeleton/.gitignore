@@ -3,4 +3,10 @@
 __pycache__/
 .pytest_cache/
 .ruff_cache/
+
+# Every folder the tool writes in a learner's copy: run logs, workspaces, exports, screenshots.
+# Rename these to the folders your tool really writes, and keep TOOL_OUTPUT_DIRS in
+# platform/tests/test_gitignore.py equal to this list.
+.runs/
 exports/
+guide/build/
