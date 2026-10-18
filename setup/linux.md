@@ -427,6 +427,8 @@ warm: done (1.9 s)
 
 A first run with no cached baselines took 407 s on the course machine; a second run
 took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
+In a fresh clone of the release on 2026-10-18, the first `make warm` built both images (236.8 s),
+computed 10 baselines, and ended `warm: done (429.0 s)`.
 
 **Check it worked.** The last line before the cost line is `warm: done`.
 
@@ -478,15 +480,17 @@ Console: http://127.0.0.1:8765/
 Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
-Reload the run list in the browser, open the newest run, and press `1`. The run takes about 10
-minutes. The second terminal ends with the arm's result line and a cost line. On the course machine:
+Reload the run list in the browser, click the top card ("Section 1: Instructions", "harness in
+action"), and press `1`. In the live run of 2026-10-18 (class profile, alone) the primary verdict
+came 2:35 after launch and the command ended at 4:45; earlier runs took up to about 11 minutes. The
+second terminal ends with the arm's result line and a cost line. On the course machine:
 
 ```text
-  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 2 of 4 · reviewer accept · cost $0.0179
-Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; session $1.342904 of $2.50; build $2.268653 of $15.00 ($12.731347 left))
+  harness  completed         agent said done · House rule 1: Tenant isolation, new violations: 0 · primary measure passed · hidden tests 52 of 52 · mutants killed 3 of 4 · reviewer accept · cost $0.0178
+Cost: $0.020302 (this command: gpt-5.6-luna $0.002464, gpt-6-luna $0.017838; session $0.020302 of $2.50; build $0.020302 of $15.00 ($14.979698 left))
 ```
 
-The `session` figure there includes earlier runs on that machine; your first session starts at $0.
+That was the first command of its session, so the `session` figure equals its own cost.
 What each screen shows, screen by screen, is in the [Section 1 demo](../section-1-instructions/demo/README.md).
 
 **Check it worked.** The console shows the run with a primary verdict, and the terminal shows a

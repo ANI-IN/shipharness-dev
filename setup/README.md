@@ -39,8 +39,10 @@ The caps come from `.env.example`. Every live command prints a `Cost:` line, and
 refuses any model call that would cross a cap.
 
 How long it takes: the course has not timed a first install on a clean machine. On the course
-machine, building both images took 145 s, and the first `make show-1` ended about 10 minutes after
-launch ([evidence](../docs/evidence/general.md#timings)). Account sign-up, downloads, and the WSL
+machine, building both images took 145 s (236.8 s in a fresh clone of the release on 2026-10-18,
+where the whole first `make warm` took 429 s), and the first `make show-1` ended about 10 minutes after
+launch ([evidence](../docs/evidence/general.md#timings)); in the live run of 2026-10-18, 4 min 45 s
+([evidence](../docs/evidence/general.md#guide-runs-2026-10-18)). Account sign-up, downloads, and the WSL
 restart depend on you and your network.
 
 ## Pick your system

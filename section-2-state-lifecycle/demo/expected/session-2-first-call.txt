@@ -1,14 +1,9 @@
 The first tool call of session 2 (turn 2.1) and the start of its output, as the run log recorded
 them. The run log keeps only the start of a long output; it ends where the log cut it.
 
-$ pwd && git log --oneline -20 && cat progress.md && cat session-handoff.md && cat docs/exec-plans/active/F2.md && bash init.sh
+$ pwd; cat progress.md; git log --oneline -20; cat session-handoff.md; cat docs/exec-plans/active/F2.md; bash init.sh
 exit=0
 /work
-5e37077 harness: session 1 handoff for F2
-127aeea docs: hand off F2 comments implementation
-2756e9a harness setup
-c9d4126 harness: initializer step for F2
-6222899 checkpoint m1-s2-start
 # Progress
 
 A log of what agents have done on this ticket. Read it with the git log at the start of every
@@ -17,4 +12,12 @@ each session.
 
 ## Current feature
 
-Feature 2: Comments on issues. Comments on issues, with a co
+Feature 2: Comments on issues. Comments on issues, with a comments panel on the board
+
+## Done
+
+- Read feature spec and handbook; initialization and existing test suite verified.
+
+## In progress
+
+- Implement comments API, persistence, migration, 

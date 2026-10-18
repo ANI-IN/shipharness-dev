@@ -306,8 +306,9 @@ Put the return time on the break slide. Nothing runs during the break.
 and session 2 starts with an empty context and 38 turns. The primary verdict asks: did session 2
 break or redo session 1's work?
 
-DEMO, after the implementation notes: screen 1 (`Session 1 stopped`, then `Session 2 resumed`), screen 3 (Sessions, and the
-state files under Files read), screen 2 (the board with the comments panel), screen 5 (the first
+DEMO, after the implementation notes: screen 1 (`Session 1 stopped`, then `Session 2 resumed`), screen 3 (Sessions: "Session 1 · 12
+turns · turn_budget", then session 2 and the test phase; the state files are read with `cat`, so they
+show under "All turns" on screen 1, not under Files read), screen 2 (the board with the comments panel), screen 5 (the first
 wrong turn).
 
 Say at the result: "Before class, neither arm failed continuity. The measure cannot fail when

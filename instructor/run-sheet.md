@@ -426,7 +426,7 @@ implementation notes come first (0:40-0:43); the rows below are the run (0:43-0:
 | Harness in action | `3` Evidence | "Files read" by category (map, skill, harness doc, code, test); the referee's House rule 1 line | "The referee probes every endpoint as Acme with Globex ids and expects 404 (DESIGN §5). It does not care which arm wrote the code." |
 | Harness in action | `2` Boards, `5` Traces | The harness arm's board as an Acme user: "✓ only own-org cards"; the tail of events and the trace links | "Feature 1 changes no board pixels, so the board shows one frame. Screen 5 is where you look for the first wrong turn." |
 | Reading the result | `1` | "primary verdict ready" with the time from launch, then the referee's verdict: new House rule 1 violations, hidden tests, mutants | "This is one harness arm on one run. It tells us the layer ran; it cannot tell us the layer helped. That needs the A/B." |
-| What we measured | slide, screen `4` | Section 1 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. Here the assumption did not hold: the bare arm applied House rule 1 from the handbook." |
+| What we measured | slide, screen `4` | Section 1 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1. Screen 4 shows "4/4 before class" per arm (run 4 and the class round; run 3's records are of an older referee version) | "No measurable difference on this task with this model. Here the assumption did not hold: the bare arm applied House rule 1 from the handbook." |
 
 What the quiet run of `make show-1` showed (captured on 2026-10-17, run
 `ab-20261017-112101-c5d839`; your output will differ): screen 1 listed 31 instruction files placed
@@ -471,7 +471,7 @@ ends only that session.
 
 **Command (1:11).** `make show-2 SESSION_BUDGET=12,38`, on the Section 2 start slide.
 
-**At launch (1:11-1:12).** Open the newest `ab-...`, press `1`. The harness arm's first harness
+**At launch (1:11-1:12).** Open the top card of the run list, press `1`. The harness arm's first harness
 decision is the initializer step note (`init.sh`, `progress.md`, `session-handoff.md`, the exec
 plan); its first turns follow the Getting up to speed routine.
 
@@ -484,10 +484,10 @@ implementation notes come first (1:40-1:43); the rows below are the run (1:43-1:
 | Part | Screen | Watch | Say |
 |---|---|---|---|
 | Harness in action | `1` | "■ Session 1 stopped" and "▶ Session 2 resumed" in the finished timeline | "This stop is the session turn budget. A3 calls the pattern a context reset with a structured handoff (A3, F-a-65; RESEARCH G-5)." |
-| Harness in action | `3` Evidence | "Sessions" (turns, `ended_by`, ↺ redone files); "Files read": `progress.md`, `session-handoff.md` | "Session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62)." |
+| Harness in action | `3` Evidence | "Sessions": "Session 1 · 12 turns · turn_budget" (the end reason shows on that row only), "Session 2 · 38 turns", "Test phase · 12 turns", ↺ redone files if any. "Files read" lists only files opened with the file tools: the state files are not there, because the agent reads them with `cat` in a `run` call; show turn 2.1 under "All turns" on screen 1 instead | "Session 2 started with A2's Getting up to speed routine (A2, F-a-58 to F-a-62)." |
 | Harness in action | `2`, `5` | The board after the run ("✓ only own-org cards, no duplicates"); the first wrong turn and the trace links | "Did the second session finish what the first started? Screen 5 names the first turn that edited a file a failing check names." |
 | Reading the result | `1`, `3` | "primary verdict ready", then the continuity verdict; screen 3 "Sessions" | "Before change 14, a `finish(not_done)` at the end of session 1 ended the build phase in 6 of the 12 Feature 2 arms of runs 3 and 4. Now it ends only that session, in both arms." |
-| What we measured | slide, screen `4` | Section 2 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1 | "No measurable difference on this task with this model. The measure cannot fail when session 1 leaves nothing to redo: 6 of the 12 Feature 2 arms of runs 3 and 4 built nothing (hidden 3 of 56)." |
+| What we measured | slide, screen `4` | Section 2 row: run 3 3/3, 3/3; run 4 3/3, 3/3; class round 1/1, 1/1. Screen 4's "Comments on issues · canonical" rows show "4/4 before class" per arm: run 4 and the class round; run 3's records are of an older referee version and are left out | "No measurable difference on this task with this model. The measure cannot fail when session 1 leaves nothing to redo: 6 of the 12 Feature 2 arms of runs 3 and 4 built nothing (hidden 3 of 56)." |
 
 What the quiet run of `make show-2 SESSION_BUDGET=12,38` showed (captured on 2026-10-17, run
 `ab-20261017-113213-fe89a3`; your output will differ): about 2 minutes after launch, turn 1.12 called

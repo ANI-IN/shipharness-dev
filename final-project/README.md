@@ -104,7 +104,7 @@ In terminal 2. `run.sh` checks the keys, the class date, Docker, and the console
 PURPOSE=pilot ./final-project/run.sh bulk-close
 ```
 
-Open the newest run and press `1`. Terminal 2 then prints, per arm, one line, and a cost line (the
+Reload the run list in the browser, click the top card ("Final project", the feature, "A/B"), and press `1`. Terminal 2 then prints, per arm, one line, and a cost line (the
 2026-10-17 run in the current wording; [expected/terminal.txt](expected/terminal.txt) is the original):
 
 ```text
@@ -141,7 +141,7 @@ to 12:04, full 8:41 to 15:22 (its test filters run to the end); $0.044 to $0.048
 | Minute of the console clock, screenshot run of 2026-10-18 | Screen | What appears |
 |---|---|---|
 | 1 | 1 | Both arms at work; the harness arm shows its layer notes |
-| 2 to 3 | 1 | Bare: run completed after 36 turns, then "primary verdict ready: PASS" |
+| 2 to 3 | 1 | Bare: run completed, then "verdict ready: PASS · judged on all checks" |
 | 6 | 1 | Harness: said done; every gate item passes; the test phase starts |
 | 12 to 15 | 1 to 5 | Harness primary verdict, then both full verdicts; terminal 2 prints both lines |
 
@@ -162,8 +162,8 @@ Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) sh
 ## What the result means
 
 **The three final features have no primary measure.** Their `task.toml` files set `primary_measure = ""`, so the
-referee marks every run as passed. On screen 1, "primary verdict ready: PASS" says nothing about the
-feature. Compare the counts instead:
+referee marks every run as passed. On screen 1, "verdict ready: PASS · judged on all checks" says
+nothing about the feature. Compare the counts instead:
 
 | Count | Where | What it tells you |
 |---|---|---|

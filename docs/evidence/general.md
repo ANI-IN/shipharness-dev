@@ -540,6 +540,34 @@ guide): show-1 `ab-20261018-045459-2efbfc`, show-2 `ab-20261018-040749-dad2e1`, 
 `ab-20261018-040352-f8c404` (the show-4 run with kept and discarded tests) gave
 `ab-20261018-050437-eaeab8`, 255 events, all five screens populated, $0.
 
+### Live runs for the demo guide (2026-10-18)
+
+<a id="guide-runs-2026-10-18"></a>
+
+Run on 2026-10-18 from 16:14 UTC in a fresh clone of the public release at tag class-v1 (d4001f0;
+`uv run shipharness verify --tag class-v1` passed), class profile, `PURPOSE=pilot`, one live run of
+each class command, in class order. The screenshots and terminal outputs in each demo's `expected/`
+folder and in `final-project/expected/` come from these runs. Times run from the make command's
+launch to the arm's first `primary_verdict` event and to its verdict event in the run's log. Only
+runs that ran alone give timings. These runs are added here; no earlier result or measure on these
+pages changed.
+
+Setup: `make doctor PURPOSE=pilot` 6 s, `result: + ready`. The first `make warm PURPOSE=pilot` built
+both images (236.8 s; a fresh clone has no record of their source), computed 10 baselines, and
+ended `warm: done (429.0 s)`, 431 s wall. `make console` printed its address and the quiet-mode
+line. $0.
+
+<!-- guide-runs -->
+- `make show-1`: `ab-20261018-162244-860638` (harness `r-20261018-162244-5e25ee`), ran alone;
+  completed, agent said done, 38 turns; primary verdict 2:35, full verdict 4:45, command 4:45 (exit
+  0); House rule 1: Tenant isolation, new violations 0; hidden tests 52 of 52; mutants killed 3 of 4;
+  reviewer accept; $0.020302.
+- `make show-2 SESSION_BUDGET=12,38`: `ab-20261018-162745-ccba38` (harness
+  `r-20261018-162745-1687ea`), ran alone; completed, no claim, 62 turns (session 1 12 turns,
+  stopped by its turn budget at 1:16; session 2 38; test phase 12); primary verdict 5:18, full
+  verdict 7:11, command 7:12 (exit 0); no continuity failure; hidden tests 56 of 56; mutants killed
+  1 of 4; reviewer accept; $0.043716.
+
 ### Score records shipped with the course (2026-10-18)
 
 <a id="before-class-records"></a>

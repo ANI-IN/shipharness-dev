@@ -1,7 +1,7 @@
 # Module 1: Harness Engineering for Coding Agents - Demo 1: What one real run looked like
 
-This folder holds the output and the screenshots of one real `make show-1` run, run on 2026-10-18
-with the class settings (run id on the
+This folder holds the output and the screenshots of one real `make show-1` run, the live run of
+2026-10-18 for the demo guide, with the class settings (run id on the
 [evidence page](../../../docs/evidence/s1.md#s1-show-1-capture)). Nothing here is
 staged or edited, except where a line says it was cut. Use it to check that your run looks roughly
 like this one, or to follow the demo without running it. When and how it was captured is on the
@@ -23,44 +23,53 @@ like this one, or to follow the demo without running it. When and how it was cap
 |---|---|
 | `terminal.txt` | The command, the record line, the cost line, the start and end lines |
 
-The start and end lines (with the wall time) are the capture script's. The running cost
-totals are cut from `terminal.txt` where it shows `...`.
+The start and end lines (with the wall time) are the capture script's; nothing is cut. This was the
+first command of its session, so the `session` figure equals its own cost.
 
 ## Screenshots
 
-The screenshots were taken after the run, from `make console`, which serves recorded runs. The
-minute screens show the console fed with the run's log up to that minute of the console clock.
+The screenshots were taken from `make console` after the run ended (the minute 1 screen from the
+console fed with the run's log up to that point). The numbered circles are the demo guide's
+callouts; each caption names them. Times count from the make command's launch.
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Screen 1 at minute 1: build turns, two harness notes, no gate, referee pending](screen-1-minute-1.png)
+![The run list: one card per run, newest first, with the run id, section, feature, type, status, and start time](runlist.png)
 
-*Minute 1: 31 instruction files placed and `ARCHITECTURE.md` read. No gate; referee pending.*
+*The run list. Circles: 1 the run id (click to open), 2 the type, "harness in action", 3 the status, 4 the start time.*
 
-![Screen 1 at minute 2: the agent said done and session 2 reads the tests](screen-1-minute-3.png)
+![Screen 1 about one minute in: the bare arm reads Not run (harness in action); the harness arm shows its first turns and two layer notes](screen-1-minute-1.png)
 
-*Minute 2: the agent has said done and, in its second session, reads the tests and runs them.*
+*About one minute in: 31 instruction files placed and `ARCHITECTURE.md` read.*
 
-![Screen 1 at minute 3: primary verdict PASS, secondary checks running](screen-1-minute-4.png)
+Circles: 1 the HARNESS IN ACTION badge, 2 the bare arm, "Not run (harness in action)", 3 the harness arm's layers, 4 the container line, 5 the last turns, 6 the harness decisions.
 
-*Minute 3: "primary verdict ready: PASS", no new tenant isolation violations, other checks still running.*
+![Screen 1 after the full verdict: run completed after 38 turns, primary verdict ready: PASS](screen-1-final.png)
 
-![Screen 1 after the full verdict: primary verdict PASS, hidden tests 50/52, claim supported](screen-1-final.png)
+*The end: run completed after 38 turns; "primary verdict ready: PASS" came 2:35 after launch, the full verdict 4:45 (hidden tests 52/52, mutants killed 3/4).*
 
-*The end: 38 turns, hidden tests 50/52, mutants killed 3/4, primary verdict at 02:35, full at 05:34.*
+Circles: 1 "← All runs" (or H, Esc), 2 the screen tabs, 3 the bare arm, 4 the harness arm's layers.
 
-![Screen 2: the board as admin@acme.test](screen-2-final.png)
+![Screen 1 with Harness decisions expanded: the two instructions notes](screen-1-decisions.png)
 
-*Screen 2: only own-org cards, no duplicates.*
+*Screen 1 with "Harness decisions" expanded: "placed 31 instruction files" and "agent read ARCHITECTURE.md". "All turns" expands the same way.*
 
-![Screen 3: files read, changed files, referee checks](screen-3-final.png)
+![Screen 2: the harness arm's board as admin@acme.test, only own-org cards](screen-2-final.png)
 
-*Screen 3: `ARCHITECTURE.md` and the handbook read; five files changed; every check 0 new.*
+*Screen 2: only own-org cards, no duplicates. Circles: 1 "← All runs", 2 the harness board, 3 the board marks, 4 the bare arm, not run.*
 
-![Screen 4: primary results, one dot per run](screen-4-final.png)
+![Screen 3: files read, Session 1 of 26 turns and Test phase of 12 turns, five changed files, every referee check 0 new, reviewer accept](screen-3-final.png)
 
-*Screen 4: the test runs before class, one dot per run. This run's verdict is at the top, not a dot.*
+*Screen 3: `ARCHITECTURE.md` and the handbook read; "Session 1 · 26 turns", "Test phase · 12 turns"; five files changed; every check 0 new; the reviewer accepts.*
 
-![Screen 5: referee events and LangSmith links](screen-5-final.png)
+Circles: 1 the sessions, 2 the diff map, 3 Files outside the allowed paths (`diff_scope`), 4 the blinded reviewer's reason, 5 the bare arm, not run.
 
-*Screen 5: the live tail of referee events and the LangSmith links for the agent and the referee.*
+![Screen 4: this run's result at the top, then Measured before class with one dot per run](screen-4-final.png)
+
+*Screen 4: this run at the top; below it, "Measured before class", one dot per run. A harness-in-action run is not a dot in the comparison.*
+
+Circles: 1 this run, 2 Measured before class, 3 the dots, 4 cost per verified feature, 5 reviewer agreement.
+
+![Screen 5: the live tail, the first wrong turn, and the LangSmith links](screen-5-final.png)
+
+*Screen 5. Circles: 1 the live tail of events, 2 the first wrong turn, 3 the LangSmith links for the agent and the referee.*
