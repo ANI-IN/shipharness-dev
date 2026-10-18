@@ -120,15 +120,14 @@ The end of `migration_heads`, one line of the summary.
     if not revisions:
         return "no migrations found"
     heads = sorted(clean(r, 60) for r in revisions if r not in parents)
-    note = "" if len(heads) == 1 else "; house rule R7 needs exactly one"
+    note = "" if len(heads) == 1 else "; there must be exactly one (House rule 7: Migrations)"
     return f"{len(heads)} ({', '.join(heads)}){note}"
 ```
 
 - The function reads `migrations/versions/*.py` as text and never runs them. A head is a revision
   that no other migration names as its `down_revision`.
-- Two heads is the failure this section is about. The line names the migrations rule, House rule 7: Migrations (`R7` in the
-  message), so
-  the next session sees the problem before it writes another migration.
+- Two heads is the failure this section is about. The line names the migrations rule, House rule 7:
+  Migrations, so the next session sees the problem before it writes another migration.
 
 ### lifecycle.py, lines 123-131
 

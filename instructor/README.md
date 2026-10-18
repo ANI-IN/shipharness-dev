@@ -3,7 +3,7 @@
 Everything the instructor needs to run "Module 1: Harness Engineering for Coding Agents" live and to
 run the Thursday review. The class plan per section: S1, S2, and S4 run harness in action, live
 (`make show-1`, `make show-2 SESSION_BUDGET=12,38`, `make show-4`); S3 runs a live A/B,
-`make demo-3 FEATURE=F4`, because the pre-registered S3 confirmation came out "harness ahead"; the
+`make demo-3 FEATURE=version-checks`, because the pre-registered S3 confirmation came out "harness ahead"; the
 final runs one live A/B, `make final` (VERIFICATION.md, "Class plan per section" and "S3
 confirmation: result"). Measured times and costs come from the quiet runs of the class commands and
 the S3 confirmation runs on 2026-10-17. The class date (`SHIPHARNESS_CLASS_DATE`) is set at T-30 on

@@ -2,13 +2,15 @@
 # Final project: one live A/B. The bare arm and the harness arm with all four layers build the same
 # feature, then the referee scores both.
 #
-# Usage, from the repository root (the script itself works from any folder):
+# Usage (shown from the repository root; the script works from any folder):
 #   ./final-project/run.sh                               # class run, bulk close (needs SHIPHARNESS_CLASS_DATE)
 #   PURPOSE=pilot ./final-project/run.sh                 # practice run outside class
-#   FEATURES=watchers PURPOSE=pilot ./final-project/run.sh  # another final feature: bulk-close, watchers, or labels
+#   PURPOSE=pilot ./final-project/run.sh watchers        # another final feature: bulk-close, watchers, or labels
+#   PURPOSE=pilot ./final-project/run.sh watchers bulk-close  # several features, one after the other
+# Feature names can also come from the environment: FEATURES=watchers,bulk-close.
 #
 # What it does: checks that both API keys are set, that a class run has its class date, that Docker
-# answers, and whether the console is up; then runs `make final FEATURES=<feature>`. Every run is
+# answers, and whether the console is up; then runs `make final FEATURES=<features>`. Every run is
 # live: two real agent runs and two real reviews. There is no recorded or scripted fallback here.
 #
 # Cost: at most $0.58 per feature, two arms at MAX_FINAL_RUN_COST_USD ($0.25) plus two reviews at
@@ -19,35 +21,40 @@
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail
 
-# No arguments: settings come from the environment (FEATURES=watchers PURPOSE=pilot ./final-project/run.sh).
-if [ "$#" -gt 0 ]; then
-  case "$1" in
+# Arguments are feature names (bulk-close, watchers, labels). With none, FEATURES is used, else bulk-close.
+ARG_FEATURES=""
+for arg in "$@"; do
+  case "$arg" in
     -h|--help)
       sed -n '2,/^set -euo pipefail/{/^#/s/^# \{0,1\}//p}' "${BASH_SOURCE[0]}"
       exit 0
       ;;
-    *)
-      echo "x unknown argument '$1': ./final-project/run.sh takes no arguments" >&2
-      echo "  for a practice run: FEATURES=watchers PURPOSE=pilot ./final-project/run.sh; for help: ./final-project/run.sh --help" >&2
+    -*)
+      echo "x unknown argument '$arg': ./final-project/run.sh takes feature names, for example: ./final-project/run.sh watchers" >&2
+      echo "  for a practice run: PURPOSE=pilot ./final-project/run.sh watchers; for help: ./final-project/run.sh --help" >&2
       exit 2
       ;;
+    *) ARG_FEATURES="${ARG_FEATURES:+$ARG_FEATURES,}$arg" ;;
   esac
-fi
+done
 
 # The repository root is one folder up from this script.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
 PURPOSE="${PURPOSE:-class}"
-FEATURES="${FEATURES:-bulk-close}"
+FEATURES="${ARG_FEATURES:-${FEATURES:-bulk-close}}"
+# Names may be separated by commas or spaces, in any case; make final takes a comma-separated list.
+FEATURES="$(echo "$FEATURES" | tr '[:upper:] ' '[:lower:],' | tr -s ',' | sed 's/^,//; s/,$//')"
 CONSOLE_PORT="${CONSOLE_PORT:-8765}"
 fail() { echo "x $1" >&2; exit 2; }
 
-# 1. The feature. Only the three final features run here; F1 to F4 belong to the section demos.
+# 1. The feature. Only the three final features run here; Features 1 to 4 belong to the section demos.
+[ -n "$FEATURES" ] || fail "no feature given: run ./final-project/run.sh bulk-close, watchers, or labels"
 for feature in $(echo "$FEATURES" | tr ',' ' '); do
   case "$feature" in
-    F5|F6|F7|f5|f6|f7|bulk-close|watchers|labels) ;;
-    *) fail "FEATURES=$FEATURES: the final project runs bulk-close, watchers, or labels (codes F5, F6, F7 also work; for example FEATURES=watchers)" ;;
+    f5|f6|f7|bulk-close|watchers|labels) ;;
+    *) fail "feature '$feature': the final project runs bulk-close, watchers, or labels (codes F5, F6, F7 also work), for example: ./final-project/run.sh watchers" ;;
   esac
 done
 echo "+ features: $FEATURES"

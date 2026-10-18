@@ -6,7 +6,7 @@ owner message 7; S3 a live A/B since "S3 confirmation: result"). This file holds
 not live, in two clearly separate groups:
 
 - **Fallbacks**: one recording per class command (`make show-1`, `make show-2
-  SESSION_BUDGET=12,38`, `make demo-3 FEATURE=F4`, `make show-4`, and `make final` per feature),
+  SESSION_BUDGET=12,38`, `make demo-3 FEATURE=version-checks`, `make show-4`, and `make final` per feature),
   replayed only when the live run failed for a reason outside the experiment.
 - **Optional extras** (not in the demo flow): the four real-mistake showcases from the pilot and the
   constructed examples (`make example-N`). They are listed for learners in `docs/extras.md` and are
@@ -71,9 +71,9 @@ set only at T-30 on the class day (run sheet, "Before class", step 1).
 
 1. `make doctor PURPOSE=pilot` passes; `make warm PURPOSE=pilot` ends with `warm: done`.
 2. Run each section's live command once, in order, exactly as the class runs it: `make show-1
-   PURPOSE=pilot`, `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot`, `make demo-3 FEATURE=F4
+   PURPOSE=pilot`, `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot`, `make demo-3 FEATURE=version-checks
    PURPOSE=pilot`, `make show-4 PURPOSE=pilot`.
-3. Run each final feature once, because the poll can pick any of them: `make final FEATURES=F5
+3. Run each final feature once, because the poll can pick any of them: `make final FEATURES=bulk-close
    PURPOSE=pilot`, then `F6`, then `F7`.
 4. For each command, copy the id from the first result line (`A/B <id> (<feature>, layers=[...],
    profile=class...)`) into the table below, with the date and the per-arm status.
@@ -103,16 +103,16 @@ not the class command `make show-2 SESSION_BUDGET=12,38`, so it cannot be the S2
 |---|---|---|
 | `make show-1 PURPOSE=pilot` | `ab-20261017-092810-c7fc7c` (under load: completed, primary pass, hidden 52/52, $0.0218) | `ab-20261017-112101-c5d839`: completed, primary pass, hidden 52/52, mutants 2/4; $0.0179 + $0.0019 review; exit 0 |
 | `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot` | `ab-20261017-113213-fe89a3` (the quiet run; the under-load `ab-20261017-093841-16d332` ran 20/30) | the same run: agent time limit in session 2, primary pass, hidden 56/56, mutants 0/4; $0.0268 + $0.0027 review; exit 2 |
-| `make demo-3 FEATURE=F4 PURPOSE=pilot` | `ab-20261017-150928-96cf3a` (the first S3 confirmation A/B to start; both arms `ABORTED: timeout`, claim done; out-of-scope files bare 1, harness 0; hidden 68/69 and mutants 3/4 in both arms; $0.0503) | `ab-20261017-152601-3a7237` (ran alone): bare completed, harness `ABORTED: timeout` (harness limit); out-of-scope files bare 1, harness 0; hidden 68/69 and 65/69; $0.0487; exit 2 |
+| `make demo-3 FEATURE=version-checks PURPOSE=pilot` | `ab-20261017-150928-96cf3a` (the first S3 confirmation A/B to start; both arms `ABORTED: timeout`, claim done; out-of-scope files bare 1, harness 0; hidden 68/69 and mutants 3/4 in both arms; $0.0503) | `ab-20261017-152601-3a7237` (ran alone): bare completed, harness `ABORTED: timeout` (harness limit); out-of-scope files bare 1, harness 0; hidden 68/69 and 65/69; $0.0487; exit 2 |
 | `make show-4 PURPOSE=pilot` | `ab-20261017-100107-4c2be8` (under load: agent time limit, primary fail, hidden 65/69, $0.0251) | `ab-20261017-115138-c45d9d`: claimed done, gate passed, agent time limit in the test phase, primary fail, hidden 68/69, mutants 0/4; $0.0233 + $0.0032 review; exit 2 |
-| `make final FEATURES=F5 PURPOSE=pilot` | `ab-20261017-101037-8e6924` (under load: both arms hit the agent time limit; hidden 46/46 both; mutants 1/3 bare, 3/3 harness; $0.0329) | `ab-20261017-120323-c97138`: bare completed, harness agent time limit; hidden 46/46 and mutants 2/3 in both; $0.0456 for the command; exit 2 |
-| `make final FEATURES=F6 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
-| `make final FEATURES=F7 PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+| `make final FEATURES=bulk-close PURPOSE=pilot` | `ab-20261017-101037-8e6924` (under load: both arms hit the agent time limit; hidden 46/46 both; mutants 1/3 bare, 3/3 harness; $0.0329) | `ab-20261017-120323-c97138`: bare completed, harness agent time limit; hidden 46/46 and mutants 2/3 in both; $0.0456 for the command; exit 2 |
+| `make final FEATURES=watchers PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
+| `make final FEATURES=labels PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
 
 Under-load figures are from VERIFICATION.md, "Live command check under load"; quiet-run figures are
 from the runs' own result lines (captured on 2026-10-17). The S3 rows are the S3 confirmation A/Bs
 (VERIFICATION.md, "S3 confirmation: result"): they ran `shipharness ab --section demo-3 --feature F4
---profile class --purpose pilot`, the command `make demo-3 FEATURE=F4 PURPOSE=pilot` runs
+--profile class --purpose pilot`, the command `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs
 (`make -n`), with the 420 s class agent limit, on the code before the folder restructure. Replay
 each of these once on the class machine with the current code (step 5 above) before you rely on it.
 The earlier `make show-3` recordings

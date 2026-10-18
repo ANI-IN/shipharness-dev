@@ -6,8 +6,8 @@ pieces as part of its portfolio.
 
 ## What to show
 
-1. **One live A/B.** You ran `./final-project/run.sh` (or `make final FEATURES=bulk-close`,
-   `FEATURES=watchers`, or `FEATURES=labels`) to the end. Keep terminal 2's two arm lines and the cost line, and the A/B id from the console.
+1. **One live A/B.** You ran `./final-project/run.sh` with `bulk-close`, `watchers`, or `labels`
+   (or `make final FEATURES=` with the same name) to the end. Keep terminal 2's two arm lines and the cost line, and the A/B id from the console.
 2. **The five screens.** One screenshot of each console screen for that A/B, as in
    [expected/](expected/README.md).
 3. **Your reading of it.** Three to five sentences: the counts per arm (hidden tests, mutants

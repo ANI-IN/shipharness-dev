@@ -188,8 +188,8 @@ arm's diff applied. Neither arm ever sees the hidden tests or the referee's muta
 
 1. Apply the diff, and mark each changed file as allowed or out of scope for its phase.
 2. Run the existing tests: existing tests keep passing.
-3. Probe the seven house rules against every endpoint in the app's API description. "House rules" is
-   the course's name for what OpenAI calls golden principles.
+3. Probe House rules 1 to 7 against every endpoint in the app's API description. A house rule is
+   what OpenAI calls a golden principle: a team convention checked by code.
 4. Run the hidden tests for the feature; some combine features.
 5. Run the referee's mutants against the arm's own tests.
 6. Re-run each shipped test five times for flakiness (a test that passes on some runs and fails on

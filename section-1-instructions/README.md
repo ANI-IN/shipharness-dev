@@ -65,7 +65,7 @@ the concepts are taught.
 | Part | What it gives you | In class |
 |---|---|---|
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 2-20 |
-| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 1; review at 20-45 |
+| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 1; review at 30-46 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The code behind the layer, about 40 lines | Minutes 20-30, on the DEMO slide |
 | [assignment/](assignment/README.md) | Turn an 899-line instruction file into a map, docs, and a skill | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on maps and skills | After class |

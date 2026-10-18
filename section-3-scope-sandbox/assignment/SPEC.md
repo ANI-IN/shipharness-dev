@@ -231,9 +231,9 @@ A3 self-check: section-3-scope-sandbox/assignment/starter
   your denial test passes                                           FAIL    tests/test_a3_sandbox_rule.py
   your denial test fails with the rule removed                      FAIL    tests/test_a3_sandbox_rule.py
   your denial test uses check_command/PolicySandbox                 FAIL    tests/test_a3_sandbox_rule.py
-  live A/B evidence (live/)                                         missing (required for the grade: README 'Live step')
+  live A/B evidence (live/)                                         missing (required for the grade: README step 8)
 ...
-Self-check FAILED: fix the FAIL rows above (README 'Step-by-step tasks').
+Self-check FAILED: fix the FAIL rows above (README 'Step by step').
 ```
 
 On a finished work folder every row is `ok`, `live.py verify` prints `evidence  ok` and
@@ -282,7 +282,7 @@ A/B <run id> (F3, layers=['instructions', 'scope', 'state'], profile=standard)
 Cost: $0.021708 (this command: gpt-5.6-luna $0.005858, gpt-6-luna $0.015850; ...)
 ```
 
-The harness arm hit the agent time limit, so the command exited 2; the run is still judged and
+The harness arm ended `ABORTED: timeout` (a time limit), so the command exited 2; the run is still judged and
 counts. `collect` writes these files to `<dir>/live/`:
 
 | File | What it holds |

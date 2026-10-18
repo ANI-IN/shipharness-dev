@@ -127,7 +127,7 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
 
 | Criterion | What earns the points | Points | Checked by |
 |---|---|---|---|
-| `R8-interface` | Registered through shipharness; runner, CLI exit codes, progress | 5 | Self-check |
+| `R8-interface` | Registered through shipharness; runner, CLI exit codes, progress | 5 | Both |
 | `R8-visible` | Finds the visible seeded violations | 9 | Self-check |
 | `R8-hidden` | Finds the hidden seeded violations | 17 | Grader |
 | `R8-no-false-positives` | Reports nothing a correct build does not violate | 8 | Both |
@@ -144,7 +144,9 @@ All commands run from the repository root. Steps 1 to 5 need no keys and no Dock
 | **Total** | | **100** | |
 
 The criterion ids are the names the self-check and the grader print: the `R8-` ones grade your
-check for House rule 8, and the `F6-` ones grade Filter 6.
+check for House rule 8, and the `F6-` ones grade Filter 6. In the last column, "Self-check" rows
+are scored by the visible tests alone (the grader re-runs them), "Grader" rows by hidden cases only,
+and "Both" rows by visible and hidden cases.
 
 `make check-assignment-4` runs the visible tests. The instructor's grader adds hidden seeded
 violations and hidden candidate tests; it is not in this repository. Neither makes a model call. The

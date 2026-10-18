@@ -42,7 +42,7 @@ section-1-instructions/assignment/starter/   your work folder
     ARCHITECTURE.md                   layering rule (R6), wiring, board, configuration
     docs/
       SECURITY.md                     tenant isolation (R1), roles (R2)
-      RELIABILITY.md                  idempotent creates (R4), audit log (R5), migrations (R7)
+      RELIABILITY.md                  safe retries (R4), audit log (R5), migrations (R7)
       QUALITY_SCORE.md                grades, testing, the legacy API
       PLANS.md                        roadmap, scope
       design-docs/index.md            catalogue of design docs
@@ -328,8 +328,8 @@ another work folder. Commit `live/` with your work.
 | Self-check, checker, validator, `ab_summary.py`, `live_evidence.py` | $0 | 0 |
 | The live A/B: 8 tasks x 2 arms x 3 runs = 48 runs | At most $2.50; the command stops cleanly at its cost cap | 2 per run (agent and referee): 96, within 150 |
 
-For scale: in the course pilot, single arm runs on the org-wide issue search cost between $0.0051 and
-$0.0151 each ([pilot results](../../docs/evidence/s1.md#s1-pilot)).
+For scale: in the test runs before class, single arm runs on the org-wide issue search cost between
+$0.0051 and $0.0151 each ([evidence](../../docs/evidence/s1.md#s1-pilot)).
 
 ### Common mistakes
 

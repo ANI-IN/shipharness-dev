@@ -106,7 +106,7 @@ the agent fixes what failed. Only a passed gate lets the scope layer set `passes
 The gate's check list is short, and what it leaves out is the point:
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 33-43)
+# platform/src/shipharness/harness/verify/gate.py (lines 34-44)
 GATE_CHECKS: tuple[str, ...] = (
     "r1_tenant",
     "r2_roles",

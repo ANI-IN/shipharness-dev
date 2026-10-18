@@ -17,7 +17,8 @@ and variable, the caps and limits, and the folders. Each table names the file it
 Pages name each feature, house rule, section, assignment, and test filter as "Kind N: name" the
 first time, such as "Feature 4: Version checks on issue edits", and by the short form after that
 ("Feature 4"). The code in the last column appears only in code: commands, file names, logs,
-console screens, and captured output.
+console screens, and captured output. For the filters, it names the file that defines them
+(under `platform/src/shipharness/filters/`, or in the last assignment for the sixth filter).
 
 | Name | What it means | Command alias | Code in code and logs |
 |---|---|---|---|
@@ -44,11 +45,11 @@ console screens, and captured output.
 | Assignment 2: State and sessions | The take-home work of Section 2 | | `A2`, `check-assignment-2` |
 | Assignment 3: Scope and sandbox | The take-home work of Section 3 | | `A3`, `check-assignment-3` |
 | Assignment 4: Verification | The take-home work of Section 4 | | `A4`, `check-assignment-4` |
-| Filter 1: Builds and collects | pytest collects the test and runs it | | `imports and runs` |
-| Filter 2: Passes five runs | The test passes on each of five runs | | `passes 5 consecutive runs` |
-| Filter 3: Adds coverage or catches a mutant | New covered lines, or a mutant no other test kills | | `adds coverage or kills a mutant` |
-| Filter 4: Real assertions | An assertion that can fail; no mock of the unit under test | | `real assertions, ...` |
-| Filter 5: No source changes | No source file changes during the test phase | | `no source change in the test phase` |
+| Filter 1: Builds and collects | pytest collects the test and runs it | | `filters.py` |
+| Filter 2: Passes five runs | The test passes on each of five runs | | `filters.py` |
+| Filter 3: Adds coverage or catches a mutant | New covered lines, or a mutant no other test kills | | `filters.py` |
+| Filter 4: Real assertions | An assertion that can fail; no mock of the unit under test | | `filters.py` |
+| Filter 5: No source changes | No source file changes during the test phase | | `filters.py` |
 | Filter 6: No duplicate tests | Added in Assignment 4: a kept test repeats no kept test | | `dedup_filter.py` |
 
 The four section features (Features 1 to 4) belong to the sections; the final project picks from
@@ -109,7 +110,7 @@ Targets (on Windows, run make inside Ubuntu on WSL2):
 Feature names for FEATURE and FEATURES (the readable name or the code, any case):
     org-search           F1  Feature 1: Org-wide issue search
     comments             F2  Feature 2: Comments on issues
-    idempotent-create    F3  Feature 3: Safe retries for issue creation
+    safe-retries         F3  Feature 3: Safe retries for issue creation (idempotent-create also works)
     version-checks       F4  Feature 4: Version checks on issue edits
     bulk-close           F5  Feature 5: Bulk close
     watchers             F6  Feature 6: Watchers

@@ -236,20 +236,24 @@ Each section runs the same way. Minutes count from the start of the section.
 | Minutes | What happens |
 |---|---|
 | 0-2 | Start slide: launch in terminal B at minute 1; open the newest run on screen 1 |
-| 2-6 | The failure story and the reveal, while the run goes on |
-| 6-20 | Four ideas and the cheat sheet; check terminal B at 15 |
-| 20-40 | DEMO slide: the implementation notes, then the finished run on the console |
-| 40-45 | What we measured: this section's results and screen 4 |
-| 45-50 | Q&A, and the link to the section's demo page |
+| 2-10 | The failure story and the Socratic question, while the run goes on |
+| 10-30 | Four ideas and the cheat sheet; check terminal B at 15 |
+| 30-40 | DEMO slide: the implementation notes, then the finished run on the console |
+| 40-46 | What we measured: this section's results and screen 4 |
+| 46-50 | Q&A, and the link to the section's demo page |
+
+Section 3 runs two minutes ahead from the question on: the ideas at 9-28, the DEMO at 28-38, what
+we measured at 38-44, and the Q&A at 44-50. The minutes match the slide timings in
+[module1-slides.md](../slides/module1-slides.md).
 
 Only Section 4 opens with a poll, the one poll of the class, at 2:55-2:57: the room picks the final
 feature (bulk close, watchers, or labels), then both Section 4 runs launch at 2:57. Section 4 has 45
-minutes: the ideas at 5-18, the DEMO at 18-36, what we measured at 36-41, and the
-Q&A at 41-45.
+minutes: the poll at 0-2, the launch at 2-4, the story and the question at 4-11, the ideas at 11-27,
+the DEMO at 27-36, what we measured at 36-42, and the Q&A at 42-45.
 
 Every section run ends before its DEMO slide, even with 2 more minutes for the class agent time
 limit: show-1 by about 0:23, show-2 by about 1:23, demo-3 by about 2:15, show-4 by about 3:09 (DEMO
-slides at 0:30, 1:30, 2:20, 3:13). Two final features launched at 2:57 end about 3:27, later if the
+slides at 0:40, 1:40, 2:28, 3:22). Two final features launched at 2:57 end about 3:27, later if the
 first one slows next to show-4. If terminal C has no `Cost:` line for the first feature at 3:10,
 expect the second to end close to 3:40.
 

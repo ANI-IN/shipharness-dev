@@ -1,7 +1,7 @@
 # Feature 6: Watchers
 
 A final feature over two build sessions, then a test phase. Run it with
-`FEATURES=watchers ./final-project/run.sh` or `make final FEATURES=watchers`.
+`./final-project/run.sh watchers` or `make final FEATURES=watchers`.
 
 ## What it asks for
 

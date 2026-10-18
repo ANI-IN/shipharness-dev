@@ -12,10 +12,10 @@
 # and one real review. There is no recorded or scripted fallback in this script.
 #
 # Cost: at most $0.24, the per-arm cap ($0.20) plus the per-review cap ($0.04); the caps are set in
-# platform/src/shipharness/config/settings.py and .env.example. The measured run in docs/evidence.md
-# cost $0.0295.
+# platform/src/shipharness/config/settings.py and .env.example. The measured run in
+# docs/evidence/s2.md cost $0.0295.
 # Time: the measured run reached its primary verdict 6 min 46 s after launch and finished in
-# 10 min 7 s, with the agent time limit then at 300 s (docs/evidence.md, "The captured show-2 run").
+# 10 min 7 s, with the agent time limit then at 300 s (docs/evidence/s2.md, "The captured show-2 run").
 # The class profile now allows 420 s of agent time, so a run can take longer.
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/

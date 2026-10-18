@@ -54,21 +54,22 @@ flowchart LR
   W --> R["Referee counts<br/>out-of-scope files"]
 ```
 
-The course measures whether it helps. On the class demo's ticket, every bare arm changed a shared
-file outside the list in three test runs, and the scope layer kept every harness arm inside it
-([evidence](../docs/evidence/s3.md#s3-confirmation)). On the idempotent-creation ticket (a retried
-create never makes a duplicate), neither arm ever left the list.
+The course measures whether it helps. On the class demo's ticket, Feature 4: Version checks on
+issue edits, every bare arm changed a shared file outside the list in three test runs, and the scope
+layer kept every harness arm inside it ([evidence](../docs/evidence/s3.md#s3-confirmation)). On
+Feature 3: Safe retries for issue creation (a retried create never makes a duplicate), neither arm
+ever left the list.
 The concepts page explains both, and what the result does not show.
 
 ## How to work through this section
 
-In class the section takes 50 minutes. The live A/B starts at minute 1, on the section's start slide, and runs while
+In class the section takes 50 minutes. The live A/B starts at minute 1 (2:01), on the section's start slide, and runs while
 the concepts are taught.
 
 | Part | What it gives you | In class |
 |---|---|---|
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 2-20 |
-| [demo/](demo/README.md) | The live A/B on the version-checks ticket, and how to read it | Launch at minute 1; review at 20-45 |
+| [demo/](demo/README.md) | The live A/B on the version-checks ticket, and how to read it | Launch at minute 1; review at 28-44 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The 34 lines of code behind the layer | Minutes 20-30, on the DEMO slide |
 | [assignment/](assignment/README.md) | Assignment 3: Scope and sandbox. A diff-scope policy, a `passes` gate, a sandbox rule | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on feature lists and sandboxes | After class |

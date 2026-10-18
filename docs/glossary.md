@@ -42,7 +42,7 @@ or the code: `make demo-3 FEATURE=version-checks`.
 | Feature 6: Watchers | `watchers` | `F6` |
 | Feature 7: Labels | `labels` | `F7` |
 
-Features 1 to 4 belong to Sections 1 to 4. The final project picks one of Features 5 to 7.
+Features 1 to 4 belong to Sections 1 to 4. The final project picks from Features 5 to 7.
 
 ### House rules
 
@@ -84,6 +84,8 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
 - **Adapter**: The file that tells `shipharness check` where your app's routes, models, and rules
   live.
 - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
+- **Agent time limit**: The most time one arm's agent may work (`RUN_TIMEOUT_S`: 300 s, or 420 s in
+  the class profile). An arm that reaches it ends as `ABORTED: timeout`.
 - **Alembic head**: The newest migration in Alembic's chain of database migrations. A healthy
   history has exactly one; two heads block an upgrade.
 - **Allowed paths**: The file patterns a ticket lists for each phase: the files the agent may change
@@ -96,6 +98,8 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
 - **Blinded reviewer**: A separate model that reads a diff without knowing which arm wrote it.
 - **Block**: A patch the scope layer refuses before anything is written; the agent sees `BLOCKED`.
 - **Build phase**: The first phase of a run, in which the agent writes the feature.
+- **Build tier**: The first paid OpenAI usage tier, reached with $5 of credit; the agent model needs
+  it.
 - **bwrap and seccomp**: Linux tools that limit which files and system calls a process may use.
 - **Cap**: The most money a run, a review, a session, or this machine may spend on model calls. A
   call that would cross a cap is refused (see [costs](costs.md)).
@@ -104,7 +108,8 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
 - **Class date**: The class day in `.env` (`SHIPHARNESS_CLASS_DATE`). It names the LangSmith project
   and keys the session cap.
 - **Class profile**: The settings the live class runs use, the same for both arms: low reasoning
-  effort, the Fast tier, 2 CPUs per container, a 420 s agent time limit.
+  effort, the Fast tier, 2 CPUs per container, a 420 s agent time limit, and a 900 s harness work
+  limit.
 - **Clean state**: All work committed, ruff clean on changed files, one migration head, no debug
   output.
 - **Compaction**: Squeezing an old context into a short summary so the session can go on.
@@ -140,6 +145,8 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
   not an A/B, so it stays out of every comparison.
 - **Harness layer**: One part of the harness: instructions, state, scope, or verification.
 - **Harness note**: A line a layer adds to console screen 1, such as "agent read ARCHITECTURE.md".
+- **Harness work limit**: The most time the harness's own work may take in one arm: handoff test
+  runs, gates, and test filters (`HARNESS_TIMEOUT_S`: 120 s, or 900 s in the class profile).
 - **Held-out tests**: Another name for hidden tests.
 - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
 - **Idempotency**: Sending the same request twice has the same effect as sending it once.
@@ -166,6 +173,8 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
 - **Phase**: One stage of a run: build (write the feature), then test (add tests only).
 - **Pill**: A status badge on console screen 1, such as the primary verdict or one gate check.
 - **Primary measure**: The one question a section's A/B answers, fixed in writing before any run.
+- **Preview container**: The container that runs an arm's app so console screen 2 can show its
+  board, with a new screenshot every 5 s.
 - **Primary verdict**: The referee's answer to the primary measure for one arm: PASS or FAIL.
 - **Probe**: A request the referee sends to test one house rule on one endpoint.
 - **Progressive disclosure**: The agent first sees a short description and opens the full
@@ -190,15 +199,20 @@ Filters 1 to 5; Assignment 4 adds Filter 6: No duplicate tests.
   use. It is the same for both arms.
 - **Session**: One stretch of agent work that starts with a fresh context; a long task spans several
   sessions.
+- **Session cap**: The most all commands under one class date or one purpose may spend together
+  (`MAX_SESSION_COST_USD`, $2.50).
 - **Session turn budget**: The fixed number of turns a session gets before the runner stops it
   (`SESSION_BUDGET=12,38`).
+- **Service tier**: OpenAI's speed and price level for a request; this course uses Standard and
+  Fast.
 - **Skill**: See Agent Skill.
 - **Soft delete**: Marking a row as deleted (a `deleted_at` time) instead of removing it.
+- **Standard tier**: OpenAI's ordinary service tier, at the base price; the reviewer never asks for Fast.
 - **Stopwords**: Common words such as "the" that a text comparison ignores.
 - **Structured handoff**: A file that carries the last session's state and the next steps to the
   next session.
-- **Swap test**: Scoring an A/B again with the arm labels swapped, to check the reviewer is not
-  biased by them (`make swap-N`).
+- **Swap test**: Scoring a recorded A/B again with the arm labels swapped; the scores must not
+  change (`make swap-N`).
 - **Tenant**: One customer organisation (org) in an app that serves many; tenant isolation keeps
   each org's data apart.
 - **Test filters**: The checks a test from the test phase must pass to be kept (table above).

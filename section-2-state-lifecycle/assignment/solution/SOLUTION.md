@@ -6,7 +6,7 @@ explains how it was built and why.
 
 > **Terms on this page**
 >
-> - **Forced stop**: The end of a session by its turn budget, before the work is done.
+> - **Forced stop**: The end of a session before the work is done: by its turn budget, or by the agent's `finish(claim="not_done")` once the harness stop step has run.
 > - **Step ledger**: One line per ticket step, done or not, derived from git at every stop.
 > - **Test stand-in agent**: A deterministic program, not a model, that plays the agent in the graded scenarios.
 > - **Product file**: Any file except `progress.md`, `session-handoff.md`, `init.sh`, the feature list files, and `docs/exec-plans/`.
@@ -179,8 +179,8 @@ in every session: it never tells the next session which steps are done
 | `captured/grade-starter.txt` | The grade of the unchanged starter |
 | `captured/grade-class-s2-layer.txt` | The grade of the class's state layer |
 
-The grade comes from `make grade-assignment-2 SUBMISSION=section-2-state-lifecycle/assignment/solution`;
-the grader is not in this repository.
+The grade comes from `make grade-assignment-2 SUBMISSION=section-2-state-lifecycle/assignment/solution`,
+which only the instructor can run; the grader is not in this repository.
 
 ### Live run evidence
 

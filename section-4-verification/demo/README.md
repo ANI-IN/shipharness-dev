@@ -7,7 +7,7 @@ stale copy) to issue edits: an `ETag` on read, and an `If-Match` check on write.
 the check works or not. The agent tests the happy path, sees a green suite, and reports done. After
 release, two people who edit one issue still overwrite each other.
 
-This demo gives a live agent that ticket. TeamTrack's version checks ticket asks for `ETag`,
+This demo gives a live agent that ticket. TeamTrack's ticket for Feature 4: Version checks on issue edits asks for `ETag`,
 `If-Match`, and an issue history. The referee then scores the work with tests and planted faults the agent never sees.
 
 > **Terms on this page**
@@ -114,10 +114,10 @@ The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 
 aborted arm is still judged, so its record is complete. One run costs at most $0.24: the per-arm cap
 plus the per-review cap.
 
-**In class**, the instructor launches the final A/B at the same time, in a third terminal, with
-`make final FEATURES=<poll winner>`, for example `make final FEATURES=watchers`, right after the
-class poll that opens Section 4: Verification. It runs beside
-this demo and is read in the
+**In class**, Section 4: Verification opens with the class poll, the only one of the day, from 2:55
+to 2:57; it picks the final feature. At 2:57 the instructor launches `make show-4` and, in a third
+terminal, the final A/B with `make final FEATURES=<poll winner>`, for example
+`make final FEATURES=watchers`. The final runs beside this demo and is read in the
 [final block](../../final-project/README.md).
 
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
@@ -130,7 +130,7 @@ this demo and is read in the
 - [harness/](harness/): the files the layer gives the agent
 - [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
 - [Evidence page](../../docs/evidence/s4.md): every run behind the results
-- Console: http://127.0.0.1:8765 (after `make console`)
+- Console: [http://127.0.0.1:8765](http://127.0.0.1:8765) (after `make console`)
 
 ## What to watch
 

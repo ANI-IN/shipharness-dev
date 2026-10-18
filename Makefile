@@ -1,5 +1,5 @@
 # shipharness Makefile. Every target is a thin wrapper over `uv run ...`, so the same commands work
-# without make (see README "Commands"). On Windows, run make inside WSL2.
+# without make (docs/reference.md lists each target with its uv command). On Windows, run make inside WSL2.
 
 SHELL := /bin/sh
 UV ?= uv

@@ -40,12 +40,12 @@ sequenceDiagram
 
 ## The code, explained
 
-### gate.py, lines 33-43
+### gate.py, lines 34-44
 
 This tuple is what the gate's check runner may run.
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 33-43)
+# platform/src/shipharness/harness/verify/gate.py (lines 34-44)
 GATE_CHECKS: tuple[str, ...] = (
     "r1_tenant",
     "r2_roles",
@@ -66,12 +66,12 @@ GATE_CHECKS: tuple[str, ...] = (
   expected to do better on those rules by construction, so Section 4: Verification scores hidden tests and mutants
   instead.
 
-### gate.py, lines 155-162
+### gate.py, lines 156-163
 
 The start of `run_gate`. It announces the items, then copies the work.
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 155-162)
+# platform/src/shipharness/harness/verify/gate.py (lines 156-163)
     root = f"/tmp/shipharness-gate-{_SAFE.sub('_', gate_id)}"
     names = ["visible tests", *(_ITEM_ORDER if phase == "build" else []), "clean state"]
     if on_update:  # pending pills first, so the console shows the gate running
@@ -90,12 +90,12 @@ The start of `run_gate`. It announces the items, then copies the work.
 - `cfg.limit` caps each command by the harness time left, so a slow gate cannot run past the run's
   limits.
 
-### gate.py, lines 163-175
+### gate.py, lines 164-176
 
 Each item runs inside the arm's container.
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 163-175)
+# platform/src/shipharness/harness/verify/gate.py (lines 164-176)
     visible, lines = _visible_tests(sandbox, f"{root}/build", cfg)
     items = [visible]
     if phase == "build":
@@ -119,12 +119,12 @@ Each item runs inside the arm's container.
   ([Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents)).
 - `lines` collects one failure line per problem, each with its reason on the same line.
 
-### gate.py, lines 176-181
+### gate.py, lines 177-182
 
 The verdict.
 
 ```python
-# platform/src/shipharness/harness/verify/gate.py (lines 176-181)
+# platform/src/shipharness/harness/verify/gate.py (lines 177-182)
     passed = not any(i.status == "fail" for i in items)
     feedback = "" if passed else _feedback(gate_id, items, lines)
     result = GateResult(gate_id=gate_id, items=items, passed=passed, feedback=feedback)
@@ -136,7 +136,7 @@ The verdict.
 - One failed item fails the gate. Anthropic's compiler team says why the bar is that high: "it’s
   important that the task verifier is nearly perfect, otherwise Claude will solve the wrong
   problem." ([Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler))
-- `_feedback` (lines 191-200) writes `Gate <id>: <n> of <m> items failed (<names>).`, the first three
+- `_feedback` (lines 192-202) writes `Gate <id>: <n> of <m> items failed (<names>).`, the first three
   failure lines, and "Fix these, commit your work, and call finish again." The same team asks for a
   few lines of output, with the reason "on the same line" as the error.
 - The runner turns a failed gate into the `finish` result "Not accepted." plus that text, and the

@@ -166,7 +166,7 @@ shows. You do not need to tell the colours apart to read a diagram.
 - **Slide**: the house rules slide, right after the data model.
 - **Files**: `house-rules`.
 - **Source**: `platform/teamtrack/docs/HANDBOOK.md`.
-- **How to edit**: change `house-rules` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+- **How to edit**: open `house-rules.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](#how-to-edit-a-diagram)).
 
 ### Glossary
 
@@ -178,7 +178,7 @@ shows. You do not need to tell the colours apart to read a diagram.
 - **Slide**: the glossary slide, right before "How we'll measure".
 - **Files**: `glossary-terms`.
 - **Source**: the glossaries in the section `concepts.md` pages and `docs/STYLE.md`.
-- **How to edit**: change `glossary-terms` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+- **How to edit**: open `glossary-terms.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](#how-to-edit-a-diagram)).
 
 ### Module 1 summary
 
@@ -190,46 +190,30 @@ shows. You do not need to tell the colours apart to read a diagram.
 - **Slide**: "Module 1 Summary: Key takeaways".
 - **Files**: `module-summary`.
 - **Source**: the four `concepts.md` pages and [the final evidence page](../evidence/final.md).
-- **How to edit**: change `module-summary` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](#how-to-edit-a-diagram)).
+- **How to edit**: open `module-summary.excalidraw`, edit it, then export the PNG and the SVG (see [How to edit a diagram](#how-to-edit-a-diagram)).
 
 
 ## How to edit a diagram
 
-The diagrams are drawn by code, so the style stays the same everywhere:
+The diagrams were drawn by a generator script, so the style is the same everywhere. That script is
+not part of the course files: the `.excalidraw` file next to each picture is the source you edit.
+Keep the same style when you change one:
 
-- `platform/scripts/diagrams/style.py` holds every style value in one place: the font
-  (Excalifont), stroke width, roughness, arrowheads, corner roundness, the palette, the panel,
-  the text sizes (28 for labels, 36 for titles, 26 at the smallest), and the canvas sizes.
-- `diagrams_a.py` to `diagrams_e.py` hold one function per diagram, with the source of each label
-  in a comment above it. `layouts.py` holds the shared layouts (story strip, Socratic build-up,
-  timeline, cheat sheet) and the cheat-sheet icons.
+- Font Excalifont (Excalidraw's hand-drawn font), labels 28, titles 36, never smaller than 26.
+- The colours in the table above, each with the same meaning, and the meaning also said in words.
+- At most 5 words per label (a title may have 8). Explanations belong in the slide notes, not the
+  diagram. No label smaller than 20 px when the picture fills a slide.
 
 To change a diagram:
 
-1. Edit its function (or a value in `style.py` to change every diagram).
-2. Build the `.excalidraw` files. The build stops with an error if a label overflows its shape,
-   would show smaller than 20 px on the slide, or has more than 5 words (a title may have 8, and
-   one small footnote line is allowed). Explanations belong in the slide notes, not the diagram.
-   Each drawing is scaled to fill its panel with even margins, and centred:
-
-   ```bash
-   cd platform/scripts/diagrams
-   uv run --no-project --with fonttools --with brotli python build.py ../../.. [STEM ...]
-   ```
-
-3. Render the PNG (2x) and SVG (font embedded) with Excalidraw's own export:
-
-   ```bash
-   uv run --no-project --with playwright python render.py ../../../docs/diagrams ../../../section-*/diagrams
-   ```
-
-4. Look at the PNG on the navy slide background before you commit it.
-
-You can also open an `.excalidraw` file at [Excalidraw](https://excalidraw.com) for a quick
-look. A change made there is lost at the next build, so make lasting changes in the code.
+1. Open its `.excalidraw` file at [Excalidraw](https://excalidraw.com) (menu, Open) and make the
+   change.
+2. Save it back over the same `.excalidraw` file (menu, Save to, Disk).
+3. Export the PNG at 2x scale and the SVG, under the same name, next to the source.
+4. Look at the PNG on the navy slide background (`#324158`) before you commit it.
 
 For a diagram with step frames, each frame adds one element, and every frame keeps the full panel,
-so the picture does not move between slides.
+so the picture does not move between slides. Edit every frame of a diagram the same way.
 
 Every label comes from a file in this repository. If you change a number or a file name, check it
 against that file first.

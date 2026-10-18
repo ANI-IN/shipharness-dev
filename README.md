@@ -6,7 +6,7 @@ New here? [Start here](docs/start-here.md): the learning path in order, with the
 takes.
 
 This module teaches you to build the harness around a coding agent, and to measure whether each part
-of it helps. 
+of it helps.
 
 ## The problem
 
@@ -206,8 +206,10 @@ an empty machine, including both accounts.
 
 ### Getting help
 
-- **Program channels**: raise a support ticket on Uplevel at any time, bring questions to the
-  Wednesday technical coaching, learn with peers on Discord, and ask the TAs during the live class.
+- **Program channels**: raise a support ticket on Uplevel (the program's learning platform) at any
+  time, bring questions to the
+  Wednesday technical coaching, learn with peers on Discord, and ask the teaching assistants (TAs)
+  during the live class.
   Bring the exact terminal message, never your `.env` or a key.
 - **Review session**: it goes through each assignment, with the reference solution and common
   mistakes. Bring your self-check output and one question per assignment.

@@ -253,5 +253,5 @@ code, because no output from this course can stand in for them:
 - A full A/B with the agent building a feature. `make final` runs only on TeamTrack; on your own code,
   the harnessed run is `shipharness testgen`, as in step 4.
 
-testgen also leaves a `.shipharness/` folder (its cost ledger) in your repository. Add it to your
+`shipharness testgen` also leaves a `.shipharness/` folder (its cost ledger) in your repository. Add it to your
 `.gitignore`.

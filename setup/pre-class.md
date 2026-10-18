@@ -4,8 +4,8 @@
 >
 > - **Class date**: the day you run the class commands, as `YYYY-MM-DD` in `.env`.
 > - **Console**: the browser page that shows a run live, on five screens.
-> - **Baseline**: the checks' results on the app before the agent changes it, saved so each run is
->   compared against them.
+> - **Baseline**: the referee's or gate's result on the app before the agent changes it, saved so
+>   each run is compared against it.
 > - **Primary verdict**: the referee's answer to the one question the section asks.
 
 Do this in the days before the live class. It takes your machine from "installed" to "ready for

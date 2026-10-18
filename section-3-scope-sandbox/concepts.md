@@ -120,7 +120,7 @@ the agent loop and the API keys stay on the host.
 *The model calls leave from the host; the container has no network and never sees the keys.*
 
 With `--network none`, "only the loopback device is created"
-([None network driver](https://docs.docker.com/engine/network/drivers/none/))).
+([None network driver](https://docs.docker.com/engine/network/drivers/none/)).
 
 Two different refusals come from the two parts:
 

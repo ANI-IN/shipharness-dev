@@ -45,7 +45,7 @@ The cost is a shipped bug that every check approved, and a review that rested on
 
 The verification layer stops trusting the claim. When the agent says done, a gate runs the visible
 tests, the existing tests, TeamTrack's seven house rules (tenant isolation, roles, API conventions,
-idempotent creates, audit log, layering, migrations), a board check, and a clean-state check, in the
+safe retries, audit log, layering, migrations), a board check, and a clean-state check, in the
 agent's own container. Tests the agent writes in a short test phase are kept only if they pass five
 filters. The referee then scores the work with hidden tests and planted faults the agent never sees.
 
@@ -57,21 +57,22 @@ flowchart LR
   T --> R["Referee<br/>hidden tests, referee mutants"]
 ```
 
-The course also measures whether the layer helps. On this ticket, with this model, it made no
-measurable difference: both arms failed every test run before class
+The course also measures whether the layer helps. On the ticket for Feature 4: Version checks on
+issue edits, with this model, it made no measurable difference: both arms failed every test run before class
 ([evidence](../docs/evidence/s4.md#section-4)). The concepts page explains why, and what the gate still
 catches.
 
 ## How to work through this section
 
-In class the section takes 45 minutes. It opens with the one poll of the class, which picks the final
-feature. Then the live demo and the final A/B start, at minute 2, and run while the concepts are
-taught. The final A/B is read in the final block.
+In class the section takes 45 minutes. It opens at 2:55 with the one poll of the class, a Live Zoom
+Poll from 2:55 to 2:57 that picks the final feature. At 2:57 (minute 2) the live demo, `make show-4`,
+and the final A/B launch, and they run while the concepts are taught. The final A/B is read in the
+final block.
 
 | Part | What it gives you | In class |
 |---|---|---|
 | [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-18 |
-| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Poll for the final feature at minute 0; launch at minute 2; review at 18-36 |
+| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Poll for the final feature at minute 0; launch at minute 2; review at 27-42 |
 | [demo/walkthrough.md](demo/walkthrough.md) | The gate's code, 38 lines explained | Minutes 18-28, on the DEMO slide |
 | [assignment/](assignment/README.md) | Assignment 4: Verification. Soft-delete check, sixth filter, live run, portfolio | After class |
 | [post-class-reading/](post-class-reading/README.md) | Four short readings on filters, mutants, evaluators, held-out tests | After class |

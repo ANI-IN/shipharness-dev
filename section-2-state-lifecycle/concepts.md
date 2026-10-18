@@ -6,14 +6,14 @@ Reading time: about 15 minutes.
 
 **Illustrative scenario.** Marco's team runs TeamTrack, a multi-tenant issue tracker. He asks a
 coding agent to add comments to issues: a `comments` table, three endpoints, and a panel on the
-board. The work is too big for one session, and the agent's session ends at its turn limit.
+board. The work is too big for one session, which ends at its turn limit.
 
 Session 1 writes the migration for the `comments` table and half of the endpoint. It does not
 commit, and it leaves no note. Session 2 starts with an empty context and the same ticket. It sees
 no working endpoint, so it starts again: it writes a new migration from the old head and rewrites
 half of the endpoint.
 
-Now the repository has two migration heads, and the deploy stops. A reviewer untangles two
+Now the repository has two migration heads; the deploy stops. A reviewer untangles two
 versions of one change, and Marco pays for the same work twice. The second session did not know
 what the first one had done.
 
@@ -37,7 +37,7 @@ what the first one had done.
 > - **Migrations rule**: House rule 7: Migrations. Exactly one Alembic head, and a fresh upgrade works.
 > - **Alembic head**: The newest migration in TeamTrack's Alembic migration chain.
 > - **Compaction**: Squeezing an old context into a short summary for the next session.
-> - **Fast tier**: OpenAI's faster, pricier service tier, used in class.
+> - **Fast tier**: OpenAI's quicker, higher-priced service tier, used in class.
 > - **Hidden tests**: Tests the referee runs that the agent never sees.
 > - **Continuity failure**: Two migration heads, a table created twice, or 30% or more of session 1's lines redone in session 2.
 >
@@ -93,9 +93,8 @@ runner: "A previous session worked on this ticket and was stopped." The rest it 
 
 **After: a handoff with two owners.** The harness arm finds `session-handoff.md`. The harness writes
 its "Machine summary" at the stop: commits, files changed, visible tests, open TODO markers, and the
-migration heads, with `house rule R7 needs exactly one` (`R7` is House rule 7) when there
-are two. The agent writes "Notes
-from the agent" in its wrap-up turns. These are real notes from a class-settings run, cut where
+migration heads, with `there must be exactly one (House rule 7: Migrations)` when there are
+two. The agent writes "Notes from the agent" in its wrap-up turns. These are real notes from a class-settings run, cut where
 marked `...` (`F2` is the course's code for Feature 2: Comments on issues):
 
 ![session-handoff.md with a machine summary from the harness and notes from the agent](diagrams/handoff-contents.svg)
@@ -112,8 +111,7 @@ marked `...` (`F2` is the course's code for Feature 2: Comments on issues):
 - What to watch out for: API/web must not import `app.db`; all customer queries must filter org. ...
 ```
 
-Session 2 of that run read this file, `progress.md`, and the git log first, and wrote exactly one
-migration.
+Session 2 of that run read this file, `progress.md`, and the git log first, and wrote one migration.
 
 ## How shipharness does it
 
@@ -162,7 +160,7 @@ primary measure: a run fails if it has a continuity failure.
 *One dot per run: all 7 runs of each arm passed, so there is no measurable difference.*
 
 No measurable difference on this task with this model
-([evidence](../docs/evidence.md#section-2)), with two limits. First, a pass does
+([evidence](../docs/evidence/s2.md#section-2)), with two limits. First, a pass does
 not mean the feature was built: in six of the twelve arm runs at medium and low effort, the agent
 built nothing, and the measure cannot fail when session 1 leaves no code to redo. Second, those six
 runs exposed a bug in the runner, not in the harness. A `finish(claim="not_done")` at the end of
@@ -205,20 +203,34 @@ assume a fresh session cannot resume from the repository alone.
 ## Check your understanding
 
 1. Session 2 of the bare arm has the whole repository. Why can it still write a second migration?
+
+   <details>
+   <summary>Answer</summary>
+
+   Being in the repository is not being noticed. If session 2 does not run `git status` or read
+   the migrations folder first, it works from the ticket alone and starts from the old head.
+
+   </details>
+
 2. Why does the harness write the machine summary itself, instead of asking the agent for it?
+
+   <details>
+   <summary>Answer</summary>
+
+   A session can end before the agent's wrap-up turns come. Commits, changed files, and migration
+   heads can be read from the repository at the stop, whatever the agent did.
+
+   </details>
+
 3. A run passes the continuity check with 3 of 56 hidden tests. What does the pass tell you?
 
-<details>
-<summary>Answers</summary>
+   <details>
+   <summary>Answer</summary>
 
-1. Being in the repository is not being noticed. If session 2 does not run `git status` or read
-   the migrations folder first, it works from the ticket alone and starts from the old head.
-2. A session can end before the agent's wrap-up turns come. Commits, changed files, and migration
-   heads can be read from the repository at the stop, whatever the agent did.
-3. Only that session 2 did not break or redo session 1's work. Here session 1 left almost no code,
+   Only that session 2 did not break or redo session 1's work. Here session 1 left almost no code,
    so there was nothing to redo. The hidden-test count says the feature was not built.
 
-</details>
+   </details>
 
 ## Further reading
 

@@ -59,12 +59,12 @@ The method `PathRules.reason` decides one path. `None` means the agent may chang
 - The reason names the phase and the full list, so the agent learns where it may write. In the
   captured run it read: "app/services/errors.py: outside the allowed paths for the build phase".
 
-### layer.py, lines 156-167
+### layer.py, lines 158-169
 
 Part of `before_tool`. It runs before the tool, so a refused patch never touches the workspace.
 
 ```python
-# platform/src/shipharness/harness/scope/layer.py (lines 156-167)
+# platform/src/shipharness/harness/scope/layer.py (lines 158-169)
         if call.name == "apply_patch":
             targets = patch_targets(str(call.arguments.get("patch", "")))
             refused = check_paths(self.rules(ctx), targets)
@@ -86,12 +86,12 @@ Part of `before_tool`. It runs before the tool, so a refused patch never touches
 - On the console, the decision shows as a `block` row under "Harness decisions" on screen 1, and as a
   "blocked" mark next to the file in the diff map on screen 3.
 
-### layer.py, lines 177-183
+### layer.py, lines 179-185
 
 The middle of `after_tool`. A shell command can write any file, so the check comes after it runs.
 
 ```python
-# platform/src/shipharness/harness/scope/layer.py (lines 177-183)
+# platform/src/shipharness/harness/scope/layer.py (lines 179-185)
         before = baseline[1]
         changed = snapshot.changed(before, snapshot.take(ctx.workspace))
         refused = check_paths(self.rules(ctx), changed)
@@ -106,19 +106,19 @@ The middle of `after_tool`. A shell command can write any file, so the check com
   involved, so a command cannot hide a change in a commit.
 - None of the test runs of this demo needed a revert: the agents changed files with `apply_patch`.
 
-### referee.py, lines 589-592
+### referee.py, lines 591-594
 
 The referee scores both arms the same way, on the shipped diff.
 
 ```python
-# platform/src/shipharness/ab/referee.py (lines 589-592)
+# platform/src/shipharness/ab/referee.py (lines 591-594)
         paths = [p for p in diff_paths(product) if p != "/dev/null"]
         allowed = self.task.allowed_paths
         scope_globs = [*allowed.get("build", []), *allowed.get("test", [])]
         out_of_scope = [p for p in paths if scope_globs and not _allowed(p, scope_globs)]
 ```
 
-- `product` is the arm's diff with harness files removed (`strip`, line 584), so the harness's own
+- `product` is the arm's diff with harness files removed (`strip`, line 586), so the harness's own
   `feature_list.json` and `progress.md` do not count against it.
 - A file counts if it matches neither the build list nor the test list. This number is
   `out_of_scope_files` in the score record, and the `diff_scope` row on screen 3.

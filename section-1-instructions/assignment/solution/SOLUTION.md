@@ -178,8 +178,8 @@ file. The report filled from it is [work/ab-report.md](work/ab-report.md).
 
 The instructor's grade of this folder is 100 out of 100
 ([captured/grade-solution.txt](captured/grade-solution.txt)), from
-`make grade-assignment-1 SUBMISSION=section-1-instructions/assignment/solution/work`. The self-check
-passes 24 of 24 checks ([captured/self-check-solution.txt](captured/self-check-solution.txt)). The
+`make grade-assignment-1 SUBMISSION=section-1-instructions/assignment/solution/work`, which only the
+instructor can run. The self-check passes 24 of 24 checks ([captured/self-check-solution.txt](captured/self-check-solution.txt)). The
 grader is not in this repository. Dates, batch, and run ids are on the
 [evidence page](../../../docs/evidence/s1.md#s1-a1-solution).
 

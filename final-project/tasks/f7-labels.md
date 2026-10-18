@@ -1,7 +1,7 @@
 # Feature 7: Labels
 
 The largest final feature: two build sessions, then a test phase. Run it with
-`FEATURES=labels ./final-project/run.sh` or `make final FEATURES=labels`.
+`./final-project/run.sh labels` or `make final FEATURES=labels`.
 
 ## What it asks for
 

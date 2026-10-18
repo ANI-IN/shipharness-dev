@@ -1,4 +1,4 @@
-# What the agent is given
+# Module 1: Harness Engineering for Coding Agents - Demo 2 harness files
 
 This folder holds the four files the state layer writes into the harness arm's workspace before
 session 1 of the Section 2: State and sessions demo. They are the files the agent finds when it starts, byte for byte.
@@ -13,14 +13,10 @@ Open them to see what a fresh session can read.
 > - **House rules**: TeamTrack's seven rules for every endpoint, House rule 1: Tenant isolation to House rule 7:
 >   Migrations.
 
-Do not edit the files here. A script renders them the way the layer does, from the same templates
-and the same ticket, Feature 2: Comments on issues (`platform/scripts/sync_demo_harness.py`), and a test fails if they drift.
-To change what the agent gets, edit the templates in `platform/src/shipharness/harness/state/assets/`
-and run the script again:
-
-```bash
-uv run python platform/scripts/sync_demo_harness.py
-```
+Do not edit the files here. They were rendered the way the layer renders them, from the same
+templates and the same ticket, Feature 2: Comments on issues, so they show what the agent gets. To
+change what the agent gets, edit the templates in `platform/src/shipharness/harness/state/assets/`;
+the next `make show-2` writes the new files into the harness arm's workspace.
 
 ## What is here
 

@@ -435,7 +435,7 @@ a model for tests of one module and keeps a proposed test only if it passes five
 Filters 1 to 3 come from Meta's
 [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171);
 Filters 4 and 5 are the course's own. `--layers verify` gives the model the
-course's verification layer. testgen works on any repository with a pytest suite, so it is the first
+course's verification layer. `shipharness testgen` works on any repository with a pytest suite, so it is the first
 harnessed run for a repository that is not TeamTrack.
 
 It costs money. Set a cap below the default for a first try. `MAX_RUN_COST_USD` is $0.20 per run by

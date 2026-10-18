@@ -120,7 +120,7 @@ Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 - [harness/](harness/): the files the layer gives the agent
 - [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
 - [Evidence page](../../docs/evidence/s1.md): every run behind the results
-- Console: http://127.0.0.1:8765 (after `make console`)
+- Console: [http://127.0.0.1:8765](http://127.0.0.1:8765) (after `make console`)
 
 ## What to watch
 
@@ -148,11 +148,11 @@ This feature changes no board pixels, so there is one frame.
 *Screen 2. "Only own-org cards, no duplicates": no other org's data on the board.*
 
 **Screen 4, A/B Report.** The results of the test runs before class, one dot per run, per feature and
-arm. Say: "Tonight's run is not a dot in the comparison."
+arm. Your own run is not a dot in this comparison.
 
 ![Screen 4: primary results, one dot per run, for each feature and arm](expected/screen-4-final.png)
 
-*Screen 4. The comparison comes from the test runs, not from tonight's run.*
+*Screen 4. The comparison comes from the test runs, not from your run.*
 
 **Screen 5, Traces.** The live tail of referee events and the LangSmith links.
 

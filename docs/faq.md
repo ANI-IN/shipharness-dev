@@ -128,7 +128,7 @@ for a report or your portfolio before then. Your score records in `exports/score
 ### Where do I get help?
 
 Use the program's channels: a support ticket on Uplevel at any time, Wednesday technical coaching,
-Discord for peer learning, and the TAs during the live class. Bring the exact terminal message. The
+Discord for peer learning, and the teaching assistants (TAs) during the live class. Bring the exact terminal message. The
 review session goes through each assignment. To report a security problem, follow
 [SECURITY.md](../SECURITY.md), and never post a key.
 
