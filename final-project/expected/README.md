@@ -81,5 +81,5 @@ The numbered circles are the demo guide's callouts. Times count from the make co
 | 1 Live | Status, "Agent said", the gate pills, the referee line | Did each arm finish, and does its claim match the counts? |
 | 2 Boards | Each card's org | Did a change leak another org's data onto the board? |
 | 3 Evidence | Files read, the diff map, sandbox denials | What did each arm read and change, and what was refused? |
-| 4 A/B Report | One dot per run | Is tonight's dot in line with the earlier runs? |
+| 4 A/B Report | One dot per run | Is this run's dot in line with the earlier runs? |
 | 5 Traces | The LangSmith links | Which model calls led to the result? |

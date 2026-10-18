@@ -185,7 +185,7 @@ So compare the claim with the counts, not with the agent's summary.
 
 ![Dot chart: one dot per run per arm for the four section features, filled for passed, hollow for failed](../docs/diagrams/results-final.svg)
 
-*Tonight's A/B adds one dot per arm to rows like these.*
+*The A/B in class adds one dot per arm to rows like these.*
 
 The live run of 2026-10-18: both arms passed 46 of 46 hidden tests and every referee check, and
 the blinded reviewer (a separate model that reads the diff without knowing which arm wrote it)

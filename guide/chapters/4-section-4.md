@@ -137,7 +137,7 @@ The `A/B ab-…` line and the result line come only at the end (Step 14).
 > - "no container yet" for more than a minute → the image is missing: stop the command (Ctrl+C), run `make warm`, start again.
 
 > [!INSTRUCTOR]
-> Point at the empty BARE column: "The comparison was made before class. Tonight we watch the harness work."
+> Point at the empty BARE column: "The comparison was made before class. Today we watch the harness work."
 
 ### Step 5: Read the first harness decisions
 
@@ -693,7 +693,7 @@ app.services.context-m401      –            ✗ survived
 
 **Look at:** The two rows "Feature 4: Version checks on issue edits · canonical · bare" and "Feature 4: Version checks on issue edits · canonical · harness": two hollow dots each (○, failed) and "0/2 before class". These rows score this section's measure, all hidden tests and all referee mutants. Below them are two more Feature 4 rows that end "judged by files changed outside the allowed paths", with filled dots: bare 1/10, harness 10/10. Those are Section 3's measure, the scope count from Chapter 3, not this one.
 
-**What it means:** Before class, neither arm passed this section's measure on this ticket once. Tonight's run sits in "This run", not among the dots: it is one arm, shown to see the mechanism.
+**What it means:** Before class, neither arm passed this section's measure on this ticket once. Today's run sits in "This run", not among the dots: it is one arm, shown to see the mechanism.
 
 > [!CHECKPOINT]
 > Both canonical Feature 4 rows without "judged by" read "0/2 before class", with no filled dot.
@@ -703,7 +703,7 @@ app.services.context-m401      –            ✗ survived
 > - You see filled dots on Feature 4 → you are reading a scope row ("judged by files changed outside the allowed paths"). That is Section 3's measure; read the two rows above it.
 
 > [!INSTRUCTOR]
-> Say: "No measurable difference on this task with this model: both arms fail. Tonight's run is not a dot in the comparison." If someone points at the filled Feature 4 dots: "Those rows count files outside the allowed paths, the Section 3 question. On this section's question, all hidden tests and all mutants, both arms are 0 of 2."
+> Say: "No measurable difference on this task with this model: both arms fail. Today's run is not a dot in the comparison." If someone points at the filled Feature 4 dots: "Those rows count files outside the allowed paths, the Section 3 question. On this section's question, all hidden tests and all mutants, both arms are 0 of 2."
 
 ### Step 25: Go back to the runs list
 
@@ -762,9 +762,9 @@ Every time in this guide was measured with each demo running alone. In class, th
 
 ## What to say in class
 
-- "The gate checks what the agent can see. The referee checks what it cannot. Tonight the gate said yes and the referee said no."
+- "The gate checks what the agent can see. The referee checks what it cannot. In this run the gate said yes and the referee said no."
 - "A refused 'done' goes back to the agent with the first three reasons. It fixes them while it still has the context."
-- "Tonight the agent wrote no tests, so no planted fault was caught: 0 of 4. The gate could not see that; the referee could."
+- "In this run the agent wrote no tests, so no planted fault was caught: 0 of 4. The gate could not see that; the referee could."
 - "The filters keep tests that guard the code as it is. In a recorded run they threw away the one test that found this bug, and the console flagged it."
 - "Before class both arms failed this ticket in every run. One run shows the mechanism; it is not a dot in the comparison."
 

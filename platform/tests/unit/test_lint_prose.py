@@ -35,6 +35,23 @@ def test_flags_banned_phrases_case_insensitively(tmp_path: Path) -> None:
     assert lint(doc).returncode == 1
 
 
+def test_flags_tonight(tmp_path: Path) -> None:
+    # Pages are read on other days too: "tonight" goes stale; say "today", "in class",
+    # "this session" or "this run".
+    doc = tmp_path / "doc.md"
+    doc.write_text("Tonight's run is one dot.\nWe watch it tonight.\n", encoding="utf-8")
+    result = lint(doc)
+    assert result.returncode == 1
+    assert "2 problems" in result.stdout
+    assert "'tonight'" in result.stdout.lower()
+
+
+def test_plain_time_words_pass(tmp_path: Path) -> None:
+    doc = tmp_path / "doc.md"
+    doc.write_text("Today's run is one dot. In class we watch this run.\n", encoding="utf-8")
+    assert lint(doc).returncode == 0
+
+
 def test_flags_emoji(tmp_path: Path) -> None:
     doc = tmp_path / "doc.md"
     doc.write_text("Done \U0001f680\n", encoding="utf-8")

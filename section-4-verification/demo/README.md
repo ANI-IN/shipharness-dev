@@ -174,7 +174,7 @@ its stale form. Tab B gets HTTP 409 and a "changed by someone else" page.
 *Screen 2. The board stops the lost update. The referee still finds one hidden test failing.*
 
 **Screen 4, A/B Report.** "This run" at the top, then "Measured before class", one dot per run, per
-feature and arm. Say: "Tonight's run is not a dot in the comparison."
+feature and arm. Say: "Today's run is not a dot in the comparison."
 
 ![Screen 4: this run at the top, then Measured before class, one dot per run for each feature and arm](expected/show-4-screen-4-final.png)
 

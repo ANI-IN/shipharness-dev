@@ -102,6 +102,8 @@ and then the how-to.
 - Use the source's own words for its ideas: AGENTS.md is a "map" or "table of contents"; the
   feature list field is `passes`; say "existing tests keep passing" and "grading criteria".
 - Report results as counts ("0 of 3 runs"), never as percentages.
+- Pages are read on any day. For the class or a run, write "today", "in class", "this session", or
+  "this run", never "tonight"; `lint_prose.py` flags it. <!-- lint-prose: allow -->
 - Short paragraphs: at most 5 lines.
 - Standard terms (API, CI, HTTP, JSON, SQL, ETag) need no explanation. Spell out any less common
   term on first use on each page, in a few plain words: "mutant (a copy of the code with one small

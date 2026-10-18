@@ -542,7 +542,7 @@ runs below.
 > - "No results to compare yet" → the run is not finished; come back after both full verdicts.
 
 > [!INSTRUCTOR]
-> Say: "Here is tonight's result. Now look at what came before it."
+> Say: "Here is today's result. Now look at what came before it."
 
 ### Step 15: Screen 4, the runs measured before class
 
@@ -561,11 +561,11 @@ runs below.
 3. Legend
 
 **Look at:** The two Feature 5 rows. "Feature 5: Bulk close · canonical · bare": "8/8 before class ·
-1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Tonight's run is
+1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Today's run is
 the diamond after the bar.
 
 **What it means:** One A/B is one dot. With no primary measure, every Feature 5 run before class
-passed in both arms, and tonight's did too. The dots alone cannot separate the arms on this feature;
+passed in both arms, and today's did too. The dots alone cannot separate the arms on this feature;
 the counts in steps 9 and 13 do, run by run.
 
 > [!CHECKPOINT]
@@ -601,7 +601,7 @@ spent)", HARNESS "$0.02 per verified feature (36 verified, $0.76 spent)". "Revie
 
 **What it means:** Cost per verified feature divides what an arm spent across all scored runs by the
 features the referee verified. Reviewer agreement counts how often the blinded reviewer and the
-referee agreed. Both pool every run in `exports/`, not only tonight's.
+referee agreed. Both pool every run in `exports/`, not only today's.
 
 > [!CHECKPOINT]
 > Both panels show one line per arm.
@@ -611,7 +611,7 @@ referee agreed. Both pool every run in `exports/`, not only tonight's.
 
 > [!INSTRUCTOR]
 > Say: "Across all runs, the harness arm verified more features for a little more money in total.
-> Tonight it cost $0.0166 against the bare arm's $0.0173."
+> In this run it cost $0.0166 against the bare arm's $0.0173."
 
 ### Step 17: Screen 5, traces
 
@@ -698,7 +698,7 @@ build totals against their caps. The session figure here includes the four secti
 - No measurable difference: equal counts, or a difference one run can produce.
 - Bare ahead: the same as harness ahead, the other way round.
 
-Tonight both arms passed every check. The bare arm killed one more mutant (1 of 3 against 0 of 3).
+In this run both arms passed every check. The bare arm killed one more mutant (1 of 3 against 0 of 3).
 As one dot that is a difference one run can produce. Earlier Feature 5 runs split 2 of 3 against 3
 of 3 and 3 of 3 against 1 of 3, so no arm leads on mutants across runs.
 
@@ -755,5 +755,5 @@ slower.
 - "One A/B is one dot. Read it next to the dots from before class, not on its own."
 - "Feature 5 has no primary measure, so 'verdict ready: PASS' is not news. The counts are."
 - "Both arms passed 46 of 46 hidden tests. The difference is in how, not whether: mutants killed, scope, gate."
-- "Tonight the bare arm's tests caught one more planted bug. Earlier runs split the other way, so this is no gap yet."
+- "Today the bare arm's tests caught one more planted bug. Earlier runs split the other way, so this is no gap yet."
 - "To learn which layers earn their place, remove one layer at a time and compare many runs, not one."

@@ -496,7 +496,7 @@ def _phase_reason(rules: PathRules) -> str:
 
 Talking points:
 - `PathRules` holds one phase's allow list (from the task, for example `[allowed_paths]` in
-  `platform/teamtrack/reference/f3/task.toml`). Tonight's S3 A/B runs F4: its build list in
+  `platform/teamtrack/reference/f3/task.toml`). In class the S3 A/B runs F4: its build list in
   `platform/teamtrack/reference/f4/task.toml` does not include `app/services/errors.py`, the file
   every bare arm of the S3 confirmation changed and every harness arm was refused.
 - Order inside `reason()`: harness-only files first (`feature_list.json` may not be edited at all;

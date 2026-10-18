@@ -61,6 +61,8 @@ BANNED_WORDS = [
     r"effortless\w*",
     r"synergy",
     r"holistic",
+    # Goes stale the day after: write "today", "in class", "this session" or "this run".
+    r"tonight",
 ]
 BANNED_PHRASES = [
     r"paradigm shift",
