@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Section 1 demo: run the harness arm live on F1 (org-wide issue search) with the instructions layer.
+# Section 1 demo: run the harness arm live on Feature 1: Org-wide issue search with the instructions layer.
 #
-# Usage, from anywhere inside the repository:
+# Usage, from the repository root (the script itself works from any folder):
 #   ./section-1-instructions/demo/run.sh                  # class run (needs SHIPHARNESS_CLASS_DATE in .env)
 #   PURPOSE=pilot ./section-1-instructions/demo/run.sh    # practice run outside class
 #
@@ -17,6 +17,21 @@
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail
+
+# No arguments: settings come from the environment (PURPOSE=pilot ./section-1-instructions/demo/run.sh).
+if [ "$#" -gt 0 ]; then
+  case "$1" in
+    -h|--help)
+      sed -n '2,/^set -euo pipefail/{/^#/s/^# \{0,1\}//p}' "${BASH_SOURCE[0]}"
+      exit 0
+      ;;
+    *)
+      echo "x unknown argument '$1': ./section-1-instructions/demo/run.sh takes no arguments" >&2
+      echo "  for a practice run: PURPOSE=pilot ./section-1-instructions/demo/run.sh; for help: ./section-1-instructions/demo/run.sh --help" >&2
+      exit 2
+      ;;
+  esac
+fi
 
 # The repository root is two folders up from this script.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -56,6 +71,6 @@ else
   echo "+ purpose: $PURPOSE"
 fi
 
-# 4. The live run: the harness arm alone, then the referee (R1 first) and the review.
+# 4. The live run: the harness arm alone, then the referee (House rule 1: Tenant isolation first) and the review.
 echo "Launching make show-1 (at most \$0.24 at the caps). Watch the console: press 1, then 3, 2, 4."
 exec make show-1 PURPOSE="$PURPOSE"
