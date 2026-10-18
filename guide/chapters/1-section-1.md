@@ -91,7 +91,7 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 ![The console's run list: each card shows the run id, section, feature, type, status and start time](../images/s1/runlist.png)
 
-*The show-1 card after the run finished. It is second here because the next section's run had already started.*
+*The show-1 card after the run finished. It is at the bottom here because five later runs started after it.*
 
 1. Run id: open the run
 2. Type: harness in action or A/B
@@ -151,9 +151,9 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 **You should see:** under "Harness decisions": "• note instructions placed 31 instruction files (AGENTS.md map, docs, skills)".
 
-![Screen 1 about one minute after launch: the harness arm's last turns and the layer's notes](../images/s1/screen-1-early.png)
+![Screen 1 early in the run, at event 101: the harness arm's last turns and the layer's notes](../images/s1/screen-1-early.png)
 
-*About one minute in (the run's log replayed to that point): the agent has read the documents and starts writing code.*
+*Early in the run (the run's log replayed to event 101): the agent has read the documents and starts writing code.*
 
 1. HARNESS IN ACTION badge, or the feature
 2. Harness arm line: its layers
@@ -300,9 +300,9 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 **You should see:** the column "Section 1: Instructions · Section 2: State and sessions". Under BARE: "Not run (harness in action)". Under HARNESS: "Files read" by group, then "Sessions": "Session 1 · 26 turns" and "Test phase · 12 turns".
 
-![Screen 3 after the run finished: files read, sessions, diff map, referee checks and the reviewer's reason](../images/s1/screen-3-final.png)
+![Screen 3 after the run finished: the bare arm not run, the harness arm's files read, sessions and diff map](../images/s1/screen-3-final.png)
 
-*Screen 3: what the agent read, what it changed, and every referee check.*
+*Screen 3: what the agent read, its sessions, and what it changed.*
 
 1. Bare arm: Not run (harness in action)
 2. Diff map (harness)
@@ -409,7 +409,7 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 **You should see:** "Live tail", whose newest line is "#195 HARNESS verdict pass: agent said done; referee: passes the primary measure; …". "First wrong turn" shows "✓ no wrong turn found". "LangSmith" shows an agent link and a referee link.
 
-![Screen 5 after the run finished: the live tail of events, no wrong turn found, and the LangSmith links](../images/s1/screen-5-final.png)
+![Screen 5 after the run finished: the live tail of events and no wrong turn found](../images/s1/screen-5-final.png)
 
 *Screen 5: where you look for the first wrong turn.*
 

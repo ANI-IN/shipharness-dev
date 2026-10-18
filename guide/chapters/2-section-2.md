@@ -93,7 +93,7 @@ The `A/B ab-…` line and the result lines come only at the end (Step 21).
 
 ![The console's run list, newest first, with the card of the Section 2 run marked](../images/s2/runlist.png)
 
-*The run list after the run finished. The Section 2 card is the second one, because the next chapter's run had already started.*
+*The run list after the run finished. The Section 2 card is fifth here, because four later runs started after it.*
 
 1. Run id: open the run
 2. Type: harness in action or A/B
@@ -189,9 +189,9 @@ The initializer step is plain code, so it makes no model call.
 
 **You should see:** a new harness decision, "session stop · state · session 1 handoff written to session-handoff.md". After turn 1.12, the turn list shows the marker "Session 1 stopped · ended by turn_budget; handoff session-handoff.md".
 
-![Screen 1 at the moment session 1 stopped: the session stop decision under Harness decisions](../images/s2/screen-1-session-stop.png)
+![Screen 1 at event 55, when session 1 stopped: the bare arm not run, the harness arm's last turns, and the first two harness decisions](../images/s2/screen-1-session-stop.png)
 
-*Screen 1 at the stop. The state layer has just written the handoff.*
+*Screen 1 at the stop. The session stop decision appears under Harness decisions, below this crop.*
 
 1. Turns list
 
@@ -397,9 +397,9 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 **You should see:** under "Sessions", the rows "Session 1 · 12 turns · turn_budget", "Session 2 · 38 turns", and "Test phase · 12 turns".
 
-![Screen 3 after the run: sessions, files read, the diff map, and one row per referee check](../images/s2/screen-3-final.png)
+![Screen 3 after the run: the bare arm not run, the harness arm's files read, sessions, and diff map](../images/s2/screen-3-final.png)
 
-*Screen 3: two build sessions and the test phase, no continuity failure, and no file outside scope.*
+*Screen 3: two build sessions and the test phase, and the files the agent changed.*
 
 1. Bare arm: Not run (harness in action)
 2. Diff map (harness)
@@ -457,7 +457,7 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 ![Close-up of screen 3: the diff map and sandbox denials](../images/s2/screen-3-diff-map.png)
 
-*The diff map: one new migration, and no command refused by the sandbox.*
+*The diff map: one migration file, and no command refused by the sandbox.*
 
 1. Diff map (harness)
 2. Sandbox denials (harness)
@@ -586,7 +586,7 @@ PASS means none of the three happened. It does not mean the feature works; the h
 - "First wrong turn": "✓ no wrong turn found" for the harness arm;
 - "LangSmith": an agent trace link and a referee trace link.
 
-![Screen 5: the live tail, no wrong turn found, and the LangSmith links](../images/s2/screen-5-final.png)
+![Screen 5: the live tail and no wrong turn found](../images/s2/screen-5-final.png)
 
 *Screen 5: this run has no first wrong turn, and the live tail ends with the full verdict.*
 
@@ -614,7 +614,7 @@ PASS means none of the three happened. It does not mean the feature works; the h
 
 **You should see:**
 
-![The final lines of make show-2 in Terminal 2: the A/B line, the harness arm's record line, and the Cost line](../images/s2/term-end.png)
+![The final lines of make show-2 in Terminal 2: the command, the harness arm's record line, and the Cost line](../images/s2/term-end.png)
 
 *Terminal 2 at the end: one record line for the harness arm, then the cost.*
 

@@ -48,11 +48,11 @@ The numbered circles are the demo guide's callouts. Times count from the make co
 
 ![Screen 1 when the harness gate passed: every gate check passed](screen-1-gate-passed.png)
 
-*3:44: the harness arm said done at 2:11; every gate check passed on the first attempt, and the test phase began.*
+*3:44: the harness arm said done at 2:11; every gate check passed on the first attempt, and session 1 stopped with a handoff.*
 
-![Screen 1 after both full verdicts: hidden tests 46 of 46 in both arms, both runs completed](screen-1-final.png)
+![Screen 1 at the end: both runs completed; the bare arm's referee shows verdict ready: PASS and hidden tests 46 of 46](screen-1-final.png)
 
-*The end: hidden tests 46/46 in both arms, mutants killed 1/3 (bare) and 0/3 (harness), full verdicts at 6:02 and 9:10.*
+*The end: both runs completed, after 38 turns (bare) and 35 turns (harness); the bare arm's referee shows hidden tests 46/46. Screen 4 has both arms' counts.*
 
 ![Screen 2: both boards as an Acme user](screen-2-final.png)
 
@@ -66,9 +66,9 @@ The numbered circles are the demo guide's callouts. Times count from the make co
 
 *The harness arm proposed two tests: one kept after five filters, one discarded by Filter 3: Adds coverage or catches a mutant.*
 
-![Screen 4: this run at the top, then Measured before class, one dot per run](screen-4-final.png)
+![Screen 4: this run at the top, then Measured before class: 36 runs per arm, one dot per run](screen-4-final.png)
 
-*Screen 4, A/B Report: both arms' verdicts at the top; below, "Measured before class", where Feature 5's rows read "8/8 before class" plus this run's new dot.*
+*Screen 4, A/B Report: both arms' verdicts at the top, hidden tests 46/46 in both and mutants killed 1/3 (bare) and 0/3 (harness); below, "Measured before class", one row of dots per feature and arm.*
 
 ![Screen 5: referee events and LangSmith links](screen-5-final.png)
 

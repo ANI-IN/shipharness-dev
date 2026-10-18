@@ -125,7 +125,7 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *About one minute in. Both arms are reading code; only the harness arm has harness decisions.*
 
-1. HARNESS IN ACTION badge, or the feature
+1. Feature badge: Feature 5: Bulk close
 2. Bare arm line: no layers
 3. Harness arm line: its layers
 4. Container line
@@ -203,13 +203,13 @@ event, a few seconds after the make command.
 
 **You should see:**
 
-![Screen 1 when the bare arm's verdict was ready: run completed after 38 turns, verdict ready PASS, judged on all checks, secondary checks running; the harness arm still building](../images/final/screen-1-bare-verdict.png)
+![Screen 1 when the bare arm's verdict was ready: run completed after 38 turns, referee pill verdict ready PASS; the harness arm still working, with no run completed](../images/final/screen-1-bare-verdict.png)
 
-*The bare arm is judged first. Its secondary checks still run, and the harness arm still builds.*
+*The bare arm is judged first, while the harness arm still works.*
 
 1. Harness still working
-2. Secondary checks running
-3. Bare referee pill
+2. Bare referee pill: verdict ready: PASS
+3. Referee heading (bare)
 
 **Look at:** The Referee block: "verdict ready: PASS", "judged on all checks", "secondary checks
 running", "launch to primary verdict 03:18". Next to it: "Agent said done" and "claim supported".
@@ -236,7 +236,7 @@ nothing yet about the feature. The counts come with the full verdict.
 
 **You should see:**
 
-![Screen 1, whole page, when the harness gate passed: every gate pill green, gate pass, session stop, status set, exec plan moved](../images/final/screen-1-gate-passed-full.png)
+![Screen 1, whole page, when the harness gate passed: gate pass is the last harness decision shown, every gate pill is green; the bare arm shows verdict ready PASS and secondary checks running](../images/final/screen-1-gate-passed-full.png)
 
 *The gate passed every item at the first attempt. Only then did the agent's "done" count.*
 
@@ -276,7 +276,7 @@ phase, starts.
 
 ![Close-up of the harness panel after the run: turns, harness decisions, gate list and referee pill](../images/final/screen-1-harness.png)
 
-*The harness arm after the run: its decisions end with the test filter result.*
+*The harness arm after the run: its turns, decisions, gate list and referee pill. Expand the decisions to see the test filter result.*
 
 1. Harness arm line: its layers
 2. Turns list
@@ -396,9 +396,9 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 **You should see:**
 
-![Screen 3: files read and sessions, the diff maps, sandbox denials and one row per referee check for both arms](../images/final/screen-3-final.png)
+![Screen 3: files read and sessions on the left, the diff maps and sandbox denials on the right, for both arms](../images/final/screen-3-final.png)
 
-*Evidence for all four layers: one column per section.*
+*Evidence for instructions, state and scope. The referee rows are not in this view; step 13 shows them.*
 
 1. Diff map (bare)
 2. Diff map (harness)
@@ -407,8 +407,8 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 *Files read and sessions.*
 
-1. Files read
-2. Sessions
+1. Files read (harness)
+2. Sessions (harness)
 
 **Look at:** "Section 1: Instructions · Section 2: State and sessions". The harness arm read
 `ARCHITECTURE.md` (harness doc), `docs/exec-plans/completed/F5.md` and `feature_list.json` (state),
@@ -586,9 +586,9 @@ the counts in steps 9 and 13 do, run by run.
 
 **You should see:**
 
-![Screen 4: this run, measured before class, dots per run, cost per verified feature and reviewer agreement](../images/final/screen-4-final.png)
+![Screen 4: this run, measured before class with dots per run, ablation with no runs yet, and cost per verified feature](../images/final/screen-4-final.png)
 
-*The whole A/B Report.*
+*The top of the A/B Report.*
 
 1. This run
 2. Measured before class
@@ -621,9 +621,9 @@ referee agreed. Both pool every run in `exports/`, not only today's.
 
 **You should see:**
 
-![Screen 5: the live tail of events, no wrong turn found in either arm, and the LangSmith links per arm](../images/final/screen-5-final.png)
+![Screen 5: the live tail of events, and no wrong turn found in either arm](../images/final/screen-5-final.png)
 
-*Traces: the event tail, the first wrong turn per arm, and the links to each model call.*
+*Traces: the event tail and the first wrong turn per arm.*
 
 1. Live tail
 2. First wrong turn
