@@ -1,0 +1,34 @@
+name: ci
+
+# Lint, the course style check, the prose lint, and the tests on every push and pull request.
+# Live model runs never run in CI: no API keys are stored as secrets.
+# After the first `uv sync`, commit uv.lock and change `uv sync` to `uv sync --frozen`.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run python platform/scripts/lint_prose.py
+      - name: course style check (switch to --strict once every page is written)
+        run: uv run python platform/scripts/check_style.py
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync
+      - run: uv run pytest -q
