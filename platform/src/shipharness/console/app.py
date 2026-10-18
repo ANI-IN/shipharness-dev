@@ -14,6 +14,7 @@ loads from a CDN.
 from __future__ import annotations
 
 import asyncio
+import hashlib
 import json
 import re
 from collections.abc import AsyncIterator, Callable
@@ -120,6 +121,14 @@ async def screen_updates(
         await asyncio.sleep(poll_s)
 
 
+def static_version() -> str:
+    """A short hash of the console's static files: changes whenever one of them changes."""
+    digest = hashlib.sha256()
+    for path in sorted((HERE / "static").glob("*")):
+        digest.update(path.name.encode() + path.read_bytes())
+    return digest.hexdigest()[:12]
+
+
 def _run_dir(runs_dir: Path, run_id: str) -> Path:
     if not _RUN_ID.match(run_id):
         raise HTTPException(status_code=400, detail="invalid run id")
@@ -147,6 +156,9 @@ def create_console_app(
         exports_dir = get_settings().exports_dir
     exports_dir = Path(exports_dir)
     renderer = ScreenRenderer()
+    # Static files carry a version (a hash of their contents) in their URL, so a browser never
+    # keeps an old stylesheet with new pages.
+    renderer.env.globals["static_version"] = static_version()
     templates = Jinja2Templates(env=renderer.env)
     app = FastAPI(title="shipharness console", docs_url=None, redoc_url=None, openapi_url=None)
     app.mount("/static", StaticFiles(directory=HERE / "static"), name="static")
@@ -157,6 +169,8 @@ def create_console_app(
         response.headers.setdefault("Content-Security-Policy", CSP)
         response.headers.setdefault("X-Content-Type-Options", "nosniff")
         response.headers.setdefault("Referrer-Policy", "no-referrer")
+        if request.url.path.startswith("/static/"):
+            response.headers["Cache-Control"] = "no-cache"  # revalidate: never a stale stylesheet
         return response
 
     @app.get("/", response_class=HTMLResponse)

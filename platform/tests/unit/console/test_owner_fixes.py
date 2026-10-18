@@ -614,3 +614,42 @@ def test_an_empty_decisions_list_is_one_plain_line(tmp_path: Path) -> None:
         "decisions empty" in bare
         and "scroll-list" not in bare.split("Harness decisions")[1].split("Gate")[0]
     )
+
+
+# -- fluid at any width, scaling, or zoom (owner, 2026-10-18) ------------------------------------
+
+CSS_FILE = Path(__file__).parents[3] / "src/shipharness/console/static/console.css"
+
+
+def test_no_layout_is_tied_to_a_screen_size() -> None:
+    css = re.sub(r"/\*.*?\*/", "", CSS_FILE.read_text(), flags=re.S)
+    assert not re.search(
+        r"font(-size)?:[^;]*\d+px", css.replace("clamp(16px", "").replace("20px)", "")
+    )
+    assert "@media" not in css  # no breakpoint tuned to a device
+    assert not re.search(r"(?<![-\w])(min-)?width:\s*\d+px", css)  # no fixed px widths
+    for selector in (".grid.two", ".grid.three", ".this-run"):
+        rule = re.search(re.escape(selector) + r"[^{]*\{([^}]*)\}", css)
+        assert rule and "auto-fit" in rule.group(1), selector
+    bar = re.search(r"\n\.bar \{([^}]*)\}", css).group(1)
+    assert "flex-wrap: wrap" in bar and "nowrap" not in bar
+    assert "flex-wrap: wrap" in re.search(r"\n\.tabs \{([^}]*)\}", css).group(1)
+
+
+def test_static_files_are_versioned_and_revalidated(tmp_path: Path) -> None:
+    runs = tmp_path / "runs"
+    log = single_arm_run(runs)
+    client = TestClient(create_console_app(runs, exports_dir=tmp_path / "exports"))
+    page = client.get(f"/run/{log.parent.name}").text
+    assert re.search(r'/static/console\.css\?v=[0-9a-f]{12}"', page)
+    assert re.search(r'/static/stream\.js\?v=[0-9a-f]{12}"', page)
+    assert re.search(r'/static/console\.css\?v=[0-9a-f]{12}"', client.get("/").text)
+    assert client.get("/static/console.css").headers["cache-control"] == "no-cache"
+
+
+def test_the_run_list_is_a_list_of_cards_with_breakable_ids(tmp_path: Path) -> None:
+    runs = tmp_path / "runs"
+    single_arm_run(runs)
+    text = TestClient(create_console_app(runs, exports_dir=tmp_path / "x")).get("/").text
+    assert '<ul class="runs">' in text and "<table" not in text
+    assert "ab-<wbr>20261018-<wbr>045459-<wbr>aaaaaa" in text

@@ -50,16 +50,20 @@ def contrast(a: str, b: str) -> float:
     return (la + 0.05) / (lb + 0.05)
 
 
-def test_every_font_size_is_at_least_20px() -> None:
-    sizes = re.findall(r"font(?:-size)?:\s*([^;]+);", CSS)
+def test_every_font_size_is_at_least_the_root_size() -> None:
+    # Owner, 2026-10-18: fluid at any size. Text sizes are rem (1 rem or more) on a root size that
+    # grows with the window: 16 px on a phone, 20 px (projector) from about 1300 CSS px up.
+    assert "html { font-size: clamp(16px, 0.75rem + 0.6vw, 20px); }" in CSS
+    body = re.sub(r"/\*.*?\*/", "", CSS, flags=re.S).split("html {", 1)[1].split("}", 1)[1]
+    sizes = re.findall(r"font(?:-size)?:\s*([^;]+);", body)
     assert sizes
     for value in sizes:
         if value.strip() == "inherit":
-            continue  # inherits the 20px body size
-        px = re.findall(r"(\d+(?:\.\d+)?)px", value)
-        assert px, f"font size must be in px: {value!r}"
-        assert float(px[0]) >= 20, value
-    assert not re.search(r"font-size:\s*[\d.]+(em|rem|%|pt)", CSS)
+            continue
+        rem = re.findall(r"(\d+(?:\.\d+)?)rem", value)
+        assert rem, f"font size must be in rem: {value!r}"
+        assert float(rem[0]) >= 1, value
+    assert not re.search(r"font(?:-size)?:[^;]*\d+px", body)
 
 
 def test_templates_carry_no_inline_styles() -> None:

@@ -15,7 +15,7 @@
 <article class="panel">
   <h2>No results to compare yet</h2>
   <p>This screen compares the two arms, one dot per run. There are no results yet. One is added when the referee finishes judging a run: start one with <code>make show-1</code> (the harness arm alone) or <code>make demo-1</code> (an A/B), with <code>PURPOSE=pilot</code> outside class.</p>
-  {% if comparison %}<p>LangSmith comparison for this run: <a href="{{ comparison }}">{{ comparison }}</a></p>{% endif %}
+  {% if comparison %}<p>LangSmith comparison for this run: <a href="{{ comparison }}">{{ breakable(comparison) }}</a></p>{% endif %}
   {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
 </article>
 </div>
@@ -82,9 +82,9 @@
   <h2>LangSmith</h2>
   <ul class="links">
   {% for e in report.experiments %}
-    <li>{{ e.name }}{% if e.comparison_url %}: <a href="{{ e.comparison_url }}">{{ e.comparison_url }}</a>{% elif e.url %}: <a href="{{ e.url }}">{{ e.url }}</a>{% endif %}</li>
+    <li>{{ e.name }}{% if e.comparison_url %}: <a href="{{ e.comparison_url }}">{{ breakable(e.comparison_url) }}</a>{% elif e.url %}: <a href="{{ e.url }}">{{ breakable(e.url) }}</a>{% endif %}</li>
   {% endfor %}
-  {% if comparison %}<li>this run: <a href="{{ comparison }}">{{ comparison }}</a></li>{% endif %}
+  {% if comparison %}<li>this run: <a href="{{ comparison }}">{{ breakable(comparison) }}</a></li>{% endif %}
   {% if not report.experiments and not comparison %}<li class="muted">No LangSmith experiments yet.</li>{% endif %}
   </ul>
   {% if report.older %}<p class="muted">{{ report.older }} older score records not shown (scored before the current referee version).</p>{% endif %}

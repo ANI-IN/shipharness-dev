@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>shipharness console</title>
-  <link rel="stylesheet" href="/static/console.css">
+  <link rel="stylesheet" href="/static/console.css?v={{ static_version }}">
 </head>
 <body class="index">
   <header class="bar"><h1>shipharness console</h1></header>
@@ -13,21 +13,14 @@
       <h2>Runs</h2>
       {% if runs %}
       <p class="muted">Newest first.</p>
-      <table class="runs">
-        <thead><tr><th>Run</th><th>Section</th><th>Feature</th><th>Type</th><th>Status</th><th>Started</th></tr></thead>
-        <tbody>
+      <ul class="runs">
         {% for run in runs %}
-        <tr>
-          <td><a href="/run/{{ run.run_id }}">{{ run.run_id }}</a></td>
-          <td>{{ run.section }}</td>
-          <td>{{ run.feature }}</td>
-          <td>{{ run.kind }}</td>
-          <td>{{ run.status }}</td>
-          <td>{{ run.started }}</td>
-        </tr>
+        <li>
+          <a class="run-link" href="/run/{{ run.run_id }}">{{ breakable(run.run_id) }}</a>
+          <div class="run-meta"><span>{{ run.section }}</span><span>{{ run.feature }}</span><span>{{ run.kind }}</span><span>{{ run.status }}</span><span>started {{ run.started }}</span></div>
+        </li>
         {% endfor %}
-        </tbody>
-      </table>
+      </ul>
       {% else %}
       <p>No runs yet. Start one in a second terminal: <code>make show-1</code> (<code>PURPOSE=pilot</code> outside class) runs the harness arm alone on the Section 1 ticket. The run appears here when it starts: reload this page.</p>
       {% endif %}

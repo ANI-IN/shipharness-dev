@@ -47,7 +47,7 @@
     <ul class="links">
     {% for kind, url in a.traces.items() %}
       {% set safe = safe_url(url) %}
-      {% if safe %}<li>{{ kind }}: <a href="{{ safe }}" title="{{ safe }}">{{ safe|truncate(60, true, "…") }}</a></li>{% endif %}
+      {% if safe %}<li>{{ kind }}: <a href="{{ safe }}" title="{{ safe }}">{{ breakable(safe|truncate(60, true, "…")) }}</a></li>{% endif %}
     {% else %}
       <li class="muted">No trace link yet.</li>
     {% endfor %}
@@ -56,6 +56,6 @@
   </section>
   {% endfor %}
   {% set comparison = safe_url(state.ab.traces.get("comparison")) %}
-  {% if comparison %}<p>comparison: <a href="{{ comparison }}" title="{{ comparison }}">{{ comparison|truncate(60, true, "…") }}</a></p>{% endif %}
+  {% if comparison %}<p>comparison: <a href="{{ comparison }}" title="{{ comparison }}">{{ breakable(comparison|truncate(60, true, "…")) }}</a></p>{% endif %}
 </article>
 </div>

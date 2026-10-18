@@ -16,7 +16,13 @@ from typing import Any
 import pytest
 
 from shipharness.console.app import create_console_app
-from shipharness.console.layout_check import SIZES, screen_problems
+from shipharness.console.layout_check import (
+    SIZES,
+    VIEWPORTS,
+    runlist_problems,
+    screen_problems,
+    sweep,
+)
 from tests.unit.console.fixture_log import AB_ID, build_fixture_exports, build_fixture_run
 from tests.unit.console.run_logs import multi_session_run, show_4_run, single_arm_run
 
@@ -112,7 +118,7 @@ def test_the_long_lists_scroll_inside_15_lines_and_expand(chromium: Any, base: s
 
 
 def test_panels_stack_on_a_narrow_window(chromium: Any, base: str) -> None:
-    context, page = _page(chromium, 900, 1000)
+    context, page = _page(chromium, 600, 1000)  # no room for two 20 rem columns
     try:
         page.goto(f"{base}/run/{AB_ID}")
         page.keyboard.press("3")
@@ -174,3 +180,36 @@ def test_h_typed_in_a_field_and_screen_keys_do_not_navigate(chromium: Any, base:
         assert page.url.startswith(url)
     finally:
         context.close()
+
+
+# The CI sweep: every 160 CSS px from 320 to 2560 at heights 600 and 1000, the pixel-ratio set, and
+# the named viewports (display scaling, zoom, phone). `check_console_layout.py --step 40` runs the
+# full sweep on recorded runs.
+CI_SWEEP = [*sweep(160), *VIEWPORTS]
+
+
+def test_the_sweep_holds_on_every_screen_and_the_run_list(
+    chromium: Any, base: str, tmp_path: Path, live_server: Callable[[Any], Any]
+) -> None:
+    empty = str(live_server(create_console_app(tmp_path / "none", exports_dir=tmp_path / "x")).url)
+    failures: list[str] = []
+    passed = 0
+    for vp in CI_SWEEP:
+        context = chromium.new_context(
+            viewport={"width": vp.width, "height": vp.height}, device_scale_factor=vp.dpr
+        )
+        page = context.new_page()
+        for url in (f"{base}/", f"{empty}/"):
+            page.goto(url)
+            problems = runlist_problems(page)
+            failures += [f"{vp.name} {url}: {p}" for p in problems]
+            passed += not problems
+        for run in (AB_ID, SINGLE, SHOW_4):
+            page.goto(f"{base}/run/{run}")
+            for key in "134":
+                problems = screen_problems(page, key)
+                failures += [f"{vp.name} {run} {key}: {p}" for p in problems]
+                passed += not problems
+        context.close()
+    assert failures == [], failures[:10]
+    assert passed == len(CI_SWEEP) * 11

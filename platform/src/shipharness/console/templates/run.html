@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=1920">
   <title>{{ run_id }} · shipharness console</title>
-  <link rel="stylesheet" href="/static/console.css">
-  <script src="/static/stream.js" defer></script>
+  <link rel="stylesheet" href="/static/console.css?v={{ static_version }}">
+  <script src="/static/stream.js?v={{ static_version }}" defer></script>
 </head>
 <body data-run="{{ run_id }}" data-screen="1" data-full="" data-recorded="{{ 'true' if state.recorded else 'false' }}" data-seq="{{ state.seq }}" data-finished="{{ 'true' if finished else 'false' }}">
 <div class="frame">
@@ -17,7 +17,7 @@
       {% endfor %}
     </nav>
     <span class="hint"><kbd>F</kbd> one arm: <span id="full-label">both</span></span>
-    <span class="run-id">{{ run_id }}</span>
+    <span class="run-id">{{ breakable(run_id) }}</span>
     <span id="conn" class="conn">{{ "finished" if finished else "connecting" }}</span>
   </header>
   {% for key, name, title in screens %}
