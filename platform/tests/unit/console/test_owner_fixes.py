@@ -362,7 +362,7 @@ def test_redone_work_ignores_the_harness_state_files(tmp_path: Path) -> None:
             w.turn("harness", 2, 1, edit=path)
     sessions = ConsoleState.from_events(read_events(log)).arm("harness").sessions()
     assert sessions[1].redone == ["app/api/comments.py"]  # product work redone; state files not
-    evidence = render(log)["3"]
+    evidence = render(log)["3"].replace("<wbr>", "")
     assert "app/api/comments.py" in evidence
     assert "progress.md" not in evidence.split("Sessions", 1)[1].split("</ol>", 1)[0]
 
@@ -467,7 +467,7 @@ def test_filter_2_discard_matching_the_spec_may_be_a_real_bug(tmp_path: Path) ->
 
 def test_the_filter_table_shows_full_test_names_on_hover(tmp_path: Path) -> None:
     log = _show_4_log(tmp_path, {LONG_TEST: "failed on run 1 of 5: assert 422 == 412"})
-    evidence = render(log)["3"]
+    evidence = render(log)["3"].replace("<wbr>", "")
     assert f'title="{LONG_TEST}"' in evidence
     assert "test_precondition_check_order_and_openapi<" in evidence  # not cut in the text itself
 
@@ -541,3 +541,76 @@ def test_a_refusal_followed_by_another_refusal_says_still_refused(tmp_path: Path
     ]
     assert texts[0].endswith("→ still refused on attempt 2")
     assert texts[1].endswith("→ no further attempt")
+
+
+# -- review of the 1366 screenshots (2026-10-18) ---------------------------------------------------
+
+
+def test_names_break_only_at_separators(tmp_path: Path) -> None:
+    log = _show_4_log(tmp_path, {LONG_TEST: "failed on run 1 of 5: assert 422 == 412"})
+    evidence = render(log)["3"]
+    # Each test name sits on its own full-width row, with break points only after _ . / -.
+    assert 'class="test-name-row"' in evidence
+    assert "test_<wbr>precondition_<wbr>check_<wbr>order" in evidence
+    assert "<wbr>" not in "".join(re.findall(r"[A-Za-z0-9]<wbr>[A-Za-z0-9]", evidence))
+
+
+def test_pills_never_wrap() -> None:
+    css = (Path(__file__).parents[3] / "src/shipharness/console/static/console.css").read_text()
+    rule = re.search(r"\n\.status \{([^}]*)\}", css)
+    assert rule and "white-space: nowrap" in rule.group(1)
+    assert "overflow-wrap: anywhere" not in re.search(r"\n\.panel \{([^}]*)\}", css).group(1)
+
+
+def test_a_section_without_a_primary_measure_does_not_say_primary(tmp_path: Path) -> None:
+    from shipharness.events import EventBus
+    from tests.unit.console.run_logs import LogWriter
+
+    log = tmp_path / "runs" / "ab-final" / "events.jsonl"
+    with EventBus(log, ab_id="ab-final") as bus:
+        w = LogWriter(bus)
+        w.start("harness", single_arm=False, feature="F5")
+        w.end("harness")
+        w.emit(
+            "harness",
+            "verdict",
+            {
+                "primary": {},
+                "passed_primary": True,
+                "summary": "agent said done; referee: passes the primary measure; hidden tests "
+                "46/46, mutants killed 3/3, House rule 1: Tenant isolation, new violations 0",
+            },
+        )
+    live = render(log)["1"]
+    assert "verdict ready: PASS" in live and "primary verdict ready" not in live
+    assert "no primary measure" not in live and "judged on all checks" in live
+
+
+def test_this_run_lists_each_result_once_on_its_own_line(tmp_path: Path) -> None:
+    html = render(single_arm_run(tmp_path / "runs"))["4"]
+    this_run = html.split('aria-label="This run"', 1)[1].split("</div>", 1)[0]
+    assert this_run.count("House rule 1: Tenant isolation, new violations") == 1
+    assert this_run.count('class="ref-line') >= 3  # pill, measure, secondary results, timings
+
+
+def test_referee_pills_use_plain_check_names(tmp_path: Path) -> None:
+    from shipharness.console.labels import check_short
+
+    for name, plain in [
+        ("hidden_tests", "hidden tests"),
+        ("board", "board check"),
+        ("flakiness", "flakiness"),
+        ("continuity", "continuity"),
+    ]:
+        assert check_short(name) == plain
+    # The course pages quote `diff_scope: 1 new` from screen 3; that name stays as it is.
+    assert check_short("diff_scope") == "diff_scope"
+
+
+def test_an_empty_decisions_list_is_one_plain_line(tmp_path: Path) -> None:
+    live = render(ab_run(tmp_path / "runs"))["1"]
+    bare = live.split('data-arm="bare"', 1)[1].split('data-arm="harness"', 1)[0]
+    assert (
+        "decisions empty" in bare
+        and "scroll-list" not in bare.split("Harness decisions")[1].split("Gate")[0]
+    )

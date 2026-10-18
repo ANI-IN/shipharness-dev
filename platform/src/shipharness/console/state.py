@@ -345,6 +345,18 @@ class ArmState:
                 refusals.append(GateRefusal(phase, n, words, outcome))
         return sorted(refusals, key=lambda r: list(by_phase).index(r.phase))
 
+    def secondary_parts(self) -> list[str]:
+        """The full verdict's secondary results, one item each ("hidden tests 50/52", "mutants
+        killed 3/4", ...), leaving out the one the primary measure already shows."""
+        if self.verdict is None:
+            return []
+        text = str(self.verdict.get("summary", "")).split("; ")[-1]
+        match = re.fullmatch(r"(hidden tests \S+), (mutants killed \S+), (.+)", text)
+        parts = list(match.groups()) if match else [text]
+        view = self.primary_view
+        shown = measure_values(view["values"]) if view and view["values"] else ""
+        return [p for p in parts if p and p != shown]
+
     def files_by_category(self) -> list[tuple[str, list[FileRead]]]:
         """Files-read map: categories in a fixed order (map first), files in read order."""
         groups: dict[str, list[FileRead]] = {}

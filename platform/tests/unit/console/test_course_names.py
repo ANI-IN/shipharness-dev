@@ -35,8 +35,10 @@ def test_check_labels_name_the_house_rule() -> None:
     assert check_label("r7_migrations") == "House rule 7: Migrations"
     assert check_short("r6_layering") == "House rule 6"
     assert check_short("R2") == "House rule 2"
-    for other in ("regression", "hidden_tests", "diff_scope", "board", "visible tests"):
+    for other in ("regression", "diff_scope", "visible tests"):
         assert check_label(other) == other and check_short(other) == other
+    # Plainer pill names (owner, 2026-10-18); the full label keeps the check name.
+    assert check_short("hidden_tests") == "hidden tests" and check_short("board") == "board check"
 
 
 def test_filter_and_measure_names() -> None:

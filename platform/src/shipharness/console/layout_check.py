@@ -4,7 +4,8 @@
 For one screen: nothing scrolls sideways (document scrollWidth <= window width), no element clips
 its content (overflow hidden with content taller or wider than the box), except the lists built to
 scroll (`data-scroll`), every panel lies inside the window horizontally, and the page scrolls to its
-bottom.
+bottom; no pill wraps onto a second line, and no word of 8 or more letters or digits breaks across
+lines (names break only after _ . / or -).
 """
 
 from __future__ import annotations
@@ -40,7 +41,28 @@ MEASURE_JS = """(key) => {
     .slice(0, 6).map(e => e.tagName.toLowerCase() + '.' + (e.className || '') + ' ' +
          Math.round(e.getBoundingClientRect().right) + '>' + cw +
          ' sw' + e.scrollWidth + '/' + e.clientWidth);
+  // A pill on more than one line, or a word of 8+ letters or digits broken across lines.
+  const wrappedPills = [...screen.querySelectorAll('.status')].filter(e => e.offsetParent !== null)
+    .filter(e => {
+      const cs = getComputedStyle(e);
+      const line = parseFloat(cs.lineHeight) || parseFloat(cs.fontSize) * 1.35;
+      return e.getBoundingClientRect().height > line * 1.6;
+    }).map(e => e.textContent.trim().slice(0, 40));
+  const brokenWords = [];
+  const walker = document.createTreeWalker(screen, NodeFilter.SHOW_TEXT);
+  while (walker.nextNode() && brokenWords.length < 5) {
+    const node = walker.currentNode;
+    if (!node.parentElement || node.parentElement.offsetParent === null) continue;
+    if (node.parentElement.closest('[data-scroll]')) continue;
+    for (const m of node.textContent.matchAll(/[A-Za-z0-9]{8,}/g)) {
+      const range = document.createRange();
+      range.setStart(node, m.index); range.setEnd(node, m.index + m[0].length);
+      const tops = new Set([...range.getClientRects()].map(r => Math.round(r.top)));
+      if (tops.size > 1) { brokenWords.push(m[0]); break; }
+    }
+  }
   return {scrollWidth: document.documentElement.scrollWidth, width: w, clipped, outside, wide,
+          wrappedPills, brokenWords,
           panels: panels.length, reachedBottom: reached};
 }"""
 
@@ -56,6 +78,8 @@ def screen_problems(page: Any, key: str) -> list[str]:
         problems.append(f"scrolls sideways: {m['scrollWidth']} > {m['width']} ({m['wide']})")
     problems += [f"clipped: {c}" for c in m["clipped"]]
     problems += [f"panel outside the window: {o}" for o in m["outside"]]
+    problems += [f"pill on more than one line: {p}" for p in m["wrappedPills"]]
+    problems += [f"word broken across lines: {w}" for w in m["brokenWords"]]
     if not m["reachedBottom"]:
         problems.append("the page does not scroll to its last panel")
     return problems

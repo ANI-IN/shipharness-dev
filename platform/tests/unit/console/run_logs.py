@@ -200,3 +200,43 @@ def write_ab_json(run_dir: Path, **fields: Any) -> Path:
     path = run_dir / "ab.json"
     path.write_text(json.dumps(fields), encoding="utf-8")
     return path
+
+
+LONG_TESTS = (
+    "tests/visible/test_issue_version_history.py::test_precondition_check_order_and_openapi",
+    "tests/visible/test_issue_version_history.py::test_issue_etag_and_patch_version_changes",
+)
+LONG_MUTANTS = ("app.services.issues-m401", "app.repositories.projects-m101")
+
+
+def show_4_run(runs: Path, ab_id: str = "ab-20261018-040352-dddddd") -> Path:
+    """The harness arm alone with long test and mutant names, a Filter 2 discard, and mutants."""
+    log = runs / ab_id / "events.jsonl"
+    with EventBus(log, ab_id=ab_id) as bus:
+        w = LogWriter(bus)
+        w.start("harness", single_arm=True, feature="F4")
+        w.turn("harness", 1, 1, edit="app/services/issues.py")
+        w.claim("harness", "build")
+        w.turn("harness", 2, 1)
+        for i, test_id in enumerate(LONG_TESTS):
+            w.emit("harness", "test_proposed", {"test_id": test_id, "phase": "test"})
+            w.emit(
+                "harness",
+                "test_filter_result",
+                {"test_id": test_id, "filter": 1, "passed": True, "reason": ""},
+            )
+            reason = "failed on run 1 of 5: assert 422 == 412" if i == 0 else ""
+            w.emit(
+                "harness",
+                "test_filter_result",
+                {"test_id": test_id, "filter": 2, "passed": i != 0, "reason": reason},
+            )
+        for mutant, outcome in zip(LONG_MUTANTS, ("killed", "survived"), strict=True):
+            w.emit(
+                "harness",
+                "mutant_result",
+                {"mutant_id": mutant, "set": "referee", "outcome": outcome, "killed_by": None},
+            )
+        w.end("harness")
+        w.judge("harness")
+    return log

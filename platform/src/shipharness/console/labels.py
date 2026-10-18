@@ -45,10 +45,16 @@ def check_label(name: str) -> str:
     return rule_label(code) if code else name
 
 
+# Referee checks shown by a plainer name on the console (`diff_scope`, `continuity`, and
+# `flakiness` keep theirs: the course pages quote them from screen 3).
+PLAIN_CHECKS = {"hidden_tests": "hidden tests", "board": "board check"}
+
+
 def check_short(name: str) -> str:
-    """'House rule 1' for r1_tenant or R1 (where space is tight); any other name unchanged."""
+    """'House rule 1' for r1_tenant or R1 (where space is tight), 'hidden tests' for
+    hidden_tests, 'board check' for board; any other name unchanged."""
     code = _rule(name)
-    return rule_short(code) if code else name
+    return rule_short(code) if code else PLAIN_CHECKS.get(name, name)
 
 
 def filter_name(number: int) -> str:

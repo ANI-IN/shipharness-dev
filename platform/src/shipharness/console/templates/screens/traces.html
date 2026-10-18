@@ -5,7 +5,7 @@
   <h2>Live tail</h2>
   <ol class="tail">
   {% for line in state.tail(26) %}
-    <li class="tail-line" data-arm="{{ line.arm or 'ab' }}"><span class="seq">#{{ line.seq }}</span> <span class="arm-name arm-{{ line.arm or 'ab' }}">{{ (line.arm or "a/b")|upper }}</span> <span title="{{ line.summary }}">{{ line.summary|truncate(160, true, "…") }}</span></li>
+    <li class="tail-line" data-arm="{{ line.arm or 'ab' }}"><span class="seq">#{{ line.seq }}</span> <span class="arm-name arm-{{ line.arm or 'ab' }}">{{ (line.arm or "a/b")|upper }}</span> <span title="{{ line.summary }}">{{ breakable(line.summary|truncate(160, true, "…")) }}</span></li>
   {% else %}
     <li class="muted">No events yet.</li>
   {% endfor %}
@@ -22,10 +22,10 @@
     {% if state.not_run(arm) %}
     {{ not_run(state.not_run(arm)) }}
     {% elif wt %}
-    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ wt.reason }}</p>
+    <p>{{ status("fail", "turn " ~ wt.session_index ~ "." ~ wt.turn) }} {{ breakable(wt.reason) }}</p>
     {% for row in a.turns() if row.seq == wt.seq %}
-    <p class="msg" title="{{ row.message }}">{{ row.message|truncate(200, true, "…") }}</p>
-    {% for t in row.tools[:2] %}<p class="tool">{{ t.name }} {{ t.target }}</p>{% endfor %}
+    <p class="msg" title="{{ row.message }}">{{ breakable(row.message|truncate(200, true, "…")) }}</p>
+    {% for t in row.tools[:2] %}<p class="tool">{{ t.name }} {{ breakable(t.target) }}</p>{% endfor %}
     {% endfor %}
     {% else %}
     <p>{{ status("pass", "no wrong turn found") }}</p>

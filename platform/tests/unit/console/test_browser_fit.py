@@ -18,12 +18,13 @@ import pytest
 from shipharness.console.app import create_console_app
 from shipharness.console.layout_check import SIZES, screen_problems
 from tests.unit.console.fixture_log import AB_ID, build_fixture_exports, build_fixture_run
-from tests.unit.console.run_logs import multi_session_run, single_arm_run
+from tests.unit.console.run_logs import multi_session_run, show_4_run, single_arm_run
 
 pytestmark = pytest.mark.browser
 
 SINGLE = "ab-20261018-045459-aaaaaa"
 LONG = "ab-20261018-040749-bbbbbb"
+SHOW_4 = "ab-20261018-040352-dddddd"  # long test and mutant names
 
 
 @pytest.fixture
@@ -32,6 +33,7 @@ def base(tmp_path: Path, live_server: Callable[[Any], Any]) -> str:
     build_fixture_run(runs)
     single_arm_run(runs, SINGLE)
     multi_session_run(runs, LONG, extra_turns=40)
+    show_4_run(runs, SHOW_4)
     exports = build_fixture_exports(tmp_path / "exports")
     return str(live_server(create_console_app(runs, exports_dir=exports)).url)
 
@@ -44,7 +46,7 @@ def _page(chromium: Any, width: int, height: int) -> Any:
 
 
 @pytest.mark.parametrize(("width", "height"), SIZES)
-@pytest.mark.parametrize("run", [AB_ID, SINGLE, LONG])
+@pytest.mark.parametrize("run", [AB_ID, SINGLE, LONG, SHOW_4])
 def test_every_screen_fits_and_clips_nothing(
     chromium: Any, base: str, run: str, width: int, height: int
 ) -> None:

@@ -29,14 +29,15 @@
 {% macro referee_line(a, width=90) -%}
 {% set view = a.primary_view %}
 {% if view %}
-{{ status("pass" if view.passed else "fail", "primary verdict ready: " ~ ("PASS" if view.passed else "FAIL")) }}
-<span class="values">{{ measure_values(view["values"]) }}</span>
-{% if a.secondary_pending %}{{ status("pending", "secondary checks running") }}{% elif a.verdict %}<span class="secondary">{{ (a.verdict.summary.split("; ")|last)|truncate(width, true, "…") }}</span>{% endif %}
+{# A section without a primary measure (the final) is judged on all checks: no "primary". #}
+<span class="ref-line">{{ status("pass" if view.passed else "fail", ("primary verdict ready: " if view["values"] else "verdict ready: ") ~ ("PASS" if view.passed else "FAIL")) }}</span>
+<span class="ref-line values">{% if view["values"] %}{{ measure_values(view["values"]) }}{% else %}judged on all checks{% endif %}</span>
+{% if a.secondary_pending %}<span class="ref-line">{{ status("pending", "secondary checks running") }}</span>{% elif a.verdict %}{% for part in a.secondary_parts() %}<span class="ref-line secondary">{{ part|truncate(width, true, "…") }}</span>{% endfor %}{% endif %}
 {% else %}
 {{ status("pending", "referee pending") }}
 {% endif %}
 {% if a.time_to_primary_s is not none or a.time_to_verdict_s is not none %}
-<span class="timing">
+<span class="ref-line timing">
 {%- if a.time_to_primary_s is not none %}launch to primary verdict {{ mmss(a.time_to_primary_s) }}{% endif %}
 {%- if a.time_to_primary_s is not none and a.time_to_verdict_s is not none %} · {% endif %}
 {%- if a.time_to_verdict_s is not none %}launch to full verdict {{ mmss(a.time_to_verdict_s) }}{% endif -%}

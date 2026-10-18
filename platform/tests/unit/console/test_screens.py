@@ -97,7 +97,7 @@ def test_boards_screen(page: dict[str, str]) -> None:
 
 
 def test_evidence_screen(page: dict[str, str]) -> None:
-    evidence = page["3"]
+    evidence = page["3"].replace("<wbr>", "")  # names carry break points after _ . / -
     for text in (
         "AGENTS.md",
         "map",

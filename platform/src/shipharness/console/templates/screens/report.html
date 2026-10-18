@@ -41,7 +41,7 @@
   </div>
   {% endfor %}
   <p class="legend"><span class="dot pass-legend">●</span> passed · <span class="dot fail-legend">○</span> failed{% if report.before_class_runs %}, measured before class{% endif %}{% if report.new_runs and report.before_class_runs %} · <span class="dot pass-legend">◆</span> passed · <span class="dot fail-legend">◇</span> failed, new runs{% endif %}</p>
-  {% if report.unsandboxed %}<p>{{ status("unknown", report.unsandboxed ~ " runs unsandboxed: not official") }}</p>{% endif %}
+  {% if report.unsandboxed %}<p class="tone-warn">{{ status("unknown", "unsandboxed") }} {{ report.unsandboxed }} runs unsandboxed: not official</p>{% endif %}
   {% if report.recorded %}<p class="muted">{{ report.recorded }} runs are replays (recorded).</p>{% endif %}
   {% if report.single_arm %}<p class="muted">{{ report.single_arm }} single-arm run{{ "s" if report.single_arm != 1 }} (harness in action) not compared: no bare run.</p>{% endif %}
   {% if report.constructed %}<p class="muted">{{ report.constructed }} constructed example{{ "s" if report.constructed != 1 }} (scripted steps, no model) not counted.</p>{% endif %}
@@ -88,7 +88,7 @@
   {% if not report.experiments and not comparison %}<li class="muted">No LangSmith experiments yet.</li>{% endif %}
   </ul>
   {% if report.older %}<p class="muted">{{ report.older }} older score records not shown (scored before the current referee version).</p>{% endif %}
-  {% if report.skipped %}<p>{{ status("error", report.skipped ~ " export files skipped (unreadable)") }}</p>{% endif %}
+  {% if report.skipped %}<p class="tone-warn">{{ status("error", "skipped") }} {{ report.skipped }} export file{{ "s" if report.skipped != 1 }} skipped (unreadable)</p>{% endif %}
 </article>
 </div>
 {% endif %}

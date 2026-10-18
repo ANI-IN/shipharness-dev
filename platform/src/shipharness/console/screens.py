@@ -11,6 +11,7 @@ horizontal scrolling), `F` full screen for one arm, `H` or `Esc` back to the run
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import quote
@@ -106,6 +107,17 @@ def width_class(part: int, total: int) -> str:
     return f"w-{round(part / total * 20) * 5}"
 
 
+# After _ / - and after a dot, except the dot before a short file extension ("issues.py").
+_BREAK_AFTER = re.compile(r"([_/-]|\.(?![A-Za-z0-9]{1,4}(?![A-Za-z0-9])))")
+
+
+def breakable(text: object) -> Markup:
+    """The text, escaped, with a line-break opportunity (<wbr>) after each _ . / or -: long test,
+    mutant, and file names wrap at those points and never inside a word."""
+    escaped = str(escape(str(text)))
+    return Markup(_BREAK_AFTER.sub(r"\1<wbr>", escaped))
+
+
 def short_test(test_id: str) -> str:
     return test_id.rsplit("::", 1)[-1]
 
@@ -137,6 +149,7 @@ class ScreenRenderer:
             usd=usd,
             width_class=width_class,
             short_test=short_test,
+            breakable=breakable,
             safe_url=safe_url,
             file_url=file_url,
             arms=ARMS,
