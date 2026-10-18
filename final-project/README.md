@@ -105,7 +105,7 @@ PURPOSE=pilot ./final-project/run.sh bulk-close
 ```
 
 In the browser, open the newest run and press `1`. When both arms are judged, terminal 2 prints one
-line per arm and a cost line. The course's own run, with the A/B id cut (the full output is in
+line per arm and a cost line. The course's own run of 2026-10-17, with the A/B id cut (the full output is in
 [expected/terminal.txt](expected/terminal.txt)); `F5` in the A/B line is the code of Feature 5:
 
 ```text
@@ -138,7 +138,7 @@ to 12:04, full 8:41 to 15:22 (its test filters run to the end); $0.044 to $0.048
 
 ## What to watch
 
-| Minute after the course run's launch | Screen | What appears |
+| Minute after launch, screenshot run of 2026-10-17 (2026-10-18 times above) | Screen | What appears |
 |---|---|---|
 | 1 | 1 | Both arms at work; the harness arm shows its layer notes |
 | 5 | 1 | Bare: run completed after 42 turns, then "primary verdict ready: PASS" |

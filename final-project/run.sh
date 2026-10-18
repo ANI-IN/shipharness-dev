@@ -15,8 +15,12 @@
 #
 # Cost: at most $0.58 per feature, two arms at MAX_FINAL_RUN_COST_USD ($0.25) plus two reviews at
 # MAX_REVIEW_COST_USD ($0.04); the caps are set in .env.example and
-# platform/src/shipharness/config/settings.py. The measured run in docs/evidence/final.md cost less.
-# Time: the measured run's timings are in docs/evidence/final.md ("The captured make final run").
+# platform/src/shipharness/config/settings.py. Three runs of bulk close, measured 2026-10-18 with the
+# class profile, cost $0.044 to $0.048 each.
+# Time: in those runs the bare arm's primary verdict came 1:49 to 5:00 after launch and its full
+# verdict 4:16 to 7:58; the harness arm's primary verdict 6:41 to 12:04 and its full verdict 8:41 to
+# 15:22. Features run one after another, so two features take about twice as long
+# (docs/evidence/general.md, "Demo runs after the speed-up").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

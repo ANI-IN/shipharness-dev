@@ -11,10 +11,12 @@
 # There is no recorded or scripted fallback in this script.
 #
 # Cost: at most $0.24, the per-arm cap ($0.20) plus the per-review cap ($0.04); the caps are set in
-# platform/src/shipharness/config/settings.py and .env.example. The measured run in the evidence page
-# cost $0.0265.
-# Time: the measured run reached its primary verdict 9 min 19 s after launch and finished in
-# 11 min 6 s (docs/evidence/s4.md, "The captured show-4 run").
+# platform/src/shipharness/config/settings.py and .env.example. Three runs, measured 2026-10-18
+# with the class profile, cost $0.023 to $0.033 each.
+# Time: in those runs the primary verdict came 5:51 to 6:50 after launch and the full verdict 6:51 to
+# 8:26; the command ends a few seconds after the full verdict. `make show-4` filters only the first
+# three proposed tests, a demo setting (docs/evidence/s4.md, "Demo setting for make show-4"; runs in
+# docs/evidence/general.md, "Demo runs after the speed-up").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

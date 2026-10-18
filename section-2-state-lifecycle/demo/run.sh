@@ -12,11 +12,11 @@
 # and one real review. There is no recorded or scripted fallback in this script.
 #
 # Cost: at most $0.24, the per-arm cap ($0.20) plus the per-review cap ($0.04); the caps are set in
-# platform/src/shipharness/config/settings.py and .env.example. The measured run in
-# docs/evidence/s2.md cost $0.0295.
-# Time: the measured run reached its primary verdict 6 min 46 s after launch and finished in
-# 10 min 7 s, with the agent time limit then at 300 s (docs/evidence/s2.md, "The captured show-2 run").
-# The class profile now allows 420 s of agent time, so a run can take longer.
+# platform/src/shipharness/config/settings.py and .env.example. Three runs, measured 2026-10-18
+# with the class profile, cost $0.036 to $0.038 each.
+# Time: in those runs session 1 stopped 0:44 to 1:01 after launch, the primary verdict came 3:21 to
+# 5:20 and the full verdict 5:10 to 6:59; the command ends a few seconds after the full verdict
+# (docs/evidence/general.md, "Demo runs after the speed-up").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

@@ -25,14 +25,16 @@ A live run's time is mostly waiting. Read the next page while it runs.
 | Step | What you do | Reading and run time |
 |---|---|---|
 | 1. Setup | Accounts, tools, keys, `make doctor`, a first live run | 45 minutes, plus the installs |
-| 2. Section 1: Instructions | README, concepts, demo, assignment, reading | 2 h 50 min, plus the assignment work |
+| 2. Section 1: Instructions | README, concepts, demo, assignment, reading | 2 h 55 min, plus the assignment work |
 | 3. Section 2: State and sessions | README, concepts, demo, assignment, reading | 2 h, plus the assignment work |
-| 4. Section 3: Scope and sandbox | README, concepts, demo, assignment, reading | 2 h 10 min, plus the assignment work |
-| 5. Section 4: Verification | README, concepts, demo, assignment, reading | 4 h 25 min, plus the assignment work |
-| 6. Final project | One A/B on a new feature, then read the result | 40 minutes |
+| 4. Section 3: Scope and sandbox | README, concepts, demo, assignment, reading | 2 h, plus the assignment work |
+| 5. Section 4: Verification | README, concepts, demo, assignment, reading | 4 h 20 min, plus the assignment work |
+| 6. Final project | One A/B on a new feature, then read the result | 45 minutes |
 | 7. Use it in your repo | Copy the kit, write a map, add checks | 25 minutes, plus the work in your repository |
 
 Each total adds up the rows of its table below, taking the longer end of a range, rounded up to 5 minutes.
+Run times are the range over three runs of each command, measured 2026-10-18 with the class
+profile, from launch to the full verdict; the command ends a few seconds later.
 
 ## Step 1: Setup
 
@@ -43,7 +45,7 @@ on Windows (through WSL2), Linux, or macOS.
 |---|---|---|
 | Accounts, tools, clone, `.env` | [setup](../setup/README.md) and your system's page | 20 to 25 minutes of reading, plus the installs |
 | Build both images | `make setup` | 145 s on the course machine (run time) |
-| First live run | `make show-1` | 10 min 14 s (run time) |
+| First live run | `make show-1` | 7:23 to 10:58 (run time) |
 | Before a live class | [pre-class checklist](../setup/pre-class.md) | 5 minutes (reading) |
 
 `make doctor` must end with `result: + ready` before you go on.
@@ -64,7 +66,7 @@ Every section has the same parts, in the same order. Work through them in this o
 |---|---|---|
 | README | [Section 1](../section-1-instructions/README.md) | 5 minutes (reading) |
 | Concepts | [concepts.md](../section-1-instructions/concepts.md) | 15 minutes (reading) |
-| Demo run | `make show-1` | 10 min 14 s (run time) |
+| Demo run | `make show-1` | 7:23 to 10:58 (run time) |
 | Demo page and walkthrough | [demo](../section-1-instructions/demo/README.md) | 15 minutes (reading) |
 | Assignment 1: Instructions | [assignment](../section-1-instructions/assignment/README.md) | 25 minutes (reading the README and the spec), plus the work |
 | Reading | [three readings](../section-1-instructions/post-class-reading/README.md) | 100 minutes (reading) |
@@ -77,7 +79,7 @@ Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so
 |---|---|---|
 | README | [Section 2](../section-2-state-lifecycle/README.md) | 5 minutes (reading) |
 | Concepts | [concepts.md](../section-2-state-lifecycle/concepts.md) | 15 minutes (reading) |
-| Demo run | `make show-2 SESSION_BUDGET=12,38` | 10 min 7 s (run time) |
+| Demo run | `make show-2 SESSION_BUDGET=12,38` | 5:10 to 6:59 (run time) |
 | Demo page and walkthrough | [demo](../section-2-state-lifecycle/demo/README.md) | 20 minutes (reading) |
 | Assignment 2: State and sessions | [assignment](../section-2-state-lifecycle/assignment/README.md) | 20 minutes (reading the README and the spec), plus the work |
 | Reading | [three readings](../section-2-state-lifecycle/post-class-reading/README.md) | 50 minutes (reading) |
@@ -88,7 +90,7 @@ Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so
 |---|---|---|
 | README | [Section 3](../section-3-scope-sandbox/README.md) | 5 minutes (reading) |
 | Concepts | [concepts.md](../section-3-scope-sandbox/concepts.md) | 15 minutes (reading) |
-| Demo run | `make demo-3 FEATURE=version-checks` | 11 to 16 minutes (run time) |
+| Demo run | `make demo-3 FEATURE=version-checks` | 7:31 to 9:43 (run time) |
 | Demo page and walkthrough | [demo](../section-3-scope-sandbox/demo/README.md) | 20 minutes (reading) |
 | Assignment 3: Scope and sandbox | [assignment](../section-3-scope-sandbox/assignment/README.md) | 25 minutes (reading the README and the spec), plus the work |
 | Reading | [three readings](../section-3-scope-sandbox/post-class-reading/README.md) | 45 minutes (reading) |
@@ -99,7 +101,7 @@ Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so
 |---|---|---|
 | README | [Section 4](../section-4-verification/README.md) | 5 minutes (reading) |
 | Concepts | [concepts.md](../section-4-verification/concepts.md) | 15 minutes (reading) |
-| Demo run | `make show-4` | 11 min 6 s (run time) |
+| Demo run | `make show-4` | 6:51 to 8:26 (run time) |
 | Demo page and walkthrough | [demo](../section-4-verification/demo/README.md) | 20 minutes (reading) |
 | Assignment 4: Verification | [assignment](../section-4-verification/assignment/README.md) | 20 minutes (reading the README and the spec), plus the work |
 | Reading | [four readings](../section-4-verification/post-class-reading/README.md) | 190 minutes (reading) |
@@ -109,8 +111,8 @@ Assignment 4 has ten steps, two of them live (a test-generation run and one A/B)
 ## Step 6: Final project
 
 The [final project](../final-project/README.md) runs the whole harness on a new feature, one of
-Feature 5: Bulk close, Feature 6: Watchers, or Feature 7: Labels, as one A/B. The course's own bulk
-close run took 12 min 9 s from launch to its cost line (run time). Reading the project page takes 15
+Feature 5: Bulk close, Feature 6: Watchers, or Feature 7: Labels, as one A/B. Three bulk close runs,
+measured 2026-10-18, took 8:41 to 15:22 from launch to the harness arm's full verdict (run time). Reading the project page takes 15
 minutes and its [code walkthrough](../final-project/walkthrough.md) 10 minutes. Its
 [checklist](../final-project/CHECKLIST.md) lists what to hand in.
 

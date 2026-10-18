@@ -28,7 +28,7 @@ handler that lists issues with no org filter. The ticket asks for a new org-wide
 
 `make show-1` runs the harness arm alone, live, on that ticket, with the map, the docs, and one skill.
 You watch the agent open the skill and the architecture document, write the code, and finish. In the
-captured run, the referee's primary verdict on the tenant isolation rule arrived 4 minutes 11 seconds after launch, and the
+run captured on 2026-10-17, the referee's primary verdict on the tenant isolation rule arrived 4 minutes 11 seconds after launch, and the
 full verdict at 10 minutes.
 
 Times and cost measured on 2026-10-18 with the class profile, three runs: primary verdict 2:57 to

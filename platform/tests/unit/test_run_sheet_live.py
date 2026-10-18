@@ -44,7 +44,7 @@ RUN_ENDS_BEFORE = {
     "make demo-3 FEATURE=version-checks": "Section 3 demo",
     "make show-4": "Section 4 demo",
 }
-# Minutes added to a measured time: the class agent limit is 420 s, the quiet runs had 300 s.
+# Minutes added to a measured time as a margin for a slower run on the class day.
 LIMIT_MARGIN_MIN = 2
 
 

@@ -12,11 +12,12 @@
 # reviews. There is no recorded or scripted fallback in this script.
 #
 # Cost: at most $0.48, two arms at the per-arm cap ($0.20 each) plus two reviews at the per-review cap
-# ($0.04 each); the caps are set in platform/src/shipharness/config/settings.py and .env.example. The
-# measured run in docs/evidence/s3.md cost $0.0487.
-# Time: in the measured run the bare arm's primary verdict came 5 min 15 s after the run started and
-# the harness arm's full verdict 11 min 18 s after; the command finished 11 min 41 s after launch
-# (docs/evidence/s3.md, "The captured demo-3 A/B").
+# ($0.04 each); the caps are set in platform/src/shipharness/config/settings.py and .env.example.
+# Three A/Bs, measured 2026-10-18 with the class profile, cost $0.037 to $0.053 each.
+# Time: in those A/Bs the bare arm's primary verdict came 1:52 to 5:23 after launch and its full
+# verdict 3:58 to 7:42; the harness arm's primary verdict 6:12 to 7:23 and its full verdict 7:31 to
+# 9:43; the command ends a few seconds after the last verdict
+# (docs/evidence/general.md, "Demo runs after the speed-up").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

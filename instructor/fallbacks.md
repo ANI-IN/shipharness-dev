@@ -85,38 +85,40 @@ set only at T-30 on the class day (run sheet, "Before class", step 1).
    restore, copy them back to the same paths.
 7. Record the ids, costs, and times in VERIFICATION.md.
 
-Cost at the caps: $0.24 per show-N run (one arm plus its review), $0.48 for the S3 A/B (two arms
-plus two reviews), and $0.58 per final feature. Measured with the class profile: show-1 $0.0197,
-show-2 $0.0295, show-4 $0.0265, final F5 $0.0456 (quiet runs), and the three S3 confirmation A/Bs
-$0.0503, $0.0448, $0.0487 (VERIFICATION.md, "Class commands re-timed", "S3 confirmation: result").
+Cost at the caps: $0.24 per show-N run (one arm plus its review), $0.48 for the Section 3 A/B (two
+arms plus two reviews), and $0.58 per final feature. Measured 2026-10-18 with the class profile,
+three runs each: show-1 $0.021 to $0.023, show-2 $0.036 to $0.038, Section 3 A/B $0.037 to $0.053,
+show-4 $0.023 to $0.033, final bulk close $0.044 to $0.048 (docs/evidence/general.md, "Demo runs
+after the speed-up").
 
 ## Recorded runs
 
-On the machine that ran the pilot, each class command was first run once under load (VERIFICATION.md,
-"Live command check under load", 2026-10-17 09:28-10:26 UTC) and then once more on a quiet machine
-(the quiet runs, 2026-10-17, one command at a time, the source of the class timings in
-[run-sheet.md](run-sheet.md#how-long-the-runs-take)). Under the rule above, the fallback is the first
-complete run of the exact class command. The under-load `make show-2` ran the task's 20/30 budget,
-not the class command `make show-2 SESSION_BUDGET=12,38`, so it cannot be the S2 fallback.
+The current fallbacks are the first complete run of each class command after the harness speed-up
+of 2026-10-18, class profile (agent time limit 420 s, harness limit 900 s), `PURPOSE=pilot`, two
+runs at a time (docs/evidence/general.md, "Demo runs after the speed-up", fallbacks after the
+speed-up). Times run from the make command's launch.
 
-| Command | Fallback (first complete run of the exact command) | Quiet run (class timings) |
+| Command | Fallback (first complete run after the speed-up, 2026-10-18) | What it recorded |
 |---|---|---|
-| `make show-1 PURPOSE=pilot` | `ab-20261017-092810-c7fc7c` (under load: completed, primary pass, hidden 52/52, $0.0218) | `ab-20261017-112101-c5d839`: completed, primary pass, hidden 52/52, mutants 2/4; $0.0179 + $0.0019 review; exit 0 |
-| `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot` | `ab-20261017-113213-fe89a3` (the quiet run; the under-load `ab-20261017-093841-16d332` ran 20/30) | the same run: agent time limit in session 2, primary pass, hidden 56/56, mutants 0/4; $0.0268 + $0.0027 review; exit 2 |
-| `make demo-3 FEATURE=version-checks PURPOSE=pilot` | `ab-20261017-150928-96cf3a` (the first S3 confirmation A/B to start; both arms `ABORTED: timeout`, claim done; out-of-scope files bare 1, harness 0; hidden 68/69 and mutants 3/4 in both arms; $0.0503) | `ab-20261017-152601-3a7237` (ran alone): bare completed, harness `ABORTED: timeout` (harness limit); out-of-scope files bare 1, harness 0; hidden 68/69 and 65/69; $0.0487; exit 2 |
-| `make show-4 PURPOSE=pilot` | `ab-20261017-100107-4c2be8` (under load: agent time limit, primary fail, hidden 65/69, $0.0251) | `ab-20261017-115138-c45d9d`: claimed done, gate passed, agent time limit in the test phase, primary fail, hidden 68/69, mutants 0/4; $0.0233 + $0.0032 review; exit 2 |
-| `make final FEATURES=bulk-close PURPOSE=pilot` | `ab-20261017-101037-8e6924` (under load: both arms hit the agent time limit; hidden 46/46 both; mutants 1/3 bare, 3/3 harness; $0.0329) | `ab-20261017-120323-c97138`: bare completed, harness agent time limit; hidden 46/46 and mutants 2/3 in both; $0.0456 for the command; exit 2 |
+| `make show-1 PURPOSE=pilot` | `ab-20261018-045459-2efbfc` | Completed; primary verdict 2:43, full 5:41; House rule 1 0 new, hidden 50/52; $0.0218 |
+| `make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot` | `ab-20261018-040749-dad2e1` | Completed; stop and resume 1:01, session 2 read the state files first; primary 4:30, full 6:43; hidden 56/56; $0.0379 |
+| `make demo-3 FEATURE=version-checks PURPOSE=pilot` | `ab-20261018-042848-b28607` | Both arms completed; harness patch to `app/services/errors.py` blocked 1:26; out-of-scope files bare 1, harness 0; primary 5:00 and 6:20, full 7:22 and 7:31; $0.0479 |
+| `make show-4 PURPOSE=pilot` | `ab-20261018-035501-6a332e` | Completed; blocked patch 1:02, gate pass and done claim 3:01; 4 tests proposed, 3 filtered, 0 kept; primary 5:51, full 6:51; $0.0225 |
+| `make final FEATURES=bulk-close PURPOSE=pilot` | `ab-20261018-042848-f7fa49` | Both arms completed; harness gate 3:42, 5 tests, 1 kept; hidden 46/46 each; primary 2:17 and 12:04, full 5:42 and 15:22; $0.0440 |
 | `make final FEATURES=watchers PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
 | `make final FEATURES=labels PURPOSE=pilot` | not recorded yet: record it on T-1 (steps above) | - |
 
-Under-load figures are from VERIFICATION.md, "Live command check under load"; quiet-run figures are
-from the runs' own result lines (captured on 2026-10-17). The S3 rows are the S3 confirmation A/Bs
-(VERIFICATION.md, "S3 confirmation: result"): they ran `shipharness ab --section demo-3 --feature F4
---profile class --purpose pilot`, the command `make demo-3 FEATURE=version-checks PURPOSE=pilot` runs
-(`make -n`), with the 420 s class agent limit, on the code before the folder restructure. Replay
-each of these once on the class machine with the current code (step 5 above) before you rely on it.
-The earlier `make show-3` recordings
-(`ab-20261017-095024-99bb7e`, `ab-20261017-114259-b64f54`) are no longer a class fallback.
+Replay checks (step 5): `make replay RUN=ab-20261018-035501-6a332e PURPOSE=pilot` gave 212 events,
+the referee re-run, the RECORDING badge, $0. The show-4 run that kept and discarded tests,
+`ab-20261018-040352-f8c404`, also replays (255 events, all five screens populated, $0); use it when
+the class should see both kinds of filter result. Replay the others once on the class machine with
+the current code before you rely on them.
+
+Earlier fallbacks, superseded: the first complete runs after the harness-limit change, earlier on
+2026-10-18 (docs/evidence/general.md, "Verification runs after the rename"), and the runs of
+2026-10-17 under load and on a quiet machine, measured with the earlier 300 s agent limit and the
+120 s harness limit (VERIFICATION.md, "Live command check under load" and "Class commands
+re-timed"). They still replay, but their times and costs no longer match the class commands.
 
 On another instructor machine, record its own fallbacks on T-1 with the steps above; these ids are this
 machine's.

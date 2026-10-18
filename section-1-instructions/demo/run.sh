@@ -10,10 +10,11 @@
 # There is no recorded or scripted fallback in this script.
 #
 # Cost: at most $0.24, the per-arm cap ($0.20) plus the per-review cap ($0.04); the caps are set in
-# platform/src/shipharness/config/settings.py and .env.example. The measured run in
-# docs/evidence/s1.md cost $0.0197.
-# Time: the measured run reached its primary verdict 4 min 11 s after launch and finished in
-# 10 min 14 s (docs/evidence/s1.md, "The captured show-1 run").
+# platform/src/shipharness/config/settings.py and .env.example. Three runs, measured 2026-10-18
+# with the class profile, cost $0.021 to $0.023 each.
+# Time: in those runs the primary verdict came 2:57 to 6:18 after launch and the full verdict 7:23 to
+# 10:58; the command ends a few seconds after the full verdict
+# (docs/evidence/general.md, "Verification runs after the rename").
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail

@@ -182,8 +182,9 @@ make show-1
 Before `make doctor`, open `.env` and fill in `OPENAI_API_KEY`, `LANGSMITH_API_KEY`, and
 `SHIPHARNESS_CLASS_DATE` (today, as `YYYY-MM-DD`). `make doctor` must end with `result: + ready`.
 `make console` keeps running: open http://127.0.0.1:8765/ in a browser and run `make show-1` in a
-second terminal. One `make show-1` costs at most $0.24 at the caps in `.env.example`; the
-[costs page](docs/costs.md) has every command and assignment.
+second terminal. One `make show-1` costs at most $0.24 at the caps in `.env.example`; measured
+2026-10-18, three runs cost $0.021 to $0.023 each and reached the full verdict 7 to 11 minutes after
+launch. The [costs page](docs/costs.md) has every command and assignment.
 
 Nothing installed yet? Start at [setup](setup/README.md). It covers Windows, macOS, and Linux from
 an empty machine, including both accounts.

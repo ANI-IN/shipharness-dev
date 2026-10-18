@@ -5,8 +5,8 @@ screens, what to say while each run is going, and, in the sections marked "Fallb
 known failure modes with their exact messages and the replay procedure. Sources: DESIGN §13
 (screens) and §14.1 (schedule); VERIFICATION.md, "Class plan per section" (every demo section live,
 owner message 7) and "S3 confirmation: result" (Section 3 becomes a live A/B, owner message 9); measured
-times and costs from the quiet runs of the class commands on 2026-10-17 and from the Section 3 confirmation
-runs. Commands are the Makefile targets as they exist in the repository (`make -n` checked).
+times and costs from the demo runs measured 2026-10-18 (docs/evidence/general.md, "Demo runs after
+the speed-up"). Commands are the Makefile targets as they exist in the repository (`make -n` checked).
 
 Status: final for the class plan. Every demo step launches or shows a live run;
 `platform/tests/unit/test_run_sheet_live.py` fails if a replay or a constructed example enters a demo
@@ -257,41 +257,41 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 
 ### How long the runs take
 
-Measured runs of the class commands, one at a time, after `make warm`, with `PURPOSE=pilot` and the
-class profile. The Section 3 A/B was measured with the class agent time limit of 420 s (the Section 3 confirmation;
-the third A/B ran alone, like the class run). The other commands come from the quiet runs of
-2026-10-17, measured with the earlier 300 s limit; their re-timing with 420 s
-(`.shipharness/pilot/retime/`) had not produced a run when this sheet was written. A run that hits
-the agent time limit now runs up to 120 s longer (420 s against 300 s).
+Measured 2026-10-18: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
+class profile (agent time limit 420 s, harness limit 900 s), two runs at a time on the class
+machine, as in Section 4. `make show-1` ran before the harness speed-up of that morning, the others
+after it (docs/evidence/general.md, "Verification runs after the rename" and "Demo runs after the
+speed-up"; the show-1 run after the speed-up took 2:43 and 5:41). Times run from the make command's
+launch; the console's own clock starts 10 to 20 s later. Each cell is the range over the three runs;
+the command ends a few seconds after the last full verdict. The fallback is the first complete run
+of each command after the speed-up ([fallbacks.md](fallbacks.md)).
 
-| Command | Run | Launch to primary verdict (screen 1) | Launch to full verdict (screen 1) | Whole command | Exit | Cost of the command |
+| Command | Fallback run | Launch to primary verdict (screen 1) | Launch to full verdict (screen 1) | Longest, launch to last full verdict | Exit | Cost of the command |
 |---|---|---|---|---|---|---|
-| `make show-1` | `ab-20261017-112101-c5d839` | 4:11 | 10:00 | 10 min 14 s | 0 | $0.0197 |
-| `make show-2 SESSION_BUDGET=12,38` | `ab-20261017-113213-fe89a3` | 6:46 | 9:52 | 10 min 7 s | 2 | $0.0295 |
-| `make demo-3 FEATURE=version-checks` | `ab-20261017-152601-3a7237` | bare 5:15, harness 8:50 | bare 8:06, harness 11:18 | 11 min 38 s after the A/B started | 2 | $0.0487 |
-| `make show-4` | `ab-20261017-115138-c45d9d` | 9:19 | 10:55 | 11 min 6 s | 2 | $0.0265 |
-| `make final FEATURES=bulk-close` | `ab-20261017-120323-c97138` | bare 3:27, harness 9:48 | bare 6:50, harness 12:32 | 12 min 47 s | 2 | $0.0456 |
+| `make show-1` | `ab-20261018-045459-2efbfc` | 2:57 to 6:18 | 7:23 to 10:58 | 10 min 58 s | 0 | $0.021 to $0.023 |
+| `make show-2 SESSION_BUDGET=12,38` | `ab-20261018-040749-dad2e1` | 3:21 to 5:20 | 5:10 to 6:59 | 6 min 59 s | 0 | $0.036 to $0.038 |
+| `make demo-3 FEATURE=version-checks` | `ab-20261018-042848-b28607` | bare 1:52 to 5:23, harness 6:12 to 7:23 | bare 3:58 to 7:42, harness 7:31 to 9:43 | 9 min 43 s | 0 | $0.037 to $0.053 |
+| `make show-4` | `ab-20261018-035501-6a332e` | 5:51 to 6:50 | 6:51 to 8:26 | 8 min 26 s | 0 | $0.023 to $0.033 |
+| `make final FEATURES=bulk-close` | `ab-20261018-042848-f7fa49` | bare 1:49 to 5:00, harness 6:41 to 12:04 | bare 4:16 to 7:58, harness 8:41 to 15:22 | 15 min 22 s | 0 | $0.044 to $0.048 |
 
-The other two Section 3 confirmation A/Bs ran two at a time and were slower: the slowest event came 16 min
-30 s after its start (`ab-20261017-150928-96cf3a`). In class Section 3 runs alone. Exit 2 means an arm was
-aborted at a time limit, not that the command broke; in the Section 3 confirmation every harness arm ended
-on the harness's own 120 s limit after shipping its change.
+Every arm of these runs completed, so every command exited 0. Exit 2 means an arm was aborted at a
+time limit, not that the command broke: an aborted arm is still judged and shown. `make show-4`
+filters only the first three tests the test phase proposes, a demo setting (docs/evidence/s4.md,
+"Demo setting for `make show-4`"); the final's harness arm filters all of its tests, which is why it
+finishes last.
 
 Launched at section minute 1, every run above is finished before its DEMO slide at section minute
-30 (28 in Section 3), even with 2 more minutes for the longer agent limit: show-1 by about 0:23 (DEMO at 0:40), show-2
-by about 1:23 (1:40), the Section 3 A/B by about 2:15 (2:28). In Section 4, show-4 shares the machine with the
-final: launched at 2:57, it ends about 3:10, and about 3:15 if it slows as the Section 3 A/Bs did two at a
-time, before the DEMO slide starts at 3:22; the DEMO opens with the implementation notes, so the
-console part comes after it has finished.
+30 (28 in Section 3): show-1 by about 0:22 (DEMO at 0:40), show-2 by about 1:18 (1:40), the
+Section 3 A/B by about 2:11 (2:28). In Section 4, show-4 shares the machine with the final, as in
+the measured runs: launched at 2:57, it ends by about 3:06, before the DEMO slide starts at 3:22.
 
 The final runs during Section 4, next to show-4. Launched at 2:57, it must be finished by 3:40, when the
 final block starts ([Final results and wrap-up](#final-results-and-wrap-up-340-400)). `make final`
 runs its features one after another: with two features, the second starts when the first prints its
-`Cost:` line. Two features like the measured bulk close run take about 26 minutes (2 × 12 min 47 s),
-plus up to 4 minutes for the longer agent limit, so they finish about 3:27. If the first feature
-slows next to show-4 as the Section 3 A/Bs did two at a time (about 5 minutes more), both end about 3:32.
-If terminal C has no `Cost:` line for the first feature at the 3:10 check, expect the second to end
-close to 3:40 ([If a final A/B is not finished at 3:40](#final-results-and-wrap-up-340-400)).
+`Cost:` line. Two features like the slowest measured bulk close run take about 31 minutes
+(2 × 15 min 22 s), so they finish by about 3:28. Feature 6: Watchers and Feature 7: Labels were not
+timed as finals. If terminal C has no `Cost:` line for the first feature at the 3:10 check, expect
+the second to end close to 3:40 ([If a final A/B is not finished at 3:40](#final-results-and-wrap-up-340-400)).
 
 At most two runs at a time: in Section 4, show-4 and the final run together. The class profile limits each
 container to 2 CPUs (VERIFICATION.md, change 18) because a class runs at most two A/Bs at once.
@@ -648,8 +648,9 @@ the Section 3 `Cost:` line: two features fit while it is at most $1.10 (show-4 $
 $1.16, at the caps); otherwise run the winner only. Launching show-4 and the final together keeps
 every cap: before every call the tracker reserves the call's worst case under one lock and reads the
 calls the other command appended to the shared cost ledger (VERIFICATION.md, change 12). Measured
-costs of the commands: show-1 $0.0197, show-2 $0.0295, Section 3 A/B $0.0487, show-4 $0.0265, one final
-feature (Feature 5: Bulk close) $0.0456 ([How long the runs take](#how-long-the-runs-take)).
+costs of the commands, 2026-10-18, three runs each: show-1 $0.021 to $0.023, show-2 $0.036 to $0.038,
+Section 3 A/B $0.037 to $0.053, show-4 $0.023 to $0.033, one final feature (Feature 5: Bulk close)
+$0.044 to $0.048 ([How long the runs take](#how-long-the-runs-take)).
 
 **Check at 3:10** (during the ideas), two terminals:
 - Terminal B: the show-4 `Cost:` line. If show-4 is still running, open the demo block on its live

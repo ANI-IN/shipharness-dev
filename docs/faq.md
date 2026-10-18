@@ -9,7 +9,7 @@ The questions learners ask most, answered from what is in this repository. New w
 
 The commands that set up, check, replay, or re-score cost nothing: they make no model calls. A live
 command costs at most its caps: $0.24 for one `make show-N`, $0.48 for one A/B, and $0.58 per final
-feature. The measured runs cost between $0.017 and $0.049 each. The four assignments together
+feature. The class commands, measured 2026-10-18, cost $0.021 to $0.053 per run. The four assignments together
 are planned at no more than $6 of OpenAI usage and 400 LangSmith traces. Every number, and how to
 check your spending, is on the [costs page](costs.md).
 
