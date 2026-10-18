@@ -33,7 +33,7 @@ What the course commands cost:
 |---|---|---|
 | `make setup`, `make doctor`, `make warm`, `make console` | None | $0 |
 | `make show-1`, your first live run | One agent arm and one review | $0.24 |
-| The four assignments together | Several runs | $6, and 400 LangSmith traces |
+| The four assignments together | Several runs | $6 and 400 LangSmith traces (the course's budget) |
 
 The caps come from `.env.example`. Every live command prints a `Cost:` line, and the cost tracker
 refuses any model call that would cross a cap.

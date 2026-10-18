@@ -673,7 +673,8 @@ run at Batch-rate prices (half of the figures above). Post-launch batches (testg
 their own budget when they are scheduled.
 
 ### 11.5 Learner budget
-≤ $6 OpenAI and ≤ 400 LangSmith traces across the four assignments; no single command > $2.50. Planned split:
+The course's budget (course policy for the class and the assignments): $6 OpenAI and 400 LangSmith
+traces across the four assignments; no single command > $2.50. Planned split:
 A1 ≤ $2.50 / 150 traces (A/B on `section-1`, k=3; if M6 measures more than $0.05 per run, the assignment
 subset drops to 4 tasks); A2 ≤ $1.50 / 60; A3 ≤ $0.25 / 30 (mostly deterministic); A4 ≤ $1.75 / 120.
 

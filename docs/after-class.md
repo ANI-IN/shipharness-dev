@@ -91,8 +91,8 @@ live step. Work in the order of the sections.
 | Assignment 3: Scope and sandbox | [README](../section-3-scope-sandbox/assignment/README.md) | `make check-assignment-3` |
 | Assignment 4: Verification | [README](../section-4-verification/assignment/README.md) | `make check-assignment-4` |
 
-The four together are planned at no more than $6 of OpenAI usage and 400 LangSmith traces, and no
-single command may spend more than $2.50 (`MAX_BATCH_COST_USD` in `.env.example`). Each assignment
+The course's budget for the four together is $6 of OpenAI usage and 400 LangSmith traces, a course
+policy for the class and the assignments, and no single command may spend more than $2.50 (`MAX_BATCH_COST_USD` in `.env.example`). Each assignment
 page gives the cost of its live step.
 
 On a fresh clone every self-check fails, with FAIL lines that name what to fix. That is the starting

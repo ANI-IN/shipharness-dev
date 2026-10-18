@@ -714,8 +714,8 @@ and starts no run. It is the class's measurement lesson: one A/B is one dot.
    the post hoc table labelled post hoc. Show `Final:dots`. A1 warns that its own results should "not
    be assumed to generalize without similar investment" (A1, F-a-143); the same holds for these runs:
    one model, one task per section, three runs per arm per round.
-5. **3:53 Assignments**: A1 to A4 in `section-N-*/assignment/README.md`; learner budget ≤ $6 OpenAI and ≤ 400
-   LangSmith traces in total (DESIGN §11.5).
+5. **3:53 Assignments**: A1 to A4 in `section-N-*/assignment/README.md`; the course's budget for them
+   is $6 of OpenAI usage and 400 LangSmith traces in total (course policy).
 6. **3:56 Skills and the starter kit**: `use-in-your-repo/skills/harness-setup`,
    `use-in-your-repo/skills/assured-tests`, `use-in-your-repo/skills/house-rules`,
    `use-in-your-repo/skills/skill-template`; `uv run shipharness init --target <repo>` copies them with

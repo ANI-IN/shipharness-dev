@@ -59,7 +59,8 @@ Each assignment has one live step; everything else runs offline at $0.
 | Assignment 3: Scope and sandbox | One A/B on Feature 3: Safe retries for issue creation | $0.48 | $0.0217 |
 | Assignment 4: Verification | One testgen run and one A/B on Feature 4: Version checks on issue edits | $0.68 | $0.0454 |
 
-The four together are planned at no more than $6 of OpenAI usage and 400 LangSmith traces. Run each
+The course's budget for the four together is $6 of OpenAI usage and 400 LangSmith traces: course
+policy for the class and the assignments, not a measured figure. Run each
 live step once, after your offline work passes its self-check: the evidence must match the code you
 hand in.
 

@@ -309,8 +309,8 @@ Prices per 1M tokens (`platform/config/prices.toml`):
 Cache writes cost $0.125, $0.25, and $0.25 per 1M tokens in the same order. At the caps, the class
 plan (three `make show-N` runs, one `make demo-3`, two final features) needs at most $2.36, under the
 $2.50 session cap. Measured costs of each class command are on the
-[evidence page](evidence/general.md#timings). The four assignments together are planned at no more
-than $6 of OpenAI usage and 400 LangSmith traces.
+[evidence page](evidence/general.md#timings). The course's budget for the four assignments together
+is $6 of OpenAI usage and 400 LangSmith traces (course policy).
 
 ## Folders
 
