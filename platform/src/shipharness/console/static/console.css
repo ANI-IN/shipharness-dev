@@ -1,4 +1,6 @@
-/* shipharness console. Fixed 1920x1080 frame, text >= 20px, high contrast, <= 3 panels per screen.
+/* shipharness console. The frame fills the window at 100% zoom (1366x768 to 1920x1080 and up) with no
+   horizontal scrolling; panels scroll inside and stack below 1100 px. Text >= 20px, high contrast,
+   <= 3 panels per screen.
    Tones colour a status; the symbol and the label carry the meaning. */
 :root {
   --bg: #0b0f14;
@@ -27,9 +29,12 @@ kbd { font: 700 20px/1 ui-monospace, Consolas, monospace; border: 2px solid var(
 code { font-family: ui-monospace, Consolas, monospace; font-size: 20px; }
 
 /* Frame */
-.frame { width: 1920px; height: 1080px; overflow: hidden; display: flex; flex-direction: column; }
-.bar { display: flex; align-items: center; gap: 24px; height: 64px; padding: 0 24px; white-space: nowrap;
-  border-bottom: 2px solid var(--border); flex: none; }
+.frame { width: 100%; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; min-height: 64px; padding: 6px 24px;
+  white-space: nowrap; border-bottom: 2px solid var(--border); flex: none; }
+.all-runs { font-size: 22px; font-weight: 700; color: var(--text); text-decoration: none; background: var(--panel);
+  border: 2px solid var(--muted); border-radius: 8px; padding: 6px 14px; }
+.all-runs:hover, .all-runs:focus { border-color: var(--text); background: var(--panel-2); }
 .bar h1 { margin: 0; font-size: 26px; }
 .tabs { display: flex; gap: 8px; }
 .tab { font: inherit; font-size: 22px; color: var(--text); background: var(--panel); cursor: pointer;
@@ -39,15 +44,18 @@ body[data-screen="3"] .tab[data-key="3"], body[data-screen="4"] .tab[data-key="4
 body[data-screen="5"] .tab[data-key="5"] { border-color: var(--text); background: var(--panel-2);
   font-weight: 700; }
 .hint, .run-id, .conn { font-size: 20px; color: var(--muted); }
-.run-id { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: var(--text); }
+.run-id { margin-left: auto; font-family: ui-monospace, Consolas, monospace; color: var(--text);
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 /* Screens: one visible at a time */
 .screen { display: none; flex: 1; min-height: 0; padding: 8px 24px 12px; flex-direction: column; }
 body[data-screen="1"] #screen-1, body[data-screen="2"] #screen-2, body[data-screen="3"] #screen-3,
 body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex; }
-.screen-head { display: flex; align-items: center; gap: 20px; height: 48px; flex: none; }
+.screen-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 20px; min-height: 48px; flex: none;
+  margin-bottom: 4px; }
 .screen-head h1 { margin: 0; font-size: 28px; }
-.badges { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+.badges { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px 16px; align-items: center;
+  margin-left: auto; }
 .badge { font-size: 22px; font-weight: 800; padding: 4px 14px; border-radius: 8px; letter-spacing: 1px; }
 .badge.recording { background: var(--recording); color: var(--recording-text); }
 .badge.unsandboxed { background: var(--warn); color: #111111; }
@@ -59,12 +67,13 @@ body[data-screen="4"] #screen-4, body[data-screen="5"] #screen-5 { display: flex
 
 /* Grid: at most three panels */
 .grid { display: grid; gap: 16px; flex: 1; min-height: 0; }
+.grid > * { min-width: 0; }  /* long unbroken lines never widen a column past the window */
 .grid.one { grid-template-columns: 1fr; }
 .grid.two { grid-template-columns: 1fr 1fr; }
 .grid.three { grid-template-columns: 1fr 1fr 1fr; }
 .grid.traces { grid-template-columns: 2fr 1fr 1fr; }
 .panel { background: var(--panel); border: 2px solid var(--border); border-radius: 10px;
-  padding: 12px 16px; overflow: hidden; min-height: 0; }
+  padding: 12px 16px; overflow-x: hidden; overflow-y: auto; min-height: 0; }
 .panel h2 { margin: 0 0 6px; font-size: 24px; }
 .panel h3 { margin: 6px 0 2px; font-size: 22px; }
 .panel h4 { margin: 4px 0 1px; font-size: 20px; color: var(--muted); font-weight: 600; }
@@ -121,6 +130,7 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 .referee .secondary, .referee .timing { color: var(--muted); margin: 0 8px 0 4px; }
 .this-run { display: grid; grid-template-columns: 1fr 1fr; gap: 0 24px; flex: none; margin-bottom: 8px; }
 .this-run p { margin: 0; }
+.this-run .this-run-head { grid-column: 1 / -1; margin: 0; font-size: 24px; }
 .this-run .arm-name { margin-right: 8px; }
 
 /* Screen 2 */
@@ -138,6 +148,9 @@ body[data-full="bare"] .grid.two, body[data-full="harness"] .grid.two { grid-tem
 
 /* Screen 3 */
 .checks { display: flex; flex-wrap: wrap; gap: 2px 4px; }
+.checks .reviewer-line { min-width: 0; max-width: 100%; white-space: nowrap; overflow: hidden;
+  text-overflow: ellipsis; }  /* one line; the whole reason in the tooltip */
+.reviewer-reason { color: var(--muted); }
 .files li, .diffmap li, .denials li, .sessions li { white-space: nowrap; overflow: hidden;
   text-overflow: ellipsis; }
 .cat { display: inline-block; min-width: 120px; color: var(--info); font-weight: 700; }
@@ -178,6 +191,8 @@ td.reason { color: var(--bad); padding-left: 24px; }
 body.index .bar { height: auto; padding: 16px 24px; }
 .index-main { display: grid; gap: 16px; padding: 16px 24px; max-width: 1200px; }
 .runs li { margin: 6px 0; font-size: 22px; }
+table.runs td, table.runs th { font-size: 20px; white-space: normal; padding: 4px 10px; }
+.index-main { max-width: none; }
 
 /* Screen 1 after the run: the whole timeline, scrollable inside the panel. */
 .turns.full,
@@ -189,4 +204,13 @@ body.index .bar { height: auto; padding: 16px 24px; }
 }
 .decisions.full {
   max-height: 5em;
+}
+
+/* Narrow windows: panels stack in one column and the page scrolls down, never sideways. */
+@media (max-width: 1100px) {
+  .frame { height: auto; min-height: 100vh; overflow: visible; }
+  .grid.two, .grid.three, .grid.traces { grid-template-columns: 1fr; }
+  .boards.with-conflict { grid-template-rows: none; }
+  .this-run { grid-template-columns: 1fr; }
+  .panel { overflow-y: visible; }
 }

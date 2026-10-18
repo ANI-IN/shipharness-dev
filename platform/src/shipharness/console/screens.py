@@ -5,7 +5,8 @@ file paths, and check details come from the agent or its build and are hostile. 
 swaps the fragments in, so it never builds markup from agent strings.
 
 Readability rules: text >= 20 px, high contrast, <= 3 panels per screen, symbol +
-label on every status (never colour alone), fixed 1920x1080 layout, `F` full screen for one arm.
+label on every status (never colour alone), fits the window at 100% zoom from 1366x768 up (no
+horizontal scrolling), `F` full screen for one arm, `H` or `Esc` back to the run list.
 """
 
 from __future__ import annotations

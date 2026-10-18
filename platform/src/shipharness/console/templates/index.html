@@ -12,18 +12,29 @@
     <section class="panel">
       <h2>Runs</h2>
       {% if runs %}
-      <ul class="runs">
+      <p class="muted">Newest first.</p>
+      <table class="runs">
+        <thead><tr><th>Run</th><th>Section</th><th>Feature</th><th>Type</th><th>Status</th><th>Started</th></tr></thead>
+        <tbody>
         {% for run in runs %}
-        <li><a href="/run/{{ run }}">{{ run }}</a></li>
+        <tr>
+          <td><a href="/run/{{ run.run_id }}">{{ run.run_id }}</a></td>
+          <td>{{ run.section }}</td>
+          <td>{{ run.feature }}</td>
+          <td>{{ run.kind }}</td>
+          <td>{{ run.status }}</td>
+          <td>{{ run.started }}</td>
+        </tr>
         {% endfor %}
-      </ul>
+        </tbody>
+      </table>
       {% else %}
-      <p>No runs yet. Start one with <code>make demo-1</code>.</p>
+      <p>No runs yet. To start one, run <code>make show-1</code> in a second terminal (the harness arm alone on the Section 1 ticket), or <code>make demo-1</code> for an A/B. The run appears here when it starts: reload this page.</p>
       {% endif %}
     </section>
     <section class="panel">
       <h2>Keys</h2>
-      <p><kbd>1</kbd> Live Console · <kbd>2</kbd> Boards · <kbd>3</kbd> Evidence · <kbd>4</kbd> A/B Report · <kbd>5</kbd> Traces · <kbd>F</kbd> full screen for one arm</p>
+      <p><kbd>1</kbd> Live Console · <kbd>2</kbd> Boards · <kbd>3</kbd> Evidence · <kbd>4</kbd> A/B Report · <kbd>5</kbd> Traces · <kbd>F</kbd> full screen for one arm · <kbd>H</kbd> or <kbd>Esc</kbd> back to this list</p>
     </section>
   </main>
 </body>

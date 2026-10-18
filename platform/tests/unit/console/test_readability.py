@@ -79,9 +79,10 @@ def test_text_and_status_colours_have_high_contrast() -> None:
     assert contrast(colours["recording-text"], colours["recording"]) >= 3.5
 
 
-def test_fixed_1920_by_1080_frame() -> None:
+def test_the_frame_fills_the_window() -> None:
+    # Owner, 2026-10-18: fit the screen at 100% zoom from 1366x768 up (was a fixed 1920x1080 frame).
     frame = re.search(r"\.frame\s*\{([^}]*)\}", CSS)
-    assert frame and "width: 1920px" in frame.group(1) and "height: 1080px" in frame.group(1)
+    assert frame and "width: 100%" in frame.group(1) and "height: 100vh" in frame.group(1)
 
 
 def test_at_most_three_panels_per_screen(screens: dict[str, str]) -> None:

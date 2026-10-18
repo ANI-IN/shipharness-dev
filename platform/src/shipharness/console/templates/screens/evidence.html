@@ -1,4 +1,4 @@
-{% from "screens/_macros.html" import screen_head, arm_label %}
+{% from "screens/_macros.html" import screen_head, arm_label, not_run %}
 {{ screen_head(key, title, state) }}
 <div class="grid three">
 <article class="panel">
@@ -7,6 +7,9 @@
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
     <h3>{{ arm_label(arm, a) }}</h3>
+    {% if state.not_run(arm) %}
+    {{ not_run(state.not_run(arm)) }}
+    {% else %}
     <h4>Files read</h4>
     <ul class="files">
     {% for category, files in a.files_by_category() %}
@@ -21,13 +24,14 @@
     <h4>Sessions</h4>
     <ol class="sessions">
     {% for s in a.sessions() %}
-      <li>Session {{ s.index }} · {{ s.turns }} turns{% if s.ended_by %} · {{ s.ended_by }}{% endif %}
+      <li>{% if s.phase == "test" %}Test phase{% else %}Session {{ s.index }}{% endif %} · {{ s.turns }} turn{{ "s" if s.turns != 1 }}{% if s.ended_by %} · {{ s.ended_by }}{% endif %}
         {% for p in s.redone[:2] %}<div class="redone">{{ status("redone") }} {{ p|truncate(32, true, "…") }}</div>{% endfor %}
       </li>
     {% else %}
       <li class="muted">No sessions yet.</li>
     {% endfor %}
     </ol>
+    {% endif %}
   </section>
   {% endfor %}
 </article>
@@ -38,6 +42,9 @@
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
     <h3>{{ arm_label(arm, a) }}</h3>
+    {% if state.not_run(arm) %}
+    {{ not_run(state.not_run(arm)) }}
+    {% else %}
     <h4>Diff map</h4>
     <ul class="diffmap">
     {% for path, label in a.diff_map().items() %}
@@ -54,6 +61,7 @@
       <li>{{ status("pass", "none") }}</li>
     {% endfor %}
     </ul>
+    {% endif %}
   </section>
   {% endfor %}
 </article>
@@ -64,6 +72,9 @@
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
     <h3>{{ arm_label(arm, a) }}</h3>
+    {% if state.not_run(arm) %}
+    {{ not_run(state.not_run(arm)) }}
+    {% else %}
     <h4>Referee</h4>
     <ul class="checks">
     {% for c in a.checks.values() %}
@@ -72,7 +83,12 @@
     {% else %}
       {% for p in a.progress.values() %}<li>{{ status("pending", p.label, check_label(p.check)) }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
     {% endfor %}
-    {% if a.reviewer %}<li>{{ status(a.reviewer.verdict, "reviewer " ~ a.reviewer.verdict) }} tenant risk {{ a.reviewer.tenant_isolation_risk }}</li>{% endif %}
+    {% if a.reviewer %}
+    {# The blinded reviewer's own reason, as recorded in its reviewer_output event: one line, the
+       whole text in the tooltip. Nothing extra when none is recorded. #}
+    {% set reason = (a.reviewer.summary or "").strip() %}
+    <li class="reviewer-line"{% if reason %} title="{{ reason }}"{% endif %}>{{ status(a.reviewer.verdict, "reviewer " ~ a.reviewer.verdict) }} tenant risk {{ a.reviewer.tenant_isolation_risk }}{% if reason %} <span class="reviewer-reason">· {{ reason.splitlines()|first|truncate(160, true, "…") }}</span>{% endif %}</li>
+    {% endif %}
     </ul>
     {% if a.tests %}
     <h4>Test filters 1 to 5</h4>
@@ -111,6 +127,7 @@
       {% endfor %}
       </tbody>
     </table>
+    {% endif %}
     {% endif %}
   </section>
   {% endfor %}

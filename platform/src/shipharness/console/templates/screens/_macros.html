@@ -12,6 +12,11 @@
 </div>
 {%- endmacro %}
 
+{# The bare arm of a single-arm run: one plain line instead of an empty or default result. #}
+{% macro not_run(text) -%}
+<p class="muted not-run">{{ text }}</p>
+{%- endmacro %}
+
 {% macro arm_label(arm, a) -%}
 <span class="arm-name arm-{{ arm }}">{{ arm|upper }}</span>
 {%- if a.run_start and a.run_start.spec.get("layers") %} <span class="layers">{{ a.run_start.spec.get("layers")|join(" + ") }}</span>

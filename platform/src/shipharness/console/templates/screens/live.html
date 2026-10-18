@@ -3,13 +3,13 @@
 <div class="grid two">
 {% for arm in arms %}
 {% set a = state.arm(arm) %}
-{% if state.single_arm and arm == "bare" %}
+{% if state.not_run(arm) %}
 <article class="panel arm-panel" data-arm="{{ arm }}">
   <header class="arm-head"><h2>{{ arm_label(arm, a) }}</h2></header>
   {% if state.constructed %}
-  <p class="muted">Not run: a constructed example drives the harness arm alone with scripted steps. The bare-vs-harness comparison comes from the A/B runs (make demo-N).</p>
+  <p class="muted not-run">{{ state.not_run(arm) }}: a constructed example drives the harness arm alone with scripted steps. The bare-vs-harness comparison comes from the A/B runs (make demo-N).</p>
   {% else %}
-  <p class="muted">Not run: harness in action shows the harness arm alone. The bare-vs-harness comparison comes from the A/B runs (make demo-N).</p>
+  <p class="muted not-run">{{ state.not_run(arm) }}: this run shows the harness arm alone. The bare-vs-harness comparison comes from the A/B runs (make demo-N).</p>
   {% endif %}
 </article>
 {% else %}

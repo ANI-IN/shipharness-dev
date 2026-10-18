@@ -135,7 +135,7 @@ def test_report_screen_without_exports(tmp_path: Path) -> None:
     build_fixture_run(tmp_path / "runs")
     client = TestClient(create_console_app(tmp_path / "runs", exports_dir=tmp_path / "none"))
     report = screens_of(client.get(f"/run/{AB_ID}").text)["4"]
-    assert "No exports yet" in report
+    assert "No results to compare yet" in report
 
 
 def test_traces_screen(page: dict[str, str]) -> None:

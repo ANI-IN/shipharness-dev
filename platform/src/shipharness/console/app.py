@@ -26,6 +26,7 @@ from fastapi.templating import Jinja2Templates
 from sse_starlette.sse import EventSourceResponse
 
 from shipharness.console.report import Report, exports_signature, load_report
+from shipharness.console.runs import run_finished, run_summary
 from shipharness.console.screens import ScreenContext, ScreenRenderer
 from shipharness.console.state import ConsoleState
 from shipharness.events import LogTail, read_events
@@ -83,17 +84,26 @@ async def screen_updates(
     first = True
     while True:
         new = state.extend(tail.read())
-        current = exports_signature(exports_dir)
+        # Screen 4's dots are the runs before this run's day; reload when either changes.
+        current = (exports_signature(exports_dir), state.started_on)
         exports_changed = current != signature
         if exports_changed:
-            signature, report = current, load_report(exports_dir)
+            signature, report = (
+                current,
+                load_report(exports_dir, before=state.started_on, runs_dir=log_path.parent.parent),
+            )
         if first or new or exports_changed:
             ctx = ScreenContext(run_id, state, report, str(exports_dir))
             screens = renderer.render_all(ctx)
             delta = {k: html for k, html in screens.items() if sent.get(k) != html}
             if first or delta:
                 sent.update(delta)
-                payload = {"seq": state.seq, "recorded": state.recorded, "screens": delta}
+                payload = {
+                    "seq": state.seq,
+                    "recorded": state.recorded,
+                    "finished": run_finished(log_path.parent, state),
+                    "screens": delta,
+                }
                 yield {"id": str(state.seq), "event": "screens", "data": json.dumps(payload)}
             first = False
         if not follow or (should_stop is not None and should_stop()):
@@ -137,25 +147,34 @@ def create_console_app(runs_dir: Path, exports_dir: Path | None = None) -> FastA
 
     @app.get("/", response_class=HTMLResponse)
     def index(request: Request) -> HTMLResponse:
-        runs = sorted(
+        # Newest first: run ids start with the launch time (ab-YYYYMMDD-HHMMSS-...).
+        ids = sorted(
             (
                 p.parent.name
                 for p in runs_dir.glob("*/events.jsonl")
                 if _RUN_ID.match(p.parent.name)
             ),
+            key=lambda name: (name.split("-", 1)[-1], name),
             reverse=True,
         )
+        runs = [run_summary(runs_dir / name) for name in ids]
         return templates.TemplateResponse(request, "index.html", {"runs": runs})
 
     @app.get("/run/{run_id}", response_class=HTMLResponse)
     def run_page(request: Request, run_id: str) -> HTMLResponse:
         log = _log_for(runs_dir, run_id)
         state = ConsoleState.from_events(read_events(log))
-        ctx = ScreenContext(run_id, state, load_report(exports_dir), str(exports_dir))
+        report = load_report(exports_dir, before=state.started_on, runs_dir=runs_dir)
+        ctx = ScreenContext(run_id, state, report, str(exports_dir))
         return templates.TemplateResponse(
             request,
             "run.html",
-            {"run_id": run_id, "state": state, "rendered": renderer.render_all(ctx)},
+            {
+                "run_id": run_id,
+                "state": state,
+                "finished": run_finished(log.parent, state),
+                "rendered": renderer.render_all(ctx),
+            },
         )
 
     @app.get("/events/{run_id}")

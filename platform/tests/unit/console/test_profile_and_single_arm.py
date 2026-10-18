@@ -57,7 +57,7 @@ def test_a_single_arm_run_is_labelled_and_the_bare_panel_says_not_run(tmp_path: 
     screens = render(tmp_path, log)
     assert all("HARNESS IN ACTION" in html for html in screens.values())
     live = screens["1"]
-    assert "Not run: harness in action" in live
+    assert "Not run (harness in action)" in live
     assert "referee pending" in live  # the harness arm's panel is the normal one
 
 

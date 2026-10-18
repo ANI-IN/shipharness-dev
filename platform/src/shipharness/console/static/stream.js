@@ -1,5 +1,5 @@
 // shipharness console client. Keys 1-5 switch screens, F cycles full screen for one arm
-// (both -> bare -> harness -> both). Screens arrive as server-rendered, escaped HTML over
+// (both -> bare -> harness -> both), H or Esc goes back to the run list. Screens arrive as server-rendered, escaped HTML over
 // server-sent events (browser EventSource API). No build step, no CDN.
 (function () {
   "use strict";
@@ -34,6 +34,9 @@
     } else if (e.key === "f" || e.key === "F") {
       cycleFull();
       e.preventDefault();
+    } else if (e.key === "h" || e.key === "H" || e.key === "Escape") {
+      e.preventDefault();
+      window.location.href = "/";
     }
   });
 
@@ -47,9 +50,10 @@
   var conn = document.getElementById("conn");
   function status(text) { if (conn) conn.textContent = text; }
 
+  var finished = body.getAttribute("data-finished") === "true";
   var source = new EventSource("/screens/" + encodeURIComponent(run));
-  source.onopen = function () { status("live"); };
-  source.onerror = function () { status("reconnecting"); };
+  source.onopen = function () { status(finished ? "finished" : "live"); };
+  source.onerror = function () { status(finished ? "finished" : "reconnecting"); };
   source.addEventListener("screens", function (message) {
     var update = JSON.parse(message.data);
     Object.keys(update.screens).forEach(function (key) {
@@ -59,6 +63,9 @@
     });
     body.setAttribute("data-recorded", update.recorded ? "true" : "false");
     body.setAttribute("data-seq", String(update.seq));
-    status("live · event " + update.seq);
+    // A complete run says "finished", not a live event counter.
+    finished = update.finished === true;
+    body.setAttribute("data-finished", finished ? "true" : "false");
+    status(finished ? "finished" : "live · event " + update.seq);
   });
 })();

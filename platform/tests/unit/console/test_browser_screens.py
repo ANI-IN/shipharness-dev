@@ -18,6 +18,8 @@ from tests.unit.console.fixture_log import AB_ID, build_fixture_exports, build_f
 pytestmark = pytest.mark.browser
 
 VIEWPORT = {"width": 1920, "height": 1080}
+# The page is connected: "live · event N" while a run goes on, "finished" once it is complete.
+CONNECTED = "/^(live|finished)/.test(document.getElementById('conn').textContent)"
 SCREEN_NAMES = {"1": "live", "2": "boards", "3": "evidence", "4": "report", "5": "traces"}
 
 
@@ -55,7 +57,7 @@ def test_each_screen_renders_and_is_saved_as_evidence(
 ) -> None:
     url, _ = console
     page.goto(url)
-    page.wait_for_function("document.getElementById('conn').textContent.startsWith('live')")
+    page.wait_for_function(CONNECTED)
     for key, name in SCREEN_NAMES.items():
         page.keyboard.press(key)
         assert visible_screen(page) == key
@@ -112,7 +114,8 @@ def test_no_panel_clips_its_content_on_the_fixture(page: Any, console: tuple[str
             f"[...document.querySelectorAll('#screen-{key} .panel')]"
             ".filter(p => p.scrollHeight > p.clientHeight + 2 || p.scrollWidth > p.clientWidth + 2)"
             ".map(p => (p.querySelector('h2') || p).textContent.trim().slice(0, 40)"
-            " + ' ' + p.scrollHeight + 'x' + p.scrollWidth)"
+            " + ' ' + p.scrollHeight + 'x' + p.scrollWidth"
+            " + ' client ' + p.clientHeight + 'x' + p.clientWidth)"
         )
         assert clipped == [], (key, clipped)
 
@@ -135,7 +138,7 @@ def test_f_cycles_full_screen_for_one_arm(page: Any, console: tuple[str, Path]) 
 def test_new_events_update_the_open_page(page: Any, console: tuple[str, Path]) -> None:
     url, log = console
     page.goto(url)
-    page.wait_for_function("document.getElementById('conn').textContent.startsWith('live')")
+    page.wait_for_function(CONNECTED)
     with EventBus(log, ab_id=AB_ID) as bus:
         bus.publish(
             "sandbox_usage",
