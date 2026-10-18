@@ -14,12 +14,19 @@ from pathlib import Path
 from string import Template
 from typing import Any
 
+from shipharness.console.labels import measure_label
+from shipharness.datasets.names import feature_label
 from shipharness.tracing import read_exports
 
 ARM_ORDER = ("bare", "harness")
 # Categorical slots 1 and 2 of the reference palette (light / dark steps).
 ARM_COLORS = {"bare": ("#2a78d6", "#3987e5"), "harness": ("#eb6834", "#d95926")}
 _TOTALS = {"hidden_passed": "hidden_total", "mutants_killed": "mutants_total"}
+
+
+def group_title(group: dict[str, Any]) -> str:
+    """'Feature 1: Org-wide issue search · House rule 1: Tenant isolation, new violations'."""
+    return f"{feature_label(group['feature_id'])} · {measure_label(group['measure'])}"
 
 
 def build_report(exports_dir: Path, include_recorded: bool = False) -> dict[str, Any]:
@@ -91,8 +98,7 @@ def render_dot_plot(group: dict[str, Any], width: int = 640) -> str:
     left, right, row_h = 150, 24, 56
     height = row_h * len(rows) + 40
     x = lambda v: left + (width - left - right) * (_num(v) / top)  # noqa: E731
-    label = f"{group['feature_id']} {group['measure']}"
-    parts = _frame(label, width, height, left, right, top)
+    parts = _frame(group_title(group), width, height, left, right, top)
     for i, arm in enumerate(rows):
         y = row_h * i + 30
         info = group["arms"][arm]
@@ -151,8 +157,7 @@ def render_html(report: dict[str, Any]) -> str:
     if not report["groups"]:
         body.append("<p>No runs in exports/scores yet.</p>")
     for group in report["groups"]:
-        title = f"{group['feature_id']}: {group['measure']}"
-        body.append(f"<h2>{html.escape(title)}</h2>{render_dot_plot(group)}")
+        body.append(f"<h2>{html.escape(group_title(group))}</h2>{render_dot_plot(group)}")
         rows = "".join(
             f"<tr><td>{arm}</td><td>{info['failing']}</td><td>"
             + ", ".join(str(d["value"]) for d in info["dots"])

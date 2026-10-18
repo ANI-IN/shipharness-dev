@@ -63,11 +63,12 @@
   <h3>Gate</h3>
   <div class="pills">
   {% if a.gate %}
-    {% for item in a.gate["items"] %}{{ status(item.status, item.name) }}{% endfor %}
+    {# Short form on the pill ("House rule 1"), the full name and the detail in the tooltip. #}
+    {% for item in a.gate["items"] %}{{ status(item.status, check_short(item.name), check_label(item.name) ~ (": " ~ item.detail if item.detail else "")) }}{% endfor %}
   {% else %}
     <span class="muted">No gate{% if arm == "bare" %} (verify layer off){% endif %}.</span>
   {% endif %}
-  {% for p in a.progress.values() %}<span class="progress">{{ p.label }}</span>{% endfor %}
+  {% for p in a.progress.values() %}<span class="progress" title="{{ check_label(p.check) }}">{{ p.label }}</span>{% endfor %}
   </div>
 
   <div class="claims">

@@ -49,7 +49,8 @@ def verdict(passed: bool, r1: int) -> dict[str, Any]:
         "primary": {"r1_new_violations": r1},
         "passed_primary": passed,
         "summary": f"agent said done; referee: {'passes' if passed else 'fails'} the primary "
-        f"measure; hidden tests 3/4, mutants killed 1/2, R1 new {r1}",
+        f"measure; hidden tests 3/4, mutants killed 1/2, House rule 1: Tenant isolation, "
+        f"new violations {r1}",
     }
 
 
@@ -125,7 +126,9 @@ def test_a_replay_waits_for_the_new_full_verdict() -> None:
 def test_tail_line_for_a_primary_verdict() -> None:
     state = ConsoleState.from_events(events(full=False))
     lines = [line.summary for line in state.tail() if line.type == "primary_verdict"]
-    assert "primary verdict fail after 12s (new R1 violations 2)" in lines
+    assert (
+        "primary verdict fail after 12s (House rule 1: Tenant isolation, new violations 2)" in lines
+    )
 
 
 # --- screens 1 and 4 ------------------------------------------------------------------------------
@@ -137,7 +140,8 @@ def test_screens_show_the_primary_pill_while_secondary_checks_run(tmp_path: Path
         html = screens[key]
         assert "primary verdict ready: FAIL" in html, key
         assert "primary verdict ready: PASS" in html, key
-        assert "new R1 violations 2" in html and "new R1 violations 0" in html, key
+        label = "House rule 1: Tenant isolation, new violations"
+        assert f"{label} 2" in html and f"{label} 0" in html, key
         assert html.count("secondary checks running") == 2, key
         assert "launch to primary verdict 04:10" in html, key
         assert "launch to full verdict" not in html, key

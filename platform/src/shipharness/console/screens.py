@@ -17,9 +17,10 @@ from urllib.parse import quote
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from markupsafe import Markup, escape
 
+from shipharness.console.labels import check_label, check_short, filter_name
 from shipharness.console.report import Report, safe_url
 from shipharness.console.state import ARMS, ConsoleState, measure_values
-from shipharness.datasets.names import feature_label
+from shipharness.datasets.names import feature_label, section_label
 
 HERE = Path(__file__).parent
 
@@ -73,16 +74,17 @@ SCREENS: tuple[tuple[str, str, str], ...] = (
 )
 
 
-def status(key: str, label: str | None = None) -> Markup:
-    """A status pill: symbol + label, tone class for colour. Unknown keys render as '?'."""
+def status(key: str, label: str | None = None, title: str | None = None) -> Markup:
+    """A status pill: symbol + label, tone class for colour. Unknown keys render as '?'. `title`
+    is the tooltip, e.g. the full name behind a short label ("House rule 1")."""
     symbol, default_label, tone = STATUS.get(key, STATUS["unknown"])
     if label is None:
         label = default_label if key in STATUS else str(key)
-    text = label
+    tip = Markup(' title="{}"').format(title) if title else ""
     return Markup(
-        '<span class="status tone-{tone}"><span class="sym" aria-hidden="true">{sym}</span> '
+        '<span class="status tone-{tone}"{tip}><span class="sym" aria-hidden="true">{sym}</span> '
         '<span class="label">{label}</span></span>'
-    ).format(tone=tone, sym=symbol, label=text)
+    ).format(tone=tone, tip=tip, sym=symbol, label=label)
 
 
 def mmss(seconds: float | int | None) -> str:
@@ -141,6 +143,10 @@ class ScreenRenderer:
             escape=escape,
             measure_values=measure_values,
             feature_label=feature_label,
+            section_label=section_label,
+            check_label=check_label,
+            check_short=check_short,
+            filter_name=filter_name,
         )
 
     def render(self, key: str, ctx: ScreenContext) -> str:

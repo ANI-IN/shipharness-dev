@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+from shipharness.console.labels import MEASURE_LABELS, check_label, filter_name
 from shipharness.datasets.names import feature_label
 from shipharness.events import Event
 
@@ -42,20 +43,12 @@ _CATEGORIES: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"(^|/)tests?/"), "test"),
 )
 HARNESS_CATEGORIES = {"map", "skill", "state", "harness doc"}
-# Primary-measure fields as the screens name them.
-MEASURE_LABELS = {
-    "r1_new_violations": "new R1 violations",
-    "continuity_failure": "continuity failure",
-    "out_of_scope_files": "out-of-scope files",
-    "test_phase_source_edits": "test-phase source edits",
-    "hidden_passed": "hidden tests passed",
-    "mutants_killed": "mutants killed",
-}
 CATEGORY_ORDER = ("map", "skill", "harness doc", "state", "handbook", "code", "test")
 
 
 def measure_values(values: dict[str, Any]) -> str:
-    """Primary values as one readable line: "new R1 violations 2", booleans as yes / no."""
+    """Primary values as one readable line ("House rule 1: Tenant isolation, new violations 2"),
+    booleans as yes / no."""
     if not values:
         return "no primary measure"
     parts = []
@@ -152,8 +145,12 @@ class TestRow:
 
     @property
     def discard_reason(self) -> str:
+        """'Filter 4: Real assertions (mocks the unit under test)'; "" unless discarded."""
         n = self.failed_filter
-        return f"filter {n}: {self.filters[n][1]}" if n is not None else ""
+        if n is None:
+            return ""
+        reason = self.filters[n][1]
+        return f"{filter_name(n)} ({reason})" if reason else filter_name(n)
 
 
 @dataclass
@@ -341,7 +338,7 @@ class ArmState:
                 continue
             for finding in check.get("findings", []):
                 if not finding.get("baseline"):
-                    label = str(finding.get("rule") or name)
+                    label = check_label(str(finding.get("rule") or name))
                     flagged.append(
                         (f"{finding.get('detail', '')} {finding.get('endpoint') or ''}", label)
                     )
@@ -530,11 +527,13 @@ def summarise(event: Event) -> str:
         case "test_proposed":
             return f"test proposed {d['test_id']}"
         case "test_filter_result":
-            return f"filter {d['filter']} {'pass' if d['passed'] else 'discard'} {d['test_id']}"
+            outcome = "pass" if d["passed"] else "discard"
+            return f"{filter_name(int(d['filter']))}, {outcome}: {d['test_id']}"
         case "check_progress":
             return str(d["label"])
         case "check_result":
-            return f"{d['check']} {'pass' if d['passed'] else 'fail'} ({d['new_violations']} new)"
+            outcome = "pass" if d["passed"] else "fail"
+            return f"{check_label(d['check'])}, {outcome} ({d['new_violations']} new)"
         case "mutant_result":
             return f"mutant {d['mutant_id']} {d['outcome']}"
         case "reviewer_output":
@@ -613,7 +612,7 @@ class ConsoleState:
 
     @property
     def feature_label(self) -> str | None:
-        """'F4 version checks': the code with its plain name, for the screen headers."""
+        """'Feature 4: Version checks on issue edits', for the screen headers."""
         return feature_label(self.feature) if self.feature else None
 
     @property

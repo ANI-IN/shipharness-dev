@@ -20,6 +20,13 @@ from .test_referee import Factory, all_green
 AGENT, REFEREE = "shipharness-agent:1", "shipharness-referee:1"
 
 
+def test_a_baseline_step_names_its_feature() -> None:
+    from types import SimpleNamespace
+
+    plan = SimpleNamespace(kind="referee", section="demo-1", feature="F1")
+    assert warm._label(plan) == "referee baseline demo-1 (Feature 1: Org-wide issue search)"  # type: ignore[arg-type]
+
+
 # -- images ---------------------------------------------------------------------------------------
 
 

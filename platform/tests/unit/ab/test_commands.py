@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -83,10 +84,11 @@ def test_report_command_reads_exports_and_prints_counts(tmp_path: Path) -> None:
     exports = fixture_exports(tmp_path)
     result = CliRunner().invoke(make_app(), ["report", "--exports", str(exports)])
     assert result.exit_code == 0, result.output
-    # The score summary names the feature in plain words next to its code.
-    assert "F1 org search, r1_new_violations: bare 2/3 failing, harness 1/3 failing" in (
-        result.output
-    )
+    # The score summary names the feature and the measure as people read them.
+    assert (
+        "Feature 1: Org-wide issue search; House rule 1: Tenant isolation, new violations: "
+        "bare 2/3 failing, harness 1/3 failing"
+    ) in result.output
     assert (exports / "report.html").exists()
     assert result.output.strip().splitlines()[-1].startswith("Cost: $")
 
@@ -186,7 +188,7 @@ def test_ab_accepts_the_readable_name_or_the_code(env, name: str) -> None:  # ty
     result = CliRunner().invoke(make_app(), [*args, "--dataset", str(env.dataset)])
     assert result.exit_code == 0, result.output
     header = next(line for line in result.output.splitlines() if line.startswith("A/B "))
-    assert "(F1 org search, layers=" in header  # the plain name next to the code
+    assert "(Feature 1: Org-wide issue search, layers=" in header  # the course name
     scores = sorted(env.tmp.rglob("scores/*.json"))
     assert scores
     for path in scores:  # machine-readable records keep the code
@@ -198,9 +200,15 @@ def test_ab_refuses_an_unknown_name_with_the_valid_names(env) -> None:  # type: 
         make_app(), ["ab", "--feature", "versions", "--dataset", str(env.dataset)]
     )
     assert result.exit_code == 2
-    text = " ".join(result.output.split())
+    text = " ".join(re.sub(r"[│╭╮╰╯─]", " ", result.output).split())  # the error box borders
     assert "versions" in text
     assert "version-checks (F4)" in text and "org-search (F1)" in text and "labels (F7)" in text
+    assert "safe-retries (F3)" in text
+
+
+@pytest.mark.parametrize("name", ["safe-retries", "Safe-Retries", "idempotent-create", "F3"])
+def test_feature_3_takes_its_new_name_its_earlier_name_or_its_code(name: str) -> None:
+    assert commands._feature_option(name) == "F3"
 
 
 @pytest.mark.parametrize("command", ["ab", "run"])
@@ -209,6 +217,7 @@ def test_feature_help_names_the_aliases(command: str) -> None:
     [option] = [p for p in group.commands[command].params if p.name == "feature"]  # type: ignore[attr-defined]
     assert "version-checks" in option.help and "bulk-close" in option.help
     assert "F4" in option.help
+    assert "safe-retries" in option.help and "idempotent-create" in option.help
 
 
 def test_run_command_accepts_the_readable_name(env, tmp_path: Path, monkeypatch) -> None:  # type: ignore[no-untyped-def]

@@ -14,10 +14,12 @@ from shipharness.config import Settings
 from shipharness.config.prices import REPO_ROOT
 from shipharness.config.profiles import PROFILE_HELP, PROFILES
 from shipharness.datasets.names import (
+    EXTRA_ALIASES,
     FEATURE_ALIASES,
     UnknownFeature,
     feature_code,
     feature_label,
+    section_label,
 )
 from shipharness.layout import DATASETS_DIR
 
@@ -25,8 +27,17 @@ FEATURES_FILE = REPO_ROOT / DATASETS_DIR / "teamtrack-features-v1.jsonl"
 FEATURE_HELP = (
     "Feature: a readable name ("
     + ", ".join(FEATURE_ALIASES.values())
-    + ") or its code (F1-F7), in any case; e.g. version-checks or F4."
+    + ") or its code (F1-F7), in any case; e.g. version-checks or F4. Earlier names still work: "
+    + ", ".join(f"{alias} ({code})" for alias, code in EXTRA_ALIASES.items())
+    + "."
 )
+SECTION_HELP = "demo-1..demo-4 (the layer stacks of Sections 1 to 4) or final."
+
+
+def _section_name(section: str) -> str:
+    """'Section 3: Scope and sandbox' for demo-3; the id itself for anything else (final)."""
+    number = section.removeprefix("demo-")
+    return section_label(int(number)) if number in ("1", "2", "3", "4") else section
 
 
 def _feature_option(value: str | None) -> str | None:
@@ -252,7 +263,7 @@ def register(app: typer.Typer) -> None:
         ),
         example: str | None = typer.Option(None, help="Dataset example id, e.g. F1-canonical."),
         variant: str = typer.Option("canonical"),
-        section: str | None = typer.Option(None, help="demo-1..demo-4 or final: layer stack."),
+        section: str | None = typer.Option(None, help=SECTION_HELP),
         layers: str | None = typer.Option(None, help="Harness arm layers (or -<layer>)."),
         dataset: Path = typer.Option(FEATURES_FILE, help="Features JSONL."),
         k: int = typer.Option(1, min=1, help="Repeat the A/B k times (every run is a dot)."),
@@ -404,7 +415,9 @@ def register(app: typer.Typer) -> None:
 
     @app.command("example")
     def example_cmd(
-        section: str = typer.Option(..., help="demo-1..demo-4: whose layer stack and task."),
+        section: str = typer.Option(
+            ..., help="demo-1..demo-4: the layer stack and task of Sections 1 to 4."
+        ),
         dataset: Path = typer.Option(FEATURES_FILE, help="Features JSONL (canonical tasks)."),
         preview: bool = typer.Option(
             True, "--preview/--no-preview", help="Board preview container (console screen 2)."
@@ -445,7 +458,7 @@ def register(app: typer.Typer) -> None:
         cost = example_cost(settings, Path(settings.runs_dir) / ab_id / EXAMPLE_LEDGER)
         extra: dict[str, Any] = {} if preview else {"preview_factory": None}
         deps = rt.ab_deps(task.checkpoint, reviewer=False, **extra)
-        typer.echo(f"{CONSTRUCTED_BADGE} ({section}: {scenario.title})")
+        typer.echo(f"{CONSTRUCTED_BADGE} ({_section_name(section)}, {section}: {scenario.title})")
         result = run_example(scenario, task, deps, cost=cost, ab_id=ab_id)
         layers = sorted(result.arms["harness"].spec.layers)
         typer.echo(
@@ -468,12 +481,14 @@ def register(app: typer.Typer) -> None:
     ) -> None:
         """A/B report from exports/ only: dots per run and counts per arm."""
         from shipharness.ab.report import build_report, write_report
+        from shipharness.console.labels import measure_label
 
         path = write_report(exports, out or exports, include_recorded)
         report = build_report(exports, include_recorded)
         for group in report["groups"]:
             counts = ", ".join(f"{a} {i['failing']} failing" for a, i in group["arms"].items())
-            typer.echo(f"{feature_label(group['feature_id'])}, {group['measure']}: {counts}")
+            named = f"{feature_label(group['feature_id'])}; {measure_label(group['measure'])}"
+            typer.echo(f"{named}: {counts}")
         typer.echo(f"report: {path}")
         typer.echo(f"Cost: $0.000000 (no model calls; runs in exports ${report['cost_usd']:.6f})")
         raise typer.Exit(0)

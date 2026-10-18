@@ -2,7 +2,7 @@
 {{ screen_head(key, title, state) }}
 <div class="grid three">
 <article class="panel">
-  <h2>Instructions and state</h2>
+  <h2>{{ section_label(1) }} · {{ section_label(2) }}</h2>
   {% for arm in arms %}
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
@@ -33,7 +33,7 @@
 </article>
 
 <article class="panel">
-  <h2>Scope and sandbox</h2>
+  <h2>{{ section_label(3) }}</h2>
   {% for arm in arms %}
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
@@ -59,7 +59,7 @@
 </article>
 
 <article class="panel">
-  <h2>Verification</h2>
+  <h2>{{ section_label(4) }}</h2>
   {% for arm in arms %}
   {% set a = state.arm(arm) %}
   <section class="arm-block" data-arm="{{ arm }}">
@@ -67,16 +67,17 @@
     <h4>Referee</h4>
     <ul class="checks">
     {% for c in a.checks.values() %}
-      <li title="{{ c.total_probes }} probes">{{ status("pass" if c.passed else "fail", c.check ~ ": " ~ c.new_violations ~ " new") }}</li>
+      {# Short form on the pill ("House rule 1"), the full name in the tooltip. #}
+      <li>{{ status("pass" if c.passed else "fail", check_short(c.check) ~ ", " ~ c.new_violations ~ " new", check_label(c.check) ~ ": " ~ c.total_probes ~ " probes") }}</li>
     {% else %}
-      {% for p in a.progress.values() %}<li>{{ status("pending", p.label) }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
+      {% for p in a.progress.values() %}<li>{{ status("pending", p.label, check_label(p.check)) }}</li>{% else %}<li class="muted">Referee not run yet.</li>{% endfor %}
     {% endfor %}
     {% if a.reviewer %}<li>{{ status(a.reviewer.verdict, "reviewer " ~ a.reviewer.verdict) }} tenant risk {{ a.reviewer.tenant_isolation_risk }}</li>{% endif %}
     </ul>
     {% if a.tests %}
-    <h4>Test filters (1-5)</h4>
+    <h4>Test filters 1 to 5</h4>
     <table class="filters">
-      <thead><tr><th>test</th>{% for n in range(1, 6) %}<th>{{ n }}</th>{% endfor %}<th>result</th></tr></thead>
+      <thead><tr><th>test</th>{% for n in range(1, 6) %}<th title="{{ filter_name(n) }}">{{ n }}</th>{% endfor %}<th>result</th></tr></thead>
       <tbody>
       {% for t in a.tests.values() %}
         <tr>
@@ -87,12 +88,12 @@
           {% endfor %}
           <td>{% if t.kept %}{{ status("kept") }}{% elif t.kept is none %}{{ status("pending") }}{% else %}{{ status("discarded") }}{% endif %}</td>
         </tr>
-        {% if t.kept == false %}<tr><td colspan="7" class="reason">{{ t.discard_reason|truncate(48, true, "…") }}</td></tr>{% endif %}
+        {% if t.kept == false %}<tr><td colspan="7" class="reason">{{ t.discard_reason|truncate(96, true, "…") }}</td></tr>{% endif %}
       {% endfor %}
       </tbody>
     </table>
     {% set cov = a.filter_counts(3) %}
-    <p class="coverage">Coverage (filter 3: adds coverage or kills a mutant): {{ cov[0] }} of {{ cov[1] }} tests</p>
+    <p class="coverage">Coverage ({{ filter_name(3) }}): {{ cov[0] }} of {{ cov[1] }} tests</p>
     {% endif %}
     {% if a.mutants %}
     <h4>Mutants</h4>

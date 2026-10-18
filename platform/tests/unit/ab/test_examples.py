@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -144,6 +145,13 @@ def test_every_section_has_one_scenario_with_its_canonical_feature() -> None:
         assert all(
             step.usage.input_tokens == step.usage.output_tokens == 0 for step in scenario.steps()
         )
+
+
+def test_scenarios_name_house_rules_in_full_never_as_bare_codes() -> None:
+    for scenario in SCENARIOS.values():
+        for text in (scenario.title, scenario.demonstrates):
+            assert not re.search(r"\b[FRSA][1-8]\b", text), text
+    assert "House rule 1: Tenant isolation" in SCENARIOS["demo-1"].demonstrates
 
 
 def test_scenario_files_say_they_are_constructed_and_what_they_show() -> None:
@@ -465,6 +473,8 @@ def test_example_command_runs_the_scenario_at_no_cost(example_env) -> None:  # t
     assert result.exit_code == 0, result.output
     lines = result.output.strip().splitlines()
     assert lines[0].startswith(CONSTRUCTED_BADGE)
+    assert "(Section 3: Scope and sandbox, demo-3: " in lines[0]
+    assert any("(Feature 3: Safe retries for issue creation, layers=" in line for line in lines)
     assert any(line.startswith("A/B ") and "constructed example" in line for line in lines)
     assert any("BLOCKED" in line and "app/api/middleware.py" in line for line in lines)
     assert any("DENIED network" in line for line in lines)

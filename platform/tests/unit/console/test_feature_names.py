@@ -1,5 +1,5 @@
-"""The console names the feature in plain words next to its code: the run header on every screen,
-the run-start line, and the A/B report rows."""
+"""The console names the feature as "Feature N: <name>": the run header on every screen, the
+run-start line, and the A/B report rows. A control task (no course name) shows its code."""
 
 from __future__ import annotations
 
@@ -34,10 +34,13 @@ def render(tmp_path: Path, log: Path, exports: Path) -> dict[str, str]:
 def test_every_screen_header_shows_the_feature_with_its_plain_name(tmp_path: Path) -> None:
     log = log_for(tmp_path, "F4")
     state = ConsoleState.from_events(read_events(log))
-    assert (state.feature, state.feature_label) == ("F4", "F4 version checks")
+    assert (state.feature, state.feature_label) == (
+        "F4",
+        "Feature 4: Version checks on issue edits",
+    )
     assert ConsoleState().feature_label is None  # nothing started yet
     for key, html in render(tmp_path, log, tmp_path / "exports").items():
-        assert "F4 version checks" in html, key
+        assert "Feature 4: Version checks on issue edits" in html, key
 
 
 def test_a_feature_without_a_plain_name_shows_its_code(tmp_path: Path) -> None:
@@ -47,11 +50,11 @@ def test_a_feature_without_a_plain_name_shows_its_code(tmp_path: Path) -> None:
 
 def test_the_run_start_line_names_the_feature(tmp_path: Path) -> None:
     [event, *_] = read_events(log_for(tmp_path, "F6"))
-    assert summarise(event) == "run start F6 watchers"
+    assert summarise(event) == "run start Feature 6: Watchers"
 
 
 def test_the_report_rows_name_the_feature(tmp_path: Path) -> None:
     exports = build_fixture_exports(tmp_path / "exports")
     report = render(tmp_path, log_for(tmp_path, "F1"), exports)["4"]
-    assert "F1 org search · s1 · bare" in report
-    assert "F3 idempotent create · s3 · harness" in report
+    assert "Feature 1: Org-wide issue search · s1 · bare" in report
+    assert "Feature 3: Safe retries for issue creation · s3 · harness" in report

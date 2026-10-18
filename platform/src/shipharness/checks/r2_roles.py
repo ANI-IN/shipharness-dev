@@ -35,7 +35,7 @@ class RolesCheck:
                             f"(expected 403) {excerpt(response)}",
                         )
                     )
-                ctx.progress(done, len(writes), f"R2 probes {done}/{len(writes)}")
+                ctx.progress(done, len(writes), f"House rule 2 probes {done}/{len(writes)}")
         return make_result(
             self.name, apply_exemptions(findings, ctx), total_probes=len(writes), started=started
         )

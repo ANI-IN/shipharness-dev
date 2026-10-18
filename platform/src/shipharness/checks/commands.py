@@ -8,6 +8,7 @@ from pathlib import Path
 import typer
 
 from shipharness.checks.base import CheckResult
+from shipharness.checks.builtin import RULE_LABELS
 from shipharness.checks.runner import (
     EXIT_ERROR,
     exit_code,
@@ -16,9 +17,17 @@ from shipharness.checks.runner import (
     run_checks,
     stdout_to_stderr,
 )
+from shipharness.datasets.names import rule_label
 
 DEFAULT_RULES = "R1,R2,R3,R4,R5,R6,R7"
 _SHOWN_PER_CHECK = 10
+
+
+def _named(check: str) -> str:
+    """'r1_tenant (House rule 1: Tenant isolation)' for a house-rule check; other names as is."""
+    code = RULE_LABELS.get(check, check)
+    label = rule_label(code)
+    return f"{check} ({label})" if label != code else check
 
 
 def _cost(to_stderr: bool) -> None:
@@ -29,8 +38,8 @@ def _render(results: list[CheckResult]) -> None:
     for r in results:
         status = "PASS" if r.passed else "FAIL"
         typer.echo(
-            f"{status}  {r.check:<16} new={r.new_violations} baseline={r.baseline_violations} "
-            f"probes={r.total_probes} {r.duration_ms} ms"
+            f"{status}  {_named(r.check)}  new={r.new_violations} "
+            f"baseline={r.baseline_violations} probes={r.total_probes} {r.duration_ms} ms"
             + (f" seed={r.seed}" if r.seed is not None else "")
         )
         new = [f for f in r.findings if f.counted and not f.baseline]
@@ -46,7 +55,10 @@ def check(
         Path("platform/teamtrack"), "--app", help="App directory (the build)."
     ),
     rules: str = typer.Option(
-        DEFAULT_RULES, "--rules", help="Rules or check names, comma separated."
+        DEFAULT_RULES,
+        "--rules",
+        help="House rules by id (R1 is House rule 1: Tenant isolation, ... R7 is House rule 7: "
+        "Migrations) or check names, comma separated.",
     ),
     baseline: Path | None = typer.Option(
         None, "--baseline", help="Earlier `--json` output; only new violations count."
@@ -57,7 +69,9 @@ def check(
     ),
     checkpoint: str = typer.Option("m1-base", help="Checkpoint for default exemptions."),
     feature: str = typer.Option("-", help="Feature id recorded in the context."),
-    seed: int = typer.Option(0, help="Schemathesis / Hypothesis seed (R3)."),
+    seed: int = typer.Option(
+        0, help="Schemathesis / Hypothesis seed (House rule 3: API conventions)."
+    ),
     params: Path | None = typer.Option(None, "--params", help="JSON file with check params."),
 ) -> None:
     """Check an app against the house rules. Exit 0 none new, 3 new violations, 1 error."""

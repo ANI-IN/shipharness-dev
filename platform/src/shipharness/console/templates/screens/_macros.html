@@ -21,7 +21,7 @@
 {# The referee for one arm: the primary verdict pill as soon as primary_verdict arrives, then the
    secondary results with the full verdict (the last part of its summary), and the time from
    launch to each. #}
-{% macro referee_line(a, width=60) -%}
+{% macro referee_line(a, width=90) -%}
 {% set view = a.primary_view %}
 {% if view %}
 {{ status("pass" if view.passed else "fail", "primary verdict ready: " ~ ("PASS" if view.passed else "FAIL")) }}
