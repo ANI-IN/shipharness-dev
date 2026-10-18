@@ -6,6 +6,9 @@ UV ?= uv
 RUNTIME ?= docker
 PORT ?= 8000
 CONSOLE_PORT ?= 8765
+# console: VERBOSE=1 prints a line per request; by default only warnings and errors print.
+VERBOSE ?=
+VERBOSE_OPT = $(if $(filter-out 0,$(VERBOSE)),--verbose)
 # demo-N and final: LAYERS=-<layer> removes one layer from the section's stack.
 LAYERS ?=
 LAYERS_OPT = $(if $(LAYERS),--layers=$(LAYERS))
@@ -51,7 +54,7 @@ help:
 	@echo "  doctor               Check tools, Docker, both keys, the course models, prices, the class date"
 	@echo "  warm                 Before class: images, containers, referee and gate baselines; no model calls"
 	@echo "  up                   Start TeamTrack and its board on http://127.0.0.1:8000/board"
-	@echo "  console              Start the live console on http://127.0.0.1:8765/"
+	@echo "  console              Start the live console on http://127.0.0.1:8765/; VERBOSE=1 logs each request"
 	@echo "  datasets             Upload the two datasets to LangSmith once (Assignment 1 needs them)"
 	@echo "  show-N               Live: the harness arm alone on the ticket of section N (N is 1 to 4)"
 	@echo "  demo-N               Live A/B on the ticket of section N; LAYERS=-<layer> removes one layer"
@@ -99,7 +102,7 @@ up:
 	$(UV) run shipharness up --port $(PORT)
 
 console:
-	$(UV) run shipharness console --port $(CONSOLE_PORT)
+	$(UV) run shipharness console --port $(CONSOLE_PORT) $(VERBOSE_OPT)
 
 datasets:
 	$(UV) run shipharness datasets upload

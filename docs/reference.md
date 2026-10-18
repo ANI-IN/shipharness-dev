@@ -126,7 +126,7 @@ Examples: make demo-3 FEATURE=version-checks; make final FEATURES=watchers,bulk-
 | `make doctor` | `uv run shipharness doctor --purpose class` | Checks tools, Docker, both keys, prices, and the class date |
 | `make warm` | `uv run shipharness warm --purpose class --profile class ...` | Rebuilds changed images, starts each once, caches the baselines |
 | `make up` | `uv run shipharness up --port 8000` | TeamTrack and its board on http://127.0.0.1:8000/board |
-| `make console` | `uv run shipharness console --port 8765` | The live console on http://127.0.0.1:8765/ |
+| `make console` | `uv run shipharness console --port 8765` | The live console on http://127.0.0.1:8765/; `VERBOSE=1` logs each request |
 | `make datasets` | `uv run shipharness datasets upload` | Uploads the two datasets to LangSmith once (Assignment 1 needs them) |
 
 `make doctor` tests the OpenAI key and asks whether it can use the agent model and the reviewer
@@ -197,6 +197,8 @@ repository of yours.
 
 `make console`, then open http://127.0.0.1:8765/ and click a run. Press `1` to `5` to switch
 screens and `F` to show one arm full width (both, bare, harness).
+Its terminal prints only the address, warnings, and errors; `make console VERBOSE=1` also prints
+a line per request.
 
 | Key | Screen | What it shows |
 |---|---|---|

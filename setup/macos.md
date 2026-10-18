@@ -326,6 +326,9 @@ leave it running:
 make console
 ```
 
+Only the address, warnings, and errors print in this terminal; `make console VERBOSE=1` also
+prints a line per request.
+
 It prints `Console: http://127.0.0.1:8765/`. Open that address in your browser. In the second
 window, start the run:
 

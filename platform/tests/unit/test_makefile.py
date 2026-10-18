@@ -35,6 +35,8 @@ SAMPLES = {
     "$(RUNTIME)": "docker",
     "$(AB)": "ab-20261016-000000-abcdef",
     "$(RUN)": "r-20261016-000000-abcdef",
+    "$(CONSOLE_PORT)": "8766",
+    "$(VERBOSE_OPT)": "--verbose",
     "$$f": "bulk-close",
 }
 
@@ -507,3 +509,18 @@ def test_there_is_no_slides_target() -> None:
     assert "slides" not in _help_entries()
     assert "SLIDES_OPTS" not in _variables()
     assert "module1-" not in text and "build_slides" not in text
+
+
+def test_console_target_passes_the_port_and_verbose_on_request() -> None:
+    assert _variables()["CONSOLE_PORT"] == "8765"
+    assert _variables()["VERBOSE_OPT"] == "$(if $(filter-out 0,$(VERBOSE)),--verbose)"
+    calls = _shipharness_calls("console")
+    assert len(calls) == 1
+    command, params = _parse(calls[0])
+    assert command == "console"
+    assert params["port"] == 8766  # CONSOLE_PORT=8766 reaches the CLI
+    assert params["verbose"] is True  # VERBOSE=1 reaches the CLI as --verbose
+
+
+def test_make_help_names_the_console_verbose_option() -> None:
+    assert "VERBOSE=1" in _help_entries()["console"]
