@@ -498,10 +498,12 @@ class Scene:
 
     # -- output ---------------------------------------------------------------------------------
 
-    def bounds(self) -> tuple[float, float, float, float]:
+    def bounds(self, skip_panel: bool = False) -> tuple[float, float, float, float]:
         xs: list[float] = []
         ys: list[float] = []
         for e in self.els:
+            if skip_panel and e["id"] == f"{self.name}-panel":
+                continue
             if "points" in e:
                 xs += [e["x"] + p[0] for p in e["points"]]
                 ys += [e["y"] + p[1] for p in e["points"]]
@@ -575,6 +577,11 @@ class Scene:
             ),
             default=0,
         )
+
+    def drawing_size(self) -> tuple[float, float]:
+        """Width and height of the drawing on its panel (canvas units, with stroke slack)."""
+        x0, y0, x1, y1 = self.bounds(skip_panel=True)
+        return x1 - x0 + 8, y1 - y0 + 8
 
     @property
     def min_font(self) -> float:

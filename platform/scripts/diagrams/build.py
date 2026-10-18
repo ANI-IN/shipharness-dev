@@ -17,6 +17,7 @@ smaller than 20 px at 1080p on the slide (style.MIN_FONT in canvas units).
 from __future__ import annotations
 
 import json
+import re
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -27,7 +28,7 @@ from diagrams_c import register as register_c
 from diagrams_d import register as register_d
 from diagrams_e import register as register_e
 from exlib import Scene, metrics
-from style import CANVAS, placed_scale
+from style import CANVAS, DECK_BOX, MIN_SLIDE_PX, deck_px_per_unit, placed_scale
 
 DOCS = "docs/diagrams"
 S1 = "section-1-instructions/diagrams"
@@ -60,11 +61,45 @@ def write(path: Path, doc: dict) -> None:
     path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
 
 
+DECK_MD = "slides/module1-slides.md"
+
+
+def deck_placements(root: Path) -> dict[str, set[str]]:
+    """stem -> the deck layouts that place it (a build frame counts for its full diagram)."""
+    md = root / DECK_MD
+    out: dict[str, set[str]] = {}
+    if not md.exists():
+        return out
+    pat = r"\*\*Diagram:\*\*\s*(\S+)\.png\s+\*\*Layout:\*\*\s*(\S+)"
+    for path, layout in re.findall(pat, md.read_text(encoding="utf-8")):
+        if layout in DECK_BOX:
+            stem = re.sub(r"-step-\d+$", "", path.rsplit("/", 1)[-1])
+            out.setdefault(stem, set()).add(layout)
+    return out
+
+
+def deck_check(scene: Scene, layouts: set[str]) -> tuple[float, list[str]]:
+    """Smallest label in slide px at 1080p where the class deck places this diagram."""
+    w, h = scene.drawing_size()
+    worst, problems = 99.0, []
+    for layout in sorted(layouts):
+        px = scene.min_font * deck_px_per_unit(layout, w, h)
+        worst = min(worst, px)
+        if px < MIN_SLIDE_PX - 0.05:
+            problems.append(
+                f"smallest label is {px:.1f} px on the deck's {layout} slide (< {MIN_SLIDE_PX}): "
+                f"bigger text, fewer elements, or a drawing closer to the box shape"
+            )
+    return worst, problems
+
+
 def main(argv: list[str]) -> int:
     root = Path(argv[0])
     only = set(argv[1:])
     bad = 0
     smallest = 99.0
+    deck_smallest = 99.0
+    placed = deck_placements(root)
     for folder, stem, steps, canvas, fn in REGISTRY:
         if only and stem not in only:
             continue
@@ -73,6 +108,12 @@ def main(argv: list[str]) -> int:
         scene.finalize()
         px = scene.min_font * placed_scale(canvas)
         smallest = min(smallest, px)
+        deck = ""
+        if stem in placed:
+            dpx, dprob = deck_check(scene, placed[stem])
+            scene.problems += dprob
+            deck_smallest = min(deck_smallest, dpx)
+            deck = f", {dpx:.1f} px in the deck"
         for p in scene.problems:
             print(f"ERROR {stem}: {p}")
             bad += 1
@@ -85,10 +126,11 @@ def main(argv: list[str]) -> int:
                 frames += 1
         print(
             f"{folder}/{stem}: {canvas}, {len(scene.els)} elements, {frames} frames, "
-            f"fit {scene.fit_scale:.2f}, smallest label {px:.1f} px on the slide, "
+            f"fit {scene.fit_scale:.2f}, smallest label {px:.1f} px on the slide{deck}, "
             f"longest label {scene.max_words} words"
         )
     print(f"smallest label on any slide: {smallest:.1f} px at 1080p")
+    print(f"smallest label in the class deck: {deck_smallest:.1f} px at 1080p")
     if metrics().missing:
         print("MISSING GLYPHS:", "".join(sorted(metrics().missing)))
         return 1

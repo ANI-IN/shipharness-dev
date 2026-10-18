@@ -4,8 +4,12 @@ Change a value here, run build.py and render.py, and every diagram follows.
 
 Placement rule: each diagram is drawn on a fixed canvas (a light rounded panel) and is meant to
 sit on a 1920x1080 slide at a fixed size (PLACED_WIDTH). On the slide the canvas shrinks by
-PLACED_WIDTH / canvas width (0.8 for both canvas types), so a label drawn at MIN_FONT (25) shows
+PLACED_WIDTH / canvas width (0.8 for every canvas type), so a label drawn at MIN_FONT (25) shows
 at 20 px at 1080p. build.py refuses a diagram with a smaller label.
+
+The class deck places diagrams smaller than that (DECK_BOX below): build.py also computes each
+label's size where the deck places the diagram and refuses anything under 20 px there. A diagram
+for a deck slide is drawn on the "strip" canvas (the deck's box shape) with at most 6-7 boxes.
 """
 
 from __future__ import annotations
@@ -71,16 +75,41 @@ COURSE_CODE = r"\b(?:[FRSA][1-8]|B1[0-4]|B[1-9])\b"
 NAMED_KINDS = ("Feature", "House rule", "Section", "Assignment", "Filter")
 
 # -- canvases -----------------------------------------------------------------------------
-# name: (width, height, placed width on a 1920x1080 slide). Both place at 864 px high.
+# name: (width, height, placed width on a 1920x1080 slide), placed at 80% of the canvas size.
 
 CANVAS: dict[str, tuple[int, int, int]] = {
     "wide": (1920, 1080, 1536),  # 16:9, 80% of the slide width
     "std": (1440, 1080, 1152),  # 4:3, 60% of the slide width
+    # 8:3, the shape of the class deck's diagram area: draw a diagram slide here, about 6 boxes
+    "strip": (1920, 720, 1536),
+    # the "What we measured" chart inside a deck card: few rows, big dots, words beside colour
+    "chart": (1600, 640, 1280),
 }
 MARGIN = 64  # empty panel around the content, the same on the tighter axis
 MAX_FIT = 1.5  # a small drawing grows to fill the panel, up to this factor
 SLIDE_W, SLIDE_H = 1920, 1080
 PNG_SCALE = 2
+
+
+# -- the class deck ------------------------------------------------------------------------------
+# The class deck (one slide per Markdown slide in slides/module1-slides.md) crops each diagram PNG to
+# its drawing (plus DECK_PAD source px) and fits that into a fixed box, never enlarging past
+# DECK_MAX slide px per source px. Boxes are in px at 1080p, per slide layout, worst case:
+# "diagram" is the area under a one-line title, a two-line lead and above the key-idea line;
+# "two-column" is the chart inside the left card of a "What we measured" slide.
+DECK_BOX: dict[str, tuple[float, float]] = {
+    "diagram": (1733, 619),
+    "two-column": (994, 380),
+}
+DECK_PAD = 16
+DECK_MAX = 0.55
+
+
+def deck_px_per_unit(layout: str, width: float, height: float) -> float:
+    """Slide px at 1080p per canvas unit for a drawing of width x height canvas units."""
+    bw, bh = DECK_BOX[layout]
+    src_w, src_h = width * PNG_SCALE + 2 * DECK_PAD, height * PNG_SCALE + 2 * DECK_PAD
+    return min(bw / src_w, bh / src_h, DECK_MAX) * PNG_SCALE
 
 
 def placed_scale(canvas: str) -> float:
