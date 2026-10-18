@@ -542,7 +542,7 @@ Cost: $0.019744 (this command: gpt-5.6-luna $0.001862, gpt-6-luna $0.017882; ses
 ```
 
 The `session` figure there includes earlier runs on that machine; your first session starts at $0.
-What each screen shows, minute by minute, is in the [Section 1 demo](../section-1-instructions/demo/README.md).
+What each screen shows, screen by screen, is in the [Section 1 demo](../section-1-instructions/demo/README.md).
 
 **Check it worked.** The console shows the run with a primary verdict, and the terminal shows a
 `Cost:` line. The exit code is 0 when the arm completed and 2 when it was aborted by a cap or time

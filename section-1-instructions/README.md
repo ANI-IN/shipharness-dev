@@ -57,14 +57,14 @@ earns its place.
 
 ## How to work through this section
 
-In class the section takes 50 minutes. The live demo starts early and runs while the concepts are
-taught.
+In class the section takes 50 minutes. The live demo starts at minute 1, on the section's start slide, and runs while
+the concepts are taught.
 
 | Part | What it gives you | In class |
 |---|---|---|
-| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 5-20 |
-| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 3; review at 30-45 |
-| [demo/walkthrough.md](demo/walkthrough.md) | The code behind the layer, about 40 lines | Minutes 20-30 |
+| [concepts.md](concepts.md) | The idea, how it works, what the course measured | Minutes 2-20 |
+| [demo/](demo/README.md) | The live run of the harness arm, and how to read it | Launch at minute 1; review at 20-45 |
+| [demo/walkthrough.md](demo/walkthrough.md) | The code behind the layer, about 40 lines | Minutes 20-30, on the DEMO slide |
 | [assignment/](assignment/README.md) | Turn an 899-line instruction file into a map, docs, and a skill | After class |
 | [post-class-reading/](post-class-reading/README.md) | Three short readings on maps and skills | After class |
 | [session-notes.md](session-notes.md) | What class showed, questions, what to try next | After class |

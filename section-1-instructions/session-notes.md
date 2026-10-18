@@ -18,11 +18,10 @@ For learners, after class. Reading time: about 8 minutes.
 
 | Block | What happened | Read it again |
 |---|---|---|
-| Poll | Will the agent copy the legacy query, with and without the map? | [demo/README.md](demo/README.md) |
-| Launch | `make show-1`: the harness arm alone on the org-wide issue search, live | [demo/README.md](demo/README.md) |
+| Launch | `make show-1`, on the start slide: the harness arm alone on the org-wide issue search, live | [demo/README.md](demo/README.md) |
 | Concepts | The problem, the map, progressive disclosure, what we measured | [concepts.md](concepts.md) |
 | Walkthrough | The layer in 40 lines: copy the files, build the prefix, report reads | [demo/walkthrough.md](demo/walkthrough.md) |
-| Demo block | The finished run on screens 1, 3, 2, then the test-run results on screen 4 | [demo/README.md](demo/README.md) |
+| Demo | The finished run on screens 1, 3, 2, then the test-run results on screen 4 | [demo/README.md](demo/README.md) |
 
 The class run's record stays on the instructor's machine. A captured run, with its screenshots, is in
 [demo/expected/](demo/expected/README.md).

@@ -236,5 +236,5 @@ limits"). Say so when you show the score.
 
 Prompts if the room is quiet:
 - "Which of the four layers would you add to your repository first, and why?"
-- "Which result from class surprised you most, compared with your poll answer?"
+- "Which result from class surprised you most, compared with what you expected before the run?"
 - "What would you need to see before letting an agent merge without a human reading the diff?"

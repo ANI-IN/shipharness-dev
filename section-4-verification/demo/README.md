@@ -105,44 +105,31 @@ The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 
 aborted arm is still judged, so its record is complete. One run costs at most $0.24: the per-arm cap
 plus the per-review cap.
 
-**In class**, the instructor launches the final A/B a minute later in a third terminal, with
-`make final FEATURES=<poll winner>`, for example `make final FEATURES=watchers`. It runs beside
+**In class**, the instructor launches the final A/B at the same time, in a third terminal, with
+`make final FEATURES=<poll winner>`, for example `make final FEATURES=watchers`, right after the
+class poll that opens Section 4. It runs beside
 this demo and is read in the
 [final block](../../final-project/README.md).
 
 **In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
 `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
 
+### Files and links
+
+- [run.sh](run.sh): the script that checks your setup and starts the run
+- [walkthrough.md](walkthrough.md): the code behind the layer, explained
+- [harness/](harness/): the files the layer gives the agent
+- [expected/](expected/README.md): a captured run, the fallback when you cannot run it live
+- [Evidence page](../../docs/evidence/s4.md): every run behind the results
+- Console: http://127.0.0.1:8765 (after `make console`)
+
 ## What to watch
 
-Minutes count from the launch, in one real run on a quiet machine
-([evidence](../../docs/evidence/s4.md#s4-show-4-capture)).
-
-| Minute | Screen | What appears |
-|---|---|---|
-| 0 | 1 | Notes from all four layers; "gate baseline reused" from `make warm` |
-| 1 | 1 | Turn 1.15 patches `app/services/errors.py`; the scope layer blocks it |
-| 2-3 | 1 | Turn 1.31 is `finish done`; 11 gate pills appear, all pending |
-| 3-4 | 1 | Every pill passes; `F4 passes` (version checks) is set; the test phase starts |
-| 5-8 | 3 | The filters run on 4 proposed tests, each up to 5 times |
-| 9 | 1 | "primary verdict ready: FAIL", hidden tests 68, mutants killed 0 |
-| 11 | 1 | Full verdict: hidden 68/69, mutants 0/4, "claim not supported" |
-
-![Screen 1 at minute 1: turn 1.15 apply_patch app/services/errors.py blocked by the scope layer](expected/show-4-screen-1-t01m.png)
-
-*Minute 1. The scope layer from Section 3 refuses a file outside the build list. The agent moves on.*
-
-![Screen 1 at minute 3: finish done, eleven gate pills pending](expected/show-4-screen-1-t03m.png)
-
-*Minute 3. The agent claims done. The gate runs before the phase can end. Read the pills aloud.*
-
-![Screen 1 at minute 4: every gate pill passed, the feature marked as passing, the test phase begins](expected/show-4-screen-1-t04m.png)
-
-*Minute 4. All 11 items pass on the first try, with 190 visible tests. Only now is `passes` set.*
-
-![Screen 1 at minute 9: primary verdict FAIL while the secondary checks run](expected/show-4-screen-1-t09m.png)
-
-*Minute 9. The agent said done; the referee says FAIL. The two disagree on the same code.*
+Screen 1, Live, shows the run as it goes: notes from all four layers, a blocked patch to
+`app/services/errors.py`, the done claim and the gate pills, the test phase and its filters, then
+the primary verdict and the full verdict
+([evidence](../../docs/evidence/s4.md#s4-show-4-capture)). `F4 passes` on screen 1 means the harness
+set the version checks feature as passing.
 
 Then switch screens.
 

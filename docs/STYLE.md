@@ -137,6 +137,11 @@ files under `docs/evidence/`, one per section (`s1.md` to `s4.md`, `final.md`, a
   it, or linked on a page without the list, fails the check (SC25). URLs come from the course's source
   register (the Sources sections of the evidence pages), never from memory.
 - A link always has text and a target: no `[text]()`, no `[link]`, no malformed URL (SC24).
+- Every relative link resolves: the file or folder exists, and an anchor into a Markdown page
+  matches one of its headings or HTML ids (SC30; images are SC06). Two exceptions: links to
+  `docs/REFERENCES.md`, which the release build writes, and links in the kit templates
+  (`use-in-your-repo/kit/templates/`, `use-in-your-repo/templates/`, and a skill's
+  `assets/templates/`), which point into the learner's own repository once copied there.
 - Where a page relies on a finding, keep the claim and link to the section of the evidence page.
 - Assignments are "Assignment 1" to "Assignment 4", never `A1` to `A4`, so they do not clash with
   the source ids. Code identifiers such as `a2_state` or `make check-assignment-3` stay.
@@ -403,7 +408,11 @@ then a few sentences on the lines that matter.
 **`expected/`**: real captured output (`terminal.txt`) and screenshots, named by screen and minute.
 Where and when each was captured is listed in the section's evidence page.
 
-**`README.md`**: limit 250 lines.
+**`README.md`**: limit 250 lines. "What you'll see" says what the run shows; "What to watch" goes
+screen by screen, with no minute-by-minute replay of a past run. "Run it" ends with a short
+`### Files and links` list: `run.sh`, `walkthrough.md`, `harness/`, `expected/` (the fallback when
+a run cannot be made), the section's evidence page (`../../docs/evidence/sN.md`), and the console at
+`http://127.0.0.1:8765`.
 
 ```markdown skeleton:demo-readme
 # Module 1: Harness Engineering for Coding Agents - Demo <N>: <name>
