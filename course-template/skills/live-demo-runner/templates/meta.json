@@ -1,0 +1,14 @@
+{
+  "demo": "<demo name, e.g. s1>",
+  "command": "<exact command, with the pilot purpose flag>",
+  "run_id": "<run id printed by the tool>",
+  "started_at": "<ISO time>",
+  "ended_at": "<ISO time>",
+  "ran": "alone | paired with <demo>",
+  "wall_time": "<m:ss>",
+  "launch_to_first_verdict": "<m:ss as printed>",
+  "launch_to_full_verdict": "<m:ss as printed>",
+  "outcome": {"<arm>": "<PASS | FAIL | ERROR, with the reason>"},
+  "cost_usd": 0.0,
+  "notes": "<anything unusual: retries by the tool, warnings, what the mechanism showed>"
+}
