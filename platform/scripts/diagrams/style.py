@@ -92,7 +92,7 @@ PNG_SCALE = 2
 
 
 # -- the class deck ------------------------------------------------------------------------------
-# The class deck (one slide per Markdown slide in slides/module1-slides.md) crops each diagram PNG to
+# The class deck (one slide per Markdown slide in slides/module1-slides.md) crops each PNG to
 # its drawing (plus DECK_PAD source px) and fits that into a fixed box, never enlarging past
 # DECK_MAX slide px per source px. Boxes are in px at 1080p, per slide layout, worst case:
 # "diagram" is the area under a one-line title, a two-line lead and above the key-idea line;

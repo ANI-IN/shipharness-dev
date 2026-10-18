@@ -103,9 +103,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
     def verification_pipeline(s: Scene) -> None:
         s.stage = 1
         build = s.box(60, 60, 840, 130, "Build phase:\ncode, visible tests", role="plain")
-        claim = s.box(
-            1360, 60, 500, 130, 'finish(claim="done")', role="accent", stroke_width=BOLD
-        )
+        claim = s.box(1360, 60, 500, 130, 'finish(claim="done")', role="accent", stroke_width=BOLD)
         s.arrow(build, claim, "own tests pass", start="right", end="left")
         s.stage = 2
         test = s.box(700, 330, 460, 130, "Test phase:\nproposes tests", role="harness")

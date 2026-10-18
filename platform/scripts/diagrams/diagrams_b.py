@@ -198,9 +198,7 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         check = s.box(470, 200, 560, 300, "Path allowed\nin this phase?", shape="diamond")
         ok = s.box(1240, 70, 620, 130, "Workspace:\nchange kept", role="harness")
         blocked = s.box(1240, 285, 620, 130, "Patch: BLOCKED,\nnothing written", role="fail")
-        reverted = s.box(
-            1240, 505, 620, 130, "Command: REVERTED\nfrom snapshot", role="fail"
-        )
+        reverted = s.box(1240, 505, 620, 130, "Command: REVERTED\nfrom snapshot", role="fail")
         s.arrow(call, check, start="right", end="left")
         s.arrow(check, ok, "yes", start="top", end="left", via=[(750, 135), (990, 135)])
         s.arrow(check, blocked, "no", start="right", end="left")

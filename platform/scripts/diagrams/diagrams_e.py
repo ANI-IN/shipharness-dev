@@ -271,7 +271,12 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             ("Instructions", "a map,\nnot a manual", "no measurable\ndifference", "harness"),
             ("State", "a handoff\nsurvives a stop", "no measurable\ndifference", "harness"),
             ("Scope", "code checks\nallowed paths", "harness 3/3,\nbare 0/3", "accent"),
-            ("Verification", "the agent never\ngrades itself", "no measurable\ndifference", "harness"),
+            (
+                "Verification",
+                "the agent never\ngrades itself",
+                "no measurable\ndifference",
+                "harness",
+            ),
         ]
         w, gap, y, h = 405, 60, 60, 340
         boxes = []
@@ -284,7 +289,14 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s.line([(x + 30, y + 200), (x + w - 30, y + 200)])
             s.text(x + w / 2, y + 230, result, FONT_BODY, INK, "center")
         last = s.box(
-            60, 500, 1800, 110, "5: measure before you keep", role="plain", stroke_width=3, size=FONT_TITLE
+            60,
+            500,
+            1800,
+            110,
+            "5: measure before you keep",
+            role="plain",
+            stroke_width=3,
+            size=FONT_TITLE,
         )
         for b in boxes:
             s.arrow(b, last, start="bottom", end="top", end_off=b["x"] + w / 2 - 960)
