@@ -246,7 +246,7 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 2:02-2:09 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
 | 2:09-2:28 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
 | 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and the Files outside the allowed paths (`diff_scope`) row; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
-| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm, the measure on the screen 1 pill; Feature 4's hidden tests and mutants as secondary; what "by construction" means; the Section 3 rows; screen 4, before class bare 1/10, harness 10/10, plus tonight's dots | Slides, console | What we measured |
+| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm, the measure on the screen 1 pill; Feature 4's hidden tests and mutants as secondary; what "by construction" means; the Section 3 rows; screen 4, before class bare 1/10, harness 10/10, plus today's dots | Slides, console | What we measured |
 | 2:44-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
 | 2:50-2:55 | Break | Return time on screen | | Break |
 | 2:55-2:57 | Live Zoom Poll: the final feature | Section 4 start slide, then the one poll of the class: bulk close, watchers, or labels; note the winner and the runner-up; close it before the launch | | Section 4 start, Live Zoom Poll |
@@ -258,7 +258,7 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 3:37-3:40 | Section 4 Q&A | One question, shortened; transition to the final A/B | | Q&A |
 | 3:40-3:44 | Final A/B: arm lines | Terminal C: arm lines and the session figure | Terminal C | Reading the final A/B |
 | 3:44-3:48 | Final A/B: screens | Screens 1, 3, 5, then both boards on screen 2, of the finished final A/B | Console, tab 3 | Reading the final A/B |
-| 3:48-3:51 | Final A/B and all results | Screen 4: tonight's final next to the dots from before class; all results in one picture; `Final:dots`; which layer when | Console, slides | All results |
+| 3:48-3:51 | Final A/B and all results | Screen 4: today's final next to the dots from before class; all results in one picture; `Final:dots`; which layer when | Console, slides | All results |
 | 3:51-3:56 | Close: take it home | Use it in your repo (the kit and four skills, `shipharness init`, `Final:skill_template`); assignments; final project | | Use it in your repo |
 | 3:56-4:00 | Close | The harness in one picture; Module 1 summary; Module 2; references; Q&A; thank you | | Thank you |
 
@@ -384,7 +384,7 @@ start of the section.
    card, and stay on screen `1` while the containers start and the first turns arrive. For a
    show-N run say: "This is the harness arm alone, live. It is not an A/B: we watch the layer do its
    job. The A/B results come at the end of the section." For Section 3 say: "This is a live A/B: both
-   arms, same ticket, same limits. Before class this ticket showed a gap. Let us see tonight's dot."
+   arms, same ticket, same limits. Before class this ticket showed a gap. Let us see today's dot."
    Then switch to the slides.
 2. **Story (minutes 2-10).** The failure story and the Socratic reveal.
 3. **Ideas (minutes 10-30, run going).** Four ideas, one slide each, then the cheat sheet. Leave
@@ -541,7 +541,7 @@ issue history, canonical ticket, from `m1-s4-start`, one build session of 40 tur
 `app/api/schemas.py`, `app/services/issues.py`, `app/repositories/issues.py`,
 `app/services/audit.py`, `app/repositories/audit.py`, `app/web/**`, `tests/visible/**`; test allow
 list: `tests/visible/**`. `app/services/errors.py`, the shared error module, is not on the list.
-Harness arm layers: instructions, state, scope (the Section 3 stack). The question tonight is the Section 3
+Harness arm layers: instructions, state, scope (the Section 3 stack). The question in class is the Section 3
 confirmation's: does the shipped diff contain a file outside the allowed paths? The assumption the
 scope layer encodes: the agent will change files outside the ticket unless code stops it (course
 wording; cause 3's sources stand side by side).
@@ -570,11 +570,11 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 |---|---|---|---|
 | Live A/B | `3` Evidence, Scope and sandbox column | Harness diff map: ⊘ blocked `app/services/errors.py`; bare diff map: usually ✎ changed `app/services/errors.py` (9 of 10 runs before class); Sandbox denials for both | "Same ticket, same model, same limits. The harness agent tried to edit the shared error module and was stopped." If the bare arm changed it: "The bare agent edits it freely." If not: "This time the bare agent left it alone. Nothing stopped it; it was its choice." |
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
-| Live A/B | `3` Verification column | Usually `Files outside the allowed paths (diff_scope): 1 new` (bare) against `0 new` (harness); in the live guide run both 0 new; hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
+| Live A/B | `3` Verification column | Usually `Files outside the allowed paths (diff_scope): 1 new` (bare) against `0 new` (harness); in the live guide run both 0 new; hidden tests and mutants per arm | "This line is today's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
 | Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent left the allowed paths in 9 of 10 runs before class. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
-| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3; screen 4 "Measured before class" on the scope measure, bare 1/10, harness 10/10 (the confirmation and the seven demo runs of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-screen-4-before-class)), tonight's dots next to them | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
+| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3; screen 4 "Measured before class" on the scope measure, bare 1/10, harness 10/10 (the confirmation and the seven demo runs of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-screen-4-before-class)), today's dots next to them | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
-**Sandbox moment.** If screen `3` lists a denial tonight, show its reason code (`network`,
+**Sandbox moment.** If screen `3` lists a denial in this run, show its reason code (`network`,
 `write_outside_workspace`, `memory`, `pids`, `timeout`, `path_outside_workspace`) and the command.
 If none occurred, show the policy printout (command in "Before class", step 7) and say: "No run before
 class had a sandbox denial" (`grep -c sandbox_denied` over the recorded runs' `events.jsonl`, read
@@ -598,8 +598,8 @@ A/B ab-20261017-152601-3a7237 (Feature 4: Version checks on issue edits, layers=
 Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; session $1.605654 of $2.50; build $2.531402 of $15.00 ($12.468598 left))
 ```
 
-If tonight's bare arm stays inside the allowed paths, say it plainly: "One A/B is one dot. Before
-class the bare arm left scope in 3 of 3; tonight it did not." If tonight's harness arm ships nothing
+If today's bare arm stays inside the allowed paths, say it plainly: "One A/B is one dot. Before
+class the bare arm left scope in 3 of 3; today it did not." If today's harness arm ships nothing
 because the harness time limit cut it before the commit, say which clock ran out; `HARNESS_TIMEOUT_S`
 (120 s) is not part of the class profile and was not raised (VERIFICATION.md, "S3 confirmation:
 result", open item).
@@ -631,7 +631,7 @@ Two co-primary counts per run: hidden tests passed of 69 (VERIFICATION.md, M5 co
 referee-set mutants killed by the arm's shipped tests of 4
 (`platform/teamtrack/mutants/features/f4.jsonl`) (DESIGN §8.2). Harness arm layers: all four. The
 assumption the gate and filters encode: the agent's "done" and its own tests cannot be trusted (A3,
-F-a-15; A4, F-a-17; the one-line form is the course's). The room saw this ticket in Section 3: tonight it
+F-a-15; A4, F-a-17; the one-line form is the course's). The room saw this ticket in Section 3: in this session it
 comes back with the verify layer on.
 
 **The final feature poll (2:55-2:57).** Section 4 opens with the one poll of the class, a Live Zoom
@@ -728,7 +728,7 @@ and starts no run. It is the class's measurement lesson: one A/B is one dot.
    on the screens and give the second its arm lines.
 2. **3:42 Console**, browser tab 3: screens `1`, `3`, `5`, both arms; `F` for one arm.
 3. **3:46 Boards**, screen `2`.
-4. **3:48 Screen 4 and all results.** Screen `4`: tonight's final next to the records from before
+4. **3:48 Screen 4 and all results.** Screen `4`: today's final next to the records from before
    class. Say: "One A/B is one dot. Read it against the three dots per arm per round from before
    class, never alone." Then the all-results slide for all four sections, wins and ties alike, with
    the post hoc table labelled post hoc. Show `Final:dots`. A1 warns that its own results should "not
@@ -817,6 +817,6 @@ when a live run failed for a reason outside the experiment. Short form:
   `exports/report.html`; replays are excluded unless `--include-recorded`.
 - Keep `.shipharness/runs/` and `exports/`: every class run is a dot and is never dropped (DESIGN
   §8.3 rule 9).
-- Write tonight's results into VERIFICATION.md: each command's run id and `Cost:` line, the session
+- Write today's results into VERIFICATION.md: each command's run id and `Cost:` line, the session
   total from the last cost line, the launch-to-primary-verdict times from screen 1, the Section 3 out-of-scope
   count per arm, the votes of the final feature poll, and anything that failed with its exact message.

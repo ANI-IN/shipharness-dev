@@ -110,7 +110,7 @@ the finished run on every screen. The instructor's plan is in the [instructor gu
 
 ![The harness arm on console screen 1 of a Section 1 run: run completed, harness decisions, the referee pill primary verdict ready: PASS](docs/images/screen-1-primary-verdict.png)
 
-*The primary verdict appears as soon as its checks finish, while the secondary checks still run.*
+*The primary verdict appears as soon as its checks finish (2:27 here); the full verdict follows when the secondary checks end (4:37 here).*
 
 ![Console screen 2 with the TeamTrack board of each arm, both marked only own-org cards, no duplicates](docs/images/screen-2-boards.png)
 

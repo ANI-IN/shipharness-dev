@@ -38,23 +38,23 @@ The numbered circles are the demo guide's callouts. Times count from the make co
 
 ![Screen 1 at the block: the scope layer refuses a patch to app/services/errors.py](show-4-screen-1-t01m.png)
 
-*0:36: turn 1.11 tries to patch `app/services/errors.py`, outside the allowed files, and is blocked. Circle 1: the block row.*
+*0:36: turn 1.11 tries to patch `app/services/errors.py`, outside the allowed files, and is blocked. Circle 1: the block row. Circle 2: the turn list.*
 
-![Screen 1 at the done claim: the gate starts, its items pending](show-4-screen-1-t03m.png)
+![Screen 1 at the done claim: the last turns, patches to the issue and audit files, and the block rows](show-4-screen-1-t03m.png)
 
-*2:05: `finish done`. The gate starts; its items are pending and the referee has not started.*
+*2:05, at the done claim: the last turns patch the issue and audit files. The gate rows are below this frame.*
 
 ![Screen 1 when the gate passed: gate pass row](show-4-screen-1-t04m.png)
 
-*3:07: the gate passes on its first attempt; the scope layer sets `passes`, and the test phase begins. Circle 1: gate pass.*
+*3:07: the gate passes on its first attempt, and session 1 stops. Circle 1: gate pass.*
 
-![Screen 1 when the primary verdict was ready: primary verdict ready: FAIL, hidden tests 68, mutants 0](show-4-screen-1-t09m.png)
+![Screen 1 when the primary verdict was ready: run completed, 42 turns, the gate pass and session stop rows](show-4-screen-1-t09m.png)
 
-*4:37: "primary verdict ready: FAIL" (hidden tests 68, mutants killed 0) while the secondary checks still run.*
+*4:37: the run completed in 42 turns; the gate pass and session stop rows show. The verdict pill is below this frame.*
 
-![Screen 1 after the full verdict: the gate passed, primary verdict FAIL, hidden tests 68 of 69](show-4-screen-1-final.png)
+![Screen 1 after the full verdict: the bare arm reads Not run; the harness arm completed in 42 turns](show-4-screen-1-final.png)
 
-*The end: 42 turns, hidden tests 68/69, mutants killed 0/4, full verdict at 5:32. Circles: 1 "← All runs", 2 the tabs, 3 the bare arm, not run, 4 the harness arm.*
+*The end: 42 turns; the verdict is below this frame. Circles: 1 "← All runs", 2 the tabs, 3 the bare arm, not run, 4 the harness arm.*
 
 ![Screen 2: the board and the two-tab edit conflict, tab B got HTTP 409](show-4-screen-2-final.png)
 

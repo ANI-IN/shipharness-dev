@@ -257,9 +257,9 @@ referee 227 s from an arm's end to its verdict (run 2: 331 s), gate 0 s (no done
   likely of the four to change. Run 4 brings the pilot to 94 arm runs.
 - RUN_TIMEOUT_S: the harness arm still hits the agent time limit after the overhead cuts (run 3: 5 of 12
   harness arms; 3 of 12 bare arms), which meets the condition of the owner's timeout rule; raising it is
-  not part of the pre-registered run 4, so it is not changed tonight and goes to the owner's options note.
+  not part of the pre-registered run 4, so it is not changed in this session and goes to the owner's options note.
 - The F2 harness early finish is a harness-arm design issue (the wrap-up message leads the agent to call
-  `finish`, which ends the phase); not changed tonight (outside the pre-registration); options note.
+  `finish`, which ends the phase); not changed in this session (outside the pre-registration); options note.
 
 ### Referee determinism check (2026-10-16 22:14-22:22, WSL clock)
 
@@ -351,7 +351,7 @@ not changed under the pilot rules; this goes to the owner's options note.
 | F4 | 0/3, 0/3 | not run (pilot cap) | no measurable difference |
 
 "Harness ahead" in 0 of 4 sections (the gate needs 3 of 4). Determinism passed. Result: **gate not
-passed**. Under the overnight rules: no `harness-frozen` tag, no M8, no further OpenAI spending tonight;
+passed**. Under the overnight rules: no `harness-frozen` tag, no M8, no further OpenAI spending in this session;
 an options note goes to the owner. Per the pre-registered outcome rule, F1-F3 are reported as "no
 measurable difference on this task with this model". F4 had no run 4 (reason in "Overnight decisions
 after run 3"); it is classified on run 3, where both arms failed 3 of 3.
@@ -362,7 +362,7 @@ leak check PASS; 176 broken references in 32 files (100 in `slides/outline.md`; 
 rebuilt checkpoint tags differ from the build repository's tags in `teamtrack/`, in one file:
 `teamtrack/reference/checkpoints.toml`, comment line 3, changed by 20c66c1 (private-reference cleanup)
 after the tags were built. The file is not part of any arm workspace or score, and no freeze tag exists, so
-no result is affected. Not fixed tonight: moving tags that have results needs the owner's approval, and
+no result is affected. Not fixed in this session: moving tags that have results needs the owner's approval, and
 reverting the comment puts a private script name back into a public file. Owner decision.
 
 ### Changes after the gate (owner instructions 2026-10-17, `instructor/engineering-notes/focus-2026-10-17.md`)

@@ -125,7 +125,7 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 *About one minute in. Both arms are reading code; only the harness arm has harness decisions.*
 
-1. HARNESS IN ACTION badge, or the feature
+1. Feature badge: Feature 5: Bulk close
 2. Bare arm line: no layers
 3. Harness arm line: its layers
 4. Container line
@@ -203,13 +203,13 @@ event, a few seconds after the make command.
 
 **You should see:**
 
-![Screen 1 when the bare arm's verdict was ready: run completed after 38 turns, verdict ready PASS, judged on all checks, secondary checks running; the harness arm still building](../images/final/screen-1-bare-verdict.png)
+![Screen 1 when the bare arm's verdict was ready: run completed after 38 turns, referee pill verdict ready PASS; the harness arm still working, with no run completed](../images/final/screen-1-bare-verdict.png)
 
-*The bare arm is judged first. Its secondary checks still run, and the harness arm still builds.*
+*The bare arm is judged first, while the harness arm still works.*
 
 1. Harness still working
-2. Secondary checks running
-3. Bare referee pill
+2. Bare referee pill: verdict ready: PASS
+3. Referee heading (bare)
 
 **Look at:** The Referee block: "verdict ready: PASS", "judged on all checks", "secondary checks
 running", "launch to primary verdict 03:18". Next to it: "Agent said: done" and "claim supported".
@@ -236,7 +236,7 @@ nothing yet about the feature. The counts come with the full verdict.
 
 **You should see:**
 
-![Screen 1, whole page, when the harness gate passed: every gate pill green, gate pass, session stop, status set, exec plan moved](../images/final/screen-1-gate-passed-full.png)
+![Screen 1, whole page, when the harness gate passed: gate pass is the last harness decision shown, every gate pill is green; the bare arm shows verdict ready PASS and secondary checks running](../images/final/screen-1-gate-passed-full.png)
 
 *The gate passed every item at the first attempt. Only then did the agent's "done" count.*
 
@@ -276,7 +276,7 @@ phase, starts.
 
 ![Close-up of the harness panel after the run: turns, harness decisions, gate list and referee pill](../images/final/screen-1-harness.png)
 
-*The harness arm after the run: its decisions end with the test filter result.*
+*The harness arm after the run: its turns, decisions, gate list and referee pill. Expand the decisions to see the test filter result.*
 
 1. Harness arm line: its layers
 2. Turns list
@@ -396,9 +396,9 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 **You should see:**
 
-![Screen 3: files read and sessions, the diff maps, sandbox denials and one row per referee check for both arms](../images/final/screen-3-final.png)
+![Screen 3: files read and sessions on the left, the diff maps and sandbox denials on the right, for both arms](../images/final/screen-3-final.png)
 
-*Evidence for all four layers: one column per section.*
+*Evidence for instructions, state and scope. The referee rows are not in this view; step 13 shows them.*
 
 1. Diff map (bare)
 2. Diff map (harness)
@@ -407,8 +407,8 @@ another org would carry a ⚠ mark, a duplicate a ⧉ mark. Neither arm leaked.
 
 *Files read and sessions.*
 
-1. Files read
-2. Sessions
+1. Files read (harness)
+2. Sessions (harness)
 
 **Look at:** "Section 1: Instructions · Section 2: State and sessions". The harness arm read
 `ARCHITECTURE.md` (harness doc), `docs/exec-plans/completed/F5.md` and `feature_list.json` (state),
@@ -542,7 +542,7 @@ runs below.
 > - "No results to compare yet" → the run is not finished; come back after both full verdicts.
 
 > [!INSTRUCTOR]
-> Say: "Here is tonight's result. Now look at what came before it."
+> Say: "Here is today's result. Now look at what came before it."
 
 ### Step 15: Screen 4, the runs measured before class
 
@@ -561,11 +561,11 @@ runs below.
 3. Legend
 
 **Look at:** The two Feature 5 rows. "Feature 5: Bulk close · canonical · bare": "8/8 before class ·
-1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Tonight's run is
+1/1 new". "Feature 5: Bulk close · canonical · harness": "8/8 before class · 1/1 new". Today's run is
 the diamond after the bar.
 
 **What it means:** One A/B is one dot. With no primary measure, every Feature 5 run before class
-passed in both arms, and tonight's did too. The dots alone cannot separate the arms on this feature;
+passed in both arms, and today's did too. The dots alone cannot separate the arms on this feature;
 the counts in steps 9 and 13 do, run by run.
 
 > [!CHECKPOINT]
@@ -586,9 +586,9 @@ the counts in steps 9 and 13 do, run by run.
 
 **You should see:**
 
-![Screen 4: this run, measured before class, dots per run, cost per verified feature and reviewer agreement](../images/final/screen-4-final.png)
+![Screen 4: this run, measured before class with dots per run, ablation with no runs yet, and cost per verified feature](../images/final/screen-4-final.png)
 
-*The whole A/B Report.*
+*The top of the A/B Report.*
 
 1. This run
 2. Measured before class
@@ -601,7 +601,7 @@ spent)", HARNESS "$0.02 per verified feature (36 verified, $0.76 spent)". "Revie
 
 **What it means:** Cost per verified feature divides what an arm spent across all scored runs by the
 features the referee verified. Reviewer agreement counts how often the blinded reviewer and the
-referee agreed. Both pool every run in `exports/`, not only tonight's.
+referee agreed. Both pool every run in `exports/`, not only today's.
 
 > [!CHECKPOINT]
 > Both panels show one line per arm.
@@ -611,7 +611,7 @@ referee agreed. Both pool every run in `exports/`, not only tonight's.
 
 > [!INSTRUCTOR]
 > Say: "Across all runs, the harness arm verified more features for a little more money in total.
-> Tonight it cost $0.0166 against the bare arm's $0.0173."
+> In this run it cost $0.0166 against the bare arm's $0.0173."
 
 ### Step 17: Screen 5, traces
 
@@ -621,9 +621,9 @@ referee agreed. Both pool every run in `exports/`, not only tonight's.
 
 **You should see:**
 
-![Screen 5: the live tail of events, no wrong turn found in either arm, and the LangSmith links per arm](../images/final/screen-5-final.png)
+![Screen 5: the live tail of events, and no wrong turn found in either arm](../images/final/screen-5-final.png)
 
-*Traces: the event tail, the first wrong turn per arm, and the links to each model call.*
+*Traces: the event tail and the first wrong turn per arm.*
 
 1. Live tail
 2. First wrong turn
@@ -698,7 +698,7 @@ build totals against their caps. The session figure here includes the four secti
 - No measurable difference: equal counts, or a difference one run can produce.
 - Bare ahead: the same as harness ahead, the other way round.
 
-Tonight both arms passed every check. The bare arm killed one more mutant (1 of 3 against 0 of 3).
+In this run both arms passed every check. The bare arm killed one more mutant (1 of 3 against 0 of 3).
 As one dot that is a difference one run can produce. Earlier Feature 5 runs split 2 of 3 against 3
 of 3 and 3 of 3 against 1 of 3, so no arm leads on mutants across runs.
 
@@ -755,5 +755,5 @@ slower.
 - "One A/B is one dot. Read it next to the dots from before class, not on its own."
 - "Feature 5 has no primary measure, so 'verdict ready: PASS' is not news. The counts are."
 - "Both arms passed 46 of 46 hidden tests. The difference is in how, not whether: mutants killed, scope, gate."
-- "Tonight the bare arm's tests caught one more planted bug. Earlier runs split the other way, so this is no gap yet."
+- "Today the bare arm's tests caught one more planted bug. Earlier runs split the other way, so this is no gap yet."
 - "To learn which layers earn their place, remove one layer at a time and compare many runs, not one."

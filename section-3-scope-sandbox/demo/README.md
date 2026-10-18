@@ -61,7 +61,7 @@ runs, every bare arm changed `app/services/errors.py` and every harness arm stay
 the agent's context. `sandbox-policy.toml` next to them holds the container limits that both arms
 of this demo run under.
 
-![Flowchart: a patch to feature_list.json or outside the allowed paths is blocked; a command's changes outside are reverted](../diagrams/scope-check-flow.svg)
+![Flowchart: a tool call outside the allowed paths for the phase is blocked if it is a patch, and reverted from a snapshot if it is a command](../diagrams/scope-check-flow.svg)
 
 *In the demo, the harness arm's patch to app/services/errors.py takes the BLOCKED branch.*
 
@@ -157,9 +157,9 @@ The refusal, as the harness arm's run log records it (one event, cut to its data
 The agent's tool result starts with `BLOCKED:` and carries the same reason, so the agent learns which
 files it may change. Nothing was written to the workspace.
 
-![Console screen 1 after both verdicts: both arms completed; bare and harness primary verdict ready: PASS on files changed outside the allowed paths](expected/screen-1-final.png)
+![Console screen 1 after both verdicts: both arms completed; the bare arm's pill reads primary verdict ready: PASS, files changed outside the allowed paths 0](expected/screen-1-final.png)
 
-*Screen 1 at the end. The pills read the scope measure. In this run both say "primary verdict ready: PASS"; when the bare arm leaves the list, its pill says FAIL.*
+*The pills read the scope measure: the bare arm's says "primary verdict ready: PASS" (the harness arm's is below the frame). A bare arm that leaves the list gets FAIL.*
 
 **Screen 3, Evidence.** In the middle panel the harness arm's diff map lists `app/services/errors.py`
 as ⊘ blocked; the bare arm's lists only allowed files. Files outside the allowed paths

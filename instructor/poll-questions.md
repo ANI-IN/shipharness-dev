@@ -40,7 +40,7 @@ features one after another. The final has no pre-registered primary measure; eve
 
 **What to compare it with.** The runs before class had no A/B on Features 5 to 7, and the experiment
 batch that would have covered them was not run because the pre-registered gate did not pass.
-Tonight's final is one dot for each arm: read its hidden-test and mutant counts against the section
+The final in class is one dot for each arm: read its hidden-test and mutant counts against the section
 results on the "All results" slide, never as a verdict on its own. The course's earlier Feature 5
 A/Bs (the check under load and the quiet run on 2026-10-17) are listed in
 [fallbacks.md](fallbacks.md).

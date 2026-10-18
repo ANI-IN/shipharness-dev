@@ -344,7 +344,7 @@ before-class dots and this run's dots next to them.
 
 Say at the result: "The guard enforces exactly what we measure, so the harness arm's zero is built
 in. What the runs show is that, on this ticket, the bare agent left the allowed paths in 9 of 10
-runs." If the bare arm stayed in scope tonight, say: "No file outside the ticket's paths. This is one
+runs." If the bare arm stayed in scope in this run, say: "No file outside the ticket's paths. This is one
 dot. Before class the bare arm left the allowed paths in 9 of 10 runs." Then:
 "Before class, both arms failed Feature 4's own bar, every hidden test and every mutant, which the
 terminal and screen 1 still show as secondary results. The guard keeps the change in scope. It does

@@ -53,9 +53,9 @@ flowchart LR
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 after the full verdict of the live run of 2026-10-18: both arms completed, verdict ready: PASS, judged on all checks](expected/screen-1-final.png)
+![Console screen 1 at the end of the live run of 2026-10-18: both runs completed; the bare arm's referee shows verdict ready: PASS, judged on all checks](expected/screen-1-final.png)
 
-*The live run of 2026-10-18: both arms at hidden tests 46/46; mutants killed 1/3 (bare) and 0/3 (harness); both runs completed.*
+*The live run of 2026-10-18: both runs completed; the bare arm's referee shows hidden tests 46/46. Screen 4 has both arms' counts.*
 
 | Path | What it holds |
 |---|---|
@@ -156,9 +156,9 @@ Then switch screens with the keys `1` to `5`; [expected/](expected/README.md) sh
 
 *3:27. The bare arm is judged; its secondary checks still run.*
 
-![Screen 1 at 3:44: harness arm said done, every gate check passed, the test phase started](expected/screen-1-gate-passed.png)
+![Screen 1 at 3:44: harness arm said done, every gate check passed, session 1 stopped with a handoff](expected/screen-1-gate-passed.png)
 
-*3:44. The harness arm's gate passed every check, and its test phase began.*
+*3:44. The harness arm's gate passed every check, and session 1 stopped with a handoff.*
 
 ## What the result means
 
@@ -185,7 +185,7 @@ So compare the claim with the counts, not with the agent's summary.
 
 ![Dot chart: one dot per run per arm for the four section features, filled for passed, hollow for failed](../docs/diagrams/results-final.svg)
 
-*Tonight's A/B adds one dot per arm to rows like these.*
+*The A/B in class adds one dot per arm to rows like these.*
 
 The live run of 2026-10-18: both arms passed 46 of 46 hidden tests and every referee check, and
 the blinded reviewer (a separate model that reads the diff without knowing which arm wrote it)

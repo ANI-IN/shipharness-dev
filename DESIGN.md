@@ -744,7 +744,7 @@ Each section opens with its poll and launches `make demo-N` right away; concepts
 walkthrough (25 minutes) run while the A/B proceeds, and the 15-minute demo block walks through the
 console screens and results (owner decision, 2026-10-17; pilot run 2: every A/B finished within 15.4
 minutes, VERIFICATION.md, M6). If the A/B is not finished at minute 25, the replay fallback in
-`instructor/run-sheet.md` applies. Results: screen 4, swap test or layer switch, discussion. S3 sandbox moment: tonight's `sandbox_denied` events, or
+`instructor/run-sheet.md` applies. Results: screen 4, swap test or layer switch, discussion. S3 sandbox moment: this run's `sandbox_denied` events, or
 the policy printout and the experiment denial log if none occurred.
 
 ### 14.2 Walkthrough anchors (`# [walkthrough:S<N>:<name>]` start/end, 30-40 lines each)
