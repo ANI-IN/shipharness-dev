@@ -42,6 +42,7 @@ def test_the_two_profiles_and_their_values() -> None:
         "openai_service_tier": "fast",
         "sandbox_cpus": 2.0,
         "run_timeout_s": 420,
+        "harness_timeout_s": 420,
     }
 
 
@@ -53,11 +54,15 @@ def test_standard_keeps_the_loaded_settings(tmp_path: Path) -> None:
 def test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else(tmp_path: Path) -> None:
     loaded = settings(tmp_path)
     assert loaded.run_timeout_s == 300  # standard keeps 300 s
+    assert loaded.harness_timeout_s == 120  # standard keeps 120 s of harness work
     applied = apply_profile(loaded, "class")
     assert applied.openai_reasoning_effort == "low"
     assert applied.openai_service_tier == "fast"
     assert applied.sandbox_cpus == 2.0
     assert applied.run_timeout_s == 420  # fits the 25-minute class window
+    # Harness work (handoff test runs, gates, test filters) gets its own 420 s: at 120 s it cut
+    # harness arms in session-end work (show-2 and demo-3 on 2026-10-18, the final on 2026-10-17).
+    assert applied.harness_timeout_s == 420
     # The reviewer's own settings and everything else stay as loaded.
     assert applied.openai_eval_reasoning_effort == loaded.openai_eval_reasoning_effort
     assert applied.openai_eval_model == loaded.openai_eval_model
@@ -67,6 +72,7 @@ def test_class_sets_low_effort_fast_tier_two_cpus_420_s_and_nothing_else(tmp_pat
         "openai_service_tier",
         "sandbox_cpus",
         "run_timeout_s",
+        "harness_timeout_s",
     }
 
 
@@ -131,6 +137,14 @@ def test_class_agent_arms_are_identical_and_the_reviewer_keeps_its_settings(
     assert outcome.status == "ok"
     assert calls[0]["reasoning"] == {"effort": "medium"}  # OPENAI_EVAL_REASONING_EFFORT
     assert "service_tier" not in calls[0]
+
+
+@pytest.mark.parametrize(("profile", "limit"), [("standard", 120), ("class", 420)])
+def test_the_runner_gets_the_profile_harness_time_limit(
+    tmp_path: Path, profile: str, limit: int
+) -> None:
+    rt = build_runtime(settings(tmp_path), project="p", session_id="pilot", profile=profile)
+    assert rt.ab_deps("m1-s1-start").settings.harness_timeout_s == limit
 
 
 @pytest.mark.parametrize(("profile", "limit"), [("standard", 300), ("class", 420)])
