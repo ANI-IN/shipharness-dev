@@ -50,9 +50,9 @@ three runs gave a range: primary verdict 5:51 to 6:50, full verdict 6:51 to 8:26
 per run; their filter tables kept one test and discarded four, kept two, and discarded all four
 ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
-![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm's gate passed, primary verdict ready: FAIL, hidden tests 68 of 69, mutants 0 of 4](expected/show-4-screen-1-final.png)
+![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm completed in 42 turns, with the block rows for app/services/errors.py](expected/show-4-screen-1-final.png)
 
-*The end of a real run: the gate passed every item, and the referee still failed the run.*
+*The end of a real run: the harness arm completed in 42 turns. The gate pills and the verdict are further down the screen, below this frame.*
 
 The lesson of the section in one screen: the gate checks what the agent can see, the referee what it cannot.
 
@@ -171,14 +171,14 @@ its stale form. Tab B gets HTTP 409 and a "changed by someone else" page.
 
 ![Screen 2: the board and the two-tab edit conflict, conflict detected, tab B got HTTP 409](expected/show-4-screen-2-final.png)
 
-*Screen 2. The board stops the lost update. The referee still finds one hidden test failing.*
+*Screen 2. The board stops the lost update: tab B got HTTP 409. The bare arm reads Not run.*
 
 **Screen 4, A/B Report.** "This run" at the top, then "Measured before class", one dot per run, per
 feature and arm. Say: "Today's run is not a dot in the comparison."
 
 ![Screen 4: this run at the top, then Measured before class, one dot per run for each feature and arm](expected/show-4-screen-4-final.png)
 
-*Screen 4. The version checks rows on Feature 4's own measure read "0/2 before class" in each arm.*
+*Screen 4. This run at the top: "primary verdict ready: FAIL", hidden tests 68/69, mutants killed 0/4. Below it, the runs before class, one dot each.*
 
 **Screen 5, Traces.** The first wrong turn (turn 1.11, the blocked patch), the live tail, the links.
 
@@ -210,7 +210,7 @@ A recorded run before class (2026-10-18) shows why both are needed:
 
 ![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](../diagrams/mutation-testing.svg)
 
-*A referee mutant survives when no shipped test fails on it, as test B shows here.*
+*A referee mutant survives when no shipped test fails on it, as the passing test shows here.*
 
 One run cannot compare arms. The comparison needs both arms, many times:
 

@@ -90,9 +90,9 @@ traced to the class day's project (Part 0 explains both).
 
 **You should see:**
 
-![The console's runs list after reloading: the newest card is the Section 3 A/B on Feature 4: Version checks on issue edits, type A/B, status finished, started 16:35 UTC, above the two harness-in-action runs of Chapters 1 and 2](../images/s3/runlist.png)
+![The console's runs list: the card for the Section 3 A/B on Feature 4: Version checks on issue edits, type A/B, status finished, started 16:35 UTC, sits below three later runs and above the harness-in-action runs of Sections 1 and 2](../images/s3/runlist.png)
 
-*The new A/B sits on top. While it runs, its status says running instead of finished.*
+*In class the new A/B sits on top. This picture was taken later, so three newer runs sit above it. While it runs, its status says running instead of finished.*
 
 1. Run id: open the run
 2. Type: harness in action or A/B
@@ -123,9 +123,9 @@ screen shows the bare arm on the left and the harness arm on the right.
 
 **You should see:**
 
-![Screen 1 about a minute after launch: the bare arm on the left with no layers and its last turns; the harness arm on the right with instructions, scope and state, its container line, last turns, and harness decisions: three notes, then a block and a blocked row for app/services/errors.py](../images/s3/screen-1-early.png)
+![Screen 1 about a minute after launch: the bare arm on the left with no layers and its last turns; the harness arm on the right with instructions, scope and state, its container line, last turns, and harness decisions with three notes](../images/s3/screen-1-early.png)
 
-*About a minute in, both arms are reading the code. The harness arm has already hit the scope layer.*
+*About a minute in, the bare arm is already patching files. The harness arm's layers have set up and it is reading the code.*
 
 1. HARNESS IN ACTION badge, or the feature
 2. Bare arm line: no layers
@@ -161,9 +161,9 @@ wrote `feature_list.json` with this one feature and `passes: false`. Both contai
 
 **You should see:**
 
-![Screen 1 at the moment of the block: the harness arm's harness decisions list a block row and a blocked row for app/services/errors.py, outside the allowed paths for the build phase, followed by the allowed paths](../images/s3/screen-1-block.png)
+![Screen 1 at the moment of the block, with the harness arm's harness decisions expanded: the three notes are visible, and callout 3 points at the block row just below them, at the bottom edge of the picture](../images/s3/screen-1-block.png)
 
-*The scope layer refused the harness arm's patch to the shared errors module. Nothing was written.*
+*The block row comes right after the three notes. On your screen, scroll the harness decisions to read it.*
 
 1. Bare arm line: no layers
 2. Turns list
@@ -234,9 +234,9 @@ shared file. Before class, most bare arms patched that file instead (Step 13).
 
 **You should see:**
 
-![Screen 1 when the bare arm's primary verdict was ready: the bare arm shows run completed, 43 turns, agent said done, referee pill primary verdict ready: PASS, files changed outside the allowed paths 0, secondary checks running, launch to primary verdict 03:01, claim supported; the harness arm is still working](../images/s3/screen-1-primary.png)
+![Screen 1 when the bare arm's primary verdict was ready: the bare arm shows run completed, 43 turns, agent said done, and at the bottom edge the referee pill primary verdict ready: PASS; the harness arm is still working, at turn 1.22](../images/s3/screen-1-primary.png)
 
-*The bare arm's primary verdict arrives first, while its secondary checks still run.*
+*The bare arm's primary verdict arrives first. The lines below the pill are under the bottom edge of this picture.*
 
 1. Referee pill (bare)
 
@@ -268,7 +268,7 @@ later, as secondary results.
 
 **You should see:**
 
-![Close-up of the harness arm on screen 1 after the run: run completed after 47 turns; harness decisions with the notes, the block and blocked rows, session stop, status set with passes true; the gate list; agent said done; referee pill primary verdict ready: PASS, files changed outside the allowed paths 0, hidden tests 68/69, mutants killed 4/4, launch to primary verdict 05:50, launch to full verdict 08:15; claim supported](../images/s3/screen-1-harness.png)
+![Close-up of the harness arm on screen 1 after the run: run completed after 47 turns; harness decisions with the three notes, then the block and blocked rows for app/services/errors.py; the gate list; agent said done; referee pill primary verdict ready: PASS, files changed outside the allowed paths 0, hidden tests 68/69, mutants killed 4/4, launch to primary verdict 05:50, launch to full verdict 08:15; claim supported](../images/s3/screen-1-harness.png)
 
 *The harness arm passes the scope measure too. Its secondary results differ from the bare arm's.*
 
@@ -340,7 +340,7 @@ either arm hit the container's limits.
 
 **You should see:**
 
-![Close-up of screen 3's referee panel: one row per check for each arm; Files outside the allowed paths (diff_scope) reads 0 new for both arms; hidden tests 0 new; reviewer reject for both arms with the reason that the version check is not atomic; the bare arm killed 1 of 4 mutants, the harness arm 4 of 4](../images/s3/screen-3-referee.png)
+![Close-up of screen 3's referee panel: one row per check for each arm; Files outside the allowed paths (diff_scope) reads 0 new for both arms; hidden tests 0 new; reviewer reject for both arms: the bare reason says the version check is not atomic, the harness reason says it does not prevent concurrent lost updates](../images/s3/screen-3-referee.png)
 
 *The section's measure as a referee row: 0 new for both arms in this run.*
 
@@ -350,7 +350,8 @@ either arm hit the container's limits.
 4. Blinded reviewer's reason (harness)
 
 **Look at:** The row "Files outside the allowed paths (diff_scope)" in each arm. Then the reviewer
-lines: both say "reviewer reject", because the version check "is not atomic".
+lines: both say "reviewer reject". The bare reason says the version check "is not atomic"; the
+harness reason says it "does not prevent concurrent lost update".
 
 **What it means:** The scope row is the primary measure. "0 new" means no file outside the list.
 The other rows are secondary checks; all pass with 0 new. The blinded reviewer does not know which
@@ -376,7 +377,7 @@ so two writers can still overwrite each other.
 
 **You should see:**
 
-![Screen 5 after the run: the live tail of events; under First wrong turn, the bare arm shows no wrong turn found and the harness arm shows turn 1.12 blocked, apply_patch app/services/errors.py; LangSmith links for each arm's agent and referee](../images/s3/screen-5-final.png)
+![Screen 5 after the run: the live tail of events; under First wrong turn, the bare arm shows no wrong turn found and the harness arm shows turn 1.12 blocked, apply_patch app/services/errors.py, and the heuristic that picks the turn](../images/s3/screen-5-final.png)
 
 *The harness arm's first wrong turn is its refused patch. The bare arm has none.*
 
@@ -447,7 +448,7 @@ page in this run.
 
 **You should see:**
 
-![Screen 4 after the run: this run's results for both arms at the top, primary verdict ready: PASS, files changed outside the allowed paths 0; below, Measured before class: 36 runs per arm, one dot per run, with cost per verified feature and reviewer agreement](../images/s3/screen-4-final.png)
+![Screen 4 after the run: this run's results for both arms at the top, primary verdict ready: PASS, files changed outside the allowed paths 0; below, Measured before class: 36 runs per arm, one dot per run; on the right, cost per verified feature](../images/s3/screen-4-final.png)
 
 *The top strip is this run. The left panel holds the runs measured before class.*
 

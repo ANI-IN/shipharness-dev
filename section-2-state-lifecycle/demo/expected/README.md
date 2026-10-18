@@ -37,7 +37,7 @@ guide's callouts; each caption names them. Times count from the make command's l
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![The run list: the show-2 card on top, "harness in action", with its status and start time](show-2-runlist.png)
+![The run list: the show-2 card second, under a later card that reads unknown and running, with "harness in action", finished, and its start time](show-2-runlist.png)
 
 *The run list. Circles: 1 the run id (click to open), 2 the type, 3 the status, 4 the start time.*
 
@@ -49,21 +49,21 @@ Circles: 1 the HARNESS IN ACTION badge, 2 the bare arm, 3 the harness arm's laye
 
 ![Screen 1 at the stop: session stop, session 1 handoff written to session-handoff.md](show-2-screen-1-session-stop.png)
 
-*1:16: session 1 used its 12 turns. Circles: 1 the harness decision "session 1 handoff written to session-handoff.md", 2 the turn list.*
+*At the stop: the state layer's "session stop" decision appears under Harness decisions. Circles: 1 the harness decision "session 1 handoff written to session-handoff.md", 2 the turn list.*
 
 ![Screen 1 after the stop: Session 1 stopped, ended by turn_budget; Session 2 resumed; turn 2.1 reads progress.md, the git log, and session-handoff.md](show-2-screen-1-session-resumed.png)
 
 *Session 2 starts with an empty context; its first call, turn 2.1, reads the state files with `cat`. Circles: 1 "Session 1 stopped · ended by turn_budget", 2 "Session 2 resumed", 3 the handoff note.*
 
-![Screen 1 after the full verdict: run completed after 62 turns, primary verdict ready: PASS](show-2-screen-1-final.png)
+![Screen 1 after the full verdict: run completed after 62 turns, and three session stop notes](show-2-screen-1-final.png)
 
-*The end: run completed after 62 turns; "primary verdict ready: PASS" at 5:18, the full verdict at 7:11 (hidden tests 56/56, mutants killed 1/4).*
+*The end: run completed after 62 turns, cost $0.040 of the $0.20 cap. The verdicts are on screen 4 and in `terminal.txt`.*
 
 Circles: 1 "← All runs", 2 the screen tabs, 3 the bare arm, 4 the harness arm's layers.
 
 ![Screen 2: the board as admin@acme.test, only own-org cards](show-2-screen-2-final.png)
 
-*Screen 2: only own-org cards, no duplicates. The comments panel is on the issue page.*
+*Screen 2: only own-org cards, no duplicates. The comments panel is on the issue page. Circles: 1 "← All runs", 2 the harness board, 3 the board marks, 4 the bare arm, not run.*
 
 ![Screen 3: Session 1 of 12 turns ended by turn_budget, Session 2 of 38 turns, Test phase of 12 turns, the diff map, referee checks](show-2-screen-3-final.png)
 
@@ -73,7 +73,7 @@ Circles: 1 the sessions, 2 the diff map, 3 Files outside the allowed paths, 4 th
 
 ![Screen 4: this run at the top, then Measured before class, one dot per run](show-2-screen-4-final.png)
 
-*Screen 4: "Comments on issues · canonical" shows "4/4 before class" for each arm. This run is at the top, not a dot.*
+*Screen 4: this run at the top, with "primary verdict ready: PASS", hidden tests 56/56, and mutants killed 1/4; below it, "Measured before class", one dot per run. This run is not a dot.*
 
 Circles: 1 this run, 2 Measured before class, 3 the dots, 4 cost per verified feature, 5 reviewer agreement.
 

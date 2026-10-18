@@ -54,9 +54,11 @@ the console's own "launch to" times start a few seconds later.
 
 *3:10: the bare arm's pill, "primary verdict ready: PASS", with 0 files outside the allowed paths. Circle 1: the pill.*
 
-![Screen 1 after both verdicts: both arms completed, both primary verdict ready: PASS](screen-1-final.png)
+![Screen 1 after both verdicts: both arms completed; the bare arm's pill reads primary verdict ready: PASS](screen-1-final.png)
 
-*The end: bare 43 turns, harness 47; both pills PASS; hidden tests 68/69 each, mutants killed 1/4 and 4/4.*
+*The end: bare 43 turns, harness 47; the bare arm's pill PASS, 0 files outside the allowed paths, hidden tests 68/69. The harness arm's pill is below the frame.*
+
+Circles: 1 "← All runs", 2 the tabs, 3 the bare arm, 4 the harness arm, 5 the bare arm's pill.
 
 ![Screen 2: both boards show only own-org cards; both arms detect the two-tab edit conflict, tab B got HTTP 409](screen-2-final.png)
 

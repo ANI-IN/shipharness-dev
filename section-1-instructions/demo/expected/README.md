@@ -38,21 +38,23 @@ callouts; each caption names them. Times count from the make command's launch.
 
 *The run list. Circles: 1 the run id (click to open), 2 the type, "harness in action", 3 the status, 4 the start time.*
 
-![Screen 1 about one minute in: the bare arm reads Not run (harness in action); the harness arm shows its first turns and two layer notes](screen-1-minute-1.png)
+![Screen 1 about one minute in: the bare arm reads Not run (harness in action); the harness arm shows its last turns and two layer notes](screen-1-minute-1.png)
 
 *About one minute in: 31 instruction files placed and `ARCHITECTURE.md` read.*
 
 Circles: 1 the HARNESS IN ACTION badge, 2 the bare arm, "Not run (harness in action)", 3 the harness arm's layers, 4 the container line, 5 the last turns, 6 the harness decisions.
 
-![Screen 1 after the full verdict: run completed after 38 turns, primary verdict ready: PASS](screen-1-final.png)
+![Screen 1 after the full verdict: run completed after 38 turns, and the two instructions notes](screen-1-final.png)
 
-*The end: run completed after 38 turns; "primary verdict ready: PASS" came 2:35 after launch, the full verdict 4:45 (hidden tests 52/52, mutants killed 3/4).*
+*The end: run completed after 38 turns, cost $0.018 of the $0.20 cap. The verdicts are on screen 4 and in `terminal.txt`.*
 
 Circles: 1 "← All runs" (or H, Esc), 2 the screen tabs, 3 the bare arm, 4 the harness arm's layers.
 
 ![Screen 1 with Harness decisions expanded: the two instructions notes](screen-1-decisions.png)
 
-*Screen 1 with "Harness decisions" expanded: "placed 31 instruction files" and "agent read ARCHITECTURE.md". "All turns" expands the same way.*
+*"Harness decisions" expanded: "placed 31 instruction files" and "agent read ARCHITECTURE.md".*
+
+Circles: 1 "← All runs", 2 the screen tabs, 3 the bare arm, 4 the harness arm's layers.
 
 ![Screen 2: the harness arm's board as admin@acme.test, only own-org cards](screen-2-final.png)
 
@@ -70,6 +72,6 @@ Circles: 1 the sessions, 2 the diff map, 3 Files outside the allowed paths (`dif
 
 Circles: 1 this run, 2 Measured before class, 3 the dots, 4 cost per verified feature, 5 reviewer agreement.
 
-![Screen 5: the live tail, the first wrong turn, and the LangSmith links](screen-5-final.png)
+![Screen 5: the live tail, the First wrong turn panel reading no wrong turn found, and the LangSmith links](screen-5-final.png)
 
-*Screen 5. Circles: 1 the live tail of events, 2 the first wrong turn, 3 the LangSmith links for the agent and the referee.*
+*Screen 5: "no wrong turn found". Circles: 1 the live tail of events, 2 the first wrong turn, 3 the LangSmith links for the agent and the referee.*

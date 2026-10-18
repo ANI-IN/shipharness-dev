@@ -189,7 +189,7 @@ The primary verdict answers one question: did session 2 break or redo session 1'
 on two Alembic heads or a failed fresh upgrade (the migrations rule), on a table created by two migrations, or when
 session 2 removes 30% or more of the lines session 1 added. PASS means none of the three happened.
 
-![A migration chain with one head, next to a fork where two migrations share one parent](../diagrams/alembic-heads.svg)
+![Session 2's first call, then init.sh checks the Alembic heads: one head (0001, then 0002) passes; two heads (two 0002 migrations) fail House rule 7: Migrations](../diagrams/alembic-heads.svg)
 
 *One of the three failures the verdict checks: two migration heads.*
 

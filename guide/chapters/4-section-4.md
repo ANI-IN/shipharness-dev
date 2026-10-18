@@ -84,16 +84,16 @@ The `A/B ab-…` line and the result line come only at the end (Step 14).
 
 **You should see:**
 
-![The runs list, newest first: the top card is the new run, type harness in action, with its status and start time](../images/s4/runlist.png)
+![The runs list, newest first: the card for the Section 4 run on Feature 4: Version checks on issue edits, type harness in action, status finished, started 16:44 UTC, sits below two later runs](../images/s4/runlist.png)
 
-*The new run is the top card.*
+*In class the new run is the top card. This picture was taken later, so two newer runs sit above it.*
 
 1. Run id: open the run
 2. Type: harness in action or A/B
 3. Status
 4. Start time
 
-**Look at:** The type on the top card. It says "harness in action", not "A/B".
+**Look at:** The type on the new run's card. It says "harness in action", not "A/B".
 
 **What it means:** One arm runs. This run shows the mechanism; it measures nothing.
 
@@ -176,7 +176,7 @@ note instructions agent read ARCHITECTURE.md
 
 **You should see:**
 
-![Screen 1 when the scope layer blocked an edit to app/services/errors.py, outside the allowed paths](../images/s4/screen-1-block.png)
+![Screen 1 when the scope layer blocked an edit outside the allowed paths: in the harness arm's last turns, turn 1.11 apply_patch app/services/errors.py is marked blocked](../images/s4/screen-1-block.png)
 
 *Screen 1: the scope layer refuses a patch outside the allowed files.*
 
@@ -204,9 +204,9 @@ note instructions agent read ARCHITECTURE.md
 
 **You should see:**
 
-![Screen 1 when the agent claimed done: the gate started and its pills are pending](../images/s4/screen-1-gate-pending.png)
+![Screen 1 near the done claim: the harness arm's last turns 1.16 to 1.22, mostly apply_patch, and the first harness decisions; the Gate list is below the bottom edge of the picture](../images/s4/screen-1-gate-pending.png)
 
-*Screen 1 at the done claim: every gate pill is pending.*
+*Screen 1 near the done claim. The Gate list with its pending pills is further down the harness arm.*
 
 **Look at:** The row of pending pills: visible tests, Existing tests (regression), House rule 1: Tenant isolation to House rule 7: Migrations (one pill each), board check, clean state.
 
@@ -256,9 +256,9 @@ refused Gate refused 'done' (build phase, attempt 1): clean state: ruff: app/web
 
 **You should see:**
 
-![Screen 1 when the gate passed: every pill is green](../images/s4/screen-1-gate-passed.png)
+![Screen 1 when the gate passed: the harness arm's last turns 1.16 to 1.22 and its harness decisions, ending with the block row for app/services/errors.py; the Gate list is below the bottom edge of the picture](../images/s4/screen-1-gate-passed.png)
 
-*Screen 1, the gate passed.*
+*Screen 1 when the gate passed. The green Gate pills are further down the harness arm.*
 
 **Look at:** Eleven ✓ pills, and three decisions right after them:
 
@@ -334,9 +334,9 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 **You should see:**
 
-![Screen 1 when the primary verdict was ready: run completed after 42 turns, referee pill primary verdict ready FAIL](../images/s4/screen-1-primary.png)
+![Screen 1 when the primary verdict was ready: the harness arm shows run completed, 42 turns, with all turns and harness decisions; the Referee line is below the bottom edge of the picture](../images/s4/screen-1-primary.png)
 
-*Screen 1: the primary verdict is in while the secondary checks still run.*
+*Screen 1 when the primary verdict was ready. The referee pill is further down the harness arm.*
 
 **Look at:** The pill "✗ primary verdict ready: FAIL" and the values after it: "hidden tests passed 68 · mutants killed 0".
 
@@ -390,7 +390,7 @@ note verify test filters: kept 0, discarded 0; no new tests to filter
 
 **You should see:**
 
-![Terminal 2 at the end: the A/B line, the harness arm line with completed, agent said not done, primary measure failed, and the Cost line of $0.025731](../images/s4/term-end.png)
+![Terminal 2 at the end: the harness arm line with completed, agent said not done, primary measure failed, and the Cost line of $0.025731](../images/s4/term-end.png)
 
 *The last lines in Terminal 2.*
 
@@ -421,9 +421,9 @@ Cost: $0.025731 (this command: gpt-5.6-luna $0.003204, gpt-6-luna $0.022527; ses
 
 **You should see:**
 
-![Screen 3 after the run: files read, the two sessions, the diff map with one blocked file, the referee rows, the reviewer's reason and the mutants](../images/s4/screen-3-final.png)
+![Screen 3 after the run: the bare arm not run, the harness arm's files read and two sessions, the diff map with one blocked file, sandbox denials none, and the start of the Section 4: Verification panel](../images/s4/screen-3-final.png)
 
-*Screen 3: what the agent read and changed, and how the referee judged it.*
+*Screen 3: what the agent read and changed. The referee's checks are in the panel below.*
 
 1. Bare arm: Not run (harness in action)
 2. Diff map (harness)
@@ -654,9 +654,9 @@ app.services.context-m401      –            ✗ survived
 
 **You should see:**
 
-![Screen 5: the live tail ending with the verdict and the conflict screenshot, the first wrong turn at turn 1.11 blocked, and two LangSmith links](../images/s4/screen-5-final.png)
+![Screen 5: the live tail ending with the verdict and the conflict screenshot, the bare arm not run, and the harness arm's first wrong turn at turn 1.11 blocked, apply_patch app/services/errors.py](../images/s4/screen-5-final.png)
 
-*Screen 5: where the run first went wrong, and where to read every model call.*
+*Screen 5: where the run first went wrong. The LangSmith links are below the bottom edge of this picture.*
 
 1. Live tail
 2. First wrong turn
@@ -682,7 +682,7 @@ app.services.context-m401      –            ✗ survived
 
 **You should see:**
 
-![Screen 4: this run's verdict at the top, measured before class 36 runs per arm with one dot per run, cost per verified feature and reviewer agreement](../images/s4/screen-4-final.png)
+![Screen 4: this run's verdict at the top, measured before class 36 runs per arm with one dot per run, and cost per verified feature](../images/s4/screen-4-final.png)
 
 *Screen 4: this run on top, the runs measured before class below.*
 

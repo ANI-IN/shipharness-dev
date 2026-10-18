@@ -40,9 +40,9 @@ the agent opened the skill in two of those three runs and `ARCHITECTURE.md` in t
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm completed after 38 turns, primary verdict ready: PASS](expected/screen-1-final.png)
+![Console screen 1 after the full verdict: the bare arm reads Not run (harness in action); the harness arm reads run completed after 38 turns](expected/screen-1-final.png)
 
-*The end of the live run of 2026-10-18: no new tenant isolation violation, 52 of 52 hidden tests. The circles are the demo guide's callouts ([expected/](expected/README.md)).*
+*The end of the live run: run completed after 38 turns, and the two instructions notes. The verdicts are on screen 4; the circles are explained in [expected/](expected/README.md).*
 
 This is not an A/B. The course already compared both arms on this ticket and found no measurable
 difference ([evidence](../../docs/evidence/s1.md#section-1)). So class shows the map doing its job,
