@@ -1374,14 +1374,14 @@ Key idea: No: the referee failed it, 68 of 69 hidden tests. Who should decide "d
 **On the slide:**
 Lead: The agent writes the tests, runs them, and grades the result.
 Key idea: Every agent saturates the visible suite; held-out tests still find failures.
-**Visual:** Pipeline build frame 1: "Agent, build phase" with the visible tests inside its box, an arrow "finish done" straight to "Shipped diff", nothing between; a dashed box outside the agent's reach labelled "hidden tests (not yet used)".
+**Visual:** Pipeline build frame 1: "Build phase: code, visible tests", an arrow "own tests pass", straight to `finish(claim="done")`; nothing checks the claim yet.
 **Speaker notes:**
 - In the bare arm the agent is author, tester, and judge; the visible suite is the only evidence, and the agent chose what went into it.
 - Source 3: [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps): "agents reliably skew positive when grading their own work."
 - Source 12: [SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents](https://arxiv.org/abs/2605.21384): "while every frontier agent saturates the visible suite, reward hacking persists, with smaller models exhibiting larger gaps on holdout suites." The failures it finds are mostly features that fail only combined.
 - Example: the Feature 4: Version checks on issue edits visible suite passed 191 tests in the bare arm's run; the held-out suite of 69 caught the one combination it missed.
 - Analogy: grading your own exam with your own answer key.
-- Point at the empty arrow from "finish done" to "Shipped diff": each of the next three ideas adds a box on it.
+- Point at the arrow from the build phase straight to `finish(claim="done")`: nothing stands between the claim and the end; each of the next three ideas adds a check after it.
 - Ask: "Who writes most of the new tests in your repo now?" Expected: more and more the agent, so the agent writes its own exam.
 - Likely question: "Why not show the agent more tests?" Answer: then they are visible tests too and become a target; held-out checks measure only while they stay held out.
 - Misconception: "a smarter model fixes self-grading". Correction: [Source 12](https://arxiv.org/abs/2605.21384)'s gap showed up in every frontier agent it tested; the fix is structural.
@@ -1392,7 +1392,7 @@ Key idea: Every agent saturates the visible suite; held-out tests still find fai
 **On the slide:**
 Lead: After the build, a short test phase; each proposed test passes five filters, cheapest first.
 Key idea: Keep a test only if it runs, is stable, and adds something.
-**Visual:** Pipeline build frame 2: "Agent, test phase" after the build, then a funnel "Five test filters" with "kept tests" going to "Shipped diff"; a side note "Filters 1-3 from [TestGen-LLM](https://arxiv.org/abs/2402.09171), 4-5 course".
+**Visual:** Pipeline build frame 2: adds "Test phase: proposes tests" after the claim, feeding "Five test filters"; a side note "Filters 1-3 from [TestGen-LLM](https://arxiv.org/abs/2402.09171), 4-5 course".
 **Speaker notes:**
 - A generated test can fail on correct code, pass by luck, or pass without checking anything; each filter removes one of those.
 - The five: Filter 1: Builds and collects; Filter 2: Passes five runs; Filter 3: Adds coverage or catches a mutant; Filter 4: Real assertions (no mock of the code under test); Filter 5: No source changes.
