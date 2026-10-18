@@ -9,7 +9,7 @@
       "x": 0,
       "y": 0,
       "width": 1920,
-      "height": 1080,
+      "height": 720,
       "angle": 0,
       "strokeColor": "transparent",
       "backgroundColor": "#F0F3F6",
@@ -35,12 +35,55 @@
       "locked": true
     },
     {
-      "id": "exec-plan-ledger-text-1",
+      "id": "exec-plan-ledger-rectangle-1",
+      "type": "rectangle",
+      "x": 427.2,
+      "y": 64.0,
+      "width": 631.47,
+      "height": 88.8,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "#21212112",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a1",
+      "roundness": {
+        "type": 3
+      },
+      "seed": 187248500,
+      "version": 1,
+      "versionNonce": 196933394,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "exec-plan-ledger-text-2"
+        },
+        {
+          "type": "arrow",
+          "id": "exec-plan-ledger-arrow-15"
+        },
+        {
+          "type": "arrow",
+          "id": "exec-plan-ledger-arrow-16"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "exec-plan-ledger-text-2",
       "type": "text",
-      "x": 623.67,
-      "y": 92.0,
-      "width": 672.65,
-      "height": 44.8,
+      "x": 534.21,
+      "y": 91.13,
+      "width": 417.44,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -51,62 +94,59 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a1",
+      "index": "a2",
       "roundness": null,
-      "seed": 1142924951,
+      "seed": 247097839,
       "version": 1,
-      "versionNonce": 592516450,
+      "versionNonce": 1266384014,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "The exec plan and the progress ledger",
-      "fontSize": 35.84,
+      "text": "Agent: decisions, wrap-up edits",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "The exec plan and the progress ledger",
+      "verticalAlign": "middle",
+      "containerId": "exec-plan-ledger-rectangle-1",
+      "originalText": "Agent: decisions, wrap-up edits",
       "autoResize": true,
-      "lineHeight": 1.25,
-      "customData": {
-        "role": "title"
-      }
+      "lineHeight": 1.25
     },
     {
-      "id": "exec-plan-ledger-rectangle-2",
+      "id": "exec-plan-ledger-rectangle-3",
       "type": "rectangle",
-      "x": 64.0,
-      "y": 510.13,
-      "width": 378.31,
-      "height": 169.24,
+      "x": 72.0,
+      "y": 231.73,
+      "width": 611.73,
+      "height": 266.4,
       "angle": 0,
-      "strokeColor": "#3896D2",
-      "backgroundColor": "#3896D233",
+      "strokeColor": "#212121",
+      "backgroundColor": "#ffffff",
       "fillStyle": "solid",
-      "strokeWidth": 2,
+      "strokeWidth": 3,
       "strokeStyle": "solid",
       "roughness": 1,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a2",
+      "index": "a3",
       "roundness": {
         "type": 3
       },
-      "seed": 1209510801,
+      "seed": 134683415,
       "version": 1,
-      "versionNonce": 269827003,
+      "versionNonce": 1726116222,
       "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
-          "id": "exec-plan-ledger-text-3"
+          "id": "exec-plan-ledger-text-4"
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-16"
+          "id": "exec-plan-ledger-arrow-15"
         },
         {
           "type": "arrow",
@@ -118,12 +158,12 @@
       "locked": false
     },
     {
-      "id": "exec-plan-ledger-text-3",
+      "id": "exec-plan-ledger-text-4",
       "type": "text",
-      "x": 152.14,
-      "y": 559.91,
-      "width": 202.04,
-      "height": 69.69,
+      "x": 314.29,
+      "y": 246.53,
+      "width": 127.16,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -134,84 +174,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a3",
+      "index": "a4",
       "roundness": null,
-      "seed": 1668834456,
+      "seed": 970233211,
       "version": 1,
-      "versionNonce": 1926377558,
+      "versionNonce": 1283062522,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Initializer step\n(harness code)",
-      "fontSize": 27.88,
+      "text": "Exec plan",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-2",
-      "originalText": "Initializer step\n(harness code)",
+      "verticalAlign": "top",
+      "containerId": "exec-plan-ledger-rectangle-3",
+      "originalText": "Exec plan",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "exec-plan-ledger-rectangle-4",
-      "type": "rectangle",
-      "x": 681.24,
-      "y": 201.51,
-      "width": 477.87,
-      "height": 189.16,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "#ffffff",
-      "fillStyle": "solid",
-      "strokeWidth": 3,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "a4",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 1999667163,
-      "version": 1,
-      "versionNonce": 1091664851,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-5"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-16"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-20"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-24"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-26"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false
-    },
-    {
       "id": "exec-plan-ledger-text-5",
       "type": "text",
-      "x": 754.86,
-      "y": 261.24,
-      "width": 330.63,
-      "height": 69.69,
+      "x": 245.93,
+      "y": 335.33,
+      "width": 263.86,
+      "height": 69.07,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -232,23 +221,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Exec plan\ndocs/exec-plans/active/",
-      "fontSize": 27.88,
+      "text": "progress, surprises,\ndecisions, outcomes",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-4",
-      "originalText": "Exec plan\ndocs/exec-plans/active/",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "progress, surprises,\ndecisions, outcomes",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
       "id": "exec-plan-ledger-rectangle-6",
       "type": "rectangle",
-      "x": 681.24,
-      "y": 798.84,
-      "width": 517.69,
-      "height": 189.16,
+      "x": 802.13,
+      "y": 231.73,
+      "width": 611.73,
+      "height": 266.4,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -274,19 +266,11 @@
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-18"
+          "id": "exec-plan-ledger-arrow-16"
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-22"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-27"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-29"
+          "id": "exec-plan-ledger-arrow-19"
         }
       ],
       "updated": 1,
@@ -296,10 +280,10 @@
     {
       "id": "exec-plan-ledger-text-7",
       "type": "text",
-      "x": 821.74,
-      "y": 841.16,
-      "width": 236.69,
-      "height": 104.53,
+      "x": 1029.52,
+      "y": 246.53,
+      "width": 156.95,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -320,66 +304,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "progress.md\ndone, in progress,\nnext",
-      "fontSize": 27.88,
+      "text": "progress.md",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "middle",
+      "verticalAlign": "top",
       "containerId": "exec-plan-ledger-rectangle-6",
-      "originalText": "progress.md\ndone, in progress,\nnext",
+      "originalText": "progress.md",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "exec-plan-ledger-rectangle-8",
-      "type": "rectangle",
-      "x": 740.98,
-      "y": 510.13,
-      "width": 398.22,
-      "height": 169.24,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "#21212112",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "a8",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 1954580801,
-      "version": 1,
-      "versionNonce": 727504183,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-9"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-20"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-22"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false
-    },
-    {
-      "id": "exec-plan-ledger-text-9",
+      "id": "exec-plan-ledger-text-8",
       "type": "text",
-      "x": 852.32,
-      "y": 559.91,
-      "width": 175.54,
-      "height": 69.69,
+      "x": 954.7,
+      "y": 310.67,
+      "width": 306.6,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -390,33 +331,36 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a9",
+      "index": "a8",
       "roundness": null,
-      "seed": 242824690,
+      "seed": 1669944532,
       "version": 1,
-      "versionNonce": 841059086,
+      "versionNonce": 1513987948,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Agent: work,\nthen wrap-up",
-      "fontSize": 27.88,
+      "text": "done, in progress, next",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-8",
-      "originalText": "Agent: work,\nthen wrap-up",
+      "verticalAlign": "top",
+      "containerId": null,
+      "originalText": "done, in progress, next",
       "autoResize": true,
-      "lineHeight": 1.25
+      "lineHeight": 1.25,
+      "customData": {
+        "role": "label"
+      }
     },
     {
-      "id": "exec-plan-ledger-rectangle-10",
+      "id": "exec-plan-ledger-rectangle-9",
       "type": "rectangle",
-      "x": 1437.87,
-      "y": 201.51,
-      "width": 418.13,
-      "height": 189.16,
+      "x": 841.6,
+      "y": 379.73,
+      "width": 532.8,
+      "height": 88.8,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -427,22 +371,22 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aA",
+      "index": "a9",
       "roundness": {
         "type": 3
       },
-      "seed": 1704717842,
+      "seed": 865244595,
       "version": 1,
-      "versionNonce": 891308580,
+      "versionNonce": 560235764,
       "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
-          "id": "exec-plan-ledger-text-11"
+          "id": "exec-plan-ledger-text-10"
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-24"
+          "id": "exec-plan-ledger-arrow-17"
         }
       ],
       "updated": 1,
@@ -450,12 +394,12 @@
       "locked": false
     },
     {
-      "id": "exec-plan-ledger-text-11",
+      "id": "exec-plan-ledger-text-10",
       "type": "text",
-      "x": 1543.47,
-      "y": 261.24,
-      "width": 206.95,
-      "height": 69.69,
+      "x": 1033.48,
+      "y": 406.87,
+      "width": 149.05,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -466,33 +410,109 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aB",
+      "index": "aA",
       "roundness": null,
-      "seed": 1908121478,
+      "seed": 297842357,
       "version": 1,
-      "versionNonce": 1222275424,
+      "versionNonce": 1717413106,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "On pass: moves\nto completed/",
-      "fontSize": 27.88,
+      "text": "Session log",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-10",
-      "originalText": "On pass: moves\nto completed/",
+      "containerId": "exec-plan-ledger-rectangle-9",
+      "originalText": "Session log",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "exec-plan-ledger-rectangle-12",
+      "id": "exec-plan-ledger-rectangle-11",
       "type": "rectangle",
-      "x": 1437.87,
-      "y": 510.13,
-      "width": 418.13,
-      "height": 169.24,
+      "x": 1532.27,
+      "y": 360.0,
+      "width": 315.73,
+      "height": 128.27,
+      "angle": 0,
+      "strokeColor": "#3896D2",
+      "backgroundColor": "#3896D233",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aB",
+      "roundness": {
+        "type": 3
+      },
+      "seed": 168839745,
+      "version": 1,
+      "versionNonce": 203526814,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "exec-plan-ledger-text-12"
+        },
+        {
+          "type": "arrow",
+          "id": "exec-plan-ledger-arrow-17"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
+      "id": "exec-plan-ledger-text-12",
+      "type": "text",
+      "x": 1580.11,
+      "y": 389.6,
+      "width": 220.05,
+      "height": 69.07,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "aC",
+      "roundness": null,
+      "seed": 1936498146,
+      "version": 1,
+      "versionNonce": 379523935,
+      "isDeleted": false,
+      "boundElements": null,
+      "updated": 1,
+      "link": null,
+      "locked": false,
+      "text": "Session stop:\nharness appends",
+      "fontSize": 27.63,
+      "fontFamily": 5,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "exec-plan-ledger-rectangle-11",
+      "originalText": "Session stop:\nharness appends",
+      "autoResize": true,
+      "lineHeight": 1.25
+    },
+    {
+      "id": "exec-plan-ledger-rectangle-13",
+      "type": "rectangle",
+      "x": 72.0,
+      "y": 567.2,
+      "width": 1341.87,
+      "height": 88.8,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "#ffffff",
@@ -503,26 +523,26 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aC",
+      "index": "aD",
       "roundness": {
         "type": 3
       },
-      "seed": 1765652195,
+      "seed": 1620896143,
       "version": 1,
-      "versionNonce": 1293915663,
+      "versionNonce": 1098488765,
       "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
-          "id": "exec-plan-ledger-text-13"
+          "id": "exec-plan-ledger-text-14"
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-26"
+          "id": "exec-plan-ledger-arrow-18"
         },
         {
           "type": "arrow",
-          "id": "exec-plan-ledger-arrow-27"
+          "id": "exec-plan-ledger-arrow-19"
         }
       ],
       "updated": 1,
@@ -530,12 +550,12 @@
       "locked": false
     },
     {
-      "id": "exec-plan-ledger-text-13",
+      "id": "exec-plan-ledger-text-14",
       "type": "text",
-      "x": 1535.47,
-      "y": 559.91,
-      "width": 222.92,
-      "height": 69.69,
+      "x": 515.19,
+      "y": 594.33,
+      "width": 455.48,
+      "height": 34.53,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -546,72 +566,33 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aD",
+      "index": "aE",
       "roundness": null,
-      "seed": 1614465479,
+      "seed": 1515043474,
       "version": 1,
-      "versionNonce": 1716559635,
+      "versionNonce": 116357051,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Next session\nreads both first",
-      "fontSize": 27.88,
+      "text": "Next session restarts from these",
+      "fontSize": 27.63,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-12",
-      "originalText": "Next session\nreads both first",
+      "containerId": "exec-plan-ledger-rectangle-13",
+      "originalText": "Next session restarts from these",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "exec-plan-ledger-rectangle-14",
-      "type": "rectangle",
-      "x": 1437.87,
-      "y": 818.76,
-      "width": 418.13,
-      "height": 149.33,
-      "angle": 0,
-      "strokeColor": "#3896D2",
-      "backgroundColor": "#3896D233",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aE",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 1435661253,
-      "version": 1,
-      "versionNonce": 1322332260,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-15"
-        },
-        {
-          "type": "arrow",
-          "id": "exec-plan-ledger-arrow-29"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false
-    },
-    {
-      "id": "exec-plan-ledger-text-15",
-      "type": "text",
-      "x": 1559.85,
-      "y": 858.58,
-      "width": 174.16,
-      "height": 69.69,
+      "id": "exec-plan-ledger-arrow-15",
+      "type": "arrow",
+      "x": 585.07,
+      "y": 160.69,
+      "width": 59.2,
+      "height": 63.15,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -624,31 +605,46 @@
       "frameId": null,
       "index": "aF",
       "roundness": null,
-      "seed": 1541710289,
+      "seed": 403450463,
       "version": 1,
-      "versionNonce": 841230535,
+      "versionNonce": 1142718010,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "Session stop\n(harness)",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-rectangle-14",
-      "originalText": "Session stop\n(harness)",
-      "autoResize": true,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          -59.2,
+          63.15
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "exec-plan-ledger-rectangle-1",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "exec-plan-ledger-rectangle-3",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
       "id": "exec-plan-ledger-arrow-16",
       "type": "arrow",
-      "x": 253.16,
-      "y": 502.17,
-      "width": 420.12,
-      "height": 206.08,
+      "x": 900.8,
+      "y": 160.69,
+      "width": 59.2,
+      "height": 63.15,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -665,12 +661,7 @@
       "version": 1,
       "versionNonce": 1569427350,
       "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-17"
-        }
-      ],
+      "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
@@ -680,22 +671,18 @@
           0.0
         ],
         [
-          0.0,
-          -206.08
-        ],
-        [
-          420.12,
-          -206.08
+          59.2,
+          63.15
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-2",
+        "elementId": "exec-plan-ledger-rectangle-1",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-4",
+        "elementId": "exec-plan-ledger-rectangle-6",
         "focus": 0,
         "gap": 8.0
       },
@@ -704,12 +691,12 @@
       "elbowed": false
     },
     {
-      "id": "exec-plan-ledger-text-17",
-      "type": "text",
-      "x": 194.89,
-      "y": 278.67,
-      "width": 116.55,
-      "height": 34.84,
+      "id": "exec-plan-ledger-arrow-17",
+      "type": "arrow",
+      "x": 1524.37,
+      "y": 424.13,
+      "width": 142.08,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -722,31 +709,46 @@
       "frameId": null,
       "index": "aH",
       "roundness": null,
-      "seed": 1404794368,
+      "seed": 920524576,
       "version": 1,
-      "versionNonce": 391615598,
+      "versionNonce": 1637056882,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "template",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-16",
-      "originalText": "template",
-      "autoResize": true,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          -142.08,
+          0.0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "exec-plan-ledger-rectangle-11",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "exec-plan-ledger-rectangle-9",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
       "id": "exec-plan-ledger-arrow-18",
       "type": "arrow",
-      "x": 253.16,
-      "y": 687.34,
-      "width": 420.12,
-      "height": 206.08,
+      "x": 377.87,
+      "y": 506.03,
+      "width": 0.0,
+      "height": 53.28,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -763,12 +765,7 @@
       "version": 1,
       "versionNonce": 1930243497,
       "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-19"
-        }
-      ],
+      "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
@@ -779,21 +776,17 @@
         ],
         [
           0.0,
-          206.08
-        ],
-        [
-          420.12,
-          206.08
+          53.28
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-2",
+        "elementId": "exec-plan-ledger-rectangle-3",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-6",
+        "elementId": "exec-plan-ledger-rectangle-13",
         "focus": 0,
         "gap": 8.0
       },
@@ -802,12 +795,12 @@
       "elbowed": false
     },
     {
-      "id": "exec-plan-ledger-text-19",
-      "type": "text",
-      "x": 194.89,
-      "y": 876.0,
-      "width": 116.55,
-      "height": 34.84,
+      "id": "exec-plan-ledger-arrow-19",
+      "type": "arrow",
+      "x": 1108.0,
+      "y": 506.03,
+      "width": 0.0,
+      "height": 53.28,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -820,328 +813,9 @@
       "frameId": null,
       "index": "aJ",
       "roundness": null,
-      "seed": 1617959758,
+      "seed": 155912013,
       "version": 1,
-      "versionNonce": 1805133036,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "template",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-18",
-      "originalText": "template",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "exec-plan-ledger-arrow-20",
-      "type": "arrow",
-      "x": 940.09,
-      "y": 502.17,
-      "width": 19.91,
-      "height": 103.54,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aK",
-      "roundness": null,
-      "seed": 598059796,
-      "version": 1,
-      "versionNonce": 1282788980,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-21"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          -19.91,
-          -103.54
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-8",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-4",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-text-21",
-      "type": "text",
-      "x": 869.55,
-      "y": 432.98,
-      "width": 121.15,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aL",
-      "roundness": null,
-      "seed": 1601205427,
-      "version": 1,
-      "versionNonce": 335674315,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "decisions",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-20",
-      "originalText": "decisions",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "exec-plan-ledger-arrow-22",
-      "type": "arrow",
-      "x": 940.09,
-      "y": 687.34,
-      "width": 0.0,
-      "height": 103.54,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aM",
-      "roundness": null,
-      "seed": 81874926,
-      "version": 1,
-      "versionNonce": 1781213570,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-23"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          103.54
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-8",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-6",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-text-23",
-      "type": "text",
-      "x": 848.15,
-      "y": 721.69,
-      "width": 183.87,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aN",
-      "roundness": null,
-      "seed": 69546000,
-      "version": 1,
-      "versionNonce": 941608615,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "wrap-up edits",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-22",
-      "originalText": "wrap-up edits",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "exec-plan-ledger-arrow-24",
-      "type": "arrow",
-      "x": 1167.08,
-      "y": 296.09,
-      "width": 262.83,
-      "height": 0.0,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aO",
-      "roundness": null,
-      "seed": 1441288552,
-      "version": 1,
-      "versionNonce": 951045107,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-25"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          262.83,
-          0.0
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-4",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-10",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-text-25",
-      "type": "text",
-      "x": 1184.63,
-      "y": 278.67,
-      "width": 227.71,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aP",
-      "roundness": null,
-      "seed": 339210131,
-      "version": 1,
-      "versionNonce": 1198186267,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "harness moves it",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-24",
-      "originalText": "harness moves it",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "exec-plan-ledger-arrow-26",
-      "type": "arrow",
-      "x": 1167.08,
-      "y": 355.82,
-      "width": 262.83,
-      "height": 199.11,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aQ",
-      "roundness": null,
-      "seed": 650394224,
-      "version": 1,
-      "versionNonce": 435457555,
+      "versionNonce": 463972595,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1153,65 +827,8 @@
           0.0
         ],
         [
-          262.83,
-          199.11
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-4",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-12",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-arrow-27",
-      "type": "arrow",
-      "x": 1206.9,
-      "y": 833.69,
-      "width": 223.0,
-      "height": 199.11,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aR",
-      "roundness": null,
-      "seed": 1368317397,
-      "version": 1,
-      "versionNonce": 1351481110,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-28"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
           0.0,
-          0.0
-        ],
-        [
-          223.0,
-          -199.11
+          53.28
         ]
       ],
       "lastCommittedPoint": null,
@@ -1221,144 +838,13 @@
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-12",
+        "elementId": "exec-plan-ledger-rectangle-13",
         "focus": 0,
         "gap": 8.0
       },
       "startArrowhead": null,
       "endArrowhead": "arrow",
       "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-text-28",
-      "type": "text",
-      "x": 1251.8,
-      "y": 716.71,
-      "width": 133.22,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aS",
-      "roundness": null,
-      "seed": 843497937,
-      "version": 1,
-      "versionNonce": 514636397,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "read first",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-27",
-      "originalText": "read first",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "exec-plan-ledger-arrow-29",
-      "type": "arrow",
-      "x": 1429.9,
-      "y": 893.42,
-      "width": 223.0,
-      "height": 49.78,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aT",
-      "roundness": null,
-      "seed": 1068194337,
-      "version": 1,
-      "versionNonce": 908709407,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "exec-plan-ledger-text-30"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          -223.0,
-          49.78
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "exec-plan-ledger-rectangle-14",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "exec-plan-ledger-rectangle-6",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "exec-plan-ledger-text-30",
-      "type": "text",
-      "x": 1264.58,
-      "y": 900.89,
-      "width": 107.63,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aU",
-      "roundness": null,
-      "seed": 206573575,
-      "version": 1,
-      "versionNonce": 927548802,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "appends",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "exec-plan-ledger-arrow-29",
-      "originalText": "appends",
-      "autoResize": true,
-      "lineHeight": 1.25
     }
   ],
   "appState": {

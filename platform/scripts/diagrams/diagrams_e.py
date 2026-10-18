@@ -55,48 +55,29 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             2,
         )
 
-    # Sources: platform/src/shipharness/harness/scope/features.py, status.py, guard.py
-    # (HARNESS_ONLY), layer.py; docs/evidence/s3.md (passes set at 4:30 in the captured run).
-    @diagram(S3, "feature-list-lifecycle")
+    # Sources: platform/src/shipharness/harness/scope/features.py, status.py (passes, evidence,
+    # testedAt; evidence from the visible tests or the gate), guard.py (HARNESS_ONLY), layer.py;
+    # docs/evidence/s3.md (passes set at 4:30 in the captured run).
+    @diagram(S3, "feature-list-lifecycle", canvas="strip")
     def feature_list_lifecycle(s: Scene) -> None:
-        title(s, "One feature at a time: feature_list.json")
-        b1 = s.box(60, 150, 520, 160, "Harness writes\npasses: false", role="harness")
-        b2 = s.box(700, 150, 520, 160, "Agent reads;\npatch BLOCKED", role="plain")
+        w, gap, y = 390, 80, 100
+        xs = [60 + i * (w + gap) for i in range(4)]
+        b1 = s.box(xs[0], y, w, 170, "Harness writes\npasses: false", role="harness")
+        b2 = s.box(xs[1], y, w, 170, "Agent reads;\npatch BLOCKED", role="plain")
         b3 = s.box(
-            1340,
-            150,
-            520,
-            160,
-            'Agent says done\nfinish(claim="done")',
-            role="accent",
-            stroke_width=3,
+            xs[2], y, w, 170, 'Agent says done\nfinish(claim="done")', role="accent", stroke_width=3
         )
-        d = s.box(1420, 440, 360, 240, "Evidence\nholds?", shape="diamond")
-        b6 = s.box(
-            740,
-            485,
-            520,
-            150,
-            "Harness sets\npasses: true",
-            role="harness",
-            stroke_width=3,
+        test = s.box(xs[3], y, w, 170, "Harness checks:\nvisible tests, gate", role="harness")
+        ok = s.box(
+            xs[3], 450, w, 170, "passes: true,\nevidence, testedAt", role="harness", stroke_width=3
         )
-        b7 = s.box(60, 485, 480, 150, "Set once,\nnever again", role="harness")
-        bad = s.box(1400, 820, 400, 150, "passes stays false", role="fail")
+        bad = s.box(xs[2], 450, w, 170, "passes\nstays false", role="fail")
         s.arrow(b1, b2, start="right", end="left")
         s.arrow(b2, b3, start="right", end="left")
-        s.arrow(b3, d, start="bottom", end="top")
-        s.text(1580, 345, "visible tests\nor the gate", FONT_SMALL, INK, "right")
-        s.arrow(d, b6, "yes", start="left", end="right")
-        s.arrow(b6, b7, start="left", end="right")
-        s.arrow(d, bad, "no", start="bottom", end="top")
-        s.text(
-            60,
-            800,
-            "captured: passes set at 4:30",
-            FONT_BODY,
-            INK,
-        )
+        s.arrow(b3, test, start="right", end="left")
+        s.arrow(test, ok, "pass", start="bottom", end="top")
+        s.arrow(test, bad, "fail", start="bottom", end="top", start_off=-150, end_off=120)
+        s.text(xs[0], 510, "Captured run: set at 4:30", FONT_BODY, INK)
 
     # Sources: docs/evidence/s3.md (the captured demo-3 A/B, run 3, alone); terminal.txt.
     @diagram(S3, "timeline-s3")
@@ -282,37 +263,28 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             s.line([(x + 30, y + 115), (x + w - 30, y + 115)], color="#3896D2")
             s.text(x + w / 2, y + 160, line, FONT_BODY, INK, "center")
 
-    # Sources: the four concepts.md pages; docs/evidence/final.md (the registered result).
-    @diagram(DOCS, "module-summary")
+    # Sources: the four concepts.md pages; docs/evidence/final.md (the registered result);
+    # slides "Module 1 Summary" speaker notes (takeaways 1-5).
+    @diagram(DOCS, "module-summary", canvas="strip")
     def module_summary(s: Scene) -> None:
-        title(s, "Module 1 in one picture")
         layers = [
-            ("Instructions", "a map,\nnot a manual"),
-            ("State", "a handoff\nsurvives a stop"),
-            ("Scope", "code checks\nallowed paths"),
-            ("Verification", "the agent never\ngrades itself"),
+            ("Instructions", "a map,\nnot a manual", "no measurable\ndifference", "harness"),
+            ("State", "a handoff\nsurvives a stop", "no measurable\ndifference", "harness"),
+            ("Scope", "code checks\nallowed paths", "harness 3/3,\nbare 0/3", "accent"),
+            ("Verification", "the agent never\ngrades itself", "no measurable\ndifference", "harness"),
         ]
-        w, gap = 405, 60
-        for i, (name, line) in enumerate(layers):
+        w, gap, y, h = 405, 60, 60, 340
+        boxes = []
+        for i, (name, line, result, role) in enumerate(layers):
             x = 60 + i * (w + gap)
-            s.box(x, 160, w, 360, role="harness", stroke_width=3)
-            s.text(x + 28, 180, str(i + 1), FONT_TITLE, INK)
-            s.text(x + w / 2, 250, name, FONT_TITLE, INK, "center")
-            s.text(x + w / 2, 360, line, FONT_BODY, INK, "center")
-        s.box(
-            60,
-            620,
-            870,
-            300,
-            "Scope:\n3/3 vs 0/3",
-            role="accent",
-            stroke_width=3,
+            boxes.append(s.box(x, y, w, h, role=role, stroke_width=3))
+            s.text(x + 28, y + 22, str(i + 1), FONT_TITLE, INK)
+            s.text(x + w / 2, y + 22, name, FONT_TITLE, INK, "center")
+            s.text(x + w / 2, y + 95, line, FONT_BODY, INK, "center")
+            s.line([(x + 30, y + 200), (x + w - 30, y + 200)])
+            s.text(x + w / 2, y + 230, result, FONT_BODY, INK, "center")
+        last = s.box(
+            60, 500, 1800, 110, "5: measure before you keep", role="plain", stroke_width=3, size=FONT_TITLE
         )
-        s.box(
-            990,
-            620,
-            870,
-            300,
-            "Elsewhere: no\nmeasurable difference",
-            role="neutral",
-        )
+        for b in boxes:
+            s.arrow(b, last, start="bottom", end="top", end_off=b["x"] + w / 2 - 960)

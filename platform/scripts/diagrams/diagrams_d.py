@@ -4,8 +4,8 @@ the captured-run timeline, and the cheat sheet."""
 from __future__ import annotations
 
 from exlib import Scene
-from layouts import cheat_sheet, socratic, story_strip, timeline, title
-from style import FONT_SMALL
+from layouts import cheat_sheet, socratic, story_strip, timeline
+from style import FONT_BODY, INK
 
 
 def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
@@ -55,52 +55,30 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
         )
 
     # Sources: slides "4) Mechanical checks keep the map true"; docs/evidence/s1.md (the
-    # reference checker's OK line); section-1-instructions/assignment (check_docs.py).
-    @diagram(S1, "checker-flow")
+    # reference checker's OK line); section-1-instructions/assignment (check_docs.py);
+    # speaker notes (skills validate checks frontmatter; test_parity.py checks the handbook).
+    @diagram(S1, "checker-flow", canvas="strip")
     def checker_flow(s: Scene) -> None:
-        title(s, "Mechanical checks keep the map true")
-        docs = s.box(60, 430, 360, 170, "AGENTS.md map,\ndocs, skills", role="neutral")
-        c1 = s.box(
-            560,
-            170,
-            560,
-            170,
-            "check_docs.py\nlinks, rule coverage",
-            role="harness",
-        )
-        c2 = s.box(560, 430, 560, 170, "skills validate\nskill frontmatter", role="harness")
-        c3 = s.box(560, 690, 560, 170, "test_parity.py\nrules still in handbook", role="harness")
-        d = s.box(1210, 400, 280, 230, "All\npass?", shape="diamond")
-        ok = s.box(
-            1560,
-            170,
-            300,
-            200,
-            "OK: 147 links,\n66 rules",
-            role="harness",
-            stroke_width=3,
-        )
-        bad = s.box(1560, 690, 300, 170, "ERROR:\nbroken link", role="fail", stroke_width=3)
-        for c in (c1, c2, c3):
+        docs = s.box(60, 215, 340, 170, "AGENTS.md map,\ndocs, skills", role="neutral")
+        group = s.box(500, 60, 680, 480, role="ghost", dashed=True)
+        checks = [
+            s.box(530, 90, 620, 130, "check_docs.py:\nlinks, rule coverage", role="harness"),
+            s.box(530, 235, 620, 130, "skills validate:\nfrontmatter", role="harness"),
+            s.box(530, 380, 620, 130, "test_parity.py:\nrules in handbook", role="harness"),
+        ]
+        ok = s.box(1400, 90, 460, 170, "OK: 147 links,\n66 rules", role="harness", stroke_width=3)
+        bad = s.box(1400, 340, 460, 170, "ERROR:\nbroken link", role="fail", stroke_width=3)
+        for c in checks:
             s.arrow(docs, c, start="right", end="left")
-            s.arrow(c, d, start="right", end="left")
-        s.arrow(d, ok, "yes", start="top", end="left", via=[(1350, 270)])
-        s.arrow(d, bad, "no", start="bottom", end="left", via=[(1350, 775)])
+        s.arrow(group, ok, "all pass", start="right", end="left", start_off=-125)
+        s.arrow(group, bad, "one fails", start="right", end="left", start_off=125)
         s.arrow(
             bad,
             docs,
             "fix in the same PR",
             start="bottom",
             end="bottom",
-            via=[(1710, 960), (240, 960)],
-        )
-        s.text(
-            240,
-            330,
-            "Assignment 1: Instructions\nbuilds check_docs.py",
-            FONT_SMALL,
-            "#212121",
-            "center",
+            via=[(1630, 630), (230, 630)],
         )
 
     # Sources: docs/evidence/s1.md (the show-1 capture, run ab-20261017-112101-c5d839);
@@ -184,42 +162,25 @@ def register(diagram, DOCS, S1, S2, S3, S4):  # noqa: N803
             3,
         )
 
-    # Sources: slides "3) The exec plan and the progress ledger"; section-2-state-lifecycle/
-    # demo/walkthrough.md (harness/state/layer.py, lifecycle.py); demo/harness/progress.md.
-    @diagram(S2, "exec-plan-ledger")
+    # Sources: slides "3) The exec plan and the progress ledger" (speaker notes: the four PLANS.md
+    # sections; the harness appends the "Session log" entry per stop; restart from these alone);
+    # section-2-state-lifecycle/demo/walkthrough.md (harness/state/layer.py, lifecycle.py);
+    # demo/harness/progress.md.
+    @diagram(S2, "exec-plan-ledger", canvas="strip")
     def exec_plan_ledger(s: Scene) -> None:
-        title(s, "The exec plan and the progress ledger")
-        init = s.box(60, 470, 380, 170, "Initializer step\n(harness code)", role="harness")
-        plan = s.box(
-            680,
-            160,
-            480,
-            190,
-            "Exec plan\ndocs/exec-plans/active/",
-            role="plain",
-            stroke_width=3,
-        )
-        prog = s.box(
-            680,
-            760,
-            520,
-            190,
-            "progress.md\ndone, in progress,\nnext",
-            role="plain",
-            stroke_width=3,
-        )
-        agent = s.box(740, 470, 400, 170, "Agent: work,\nthen wrap-up", role="neutral")
-        done = s.box(1440, 160, 420, 190, "On pass: moves\nto completed/", role="harness")
-        nxt = s.box(1440, 470, 420, 170, "Next session\nreads both first", role="plain")
-        stop = s.box(1440, 780, 420, 150, "Session stop\n(harness)", role="harness")
-        s.arrow(init, plan, "template", start="top", end="left", via=[(250, 255)])
-        s.arrow(init, prog, "template", start="bottom", end="left", via=[(250, 855)])
-        s.arrow(agent, plan, "decisions", start="top", end="bottom")
-        s.arrow(agent, prog, "wrap-up edits", start="bottom", end="top")
-        s.arrow(plan, done, "harness moves it", start="right", end="left")
-        s.arrow(plan, nxt, start="right", end="left", start_off=60, end_off=-40)
-        s.arrow(prog, nxt, "read first", start="right", end="left", start_off=-60, end_off=40)
-        s.arrow(stop, prog, "appends", start="left", end="right", end_off=50)
+        agent = s.box(420, 60, 640, 90, "Agent: decisions, wrap-up edits", role="neutral")
+        plan = s.box(60, 230, 620, 270, "Exec plan", role="plain", stroke_width=3, valign="top")
+        s.text(370, 335, "progress, surprises,\ndecisions, outcomes", FONT_BODY, INK, "center")
+        prog = s.box(800, 230, 620, 270, "progress.md", role="plain", stroke_width=3, valign="top")
+        s.text(1110, 310, "done, in progress, next", FONT_BODY, INK, "center")
+        log = s.box(840, 380, 540, 90, "Session log", role="harness")
+        stop = s.box(1540, 360, 320, 130, "Session stop:\nharness appends", role="harness")
+        nxt = s.box(60, 570, 1360, 90, "Next session restarts from these", role="plain")
+        s.arrow(agent, plan, start="bottom", end="top", start_off=-160, end_off=150)
+        s.arrow(agent, prog, start="bottom", end="top", start_off=160, end_off=-150)
+        s.arrow(stop, log, start="left", end="right", end_off=0)
+        s.arrow(plan, nxt, start="bottom", end="top", end_off=-370)
+        s.arrow(prog, nxt, start="bottom", end="top", end_off=370)
 
     # Sources: docs/evidence/s2.md (the show-2 capture, run ab-20261017-113213-fe89a3);
     # section-2-state-lifecycle/demo/expected/terminal.txt (real 10m7s).

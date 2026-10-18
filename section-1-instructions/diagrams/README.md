@@ -16,7 +16,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 
 ### Manual or map
 
-![An 899-line AGENTS.md with its rules deep inside, next to a 94-line map that points to five documents](./manual-vs-map.svg)
+![An 899-line AGENTS.md with its rules deep inside, next to a 94-line map that points to the add-endpoint skill, ARCHITECTURE.md and docs/SECURITY.md](./manual-vs-map.svg)
 
 *The tenant rule sits at line 204 of the manual; the map is drawn to scale and names the file that holds it.*
 
@@ -28,7 +28,7 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 
 ### Skills in three tiers
 
-![Three tiers of a skill: the catalogue line, the SKILL.md body, and a reference file](./skills-three-tiers.svg)
+![Three tiers of the add-endpoint skill growing left to right: the description line in context, then SKILL.md and tests.md on disk](./skills-three-tiers.svg)
 
 *Only the one catalogue line is always in the context; the body and its files load when needed.*
 
@@ -41,19 +41,19 @@ and licences are explained once, in [the course diagrams guide](../../docs/diagr
 
 ### The context prefix
 
-![Five blocks of the developer message in order, then the user message with the ticket](./context-prefix.svg)
+![The first message as a stack: core prompt, usage sentence, AGENTS.md map, skills catalogue; docs and SKILL.md bodies stay on disk, reached by read_file](./context-prefix.svg)
 
-*The bare arm gets only block 1; each section adds its layer's block, in this order.*
+*The bare arm gets only the core prompt; the harness arm also gets the prefix, and reads the rest with read_file.*
 
 - **What it teaches**: what the agent sees first in every session, and in what order.
 - **Slide topic**: what the agent sees first.
 - **Files**: `context-prefix`.
-- **Source**: `base_items` in `platform/src/shipharness/runner/loop.py` and the layer order in
-  `platform/src/shipharness/harness/base.py`.
+- **Source**: `build_prefix` in `platform/src/shipharness/harness/instructions/router.py` and
+  `base_items` in `platform/src/shipharness/runner/loop.py`.
 
 ### Section 1 results
 
-![Dot chart for the legacy-pattern ticket: every run of both arms passed](./results-s1.svg)
+![Dot chart for the legacy-pattern ticket, a bare and a harness line per round (medium effort, low effort, class settings): every run passed, 3 of 3, 3 of 3, 1 of 1 per arm](./results-s1.svg)
 
 *All 7 runs of each arm passed: no measurable difference on this task with this model.*
 

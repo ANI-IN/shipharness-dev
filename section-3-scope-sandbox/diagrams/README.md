@@ -19,43 +19,43 @@ in that folder too, because Section 4: Verification uses it as well.
 
 ### The scope check
 
-![Flowchart: a patch to feature_list.json or outside the allowed paths is blocked; a command's changes outside are reverted](./scope-check-flow.svg)
+![Flowchart: an agent tool call meets one check, path allowed in this phase; yes keeps the change in the workspace, no blocks a patch with nothing written or reverts a command's stray writes from a snapshot](./scope-check-flow.svg)
 
 *A patch is checked before anything is written; a command is checked after it runs.*
 
-- **What it teaches**: the order of the checks and the reason the agent reads after `BLOCKED:`.
+- **What it teaches**: one check per tool call, and its two outcomes when the path is outside the list: `BLOCKED` and `REVERTED`.
 - **Slide topic**: how the scope layer decides.
 - **Files**: `scope-check-flow`.
-- **Source**: `PathRules.reason` in `platform/src/shipharness/harness/scope/guard.py`, and the
-  blocked file in [the Section 3 evidence](../../docs/evidence/s3.md).
+- **Source**: `PathRules.reason` in `platform/src/shipharness/harness/scope/guard.py`, and
+  `before_tool` / `after_tool` in `platform/src/shipharness/harness/scope/layer.py`.
 
 ### The sandbox boundary
 
-![The host holds the agent loop and the keys; the container holds the workspace and has no network](./sandbox-boundary.svg)
+![The host holds the agent loop, the harness and the API keys; inside it, one sandbox per arm receives the tool commands: /work and /tmp writable, root read-only, network none, so the internet is blocked](./sandbox-boundary.svg)
 
-*The model calls leave from the host; the container itself has no network and never sees the keys.*
+*Only tool commands cross into the container; it has no network and never sees the keys.*
 
 - **What it teaches**: what runs where, and what the container cannot reach.
 - **Slide topic**: the sandbox.
 - **Files**: `sandbox-boundary`.
 - **Source**: `platform/sandbox/README.md` and `platform/src/shipharness/sandbox/policy.py`.
 
-### Least privilege, side by side
+### Least privilege: two rings, two refusals
 
-![Two columns: what the bare arm and the harness arm may change, with the shared tools and sandbox below](./least-privilege.svg)
+![Nested rings: container limits for both arms, inside them the phase's allowed paths for the harness arm, inside that the one feature; sandbox_denied asks possible at all, blocked asks in scope now](./least-privilege.svg)
 
-*Only the file rights differ; the tools and the sandbox are the same for both arms.*
+*The sandbox asks "possible at all?" for both arms; scope asks "in scope now?" for the harness arm only.*
 
-- **What it teaches**: the scope layer as least privilege for file changes.
-- **Slide topic**: bare arm and harness arm permissions.
+- **What it teaches**: the scope layer and the sandbox as two rings of least privilege, each with its own refusal.
+- **Slide topic**: least privilege, two refusals.
 - **Files**: `least-privilege`.
-- **Source**: `platform/src/shipharness/harness/scope/`, the version checks allowed paths in
-  `platform/teamtrack/reference/f4/task.toml`, and the seven tools in
-  `platform/src/shipharness/runner/prompts.py`.
+- **Source**: `platform/src/shipharness/harness/scope/` (the `blocked` event),
+  `platform/src/shipharness/sandbox/policy.py` and `events/models.py` (the `sandbox_denied` event),
+  and `platform/sandbox/README.md`.
 
 ### Section 3 results
 
-![Dot chart: on version checks the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on safe retries for issue creation all runs passed](./results-s3.svg)
+![Dot chart, a bare and a harness line per ticket: on version checks (Feature 4) the bare arm failed 3 of 3 runs and the harness arm passed 3 of 3; on Feature 3: Safe retries for issue creation every run passed, 3 of 3 on the plain ticket and 7 of 7 with the middleware temptation](./results-s3.svg)
 
 *On version checks the bare arm left the allowed paths in 3 of 3 runs and the harness arm in 0 of 3.*
 
@@ -90,9 +90,9 @@ in that folder too, because Section 4: Verification uses it as well.
 
 ### One feature at a time: feature_list.json
 
-![The harness writes the entry, the agent claims done, the harness checks and sets passes once](./feature-list-lifecycle.svg)
+![The harness writes passes: false, the agent reads it (patches to it are blocked) and claims done, the harness checks visible tests or the gate: pass sets passes true with evidence and testedAt, fail leaves it false](./feature-list-lifecycle.svg)
 
-*Only the harness writes the file; passes is set once.*
+*Only the harness writes the file, from its own check.*
 
 - **What it teaches**: the life of one feature entry and who may change it.
 - **Slide**: "1) One feature at a time: `feature_list.json`".

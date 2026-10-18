@@ -18,32 +18,34 @@ that folder too, because Section 3: Scope and sandbox uses it as well.
 
 ### The verification pipeline
 
-![The done claim goes to the verify gate, then the test phase, the five filters, the referee, and the verdict](./verification-pipeline.svg)
+![The build phase passes its own tests and claims done; the verify gate refuses with the first 3 failures or passes to the test phase; five filters keep tests; the referee runs hidden tests and referee mutants for the primary verdict](./verification-pipeline.svg)
 
 *The agent's claim starts the checks; it never ends them.*
 
 - **What it teaches**: the four checks, in the order they run, and who owns each one.
-- **Slide topic**: from done claim to verdict.
+- **Slide topic**: from done claim to verdict, in three frames: frame 1 the build phase grading
+  itself, frame 2 the test phase and the five filters, frame 3 the verify gate, the referee, and
+  the primary verdict.
 - **Files**: `verification-pipeline`, with step frames `verification-pipeline-step-1` to
-  `verification-pipeline-step-6`.
+  `verification-pipeline-step-3`.
 - **Source**: `platform/src/shipharness/harness/verify/gate.py` and the five filters in
   `section-4-verification/concepts.md`.
 
 ### Mutation testing
 
-![Original code, a mutant, a test that fails on the mutant, and a test that passes on it](./mutation-testing.svg)
+![The original line issue.version += 1, a mutant with += 0, a shipped test that fails on it (caught) or passes (survived); below, the filter set feeding Filter 3: Adds coverage or catches a mutant and the referee set scoring the run, with no shared mutation](./mutation-testing.svg)
 
-*Test B passes on the broken code, so it would not catch a lost update; test A would.*
+*A shipped test that passes on the mutant would not catch a lost update.*
 
-- **What it teaches**: what "a test catches a mutant" means, on a real version checks referee mutant.
+- **What it teaches**: what "a test catches a mutant" means, on a real Feature 4 referee mutant, and the two mutant sets.
 - **Slide topic**: tests that prove something.
 - **Files**: `mutation-testing`.
-- **Source**: the version checks referee mutants in `platform/teamtrack/mutants/features/f4.jsonl` and the
-  tests in `platform/teamtrack/reference/f4/f4.patch`.
+- **Source**: the Feature 4 mutants in `platform/teamtrack/mutants/features/f4.jsonl`
+  (`app.services.issues-m401`, `app/services/issues.py` line 54).
 
 ### Section 4 results
 
-![Dot chart for the version checks ticket: every run of both arms failed](./results-s4.svg)
+![Dot chart for the version checks ticket, a bare and a harness line per round (medium effort rounds 1 and 2, class settings): every run failed, 3 of 3, 3 of 3, 1 of 1 per arm](./results-s4.svg)
 
 *Both arms failed all 7 runs: no measurable difference on this task with this model.*
 

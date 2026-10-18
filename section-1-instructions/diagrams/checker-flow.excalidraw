@@ -9,7 +9,7 @@
       "x": 0,
       "y": 0,
       "width": 1920,
-      "height": 1080,
+      "height": 720,
       "angle": 0,
       "strokeColor": "transparent",
       "backgroundColor": "#F0F3F6",
@@ -35,51 +35,11 @@
       "locked": true
     },
     {
-      "id": "checker-flow-text-1",
-      "type": "text",
-      "x": 640.31,
-      "y": 78.31,
-      "width": 639.39,
-      "height": 44.8,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "a1",
-      "roundness": null,
-      "seed": 294909515,
-      "version": 1,
-      "versionNonce": 1625050190,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "Mechanical checks keep the map true",
-      "fontSize": 35.84,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "Mechanical checks keep the map true",
-      "autoResize": true,
-      "lineHeight": 1.25,
-      "customData": {
-        "role": "title"
-      }
-    },
-    {
-      "id": "checker-flow-rectangle-2",
+      "id": "checker-flow-rectangle-1",
       "type": "rectangle",
       "x": 64.0,
-      "y": 456.62,
-      "width": 358.4,
+      "y": 221.87,
+      "width": 338.49,
       "height": 169.24,
       "angle": 0,
       "strokeColor": "#212121",
@@ -91,18 +51,26 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a2",
+      "index": "a1",
       "roundness": {
         "type": 3
       },
-      "seed": 133369929,
+      "seed": 556727345,
       "version": 1,
-      "versionNonce": 1789547065,
+      "versionNonce": 765087121,
       "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
-          "id": "checker-flow-text-3"
+          "id": "checker-flow-text-2"
+        },
+        {
+          "type": "arrow",
+          "id": "checker-flow-arrow-14"
+        },
+        {
+          "type": "arrow",
+          "id": "checker-flow-arrow-15"
         },
         {
           "type": "arrow",
@@ -110,15 +78,7 @@
         },
         {
           "type": "arrow",
-          "id": "checker-flow-arrow-18"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-20"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-26"
+          "id": "checker-flow-arrow-21"
         }
       ],
       "updated": 1,
@@ -126,10 +86,10 @@
       "locked": false
     },
     {
-      "id": "checker-flow-text-3",
+      "id": "checker-flow-text-2",
       "type": "text",
-      "x": 128.23,
-      "y": 506.4,
+      "x": 118.28,
+      "y": 271.64,
       "width": 229.94,
       "height": 69.69,
       "angle": 0,
@@ -142,11 +102,11 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "a3",
+      "index": "a2",
       "roundness": null,
-      "seed": 1956963583,
+      "seed": 1521192156,
       "version": 1,
-      "versionNonce": 1369074772,
+      "versionNonce": 875613340,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -157,18 +117,57 @@
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "checker-flow-rectangle-2",
+      "containerId": "checker-flow-rectangle-1",
       "originalText": "AGENTS.md map,\ndocs, skills",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
+      "id": "checker-flow-rectangle-3",
+      "type": "rectangle",
+      "x": 502.04,
+      "y": 67.56,
+      "width": 676.98,
+      "height": 477.87,
+      "angle": 0,
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
+      "fillStyle": "solid",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 1,
+      "opacity": 100,
+      "groupIds": [],
+      "frameId": null,
+      "index": "a3",
+      "roundness": {
+        "type": 3
+      },
+      "seed": 991311078,
+      "version": 1,
+      "versionNonce": 582098921,
+      "isDeleted": false,
+      "boundElements": [
+        {
+          "type": "arrow",
+          "id": "checker-flow-arrow-17"
+        },
+        {
+          "type": "arrow",
+          "id": "checker-flow-arrow-19"
+        }
+      ],
+      "updated": 1,
+      "link": null,
+      "locked": false
+    },
+    {
       "id": "checker-flow-rectangle-4",
       "type": "rectangle",
-      "x": 561.78,
-      "y": 197.78,
-      "width": 557.51,
-      "height": 169.24,
+      "x": 531.91,
+      "y": 97.42,
+      "width": 617.24,
+      "height": 129.42,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -194,11 +193,7 @@
         },
         {
           "type": "arrow",
-          "id": "checker-flow-arrow-16"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-17"
+          "id": "checker-flow-arrow-14"
         }
       ],
       "updated": 1,
@@ -209,7 +204,7 @@
       "id": "checker-flow-text-5",
       "type": "text",
       "x": 713.75,
-      "y": 247.56,
+      "y": 127.29,
       "width": 253.56,
       "height": 69.69,
       "angle": 0,
@@ -232,23 +227,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "check_docs.py\nlinks, rule coverage",
+      "text": "check_docs.py:\nlinks, rule coverage",
       "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-4",
-      "originalText": "check_docs.py\nlinks, rule coverage",
+      "originalText": "check_docs.py:\nlinks, rule coverage",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "checker-flow-rectangle-6",
       "type": "rectangle",
-      "x": 561.78,
-      "y": 456.62,
-      "width": 557.51,
-      "height": 169.24,
+      "x": 531.91,
+      "y": 241.78,
+      "width": 617.24,
+      "height": 129.42,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -274,11 +269,7 @@
         },
         {
           "type": "arrow",
-          "id": "checker-flow-arrow-18"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-19"
+          "id": "checker-flow-arrow-15"
         }
       ],
       "updated": 1,
@@ -288,9 +279,9 @@
     {
       "id": "checker-flow-text-7",
       "type": "text",
-      "x": 728.3,
-      "y": 506.4,
-      "width": 224.46,
+      "x": 745.51,
+      "y": 271.64,
+      "width": 190.05,
       "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
@@ -312,23 +303,23 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "skills validate\nskill frontmatter",
+      "text": "skills validate:\nfrontmatter",
       "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-6",
-      "originalText": "skills validate\nskill frontmatter",
+      "originalText": "skills validate:\nfrontmatter",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "checker-flow-rectangle-8",
       "type": "rectangle",
-      "x": 561.78,
-      "y": 715.47,
-      "width": 557.51,
-      "height": 169.24,
+      "x": 531.91,
+      "y": 386.13,
+      "width": 617.24,
+      "height": 129.42,
       "angle": 0,
       "strokeColor": "#3896D2",
       "backgroundColor": "#3896D233",
@@ -354,11 +345,7 @@
         },
         {
           "type": "arrow",
-          "id": "checker-flow-arrow-20"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-21"
+          "id": "checker-flow-arrow-16"
         }
       ],
       "updated": 1,
@@ -368,9 +355,9 @@
     {
       "id": "checker-flow-text-9",
       "type": "text",
-      "x": 692.97,
-      "y": 765.24,
-      "width": 295.12,
+      "x": 723.5,
+      "y": 416.0,
+      "width": 234.08,
       "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
@@ -392,28 +379,28 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "test_parity.py\nrules still in handbook",
+      "text": "test_parity.py:\nrules in handbook",
       "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-8",
-      "originalText": "test_parity.py\nrules still in handbook",
+      "originalText": "test_parity.py:\nrules in handbook",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "checker-flow-diamond-10",
-      "type": "diamond",
-      "x": 1208.89,
-      "y": 426.76,
-      "width": 278.76,
-      "height": 228.98,
+      "id": "checker-flow-rectangle-10",
+      "type": "rectangle",
+      "x": 1398.04,
+      "y": 97.42,
+      "width": 457.96,
+      "height": 169.24,
       "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
+      "strokeColor": "#3896D2",
+      "backgroundColor": "#3896D233",
       "fillStyle": "solid",
-      "strokeWidth": 2,
+      "strokeWidth": 3,
       "strokeStyle": "solid",
       "roughness": 1,
       "opacity": 100,
@@ -421,11 +408,11 @@
       "frameId": null,
       "index": "aA",
       "roundness": {
-        "type": 2
+        "type": 3
       },
-      "seed": 1223788255,
+      "seed": 373433684,
       "version": 1,
-      "versionNonce": 470164939,
+      "versionNonce": 1207633388,
       "isDeleted": false,
       "boundElements": [
         {
@@ -435,22 +422,6 @@
         {
           "type": "arrow",
           "id": "checker-flow-arrow-17"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-19"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-21"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-22"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-24"
         }
       ],
       "updated": 1,
@@ -460,9 +431,9 @@
     {
       "id": "checker-flow-text-11",
       "type": "text",
-      "x": 1311.12,
-      "y": 506.4,
-      "width": 74.29,
+      "x": 1538.63,
+      "y": 147.2,
+      "width": 176.79,
       "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
@@ -484,26 +455,26 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "All\npass?",
+      "text": "OK: 147 links,\n66 rules",
       "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "checker-flow-diamond-10",
-      "originalText": "All\npass?",
+      "containerId": "checker-flow-rectangle-10",
+      "originalText": "OK: 147 links,\n66 rules",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
       "id": "checker-flow-rectangle-12",
       "type": "rectangle",
-      "x": 1557.33,
-      "y": 197.78,
-      "width": 298.67,
-      "height": 199.11,
+      "x": 1398.04,
+      "y": 346.31,
+      "width": 457.96,
+      "height": 169.24,
       "angle": 0,
-      "strokeColor": "#3896D2",
-      "backgroundColor": "#3896D233",
+      "strokeColor": "#E46962",
+      "backgroundColor": "#E4696233",
       "fillStyle": "solid",
       "strokeWidth": 3,
       "strokeStyle": "solid",
@@ -526,7 +497,11 @@
         },
         {
           "type": "arrow",
-          "id": "checker-flow-arrow-22"
+          "id": "checker-flow-arrow-19"
+        },
+        {
+          "type": "arrow",
+          "id": "checker-flow-arrow-21"
         }
       ],
       "updated": 1,
@@ -536,9 +511,9 @@
     {
       "id": "checker-flow-text-13",
       "type": "text",
-      "x": 1618.27,
-      "y": 262.49,
-      "width": 176.79,
+      "x": 1556.06,
+      "y": 396.09,
+      "width": 141.92,
       "height": 69.69,
       "angle": 0,
       "strokeColor": "#212121",
@@ -560,66 +535,75 @@
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "OK: 147 links,\n66 rules",
+      "text": "ERROR:\nbroken link",
       "fontSize": 27.88,
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
       "containerId": "checker-flow-rectangle-12",
-      "originalText": "OK: 147 links,\n66 rules",
+      "originalText": "ERROR:\nbroken link",
       "autoResize": true,
       "lineHeight": 1.25
     },
     {
-      "id": "checker-flow-rectangle-14",
-      "type": "rectangle",
-      "x": 1557.33,
-      "y": 715.47,
-      "width": 298.67,
-      "height": 169.24,
+      "id": "checker-flow-arrow-14",
+      "type": "arrow",
+      "x": 410.45,
+      "y": 306.49,
+      "width": 113.49,
+      "height": 144.36,
       "angle": 0,
-      "strokeColor": "#E46962",
-      "backgroundColor": "#E4696233",
+      "strokeColor": "#212121",
+      "backgroundColor": "transparent",
       "fillStyle": "solid",
-      "strokeWidth": 3,
+      "strokeWidth": 2,
       "strokeStyle": "solid",
       "roughness": 1,
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
       "index": "aE",
-      "roundness": {
-        "type": 3
-      },
-      "seed": 159843166,
+      "roundness": null,
+      "seed": 71137428,
       "version": 1,
-      "versionNonce": 1782713619,
+      "versionNonce": 470982389,
       "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "checker-flow-text-15"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-24"
-        },
-        {
-          "type": "arrow",
-          "id": "checker-flow-arrow-26"
-        }
-      ],
+      "boundElements": null,
       "updated": 1,
       "link": null,
-      "locked": false
+      "locked": false,
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          113.49,
+          -144.36
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "checker-flow-rectangle-1",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "checker-flow-rectangle-4",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
-      "id": "checker-flow-text-15",
-      "type": "text",
-      "x": 1635.7,
-      "y": 765.24,
-      "width": 141.92,
-      "height": 69.69,
+      "id": "checker-flow-arrow-15",
+      "type": "arrow",
+      "x": 410.45,
+      "y": 306.49,
+      "width": 113.49,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -632,31 +616,46 @@
       "frameId": null,
       "index": "aF",
       "roundness": null,
-      "seed": 1252187319,
+      "seed": 48072259,
       "version": 1,
-      "versionNonce": 1161008045,
+      "versionNonce": 953882686,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "text": "ERROR:\nbroken link",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "checker-flow-rectangle-14",
-      "originalText": "ERROR:\nbroken link",
-      "autoResize": true,
-      "lineHeight": 1.25
+      "points": [
+        [
+          0.0,
+          0.0
+        ],
+        [
+          113.49,
+          0.0
+        ]
+      ],
+      "lastCommittedPoint": null,
+      "startBinding": {
+        "elementId": "checker-flow-rectangle-1",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "endBinding": {
+        "elementId": "checker-flow-rectangle-6",
+        "focus": 0,
+        "gap": 8.0
+      },
+      "startArrowhead": null,
+      "endArrowhead": "arrow",
+      "elbowed": false
     },
     {
       "id": "checker-flow-arrow-16",
       "type": "arrow",
-      "x": 430.36,
-      "y": 541.24,
-      "width": 123.45,
-      "height": 258.84,
+      "x": 410.45,
+      "y": 306.49,
+      "width": 113.49,
+      "height": 144.36,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -683,18 +682,18 @@
           0.0
         ],
         [
-          123.45,
-          -258.84
+          113.49,
+          144.36
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "checker-flow-rectangle-2",
+        "elementId": "checker-flow-rectangle-1",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "checker-flow-rectangle-4",
+        "elementId": "checker-flow-rectangle-8",
         "focus": 0,
         "gap": 8.0
       },
@@ -705,10 +704,10 @@
     {
       "id": "checker-flow-arrow-17",
       "type": "arrow",
-      "x": 1127.25,
-      "y": 282.4,
-      "width": 73.67,
-      "height": 258.84,
+      "x": 1186.99,
+      "y": 182.04,
+      "width": 203.09,
+      "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -725,7 +724,12 @@
       "version": 1,
       "versionNonce": 1640865629,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "checker-flow-text-18"
+        }
+      ],
       "updated": 1,
       "link": null,
       "locked": false,
@@ -735,18 +739,18 @@
           0.0
         ],
         [
-          73.67,
-          258.84
+          203.09,
+          0.0
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "checker-flow-rectangle-4",
+        "elementId": "checker-flow-rectangle-3",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "checker-flow-diamond-10",
+        "elementId": "checker-flow-rectangle-10",
         "focus": 0,
         "gap": 8.0
       },
@@ -755,12 +759,12 @@
       "elbowed": false
     },
     {
-      "id": "checker-flow-arrow-18",
-      "type": "arrow",
-      "x": 430.36,
-      "y": 541.24,
-      "width": 123.45,
-      "height": 0.0,
+      "id": "checker-flow-text-18",
+      "type": "text",
+      "x": 1238.01,
+      "y": 164.62,
+      "width": 101.05,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -773,45 +777,30 @@
       "frameId": null,
       "index": "aI",
       "roundness": null,
-      "seed": 53788714,
+      "seed": 1019388800,
       "version": 1,
-      "versionNonce": 377650107,
+      "versionNonce": 2440330,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          123.45,
-          0.0
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "checker-flow-rectangle-2",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "checker-flow-rectangle-6",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
+      "text": "all pass",
+      "fontSize": 27.88,
+      "fontFamily": 5,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "checker-flow-arrow-17",
+      "originalText": "all pass",
+      "autoResize": true,
+      "lineHeight": 1.25
     },
     {
       "id": "checker-flow-arrow-19",
       "type": "arrow",
-      "x": 1127.25,
-      "y": 541.24,
-      "width": 73.67,
+      "x": 1186.99,
+      "y": 430.93,
+      "width": 203.09,
       "height": 0.0,
       "angle": 0,
       "strokeColor": "#212121",
@@ -829,7 +818,12 @@
       "version": 1,
       "versionNonce": 480733977,
       "isDeleted": false,
-      "boundElements": null,
+      "boundElements": [
+        {
+          "type": "text",
+          "id": "checker-flow-text-20"
+        }
+      ],
       "updated": 1,
       "link": null,
       "locked": false,
@@ -839,18 +833,18 @@
           0.0
         ],
         [
-          73.67,
+          203.09,
           0.0
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "checker-flow-rectangle-6",
+        "elementId": "checker-flow-rectangle-3",
         "focus": 0,
         "gap": 8.0
       },
       "endBinding": {
-        "elementId": "checker-flow-diamond-10",
+        "elementId": "checker-flow-rectangle-12",
         "focus": 0,
         "gap": 8.0
       },
@@ -859,12 +853,12 @@
       "elbowed": false
     },
     {
-      "id": "checker-flow-arrow-20",
-      "type": "arrow",
-      "x": 430.36,
-      "y": 541.24,
-      "width": 123.45,
-      "height": 258.84,
+      "id": "checker-flow-text-20",
+      "type": "text",
+      "x": 1230.72,
+      "y": 413.51,
+      "width": 115.62,
+      "height": 34.84,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -877,46 +871,31 @@
       "frameId": null,
       "index": "aK",
       "roundness": null,
-      "seed": 911060554,
+      "seed": 672013064,
       "version": 1,
-      "versionNonce": 824836927,
+      "versionNonce": 842171554,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
       "link": null,
       "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          123.45,
-          258.84
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "checker-flow-rectangle-2",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "checker-flow-rectangle-8",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
+      "text": "one fails",
+      "fontSize": 27.88,
+      "fontFamily": 5,
+      "textAlign": "center",
+      "verticalAlign": "middle",
+      "containerId": "checker-flow-arrow-19",
+      "originalText": "one fails",
+      "autoResize": true,
+      "lineHeight": 1.25
     },
     {
       "id": "checker-flow-arrow-21",
       "type": "arrow",
-      "x": 1127.25,
-      "y": 800.09,
-      "width": 73.67,
-      "height": 258.84,
+      "x": 1627.02,
+      "y": 523.52,
+      "width": 1393.78,
+      "height": 235.95,
       "angle": 0,
       "strokeColor": "#212121",
       "backgroundColor": "transparent",
@@ -933,62 +912,10 @@
       "version": 1,
       "versionNonce": 131941064,
       "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          73.67,
-          -258.84
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "checker-flow-rectangle-8",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "checker-flow-diamond-10",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "checker-flow-arrow-22",
-      "type": "arrow",
-      "x": 1348.27,
-      "y": 418.79,
-      "width": 201.1,
-      "height": 121.46,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aM",
-      "roundness": null,
-      "seed": 1947614600,
-      "version": 1,
-      "versionNonce": 1104417802,
-      "isDeleted": false,
       "boundElements": [
         {
           "type": "text",
-          "id": "checker-flow-text-23"
+          "id": "checker-flow-text-22"
         }
       ],
       "updated": 1,
@@ -1001,119 +928,25 @@
         ],
         [
           0.0,
-          -121.46
+          111.5
         ],
         [
-          201.1,
-          -121.46
+          -1393.78,
+          111.5
+        ],
+        [
+          -1393.78,
+          -124.44
         ]
       ],
       "lastCommittedPoint": null,
       "startBinding": {
-        "elementId": "checker-flow-diamond-10",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
         "elementId": "checker-flow-rectangle-12",
         "focus": 0,
         "gap": 8.0
       },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "checker-flow-text-23",
-      "type": "text",
-      "x": 1325.83,
-      "y": 279.91,
-      "width": 44.88,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aN",
-      "roundness": null,
-      "seed": 349171302,
-      "version": 1,
-      "versionNonce": 1597311584,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "yes",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "checker-flow-arrow-22",
-      "originalText": "yes",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "checker-flow-arrow-24",
-      "type": "arrow",
-      "x": 1348.27,
-      "y": 663.7,
-      "width": 201.1,
-      "height": 136.39,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aO",
-      "roundness": null,
-      "seed": 14510043,
-      "version": 1,
-      "versionNonce": 395691162,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "checker-flow-text-25"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          136.39
-        ],
-        [
-          201.1,
-          136.39
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "checker-flow-diamond-10",
-        "focus": 0,
-        "gap": 8.0
-      },
       "endBinding": {
-        "elementId": "checker-flow-rectangle-14",
+        "elementId": "checker-flow-rectangle-1",
         "focus": 0,
         "gap": 8.0
       },
@@ -1122,112 +955,10 @@
       "elbowed": false
     },
     {
-      "id": "checker-flow-text-25",
+      "id": "checker-flow-text-22",
       "type": "text",
-      "x": 1332.57,
-      "y": 782.67,
-      "width": 31.39,
-      "height": 34.84,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aP",
-      "roundness": null,
-      "seed": 566305332,
-      "version": 1,
-      "versionNonce": 473103154,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "no",
-      "fontSize": 27.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "middle",
-      "containerId": "checker-flow-arrow-24",
-      "originalText": "no",
-      "autoResize": true,
-      "lineHeight": 1.25
-    },
-    {
-      "id": "checker-flow-arrow-26",
-      "type": "arrow",
-      "x": 1706.67,
-      "y": 892.68,
-      "width": 1463.47,
-      "height": 350.44,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aQ",
-      "roundness": null,
-      "seed": 474033894,
-      "version": 1,
-      "versionNonce": 1848215563,
-      "isDeleted": false,
-      "boundElements": [
-        {
-          "type": "text",
-          "id": "checker-flow-text-27"
-        }
-      ],
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "points": [
-        [
-          0.0,
-          0.0
-        ],
-        [
-          0.0,
-          91.59
-        ],
-        [
-          -1463.47,
-          91.59
-        ],
-        [
-          -1463.47,
-          -258.84
-        ]
-      ],
-      "lastCommittedPoint": null,
-      "startBinding": {
-        "elementId": "checker-flow-rectangle-14",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "endBinding": {
-        "elementId": "checker-flow-rectangle-2",
-        "focus": 0,
-        "gap": 8.0
-      },
-      "startArrowhead": null,
-      "endArrowhead": "arrow",
-      "elbowed": false
-    },
-    {
-      "id": "checker-flow-text-27",
-      "type": "text",
-      "x": 847.93,
-      "y": 966.84,
+      "x": 803.13,
+      "y": 617.6,
       "width": 254.01,
       "height": 34.84,
       "angle": 0,
@@ -1240,11 +971,11 @@
       "opacity": 100,
       "groupIds": [],
       "frameId": null,
-      "index": "aR",
+      "index": "aM",
       "roundness": null,
-      "seed": 1177480104,
+      "seed": 73997560,
       "version": 1,
-      "versionNonce": 361142549,
+      "versionNonce": 180743377,
       "isDeleted": false,
       "boundElements": null,
       "updated": 1,
@@ -1255,50 +986,10 @@
       "fontFamily": 5,
       "textAlign": "center",
       "verticalAlign": "middle",
-      "containerId": "checker-flow-arrow-26",
+      "containerId": "checker-flow-arrow-21",
       "originalText": "fix in the same PR",
       "autoResize": true,
       "lineHeight": 1.25
-    },
-    {
-      "id": "checker-flow-text-28",
-      "type": "text",
-      "x": 75.55,
-      "y": 357.07,
-      "width": 335.3,
-      "height": 64.71,
-      "angle": 0,
-      "strokeColor": "#212121",
-      "backgroundColor": "transparent",
-      "fillStyle": "solid",
-      "strokeWidth": 2,
-      "strokeStyle": "solid",
-      "roughness": 1,
-      "opacity": 100,
-      "groupIds": [],
-      "frameId": null,
-      "index": "aS",
-      "roundness": null,
-      "seed": 1434994897,
-      "version": 1,
-      "versionNonce": 954899338,
-      "isDeleted": false,
-      "boundElements": null,
-      "updated": 1,
-      "link": null,
-      "locked": false,
-      "text": "Assignment 1: Instructions\nbuilds check_docs.py",
-      "fontSize": 25.88,
-      "fontFamily": 5,
-      "textAlign": "center",
-      "verticalAlign": "top",
-      "containerId": null,
-      "originalText": "Assignment 1: Instructions\nbuilds check_docs.py",
-      "autoResize": true,
-      "lineHeight": 1.25,
-      "customData": {
-        "role": "label"
-      }
     }
   ],
   "appState": {

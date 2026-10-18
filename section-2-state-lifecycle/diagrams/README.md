@@ -29,7 +29,7 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 
 ### What the handoff holds
 
-![session-handoff.md with a machine summary from the harness and notes from the agent](./handoff-contents.svg)
+![session-handoff.md in two bands: a machine summary from git, written by the harness at each stop, and notes written by the agent; the next session reads it first](./handoff-contents.svg)
 
 *The harness writes the facts from the repository; the agent writes its notes, which stay as written.*
 
@@ -40,19 +40,19 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 
 ### One head or two heads
 
-![A migration chain with one head, next to a fork where two migrations share one parent](./alembic-heads.svg)
+![Session 2 reads git log and progress.md, then runs init.sh: one head passes, two heads fail House rule 7: Migrations](./alembic-heads.svg)
 
-*Two migrations with the same down_revision make two heads, and the migrations rule needs exactly one.*
+*Read state, then run init.sh; two migrations on the same parent make two heads, and init.sh stops there.*
 
-- **What it teaches**: what a redone migration does to the Alembic history.
+- **What it teaches**: the getting-up-to-speed routine, and what a redone migration does to the Alembic history.
 - **Slide topic**: the cost of a forgotten session.
 - **Files**: `alembic-heads`.
-- **Source**: `platform/teamtrack/migrations/versions/0001_initial.py` and `migration_heads` in
-  `platform/src/shipharness/harness/state/handoff.py`.
+- **Source**: `section-2-state-lifecycle/demo/harness/init.sh`, the Section 2 evidence, and
+  `migration_heads` in `platform/src/shipharness/harness/state/handoff.py`.
 
 ### Section 2 results
 
-![Dot chart for the comments ticket: every run of both arms passed](./results-s2.svg)
+![Dot chart for the comments ticket, a bare and a harness line per round (medium effort, low effort, class settings): every run passed, 3 of 3, 3 of 3, 1 of 1 per arm](./results-s2.svg)
 
 *All 7 runs of each arm passed: no measurable difference on this task with this model.*
 
@@ -88,14 +88,14 @@ editing, and licences are explained once, in [the course diagrams guide](../../d
 
 ### The exec plan and the progress ledger
 
-![The initializer writes the exec plan and progress.md; the agent and the session stop update them; the next session reads both](./exec-plan-ledger.svg)
+![The exec plan and progress.md side by side; the agent edits both, the harness appends to the session log at each stop, and the next session restarts from these two files](./exec-plan-ledger.svg)
 
-*Two files, two writers, read before any code.*
+*Two files, two writers; restart from these alone.*
 
-- **What it teaches**: who writes the exec plan and `progress.md`, when, and who reads them.
+- **What it teaches**: what the exec plan and `progress.md` hold, who writes each part, and that the next session restarts from them.
 - **Slide**: "3) The exec plan and the progress ledger".
 - **Files**: `exec-plan-ledger`.
-- **Source**: `platform/src/shipharness/harness/state/layer.py` and `lifecycle.py`, and `demo/walkthrough.md`.
+- **Source**: `platform/src/shipharness/harness/state/layer.py` and `lifecycle.py`, `demo/walkthrough.md`, `demo/harness/progress.md`, and the slide's speaker notes (the four PLANS.md sections).
 - **How to edit**: change `exec-plan-ledger` in `platform/scripts/diagrams/`, then build and render (see [How to edit a diagram](../../docs/diagrams/README.md#how-to-edit-a-diagram)).
 
 ### Timeline of the captured show-2 run

@@ -80,7 +80,7 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### Four stories, four causes, four layers
 
-![Three columns: four failure stories, their causes, and the harness layer for each](./stories-causes-layers.svg)
+![Three columns, one row per gap: four failure stories, their causes, and the section whose layer answers each](./stories-causes-layers.svg)
 
 *Each section starts from one failure story and ends with the layer that answers it.*
 
@@ -91,15 +91,14 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### The TeamTrack data model
 
-![TeamTrack tables inside a dashed tenant boundary, with orgs above it](./teamtrack-data-model.svg)
+![The seven TeamTrack tables: orgs on the left, five tables with org_id inside a dashed box, project_members below it](./teamtrack-data-model.svg)
 
-*Every table inside the dashed box carries org_id; House rule 1: Tenant isolation says another org's row answers 404.*
+*Every table inside the dashed box carries org_id; project_members reaches its org through a project.*
 
-- **What it teaches**: the app every ticket changes, and House rule 1, which the agent must keep.
+- **What it teaches**: the app every ticket changes, and House rule 1: Tenant isolation, which the agent must keep.
 - **Slide topic**: meet TeamTrack, in the opening.
 - **Files**: `teamtrack-data-model`.
-- **Source**: `platform/teamtrack/app/db/models.py`, and the reference patches for Feature 2: Comments on issues, Feature 6: Watchers, and Feature 7: Labels
-  under `platform/teamtrack/reference/`.
+- **Source**: `platform/teamtrack/app/db/models.py` (the seven tables).
 
 ### One ticket, two arms, one referee
 
@@ -126,9 +125,9 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### The harness in one picture
 
-![The loop in the centre, the four layers with their files, the sandbox, and the referee](./harness-one-picture.svg)
+![The model and its tools in the centre, the tools inside the sandbox for both arms, the four layers around them (instructions and state feed the model, scope guards the tools, verification checks the done claim), and the referee outside scoring the diff](./harness-one-picture.svg)
 
-*Each layer names the files it uses; the referee scores the shipped diff after the stop.*
+*Each layer changes what the agent knows, remembers, may change, or must prove; the referee scores the diff after the stop.*
 
 - **What it teaches**: the whole harness on one page, as a summary.
 - **Slide topic**: the summary, at the close.
@@ -137,18 +136,18 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### Which layer when
 
-![A decision chart from four symptoms to the four harness layers](./which-layer-when.svg)
+![Four rows from a failure to its harness layer: broken written rule to instructions, redone work to state, edits outside the ticket to scope, a false done to verification; scope carries the only measured gap, on Feature 4](./which-layer-when.svg)
 
 *Start from what went wrong, pick the layer, then measure it with an A/B.*
 
 - **What it teaches**: how to choose a layer for your own repository.
 - **Slide topic**: use it in your repo, at the close.
 - **Files**: `which-layer-when`.
-- **Source**: the four `concepts.md` pages.
+- **Source**: the four `concepts.md` pages, and the scope result on Feature 4 (slide 70 notes).
 
 ### The results
 
-![Dot chart: one dot per run per arm for each section's measure, filled for passed, hollow for failed](./results-final.svg)
+![Dot chart, one row per section and ticket, a bare and a harness column, filled for passed, hollow for failed, each count in words: Sections 1 and 2 and Section 3 on Feature 3: Safe retries for issue creation 7 of 7 passed per arm; Section 3 on Feature 4 bare 3 of 3 failed, harness 3 of 3 passed; Section 4 4 of 4 failed per arm](./results-final.svg)
 
 *The harness arm was ahead only on out-of-scope files on the Feature 4 ticket: 3 of 3 runs passed against 0 of 3.*
 
@@ -183,9 +182,9 @@ shows. You do not need to tell the colours apart to read a diagram.
 
 ### Module 1 summary
 
-![Four layer boxes and two result boxes](./module-summary.svg)
+![Four numbered layer boxes, each with its mechanism and measured result (scope: harness 3/3, bare 0/3; the others: no measurable difference), all leading to takeaway 5: measure before you keep](./module-summary.svg)
 
-*One line per layer, then what the A/B measured.*
+*One mechanism and one result per layer, then the rule.*
 
 - **What it teaches**: the four layers and the one measured gap, as a closing picture.
 - **Slide**: "Module 1 Summary: Key takeaways".
