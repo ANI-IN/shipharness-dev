@@ -66,6 +66,13 @@ HARNESS_LAYERS = sorted(SECTION_STACKS[AB_SECTION])
 RUN_ID = re.compile(r"^r-\d{8}-\d{6}-[0-9a-f]{6}$")
 AB_ID = re.compile(r"^ab-\d{8}-\d{6}-[0-9a-f]{6}$")
 SHA = re.compile(r"^[0-9a-f]{40}$")
+# Commits `m1-s4-start` named before a disclosed tag move (docs/evidence/general.md, "Checkpoint
+# tags moved after the harness rename"; the commits stay under refs/archive/checkpoints-*). A
+# recorded run keeps the commit it ran on, so its checkpoint_sha is compared with these too.
+EARLIER_CHECKPOINTS = (
+    "a9d6be25aca552298374470536d6ef417065a1a7",  # 2026-10-17 build; the reference run's records
+    "d0b98d03eb26fd29dc706bbf2b528824384d81a5",  # 2026-10-17 rebuild, same TeamTrack tree
+)
 COST = re.compile(r"^Cost: \$(\d+\.\d+) \((.*)\)\s*$")
 TESTGEN_SUMMARY = re.compile(r"^testgen (\S+): (\S+); kept (\d+) of (\d+) proposed tests\s*$")
 TESTGEN_NOTE = re.compile(r"^testgen, model (\S+)$")
@@ -449,10 +456,8 @@ def score_record_problems(root: Path, expected_sha: str | None) -> list[str]:
                 f"{name}: checkpoint_sha {r.checkpoint_sha!r} is not a commit sha "
                 "(run from the checkpoint tag, not --from-working-tree)"
             )
-        elif (
-            expected_sha
-            and r.checkpoint_sha != expected_sha
-            and not same_checkpoint(_course_repo(), r.checkpoint_sha, expected_sha)
+        elif expected_sha and not matches_checkpoint(
+            _course_repo(), r.checkpoint_sha, expected_sha
         ):
             problems.append(
                 f"{name}: checkpoint_sha {r.checkpoint_sha[:12]} is not the commit "
@@ -549,6 +554,14 @@ def same_checkpoint(repo: Path | None, a: str, b: str) -> bool:
         return False
     tree_a, tree_b = _teamtrack_tree(repo, a), _teamtrack_tree(repo, b)
     return tree_a is not None and tree_a == tree_b
+
+
+def matches_checkpoint(repo: Path | None, sha: str, expected_sha: str) -> bool:
+    """`sha` is the checkpoint `expected_sha` names: the same commit, the same TeamTrack tree, or
+    one of the EARLIER_CHECKPOINTS this tag named before a disclosed move (or its tree)."""
+    if sha == expected_sha or same_checkpoint(repo, sha, expected_sha):
+        return True
+    return any(sha == old or same_checkpoint(repo, sha, old) for old in EARLIER_CHECKPOINTS)
 
 
 def course_checkpoint_sha(repo: Path, tag: str = AB_CHECKPOINT) -> str | None:

@@ -275,6 +275,29 @@ Every measurement on these pages, in this file and in the section files, was mad
 text. One live verification run per section follows, with the class profile, to confirm that the
 renamed text gives the same results.
 
+### Checkpoint tags moved after the harness rename (2026-10-18)
+
+<a id="checkpoint-move-rename"></a>
+
+The checkpoint commits carry TeamTrack's directory, which holds the renamed harness text, the
+handbook, and the feature specs, so the eight checkpoint tags no longer matched a fresh build and
+the release build refused them. With the owner's approval (option B: move the tags), they were
+rebuilt on 2026-10-18 on main 449833a with `build_checkpoints.py --force --owner-approved-move`:
+m1-s1-start e82c59f -> 821db62, m1-s2-start 6d8102e -> aa24113, m1-s3-start d06688a -> c111cca,
+m1-s4-start d0b98d0 -> add3e45, m1-final-start 6b0050e -> 4cf12f7, m1-complete 764b2b2 -> adee528,
+m1-alt-a a0aef38 -> 0d46a40, m1-alt-b 846baab -> f5077ef. In all eight the TeamTrack tree differs
+only in the renamed text (46 files under `platform/teamtrack/docs/`, `harness/instructions/`, and
+`reference/f3/`); the application code and the tests are unchanged.
+
+The old commits are archived under `refs/archive/checkpoints-2026-10-18/<tag>`, next to the
+earlier archives `checkpoints-2026-10-16` and `checkpoints-2026-10-17b`. Every recorded result on
+these pages names the commit it ran on (`checkpoint_sha`), which is one of the archived commits,
+not the new tags: the measurements were made on the old checkpoints. The graders that compare a
+record with the tag treat a rebuilt checkpoint with the same TeamTrack tree as the same
+checkpoint; after this move the trees differ, so the Assignment 4 grader also accepts the earlier
+`m1-s4-start` commits listed here (a9d6be2, which the Assignment 4 reference run names, and
+d0b98d0), and nothing else. No result was changed.
+
 ### Verification runs after the rename
 
 The runs are listed below once they are complete.

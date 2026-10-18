@@ -421,17 +421,30 @@ def test_the_ab_line_may_name_the_profile(root: Path) -> None:
 
 
 def test_a_rebuilt_checkpoint_tag_with_the_same_teamtrack_tree_still_matches() -> None:
-    # The checkpoint tags were rebuilt (2026-10-17 restructure); the reference run's records
-    # name the previous m1-s4-start commit. Same TeamTrack tree -> the same checkpoint.
+    # The 2026-10-17 rebuild (after the restructure) kept the TeamTrack tree: a9d6be2, which the
+    # reference run's records name, and d0b98d0 are the same checkpoint.
+    repo = Path(__file__).resolve().parents[5]
+    old, rebuilt = a4_live.EARLIER_CHECKPOINTS
+    found = subprocess.run(["git", "-C", str(repo), "cat-file", "-e", old], capture_output=True)
+    if found.returncode != 0:
+        pytest.skip("archived checkpoint commit not in this clone")
+    assert a4_live.same_checkpoint(repo, old, rebuilt)
+    other = a4_live.course_checkpoint_sha(repo, "m1-s1-start")
+    assert other is not None and not a4_live.same_checkpoint(repo, other, rebuilt)
+
+
+def test_a_disclosed_earlier_checkpoint_matches_after_the_harness_rename() -> None:
+    # The 2026-10-18 move (harness rename) changed the TeamTrack tree: the reference run's
+    # commit is no longer the same tree as the tag, and matches only as a disclosed earlier
+    # commit of m1-s4-start (docs/evidence/general.md). Another tag's commit never matches.
     repo = Path(__file__).resolve().parents[5]
     current = a4_live.course_checkpoint_sha(repo)
     assert current is not None
-    old = "a9d6be25aca5"
-    full = subprocess.run(
-        ["git", "-C", str(repo), "rev-parse", old], capture_output=True, text=True
-    )
-    if full.returncode != 0:
-        pytest.skip("archived checkpoint commit not in this clone")
-    assert a4_live.same_checkpoint(repo, full.stdout.strip(), current)
+    old = a4_live.EARLIER_CHECKPOINTS[0]
+    assert a4_live.matches_checkpoint(None, old, current)
+    assert a4_live.matches_checkpoint(repo, current, current)
     other = a4_live.course_checkpoint_sha(repo, "m1-s1-start")
-    assert other is not None and not a4_live.same_checkpoint(repo, other, current)
+    assert other is not None and not a4_live.matches_checkpoint(repo, other, current)
+    found = subprocess.run(["git", "-C", str(repo), "cat-file", "-e", old], capture_output=True)
+    if found.returncode == 0 and current not in a4_live.EARLIER_CHECKPOINTS:
+        assert not a4_live.same_checkpoint(repo, old, current)
