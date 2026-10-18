@@ -342,6 +342,12 @@ variable."
 Q&A: "The guard won by construction. What would you measure next to it, so that a guard that
 blocks everything cannot look good?"
 
+Bridge to Section 4: in a `make demo-3` run on 2026-10-18 the harness arm stayed in scope but
+shipped a board bug. Every board save returned HTTP 500, because it added the `version` form field
+to `create_issue` instead of `edit_issue` ([evidence](evidence/s3.md#s3-two-tab-check)). Its
+API-level hidden tests missed it, and Section 3's harness has no verification layer. Section 4's
+gate, which includes the board check, is what would catch it.
+
 ### Break (2:50-2:55)
 
 Five minutes. Put the return time on the break slide. Nothing runs during the break.

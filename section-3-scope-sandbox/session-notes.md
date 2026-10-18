@@ -75,6 +75,13 @@ mutant). Harness
 arms passed fewer hidden tests in two of three runs, and every harness arm ended on the harness's own
 120 s limit for harness work.
 
+In scope is not the same as correct. In a `make demo-3` run on 2026-10-18 the harness arm stayed
+in scope but shipped a board bug: every board save returned HTTP 500, because it added the
+`version` form field to `create_issue` instead of `edit_issue`
+([evidence](../docs/evidence/s3.md#s3-two-tab-check)). Its API-level hidden tests missed it, and
+this section's harness has no verification layer. In Section 4: Verification, the gate, which
+includes the board check, is what would catch it.
+
 ## Questions from class
 
 **If the harness arm scores zero by construction, why run an A/B?**
