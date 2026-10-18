@@ -655,7 +655,7 @@ def test_the_run_list_is_a_list_of_cards_with_breakable_ids(tmp_path: Path) -> N
     assert "ab-<wbr>20261018-<wbr>045459-<wbr>aaaaaa" in text
 
 
-# -- a run in progress: the run list knows its section before ab.json exists ------------------------
+# -- a run in progress: the run list knows its section before ab.json exists ---------------------
 
 
 def test_a_running_run_shows_its_section_from_the_start_record(tmp_path: Path) -> None:
