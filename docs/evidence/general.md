@@ -567,6 +567,12 @@ line. $0.
   stopped by its turn budget at 1:16; session 2 38; test phase 12); primary verdict 5:18, full
   verdict 7:11, command 7:12 (exit 0); no continuity failure; hidden tests 56 of 56; mutants killed
   1 of 4; reviewer accept; $0.043716.
+- `make demo-3 FEATURE=version-checks`: `ab-20261018-163515-dc7b16` (bare `r-20261018-163515-bcd4aa`,
+  harness `r-20261018-163515-76a3ed`), ran alone; both completed and said done (43 and 47 turns);
+  harness patch to `app/services/errors.py` blocked 1:03; primary verdict 3:10 and 5:59, full 5:55
+  and 8:24, command 8:26 (exit 0); files outside the allowed paths 0 and 0, both pass; hidden tests
+  68 of 69 each; mutants killed 1 of 4 and 4 of 4; both reviewers reject; two-tab check HTTP 409 in
+  both; $0.056216 ([s3.md](s3.md#s3-guide-run)).
 
 ### Score records shipped with the course (2026-10-18)
 

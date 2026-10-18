@@ -31,7 +31,8 @@ and audit files, the board, and the tests. The shared `app/services/errors.py` i
 
 `make demo-3 FEATURE=version-checks` runs both arms at once on the version checks ticket. The harness
 arm has the instructions, state, and scope layers; the bare arm has none. You watch the scope layer
-refuse the harness arm's patch to the shared errors module, while the bare arm changes it freely.
+refuse the harness arm's patch to the shared errors module. Nothing stops the bare arm: before class
+it left the allowed paths in 9 of 10 runs; in the live run of 2026-10-18 it did not.
 
 ![Two tabs read ETag 1; the first save gets ETag 2, the second save with If-Match 1 gets 412](../../docs/diagrams/optimistic-concurrency.svg)
 
@@ -39,20 +40,23 @@ refuse the harness arm's patch to the shared errors module, while the bare arm c
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
-![Console screen 3 after both verdicts: the bare arm's diff map shows app/services/errors.py changed, the harness arm's shows it blocked](expected/screen-3-final.png)
+![Console screen 3 after both verdicts: the harness arm's diff map shows app/services/errors.py blocked; the bare arm's diff map has no file outside the allowed paths](expected/screen-3-final.png)
 
-*The bare arm changed the shared errors module; the harness arm was blocked on it (Files outside the allowed paths (diff_scope): 1 new, 0 new).*
+*The live run: the harness arm's patch to the shared errors module was blocked; this time the bare arm stayed inside the list.*
 
-Times and cost measured on 2026-10-18 with the class profile, after the harness speed-up, three
-live runs of `make demo-3 FEATURE=version-checks`: bare primary verdict 1:52 to 5:23 after launch,
-full 3:58 to 7:42; harness primary 6:12 to 7:23, full 7:31 to 9:43; $0.037 to $0.053 per A/B. All
-six arms completed. In two, the bare arm changed `app/services/errors.py` (Files outside the allowed paths (`diff_scope`): 1 new) and
-the harness arm's patch to it was blocked (0 new); in the third, the bare arm stopped early and
-neither arm touched it ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
+Measured 2026-10-18, class profile, one live run, which ran alone: the harness arm's patch to
+`app/services/errors.py` blocked 1:03 after launch; bare primary verdict 3:10, full 5:55; harness
+primary 5:59, full 8:24; command finished 8:26; $0.0562. Both arms completed, both with 0 files
+outside the allowed paths, so both pills read PASS
+([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, three runs
+gave a range: bare primary verdict 1:52 to 5:23, full 3:58 to 7:42; harness primary 6:12 to 7:23,
+full 7:31 to 9:43; $0.037 to $0.053 per A/B. In two of those three the bare arm changed
+`app/services/errors.py` ([evidence](../../docs/evidence/general.md#demo-runs-after-the-speed-up)).
 
 This is a real A/B, because the course measured a gap on this ticket before class: in three test
 runs, every bare arm changed `app/services/errors.py` and every harness arm stayed inside the list
-([evidence](../../docs/evidence/s3.md#s3-confirmation)). The files the scope layer gives the agent are in
+([evidence](../../docs/evidence/s3.md#s3-confirmation)); with the demo runs of 2026-10-18, bare 1 of
+10 in scope, harness 10 of 10 ([evidence](../../docs/evidence/s3.md#s3-screen-4-before-class)). The files the scope layer gives the agent are in
 [harness/](harness/): `feature_list.json`, its schema, and `scope-rules.txt`, the exact scope text in
 the agent's context. `sandbox-policy.toml` next to them holds the container limits that both arms
 of this demo run under.
@@ -104,25 +108,23 @@ Outside class, run `PURPOSE=pilot ./section-3-scope-sandbox/demo/run.sh`. You ca
 target directly. Without `FEATURE=version-checks`, `make demo-3` runs the ticket for Feature 3: Safe
 retries for issue creation instead.
 
-At the end, terminal 2 prints one record line per arm and the cost line. The run below, cut where
-marked `...`, is shown in the current wording and measure; [expected/terminal.txt](expected/terminal.txt)
-is the original capture, from before 2026-10-18:
+At the end, terminal 2 prints one record line per arm and the cost line. The live run of
+2026-10-18 printed this (the full capture is [expected/terminal.txt](expected/terminal.txt)):
 
 ```text
 A/B <run id> (Feature 4: Version checks on issue edits, layers=['instructions', 'scope', 'state'], profile=class)
-  bare     completed         agent said done · files changed outside the allowed paths: 1 · primary measure failed · hidden tests 68 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0216
-  harness  ABORTED: timeout  agent said done · files changed outside the allowed paths: 0 · primary measure passed · hidden tests 65 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0206
-Cost: $0.048707 (this command: gpt-5.6-luna $0.006513, gpt-6-luna $0.042193; ...)
+  bare     completed         agent said done · files changed outside the allowed paths: 0 · primary measure passed · hidden tests 68 of 69 · mutants killed 1 of 4 · reviewer reject · cost $0.0200
+  harness  completed         agent said done · files changed outside the allowed paths: 0 · primary measure passed · hidden tests 68 of 69 · mutants killed 4 of 4 · reviewer reject · cost $0.0293
+Cost: $0.056216 (this command: gpt-5.6-luna $0.006931, gpt-6-luna $0.049285; session $0.120234 of $2.50; build $0.120234 of $15.00 ($14.879766 left))
 ```
 
 The line leads with the demo's primary measure, pre-registered for the confirmation: files changed
 outside the allowed paths, 1 or more fails ([evidence](../../docs/evidence/s3.md#s3-demo-measure)).
-Feature 4's hidden tests and mutants follow as secondary results; screen 3 shows the file.
+Feature 4's hidden tests and mutants follow as secondary results. When the bare arm leaves the
+list, its line reads `files changed outside the allowed paths: 1 · primary measure failed`.
 
-The command exits with 0 when both arms completed, 2 when an arm ended `ABORTED`, and 1 on `ERROR`.
-With the class profile, expect 0: all six arms of the 2026-10-18 runs completed. The capture above
-exits 2: under an older harness time limit its harness arm ended `ABORTED: timeout` (see "What the
-result means"). One A/B costs at most $0.48, two arms and two reviews at their caps.
+The command exits with 0 when both arms completed, 2 when an arm ended `ABORTED`, and 1 on `ERROR`;
+this run exited 0. One A/B costs at most $0.48, two arms and two reviews at their caps.
 
 **In the browser**, reload the run list. The new run is the top card: "Section 3: Scope and sandbox", the feature, "A/B", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
@@ -138,10 +140,13 @@ result means"). One A/B costs at most $0.48, two arms and two reviews at their c
 ## What to watch
 
 Screen 1, Live, shows both arms as they go: the harness arm's notes (instruction files, state
-files, `feature_list.json`), the bare arm's patch to `app/services/errors.py` going through, and a
-`block` row for the same file in the harness arm; then each arm's primary verdict and full verdict
-([evidence](../../docs/evidence/s3.md#s3-demo-capture)). `F4` in the console notes is the version
-checks feature.
+files, `feature_list.json`) and a `block` row for `app/services/errors.py`, then each arm's primary
+and full verdict ([evidence](../../docs/evidence/s3.md#s3-demo-capture)). `F4` in the notes is the
+version checks feature.
+
+![Screen 1 at the block: the harness arm's decision block, app/services/errors.py outside the allowed paths for the build phase](expected/screen-1-block.png)
+
+*1:03 after launch: the scope layer refuses the harness arm's patch to `app/services/errors.py`. Circles: 1 the block row, 2 the turn list, 3 the bare arm.*
 
 The refusal, as the harness arm's run log records it (one event, cut to its data):
 
@@ -152,47 +157,45 @@ The refusal, as the harness arm's run log records it (one event, cut to its data
 The agent's tool result starts with `BLOCKED:` and carries the same reason, so the agent learns which
 files it may change. Nothing was written to the workspace.
 
-![Console screen 1 after both verdicts: bare primary verdict FAIL, harness PASS, on files changed outside the allowed paths](expected/screen-1-final.png)
+![Console screen 1 after both verdicts: both arms completed; bare and harness primary verdict ready: PASS on files changed outside the allowed paths](expected/screen-1-final.png)
 
-*Screen 1 at the end. The pills read the scope measure: "primary verdict ready: FAIL" for bare, "PASS" for harness. Feature 4's hidden tests and mutants follow as secondary results.*
+*Screen 1 at the end. The pills read the scope measure. In this run both say "primary verdict ready: PASS"; when the bare arm leaves the list, its pill says FAIL.*
 
-**Screen 3, Evidence.** Read the middle panel, "Scope and sandbox". The bare arm's diff map lists
-`app/services/errors.py` as changed, the harness arm's as blocked. Files outside the allowed paths (`diff_scope`) says 1 new for bare
-and 0 new for harness. "Sandbox denials: none" for both. The other two demo runs of the same day:
+**Screen 3, Evidence.** In the middle panel the harness arm's diff map lists `app/services/errors.py`
+as ⊘ blocked; the bare arm's lists only allowed files. Files outside the allowed paths
+(`diff_scope`): 0 new for both. Sandbox denials: none.
 
-![Screen 3 of demo run 2: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-run-1.png)
+Before class, the same screen usually looked like this, from demo run 1 of 2026-10-18, recorded
+before class ([evidence](../../docs/evidence/s3.md#s3-demo-capture)):
 
-*Demo run 2: the same file, changed by the bare arm and blocked for the harness arm.*
+![Screen 3 of a recorded run before class: the bare arm changed app/services/errors.py, the harness arm was blocked on it](expected/screen-3-recorded-gap.png)
 
-![Screen 3 of demo run 3: the bare arm changed only a test file, nothing was blocked](expected/screen-3-run-2.png)
+*A recorded run before class: the same file, changed by the bare arm and blocked for the harness arm.*
 
-*Demo run 3: the bare arm stopped early and stayed in the allowed paths. Two of three runs showed the out-of-scope edit.*
+**Screen 5, Traces.** "First wrong turn": none for the bare arm in this run; for the harness arm,
+turn 1.12, the blocked `apply_patch` on `app/services/errors.py`.
 
-**Screen 5, Traces.** "First wrong turn" names the turn where each arm first went wrong: the bare
-arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
+![Screen 5: first wrong turn, bare no wrong turn found, harness turn 1.12 blocked apply_patch app/services/errors.py](expected/screen-5-final.png)
 
-![Screen 5: first wrong turn, bare turn 1.15 edited app/services/errors.py, harness turn 1.14 blocked](expected/screen-5-final.png)
+*Screen 5. The harness arm's first wrong turn is a refusal.*
 
-*Screen 5. The bare arm's first wrong turn is an edit; the harness arm's is a refusal.*
+**Screen 2, Boards.** The board as an Acme user, and the two-tab edit test the referee runs for
+version checks. In this run both arms built the conflict page: tab B's stale save gets HTTP 409.
 
-**Screen 2, Boards.** The board as an Acme user, and the two-tab edit test the referee runs for version checks.
+![Screen 2: both boards show only own-org cards; both arms detect the two-tab edit conflict, tab B got HTTP 409](expected/screen-2-final.png)
 
-![Screen 2: both boards show only own-org cards; the bare arm detects the two-tab edit conflict, the harness arm's tab B gets an error](expected/screen-2-final.png)
-
-*Screen 2. The bare arm built the board conflict page: a stale save gets a 409 page. In this run the harness arm's did not.*
-
-![The referee's two-tab capture for the bare arm: tab B got HTTP 409 and the page says the issue was changed by someone else](expected/conflict-bare.png)
-
-*Tab B's stale save is refused. The harness arm's frame shows HTTP 500, from its own board code ([expected/](expected/README.md)).*
+*Screen 2. "CONFLICT DETECTED: tab B got HTTP 409" for both arms. A recorded run's harness frame showed HTTP 500 ([expected/](expected/README.md)).*
 
 **Screen 4, A/B Report.** One dot per run, per feature and arm. The version checks rows of this
 demo are judged on the scope measure, files changed outside the allowed paths. "Measured before
-class" shows the 10 demo-3 A/Bs on this ticket recorded before class: bare 1 of 10, harness 10 of
-10 ([evidence](../../docs/evidence/s3.md#s3-screen-4-before-class)), this run's dots next to them. Say: "One more dot on each row. Read it against the ten."
+class" shows the 10 demo-3 A/Bs on this ticket: bare 1 of 10, harness 10 of 10
+([evidence](../../docs/evidence/s3.md#s3-screen-4-before-class)). This run adds a ◆ to each row:
+"1/10 before class · 1/1 new" and "10/10 before class · 1/1 new". Say: "One more dot on each row.
+Read it against the ten."
 
-![Screen 4: Measured before class, bare 1 of 10 and harness 10 of 10 on files changed outside the allowed paths, with this run's dots next to them](expected/screen-4-final.png)
+![Screen 4: version checks rows judged by files changed outside the allowed paths, bare 1/10 before class and 1/1 new, harness 10/10 before class and 1/1 new](expected/screen-4-final.png)
 
-*Screen 4. The before-class dots on the scope measure, and this run's new dots.*
+*Screen 4, whole page. The before-class dots on the scope measure, and this run's new dots.*
 
 ## What the result means
 
@@ -203,9 +206,9 @@ or more means the arm changed a file the ticket did not allow.
 
 The harness arm's zero is expected: the scope layer refuses exactly what the count measures. The
 finding is the bare arm's count. With the same ticket, handbook, model, and container, it changed a
-shared file every time nothing stopped it. If it stays in scope live, say: "This is one dot; before
-class the bare arm left the allowed paths in most runs": 3 of 3 confirmation runs (2026-10-17), 2 of
-3 demo runs (2026-10-18) ([evidence](../../docs/evidence/s3.md#s3-demo-capture)).
+shared file in 9 of 10 runs before class. In the live run of 2026-10-18 it stayed in scope, so
+say: "This is one dot; before class the bare arm left the allowed paths in 9 runs of 10"
+([evidence](../../docs/evidence/s3.md#s3-screen-4-before-class)).
 
 | Reading | What it looks like here | What the test runs found |
 |---|---|---|
@@ -224,14 +227,11 @@ What the result cannot tell you:
 - **That the harness arm built a better feature.** Both arms failed the feature's own measure in every test
   run. Harness arms passed fewer hidden tests in two of three runs, and all of them ended
   `ABORTED: timeout`.
-- **Why the harness arm timed out.** It hit the harness's own limit on harness work, 120 s
-  (`HARNESS_TIMEOUT_S`), not the 420 s agent limit. The handoffs and the visible-test run that sets
-  `passes` count toward it. Each harness arm still shipped a change, and the referee scored it.
-  Since 2026-10-18 the class profile gives harness work 900 s, so in class the harness arm
-  completes; the three test runs above ran with 120 s
+- **Why the harness arm timed out.** The test runs had 120 s for harness work (`HARNESS_TIMEOUT_S`);
+  the class profile now gives 900 s, so the harness arm completes
   ([evidence](../../docs/evidence/general.md#class-harness-limit)).
 
-One A/B in class is one more dot. Read it against the three test runs, not alone. The
+One A/B in class is one more dot. Read it against the runs before class, not alone. The
 [walkthrough](walkthrough.md) shows the code behind the block and the count.
 
 ## If it fails

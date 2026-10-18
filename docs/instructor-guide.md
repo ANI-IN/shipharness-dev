@@ -329,15 +329,19 @@ blocked the same edit in every harness arm. Bare 0 of 3 in scope, harness 3 of 3
 `make demo-3 FEATURE=version-checks` runs both arms at once. The harness arm has the instructions, state, and
 scope layers. Each arm has its own sandbox with the same limits.
 
-DEMO, after the implementation notes: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
-under the bare arm and `blocked app/services/errors.py` under the harness arm. Then the Verification
-column: `Files outside the allowed paths (diff_scope): 1 new` against `Files outside the allowed paths (diff_scope): 0 new`. Then screen 1: the pills,
-`primary verdict ready: FAIL` for bare and `PASS` for harness on that measure, and the harness decision
+DEMO, after the implementation notes: screen 3, the Scope and sandbox column first. Look for `blocked app/services/errors.py`
+under the harness arm and, usually, `changed app/services/errors.py` under the bare arm (9 of 10
+runs before class; in the live guide run of 2026-10-18 the bare arm stayed in scope and both pills
+read PASS, [evidence](evidence/s3.md#s3-guide-run)). Then the Verification
+column: usually `Files outside the allowed paths (diff_scope): 1 new` against `0 new`. Then screen 1:
+the pills on that measure, usually FAIL for bare and PASS for harness, and the harness decision
 `block`, with the reason the agent read. Then Sandbox denials on screen 3. Then screen 4: the
 before-class dots and this run's dots next to them.
 
 Say at the result: "The guard enforces exactly what we measure, so the harness arm's zero is built
-in. What the runs show is that, on this ticket, the bare agent edits a shared file every time." Then:
+in. What the runs show is that, on this ticket, the bare agent left the allowed paths in 9 of 10
+runs." If the bare arm stayed in scope tonight, say: "No file outside the ticket's paths. This is one
+dot. Before class the bare arm left the allowed paths in 9 of 10 runs." Then:
 "Before class, both arms failed Feature 4's own bar, every hidden test and every mutant, which the
 terminal and screen 1 still show as secondary results. The guard keeps the change in scope. It does
 not make the change correct."

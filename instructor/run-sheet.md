@@ -120,7 +120,8 @@ hidden tests and all mutants) failed in all six arms (hidden 62 to 68 of 69).
 
 Say it honestly: the scope layer enforces the very thing this confirmation measures, so the harness
 arm's zero is expected by construction. What the confirmation adds is that, on this ticket, the bare
-agent goes out of scope every time.
+agent went out of scope in all three runs (9 of the 10 A/Bs counted before class; it stayed in scope
+in the live guide run of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-guide-run)).
 
 Run 3 A/Bs: Feature 1 `ab-20261016-211419-07937b`, `-212745-2c14fb`, `-214636-c8b3c4`; Feature 2
 `-211419-dfe06f`, `-213317-9a0ec1`, `-214959-de790f`; Feature 3 `-212115-a361f5`, `-213624-d7eb13`,
@@ -545,10 +546,10 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 
 | Part | Screen | Watch | Say |
 |---|---|---|---|
-| Live A/B | `3` Evidence, Scope and sandbox column | Bare diff map: ✎ changed `app/services/errors.py`; harness diff map: ⊘ blocked `app/services/errors.py`; Sandbox denials for both | "Same ticket, same model, same limits. The bare agent edits the shared error module. The harness agent tried the same edit and was stopped." |
+| Live A/B | `3` Evidence, Scope and sandbox column | Harness diff map: ⊘ blocked `app/services/errors.py`; bare diff map: usually ✎ changed `app/services/errors.py` (9 of 10 runs before class); Sandbox denials for both | "Same ticket, same model, same limits. The harness agent tried to edit the shared error module and was stopped." If the bare arm changed it: "The bare agent edits it freely." If not: "This time the bare agent left it alone. Nothing stopped it; it was its choice." |
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
-| Live A/B | `3` Verification column | `Files outside the allowed paths (diff_scope): 1 new` (bare) against `Files outside the allowed paths (diff_scope): 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
-| Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
+| Live A/B | `3` Verification column | Usually `Files outside the allowed paths (diff_scope): 1 new` (bare) against `0 new` (harness); in the live guide run both 0 new; hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
+| Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent left the allowed paths in 9 of 10 runs before class. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
 | What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3; screen 4 "Measured before class" on the scope measure, bare 1/10, harness 10/10 (the confirmation and the seven demo runs of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-screen-4-before-class)), tonight's dots next to them | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
 **Sandbox moment.** If screen `3` lists a denial tonight, show its reason code (`network`,
