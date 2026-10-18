@@ -508,8 +508,6 @@ Lead: One line per term; come back here when a word is new.
 | Allowed paths | Files a phase may change | Compaction | Old context squeezed to a summary |
 | Gate | Checks run when the agent says done | Glob | Path pattern; ** spans folders |
 | Harness in action | Harness arm alone, live | Least privilege | Only the access the task needs |
-| Held out | Hidden, used only to score | Flaky test | Passes and fails on the same code |
-| Post hoc | Chosen after results; descriptive | Ablation | Remove one layer, measure again |
 **Visual:** A native four-column table, terms in blue, meanings in dark text on the light panel. The `glossary-terms` diagram holds the first eight cards for the repository pages.
 **Speaker notes:**
 - Arm: the bare arm gets the ticket and repository; the harness arm gets the same plus the layers built so far.
@@ -521,6 +519,7 @@ Lead: One line per term; come back here when a word is new.
 - Defined where they come up: exec plan, handoff, keyset paging, frontmatter (the YAML header of a `SKILL.md`), Linux capabilities, loopback, reward hacking (passing checks without doing the task), compositional failure, pass^k, hill climbing.
 - Console codes, said once here: the console prints `F1` to `F7` for the seven features, Feature 1: Org-wide issue search to Feature 7: Labels, in the agenda's order (`F4` is Feature 4), and `R1` to `R7` for House rule 1: Tenant isolation to House rule 7: Migrations. Commands take the readable names.
 - Ask: "Hidden test or mutant: what is the difference?" Expected: a hidden test checks the feature; a mutant checks whether the agent's own tests would notice a planted bug.
+- Four more terms, in docs/glossary.md: held out (hidden, used only to score), flaky test (passes and fails on the same code), post hoc (chosen after the results, so descriptive), ablation (remove one layer, measure again).
 - Misconception: "post hoc numbers are wrong". Correction: they are real counts, chosen after the results, so they describe and cannot confirm.
 - Time: 45 seconds, opening ends at 0:10. Next: Section 1, and its launch.
 
