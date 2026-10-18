@@ -18,3 +18,5 @@ def test_both_keys_are_valid() -> None:
     statuses = {c.name: c.status for c in report.checks}
     assert statuses["OPENAI_API_KEY"] == "ok", report.render()
     assert statuses["LANGSMITH_API_KEY"] == "ok", report.render()
+    assert statuses["agent model"] == "ok", report.render()
+    assert statuses["reviewer model"] == "ok", report.render()

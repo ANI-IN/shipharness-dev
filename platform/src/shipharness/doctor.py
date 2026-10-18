@@ -47,6 +47,7 @@ class DoctorReport(BaseModel):
 
 class DoctorProbes(Protocol):
     def openai(self, settings: Settings) -> None: ...
+    def openai_model(self, settings: Settings, model: str) -> None: ...
     def langsmith(self, settings: Settings) -> None: ...
 
 
@@ -67,17 +68,30 @@ class ServiceHTTPError(Exception):
 class RealProbes:
     """Cheapest authenticated call for each service; no model tokens are used."""
 
-    def __init__(self, http: httpx.Client | None = None) -> None:
+    def __init__(
+        self, http: httpx.Client | None = None, openai_http: httpx.Client | None = None
+    ) -> None:
         self.http = http
+        self.openai_http = openai_http
 
-    def openai(self, settings: Settings) -> None:
+    def _openai_client(self, settings: Settings):  # type: ignore[no-untyped-def]
         from openai import OpenAI
 
         assert settings.openai_api_key is not None
-        client = OpenAI(
-            api_key=settings.openai_api_key.get_secret_value(), max_retries=0, timeout=20
+        return OpenAI(
+            api_key=settings.openai_api_key.get_secret_value(),
+            max_retries=0,
+            timeout=20,
+            http_client=self.openai_http,
         )
-        client.models.list()
+
+    def openai(self, settings: Settings) -> None:
+        self._openai_client(settings).models.list()
+
+    def openai_model(self, settings: Settings, model: str) -> None:
+        """GET /v1/models/{model}: answers 404 when the key's organization cannot use the model.
+        Free, like the key check: no completion call, no tokens."""
+        self._openai_client(settings).models.retrieve(model)
 
     def langsmith(self, settings: Settings) -> None:
         """GET /api/v1/sessions?limit=1 and check the status code directly: an invalid key gives
@@ -144,6 +158,33 @@ def _key_check(
     return DoctorCheck(name=name, status="ok", detail=f"accepted by {service}")
 
 
+MODEL_FIX = (
+    "use the OpenAI key from the program's email if you received one;\n"
+    "      otherwise create your own key on the Build tier (setup/README.md),\n"
+    "      put it in .env, and run make doctor again"
+)
+
+
+def _model_check(name: str, model: str, probe: Callable[[], None]) -> DoctorCheck:
+    """One course model against the accepted key. Uses only the class name and status code."""
+    try:
+        probe()
+    except Exception as exc:  # noqa: BLE001 - every failure is classified and reported
+        exc_name = type(exc).__name__
+        code = getattr(exc, "status_code", None)
+        if code in (401, 403, 404) or exc_name in {"NotFoundError", "PermissionDeniedError"}:
+            return DoctorCheck(
+                name=name,
+                status="missing",
+                detail=f"{model} not available to this key ({exc_name}, status {code or 'n/a'})",
+                next_step=MODEL_FIX,
+            )
+        status, detail = _classify(exc, "OpenAI")
+        step = "check your network connection and retry" if status == "unreachable" else MODEL_FIX
+        return DoctorCheck(name=name, status=status, detail=f"{model}: {detail}", next_step=step)
+    return DoctorCheck(name=name, status="ok", detail=f"{model} accepted")
+
+
 def run_doctor(
     settings: Settings,
     *,
@@ -188,15 +229,23 @@ def run_doctor(
             "see platform/sandbox/README.md",
         )
     )
-    checks.append(
-        _key_check(
-            "OPENAI_API_KEY",
-            settings.openai_api_key is not None,
-            offline,
-            lambda: probes.openai(settings),
-            "OpenAI",
-        )
+    openai_check = _key_check(
+        "OPENAI_API_KEY",
+        settings.openai_api_key is not None,
+        offline,
+        lambda: probes.openai(settings),
+        "OpenAI",
     )
+    checks.append(openai_check)
+    if openai_check.status == "ok" and not offline:
+        # The key works; can it use the two course models? (The Free tier cannot use the agent's.)
+        for label, model in (
+            ("agent model", settings.openai_model),
+            ("reviewer model", settings.openai_eval_model),
+        ):
+            checks.append(
+                _model_check(label, model, lambda m=model: probes.openai_model(settings, m))
+            )
     checks.append(
         _key_check(
             "LANGSMITH_API_KEY",
