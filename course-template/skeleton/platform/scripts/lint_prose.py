@@ -24,6 +24,7 @@ DEFAULT_TARGETS = [
     "final-project",
     "slides",
     "use-in-your-repo",
+    "guide",
 ] + sorted(p.name for p in REPO.glob("section-*") if p.is_dir())
 
 BANNED_WORDS = [
@@ -52,6 +53,16 @@ BANNED_WORDS = [
     r"synergy",
     r"holistic",
 ]
+# Words that only make sense on the day they were written: say "today", "in class", "this session",
+# or "this run" instead.
+TIME_WORDS = [
+    r"tonight",
+    r"tomorrow",
+    r"yesterday",
+    r"last night",
+    r"this evening",
+    r"this morning",
+]
 BANNED_PHRASES = [
     r"paradigm shift",
     r"in today['’]s",
@@ -73,7 +84,9 @@ def _allowed_titles() -> list[str]:
 ALLOWED_TITLES = _allowed_titles()
 ALLOW_MARKER = "<!-- lint-prose: allow -->"
 
-_BANNED = re.compile(r"\b(?:" + "|".join(BANNED_WORDS + BANNED_PHRASES) + r")\b", re.IGNORECASE)
+_BANNED = re.compile(
+    r"\b(?:" + "|".join(BANNED_WORDS + TIME_WORDS + BANNED_PHRASES) + r")\b", re.IGNORECASE
+)
 # Pictographic emoji and the emoji variation selector. Status symbols such as ✓ ✗ ⚠ ⏳ are allowed.
 _EMOJI = re.compile("[\U0001f000-\U0001faff️]")
 

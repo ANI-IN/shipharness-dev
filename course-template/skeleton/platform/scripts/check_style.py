@@ -85,6 +85,7 @@ CHECKS: dict[str, tuple[str, str]] = {
     "SC25": ("Sources list at the end: 'Source N: title, link, author, date', in order", ERROR),
     "SC26": ("Image alt text empty, only a file name, or a bare word such as 'image'", ERROR),
     "SC27": ("Template guidance comment still on the page", WARNING),
+    "SC28": ("Live Demo Guide step without every field, in order (guide/)", ERROR),
     "SC30": ("Relative link to a missing file, folder, or heading (images: SC06)", ERROR),
 }
 
@@ -212,6 +213,21 @@ TEMPLATES: dict[str, list[str]] = {
         "Sources and findings",
         "Commits and tags",
     ],
+    "guide-readme": [
+        "Who it is for",
+        "What you need first",
+        "How to follow it",
+        "Time and cost",
+        "The slides",
+        "Build the PDF",
+    ],
+    "guide-chapter": ["Result summary", "Time and cost", "What to say in class"],
+    "guide-appendix": [
+        "Command cheat sheet",
+        "Troubleshooting",
+        "Glossary",
+        "Fallback: replay a recorded run",
+    ],
 }
 
 # Checks that do not apply to a file. "SC14:pilot-run" exempts only the "pilot run N" phrase.
@@ -258,7 +274,7 @@ def exemptions(rel: str) -> set[str]:
 _SECTION = r"section-\d{1,2}-[a-z0-9-]+"
 _PUBLIC = re.compile(
     rf"^(?:README\.md|setup/.+|{_SECTION}/.+|final-project/.+|use-in-your-repo/.+|docs/.+"
-    r"|slides/README\.md)$"
+    r"|guide/.+|slides/README\.md)$"
 )
 # Files the release build writes, or that are not course text.
 _NOT_PUBLIC = {"docs/CHANGELOG.md", "docs/REFERENCES.md"}
@@ -293,8 +309,13 @@ _TYPES = [
     (r"docs/evidence/[^/]+\.md", "evidence"),
     (r"final-project/README\.md", "final-project"),
     (r"use-in-your-repo/README\.md", "section-readme"),
+    (r"guide/README\.md", "guide-readme"),
+    (r"guide/chapters/[^/]+\.md", "guide-chapter"),
+    (r"guide/appendix\.md", "guide-appendix"),
 ]
-_DEFAULT_DIRS = ("setup", "final-project", "use-in-your-repo", "docs")
+# Every folder of public pages. A new public folder goes here, in lint_prose.py, and in
+# platform/config/release.toml; platform/tests/test_release_list.py checks all three.
+_DEFAULT_DIRS = ("setup", "final-project", "use-in-your-repo", "docs", "guide")
 # Files copied into a learner's repository: the skills and the kit templates. Besides their
 # Markdown, their scripts and other text files are read for the label checks.
 _COPY_OUT = re.compile(r"^use-in-your-repo/(?:skills|templates|kit/templates)/.+")
@@ -967,13 +988,21 @@ def _scanned(page: Page) -> Iterable[tuple[Line, str]]:
             yield ln, ln.text
 
 
-def _check_ids(page: Page, c: _Collector) -> None:
-    for ln, text in _scanned(page):
+# The Live Demo Guide (guide/) follows one recorded run per demo, so a reader may type and read
+# its run id in a command or a terminal excerpt. There, and only there, a run id may stand in a
+# code span or a fenced block; in plain prose it still fails SC08.
+GUIDE_DIR = "guide/"
+
+
+def _check_ids(page: Page, c: _Collector, rel: str = "") -> None:
+    ids_in_code_ok = rel.startswith(GUIDE_DIR)
+    for ln, raw in _scanned(page):
+        text = (ln.nocode if ln.kind == "prose" else "") if ids_in_code_ok else raw
         match = _RUN_ID.search(text)
         if match:
             c.add(ln.no, "SC08", f"run id {match.group(0)}: ids go in the evidence pages")
-        full = _HASH_FULL.search(text)
-        token = _HASH_TOKEN.search(text) if _HASH_CONTEXT.search(text) else None
+        full = _HASH_FULL.search(raw)
+        token = _HASH_TOKEN.search(raw) if _HASH_CONTEXT.search(raw) else None
         if full or token:
             found = (full or token).group(0)  # type: ignore[union-attr]
             c.add(ln.no, "SC10", f"commit hash {found}: hashes go in the evidence pages")
@@ -1533,6 +1562,39 @@ def _check_setup_steps(lines: list[Line], c: _Collector) -> None:
                   "If it fails, in that order")  # fmt: skip
 
 
+# Every step of the Live Demo Guide reads the same way (guide/source/CONVENTIONS.md).
+GUIDE_STEP_FIELDS = (
+    "**Where:**",
+    "**Type:**",
+    "**You should see:**",
+    "**Look at:**",
+    "**What it means:**",
+    "> [!CHECKPOINT]",
+    "> [!IFDIFFERENT]",
+    "> [!INSTRUCTOR]",
+)
+
+
+def _check_guide_steps(page: Page, c: _Collector) -> None:
+    """SC28: each '### Step N:' in guide/ has Where, Type, You should see, Look at, What it means,
+    a checkpoint, an "if it looks different" box, and an instructor note, in that order."""
+    steps: list[tuple[Line, list[str]]] = []
+    for ln in page.lines:
+        if ln.kind == "prose" and re.match(r"^#{1,3} ", ln.text):
+            steps.append((ln, []))
+        elif steps and ln.kind == "prose":
+            steps[-1][1].append(ln.text.strip())
+    for head, body in steps:
+        if not re.match(r"^### Step \d+: \S", head.text):
+            continue
+        starts = [next((i for i, t in enumerate(body) if t.startswith(f)), -1)
+                  for f in GUIDE_STEP_FIELDS]  # fmt: skip
+        if -1 in starts or starts != sorted(starts):
+            missing = [f for f, i in zip(GUIDE_STEP_FIELDS, starts, strict=True) if i < 0]
+            detail = f"missing {', '.join(missing)}" if missing else "fields out of order"
+            c.add(head.no, "SC28", f"a guide step needs every field in order: {detail}")
+
+
 def _check_scenario(page: Page, c: _Collector) -> None:
     lines = page.lines
     start = next(
@@ -1621,7 +1683,7 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
         _check_markers(page, c)
         _check_prose_values(page, c)
         _check_fences(page, c)
-        _check_ids(page, c)
+        _check_ids(page, c, rel)
         _check_lengths(page, c, kind)
         _check_tables(page, c)
         _check_output_note(page, c)
@@ -1632,6 +1694,8 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
             _check_scenario(page, c)
         _check_glossary(page, c)
         _check_guidance(page, c)
+        if rel.startswith(GUIDE_DIR):
+            _check_guide_steps(page, c)
     allowed: dict[int, set[str]] = {}
     for ln in page.lines:
         match = _ALLOW.search(ln.text)

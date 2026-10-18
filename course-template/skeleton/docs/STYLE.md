@@ -26,7 +26,7 @@ A quoted output line <!-- check-style: allow SC08 quoted terminal output -->
 ```
 
 Public course files are `README.md`, `setup/`, the section folders, `final-project/`,
-`slides/README.md`, `use-in-your-repo/`, and `docs/`. Agent files (the real files a demo gives an
+`slides/README.md`, `use-in-your-repo/`, `guide/`, and `docs/`. Agent files (the real files a demo gives an
 agent, in each `demo/{{DEMO_FILES}}/` folder; skills; kit templates) follow their own format; only
 the image rules and the id rules apply to them.
 
@@ -112,8 +112,8 @@ on a page is the full form; later mentions use the short form "Section 2". Plura
 
 Words from how the course was built mean nothing to learners: "owner scope", "the owner's",
 "class host", "build repository", "this release", "brief", "lead" (as a role), milestone codes,
-`PENDING` or `CAPTURE` markers, "generated when released", "(private)", "tonight". Say who does it
-("you", "the instructor"), give the command to run, or cut the sentence.
+`PENDING` or `CAPTURE` markers, "generated when released", "(private)", and the dated words of
+rule 15. Say who does it ("you", "the instructor"), give the command to run, or cut the sentence.
 
 ### 7. No invented numbers
 
@@ -164,6 +164,26 @@ Use relative links between course pages. Clone commands use the real repository 
 Pages generated from the module skeleton hold HTML comments that start with `guide:` and say what
 goes in each part. They never show on GitHub, and the checker reports each one as a warning until
 the part is written and the comment deleted.
+
+### 15. No dated words
+
+Write "today", "in class", "this session", or "this run". Words that only make sense on the day
+they were written fail the prose lint: "tonight", "tomorrow", "yesterday", "last night". <!-- lint-prose: allow -->
+
+### 16. Plain labels, in pages and on screen
+
+A result reads in plain words, with the internal code in brackets only where a reader must
+connect it to a log: "Files outside the allowed paths (`diff_scope`)". The console, the terminal
+summaries, and the pages use the same words for the same outcome, phase by phase. Something that
+did not run says so ("Not run"), never "pending" or "none".
+
+### 17. The Live Demo Guide
+
+`guide/` holds the step-by-step guide to every live demo: its README, Part 0, one chapter per
+section, and the appendix. Every step has the same fields and boxes, in order (the checker reports
+a gap as SC28); `guide/source/CONVENTIONS.md` lists them. Every command was really run and every
+number comes from a recorded live run. In `guide/` only, a run id may stand in a command or a
+terminal excerpt, never in prose.
 
 ---
 
@@ -373,4 +393,33 @@ should see.**, **Check it worked.**, **If it fails.**
 ## Captures
 ## Sources and findings
 ## Commits and tags
+```
+
+### Live Demo Guide (`guide/`)
+
+```markdown skeleton:guide-readme
+# {{MODULE_TITLE}} - Live Demo Guide
+## Who it is for
+## What you need first
+## How to follow it
+## Time and cost
+## The slides
+## Build the PDF
+```
+
+Each chapter (`guide/chapters/N-*.md`) is its steps, then:
+
+```markdown skeleton:guide-chapter
+# Chapter N: Section N: Name
+## Result summary
+## Time and cost
+## What to say in class
+```
+
+```markdown skeleton:guide-appendix
+# Appendix: Cheat sheet, troubleshooting, glossary and fallback
+## Command cheat sheet
+## Troubleshooting
+## Glossary
+## Fallback: replay a recorded run
 ```
