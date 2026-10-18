@@ -36,6 +36,10 @@ background (`#324158`) and on GitHub in light or dark mode. Each panel is a fixe
 
 In the results charts, each dot is one run: a filled dot passed, a hollow dot failed.
 
+Colour is never the only signal. Each diagram also names its parts in words, such as "Bare arm",
+"Harness arm", "BLOCKED", and "REVERTED", and the alt text and caption of each diagram say what it
+shows. You do not need to tell the colours apart to read a diagram.
+
 > **Terms on this page**
 >
 > - **Harness**: The files and code around the agent that decide what it sees and may do.

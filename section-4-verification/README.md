@@ -23,6 +23,8 @@ The cost is a shipped bug that every check approved, and a review that rested on
 > - **Test filters**: Five checks a test from the test phase must pass to be kept.
 > - **Hidden tests**: Tests the agent never sees; the referee runs them after the agent stops.
 > - **Referee mutants**: Planted faults the agent never sees; the referee counts how many the shipped tests catch.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## Why it happens
 

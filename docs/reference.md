@@ -65,86 +65,56 @@ page.
 
 ### Glossary
 
-One line per term, in plain words. Pages spell out each term on first use too.
-
-- **A/B**: Bare arm and harness arm on the same ticket, scored the same way.
-- **Ablation**: Removing one harness layer and running again, to see what that layer was worth.
-- **Adapter**: The file that tells `shipharness check` where your app's routes, models, and rules live.
-- **Alembic head**: The newest migration in Alembic's chain of database migrations; a healthy history has exactly one.
-- **Audit log**: A table with one row per write that says who changed what.
-- **Bare arm**: An agent run with the ticket and the repository, and no harness.
-- **Baseline**: The results on the unchanged app, recorded once so later checks count only new problems.
-- **Blinded reviewer**: A separate model that reads a diff without knowing which arm wrote it.
-- **bwrap and seccomp**: Linux tools that limit which files and system calls a process may use.
-- **Checkpoint tag**: A git tag such as `m1-s1-start` that marks the repository state at the start of a section.
-- **Class date**: The class day in `.env`, which names the LangSmith project and keys the session cap.
-- **Class profile**: The settings the live class runs use, the same for both arms.
-- **Compaction**: Squeezing an old context into a short summary so the session can go on.
-- **Context reset**: Ending a session and starting a fresh one that reads its state from files.
-- **Doctest**: An example in a docstring that runs as a test.
-- **Embeddings**: Number vectors that stand for a text's meaning, so similar texts can be found.
-- **Exec plan**: A living plan file for one long change, with its progress, decisions, and surprises.
-- **Experiment export**: The JSON file a run writes for each arm, listing its runs and scores.
-- **Fast tier**: OpenAI's quicker, higher-priced service tier, used in the class profile.
-- **Feature list**: A JSON file that lists each feature with a `passes` field; the harness, not the agent, sets it.
-- **Flakiness**: How often a test gives different results on the same code; the referee re-runs each shipped test five times.
-- **Flaky test**: A test that sometimes passes and sometimes fails on the same code.
-- **Gate**: The harness check that must pass before "done" counts; the agent does not control it.
-- **Harness**: The files and code around the agent that decide what it sees and what it may do.
-- **Harness arm**: The same run as the bare arm, with the harness turned on.
-- **Harness layer**: One part of the harness: instructions, state, scope, or verification.
-- **Held-out tests**: Hidden tests the agent never sees; only the referee runs them.
-- **Hidden tests**: Tests the agent never sees; the referee runs them after it stops (also held-out tests).
-- **House rules**: The rules a team wants every change to follow, each with a check that prints how to fix a violation.
-- **Idempotency**: Sending the same request twice has the same effect as sending it once.
-- **Idempotency key**: An id the client sends with a create request, so a retried request does not create a duplicate.
-- **Import-linter**: A tool that fails when code imports across a forbidden layer boundary.
-- **k**: The number of tries per arm and task; k=1 is one try.
-- **LangSmith**: The tracing service that records every model call of a run.
-- **Lost update**: One edit silently overwriting another made at the same time.
-- **Migration head**: Another name for the Alembic head: the single newest migration.
-- **Mutant**: A copy of the code with one small bug planted on purpose; a good test fails on it.
-- **Optimistic concurrency**: An edit carries the version it read, and the server refuses it if the record changed since.
-- **pass^k**: Passing on all k tries of the same task, not just on one.
-- **Pill**: The status badge on console screen 1 that shows the primary verdict.
-- **Primary measure**: The one question a section's A/B answers, fixed before any run.
-- **Primary verdict**: The referee's answer to the one question the section asks.
-- **Probe**: A request the referee sends to test one house rule on one endpoint.
-- **Progressive disclosure**: The agent first sees a short description and opens the full instructions only when it needs them.
-- **Reasoning effort**: How long the model thinks before it answers (low, medium, high).
-- **Referee**: The program that scores each run after the agent stops.
-- **Referee set**: Mutants held back from test generation and used only to judge the kept tests.
-- **Registered**: Fixed in writing before any run, so the result cannot shape the question.
-- **Regression oracle**: The reference for correct behaviour: the current code's results, which new tests must match.
-- **Regression tests**: Tests that guard the behaviour the code has today.
-- **Replay**: Showing a recorded run again and judging it again, with no model calls.
-- **Reward hacking**: Passing the visible checks without doing the task they stand for.
-- **Sandbox**: The container the agent's commands run in, with no network and only the files it may use.
-- **Session**: One stretch of agent work that starts with a fresh context; a long task spans several sessions.
-- **Session turn budget**: The fixed number of turns a session gets before the runner stops it.
-- **Skill**: A folder with a `SKILL.md` file that tells an agent how to do one kind of task.
-- **Soft delete**: Marking a row as deleted (a `deleted_at` time) instead of removing it.
-- **Stopwords**: Common words such as "the" that a text comparison ignores.
-- **Swap test**: Scoring an A/B again with the arm labels swapped, to check the reviewer is not biased by them.
-- **Tenant**: One customer organisation (org) in an app that serves many; tenant isolation keeps each org's data apart.
-- **Ticket**: The task the agent gets, written like a work ticket.
-- **Trace**: The recorded steps of a run, model calls and tool calls, in LangSmith.
-- **Turn**: One model reply, with the tool calls it makes.
-- **Turn budget**: The most turns a session may use before the runner stops it.
-- **Walkthrough anchor**: A marker such as `S4:gate` in the code that a walkthrough page points to.
+Every course term, in plain words, is in the [glossary](glossary.md): every feature, house rule,
+section, filter, and assignment name, and terms such as arm, referee, mutant, and pass^k.
 
 ## Make targets
 
 Every target is a thin wrapper over `uv run ...` (`Makefile`). On Windows, run make inside Ubuntu
-on WSL2. The "Runs" column is what `make -n <target>` prints. `make help` prints a short list:
+on WSL2. The "Runs" column is what `make -n <target>` prints. `make help` lists every target with a
+one-line description, and the feature names:
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ```text
-setup doctor up console datasets lint format lint-prose test test-all test-live test-docker
-demo-N [LAYERS=-<layer>]  show-N  swap-N [AB=<id>]  final [FEATURES=F5,F6]  replay RUN=<id>
-warm (before class: images, containers, referee and gate baselines; no model calls)
-experiments and reports: uv run shipharness experiments --help; uv run shipharness report --help
+Targets (on Windows, run make inside Ubuntu on WSL2):
+  help                 Print this list of targets and feature names
+  setup                Install the pinned packages, build both images, create .env if missing
+  images               Build the agent and referee sandbox images
+  doctor               Check tools, Docker, both keys, prices, and the class date
+  warm                 Before class: images, containers, referee and gate baselines; no model calls
+  up                   Start TeamTrack and its board on http://127.0.0.1:8000/board
+  console              Start the live console on http://127.0.0.1:8765/
+  datasets             Upload the two datasets to LangSmith once (Assignment 1 needs them)
+  show-N               Live: the harness arm alone on the ticket of section N (N is 1 to 4)
+  demo-N               Live A/B on the ticket of section N; LAYERS=-<layer> removes one layer
+  final                Live: one A/B per feature in FEATURES, for example FEATURES=watchers,bulk-close
+  swap-N               Re-judge the latest A/B of section N with the labels swapped; AB=<id> picks one
+  replay               Replay a recorded run on every screen, no model calls: make replay RUN=<id>
+  example-N            Optional: the layers of section N driven by scripted steps, no model
+  experiments          Show the options of uv run shipharness experiments
+  report               Show the options of uv run shipharness report
+  check-assignment-N   Offline self-check of Assignment N
+  grade-assignment-N   Instructor only: grade a submission, SUBMISSION=<folder or git URL>
+  slides               Build slides/dist/deck.html, deck.pdf, and deck.pptx
+  test                 Run the fast test suite
+  test-all             Run every test that needs no key and no container
+  test-live            Run the tests that call OpenAI and LangSmith
+  test-docker          Run the sandbox tests in real containers
+  lint                 Ruff, the import contract, anchors, and skills validation
+  format               Rewrite files with ruff check --fix and ruff format
+  lint-prose           Check the course pages for banned words and emoji
+  check-style          Check the course pages against docs/STYLE.md; CHECK_STYLE_OPTS=--strict
+  anchors              List the code walkthrough anchors
+Feature names for FEATURE and FEATURES (the readable name or the code, any case):
+    org-search           F1  Feature 1: Org-wide issue search
+    comments             F2  Feature 2: Comments on issues
+    idempotent-create    F3  Feature 3: Safe retries for issue creation
+    version-checks       F4  Feature 4: Version checks on issue edits
+    bulk-close           F5  Feature 5: Bulk close
+    watchers             F6  Feature 6: Watchers
+    labels               F7  Feature 7: Labels
+Examples: make demo-3 FEATURE=version-checks; make final FEATURES=watchers,bulk-close
 ```
 
 ### Setup and checks (no model calls)

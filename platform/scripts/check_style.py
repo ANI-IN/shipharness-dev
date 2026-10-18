@@ -43,7 +43,7 @@ CHECKS: dict[str, tuple[str, str]] = {
     "SC03": ("Angle-bracket leftovers and placeholder clone URLs", ERROR),
     "SC04": ("Empty or unclosed fenced code block", ERROR),
     "SC05": ("Fenced code block whose only content is comments", ERROR),
-    "SC06": ("Image file missing, empty, remote, or without alt text", ERROR),
+    "SC06": ("Image file missing, empty, or remote", ERROR),
     "SC07": ("Image without a caption line", ERROR),
     "SC08": ("Run ids outside the evidence pages (docs/evidence.md, docs/evidence/)", ERROR),
     "SC09": ("Finding ids outside the evidence pages", ERROR),
@@ -73,6 +73,7 @@ CHECKS: dict[str, tuple[str, str]] = {
     ),  # fmt: skip
     "SC24": ("Empty links, '[link]' placeholders, and malformed link URLs", ERROR),
     "SC25": ("Sources list at the end: 'Source N: title, link, author, date', in order", ERROR),
+    "SC26": ("Image alt text empty, only a file name, or a bare word such as 'image'", ERROR),
     "SC30": ("Relative link to a missing file, folder, or heading (images: SC06)", ERROR),
 }
 
@@ -982,8 +983,10 @@ def _check_images(page: Page, c: _Collector, root: Path, rel: str, agent: bool) 
             continue
         if _IMAGE_REF.search(ln.nocode):
             c.add(ln.no, "SC06", "use inline image syntax: ![alt](path)")
-        for src, alt, _matched in _images(ln):
-            problem = _image_problem(root, rel, src, alt)
+        for src, _alt, _matched in _images(ln):
+            if _is_badge(src):
+                continue  # a CI status badge: remote by design, and it needs no caption
+            problem = _image_problem(root, rel, src)
             if problem:
                 c.add(ln.no, "SC06", problem)
             if agent:
@@ -997,11 +1000,19 @@ def _check_images(page: Page, c: _Collector, root: Path, rel: str, agent: bool) 
                 c.add(ln.no, "SC07", "an image needs a blank line, then an italic caption line")
 
 
-def _image_problem(root: Path, rel: str, src: str, alt: str | None) -> str | None:
+# The one remote image a page may show: the CI status badge GitHub Actions serves for a workflow.
+_BADGE = re.compile(
+    r"^https://github\.com/[\w.-]+/[\w.-]+/actions/workflows/[\w.-]+\.ya?ml/badge\.svg$"
+)
+
+
+def _is_badge(src: str) -> bool:
+    return bool(_BADGE.match(src.strip("<>")))
+
+
+def _image_problem(root: Path, rel: str, src: str) -> str | None:
     if src.startswith(("http://", "https://")):
         return f"remote image {src}: store images in the repository"
-    if not alt or not alt.strip():
-        return f"image {src} has no alt text"
     path = unquote(src.strip("<>").split("#", 1)[0])
     if not path.lower().endswith(_IMAGE_SUFFIXES):
         return f"image {src} is not one of {' '.join(_IMAGE_SUFFIXES)}"
@@ -1011,6 +1022,45 @@ def _image_problem(root: Path, rel: str, src: str, alt: str | None) -> str | Non
     if target.stat().st_size == 0:
         return f"image file {src} is empty"
     return None
+
+
+# Alt text that names no content: a screen reader would read only this word.
+_EMPTY_ALT_WORDS = {"image", "img", "picture", "photo", "screenshot", "screen shot", "diagram",
+                    "figure", "chart", "graph", "icon", "logo", "alt", "alt text"}  # fmt: skip
+
+
+def _plain_words(text: str) -> str:
+    """Lowercase words only: separators and a trailing image suffix removed."""
+    text = text.strip().lower()
+    for suffix in _IMAGE_SUFFIXES:
+        if text.endswith(suffix):
+            text = text[: -len(suffix)]
+    return " ".join(re.split(r"[\s_./-]+", text)).strip()
+
+
+def alt_text_problem(src: str, alt: str | None) -> str | None:
+    """Why the alt text of the image at `src` says nothing to a reader who cannot see it, or None:
+    empty or missing, the image's file name, or one generic word such as "image"."""
+    if alt is None or not alt.strip():
+        return f"image {src} has no alt text: say what the image shows"
+    name = unquote(src.strip("<>").split("#", 1)[0]).rsplit("/", 1)[-1]
+    words = _plain_words(alt)
+    if alt.strip().lower().endswith(_IMAGE_SUFFIXES) or words == _plain_words(name):
+        return f"image {src}: the alt text is only its file name; say what the image shows"
+    if words in _EMPTY_ALT_WORDS:
+        return f"image {src}: the alt text '{alt.strip()}' says nothing; say what the image shows"
+    return None
+
+
+def _check_alt_text(page: Page, c: _Collector) -> None:
+    """SC26: every image has alt text that says what it shows (STYLE rule 11)."""
+    for ln in page.lines:
+        if ln.kind != "prose":
+            continue
+        for src, alt, _matched in _images(ln):
+            problem = alt_text_problem(src, alt)
+            if problem:
+                c.add(ln.no, "SC26", problem)
 
 
 def _scanned(page: Page) -> Iterable[tuple[Line, str]]:
@@ -1670,6 +1720,7 @@ def check_text(rel: str, text: str, root: Path) -> list[Problem]:
     c = _Collector(rel)
     agent = is_agent_file(rel)
     _check_images(page, c, root, rel, agent)
+    _check_alt_text(page, c)
     _check_labels(page, c, rel)
     _check_links_resolve(page, c, root, rel)
     if not agent:

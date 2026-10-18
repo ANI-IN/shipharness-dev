@@ -30,6 +30,8 @@ The list of files was written down, but nothing checked it.
 > - **Block**: A patch the scope layer refuses before anything is written; the agent sees `BLOCKED`.
 > - **Revert**: A command's change outside the allowed paths, undone right after the command runs.
 > - **Sandbox**: The container every tool command runs in, the same for both arms.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## The idea in one sentence
 

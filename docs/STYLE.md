@@ -105,8 +105,8 @@ and then the how-to.
 - Short paragraphs: at most 5 lines.
 - Standard terms (API, CI, HTTP, JSON, SQL, ETag) need no explanation. Spell out any less common
   term on first use on each page, in a few plain words: "mutant (a copy of the code with one small
-  bug planted on purpose)". Every such term is in the glossary of `docs/reference.md`, one line
-  each, in alphabetical order.
+  bug planted on purpose)". Every such term is in the [glossary](glossary.md), one line each, in
+  alphabetical order.
 
 ### 4. One glossary box per page
 
@@ -267,6 +267,11 @@ caption.
 
 *At minute 4 the primary verdict is ready, while the secondary checks still run.*
 ```
+
+Alt text says what the image shows, for a reader who cannot see it: never empty, never the file
+name, never one word such as "image" or "screenshot" (SC26). Colour never carries meaning alone:
+say it in words too ("the blocked file", "a filled dot passed"). The one remote image allowed is
+the CI status badge at the top of the root README; it needs no caption.
 
 Link official pages instead of pasting screenshots of other products.
 

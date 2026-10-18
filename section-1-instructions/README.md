@@ -23,6 +23,8 @@ of the pattern.
 > - **Map**: A short `AGENTS.md` that says where each rule lives, instead of holding every rule.
 > - **Agent Skill**: A folder with a `SKILL.md` recipe that the agent loads only when a task needs it.
 > - **House rule 1: Tenant isolation**: another org's resource answers 404, never 403.
+>
+> All terms: [glossary](../docs/glossary.md).
 
 ## Why it happens
 

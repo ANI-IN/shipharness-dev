@@ -392,6 +392,56 @@ def test_make_help_names_the_readable_feature_names() -> None:
     assert "idempotent-create" in text  # the earlier name of safe-retries still works
 
 
+# -- make help covers every target ----------------------------------------------------------------
+
+# A target line of `make help`: two spaces, the target (section targets as `demo-N`), then at least
+# two spaces and a one-line description. Other lines (headings, feature names) are not target lines.
+_HELP_TARGET = re.compile(r"^  (?P<name>[a-z][a-z0-9-]*[a-zN])\s{2,}(?P<text>\S.*)$")
+
+
+def _help_lines() -> list[str]:
+    """The text of each `@echo "..."` line of the help recipe, as make prints it."""
+    lines = []
+    for line in _rules()["help"]:
+        match = re.fullmatch(r'@echo "(.*)"', line)
+        assert match, f"help recipe line is not a plain @echo: {line}"
+        lines.append(match.group(1))
+    return lines
+
+
+def _help_entries() -> dict[str, str]:
+    entries = {}
+    for line in _help_lines():
+        match = _HELP_TARGET.match(line)
+        if match:
+            entries[match.group("name")] = match.group("text")
+    return entries
+
+
+def test_make_help_describes_every_target_in_one_line() -> None:
+    entries = _help_entries()
+    for target in _rules():
+        name = re.sub(r"-[1-4]$", "-N", target)  # demo-1 to demo-4 are listed once as demo-N
+        assert name in entries, f"make help does not list {target}"
+        assert len(entries[name].split()) >= 3, f"{name}: the description is too short"
+
+
+def test_make_help_lists_no_target_that_does_not_exist() -> None:
+    targets = set(_rules())
+    for name in _help_entries():
+        expanded = [name]
+        if name.endswith("-N"):
+            expanded = [name.replace("-N", f"-{n}") for n in range(1, 5)]
+        assert all(t in targets for t in expanded), f"make help lists {name}, not in the Makefile"
+
+
+def test_make_help_names_the_features_by_their_readable_names() -> None:
+    text = "\n".join(_help_lines())
+    assert "FEATURE=version-checks" in text and "FEATURES=watchers,bulk-close" in text
+    for full_name in ("Feature 4: Version checks on issue edits", "Feature 6: Watchers"):
+        assert full_name in text, full_name
+
+
 # -- course style check ---------------------------------------------------------------------------
 
 

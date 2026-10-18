@@ -42,7 +42,7 @@ The run id and the running cost totals are cut from `terminal.txt` where it show
 
 *Minute 9: the referee's primary verdict is FAIL while the secondary checks still run.*
 
-![Screen 1 after the full verdict](show-4-screen-1-final.png)
+![Screen 1 after the full verdict: every gate pill passed, primary verdict FAIL, hidden tests 68 of 69](show-4-screen-1-final.png)
 
 *The end: 43 turns, hidden tests 68/69, mutants killed 0/4, primary verdict at 09:19, full at 10:55.*
 

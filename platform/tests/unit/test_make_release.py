@@ -256,6 +256,25 @@ def test_the_changelog_stays_out_of_the_release() -> None:
     assert dict(mr.leaks(["docs/CHANGELOG.md"])) == {"docs/CHANGELOG.md": mr.REASON_PRIVATE}
 
 
+LEARNER_HELP_PAGES = [
+    "SECURITY.md",
+    "docs/start-here.md",
+    "docs/glossary.md",
+    "docs/faq.md",
+    "docs/costs.md",
+]
+
+
+def test_security_policy_and_learner_help_pages_ship() -> None:
+    # SECURITY.md (how to report a problem) and the learning-path, glossary, FAQ, and cost pages
+    # are public: the allow-list names each one.
+    sel = mr.select([*TRACKED, *LEARNER_HELP_PAGES])
+    for path in LEARNER_HELP_PAGES:
+        assert mr.classify(path) is None, path
+        assert path in sel.included, path
+    assert "SECURITY.md" in mr.ROOT_FILES
+
+
 def test_missing_owner_files_are_listed_not_failed() -> None:
     sel = mr.select(TRACKED)
     missing = mr.missing_expected(sel.included)
