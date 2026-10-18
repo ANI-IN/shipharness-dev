@@ -94,19 +94,17 @@ make warm PURPOSE=pilot
 ```
 
 `make doctor` ends with `result: + ready`. Both key lines say `accepted by OpenAI` and `accepted by
-LangSmith`, and the `agent model` and `reviewer model` lines say `accepted`. `make warm` builds the images if their source changed, starts each image once, and
-caches the referee and gate baselines. It makes no model calls. After an image rebuild it took 2 min
-21 s and 3 min 40 s before class. With nothing changed it took 1.2 s. It ends like this:
+LangSmith`, and the `agent model` and `reviewer model` lines say `accepted`.
+`make warm` builds the images if their source changed, starts each image once, and caches the referee and gate baselines. It makes no model calls. After an image rebuild it took 2 min
+21 s and 3 min 40 s before class. With nothing changed it took 1.2 s. A run with nothing to do ends like this:
 
 > Your output will differ: run times, ids, and the agent's wording change on every run.
 
 ```text
-gate baseline final F7: cached (0.0 s)
-warm: done (140.6 s)
-Cost: $0.000000 (this command: no calls; session $0.000000 of $2.50; build $2.248909 of $15.00 ($12.751091 left))
+gate baseline final (Feature 7: Labels): cached (0.0 s)
+warm: done (1.9 s)
+Cost: $0.000000 (this command: no calls; session $0.000000 of $2.50; build $0.000000 of $15.00 ($15.000000 left))
 ```
-
-`F7` in the first line is the id of the labels feature.
 
 If `make warm` ends with `warm: incomplete`, run `make images`, then `make warm PURPOSE=pilot` again.
 

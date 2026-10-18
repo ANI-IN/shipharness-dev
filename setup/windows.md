@@ -466,29 +466,26 @@ make warm
 ```
 
 **You should see.** One line per step with its time, then `warm: done (<seconds> s)` and a cost
-line. The last lines on the course machine, after a code change made it rebuild the images:
+line. The lines from a second run on the course machine, with nothing left to build or compute:
 
 ```text
-images: built (shipharness-agent:1: source changed; shipharness-referee:1: source changed) (137.9 s)
-page-in shipharness-agent:1 (0.8 s)
+images: up to date, nothing built (shipharness-agent:1, shipharness-referee:1) (0.3 s)
+page-in shipharness-agent:1 (0.5 s)
 page-in shipharness-referee:1 (0.5 s)
-plan: 0 baselines to compute (0.7 s)
-referee baseline demo-1 F1: cached (0.0 s)
-referee baseline demo-2 F2: cached (0.0 s)
-referee baseline demo-3 F3: cached (0.0 s)
-referee baseline demo-4 F4: cached (0.0 s)
-referee baseline final F5: cached (0.0 s)
-referee baseline final F6: cached (0.0 s)
-referee baseline final F7: cached (0.0 s)
-gate baseline demo-4 F4: cached (0.0 s)
-gate baseline final F5: cached (0.0 s)
-gate baseline final F6: cached (0.0 s)
-gate baseline final F7: cached (0.0 s)
-warm: done (140.6 s)
+plan: 0 baselines to compute (0.6 s)
+referee baseline demo-1 (Feature 1: Org-wide issue search): cached (0.0 s)
+referee baseline demo-2 (Feature 2: Comments on issues): cached (0.0 s)
+referee baseline demo-3 (Feature 4: Version checks on issue edits): cached (0.0 s)
+referee baseline demo-4 (Feature 4: Version checks on issue edits): cached (0.0 s)
+referee baseline final (Feature 5: Bulk close): cached (0.0 s)
+referee baseline final (Feature 6: Watchers): cached (0.0 s)
+referee baseline final (Feature 7: Labels): cached (0.0 s)
+gate baseline demo-4 (Feature 4: Version checks on issue edits): cached (0.0 s)
+gate baseline final (Feature 5: Bulk close): cached (0.0 s)
+gate baseline final (Feature 6: Watchers): cached (0.0 s)
+gate baseline final (Feature 7: Labels): cached (0.0 s)
+warm: done (1.9 s)
 ```
-
-`F1` to `F7` in these lines are the codes of Features 1 to 7, from Feature 1: Org-wide issue search
-to Feature 7: Labels.
 
 A first run with no cached baselines took 407 s on the course machine; a second run
 took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
@@ -533,7 +530,7 @@ second terminal, start the run:
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on Feature 1, then the referee and one review. It costs at most $0.24 at the caps.
+`make show-1` runs the harness arm alone with the instructions layer on Feature 1: Org-wide issue search, then the referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The first terminal prints the console's address:
 
