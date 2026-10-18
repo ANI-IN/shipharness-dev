@@ -111,7 +111,7 @@ def test_evidence_screen(page: dict[str, str]) -> None:
         "mocks the unit under test",
         "m-repo-07",
         "m-issues-02",
-        "House rule 1, 3 new",
+        "3 new",  # one row per check: the name, then a short pill
         "House rule 1: Tenant isolation",
         "reviewer",
     ):

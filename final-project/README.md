@@ -113,7 +113,7 @@ A/B ... (Feature 5: Bulk close, layers=['instructions', 'scope', 'state', 'verif
   bare     completed         agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 3 of 3 · reviewer accept · cost $0.0196
   harness  ABORTED: timeout  agent said done · no primary measure · hidden tests 46 of 46 · mutants killed 1 of 3 · reviewer reject · cost $0.0139
 Cost: $0.038253 (this command: gpt-5.6-luna $0.004675, gpt-6-luna $0.033578; session $0.060114 of $2.50; build $0.060114 of $15.00 ($14.939886 left))
-make: *** [Makefile:211: final] Error 2
+make: *** [Makefile:214: final] Error 2
 ```
 
 The harness arm said done after 20 turns. Its gate then ran the house-rule checks in the arm's

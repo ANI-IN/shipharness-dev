@@ -438,7 +438,7 @@ shipharness doctor
       not a class run? use PURPOSE=pilot with make, or --purpose pilot
   result: x not ready (fix the items above)
 Cost: $0.000000 (no model calls)
-make: *** [Makefile:96: doctor] Error 1
+make: *** [Makefile:99: doctor] Error 1
 ```
 
 Paths in this sample are shortened for privacy.
