@@ -1,7 +1,7 @@
-# captured on 2026-10-17 from `make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution` at commit eba4c55 (no model calls); your output will differ.
+# captured on 2026-10-17 from `make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution` at commit eba4c55 (no model calls); your output will differ; paths shortened for privacy.
 $ make check-assignment-4 A4_IMPL=section-4-verification/assignment/solution
 uv run python section-4-verification/assignment/check.py --impl section-4-verification/assignment/solution
-A4 self-check for /home/ani/wt/gaps/section-4-verification/assignment/solution
+A4 self-check for ~/wt/gaps/section-4-verification/assignment/solution
 
 [F6-interface]
   PASS test_filter_has_number_6_and_a_name

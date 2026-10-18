@@ -1,5 +1,5 @@
 $ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen
-target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in /home/ani/shipharness/teamtrack
+target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in ~/shipharness/teamtrack
 ! UNSANDBOXED — results not official: generated tests run on this machine
 Baseline: existing suite without doctests
 testgen r-20261017-093940-52dde8: completed; kept 1 of 5 proposed tests

@@ -1,8 +1,8 @@
 $ uv run shipharness experiments --split section-1 --k 3 --layers instructions --batch a1-reference
 Using CPython 3.12.15
 Creating virtual environment at: .venv
-   Building shipharness @ file:///home/ani/wt/a1ref2
-      Built shipharness @ file:///home/ani/wt/a1ref2
+   Building shipharness @ ~/wt/a1ref2
+      Built shipharness @ ~/wt/a1ref2
 Installed 83 packages in 62ms
 View the evaluation results for experiment: 'shipharness-a1-reference-harness-2026-10-17-59ee85f3' at:
 https://smith.langchain.com/o/10fe45d9-7a3d-4f39-92ad-8c5dc97653d4/datasets/c8c46487-1d0a-406b-bf4a-11a19b2c405b/compare?selectedSessions=33ae45f5-c9bb-41fb-9a18-684a1ee97f98

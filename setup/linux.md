@@ -357,7 +357,7 @@ uv run shipharness doctor --purpose class
 shipharness doctor
   + ok          python                 3.12.15
   + ok          git                    /usr/bin/git
-  + ok          uv                     /home/ani/.local/bin/uv
+  + ok          uv                     ~/.local/bin/uv
   + ok          container runtime      docker at /usr/bin/docker
   x missing     OPENAI_API_KEY         not set
     next step: OPENAI_API_KEY is missing: add it to .env at the repo root
@@ -375,6 +375,8 @@ shipharness doctor
 Cost: $0.000000 (no model calls)
 make: *** [Makefile:96: doctor] Error 1
 ```
+
+Paths in this sample are shortened for privacy.
 
 **Check it worked.** The last line reads `result: + ready`, and `make doctor` exits without a
 `make: ***` line.
