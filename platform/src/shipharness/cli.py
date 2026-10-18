@@ -102,8 +102,18 @@ def up(
     serve(db, port=port)
 
 
+def console_server_options(verbose: bool) -> dict[str, object]:
+    """uvicorn logging for the console: quiet (warnings and errors) unless verbose."""
+    return {"access_log": verbose, "log_level": "info" if verbose else "warning"}
+
+
 @app.command()
-def console(port: int = typer.Option(8765, help="Port for the live console.")) -> None:
+def console(
+    port: int = typer.Option(8765, help="Port for the live console."),
+    verbose: bool = typer.Option(
+        False, "--verbose", help="Print a line per request and the server's info logs."
+    ),
+) -> None:
     """Run the live console on http://127.0.0.1:<port>/."""
     import uvicorn
 
@@ -112,8 +122,13 @@ def console(port: int = typer.Option(8765, help="Port for the live console.")) -
     settings = load_settings()
     settings.runs_dir.mkdir(parents=True, exist_ok=True)
     typer.echo(f"Console: http://127.0.0.1:{port}/")
+    if not verbose:
+        typer.echo(
+            "Only warnings and errors print here; "
+            "make console VERBOSE=1 (--verbose) logs each request."
+        )
     console_app = create_console_app(settings.runs_dir, exports_dir=settings.exports_dir)
-    uvicorn.run(console_app, host="127.0.0.1", port=port)
+    uvicorn.run(console_app, host="127.0.0.1", port=port, **console_server_options(verbose))
 
 
 @app.command()

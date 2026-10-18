@@ -154,6 +154,7 @@ Source: `platform/src/shipharness/ab/commands.py` and `platform/src/shipharness/
 | The run list does not show a new run | The list does not refresh by itself | Reload the page; the newest run is first |
 | The header shows `reconnecting` | The console server stopped | Restart `make console` and reload |
 | Port 8765 (or 8000) is in use | Another server uses it | `make console CONSOLE_PORT=8766`, `make up PORT=8001` |
+| The `make console` terminal shows no line per request | Quiet by default: only warnings and errors print | `make console VERBOSE=1` |
 | Screen 2: `No board screenshot yet (the preview container takes one every 5 s).` all run long | The board preview container did not start | Display only; the referee's board checks still run |
 | Screen 4: `No results to compare yet` | Nothing in `exports/scores/` yet | Wait for the referee to finish the first arm |
 | Screen 4 does not show a `make show-N` run | Screen 4 compares arms, and a show-N run has one arm (`platform/src/shipharness/console/report.py`) | Expected; `uv run shipharness report` writes every record to `exports/report.html` |

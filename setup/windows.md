@@ -524,6 +524,9 @@ it running:
 make console
 ```
 
+Only the address, warnings, and errors print in this terminal; `make console VERBOSE=1` also
+prints a line per request.
+
 Open http://127.0.0.1:8765/ in your Windows browser. In WSL's default networking mode, a server in
 Ubuntu is reachable from Windows at `localhost`
 ([WSL networking](https://learn.microsoft.com/en-us/windows/wsl/networking)). In the
