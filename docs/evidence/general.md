@@ -281,8 +281,8 @@ renamed text gives the same results.
 
 The checkpoint commits carry TeamTrack's directory, which holds the renamed harness text, the
 handbook, and the feature specs, so the eight checkpoint tags no longer matched a fresh build and
-the release build refused them. The tags were moved (the approved option: rebuild them), and
-were rebuilt on 2026-10-18 on main 449833a with `build_checkpoints.py --force --owner-approved-move`:
+the release build refused them. The tags were rebuilt (the approved option)
+on 2026-10-18 on main 449833a with `build_checkpoints.py --force --owner-approved-move`:
 m1-s1-start e82c59f -> 821db62, m1-s2-start 6d8102e -> aa24113, m1-s3-start d06688a -> c111cca,
 m1-s4-start d0b98d0 -> add3e45, m1-final-start 6b0050e -> 4cf12f7, m1-complete 764b2b2 -> adee528,
 m1-alt-a a0aef38 -> 0d46a40, m1-alt-b 846baab -> f5077ef. In all eight the TeamTrack tree differs
