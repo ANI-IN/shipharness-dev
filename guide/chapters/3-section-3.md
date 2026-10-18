@@ -161,13 +161,11 @@ wrote `feature_list.json` with this one feature and `passes: false`. Both contai
 
 **You should see:**
 
-![Screen 1 at the moment of the block, with the harness arm's harness decisions expanded: the three notes are visible, and callout 3 points at the block row just below them, at the bottom edge of the picture](../images/s3/screen-1-block.png)
+![Close-up of the harness arm's harness decisions at the moment of the block: three notes, then the block row and the blocked row for app/services/errors.py, outside the allowed paths for the build phase](../images/s3/screen-1-block.png)
 
-*The block row comes right after the three notes. On your screen, scroll the harness decisions to read it.*
+*The block row comes right after the three notes. The agent reads the same reason in its tool result.*
 
-1. Bare arm line: no layers
-2. Turns list
-3. Blocked edit: outside the allowed paths
+1. Blocked edit: outside the allowed paths
 
 **Look at:** The `block` row and its reason: "app/services/errors.py: outside the allowed paths for
 the build phase", then the allowed paths. The full text ends "patch not applied".
@@ -234,9 +232,9 @@ shared file. Before class, most bare arms patched that file instead (Step 13).
 
 **You should see:**
 
-![Screen 1 when the bare arm's primary verdict was ready: the bare arm shows run completed, 43 turns, agent said done, and at the bottom edge the referee pill primary verdict ready: PASS; the harness arm is still working, at turn 1.22](../images/s3/screen-1-primary.png)
+![Close-up of both arms when the bare arm's primary verdict was ready: bare, agent said done, primary verdict ready: PASS, files changed outside the allowed paths 0, secondary checks running, launch to primary verdict 03:01, claim supported; harness, agent said no claim, referee pending](../images/s3/screen-1-primary.png)
 
-*The bare arm's primary verdict arrives first. The lines below the pill are under the bottom edge of this picture.*
+*The bare arm's primary verdict arrives first, while the harness arm still works.*
 
 1. Referee pill (bare)
 

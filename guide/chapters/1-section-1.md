@@ -269,7 +269,7 @@ uv run shipharness ab --section demo-1 --feature org-search --arms harness   --p
 
 **You should see:** "hidden tests 52/52", "mutants killed 3/4", "launch to primary verdict 02:27 · launch to full verdict 04:37", and the pill "✓ claim supported".
 
-![Close-up of the harness panel on screen 1 after the run finished: turns, notes, gate list, agent said done, referee PASS](../images/s1/screen-1-harness.png)
+![Close-up of the harness panel on screen 1 after the run finished: turns, notes, gate list, agent said done (build) and done (test phase), referee PASS](../images/s1/screen-1-harness.png)
 
 *The harness panel at the end: two notes, no gate, the claim and the referee.*
 

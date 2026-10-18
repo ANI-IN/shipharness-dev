@@ -189,11 +189,12 @@ The initializer step is plain code, so it makes no model call.
 
 **You should see:** a new harness decision, "session stop · state · session 1 handoff written to session-handoff.md". After turn 1.12, the turn list shows the marker "Session 1 stopped · ended by turn_budget; handoff session-handoff.md".
 
-![Screen 1 at event 55, when session 1 stopped: the bare arm not run, the harness arm's last turns, and the first two harness decisions](../images/s2/screen-1-session-stop.png)
+![Close-up of the harness arm on screen 1 when session 1 stopped: its last turns 1.1 to 1.6, and the harness decisions: two notes, then session stop, session 1 handoff written to session-handoff.md](../images/s2/screen-1-session-stop.png)
 
-*Screen 1 at the stop. The session stop decision appears under Harness decisions, below this crop.*
+*Session 1 stops: the state layer writes the handoff that session 2 reads first.*
 
 1. Turns list
+2. Handoff written to session-handoff.md
 
 **Look at:** "ended by turn_budget" and "handoff written to session-handoff.md".
 
