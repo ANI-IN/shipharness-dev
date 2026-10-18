@@ -31,7 +31,7 @@ import sys
 import tempfile
 import time
 from collections.abc import Callable, Iterable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -819,6 +819,7 @@ def capture_screen(
     crops: bool = True,
     full: bool = True,
     view: bool = True,
+    focus: tuple[Part, ...] = (),
 ) -> None:
     con.show(screen)
     con.expand(expand)
@@ -838,7 +839,13 @@ def capture_screen(
     shot = con.full_shot(name, screen)
     alt = alt_text(out.demo, screen, shot.facts, SCREEN_WHAT.get(screen, ""), moment)
     viewport = Box(0, 0, WIDTH * DPR, HEIGHT * DPR)
-    if view:
+    if view and focus:
+        pieces = stack_pieces(con, screen, focus)
+        if pieces:
+            save_stacked(shot, out, name, pieces, specs, boxes, screen, moment, alt)
+        else:
+            save_image(shot, out, name, viewport, specs, boxes, screen, moment, alt)
+    elif view:
         save_image(shot, out, name, viewport, specs, boxes, screen, moment, alt)
     if full and shot.height > HEIGHT * DPR + 40:
         save_image(
@@ -897,6 +904,37 @@ def capture_screen(
         save_stacked(
             shot, out, prefixed(name, c.name), pieces, cspecs, cboxes, screen, moment, calt
         )
+
+
+def piece_box(con: Console, screen: int, part: Part) -> Box | None:
+    """The page box (image pixels, padded) of one crop piece, or None."""
+    r = con.page.evaluate(
+        PIECE_JS,
+        {
+            "screen": screen,
+            "root": part.root,
+            "parts": [list(p) for p in part.parts],
+            "arm": part.arm,
+            "nth": part.nth,
+            "every": part.every,
+        },
+    )
+    if not r:
+        return None
+    return scale_box((r["x"] - 6, r["y"] - 6, r["w"] + 12, r["h"] + 12), DPR)
+
+
+def stack_pieces(con: Console, screen: int, parts: tuple[Part, ...]) -> list[Box]:
+    """The boxes of the pieces found; a heading only when the content under it is found."""
+    found = [(p, piece_box(con, screen, p)) for p in parts]
+    out = []
+    for i, (part, box) in enumerate(found):
+        if box is None:
+            continue
+        if is_heading(part) and (i + 1 >= len(found) or found[i + 1][1] is None):
+            continue
+        out.append(box)
+    return out
 
 
 def is_heading(part: Part) -> bool:
@@ -1069,6 +1107,7 @@ class Moment:
     find: Callable[[list[dict[str, Any]]], tuple[int, int] | None]
     specs: tuple[Spec, ...]
     expand: tuple[str, ...] = ()
+    focus: tuple[Part, ...] = ()  # the main image is these pieces stacked, not the viewport
 
 
 def _first(events, pred, extra: int = 0):
@@ -1261,6 +1300,29 @@ MOMENTS = [
         ),
     ),
 ]
+
+
+def _head(arm: str) -> Part:
+    return Part(".arm-panel", ((".arm-head h2", None),), arm=arm)
+
+
+def _gate(arm: str) -> Part:
+    return Part(".arm-panel", (("h3", "Gate"), (".pills", None), (".claims", None)), arm=arm)
+
+
+_TURNS = Part(".arm-panel", ((".list-head", "turns"), ("ol.turns", None)), arm=H)
+_DECISIONS = Part(
+    ".arm-panel", ((".list-head", "Harness decisions"), ("ul.decisions", None)), arm=H
+)
+_FOCUS = {
+    "screen-1-session-stop": (_head(H), _TURNS, _DECISIONS),
+    "screen-1-block": (_head(H), _DECISIONS),
+    "screen-1-gate-pending": (_head(H), _gate(H)),
+    "screen-1-gate-passed": (_head(H), _DECISIONS, _gate(H)),
+    "screen-1-primary": (_head("bare"), _gate("bare"), _head(H), _gate(H)),
+}
+MOMENTS = [replace(m, focus=_FOCUS.get(m.name, ())) for m in MOMENTS]
+
 DEMO_MOMENTS = {
     "s1": ["screen-1-early"],
     "s2": ["screen-1-early", "screen-1-session-stop", "screen-1-session-resumed"],
@@ -1342,6 +1404,7 @@ def capture_cuts(
             crops=False,
             full=True,
             view=view,
+            focus=m.focus,
         )
         done.append(name)
     shutil.rmtree(runs_dir / src_run.name, ignore_errors=True)
