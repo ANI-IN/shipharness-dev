@@ -187,6 +187,19 @@ def install_kit(kit: Path, out: Path) -> tuple[list[Path], list[str]]:
     return written, summary
 
 
+def title_kit_pages(files: list[Path], out: Path, name: str, module: int) -> None:
+    """Kit pages installed under guide/ become course pages: their first heading gets the module
+    title the style check requires ("# Module N: <name> - <page name>")."""
+    for file in files:
+        rel = file.relative_to(out).as_posix()
+        if not (rel.startswith("guide/") and file.suffix == ".md"):
+            continue
+        lines = file.read_text(encoding="utf-8").splitlines(keepends=True)
+        if lines and lines[0].startswith("# ") and not lines[0].startswith("# Module "):
+            lines[0] = f"# Module {module}: {name} - {lines[0][2:]}"
+            file.write_text("".join(lines), encoding="utf-8")
+
+
 def makefile(sections: list[str]) -> str:
     numbers = range(1, len(sections) + 1)
     demo_targets = " ".join(f"demo-{n}" for n in numbers)
@@ -359,6 +372,7 @@ def generate(
     if kit is not None:
         files, lines = install_kit(kit, out)
         written += files
+        title_kit_pages(files, out, name, module)
         if summary is not None:
             summary += lines
     return written

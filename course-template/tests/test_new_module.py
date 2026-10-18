@@ -426,3 +426,21 @@ def test_checklist_covers_every_guide_part() -> None:
                     "Building with agents"):  # fmt: skip
         assert re.search(rf"^##+ .*{heading}", guide, re.M | re.I), heading
         assert re.search(rf"^## .*{heading}", checklist, re.M | re.I), heading
+
+
+def test_kit_pages_in_guide_source_carry_the_module_title(tmp_path: Path) -> None:
+    kit = _fake_kit(tmp_path / "kit")
+    (kit / "tools/guide/README.md").write_text("# guide: the PDF builder\n\nText.\n")
+    out = tmp_path / "m"
+    new_module.generate(out, NAME, 2, ["One"], kit=kit)
+    first = (out / "guide/source/README.md").read_text().splitlines()[0]
+    assert first == f"# Module 2: {NAME} - guide: the PDF builder"
+
+
+def test_a_new_course_with_the_real_kit_has_no_style_errors(tmp_path: Path) -> None:
+    out = tmp_path / "m"
+    new_module.generate(out, NAME, 2, ["One", "Two"], kit=TEMPLATE)
+    done = subprocess.run(
+        [sys.executable, "platform/scripts/check_style.py"], cwd=out, capture_output=True, text=True
+    )
+    assert " 0 errors" in done.stdout, done.stdout[-2000:]
