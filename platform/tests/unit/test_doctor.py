@@ -19,15 +19,33 @@ class APIConnectionError(Exception):
     pass
 
 
+class NotFoundError(Exception):
+    """Same class name and status as openai.NotFoundError: the key cannot use this model."""
+
+    status_code = 404
+
+
 class Probes:
-    def __init__(self, openai_exc: Exception | None = None, langsmith_exc: Exception | None = None):
+    def __init__(
+        self,
+        openai_exc: Exception | None = None,
+        langsmith_exc: Exception | None = None,
+        model_excs: dict[str, Exception] | None = None,
+    ):
         self.openai_exc, self.langsmith_exc = openai_exc, langsmith_exc
+        self.model_excs = model_excs or {}
         self.calls: list[str] = []
+        self.models: list[str] = []
 
     def openai(self, settings: Settings) -> None:
         self.calls.append("openai")
         if self.openai_exc:
             raise self.openai_exc
+
+    def openai_model(self, settings: Settings, model: str) -> None:
+        self.models.append(model)
+        if model in self.model_excs:
+            raise self.model_excs[model]
 
     def langsmith(self, settings: Settings) -> None:
         self.calls.append("langsmith")
@@ -195,6 +213,96 @@ def test_real_langsmith_probe_maps_connection_failure_to_unreachable(
         settings_with_keys(monkeypatch), offline=False, probes=probes, which=which_all
     )
     assert next(c for c in report.checks if c.name == "LANGSMITH_API_KEY").status == "unreachable"
+
+
+# -- course models -------------------------------------------------------------
+
+
+def _check(report: DoctorReport, name: str):  # type: ignore[no-untyped-def]
+    return next(c for c in report.checks if c.name == name)
+
+
+def test_both_course_models_are_checked_and_accepted(monkeypatch: pytest.MonkeyPatch) -> None:
+    settings = settings_with_keys(monkeypatch)
+    probes = Probes()
+    report = run_doctor(settings, offline=False, probes=probes, which=which_all)
+    assert probes.models == [settings.openai_model, settings.openai_eval_model]
+    agent, reviewer = _check(report, "agent model"), _check(report, "reviewer model")
+    assert agent.status == "ok" and agent.detail == f"{settings.openai_model} accepted"
+    assert reviewer.status == "ok" and reviewer.detail == f"{settings.openai_eval_model} accepted"
+    assert report.ok is True
+
+
+def test_a_model_the_key_cannot_use_names_the_model_and_the_fix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = settings_with_keys(monkeypatch)
+    probes = Probes(model_excs={settings.openai_model: NotFoundError("no access")})
+    report = run_doctor(settings, offline=False, probes=probes, which=which_all)
+    agent = _check(report, "agent model")
+    assert agent.status == "missing"
+    assert settings.openai_model in agent.detail
+    assert "program's email" in agent.next_step and "Build tier" in agent.next_step
+    assert _check(report, "reviewer model").status == "ok"
+    assert report.ok is False
+    assert "no access" not in report.render()  # provider messages are never echoed
+
+
+def test_a_permission_error_on_the_reviewer_model_is_missing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = settings_with_keys(monkeypatch)
+    probes = Probes(model_excs={settings.openai_eval_model: FakeAuthError("tier")})
+    report = run_doctor(settings, offline=False, probes=probes, which=which_all)
+    reviewer = _check(report, "reviewer model")
+    assert reviewer.status == "missing" and settings.openai_eval_model in reviewer.detail
+
+
+def test_models_are_not_checked_without_an_accepted_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    for settings, probes, offline in (
+        (settings_without_keys(monkeypatch), Probes(), False),
+        (settings_with_keys(monkeypatch), Probes(openai_exc=FakeAuthError("bad")), False),
+        (settings_with_keys(monkeypatch), Probes(), True),
+    ):
+        report = run_doctor(settings, offline=offline, probes=probes, which=which_all)
+        assert probes.models == []
+        assert not [c for c in report.checks if c.name in ("agent model", "reviewer model")]
+
+
+def _model_json(model: str) -> dict[str, object]:
+    return {"id": model, "object": "model", "created": 0, "owned_by": "openai"}
+
+
+def test_real_model_probe_asks_for_each_model_by_id_and_uses_no_tokens(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import httpx
+
+    from shipharness.doctor import RealProbes
+
+    settings = settings_with_keys(monkeypatch)
+    paths: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        paths.append(request.url.path)
+        if request.url.path == "/v1/models":
+            return httpx.Response(200, json={"object": "list", "data": []})
+        model = request.url.path.rsplit("/", 1)[-1]
+        if model == settings.openai_model:
+            return httpx.Response(
+                404,
+                json={"error": {"message": "does not exist", "type": "invalid_request_error"}},
+            )
+        return httpx.Response(200, json=_model_json(model))
+
+    probes = RealProbes(openai_http=httpx.Client(transport=httpx.MockTransport(handler)))
+    report = run_doctor(settings, offline=False, probes=probes, which=which_all)
+    assert f"/v1/models/{settings.openai_model}" in paths
+    assert f"/v1/models/{settings.openai_eval_model}" in paths
+    assert all(p.startswith("/v1/models") for p in paths)  # no completion call, no tokens
+    assert _check(report, "OPENAI_API_KEY").status == "ok"
+    assert _check(report, "agent model").status == "missing"
+    assert _check(report, "reviewer model").status == "ok"
 
 
 # -- class date --------------------------------------------------------------

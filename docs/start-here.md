@@ -8,29 +8,31 @@ the [FAQ](faq.md).
 
 ## How the times were set
 
-Each step gives a time, so you can plan your week. Two kinds of number are mixed here, and each row
-says which:
+Each step gives a time, so you can plan your week. Every time on this page is one of two kinds:
 
-- **Measured**: a reading time printed at the top of a page, or a run time on the
+- **Reading time**: the page's word count divided by 200, rounded up to 5 minutes, the course's rule
+  for reading times. Where a page prints its own reading time at the top, this page uses that one.
+- **Run time**: how long the command took on the course machine, from the
   [evidence page](evidence/general.md#timings).
-- **Estimate**: a planning guess for work the course has not timed, such as a first install or an
-  assignment. Yours may be shorter or longer.
+
+The course has not timed the hands-on work: installing the tools, or writing the code of an
+assignment. Those rows give the reading time of the pages and say that the work is extra.
 
 A live run's time is mostly waiting. Read the next page while it runs.
 
 ## The path at a glance
 
-| Step | What you do | Time |
+| Step | What you do | Reading and run time |
 |---|---|---|
-| 1. Setup | Accounts, tools, keys, `make doctor`, a first live run | 1 to 2 hours (estimate) |
-| 2. Section 1: Instructions | README, concepts, demo, assignment, reading | About 6 hours |
-| 3. Section 2: State and sessions | README, concepts, demo, assignment, reading | About 5 hours |
-| 4. Section 3: Scope and sandbox | README, concepts, demo, assignment, reading | About 6 hours |
-| 5. Section 4: Verification | README, concepts, demo, assignment, reading | About 9 hours |
-| 6. Final project | One A/B on a new feature, then read the result | About 1 hour |
-| 7. Use it in your repo | Copy the kit, write a map, add checks | 2 to 4 hours (estimate) |
+| 1. Setup | Accounts, tools, keys, `make doctor`, a first live run | 45 minutes, plus the installs |
+| 2. Section 1: Instructions | README, concepts, demo, assignment, reading | 2 h 50 min, plus the assignment work |
+| 3. Section 2: State and sessions | README, concepts, demo, assignment, reading | 2 h, plus the assignment work |
+| 4. Section 3: Scope and sandbox | README, concepts, demo, assignment, reading | 2 h 10 min, plus the assignment work |
+| 5. Section 4: Verification | README, concepts, demo, assignment, reading | 4 h 25 min, plus the assignment work |
+| 6. Final project | One A/B on a new feature, then read the result | 40 minutes |
+| 7. Use it in your repo | Copy the kit, write a map, add checks | 25 minutes, plus the work in your repository |
 
-The section totals add up the rows in the section tables below. Most of each is the assignment.
+Each total adds up the rows of its table below, taking the longer end of a range, rounded up to 5 minutes.
 
 ## Step 1: Setup
 
@@ -39,10 +41,10 @@ on Windows (through WSL2), Linux, or macOS.
 
 | Part | Page | Time |
 |---|---|---|
-| Accounts, tools, clone, `.env` | [setup](../setup/README.md) and your system's page | 1 to 2 hours (estimate) |
-| Build both images | `make setup` | 145 s on the course machine (measured) |
-| First live run | `make show-1` | About 10 minutes (measured) |
-| Before a live class | [pre-class checklist](../setup/pre-class.md) | 15 minutes (estimate) |
+| Accounts, tools, clone, `.env` | [setup](../setup/README.md) and your system's page | 20 to 25 minutes of reading, plus the installs |
+| Build both images | `make setup` | 145 s on the course machine (run time) |
+| First live run | `make show-1` | 10 min 14 s (run time) |
+| Before a live class | [pre-class checklist](../setup/pre-class.md) | 5 minutes (reading) |
 
 `make doctor` must end with `result: + ready` before you go on.
 
@@ -60,12 +62,12 @@ Every section has the same parts, in the same order. Work through them in this o
 
 | Part | Page | Time |
 |---|---|---|
-| README | [Section 1](../section-1-instructions/README.md) | 5 minutes (estimate) |
-| Concepts | [concepts.md](../section-1-instructions/concepts.md) | 15 minutes (measured) |
-| Demo run | `make show-1` | 10 min 14 s (measured) |
-| Demo page and walkthrough | [demo](../section-1-instructions/demo/README.md) | 30 minutes (estimate) |
-| Assignment 1: Instructions | [assignment](../section-1-instructions/assignment/README.md) | 3 to 4 hours (estimate) |
-| Reading | [three readings](../section-1-instructions/post-class-reading/README.md) | 100 minutes (measured) |
+| README | [Section 1](../section-1-instructions/README.md) | 5 minutes (reading) |
+| Concepts | [concepts.md](../section-1-instructions/concepts.md) | 15 minutes (reading) |
+| Demo run | `make show-1` | 10 min 14 s (run time) |
+| Demo page and walkthrough | [demo](../section-1-instructions/demo/README.md) | 15 minutes (reading) |
+| Assignment 1: Instructions | [assignment](../section-1-instructions/assignment/README.md) | 25 minutes (reading the README and the spec), plus the work |
+| Reading | [three readings](../section-1-instructions/post-class-reading/README.md) | 100 minutes (reading) |
 
 Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so start it early.
 
@@ -73,34 +75,34 @@ Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so
 
 | Part | Page | Time |
 |---|---|---|
-| README | [Section 2](../section-2-state-lifecycle/README.md) | 5 minutes (estimate) |
-| Concepts | [concepts.md](../section-2-state-lifecycle/concepts.md) | 15 minutes (measured) |
-| Demo run | `make show-2 SESSION_BUDGET=12,38` | 10 min 7 s (measured) |
-| Demo page and walkthrough | [demo](../section-2-state-lifecycle/demo/README.md) | 30 minutes (estimate) |
-| Assignment 2: State and sessions | [assignment](../section-2-state-lifecycle/assignment/README.md) | 3 to 4 hours (estimate) |
-| Reading | [three readings](../section-2-state-lifecycle/post-class-reading/README.md) | 50 minutes (measured) |
+| README | [Section 2](../section-2-state-lifecycle/README.md) | 5 minutes (reading) |
+| Concepts | [concepts.md](../section-2-state-lifecycle/concepts.md) | 15 minutes (reading) |
+| Demo run | `make show-2 SESSION_BUDGET=12,38` | 10 min 7 s (run time) |
+| Demo page and walkthrough | [demo](../section-2-state-lifecycle/demo/README.md) | 20 minutes (reading) |
+| Assignment 2: State and sessions | [assignment](../section-2-state-lifecycle/assignment/README.md) | 20 minutes (reading the README and the spec), plus the work |
+| Reading | [three readings](../section-2-state-lifecycle/post-class-reading/README.md) | 50 minutes (reading) |
 
 ### Section 3: Scope and sandbox
 
 | Part | Page | Time |
 |---|---|---|
-| README | [Section 3](../section-3-scope-sandbox/README.md) | 5 minutes (estimate) |
-| Concepts | [concepts.md](../section-3-scope-sandbox/concepts.md) | 15 minutes (measured) |
-| Demo run | `make demo-3 FEATURE=version-checks` | 11 to 16 minutes (measured) |
-| Demo page and walkthrough | [demo](../section-3-scope-sandbox/demo/README.md) | 30 minutes (estimate) |
-| Assignment 3: Scope and sandbox | [assignment](../section-3-scope-sandbox/assignment/README.md) | 4 hours (estimate) |
-| Reading | [three readings](../section-3-scope-sandbox/post-class-reading/README.md) | 45 minutes (measured) |
+| README | [Section 3](../section-3-scope-sandbox/README.md) | 5 minutes (reading) |
+| Concepts | [concepts.md](../section-3-scope-sandbox/concepts.md) | 15 minutes (reading) |
+| Demo run | `make demo-3 FEATURE=version-checks` | 11 to 16 minutes (run time) |
+| Demo page and walkthrough | [demo](../section-3-scope-sandbox/demo/README.md) | 20 minutes (reading) |
+| Assignment 3: Scope and sandbox | [assignment](../section-3-scope-sandbox/assignment/README.md) | 25 minutes (reading the README and the spec), plus the work |
+| Reading | [three readings](../section-3-scope-sandbox/post-class-reading/README.md) | 45 minutes (reading) |
 
 ### Section 4: Verification
 
 | Part | Page | Time |
 |---|---|---|
-| README | [Section 4](../section-4-verification/README.md) | 5 minutes (estimate) |
-| Concepts | [concepts.md](../section-4-verification/concepts.md) | 15 minutes (measured) |
-| Demo run | `make show-4` | 11 min 6 s (measured) |
-| Demo page and walkthrough | [demo](../section-4-verification/demo/README.md) | 30 minutes (estimate) |
-| Assignment 4: Verification | [assignment](../section-4-verification/assignment/README.md) | 4 to 5 hours (estimate) |
-| Reading | [four readings](../section-4-verification/post-class-reading/README.md) | 190 minutes (measured) |
+| README | [Section 4](../section-4-verification/README.md) | 5 minutes (reading) |
+| Concepts | [concepts.md](../section-4-verification/concepts.md) | 15 minutes (reading) |
+| Demo run | `make show-4` | 11 min 6 s (run time) |
+| Demo page and walkthrough | [demo](../section-4-verification/demo/README.md) | 20 minutes (reading) |
+| Assignment 4: Verification | [assignment](../section-4-verification/assignment/README.md) | 20 minutes (reading the README and the spec), plus the work |
+| Reading | [four readings](../section-4-verification/post-class-reading/README.md) | 190 minutes (reading) |
 
 Assignment 4 has ten steps, two of them live (a test-generation run and one A/B), plus a portfolio.
 
@@ -108,9 +110,9 @@ Assignment 4 has ten steps, two of them live (a test-generation run and one A/B)
 
 The [final project](../final-project/README.md) runs the whole harness on a new feature, one of
 Feature 5: Bulk close, Feature 6: Watchers, or Feature 7: Labels, as one A/B. The course's own bulk
-close run took 12 min 9 s from launch to its cost line (measured). Reading the result field by field
-takes about 30 minutes (estimate). Its [checklist](../final-project/CHECKLIST.md) lists what to hand
-in.
+close run took 12 min 9 s from launch to its cost line (run time). Reading the project page takes 15
+minutes and its [code walkthrough](../final-project/walkthrough.md) 10 minutes. Its
+[checklist](../final-project/CHECKLIST.md) lists what to hand in.
 
 ## Step 7: Use it in your repo
 
@@ -121,8 +123,9 @@ step-by-step guide. Copying the kit makes no model calls:
 uv run shipharness init --target ~/my-repo
 ```
 
-Here `~/my-repo` stands for the path to a repository of yours. Plan 2 to 4 hours (estimate) for a
-first map, the house-rule checks, and one A/B on a ticket of your own.
+Here `~/my-repo` stands for the path to a repository of yours. The overview and the step-by-step
+guide take 25 minutes to read; the map, the house-rule checks, and one A/B on a ticket of your own
+are work in your repository that the course has not timed.
 
 ## After class
 

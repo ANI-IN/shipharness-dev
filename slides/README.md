@@ -7,6 +7,7 @@ ready to present. The rest of this page is for anyone who changes a slide and bu
 |---|---|
 | `deck.pdf`, `deck.pptx` | The slides, ready to present; the PowerPoint file has the speaker notes |
 | `deck.md` | The source of every slide, one block per slide. Edit this file |
+| `module1-slides.md` | The slide text for review, with full speaker notes; the run sheet uses it |
 | `outline.md` | The block table and the class plan per section |
 | `img/` | Console screenshots from timed runs of the class commands |
 | `dist/` | Build output (`deck.html`, `deck.pdf`, `deck.pptx`, cached diagram pictures); not tracked |

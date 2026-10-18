@@ -81,7 +81,7 @@ Targets (on Windows, run make inside Ubuntu on WSL2):
   help                 Print this list of targets and feature names
   setup                Install the pinned packages, build both images, create .env if missing
   images               Build the agent and referee sandbox images
-  doctor               Check tools, Docker, both keys, prices, and the class date
+  doctor               Check tools, Docker, both keys, the course models, prices, the class date
   warm                 Before class: images, containers, referee and gate baselines; no model calls
   up                   Start TeamTrack and its board on http://127.0.0.1:8000/board
   console              Start the live console on http://127.0.0.1:8765/
@@ -129,7 +129,8 @@ Examples: make demo-3 FEATURE=version-checks; make final FEATURES=watchers,bulk-
 | `make console` | `uv run shipharness console --port 8765` | The live console on http://127.0.0.1:8765/ |
 | `make datasets` | `uv run shipharness datasets upload` | Uploads the two datasets to LangSmith once (Assignment 1 needs them) |
 
-`make doctor` lists OpenAI models to test the key, which uses no tokens. With `PURPOSE=class`,
+`make doctor` tests the OpenAI key and asks whether it can use the agent model and the reviewer
+model, which uses no tokens. With `PURPOSE=class`,
 `make doctor` and `make warm` stop with a clear message when the class date is missing.
 
 ### Live runs (call OpenAI)

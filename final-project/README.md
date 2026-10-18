@@ -113,7 +113,7 @@ A/B ... (F5, layers=['instructions', 'scope', 'state', 'verify'], profile=class)
   bare     completed         claim=done     primary={} passed=True hidden 46/46 mutants 3/3 reviewer=accept cost=$0.0196
   harness  ABORTED: timeout  claim=done     primary={} passed=True hidden 46/46 mutants 1/3 reviewer=reject cost=$0.0139
 Cost: $0.038253 (this command: gpt-5.6-luna $0.004675, gpt-6-luna $0.033578; session $0.060114 of $2.50; build $0.060114 of $15.00 ($14.939886 left))
-make: *** [Makefile:173: final] Error 2
+make: *** [Makefile:212: final] Error 2
 ```
 
 The harness arm said done after 20 turns. Its gate then ran the house-rule checks in the arm's

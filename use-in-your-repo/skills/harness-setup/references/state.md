@@ -13,7 +13,7 @@ Assessment checks `S1`-`S4` test the items marked with a check id.
 | [ ] | Each exec plan has Progress, Surprises & Discoveries, Decision Log, and Outcomes & Retrospective sections, kept current while working. | [Using PLANS.md for multi-hour problem solving](https://cookbook.openai.com/articles/codex_exec_plans) requires these four living sections. | Source 4 |
 | [ ] | Each exec plan is self-contained: a new session can restart from it alone. | "it should always be possible to restart from _only_ the ExecPlan and no other work." | Source 4 |
 | [ ] | (`S4`) The project is a git repository and agents commit with descriptive messages. | Git lets the model "revert bad code changes and recover working states of the code base." | Source 1 |
-| [ ] | Structured state (the feature list, test results) is JSON; notes are free text. | [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) recommends structured formats for state data and free text for progress notes. | Source 5 |
+| [ ] | Structured state (the feature list, test results) is JSON; notes are free text. | [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) recommends structured formats for state data and free text for progress notes. | Source 5 |
 
 ## Signs the state part is missing
 
@@ -41,5 +41,5 @@ Assessment checks `S1`-`S4` test the items marked with a check id.
 - Source 4: Using PLANS.md for multi-hour problem solving,
   <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07
 - Source 5: Prompting best practices,
-  <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices>,
+  <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices>,
   Anthropic (Claude docs), n.d.

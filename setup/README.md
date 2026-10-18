@@ -22,6 +22,8 @@ shipped, and you watch it on the console. They assume no tool is installed and n
 | Docker | Each run and the referee run in containers | $0 for Docker Engine and Colima |
 | git, uv, make | Clone the repository, install Python and packages, run the commands | $0 |
 
+Use the OpenAI key from the program's email if you received one; otherwise create your own (Build tier). `make doctor` confirms the key can use the course models.
+
 You need at least 6 GB of free disk. The two sandbox images alone take about 4 GB (1.28 GB
 and 2.81 GB on the course machine). uv installs Python 3.12 for you, so you do not install Python yourself.
 

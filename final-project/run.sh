@@ -2,7 +2,7 @@
 # Final project: one live A/B. The bare arm and the harness arm with all four layers build the same
 # feature, then the referee scores both.
 #
-# Usage, from anywhere inside the repository:
+# Usage, from the repository root (the script itself works from any folder):
 #   ./final-project/run.sh                               # class run, bulk close (needs SHIPHARNESS_CLASS_DATE)
 #   PURPOSE=pilot ./final-project/run.sh                 # practice run outside class
 #   FEATURES=watchers PURPOSE=pilot ./final-project/run.sh  # another final feature: bulk-close, watchers, or labels
@@ -18,6 +18,21 @@
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail
+
+# No arguments: settings come from the environment (FEATURES=watchers PURPOSE=pilot ./final-project/run.sh).
+if [ "$#" -gt 0 ]; then
+  case "$1" in
+    -h|--help)
+      sed -n '2,/^set -euo pipefail/{/^#/s/^# \{0,1\}//p}' "${BASH_SOURCE[0]}"
+      exit 0
+      ;;
+    *)
+      echo "x unknown argument '$1': ./final-project/run.sh takes no arguments" >&2
+      echo "  for a practice run: FEATURES=watchers PURPOSE=pilot ./final-project/run.sh; for help: ./final-project/run.sh --help" >&2
+      exit 2
+      ;;
+  esac
+fi
 
 # The repository root is one folder up from this script.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

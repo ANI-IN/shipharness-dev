@@ -61,7 +61,7 @@ Use it:
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them (Source 3; [What are skills?](https://agentskills.io/what-are-skills)).
+needs them (Source 3; [Agent Skills Overview](https://agentskills.io/home)).
 
 ## Install
 
@@ -223,7 +223,7 @@ agent's own work reading the report and writing the files. The shipharness valid
   Justin Young (Anthropic), 2025-11-26
 - Source 3: Agent Skills Specification, <https://agentskills.io/specification>,
   Agent Skills project, n.d.
-- Source 4: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 4: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 5: How to add skills support to your agent,
   <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project,
   n.d.

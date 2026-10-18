@@ -58,7 +58,7 @@ does not micromanage implementations.
 | `assets/rule-template.md` | The rule document template the script copies |
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
-rest of `SKILL.md` when a task matches the description (Source 2; [What are skills?](https://agentskills.io/what-are-skills)).
+rest of `SKILL.md` when a task matches the description (Source 2; [Agent Skills Overview](https://agentskills.io/home)).
 
 ## Install
 
@@ -212,7 +212,7 @@ from; [skill-template](../skill-template/README.md) is the starting point for a 
 - Source 3: Building a C compiler with a team of parallel Claudes,
   <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic),
   2026-02-05
-- Source 4: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 4: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 5: How to add skills support to your agent,
   <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project,
   n.d.

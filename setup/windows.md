@@ -39,6 +39,9 @@ Two rules matter more than any other on this page:
 
 ### Step 1: Create the OpenAI account and an API key
 
+Use the OpenAI key from the program's email if you received one; otherwise create your own (Build tier). `make doctor` confirms the key can use the course models. With a key from the email, skip to step 3; otherwise steps 1 and 2 create your own,
+and `make doctor` in step 11 checks it.
+
 **Why.** The coding agent (`gpt-6-luna`) and the reviewer (`gpt-5.6-luna`) are OpenAI models
 (`.env.example`). Every live run calls the OpenAI API with your key and is billed to your account.
 
@@ -400,8 +403,8 @@ delete both keys on their provider pages and create new ones.
 ### Step 11: Run make doctor
 
 **Why.** One command checks everything so far: Python, git, uv, Docker, both keys, the price table,
-the class date, and that `.env` is not tracked by git. The OpenAI check lists models and uses no
-tokens.
+the class date, and that `.env` is not tracked by git. The OpenAI checks ask whether the key
+works and whether it can use the agent model and the reviewer model; they use no tokens.
 
 **Do this.**
 
@@ -410,7 +413,7 @@ make doctor
 ```
 
 **You should see.** Every item starts with `+ ok`, the key lines end in `accepted by OpenAI` and
-`accepted by LangSmith`, and the last line is `result: + ready`. No part of a key is ever shown.
+`accepted by LangSmith`, the `agent model` and `reviewer model` lines end in `accepted`, and the last line is `result: + ready`. No part of a key is ever shown.
 Here is the same command on the course machine before `.env` was filled in:
 
 ```text
@@ -434,7 +437,7 @@ shipharness doctor
       not a class run? use PURPOSE=pilot with make, or --purpose pilot
   result: x not ready (fix the items above)
 Cost: $0.000000 (no model calls)
-make: *** [Makefile:57: doctor] Error 1
+make: *** [Makefile:97: doctor] Error 1
 ```
 
 **Check it worked.** The last line reads `result: + ready`, and `make doctor` exits without a
@@ -446,6 +449,7 @@ make: *** [Makefile:57: doctor] Error 1
 |---|---|
 | `x missing     OPENAI_API_KEY` (or `LANGSMITH_API_KEY`) | Step 10: the key goes into `.env` next to the `Makefile` |
 | `x invalid     OPENAI_API_KEY ...` | Copy the key again; check the credit (step 2) |
+| `x missing     agent model ...` (or `reviewer model`) | Use the key from the program's email, or your own on the Build tier (step 2) |
 | `x invalid     LANGSMITH_API_KEY ...` | Create a new key; EU accounts set `LANGSMITH_ENDPOINT` |
 | `! warn        container runtime ...` | `sudo systemctl start docker`, or finish step 5 |
 
@@ -462,29 +466,26 @@ make warm
 ```
 
 **You should see.** One line per step with its time, then `warm: done (<seconds> s)` and a cost
-line. The last lines on the course machine, after a code change made it rebuild the images:
+line. The lines from a second run on the course machine, with nothing left to build or compute:
 
 ```text
-images: built (shipharness-agent:1: source changed; shipharness-referee:1: source changed) (137.9 s)
-page-in shipharness-agent:1 (0.8 s)
+images: up to date, nothing built (shipharness-agent:1, shipharness-referee:1) (0.3 s)
+page-in shipharness-agent:1 (0.5 s)
 page-in shipharness-referee:1 (0.5 s)
-plan: 0 baselines to compute (0.7 s)
-referee baseline demo-1 F1: cached (0.0 s)
-referee baseline demo-2 F2: cached (0.0 s)
-referee baseline demo-3 F3: cached (0.0 s)
-referee baseline demo-4 F4: cached (0.0 s)
-referee baseline final F5: cached (0.0 s)
-referee baseline final F6: cached (0.0 s)
-referee baseline final F7: cached (0.0 s)
-gate baseline demo-4 F4: cached (0.0 s)
-gate baseline final F5: cached (0.0 s)
-gate baseline final F6: cached (0.0 s)
-gate baseline final F7: cached (0.0 s)
-warm: done (140.6 s)
+plan: 0 baselines to compute (0.6 s)
+referee baseline demo-1 (Feature 1: Org-wide issue search): cached (0.0 s)
+referee baseline demo-2 (Feature 2: Comments on issues): cached (0.0 s)
+referee baseline demo-3 (Feature 4: Version checks on issue edits): cached (0.0 s)
+referee baseline demo-4 (Feature 4: Version checks on issue edits): cached (0.0 s)
+referee baseline final (Feature 5: Bulk close): cached (0.0 s)
+referee baseline final (Feature 6: Watchers): cached (0.0 s)
+referee baseline final (Feature 7: Labels): cached (0.0 s)
+gate baseline demo-4 (Feature 4: Version checks on issue edits): cached (0.0 s)
+gate baseline final (Feature 5: Bulk close): cached (0.0 s)
+gate baseline final (Feature 6: Watchers): cached (0.0 s)
+gate baseline final (Feature 7: Labels): cached (0.0 s)
+warm: done (1.9 s)
 ```
-
-`F1` to `F7` in these lines are the codes of Features 1 to 7, from Feature 1: Org-wide issue search
-to Feature 7: Labels.
 
 A first run with no cached baselines took 407 s on the course machine; a second run
 took 1.2 s ([evidence](../docs/evidence/general.md#class-profile-round)).
@@ -529,7 +530,7 @@ second terminal, start the run:
 make show-1
 ```
 
-`make show-1` runs the harness arm alone with the instructions layer on Feature 1, then the referee and one review. It costs at most $0.24 at the caps.
+`make show-1` runs the harness arm alone with the instructions layer on Feature 1: Org-wide issue search, then the referee and one review. It costs at most $0.24 at the caps.
 
 **You should see.** The first terminal prints the console's address:
 

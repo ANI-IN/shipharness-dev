@@ -17,13 +17,13 @@ check your spending, is on the [costs page](costs.md).
 
 Two, both in `.env` at the repository root:
 
-- **OpenAI**: use the key from the program's email if you received one. Otherwise create your own
-  at platform.openai.com. Your account must be on the Build tier, which takes $5 of credit, because
-  the agent model has no free tier.
+- **OpenAI**: use the OpenAI key from the program's email if you received one; otherwise create
+  your own (Build tier) at platform.openai.com. The Build tier takes $5 of credit, because the agent
+  model has no free tier.
 - **LangSmith**: a free Developer account at smith.langchain.com. Do not add a card.
 
-Then run `make doctor`. It checks that both keys are accepted and that the OpenAI key can use the
-course models, and it must end with `result: + ready`. It never prints any part of a key. Never
+Then run `make doctor`. `make doctor` confirms the key can use the course models, checks that
+LangSmith accepts its key, and must end with `result: + ready`. It never prints any part of a key. Never
 paste `.env` or a key into a chat, a ticket, an issue, or a screenshot.
 
 ### Which model does the course use?

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Section 2 demo: run the harness arm live on F2 (comments on issues) with the instructions and
+# Section 2 demo: run the harness arm live on Feature 2: Comments on issues with the instructions and
 # state layers. The first session stops after 12 turns; a fresh 38-turn session resumes from the
 # files the state layer left.
 #
-# Usage, from anywhere inside the repository:
+# Usage, from the repository root (the script itself works from any folder):
 #   ./section-2-state-lifecycle/demo/run.sh                  # class run (needs SHIPHARNESS_CLASS_DATE in .env)
 #   PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh    # practice run outside class
 #
@@ -20,6 +20,21 @@
 #
 # Start the console first, in another terminal: `make console`, then open http://127.0.0.1:8765/
 set -euo pipefail
+
+# No arguments: settings come from the environment (PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh).
+if [ "$#" -gt 0 ]; then
+  case "$1" in
+    -h|--help)
+      sed -n '2,/^set -euo pipefail/{/^#/s/^# \{0,1\}//p}' "${BASH_SOURCE[0]}"
+      exit 0
+      ;;
+    *)
+      echo "x unknown argument '$1': ./section-2-state-lifecycle/demo/run.sh takes no arguments" >&2
+      echo "  for a practice run: PURPOSE=pilot ./section-2-state-lifecycle/demo/run.sh; for help: ./section-2-state-lifecycle/demo/run.sh --help" >&2
+      exit 2
+      ;;
+  esac
+fi
 
 # The repository root is two folders up from this script.
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"

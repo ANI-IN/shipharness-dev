@@ -74,7 +74,7 @@ for your skill or delete it.
 ## Write the description
 
 Agents load only `name` and `description` for every installed skill at startup, and read the rest
-of `SKILL.md` only when a task matches the description (Source 2; [What are skills?](https://agentskills.io/what-are-skills)). So the description decides
+of `SKILL.md` only when a task matches the description (Source 2; [Agent Skills Overview](https://agentskills.io/home)). So the description decides
 whether the skill is ever used:
 
 - Say what the skill does and when to use it, in at most 1024 characters (Source 2).
@@ -247,7 +247,7 @@ The other course skills are worked examples of this template:
   <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
 - Source 2: Agent Skills Specification, <https://agentskills.io/specification>,
   Agent Skills project, n.d.
-- Source 3: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 3: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 4: skills-ref, the reference validator (source and README),
   <https://github.com/agentskills/agentskills>, Agent Skills project, PyPI package 0.1.1, 2026-01-10
 - Source 5: Extend Claude with skills, <https://code.claude.com/docs/en/skills>,

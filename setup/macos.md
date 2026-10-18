@@ -35,6 +35,9 @@ Every command below runs in the Terminal app (Applications, Utilities, Terminal)
 
 ### Step 1: Create the OpenAI account and an API key
 
+Use the OpenAI key from the program's email if you received one; otherwise create your own (Build tier). `make doctor` confirms the key can use the course models. With a key from the email, skip to step 3; otherwise steps 1 and 2 create your own,
+and `make doctor` in step 10 checks it.
+
 **Why.** The coding agent (`gpt-6-luna`) and the reviewer (`gpt-5.6-luna`) are OpenAI models
 (`.env.example`). Every live run calls the OpenAI API with your key and is billed to your account.
 
@@ -268,7 +271,8 @@ delete both keys on their provider pages and create new ones.
 ### Step 10: Run make doctor
 
 **Why.** One command checks everything so far: Python, git, uv, Docker, both keys, the price table,
-the class date, and that `.env` is not tracked by git. The OpenAI check uses no tokens.
+the class date, and that `.env` is not tracked by git. The OpenAI checks ask whether the key
+works and whether it can use the agent model and the reviewer model; they use no tokens.
 
 **Do this.**
 
@@ -277,13 +281,15 @@ make doctor
 ```
 
 **You should see.** Every item starts with `+ ok`, the key lines end in `accepted by OpenAI` and
-`accepted by LangSmith`, and the last line is `result: + ready`. The captured output is on the
+`accepted by LangSmith`, the `agent model` and `reviewer model` lines end in `accepted`, and the last line is `result: + ready`. The captured output is on the
 [Linux page](linux.md#step-10-run-make-doctor).
 
 **Check it worked.** The last line reads `result: + ready`.
 
 **If it fails.** Each `x` line has a `next step` under it. A missing key goes into `.env` (step 9).
-An invalid OpenAI key: copy it again and check the credit (step 2). A container runtime warning:
+An invalid OpenAI key: copy it again and check the credit (step 2). An `x missing` agent model or
+reviewer model line: use the key from the program's email, or create your own on the Build tier
+(step 2). A container runtime warning:
 start Docker Desktop or run `colima start`.
 
 ### Step 11: Run make warm
