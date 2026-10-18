@@ -79,7 +79,7 @@ It prints the address to open:
 ```text
 uv run shipharness console --port 8765
 Console: http://127.0.0.1:8765/
-INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
 Open `http://127.0.0.1:8765/` in your browser. On Windows, the Windows browser works.
@@ -124,8 +124,7 @@ With the class profile, expect 0: all six arms of the 2026-10-18 runs completed.
 exits 2: under an older harness time limit its harness arm ended `ABORTED: timeout` (see "What the
 result means"). One A/B costs at most $0.48, two arms and two reviews at their caps.
 
-**In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
-Boards, `3` Evidence, `4` A/B Report, `5` Traces; `F` shows one arm full screen.
+**In the browser**, reload the run list. The new run is the top card: "Section 3: Scope and sandbox", the feature, "A/B", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
 ### Files and links
 
@@ -153,9 +152,9 @@ The refusal, as the harness arm's run log records it (one event, cut to its data
 The agent's tool result starts with `BLOCKED:` and carries the same reason, so the agent learns which
 files it may change. Nothing was written to the workspace.
 
-![Console screen 1 after both verdicts: both arms FAIL the feature's measure, both runs completed, both claims not supported](expected/screen-1-final.png)
+![Console screen 1 after both verdicts: bare primary verdict FAIL, harness PASS, on files changed outside the allowed paths](expected/screen-1-final.png)
 
-*Screen 1 at the end. Both pills say FAIL: that is the feature's measure, not the scope question.*
+*Screen 1 at the end. The pills read the scope measure: "primary verdict ready: FAIL" for bare, "PASS" for harness. Feature 4's hidden tests and mutants follow as secondary results.*
 
 **Screen 3, Evidence.** Read the middle panel, "Scope and sandbox". The bare arm's diff map lists
 `app/services/errors.py` as changed, the harness arm's as blocked. Files outside the allowed paths (`diff_scope`) says 1 new for bare
@@ -186,13 +185,14 @@ arm's edit of `app/services/errors.py`, and the harness arm's blocked patch.
 
 *Tab B's stale save is refused. The harness arm's frame shows HTTP 500, from its own board code ([expected/](expected/README.md)).*
 
-**Screen 4, A/B Report.** One dot per run, per feature and arm, on each feature's own primary
-measure. The version checks rows are all hollow: no arm has met that feature's measure. Say: "The scope count is on
-screen 3, not here."
+**Screen 4, A/B Report.** One dot per run, per feature and arm. The version checks rows of this
+demo are judged on the scope measure, files changed outside the allowed paths. "Measured before
+class" shows the 10 demo-3 A/Bs on this ticket recorded before class: bare 1 of 10, harness 10 of
+10 ([evidence](../../docs/evidence/s3.md#s3-screen-4-before-class)), this run's dots next to them. Say: "One more dot on each row. Read it against the ten."
 
-![Screen 4: primary measures, one dot per run, per feature and arm](expected/screen-4-final.png)
+![Screen 4: Measured before class, bare 1 of 10 and harness 10 of 10 on files changed outside the allowed paths, with this run's dots next to them](expected/screen-4-final.png)
 
-*Screen 4. These dots score the feature's own measure, which neither arm met.*
+*Screen 4. The before-class dots on the scope measure, and this run's new dots.*
 
 ## What the result means
 

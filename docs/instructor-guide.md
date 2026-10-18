@@ -39,7 +39,7 @@ Terminal B runs the section demos. Terminal C runs the final.
 | 2:57 | C | `make final FEATURES=watchers,bulk-close` | The final A/B; the poll's winner first |
 | 3:40 | C | No command | Read the final's arm lines |
 
-After each launch, reload the console's run list and open the newest run. At section minute 15,
+After each launch, reload the run list ("← All runs") and open the top card. At section minute 15,
 look for the `Cost:` line in terminal B. Breaks: 1:00-1:10 and 2:50-2:55.
 
 Times and costs, 2026-10-18, class profile, three live runs each, launch to verdict; show-1 from
@@ -68,10 +68,10 @@ What to say at each verdict:
 | 4 | "Every hidden test and every mutant. The work is done." | "The agent said done. The hidden tests and mutants say no." |
 | Final | No primary measure: read hidden tests and mutants per arm. | "One A/B is one dot." |
 
-In Section 3 the pill on screen 1 shows the version checks feature's own bar, which every arm failed before class. Read
-Files outside the allowed paths (`diff_scope`) on screen 3 instead. Before class: bare 0 of 3 in scope, harness 3 of 3.
+Section 3's pill reads files outside the allowed paths; Feature 4: Version checks on issue edits'
+tests and mutants are secondary. Screen 4: bare 1/10, harness 10/10 ([before class](evidence/s3.md#s3-screen-4-before-class)).
 
-Console keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen.
+Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm, `H`/`Esc` run list.
 
 If a demo stalls:
 
@@ -175,7 +175,7 @@ Add `SHIPHARNESS_CLASS_DATE=` followed by today's date (YYYY-MM-DD) to `.env`, a
 | 1 | B | `make doctor` | `result: + ready`; the date line names today's class project |
 | 2 | B | `make warm` | `warm: done`, in seconds when nothing changed |
 | 3 | A | `make console` | `Console: http://127.0.0.1:8765/`; leave it running |
-| 4 | Browser | Open `http://127.0.0.1:8765/` | The run list and the key legend |
+| 4 | Browser | Open `http://127.0.0.1:8765/` | The run list (one card per run, newest first) and the key legend |
 
 If `make doctor` or `make warm` says `SHIPHARNESS_CLASS_DATE is not set`, the date step did not
 work. `make warm` then prints `warm: nothing done` and exits 2. Repeat the date step.
@@ -260,7 +260,8 @@ first one slows next to show-4. If terminal C has no `Cost:` line for the first 
 expect the second to end close to 3:40.
 
 If the run is still going at minute 15, carry on with the ideas and the implementation notes. Then open the demo block on the
-running screens: screen 1 shows `primary verdict ready` as soon as the first check is done. A run
+running screens: screen 1 shows `primary verdict ready: PASS` or `FAIL` as soon as the primary check
+is done (the final, with no primary measure, shows `verdict ready` once all checks are done). A run
 with an unwelcome result is a result: show it.
 
 At the end of a run, terminal B prints one `A/B` line, one line per arm, and the `Cost:` line. Read
@@ -320,20 +321,25 @@ Q&A: "Which state file would you keep for this model, and how would you measure 
 This section runs a live A/B. Before class, three A/Bs on the version checks ticket showed a real gap: every bare
 arm changed `app/services/errors.py`, a file outside the ticket's allowed paths. The scope layer
 blocked the same edit in every harness arm. Bare 0 of 3 in scope, harness 3 of 3
-([evidence](evidence.md#section-3)).
+([evidence](evidence.md#section-3)). Counting the demo runs of 2026-10-18 as well, screen 4's
+"Measured before class" shows bare 1 of 10, harness 10 of 10
+([evidence](evidence/s3.md#s3-screen-4-before-class)).
 
 `make demo-3 FEATURE=version-checks` runs both arms at once. The harness arm has the instructions, state, and
 scope layers. Each arm has its own sandbox with the same limits.
 
 DEMO, after the implementation notes: screen 3, the Scope and sandbox column first. Look for `changed app/services/errors.py`
 under the bare arm and `blocked app/services/errors.py` under the harness arm. Then the Verification
-column: `Files outside the allowed paths (diff_scope): 1 new` against `Files outside the allowed paths (diff_scope): 0 new`. Then screen 1: the harness decision
-`block`, with the reason the agent read. Then Sandbox denials on screen 3.
+column: `Files outside the allowed paths (diff_scope): 1 new` against `Files outside the allowed paths (diff_scope): 0 new`. Then screen 1: the pills,
+`primary verdict ready: FAIL` for bare and `PASS` for harness on that measure, and the harness decision
+`block`, with the reason the agent read. Then Sandbox denials on screen 3. Then screen 4: the
+before-class dots and this run's dots next to them.
 
 Say at the result: "The guard enforces exactly what we measure, so the harness arm's zero is built
 in. What the runs show is that, on this ticket, the bare agent edits a shared file every time." Then:
-"Both arms still failed the ticket's own bar. The guard keeps the change in scope. It does not make the
-change correct."
+"Before class, both arms failed Feature 4's own bar, every hidden test and every mutant, which the
+terminal and screen 1 still show as secondary results. The guard keeps the change in scope. It does
+not make the change correct."
 
 If screen 3 lists a sandbox denial, show its reason code and command. If not, show the policy
 printout and say: "The sandbox is the same for both arms. It is taught here, but it is never the
@@ -414,7 +420,8 @@ the OpenAI account, or time. A run the harness arm "lost" is a result.
 1. Say: "This run failed for a reason outside the experiment. Here is the same command, recorded
    yesterday. The referee judges it live now."
 2. Terminal B: `make replay RUN=ID`, with the fallback id in place of `ID`.
-3. Reload the run list and open the newest run. Every screen shows the red RECORDING badge.
+3. Press `H` for the run list, reload it, and open the top card. Every screen shows the red
+   RECORDING badge.
 
 Screen 2 of a replay shows broken images, because the replay does not copy the board screenshots.
 Copy them once the replay's folder exists, then reload. `ID` is the fallback id and `NEW` is the

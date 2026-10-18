@@ -78,7 +78,7 @@ It prints the address to open:
 ```text
 uv run shipharness console --port 8765
 Console: http://127.0.0.1:8765/
-INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
 Open `http://127.0.0.1:8765/` in your browser. On Windows, the Windows browser works.
@@ -116,8 +116,7 @@ The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 
 `Error 2` above is that exit code: the agent time limit ended the run, and the referee still judged
 it. One run costs at most $0.24: the per-arm cap plus the per-review cap.
 
-**In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live,
-`2` Boards, `3` Evidence, `4` A/B Report, `5` Traces.
+**In the browser**, reload the run list. The new run is the top card: "Section 2: State and sessions", the feature, "harness in action", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
 ### Files and links
 

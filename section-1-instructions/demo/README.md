@@ -73,7 +73,7 @@ It prints the address to open:
 ```text
 uv run shipharness console --port 8765
 Console: http://127.0.0.1:8765/
-INFO:     Uvicorn running on http://127.0.0.1:8765 (Press CTRL+C to quit)
+Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs each request.
 ```
 
 Open `http://127.0.0.1:8765/` in your browser. On Windows, the Windows browser works.
@@ -111,8 +111,7 @@ The command exits with 0 when the arm completed. When the arm ends `ABORTED` or 
 non-zero and make prints an error line. One run costs at most $0.24: the per-arm cap ($0.20) plus the
 per-review cap ($0.04), both set in `.env.example`.
 
-**In the browser**, reload the runs list, open the newest run, and press `1`. Keys: `1` Live, `2`
-Boards, `3` Evidence, `4` A/B Report, `5` Traces.
+**In the browser**, reload the run list. The new run is the top card: "Section 1: Instructions", the feature, "harness in action", "running", and its start time. Click it and press `1`. Keys: `1` Live, `2` Boards, `3` Evidence, `4` A/B Report, `5` Traces, `F` one arm full screen; `H` or `Esc`, or "← All runs" at the top left, goes back to the run list.
 
 ### Files and links
 

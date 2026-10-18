@@ -150,13 +150,14 @@ Source: `platform/src/shipharness/ab/commands.py` and `platform/src/shipharness/
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `No runs yet. Start one with make demo-1.` | Nothing under `.shipharness/runs/` of the folder where the console started | Start `make console` from the repository folder |
-| The run list does not show a new run | The list does not refresh by itself | Reload the page; the newest run is first |
+| `No runs yet. Start one in a second terminal: make show-1 ...` | Nothing under `.shipharness/runs/` of the folder where the console started | Start `make console` from the repository folder |
+| The run list does not show a new run | The list does not refresh by itself | Reload the page; the newest run is the top card |
+| You are on a run's screens and want another run | Each run has its own page | Press `H` or `Esc`, or click "← All runs" at the top left |
 | The header shows `reconnecting` | The console server stopped | Restart `make console` and reload |
 | Port 8765 (or 8000) is in use | Another server uses it | `make console CONSOLE_PORT=8766`, `make up PORT=8001` |
 | The `make console` terminal shows no line per request | Quiet by default: only warnings and errors print | `make console VERBOSE=1` |
 | Screen 2: `No board screenshot yet (the preview container takes one every 5 s).` all run long | The board preview container did not start | Display only; the referee's board checks still run |
-| Screen 4: `No results to compare yet` | Nothing in `exports/scores/` yet | Wait for the referee to finish the first arm |
+| Screen 4: `No results to compare yet` | No records found: neither `docs/evidence/scores/` nor `exports/scores/` | Start `make console` in the repository folder |
 | Screen 4 does not show a `make show-N` run | Screen 4 compares arms, and a show-N run has one arm (`platform/src/shipharness/console/report.py`) | Expected; `uv run shipharness report` writes every record to `exports/report.html` |
 | Any screen shows `UNSANDBOXED — results not official` | `SANDBOX_MODE=none`, or no runtime was found | Fix Docker; unsandboxed results are for exploring only |
 

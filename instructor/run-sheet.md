@@ -163,7 +163,7 @@ day before"). Step 1 is the class date: it happens here, at T-30, and not before
 | 2. Environment | `make doctor` | Every line `+ ok`, including `SHIPHARNESS_CLASS_DATE ... (class runs trace to shipharness-class-<date>)`; last line `result: + ready` |
 | 3. Warm-up | `make warm` | Last line `warm: done (<seconds> s)`; seconds when nothing changed since T-1 (1.2 s in the class-profile round). Without the date it prints `x SHIPHARNESS_CLASS_DATE is not set: class runs need the class day (YYYY-MM-DD)` and `warm: nothing done`, exit 2: go back to step 1 |
 | 4. Console | `make console` in terminal A (leave it running) | `Console: http://127.0.0.1:8765/` |
-| 5. Browser | Open `http://127.0.0.1:8765/` | The runs list and the key legend |
+| 5. Browser | Open `http://127.0.0.1:8765/` | The run list (one card per run, newest first) and the key legend |
 | 6. Fallbacks present | `ls .shipharness/runs/<id>/ab.json` for each fallback in [fallbacks.md](fallbacks.md) | One file per id |
 | 7. Policy printout ready (Section 3) | `uv run python -c 'from shipharness.config import Settings; from shipharness.sandbox import default_policy, render_policy; print(render_policy(default_policy(Settings())))'` | Starts with `Sandbox policy (identical for both arms)` |
 | 8. Assessment ready (opening) | `uv run python use-in-your-repo/skills/harness-setup/scripts/assess.py platform/teamtrack --out .shipharness/harness-assessment.html` | A summary per area, then one line per check, then `report: ...` |
@@ -177,11 +177,11 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 
 | Window | Content |
 |---|---|
-| Terminal A | `make console` (server log; leave it alone) |
+| Terminal A | `make console` (quiet: only warnings and errors print; leave it alone) |
 | Terminal B | The section command (`make show-1`, `make show-2 ...`, `make demo-3 FEATURE=version-checks`, `make show-4`), large font |
 | Terminal C | `make final` only: launched at the Section 4 launch (2:57), read in the final block (3:40) |
 | Browser tab 1 | Slides |
-| Browser tab 2 | Console: the runs list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
+| Browser tab 2 | Console: the run list at `http://127.0.0.1:8765/`, then the current run at `/run/<id>` |
 | Browser tab 3 | Console: the final A/B at `/run/<ab id>`, opened at the Section 4 launch and shown in the final block |
 | Browser tab 4 (optional) | LangSmith, signed in, project `shipharness-class-<date>` (DESIGN §12) |
 
@@ -189,15 +189,17 @@ run under that date (DESIGN §11.1). `make warm` makes no model calls.
 
 | Key | Screen | Shows |
 |---|---|---|
-| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns, harness decisions, gate pills, "Agent said" vs "Referee", and the "primary verdict ready" pill with the time from launch |
+| `1` | Live Console | Per arm: container line (id, network, CPU, memory, time left), cost against the run cap, turns, harness decisions, gate pills, the gate refusals ("Gate refused 'done' (build phase, attempt 1): ... → passed on attempt 2"), "Agent said" vs "Referee", and the "primary verdict ready: PASS" or "FAIL" pill with the time from launch (the final, with no primary measure: "verdict ready: PASS · judged on all checks"); a show-N run's bare arm reads "Not run (harness in action)" |
 | `2` | Boards | Board screenshot per arm every 5 s, with marks (⚠ other org, ⧉ duplicate); Section 4 adds the two-tab conflict panel |
-| `3` | Evidence | Files read and sessions; diff map (✎ changed, ⊘ blocked) and sandbox denials; referee checks (including Files outside the allowed paths (`diff_scope`)), filter table, mutant table |
-| `4` | A/B Report | Dots per run from `exports/`, one row per feature, variant, and arm; records of an older referee version and harness-in-action runs are counted and left out |
+| `3` | Evidence | Files read and sessions ("Session 1 · N turns", then "Test phase · N turns"); diff map (✎ changed, ⊘ blocked) and sandbox denials; one row per referee check by plain name with its code in brackets (Files outside the allowed paths (`diff_scope`), Session continuity (`continuity`), Flaky tests (`flakiness`), Existing tests (`regression`), hidden tests, House rule N, board check); filter table, one row per test name; mutant table; the blinded reviewer's one-line reason |
+| `4` | A/B Report | "Measured before class: N runs per arm": one dot per run from the course's records (`docs/evidence/scores/`), one row per feature, variant, and arm, with the new runs from `exports/` next to them; the Section 3 demo's rows are judged by files outside the allowed paths; records of an older referee version and harness-in-action runs are counted and left out |
 | `5` | Traces | Live tail of events, first wrong turn per arm, trace links |
 | `F` | | Cycles full screen for one arm: both, bare, harness |
+| `H`, `Esc` | | Back to the run list; the "← All runs" link at the top left does the same |
 
 Finding the current run: the command prints the run id only when it finishes. While it runs,
-reload the runs list and open the newest `ab-...` entry (ids start with a time stamp). The runs list
+reload the run list and open the top card (newest first; each card shows the section, the
+feature, "harness in action" or "A/B", "running" or "finished", and the start time). The run list
 does not refresh by itself. In Section 4 two runs start together at 2:57: open each one right after its
 own launch ([Section 4](#section-4-verification-255-340)).
 
@@ -240,7 +242,7 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 | 2:02-2:09 | Section 3 story (A/B going) | Failure story and the Socratic reveal | | Failure story |
 | 2:09-2:28 | Section 3 ideas (A/B going) | Four ideas, including the sandbox boundary, then the cheat sheet; at 2:15 check terminal B for the `Cost:` line | Terminal B at 2:15 | Ideas, cheat sheet |
 | 2:28-2:38 | Section 3 demo: implementation notes and the A/B | `S3:allowed_paths`, `S3:passes`, `S3:policy`, `S3:run_args`, `S3:dockerfile`; then screen 3 diff maps (bare ✎ changed, harness ⊘ blocked) and the Files outside the allowed paths (`diff_scope`) row; screen 1 harness decision ⊘ block with its reason; the sandbox moment | Editor, console | DEMO - 3 |
-| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm against the version checks feature's own verdict pill; what "by construction" means; the Section 3 rows; screen 4 | Slides, console | What we measured |
+| 2:38-2:44 | Section 3 demo: what we measured | Out-of-scope files per arm, the measure on the screen 1 pill; Feature 4's hidden tests and mutants as secondary; what "by construction" means; the Section 3 rows; screen 4, before class bare 1/10, harness 10/10, plus tonight's dots | Slides, console | What we measured |
 | 2:44-2:50 | Section 3 Q&A | Questions; read the session figure on the `Cost:` line for the final | Terminal B | Q&A |
 | 2:50-2:55 | Break | Return time on screen | | Break |
 | 2:55-2:57 | Live Zoom Poll: the final feature | Section 4 start slide, then the one poll of the class: bulk close, watchers, or labels; note the winner and the runner-up; close it before the launch | | Section 4 start, Live Zoom Poll |
@@ -303,7 +305,7 @@ Near the end of the ideas (in Section 4 at minute 15, 3:10), glance at terminal 
 
 - **The `Cost:` line is there.** The run is finished. The DEMO slide runs on the finished run.
 - **The run is still going.** Finish the ideas and the implementation notes. Open the console part
-  of the DEMO on screens `1` and `3` of the running run: screen 1 shows "primary verdict ready" as soon as the primary check is done, and
+  of the DEMO on screens `1` and `3` of the running run: screen 1 shows "primary verdict ready: PASS" or "FAIL" as soon as the primary check is done, and
   the secondary checks fill in while you talk. In Section 3, the diff maps on screen 3 are there as soon as
   each arm has shipped.
 - **The run failed for a reason outside the experiment** (`ERROR` from Docker, the network, or
@@ -355,8 +357,8 @@ but Section 4 opens with a poll: the one poll of the class, which picks the fina
 start of the section.
 
 1. **Launch (minutes 0-2).** The section start slide carries the agenda marker and the launch
-   command. Terminal B: the section's command at minute 1. Reload the runs list, open the newest
-   `ab-...`, and stay on screen `1` while the containers start and the first turns arrive. For a
+   command. Terminal B: the section's command at minute 1. Reload the run list, open the top
+   card, and stay on screen `1` while the containers start and the first turns arrive. For a
    show-N run say: "This is the harness arm alone, live. It is not an A/B: we watch the layer do its
    job. The A/B results come at the end of the section." For Section 3 say: "This is a live A/B: both
    arms, same ticket, same limits. Before class this ticket showed a gap. Let us see tonight's dot."
@@ -529,7 +531,7 @@ secondary; every arm of the confirmation failed that bar. The diff map on screen
 **Command (2:01).** `make demo-3 FEATURE=version-checks`, on the Section 3 start slide. Always
 pass `FEATURE=version-checks`; without it the target runs Feature 3.
 
-**At launch (2:01-2:02).** Open the newest `ab-...`, press `1`: two sandbox lines (container id,
+**At launch (2:01-2:02).** Open the top card of the run list ("Section 3: Scope and sandbox", "A/B"), press `1`: two sandbox lines (container id,
 `network none`, CPU 2, memory, time left), one per arm. Say: "Same limits for both arms. The
 sandbox is never the variable." The harness arm's first decisions: 31 instruction files placed, the
 initializer step, and "feature_list.json written with Feature 4 (passes: false)".
@@ -547,7 +549,7 @@ implementation notes come first (2:28-2:31); the rows below are the A/B (2:31-2:
 | Live A/B | `1` | Harness decisions: ⊘ block, with the reason "app/services/errors.py: outside the allowed paths for the build phase (...)" | "The reason text is what the agent read in its tool result. It names the phase and the allowed paths." |
 | Live A/B | `3` Verification column | `Files outside the allowed paths (diff_scope): 1 new` (bare) against `Files outside the allowed paths (diff_scope): 0 new` (harness); hidden tests and mutants per arm | "This line is tonight's answer, and the pill on screen 1 says the same: files outside the allowed paths." |
 | Reading the result | `1`, `3` | "primary verdict ready" per arm (files outside the allowed paths), Feature 4's hidden tests and mutants as secondary, "Agent said" against the referee | "The guard enforces exactly what we measure, so the harness zero is built in. What we learned is that, on this ticket, the bare agent goes out of scope every time. And the guard does not make the change correct: both arms failed Feature 4's own bar before class." |
-| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3 | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
+| What we measured | slide, screen `4` | Section 3 rows: Feature 3 no measurable difference (3/3, 3/3; 3/3, 3/3; 1/1, 1/1); confirmation on Feature 4, bare 0 of 3, harness 3 of 3; screen 4 "Measured before class" on the scope measure, bare 1/10, harness 10/10 (the confirmation and the seven demo runs of 2026-10-18, [s3.md](../docs/evidence/s3.md#s3-screen-4-before-class)), tonight's dots next to them | "One section, two results, both honest: on Feature 3 no difference; on Feature 4 the gap the scope layer was built for." |
 
 **Sandbox moment.** If screen `3` lists a denial tonight, show its reason code (`network`,
 `write_outside_workspace`, `memory`, `pids`, `timeout`, `path_outside_workspace`) and the command.
