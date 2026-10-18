@@ -150,12 +150,12 @@ probes. The full JSON is in `captured/r8-teamtrack.json`.
 
 ## Evidence
 
-The live testgen run, from `live/testgen.txt` (the run id is cut to `<run id>`; three of the four
+The live testgen run, from `live/testgen.txt` (paths shortened for privacy; the run id is cut to `<run id>`; three of the four
 lines for Filter 3: Adds coverage or catches a mutant are cut where `...` shows):
 
 ```text
 $ uv run shipharness testgen --target TG-teamtrack-app-repositories-issues --max-tests 10 --out .shipharness/a4/testgen
-target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in /home/ani/shipharness/teamtrack
+target TG-teamtrack-app-repositories-issues: app/repositories/issues.py in ~/shipharness/teamtrack
 ! UNSANDBOXED — results not official: generated tests run on this machine
 Baseline: existing suite without doctests
 testgen <run id>: completed; kept 1 of 5 proposed tests

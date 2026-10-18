@@ -9,7 +9,8 @@ files the same way as a learner's (`assignment/visible_tests/a4_live.py`) and re
 `../portfolio/` reports what they show.
 
 - `testgen.txt`: the testgen run. A `$ <testgen command>` line, then everything the command
-  printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests".
+  printed, ending with `Cost: $0.003287 (testgen, model gpt-6-luna)`; "kept 1 of 5 proposed tests". Paths
+  shortened for privacy.
 - `testgen-report.json`: `.shipharness/a4/testgen/testgen-report.json` after
   `apply_filter --update-report`; 17 rows of filters 1-5, one filter-6 row, and `filter6` (1 kept
   test, 23 existing tests).

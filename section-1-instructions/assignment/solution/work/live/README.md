@@ -35,6 +35,8 @@ uv run python section-1-instructions/assignment/ab_summary.py --batch a1-referen
 | `scores/` | One score record per run (48), as the referee wrote it |
 | `runs/` | The run log of each harness run (24) |
 
+In `output.txt`, paths are shortened for privacy.
+
 Each harness run log notes the instruction files the layer placed. The grader checks that this list
 equals the files of `../instructions/`.
 
