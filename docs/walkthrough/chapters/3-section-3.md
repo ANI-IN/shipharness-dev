@@ -51,9 +51,12 @@ make demo-3 FEATURE=version-checks PURPOSE=pilot
 **You should see:** make prints the command it runs. Then the terminal stays quiet for about eight
 minutes while both arms work. The result lines come at the end (Step 14).
 
-![Terminal 2 right after launch: the make command and the shipharness ab command it runs, with section demo-3, feature version-checks, purpose pilot and profile class](../images/s3/term-start.png)
+```text
+uv run shipharness ab --section demo-3 --feature version-checks   --purpose pilot \
+  --profile class
+```
 
-*The only output at launch: the command make runs for you.*
+That is the only output at launch. The `A/B ab-…` line and the result lines come at the end.
 
 **Look at:** `--section demo-3 --feature version-checks` and `--profile class` in the echoed command.
 
@@ -576,16 +579,22 @@ Before class, on the same measure: bare 1 of 10 runs passed, harness 10 of 10 (s
 
 ## Time and cost
 
-| Moment | Bare arm | Harness arm |
-|---|---|---|
-| Launch to primary verdict | 3:10 | 5:59 |
-| Launch to full verdict | 5:55 | 8:24 |
-| Arm cost | $0.0200 | $0.0293 |
+| Moment | Bare arm | Harness arm | Range, two runs, 2026-10-18 |
+|---|---|---|---|
+| Launch to primary verdict | 3:10 | 5:59 | bare 1:59 to 3:10, harness 2:57 to 5:59 |
+| Launch to full verdict | 5:55 | 8:24 | bare 4:25 to 5:55, harness 5:14 to 8:24 |
+| Arm cost | $0.0200 | $0.0293 | |
+| Cost of the command | $0.056216 in all | | $0.050 to $0.056 |
 
 The times count from launch, when you press Enter. The console's own clock starts about 9 s after
 launch, so it reads a little lower (03:01, 05:50, 05:46, 08:15). The whole command took 8:26 from pressing
 Enter to the prompt, and cost $0.056216 in all, both arms and both reviews. The cap is $0.48 per
 A/B: two arms at $0.20 each and two reviews at $0.04 each. This run ran alone on the machine.
+
+The ranges cover this run and a second run of the same command by a reviewer on a fresh clone
+(`ab-20261018-180654-f1ccbe`), each alone on the machine. That run has no recorded launch time, so
+its times count from its first event plus this run's 7 s. Running two demos at once makes both
+slower.
 
 ## What to say in class
 

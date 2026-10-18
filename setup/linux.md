@@ -481,8 +481,9 @@ Only warnings and errors print here; make console VERBOSE=1 (--verbose) logs eac
 ```
 
 Reload the run list in the browser, click the top card ("Section 1: Instructions", "harness in
-action"), and press `1`. In the live run of 2026-10-18 (class profile, alone) the primary verdict
-came 2:35 after launch and the command ended at 4:45; earlier runs took up to about 11 minutes. The
+action"), and press `1`. In two runs of 2026-10-18 (class profile, each alone) the primary verdict
+came 1:45 to 2:35 after launch and the full verdict 3:37 to 4:45; earlier runs took up to about 11
+minutes. The
 second terminal ends with the arm's result line and a cost line. On the course machine:
 
 ```text

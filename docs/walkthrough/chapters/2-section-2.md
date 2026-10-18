@@ -40,9 +40,12 @@ make show-2 SESSION_BUDGET=12,38 PURPOSE=pilot
 
 **You should see:** the make target prints the command it runs. After that, Terminal 2 stays quiet for about seven minutes.
 
-![The first lines of make show-2 in Terminal 2, right after launch](../images/s2/term-start.png)
+```text
+uv run shipharness ab --section demo-2 --feature comments --arms harness  --session-budget=12,38 --purpose pilot \
+  --profile class
+```
 
-*Terminal 2 right after launch: make prints the shipharness command, then waits.*
+The `A/B ab-…` line and the result lines come only at the end (Step 21).
 
 **Look at:** `--arms harness`, `--session-budget=12,38`, and `--profile class` in the printed command.
 
@@ -666,11 +669,14 @@ A FAIL or a reject is a result, not a broken demo. Say what the referee found, t
 
 ## Time and cost
 
-| Moment | From launch |
-|---|---|
-| Primary verdict | 5:18 |
-| Full verdict | 7:11 |
-| Last line in Terminal 2 | 7:12 |
+| Moment | This run, from launch | Range, two runs, 2026-10-18 |
+|---|---|---|
+| Primary verdict | 5:18 | 4:11 to 5:18 |
+| Full verdict | 7:11 | 5:52 to 7:11 |
+| Last line in Terminal 2 | 7:12 | |
+| Cost of the command | $0.043716 | $0.036 to $0.044 |
+
+The range covers this run and a second run of the same command by a reviewer on a fresh clone (`ab-20261018-180027-32942a`), each alone on the machine. That run has no recorded launch time, so its times count from its first event plus this run's 6 s. Running two demos at once makes both slower.
 
 The console's own clock starts a few seconds after launch, so it reads a little lower: on screen 1, session 1 stopped at 1:10, the run completed at 5:07, and the verdicts showed 05:11 and 07:05.
 

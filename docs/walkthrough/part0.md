@@ -91,7 +91,9 @@ cd ~/shipharness
 
 > [!INSTRUCTOR]
 > Name the two terminals out loud once: "Terminal 1 serves the console, Terminal 2 starts the
-> runs." The chapters use these names in every step.
+> runs." The chapters use these names in every step. The class plan in `docs/instructor-guide.md`
+> also starts the final A/B in a third Ubuntu window, opened the same way, right after `make show-4`.
+> Every step and every time in this guide uses Terminal 2 alone, with one demo running at a time.
 
 ### Step 3: Check that your copy matches the class release
 
@@ -294,10 +296,11 @@ appears when you reload the page; the list does not refresh by itself.
 
 **Where:** browser, the console
 
-**Type:** Click any run card, then press `1`, `2`, `3`, `4` and `5` in turn. Press `F`, then press
-`H` to go back to the run list.
+**Type:** Nothing yet: a fresh copy has no runs, so there is no run card to open. Read the table
+now. After your first run (Chapter 1, Step 5), click the run id on its card, press `1`, `2`, `3`,
+`4` and `5` in turn, press `F`, then press `H` to go back to the run list.
 
-**You should see:** a different screen for each number key:
+**You should see:** once a run is open, a different screen for each number key:
 
 | Key | Screen | What it shows |
 |---|---|---|
@@ -313,13 +316,15 @@ full width (both, bare, harness). "← All runs", `H` or Esc returns to the run 
 **What it means:** every chapter of this guide names the screen by its key, such as "Press 3".
 
 > [!CHECKPOINT]
-> Each number key changes the screen, and `H` brings back the run list.
+> You know which key opens which screen. After Chapter 1, each number key changes the screen, and
+> `H` brings back the run list.
 
 > [!IFDIFFERENT]
 > The keys do nothing → click once on the page so it has the keyboard focus, then press the key again.
+> The run list still says "No runs yet" → expected before Chapter 1; come back to this step after your first run.
 
 > [!INSTRUCTOR]
-> Practise the keys before class with any finished run. On screen 4, a run of type "harness in
+> Practise the keys before class with the run from your practice of Chapter 1. On screen 4, a run of type "harness in
 > action" has one arm, so the screen has no two arms to compare.
 
 ## What PURPOSE=pilot means

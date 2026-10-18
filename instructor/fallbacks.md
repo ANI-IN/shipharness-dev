@@ -121,7 +121,9 @@ Earlier fallbacks, superseded: the first complete runs after the harness-limit c
 re-timed"). They still replay, but their times and costs no longer match the class commands.
 
 On another instructor machine, record its own fallbacks on T-1 with the steps above; these ids are this
-machine's.
+machine's. A fresh clone has no recorded runs: `make replay` with one of these ids prints `x no
+recorded A/B` there. Use the ids from your own run list, or from the `A/B ab-…` line your own
+command printed.
 
 There is no opening board screenshot to record: no pilot or class-round run leaked another org's
 cards (VERIFICATION.md, "Class-profile round"). No real run produced ⚠ marks; they are covered by the
@@ -170,7 +172,9 @@ screens. Do not switch to `SANDBOX_MODE=none` for class results; every screen wo
 ## Optional extras (not in the demo flow)
 
 Listed here so the instructor can answer questions about them; learners find them in
-`docs/extras.md`. None of them is shown in a demo block, and none is a result.
+`docs/extras.md`. None of them is shown in a demo block, and none is a result. The recorded runs in
+the table below exist only on the course machine; on a fresh clone these commands print `x no
+recorded A/B`.
 
 ### The real-mistake showcases (replays of pilot runs)
 

@@ -46,7 +46,7 @@ on Windows (through WSL2), Linux, or macOS.
 |---|---|---|
 | Accounts, tools, clone, `.env` | [setup](../setup/README.md) and your system's page | 20 to 25 minutes of reading, plus the installs |
 | Build both images | `make setup` | 145 s on the course machine (run time) |
-| First live run | `make show-1` | 4:45 (run time, live run of 2026-10-18; earlier: 7:23 to 10:58) |
+| First live run | `make show-1` | 3:37 to 4:45 (two runs, 2026-10-18, each alone; earlier: 7:23 to 10:58) |
 | Before a live class | [pre-class checklist](../setup/pre-class.md) | 5 minutes (reading) |
 
 `make doctor` must end with `result: + ready` before you go on.
@@ -102,7 +102,7 @@ Assignment 1 has eight steps; its live step runs 8 tasks with 3 runs per arm, so
 |---|---|---|
 | README | [Section 4](../section-4-verification/README.md) | 5 minutes (reading) |
 | Concepts | [concepts.md](../section-4-verification/concepts.md) | 15 minutes (reading) |
-| Demo run | `make show-4` | 6:51 to 8:26 (run time) |
+| Demo run | `make show-4` | 5:32 to 8:02 (two runs, 2026-10-18, each alone) |
 | Demo page and walkthrough | [demo](../section-4-verification/demo/README.md) | 20 minutes (reading) |
 | Assignment 4: Verification | [assignment](../section-4-verification/assignment/README.md) | 20 minutes (reading the README and the spec), plus the work |
 | Reading | [four readings](../section-4-verification/post-class-reading/README.md) | 190 minutes (reading) |

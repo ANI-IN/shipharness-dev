@@ -261,21 +261,24 @@ terminal C, both at 2:57; the final block at 3:40 walks through the finished fin
 
 ### How long the runs take
 
-Measured 2026-10-18, class profile, one live run each for the demo guide, in a fresh clone of the
-release, each run alone, from the make command's launch (docs/evidence/general.md, "Live runs for
-the demo guide"):
+Measured 2026-10-18, class profile, two runs of each command, each alone on the machine, from the
+make command's launch: the demo guide's run in a fresh clone of the release (docs/evidence/general.md,
+"Live runs for the demo guide") and a reviewer's run in a second fresh clone (`ab-20261018-175605-9471af`,
+`-180027-32942a`, `-180654-f1ccbe`, `-181301-c08d1b`, `-182151-a4bd6f`). The reviewer's runs have no
+recorded launch time; their times count from the first event plus the guide run's 6 to 8 s to that
+event. Each cell is the range over the two runs:
 
-| Command | Launch to primary verdict | Launch to full verdict | Command ended | Exit | Cost |
-|---|---|---|---|---|---|
-| `make show-1` | 2:35 | 4:45 | 4:45 | 0 | $0.020302 |
-| `make show-2 SESSION_BUDGET=12,38` | 5:18 | 7:11 | 7:12 | 0 | $0.043716 |
-| `make demo-3 FEATURE=version-checks` | bare 3:10, harness 5:59 | bare 5:55, harness 8:24 | 8:26 | 0 | $0.056216 |
-| `make show-4` | 4:37 | 5:32 | 5:33 | 0 | $0.025731 |
-| `make final FEATURES=bulk-close` | bare 3:27, harness 7:23 | bare 6:02, harness 9:10 | 9:11 | 0 | $0.037714 |
+| Command | Launch to primary verdict | Launch to full verdict | Exit | Cost |
+|---|---|---|---|---|
+| `make show-1` | 1:45 to 2:35 | 3:37 to 4:45 | 0 | $0.020 to $0.021 |
+| `make show-2 SESSION_BUDGET=12,38` | 4:11 to 5:18 | 5:52 to 7:11 | 0 | $0.036 to $0.044 |
+| `make demo-3 FEATURE=version-checks` | bare 1:59 to 3:10, harness 2:57 to 5:59 | bare 4:25 to 5:55, harness 5:14 to 8:24 | 0 | $0.050 to $0.056 |
+| `make show-4` | 4:37 to 6:54 | 5:32 to 8:02 | 0 | $0.026 to $0.028 |
+| `make final FEATURES=bulk-close` | bare 2:48 to 3:27, harness 5:31 to 7:23 | bare 5:07 to 6:02, harness 7:25 to 9:10 | 0 | $0.038 to $0.042 |
 
-The five commands together cost $0.183679. These are single runs that ran alone; in class, show-4
-and the final share the machine, so the ranges below, measured two at a time, are the planning
-figures.
+The guide's five commands together cost $0.183679. These runs ran alone; in class, show-4 and the
+final share the machine, and two runs at once make both slower. The alone runs did not measure by
+how much, so the ranges below, measured two at a time, are the planning figures.
 
 Earlier the same day: three runs of each class command, after `make warm`, with `PURPOSE=pilot`, the
 class profile (agent time limit 420 s, harness limit 900 s), two runs at a time on the class
@@ -643,7 +646,8 @@ launch. Run the winner and the runner-up, in that order (cost note below).
    and tab 3 alone until the final block.
 
 Two runs now go in parallel: show-4 (one arm) and the final's first feature (two arms). `make final`
-runs its features one after another (Makefile `final` target).
+runs its features one after another (Makefile `final` target). Two runs at once make both slower
+than the times measured with each demo running alone.
 
 **At launch (2:57-2:59).** Back to browser tab 2, press `1`. Say: "Two runs are going: the harness
 arm alone on Feature 4 for this section, and the final A/B on the feature you picked, both arms. We come

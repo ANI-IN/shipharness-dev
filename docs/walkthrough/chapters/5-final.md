@@ -13,6 +13,8 @@ counts: hidden tests, mutants killed, files outside the allowed paths, the gate,
 reviewer. Every number, time and image below comes from one live run on 2026-10-18 (A/B
 `ab-20261018-164951-bd677b`), which ran alone on the class machine.
 
+> Your output will differ: run times, ids, and the agent's wording change on every run.
+
 ### Step 1: Check that the console is running
 
 **Where:** Terminal 1 and the browser
@@ -53,9 +55,11 @@ make final FEATURES=bulk-close PURPOSE=pilot
 
 **You should see:** The command and one line, right away. No shell loop is printed.
 
-![Terminal 2 right after launch: the make final command and the line Final A/B: Feature 5: Bulk close](../images/final/term-start.png)
+```text
+Final A/B: Feature 5: Bulk close
+```
 
-*Terminal 2 right after launch.*
+The `A/B ab-…` line and the arm lines come only at the end (Step 18).
 
 **Look at:** The line "Final A/B: Feature 5: Bulk close". The next lines come only when both arms
 are judged, about 9 minutes later in this run.
@@ -74,7 +78,9 @@ the class day's cost cap. In class, with `SHIPHARNESS_CLASS_DATE` set in `.env`,
 
 > [!INSTRUCTOR]
 > In class this starts at the Section 4: Verification launch, next to `make show-4`, with the poll's
-> winner first: `make final FEATURES=<winner>,<runner-up>`. Each feature is its own A/B.
+> winner first: `make final FEATURES=<winner>,<runner-up>`. Each feature is its own A/B. Every time
+> in this guide was measured with each demo running alone. Running the final A/B and `make show-4`
+> at once makes both slower; no run measured by how much.
 
 ### Step 3: Refresh the run list and open the new run
 
@@ -649,8 +655,6 @@ finds none. Surviving mutants do not count as a wrong turn: they show weak tests
 
 *Terminal 2 when the command ends.*
 
-> Your output will differ: run times, ids, and the agent's wording change on every run.
-
 <!-- check-style: allow SC08 quoted terminal output -->
 ```text
 Final A/B: Feature 5: Bulk close
@@ -731,8 +735,19 @@ The run ran alone on the class machine. From the make command to the `Cost:` lin
 code 0. The console's own "launch to" times are about 9 seconds shorter, because its clock starts at
 the run's first event. The command cost $0.037714: $0.033927 for the two agents on gpt-6-luna and
 $0.003787 for the two blinded reviews on gpt-5.6-luna. The cap is $0.58 per feature: two arms at
-$0.25 and two reviews at $0.04. Before class, three runs of the same command took up to 15 min 22 s
-and cost $0.044 to $0.048 each.
+$0.25 and two reviews at $0.04. Before class, three runs of the same command, two at a time, took
+up to 15 min 22 s and cost $0.044 to $0.048 each.
+
+| Moment | Range, two runs, 2026-10-18 |
+|---|---|
+| Launch to primary verdict | bare 2:48 to 3:27, harness 5:31 to 7:23 |
+| Launch to full verdict | bare 5:07 to 6:02, harness 7:25 to 9:10 |
+| Cost of the command | $0.038 to $0.042 |
+
+The ranges cover this run and a second run of the same command by a reviewer on a fresh clone
+(`ab-20261018-182151-a4bd6f`), each alone on the machine. That run has no recorded launch time, so
+its times count from its first event plus this run's 7 s. Running two demos at once makes both
+slower.
 
 ## What to say in class
 

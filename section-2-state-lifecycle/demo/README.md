@@ -49,9 +49,9 @@ job, and screen 4 shows the comparison.
 
 *About a minute in you see this stop: the handoff is written, and session 2 reads it first.*
 
-Measured 2026-10-18, class profile, one live run, which ran alone:
-session 1 stopped at its 12-turn budget 1:16 after launch, primary verdict 5:18, full verdict 7:11,
-command finished 7:12, $0.0437. It completed with no continuity failure and hidden tests 56 of 56;
+Measured 2026-10-18, class profile, two runs that each ran alone: primary verdict 4:11 to 5:18
+after launch, full verdict 5:52 to 7:11, $0.036 to $0.044. In the demo guide's run, session 1
+stopped at its 12-turn budget 1:16 after launch, the command finished 7:12, and it completed with no continuity failure and hidden tests 56 of 56;
 session 2's first call read `progress.md`, the git log, `session-handoff.md`, and the exec plan
 ([evidence](../../docs/evidence/general.md#guide-runs-2026-10-18)). Earlier the same day, after the
 harness speed-up ([what changed](../../docs/evidence/general.md#demo-speed-2026-10-18)), three runs
