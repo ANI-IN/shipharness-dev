@@ -46,7 +46,7 @@ Agents copy what they find: "Codex replicates patterns that already exist in the
 unattended can do damage: one once ran "pkill -9 bash on accident, thus killing itself and ending
 the loop" ([Building a C compiler](https://www.anthropic.com/engineering/building-c-compiler)). Anthropic's prompting guide
 warns that a model "may take actions that are difficult to reverse or affect shared systems"
-([Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices)).
+([Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)).
 
 Strong words do not check anything. Anthropic's long-running harness told its agent that editing
 tests is "unacceptable", and kept the feature list in JSON because "the model is less likely to
@@ -241,7 +241,7 @@ on safe retries it did not.
 
 - Source 1: Harness engineering: leveraging Codex in an agent-first world, <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11
 - Source 2: Building a C compiler with a team of parallel Claudes, <https://www.anthropic.com/engineering/building-c-compiler>, Nicholas Carlini (Anthropic), 2026-02-05
-- Source 3: Prompting best practices, <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices>, Anthropic (Claude docs), n.d.
+- Source 3: Prompting best practices, <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices>, Anthropic (Claude docs), n.d.
 - Source 4: Effective harnesses for long-running agents, <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>, Justin Young (Anthropic), 2025-11-26
 - Source 5: Harness design for long-running application development, <https://www.anthropic.com/engineering/harness-design-long-running-apps>, Prithvi Rajasekaran (Anthropic), 2026-03-24
 - Source 6: docker container run, <https://docs.docker.com/reference/cli/docker/container/run/>, Docker documentation, n.d.

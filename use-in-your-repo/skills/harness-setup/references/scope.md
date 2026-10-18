@@ -10,7 +10,7 @@ Assessment checks C1-C5 test the items marked with a check id.
 | [ ] | (C2) Each entry has `id`, `category`, `description`, `steps`, `passes`; shipharness adds `evidence` and `testedAt`. | The sample entry in Source 1 has category, description, steps, passes. The two extra fields are course design. | Source 1 |
 | [ ] | Agents may change only `passes`, and AGENTS.md says so in strong words. | "We prompt coding agents to edit this file only by changing the status of a passes field"; "It is unacceptable to remove or edit tests because this could lead to missing or buggy functionality." | Source 1 |
 | [ ] | Decide who sets `passes`. | In Source 1 the agent sets it after careful testing. shipharness moves the decision to the harness after a gate, citing [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps): "Separating the agent doing the work from the agent judging it proves to be a strong lever". | Source 1; Source 3 |
-| [ ] | (C3) A JSON schema describes the file, so a script can reject a malformed edit. | Structured formats for state data. | [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) |
+| [ ] | (C3) A JSON schema describes the file, so a script can reject a malformed edit. | Structured formats for state data. | [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) |
 | [ ] | One feature per session. | "work on only one feature at a time"; Source 3: "worked well for scope management." | Source 1; Source 3 |
 | [ ] | Each phase has a list of paths the agent may change; changes outside it are rejected or reverted. | Source 2: "File operations restricted to the project directory only"; [Harness engineering](https://openai.com/index/harness-engineering/): "enforce boundaries centrally, allow autonomy locally." The per-phase list is the course's application of both. | Source 2; Source 5 |
 | [ ] | (C4) Layering is enforced by code (an import-linter contract or a structural test). | "These constraints are enforced mechanically via custom linters ... and structural tests." | Source 5 |
@@ -42,7 +42,7 @@ Assessment checks C1-C5 test the items marked with a check id.
   <https://www.anthropic.com/engineering/harness-design-long-running-apps>,
   Prithvi Rajasekaran (Anthropic), 2026-03-24
 - Source 4: Prompting best practices,
-  <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices>,
+  <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices>,
   Anthropic (Claude docs), n.d.
 - Source 5: Harness engineering: leveraging Codex in an agent-first world,
   <https://openai.com/index/harness-engineering/>, Ryan Lopopolo (OpenAI), 2026-02-11

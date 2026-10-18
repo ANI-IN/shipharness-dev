@@ -313,7 +313,7 @@ rest when a task needs it. That is progressive disclosure: short pointers first,
 when needed.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 1.
-Based on: Source 1; [Agent Skills Specification](https://agentskills.io/specification); [What are skills?](https://agentskills.io/what-are-skills).
+Based on: Source 1; [Agent Skills Specification](https://agentskills.io/specification); [Agent Skills Overview](https://agentskills.io/home).
 
 ## 15. Keep the map true
 section: Section 1: Instructions
@@ -768,7 +768,7 @@ Four sources side by side, not merged: no single source states cause 3. The last
 supplementary.
 
 Guide: docs/instructor-guide.md, "Section by section", Section 3.
-Based on: Source 1; [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler); [Autonomous Coding Agent Demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding); [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows).
+Based on: Source 1; [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler); [Autonomous Coding Agent Demo](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding); [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#workflows-across-multiple-context-windows).
 
 ## 40. Harness piece: one feature list, one feature
 section: Section 3: Scope and sandbox
@@ -1408,7 +1408,7 @@ Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up
   <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, Jiang (Weco AI), 2026-09-09
 - Source 5: Agent Skills Specification, <https://agentskills.io/specification>,
   Agent Skills project, n.d.
-- Source 6: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 6: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 7: Using PLANS.md for multi-hour problem solving,
   <https://cookbook.openai.com/articles/codex_exec_plans>, Aaron Friel (OpenAI Cookbook), 2025-10-07
 - Source 8: Building a C compiler with a team of parallel Claudes,
@@ -1418,7 +1418,7 @@ Guide: docs/instructor-guide.md, "Section by section", Final results and wrap-up
   <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic,
   2025-11-26
 - Source 10: Prompting best practices,
-  <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices#multi-context-window-workflows>,
+  <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#workflows-across-multiple-context-windows>,
   Anthropic (Claude docs), n.d.
 - Source 11: Agent approvals & security,
   <https://developers.openai.com/codex/agent-approvals-security>, OpenAI (Codex docs), n.d.

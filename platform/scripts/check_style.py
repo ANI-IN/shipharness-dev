@@ -720,7 +720,7 @@ SOURCES: list[tuple[str, re.Pattern[str], re.Pattern[str]]] = [
     (
         "Anthropic, Prompting best practices",
         re.compile(r"\bPrompting best practices\b"),
-        re.compile(r"https://docs\.claude\.com/en/docs/build-with-claude/prompt-engineering/"),
+        re.compile(r"https://platform\.claude\.com/docs/en/build-with-claude/prompt-engineering/"),
     ),
     (
         "OpenAI, Exec plans",
@@ -733,9 +733,9 @@ SOURCES: list[tuple[str, re.Pattern[str], re.Pattern[str]]] = [
         re.compile(r"https://agentskills\.io/specification"),
     ),
     (
-        "Agent Skills, What are skills",
-        re.compile(r"\bAgent Skills, What are skills\b"),
-        re.compile(r"https://agentskills\.io/what-are-skills"),
+        "Agent Skills, Agent Skills Overview",
+        re.compile(r"\bAgent Skills, (?:Agent Skills )?Overview\b"),
+        re.compile(r"https://agentskills\.io/home"),
     ),
     (
         "Agent Skills, Client guide",

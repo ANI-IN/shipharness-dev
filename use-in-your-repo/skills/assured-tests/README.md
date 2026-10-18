@@ -64,7 +64,7 @@ with what an agent writes unfiltered (`--layers none`).
 
 Agents load only the `name` and `description` of every installed skill at startup and read the
 rest of `SKILL.md` when a task matches the description; reference files are read only when a step
-needs them (Source 3; [What are skills?](https://agentskills.io/what-are-skills)).
+needs them (Source 3; [Agent Skills Overview](https://agentskills.io/home)).
 
 ## What you need
 
@@ -260,7 +260,7 @@ violation.
 - Source 5: Effective harnesses for long-running agents,
   <https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents>,
   Justin Young (Anthropic), 2025-11-26
-- Source 6: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 6: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 7: How to add skills support to your agent,
   <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project,
   n.d.

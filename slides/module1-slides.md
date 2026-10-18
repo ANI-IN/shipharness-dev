@@ -1769,7 +1769,7 @@ Lead: The rest of today's sources, with links.
 | Source 13 | [Automated Unit Test Improvement using Large Language Models at Meta](https://arxiv.org/abs/2402.09171), Alshahwan et al., Meta, FSE 2024 |
 | Source 14 | [Mutation-Guided LLM-based Test Generation at Meta](https://arxiv.org/abs/2501.12862), Foster et al., Meta, 2025 |
 | Source 15 | [Autonomous Coding Agent Demo (README)](https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding), Anthropic, 2025-11-26 |
-| Source 16 | [What are skills?](https://agentskills.io/what-are-skills), Agent Skills project, undated |
+| Source 16 | [Agent Skills Overview](https://agentskills.io/home), Agent Skills project, undated |
 | Source 17 | [How to add skills support to your agent](https://agentskills.io/client-implementation/adding-skills-support.md), Agent Skills project, undated |
 **Visual:** The same table style as part 1.
 **Speaker notes:**
@@ -1838,5 +1838,5 @@ Thank you
 - Source 13: Automated Unit Test Improvement using Large Language Models at Meta, <https://arxiv.org/abs/2402.09171>, Alshahwan et al. (Meta), 2024-02-14
 - Source 14: Mutation-Guided LLM-based Test Generation at Meta, <https://arxiv.org/abs/2501.12862>, Foster et al. (Meta), 2025-01-22
 - Source 15: Autonomous Coding Agent Demo (README), <https://github.com/anthropics/claude-quickstarts/tree/main/autonomous-coding>, Anthropic, 2025-11-26
-- Source 16: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 16: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 17: How to add skills support to your agent, <https://agentskills.io/client-implementation/adding-skills-support.md>, Agent Skills project, n.d.

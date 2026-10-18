@@ -1,7 +1,7 @@
 # [Agent Skills Specification](https://agentskills.io/specification)
 
 Reading time: about 5 minutes.
-Source: Agent Skills project, [Agent Skills Specification](https://agentskills.io/specification), undated ([evidence](../../docs/evidence/s1.md#src-agent-skills-spec)); also [What are skills?](https://agentskills.io/what-are-skills) and the [skills-ref reference validator](https://github.com/agentskills/agentskills).
+Source: Agent Skills project, [Agent Skills Specification](https://agentskills.io/specification), undated ([evidence](../../docs/evidence/s1.md#src-agent-skills-spec)); also [Agent Skills Overview](https://agentskills.io/home) and the [skills-ref reference validator](https://github.com/agentskills/agentskills).
 
 > **Terms on this page**
 >
@@ -64,5 +64,5 @@ decides from one line whether to open a skill, and most weak skills fail at that
 ## Sources
 
 - Source 1: Agent Skills Specification, <https://agentskills.io/specification>, Agent Skills project, n.d.
-- Source 2: What are skills?, <https://agentskills.io/what-are-skills>, Agent Skills project, n.d.
+- Source 2: Agent Skills Overview, <https://agentskills.io/home>, Agent Skills project, n.d.
 - Source 3: skills-ref reference validator, <https://github.com/agentskills/agentskills>, Agent Skills project, n.d.

@@ -15,7 +15,7 @@ and the template from this skill that address it.
 | The next session guesses what happened | Work is redone or undone | Source 2 | State: progress.md and git history; Lifecycle: session-handoff.md |
 | Self-evaluation skews positive | The agent praises mediocre work | [Harness design for long-running application development](https://www.anthropic.com/engineering/harness-design-long-running-apps) | Verification: a separate evaluator with grading criteria |
 | Visible tests pass, the job is not done | Held-out tests (tests the agent never sees) that combine features fail | [Building a C compiler with a team of parallel Claudes](https://www.anthropic.com/engineering/building-c-compiler); [SpecBench](https://arxiv.org/abs/2605.21384) | Verification: held-out tests, mutant-guided tests (assured-tests skill) |
-| Hard-to-undo actions | An agent kills its own process or deletes files | Source 4; [Prompting best practices](https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices) | Scope: container, no network, allowlisted commands |
+| Hard-to-undo actions | An agent kills its own process or deletes files | Source 4; [Prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices) | Scope: container, no network, allowlisted commands |
 | Context window pollution | Test runs print thousands of lines and push the task out of context | Source 4 | Verification: short, grep-friendly output; logs in files (init.sh template) |
 | Time blindness | The agent runs the full slow suite again and again | Source 4 | Verification: a fast sample mode |
 | Docs drift from the code | The map points to files that moved | Source 1 | Instructions: mechanical checks on docs (assessment check I3 is a small version) |
@@ -42,5 +42,5 @@ do we make it both legible and enforceable for the agent?".
 - Source 5: SpecBench: Measuring Reward Hacking in Long-Horizon Coding Agents,
   <https://arxiv.org/abs/2605.21384>, Zhao, Srikanth, Wu, Jiang (Weco AI), 2026-09-09
 - Source 6: Prompting best practices,
-  <https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices>,
+  <https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices>,
   Anthropic (Claude docs), n.d.
