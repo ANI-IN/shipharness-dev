@@ -98,7 +98,7 @@ the record line is the comments feature:
 A/B <run id> (F2, layers=['instructions', 'state'], profile=class, harness in action)
   harness  ABORTED: timeout  claim=not_done primary={"continuity_failure": false} passed=True hidden 56/56 mutants 0/4 reviewer=reject cost=$0.0268
 Cost: $0.029525 (this command: gpt-5.6-luna $0.002702, gpt-6-luna $0.026823; ...)
-make: *** [Makefile:121: show-2] Error 2
+make: *** [Makefile:170: show-2] Error 2
 ```
 
 The command exits with 0 when the arm completed, 2 when it ended `ABORTED`, and 1 on `ERROR`. The
